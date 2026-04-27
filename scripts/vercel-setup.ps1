@@ -36,6 +36,19 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Native commands (Vercel CLI) print banners to stderr; treat as info, not error.
+$PSNativeCommandUseErrorActionPreference = $false
+$ProgressPreference = 'SilentlyContinue'
+
+function Invoke-Native {
+    param([string]$File, [string[]]$Args)
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try { & $File @Args 2>&1 | ForEach-Object { "$_" } }
+    finally { $ErrorActionPreference = $prev }
+    return $LASTEXITCODE
+}
+
 function Write-Step  { param([string]$m) Write-Host "`n>>> $m" -ForegroundColor Cyan }
 function Write-Ok    { param([string]$m) Write-Host "    OK  $m" -ForegroundColor Green }
 function Write-Warn2 { param([string]$m) Write-Host "    !!  $m" -ForegroundColor Yellow }
@@ -71,12 +84,17 @@ if (-not (Get-Command $vercelCmd -ErrorAction SilentlyContinue)) {
 Write-Ok ('Vercel CLI ' + (& $vercelCmd --version))
 
 Write-Step '1/8  Bei Vercel anmelden (Browser oeffnet sich)'
-& $vercelCmd whoami 2>$null | Out-Null
-if ($LASTEXITCODE -ne 0) {
+$ErrorActionPreference = 'Continue'
+& $vercelCmd whoami *> $null
+$loggedIn = ($LASTEXITCODE -eq 0)
+$ErrorActionPreference = 'Stop'
+if (-not $loggedIn) {
     & $vercelCmd login
     if ($LASTEXITCODE -ne 0) { throw 'Vercel login fehlgeschlagen.' }
 }
-$who = (& $vercelCmd whoami).Trim()
+$ErrorActionPreference = 'Continue'
+$who = (& $vercelCmd whoami 2>$null | Select-Object -Last 1)
+$ErrorActionPreference = 'Stop'
 Write-Ok "Eingeloggt als: $who"
 
 Write-Step '2/8  Dependencies installieren'

@@ -67,6 +67,6 @@ async function sendResponse(res: VercelResponse, response: Response) {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const request = toRequest(req);
-  const response = await Auth(request, authConfig as any);
+  const response = (await Auth(request, authConfig as any)) as unknown as Response;
   await sendResponse(res, response);
 }
