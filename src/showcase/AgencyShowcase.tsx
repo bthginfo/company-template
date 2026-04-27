@@ -6,6 +6,8 @@ import type { SiteContent, TemplateKey } from '@/lib/types';
 import { clearOverride, loadFor, readOverride } from '@/lib/demo-overrides';
 import AdminDemo from './AdminDemo';
 import { Imprint, Privacy } from './Legal';
+import { CaseStudy, CasesIndex } from './Cases';
+import { BlogIndex, BlogPost, NotFound } from './Blog';
 import Seo from '@/components/Seo';
 import RestaurantTemplate from '@/templates/restaurant';
 import SalonTemplate from '@/templates/salon';
@@ -99,6 +101,11 @@ export default function AgencyShowcase() {
         <Route path="kontakt" element={<Contact />} />
         <Route path="impressum" element={<Imprint />} />
         <Route path="datenschutz" element={<Privacy />} />
+        <Route path="studio/cases" element={<CasesIndex />} />
+        <Route path="studio/case/:slug" element={<CaseStudy />} />
+        <Route path="studio/notizen" element={<BlogIndex />} />
+        <Route path="studio/notiz/:slug" element={<BlogPost />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
       <Route path="/preview/:key/*" element={<TemplatePreview />} />
       <Route path="/preview/:key/style/:style/*" element={<TemplatePreview />} />
@@ -123,6 +130,7 @@ function ShowcaseShell() {
     { to: '/templates', label: 'Templates' },
     { to: '/prozess', label: 'Ablauf' },
     { to: '/preise', label: 'Preise' },
+    { to: '/studio/cases', label: 'Cases' },
     { to: '/ueber-uns', label: 'Über uns' },
     { to: '/admin-demo', label: 'Admin-Demo' },
     { to: '/kontakt', label: 'Kontakt' },
@@ -271,6 +279,8 @@ function ShowcaseFooter() {
               <li><Link to="/templates" className="hover:text-accent">Templates</Link></li>
               <li><Link to="/prozess" className="hover:text-accent">Ablauf</Link></li>
               <li><Link to="/preise" className="hover:text-accent">Preise</Link></li>
+              <li><Link to="/studio/cases" className="hover:text-accent">Cases</Link></li>
+              <li><Link to="/studio/notizen" className="hover:text-accent">Studio-Notizen</Link></li>
               <li><Link to="/ueber-uns" className="hover:text-accent">Über uns</Link></li>
             </ul>
           </div>

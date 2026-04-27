@@ -1027,8 +1027,8 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
               ? 'Termin vereinbaren oder kurz fragen.'
               : 'Anfrage senden oder Notdienst rufen.'
         }
-      />
         style={style}
+      />
       <ContactBlock content={content} />
 
       <Section eyebrow="Wegbeschreibung" title={<>So <em className="italic-pop">finden Sie uns.</em></>} className="surface">
@@ -1040,6 +1040,26 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
               <p className="mt-3 text-muted leading-relaxed">{a.d}</p>
             </article>
           ))}
+        </div>
+
+        <div className="mt-10 reveal">
+          <a
+            href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(content.contact.address)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="block aspect-[16/7] rounded-3xl overflow-hidden border border-line bg-slate-100 relative group"
+            aria-label={`Karte: ${content.contact.address}`}
+          >
+            <img
+              src={`https://staticmap.openstreetmap.de/staticmap.php?center=${variant === 'restaurant' ? '47.2692,11.4041' : variant === 'salon' ? '48.1633,11.5867' : '48.7665,11.4258'}&zoom=14&size=1200x500&maptype=mapnik`}
+              alt=""
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <span className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-widest group-hover:bg-white transition">
+              In Karte öffnen ↗
+            </span>
+          </a>
         </div>
       </Section>
     </>
