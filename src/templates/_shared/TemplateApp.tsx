@@ -197,28 +197,11 @@ function HomePage({ variant, content }: { variant: TemplateVariant; content: Sit
           eyebrow={cfg.servicesEyebrow}
           title={<>{splitTitle(cfg.servicesHeadline)}</>}
           subtitle={teaserSubtitleFor(variant)}
-          className="surface"
+          className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
         >
-          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-            {featuredServices.map((s, i) => (
-              <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
-                {s.imageUrl && (
-                  <div className="aspect-[4/3] img-zoom">
-                    <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
-                  </div>
-                )}
-                <div className="p-7">
-                  <div className="flex items-start justify-between gap-4">
-                    <h3 className="font-display text-2xl">{s.title}</h3>
-                    {s.price && <span className="text-sm font-mono whitespace-nowrap">{s.price}</span>}
-                  </div>
-                  {s.description && <p className="mt-3 text-muted text-sm leading-relaxed">{s.description}</p>}
-                </div>
-              </article>
-            ))}
-          </div>
+          <ServicesShowcase variant={variant} services={featuredServices} compact />
           <div className="mt-12 reveal">
-            <TLink to={cfg.servicesPath} className="btn-primary">Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
+            <TLink to={cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
           </div>
         </Section>
       )}
@@ -226,30 +209,12 @@ function HomePage({ variant, content }: { variant: TemplateVariant; content: Sit
       {/* Numbers / testimonial line */}
       <NumbersBand variant={variant} />
 
-      {/* Gallery teaser - bento layout */}
+      {/* Gallery teaser - branch-specific */}
       {featuredGallery.length > 0 && (
-        <Section eyebrow="Eindrücke" title={<>Bilder, die <em className="italic-pop">erzählen.</em></>} spacing="lg">
-          <div className="grid grid-cols-4 md:grid-cols-6 grid-rows-[180px_180px_180px_180px] md:grid-rows-[220px_220px_220px] gap-3 reveal-stagger">
-            {featuredGallery.slice(0, 7).map((src, i) => {
-              const layouts = [
-                'col-span-2 row-span-2 md:col-span-3 md:row-span-2',
-                'col-span-2 md:col-span-3',
-                'col-span-2 md:col-span-2',
-                'col-span-2 md:col-span-2 md:row-span-2',
-                'col-span-2 md:col-span-2',
-                'col-span-2 md:col-span-3',
-                'col-span-2 md:col-span-3',
-              ];
-              return (
-                <div key={src + i} className={`overflow-hidden rounded-3xl img-zoom relative group ${layouts[i] || 'col-span-2'}`}>
-                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              );
-            })}
-          </div>
+        <Section eyebrow={variant === 'tradesman' ? 'Referenzen' : 'Eindrücke'} title={galleryTeaserTitle(variant)} spacing="lg">
+          <GalleryShowcase variant={variant} images={featuredGallery} mode="teaser" />
           <div className="mt-12 reveal">
-            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">Komplette Galerie <span aria-hidden>→</span></TLink>
+            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">{variant === 'tradesman' ? 'Alle Projekte' : 'Komplette Galerie'} <span aria-hidden>→</span></TLink>
           </div>
         </Section>
       )}
@@ -356,27 +321,7 @@ function ServicesPage({ variant, content }: { variant: TemplateVariant; content:
       <ServiceHighlights variant={variant} />
 
       <Section spacing="lg">
-        <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {content.services.map((s, i) => (
-            <article
-              key={i}
-              className="bg-white border border-line rounded-3xl overflow-hidden hover-lift grid sm:grid-cols-12"
-            >
-              {s.imageUrl && (
-                <div className="sm:col-span-5 aspect-[4/3] sm:aspect-auto img-zoom">
-                  <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
-                </div>
-              )}
-              <div className="sm:col-span-7 p-7 flex flex-col">
-                <div className="flex items-baseline justify-between gap-4 mb-3">
-                  <h3 className="font-display text-2xl">{s.title}</h3>
-                  <span className="font-mono text-sm">{s.price}</span>
-                </div>
-                <p className="text-muted text-sm leading-relaxed flex-1">{s.description}</p>
-              </div>
-            </article>
-          ))}
-        </div>
+        <ServicesShowcase variant={variant} services={content.services} />
       </Section>
 
       {/* How it works strip */}
@@ -471,44 +416,19 @@ function GalleryPage({
   return (
     <>
       <PageHero
-        eyebrow={eyebrow ?? 'Galerie'}
-        title={title ?? 'Bilder & Eindrücke'}
+        eyebrow={eyebrow ?? (variant === 'tradesman' ? 'Projekte' : 'Galerie')}
+        title={title ?? (variant === 'tradesman' ? 'Referenzen aus der Werkstatt.' : variant === 'salon' ? 'Looks & Momente.' : 'Bilder & Eindrücke.')}
         subtitle={
           variant === 'restaurant'
             ? 'Eindrücke aus dem Lokal, von Tellern, Saucen und Familie. Aufgenommen in echtem Kerzenlicht.'
             : variant === 'salon'
-              ? 'Looks unserer Kund:innen – mit Erlaubnis dokumentiert. Klick für Detail.'
+              ? 'Looks unserer Kund:innen – mit Erlaubnis dokumentiert.'
               : 'Aktuelle Projekte aus den letzten Monaten – von kleiner Reparatur bis zur kompletten Sanierung.'
         }
       />
 
-      {/* Featured strip */}
-      {content.gallery[0] && (
-        <Section spacing="md">
-          <div className="grid md:grid-cols-12 gap-3">
-            <div className="md:col-span-8 aspect-[16/10] overflow-hidden rounded-3xl img-zoom">
-              <img src={content.gallery[0]} alt="" className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div className="md:col-span-4 grid grid-rows-2 gap-3">
-              {[content.gallery[1], content.gallery[2]].filter(Boolean).map((src, i) => (
-                <div key={i} className="overflow-hidden rounded-3xl img-zoom">
-                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-      )}
-
-      <Section spacing="lg" className="surface">
-        <p className="eyebrow mb-5 reveal">Vollständige Galerie</p>
-        <div className="columns-2 md:columns-3 gap-3 [column-fill:_balance] reveal-stagger">
-          {content.gallery.slice(3).map((src, i) => (
-            <div key={src + i} className="break-inside-avoid mb-3 overflow-hidden rounded-2xl img-zoom">
-              <img src={src} alt="" className="w-full h-auto" loading="lazy" />
-            </div>
-          ))}
-        </div>
+      <Section spacing="lg">
+        <GalleryShowcase variant={variant} images={content.gallery} mode="full" />
       </Section>
 
       <CtaBand variant={variant} />
@@ -776,4 +696,207 @@ function marqueeWordsFor(v: TemplateVariant): string[] {
   if (v === 'restaurant') return ['Pasta fresca', 'Holzofen-Pizza', 'Naturweine', 'Antipasti', 'Tiramisu della Nonna', 'Tartufo nero'];
   if (v === 'salon') return ['Hair', 'Skin', 'Soul', 'Balayage', 'Bridal', 'Spa', 'Treatment'];
   return ['Notdienst 24/7', 'Festpreis-Garantie', 'Meisterbetrieb', 'KfW-Förderung', 'Smart Home', 'Wärmepumpe'];
+}
+
+function galleryTeaserTitle(v: TemplateVariant): React.ReactNode {
+  if (v === 'restaurant') return <>Bilder, die <em className="italic-pop">erzählen.</em></>;
+  if (v === 'salon') return <>Looks aus dem <em className="italic-pop">Studio.</em></>;
+  return <>Projekte aus der <em className="italic-pop">Werkstatt.</em></>;
+}
+
+/* ─── Branch-specific service layouts ─────────────────────────────── */
+function ServicesShowcase({
+  variant, services, compact = false,
+}: {
+  variant: TemplateVariant;
+  services: SiteContent['services'];
+  compact?: boolean;
+}) {
+  if (variant === 'restaurant') return <RestaurantMenu services={services} compact={compact} />;
+  if (variant === 'salon') return <SalonPriceList services={services} compact={compact} />;
+  return <TradesmanServiceTiles services={services} compact={compact} />;
+}
+
+function RestaurantMenu({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+  // Editorial menu card: 2 columns of items with dotted leaders – no images on items
+  const items = compact ? services.slice(0, 6) : services;
+  const half = Math.ceil(items.length / 2);
+  const left = items.slice(0, half);
+  const right = items.slice(half);
+  const Col = ({ list }: { list: SiteContent['services'] }) => (
+    <ul className="space-y-7">
+      {list.map((s, i) => (
+        <li key={i} className="reveal">
+          <div className="flex items-baseline gap-3">
+            <h3 className="font-display text-2xl md:text-3xl">{s.title}</h3>
+            <span className="flex-1 h-px border-b border-dotted border-current opacity-30 mb-2" aria-hidden />
+            {s.price && <span className="font-mono text-base whitespace-nowrap">{s.price}</span>}
+          </div>
+          {s.description && <p className="mt-2 text-sm md:text-base text-muted italic leading-relaxed max-w-prose">{s.description}</p>}
+        </li>
+      ))}
+    </ul>
+  );
+  return (
+    <div className="grid md:grid-cols-2 gap-12 md:gap-20">
+      <Col list={left} />
+      <Col list={right} />
+    </div>
+  );
+}
+
+function SalonPriceList({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+  // Elegant price list: single column rows with hover, divider lines, no card boxes
+  const items = compact ? services.slice(0, 5) : services;
+  return (
+    <div className="max-w-3xl mx-auto reveal-stagger">
+      <ul className="divide-y divide-line">
+        {items.map((s, i) => (
+          <li key={i} className="py-7 grid grid-cols-[1fr_auto] gap-x-6 gap-y-2 items-baseline group">
+            <h3 className="font-display text-2xl md:text-3xl group-hover:text-[var(--accent-color)] transition-colors">
+              {s.title}
+            </h3>
+            {s.price && <span className="font-mono text-base text-muted whitespace-nowrap">{s.price}</span>}
+            {s.description && (
+              <p className="col-span-2 text-sm md:text-base text-muted leading-relaxed max-w-2xl">{s.description}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function TradesmanServiceTiles({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+  // Numbered tile grid – technical, blocky
+  const items = compact ? services.slice(0, 3) : services;
+  return (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line rounded-2xl overflow-hidden reveal-stagger">
+      {items.map((s, i) => (
+        <article key={i} className="bg-white p-7 md:p-8 flex flex-col gap-3 group hover:bg-[#fafaf7] transition-colors">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-xs text-muted">{String(i + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}</span>
+            {s.price && <span className="font-mono text-xs uppercase tracking-widest text-brand">{s.price}</span>}
+          </div>
+          <h3 className="font-display text-2xl leading-tight">{s.title}</h3>
+          {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
+          <div className="mt-auto pt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-muted group-hover:text-brand transition-colors">
+            <span>Anfrage stellen</span>
+            <span aria-hidden>→</span>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Branch-specific gallery layouts ─────────────────────────────── */
+function GalleryShowcase({
+  variant, images, mode,
+}: {
+  variant: TemplateVariant;
+  images: string[];
+  mode: 'teaser' | 'full';
+}) {
+  if (images.length === 0) return null;
+  if (variant === 'restaurant') return <RestaurantGallery images={images} mode={mode} />;
+  if (variant === 'salon') return <SalonGallery images={images} mode={mode} />;
+  return <TradesmanGallery images={images} mode={mode} />;
+}
+
+function RestaurantGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
+  // Editorial: alternating big landscape with caption + 3-up thumbnail strips
+  const captions = ['Cucina', 'Sala', 'Pasta', 'Vino', 'Famiglia', 'Tartufo', 'Piazza', 'Dolce', 'Forno'];
+  const used = mode === 'teaser' ? images.slice(0, 7) : images;
+  // Build pairs: [hero, thumb, thumb, thumb, hero, thumb, ...]
+  const blocks: { hero: string; thumbs: string[]; caption: string }[] = [];
+  for (let i = 0; i < used.length; i += 4) {
+    const hero = used[i];
+    const thumbs = used.slice(i + 1, i + 4);
+    if (hero) blocks.push({ hero, thumbs, caption: captions[blocks.length % captions.length] });
+  }
+  return (
+    <div className="space-y-12 reveal-stagger">
+      {blocks.map((b, i) => (
+        <div key={i} className={`grid md:grid-cols-12 gap-4 md:gap-6 items-center ${i % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
+          <figure className="md:col-span-8 md:[direction:ltr]">
+            <div className="aspect-[16/10] overflow-hidden rounded-3xl img-zoom">
+              <img src={b.hero} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <figcaption className="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-muted">
+              ※ {b.caption} · {String(i + 1).padStart(2, '0')}
+            </figcaption>
+          </figure>
+          {b.thumbs.length > 0 && (
+            <div className="md:col-span-4 md:[direction:ltr] grid grid-cols-3 md:grid-cols-1 gap-3">
+              {b.thumbs.map((src, j) => (
+                <div key={j} className="aspect-[4/3] md:aspect-[5/4] overflow-hidden rounded-2xl img-zoom">
+                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SalonGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
+  // Soft three-column grid with varied aspect ratios, hover label "Look · 01"
+  const used = mode === 'teaser' ? images.slice(0, 6) : images;
+  // alternating aspect ratios for visual rhythm
+  const aspects = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[4/5]', 'aspect-[3/4]', 'aspect-[1/1]'];
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 reveal-stagger">
+      {used.map((src, i) => (
+        <figure key={i} className={`relative group overflow-hidden rounded-3xl ${aspects[i % aspects.length]}`}>
+          <img src={src} alt="" className="w-full h-full object-cover img-zoom" loading="lazy" />
+          <figcaption className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
+            <span>Look · {String(i + 1).padStart(2, '0')}</span>
+            <span aria-hidden>↗</span>
+          </figcaption>
+          <span className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+function TradesmanGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
+  // Project-style cards with category labels, year, location
+  const projects = [
+    { cat: 'Bad', loc: 'Ingolstadt-Mitte', year: '2025' },
+    { cat: 'Heizung', loc: 'Manching', year: '2025' },
+    { cat: 'Sanierung', loc: 'Eichstätt', year: '2024' },
+    { cat: 'Wärmepumpe', loc: 'Pfaffenhofen', year: '2024' },
+    { cat: 'Bad', loc: 'Neuburg', year: '2024' },
+    { cat: 'Heizung', loc: 'Schrobenhausen', year: '2024' },
+    { cat: 'Sanitär', loc: 'Beilngries', year: '2024' },
+    { cat: 'Photovoltaik', loc: 'Kösching', year: '2023' },
+    { cat: 'Bad', loc: 'Ingolstadt-Süd', year: '2023' },
+  ];
+  const used = mode === 'teaser' ? images.slice(0, 6) : images;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+      {used.map((src, i) => {
+        const p = projects[i % projects.length];
+        return (
+          <article key={i} className="group bg-white border border-line rounded-2xl overflow-hidden hover-lift">
+            <div className="aspect-[4/3] overflow-hidden img-zoom">
+              <img src={src} alt={`${p.cat} – ${p.loc}`} className="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div className="p-5">
+              <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-widest">
+                <span className="font-mono text-brand bg-[var(--accent-color)] px-2 py-1 rounded">{p.cat}</span>
+                <span className="font-mono text-muted">{p.year}</span>
+              </div>
+              <p className="mt-3 font-display text-xl">{p.loc}</p>
+              <p className="text-sm text-muted mt-1">Projekt #{String(i + 1).padStart(3, '0')}</p>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
 }
