@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-color: #0f172a;
+    --brand-fg: #ffffff;
+    --accent-color: #fbbf24;
+    --surface-color: #f1f5f9;
+    --bg-color: #ffffff;
+    --text-color: #0f172a;
+  }
+  html, body, #root { height: 100%; }
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    @apply antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  ::selection { background: var(--brand-color); color: var(--brand-fg); }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full px-7 py-3.5 font-semibold
+           transition-all duration-200 hover:scale-[1.02] active:scale-[0.99] shadow-lg shadow-black/5;
+    background: var(--brand-color);
+    color: var(--brand-fg);
+  }
+  .btn-primary:hover { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); }
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-full px-7 py-3.5 font-semibold border-2 transition;
+    border-color: var(--brand-color);
+    color: var(--brand-color);
+  }
+  .btn-outline:hover {
+    background: var(--brand-color);
+    color: var(--brand-fg);
+  }
+  .container-x { @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8; }
+  .surface { background: var(--surface-color); }
+  .text-brand { color: var(--brand-color); }
+  .bg-brand { background: var(--brand-color); }
+  .text-accent { color: var(--accent-color); }
+  .bg-accent { background: var(--accent-color); }
+  .border-brand { border-color: var(--brand-color); }
+
+  .reveal {
+    @apply opacity-0 translate-y-4 transition-all duration-700;
+  }
+  .reveal.is-visible {
+    @apply opacity-100 translate-y-0;
+  }
+}
+
+/* Smooth scroll for hash links */
+html { scroll-behavior: smooth; }
