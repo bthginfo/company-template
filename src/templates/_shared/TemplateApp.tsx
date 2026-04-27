@@ -124,7 +124,7 @@ export default function TemplateApp({
             <Route path="galerie" element={<GalleryPage content={content} variant={variant} />} />
             <Route path="referenzen" element={<GalleryPage content={content} variant={variant} title="Referenzen" eyebrow="Projekte" />} />
             <Route path="ueber-uns" element={<AboutPage variant={variant} content={content} />} />
-            <Route path="kontakt" element={<ContactPage content={content} />} />
+            <Route path="kontakt" element={<ContactPage content={content} variant={variant} />} />
             <Route path="*" element={<HomePage variant={variant} content={content} />} />
           </Routes>
         </main>
@@ -150,7 +150,7 @@ function announcementsFor(v: TemplateVariant) {
 function HomePage({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const featuredServices = content.services.slice(0, 3);
-  const featuredGallery = content.gallery.slice(0, 6);
+  const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = VARIANT_HERO_META[variant];
 
   return (
@@ -226,15 +226,27 @@ function HomePage({ variant, content }: { variant: TemplateVariant; content: Sit
       {/* Numbers / testimonial line */}
       <NumbersBand variant={variant} />
 
-      {/* Gallery teaser */}
+      {/* Gallery teaser - bento layout */}
       {featuredGallery.length > 0 && (
         <Section eyebrow="Eindrücke" title={<>Bilder, die <em className="italic-pop">erzählen.</em></>} spacing="lg">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
-            {featuredGallery.map((src, i) => (
-              <div key={src + i} className={`overflow-hidden rounded-3xl img-zoom ${i % 5 === 0 ? 'md:row-span-2 aspect-[3/4]' : 'aspect-square'}`}>
-                <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-              </div>
-            ))}
+          <div className="grid grid-cols-4 md:grid-cols-6 grid-rows-[180px_180px_180px_180px] md:grid-rows-[220px_220px_220px] gap-3 reveal-stagger">
+            {featuredGallery.slice(0, 7).map((src, i) => {
+              const layouts = [
+                'col-span-2 row-span-2 md:col-span-3 md:row-span-2',
+                'col-span-2 md:col-span-3',
+                'col-span-2 md:col-span-2',
+                'col-span-2 md:col-span-2 md:row-span-2',
+                'col-span-2 md:col-span-2',
+                'col-span-2 md:col-span-3',
+                'col-span-2 md:col-span-3',
+              ];
+              return (
+                <div key={src + i} className={`overflow-hidden rounded-3xl img-zoom relative group ${layouts[i] || 'col-span-2'}`}>
+                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              );
+            })}
           </div>
           <div className="mt-12 reveal">
             <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">Komplette Galerie <span aria-hidden>→</span></TLink>
@@ -340,6 +352,9 @@ function ServicesPage({ variant, content }: { variant: TemplateVariant; content:
         subtitle={teaserSubtitleFor(variant)}
       />
 
+      {/* Highlights ribbon */}
+      <ServiceHighlights variant={variant} />
+
       <Section spacing="lg">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
           {content.services.map((s, i) => (
@@ -364,6 +379,9 @@ function ServicesPage({ variant, content }: { variant: TemplateVariant; content:
         </div>
       </Section>
 
+      {/* How it works strip */}
+      <ServiceProcess variant={variant} />
+
       {/* FAQ */}
       <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>} className="surface">
         <Accordion items={VARIANT_FAQ[variant].map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
@@ -371,6 +389,78 @@ function ServicesPage({ variant, content }: { variant: TemplateVariant; content:
 
       <CtaBand variant={variant} />
     </>
+  );
+}
+
+function ServiceHighlights({ variant }: { variant: TemplateVariant }) {
+  const items: Record<TemplateVariant, { t: string; d: string }[]> = {
+    restaurant: [
+      { t: 'Saisonale Karte', d: 'Wechselt mit den Jahreszeiten – schauen Sie immer wieder rein.' },
+      { t: 'Hausgemachte Pasta', d: 'Täglich frisch gezogen, nach traditioneller Rezeptur.' },
+      { t: 'Wein vom Winzer', d: 'Über 50 Positionen, 28 davon offen.' },
+      { t: 'Allergene gekennzeichnet', d: 'Klar markiert in der Karte. Auf Wunsch passen wir Gerichte an.' },
+    ],
+    salon: [
+      { t: 'Kostenlose Beratung', d: '15 Minuten Gespräch vor Ihrem ersten Termin.' },
+      { t: 'Terminerinnerung per SMS', d: 'Damit Sie nichts vergessen – einen Tag vorher und am Tag selbst.' },
+      { t: 'Geschenkgutscheine', d: 'Auch online erhältlich, in jeder Höhe und ohne Verfallsdatum.' },
+      { t: 'Bridal-Beratung', d: 'Probestyling, Tag der Hochzeit, optional Make-up – alles aus einer Hand.' },
+    ],
+    tradesman: [
+      { t: 'Festpreis-Garantie', d: 'Schriftliches Angebot vor Auftrag – keine bösen Überraschungen.' },
+      { t: 'Förderberatung', d: 'KfW, BAFA, regionale Programme – wir berechnen Ihre Quote ehrlich vor.' },
+      { t: 'Notdienst 24/7', d: 'Auch am Wochenende und an Feiertagen erreichbar.' },
+      { t: 'Garantie über Gesetz hinaus', d: 'Auf unsere Arbeit fünf Jahre Gewährleistung – freiwillig.' },
+    ],
+  };
+  return (
+    <section className="py-10 surface border-y border-line">
+      <div className="container-x grid grid-cols-2 md:grid-cols-4 gap-5">
+        {items[variant].map((it, i) => (
+          <div key={i} className="reveal">
+            <p className="font-display text-xl">{it.t}</p>
+            <p className="mt-1 text-sm text-muted leading-relaxed">{it.d}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ServiceProcess({ variant }: { variant: TemplateVariant }) {
+  const steps: Record<TemplateVariant, { t: string; d: string }[]> = {
+    restaurant: [
+      { t: 'Reservieren', d: 'Online oder per Telefon – wir bestätigen sofort.' },
+      { t: 'Ankommen', d: 'Wir empfangen Sie persönlich und begleiten Sie an Ihren Tisch.' },
+      { t: 'Genießen', d: 'Beratung von Sommelière und Service. Lassen Sie sich treiben.' },
+      { t: 'Wiederkommen', d: 'Bei Bedarf reservieren wir gerne den nächsten Termin direkt.' },
+    ],
+    salon: [
+      { t: 'Beratung', d: '15 Minuten ehrliches Gespräch über Ihre Wünsche und Ihren Alltag.' },
+      { t: 'Termin', d: 'Wir planen den Termin so, dass die Behandlung in Ruhe Platz hat.' },
+      { t: 'Behandlung', d: 'Schritt für Schritt – wir erklären Ihnen alles, was wir tun.' },
+      { t: 'Pflege zuhause', d: 'Empfehlung der passenden Produkte – ohne Verkaufsdruck.' },
+    ],
+    tradesman: [
+      { t: 'Anfrage', d: 'Sie schicken uns eine kurze Nachricht – wir antworten binnen 24 Stunden.' },
+      { t: 'Termin vor Ort', d: 'Kostenlos, unverbindlich. Wir schauen uns alles in Ruhe an.' },
+      { t: 'Festpreis-Angebot', d: 'Schriftlich, mit Material- und Förder-Aufstellung.' },
+      { t: 'Ausführung', d: 'Sauber, pünktlich, mit Schutzmaßnahmen und Endreinigung.' },
+    ],
+  };
+  return (
+    <Section eyebrow="So läuft es ab" title={<>In <em className="italic-pop">vier Schritten.</em></>}>
+      <ol className="grid md:grid-cols-4 gap-0 md:gap-0 reveal-stagger">
+        {steps[variant].map((s, i) => (
+          <li key={i} className="relative md:border-l border-t md:border-t-0 border-line p-6 md:p-7">
+            <span className="absolute -left-1.5 -top-1.5 md:left-[-7px] md:top-7 h-3 w-3 rounded-full bg-brand" style={{ boxShadow: '0 0 0 6px var(--bg-color)' }} />
+            <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+            <h3 className="font-display text-2xl mt-3">{s.t}</h3>
+            <p className="mt-3 text-sm text-muted leading-relaxed">{s.d}</p>
+          </li>
+        ))}
+      </ol>
+    </Section>
   );
 }
 
@@ -392,9 +482,28 @@ function GalleryPage({
         }
       />
 
-      <Section spacing="lg">
+      {/* Featured strip */}
+      {content.gallery[0] && (
+        <Section spacing="md">
+          <div className="grid md:grid-cols-12 gap-3">
+            <div className="md:col-span-8 aspect-[16/10] overflow-hidden rounded-3xl img-zoom">
+              <img src={content.gallery[0]} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div className="md:col-span-4 grid grid-rows-2 gap-3">
+              {[content.gallery[1], content.gallery[2]].filter(Boolean).map((src, i) => (
+                <div key={i} className="overflow-hidden rounded-3xl img-zoom">
+                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </Section>
+      )}
+
+      <Section spacing="lg" className="surface">
+        <p className="eyebrow mb-5 reveal">Vollständige Galerie</p>
         <div className="columns-2 md:columns-3 gap-3 [column-fill:_balance] reveal-stagger">
-          {content.gallery.map((src, i) => (
+          {content.gallery.slice(3).map((src, i) => (
             <div key={src + i} className="break-inside-avoid mb-3 overflow-hidden rounded-2xl img-zoom">
               <img src={src} alt="" className="w-full h-auto" loading="lazy" />
             </div>
@@ -435,7 +544,14 @@ function AboutPage({ variant, content }: { variant: TemplateVariant; content: Si
         </div>
       </Section>
 
+      <ValuesSection variant={variant} />
+
+      <TeamSection variant={variant} />
+
       <NumbersBand variant={variant} />
+
+      {variant === 'tradesman' && <CertificationsSection />}
+      {variant === 'restaurant' && <PressSection />}
 
       {content.testimonials.length > 0 && (
         <Section eyebrow="Stimmen" title={<>Was unsere Kund<em className="italic-pop">:innen sagen.</em></>} className="surface">
@@ -456,15 +572,171 @@ function AboutPage({ variant, content }: { variant: TemplateVariant; content: Si
   );
 }
 
+function ValuesSection({ variant }: { variant: TemplateVariant }) {
+  const values: Record<TemplateVariant, { t: string; d: string }[]> = {
+    restaurant: [
+      { t: 'Saisonal & ehrlich.', d: 'Wir kaufen, was gerade Saison hat. Lieber weniger Karte, dafür perfekt – als Nudeln aus der Tüte das ganze Jahr.' },
+      { t: 'Familie kocht.', d: 'In unserer Küche steht Familie. Drei Generationen geben weiter, was sie gelernt haben – und wir verändern es behutsam.' },
+      { t: 'Zeit für Gäste.', d: 'Wir reservieren bewusst weniger Tische, als wir könnten. Damit Sie in Ruhe essen, reden und nochmal nachbestellen können.' },
+    ],
+    salon: [
+      { t: 'Beratung vor Schere.', d: 'Wir nehmen uns Zeit für ein ehrliches Gespräch. Was passt zu Ihrem Alltag, zu Ihrem Haar, zu Ihnen.' },
+      { t: 'Pflege ist Handwerk.', d: 'Wir arbeiten mit Marken, hinter denen wir stehen. Kein Verkaufsdruck – nur ehrliche Empfehlungen für zuhause.' },
+      { t: 'Wohlfühlen zählt.', d: 'Tee, gute Musik, eine Couch zum Warten. Ein Salon-Besuch soll sich nach Pause anfühlen, nicht nach Wartesaal.' },
+    ],
+    tradesman: [
+      { t: 'Festpreis, keine Tricks.', d: 'Sie wissen vor Auftrag, was es kostet. Schriftlich, mit allem dabei. Keine bösen Überraschungen am Monatsende.' },
+      { t: 'Pünktlich heißt pünktlich.', d: 'Wir kommen, wenn wir uns angekündigt haben. Wenn etwas dazwischen kommt, hören Sie davon – nicht von uns sondern vorher.' },
+      { t: 'Sauber arbeiten.', d: 'Schutzfolien, Staubschutz, Endreinigung. Sie merken nicht erst nach dem Großputz, dass wir dawaren.' },
+    ],
+  };
+  return (
+    <Section eyebrow="Was uns wichtig ist" title={<>Drei <em className="italic-pop">Grundsätze.</em></>} className="surface">
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {values[variant].map((v, i) => (
+          <article key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+            <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+            <h3 className="font-display text-2xl mt-4">{v.t}</h3>
+            <p className="mt-4 text-muted leading-relaxed">{v.d}</p>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function TeamSection({ variant }: { variant: TemplateVariant }) {
+  const team: Record<TemplateVariant, { n: string; r: string; img: string; bio: string }[]> = {
+    restaurant: [
+      { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=900&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien, kam 2018 zurück in den Familienbetrieb.' },
+      { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=900&q=80', bio: 'Steht seit zwölf Jahren am Steinofen. Zaubert die Margherita DOP, auf die wir stolz sind.' },
+      { n: 'Sofia Bianchi', r: 'Sommelière', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Berät Sie zu unseren Naturweinen und kennt jeden unserer Winzer persönlich.' },
+    ],
+    salon: [
+      { n: 'Marie Hofer', r: 'Salon Lead · Stylistin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80', bio: 'Gründete Studio Lumière 2017. Ausbildung in Paris, mit Schwerpunkt auf Schnitt und Balayage.' },
+      { n: 'Anna Becker', r: 'Color-Spezialistin', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&q=80', bio: 'Kérastase Educator und Spezialistin für Air-Touch & Highlights nach französischer Schule.' },
+      { n: 'Lina Voss', r: 'Skin & Make-up', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Kosmetikerin und Make-up-Artistin. Begleitet unsere Bridal-Termine vom Probestyling bis zur Trauung.' },
+      { n: 'Tom Berger', r: 'Herrenschnitt', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80', bio: 'Spezialisiert auf klassische und moderne Herrenschnitte sowie traditionelle Bartpflege.' },
+    ],
+    tradesman: [
+      { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80', bio: 'Übernahm den Familienbetrieb 2008. Spezialgebiet: Heizungsmodernisierung und Förderberatung.' },
+      { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80', bio: 'Verantwortet Großprojekte von Badsanierung bis Mehrfamilienhaus. Über 200 Projekte begleitet.' },
+      { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Steht 24/7 für Notfälle bereit. Kennt jede Heizungsanlage in Ingolstadt – und wenn nicht, kennt er jemanden, der sie kennt.' },
+    ],
+  };
+  return (
+    <Section eyebrow="Team" title={<>Menschen <em className="italic-pop">hinter dem Betrieb.</em></>}>
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {team[variant].slice(0, 3).map((m, i) => (
+          <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
+            <div className="aspect-[4/5] img-zoom">
+              <img src={m.img} alt={m.n} className="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div className="p-7">
+              <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+              <h3 className="font-display text-2xl mt-2">{m.n}</h3>
+              <p className="text-sm text-muted mt-1">{m.r}</p>
+              <p className="mt-5 text-sm leading-relaxed">{m.bio}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function CertificationsSection() {
+  const items = [
+    { t: 'Meisterbetrieb HWK', d: 'Eingetragen bei der Handwerkskammer für Mittelfranken seit 1972.' },
+    { t: 'Innungsmitglied', d: 'Aktives Mitglied der Innung für Sanitär- und Heizungstechnik.' },
+    { t: 'Zertifizierter Wärmepumpen-Installateur', d: 'Schulungen bei Viessmann, Vaillant und Daikin – jährlich aktualisiert.' },
+    { t: 'KfW-Energieberater', d: 'Förderkalkulationen direkt vom Fachbetrieb. Kein Detour über externe Berater.' },
+    { t: 'Förder-Partner BAFA', d: 'Anträge beim BAFA für Heizungsförderung schreiben wir mit Ihnen gemeinsam.' },
+    { t: 'Photovoltaik-Fachpartner', d: 'Komplettpaket inkl. Anmeldung beim Netzbetreiber und Steuerformular.' },
+  ];
+  return (
+    <Section eyebrow="Qualifikationen" title={<>Geprüft & <em className="italic-pop">zertifiziert.</em></>} className="surface">
+      <div className="grid md:grid-cols-3 gap-4 reveal-stagger">
+        {items.map((it, i) => (
+          <article key={i} className="bg-white border border-line rounded-2xl p-6 hover-lift">
+            <span className="inline-flex h-10 w-10 rounded-full bg-[var(--accent-color)] items-center justify-center text-brand">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <h3 className="font-display text-xl mt-4">{it.t}</h3>
+            <p className="text-sm text-muted mt-2 leading-relaxed">{it.d}</p>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function PressSection() {
+  const items = [
+    { src: 'Falstaff', q: '„Eine der ehrlichsten Trattorien Tirols."', y: '2024' },
+    { src: 'Tiroler Tageszeitung', q: '„Pasta wie in Bologna – nur näher."', y: '2023' },
+    { src: 'À la Carte', q: '„Hier kocht jemand, der Italien wirklich kennt."', y: '2023' },
+  ];
+  return (
+    <Section eyebrow="Presse" title={<>Was die <em className="italic-pop">Presse schreibt.</em></>}>
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {items.map((p, i) => (
+          <article key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+            <p className="font-mono text-xs text-muted uppercase tracking-widest">/ {p.src} · {p.y}</p>
+            <p className="mt-6 font-display text-2xl leading-snug">{p.q}</p>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 /* ─── Contact ────────────────────────────────────────────────────── */
-function ContactPage({ content }: { content: SiteContent }) {
+function ContactPage({ content, variant }: { content: SiteContent; variant: TemplateVariant }) {
+  const arrival: Record<TemplateVariant, { t: string; d: string }[]> = {
+    restaurant: [
+      { t: 'Mit dem Auto', d: 'Tiefgarage Maria-Theresien direkt nebenan. Erste Stunde gratis bei Reservierung.' },
+      { t: 'Mit der Bahn', d: '5 Minuten Fußweg vom Hauptbahnhof. Ein Spaziergang durch die Altstadt.' },
+      { t: 'Barrierefrei', d: 'Hauptraum ebenerdig. Behindertengerechte Toilette vorhanden.' },
+    ],
+    salon: [
+      { t: 'Anfahrt', d: 'U3/U6 Münchner Freiheit, dann 3 Minuten zu Fuß.' },
+      { t: 'Parken', d: 'Tiefgarage Leopoldpark direkt vor der Tür. Erste Stunde frei für Kund:innen.' },
+      { t: 'Termin verlegen', d: 'Bis 24 h vorher gerne kostenlos – am liebsten per WhatsApp.' },
+    ],
+    tradesman: [
+      { t: 'Notdienst', d: 'Rund um die Uhr erreichbar – auch am Wochenende und an Feiertagen.' },
+      { t: 'Anfahrtsgebiet', d: 'Ingolstadt und 30 km Umkreis. Größere Distanzen auf Anfrage.' },
+      { t: 'Beratung vor Ort', d: 'Erstgespräch und Angebot kostenlos. Unverbindlich.' },
+    ],
+  };
   return (
     <>
       <PageHero
         eyebrow="Kontakt"
-        title={'Wir freuen uns von Ihnen zu hören.'}
+        title={
+          variant === 'restaurant'
+            ? 'Reservieren oder einfach vorbeikommen.'
+            : variant === 'salon'
+              ? 'Termin vereinbaren oder kurz fragen.'
+              : 'Anfrage senden oder Notdienst rufen.'
+        }
       />
       <ContactBlock content={content} />
+
+      <Section eyebrow="Wegbeschreibung" title={<>So <em className="italic-pop">finden Sie uns.</em></>} className="surface">
+        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+          {arrival[variant].map((a, i) => (
+            <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
+              <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+              <h3 className="font-display text-2xl mt-3">{a.t}</h3>
+              <p className="mt-3 text-muted leading-relaxed">{a.d}</p>
+            </article>
+          ))}
+        </div>
+      </Section>
     </>
   );
 }

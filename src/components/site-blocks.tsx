@@ -398,29 +398,27 @@ export function SiteFooter({ content, basePath: basePathProp, nav }: { content: 
       <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
 
       <div className="container-x">
-        <div className="border-b border-white/10 pb-16">
-          <p className="inline-flex items-center gap-3 mb-4 text-xs uppercase tracking-[0.18em] text-white/60">
-            <span className="inline-block w-7 h-px bg-white/40" />Sagen Sie hallo
-          </p>
-          <h3 className="headline-lg">
-            Lust auf <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>etwas Neues?</em>
-          </h3>
-          <Link to={`${basePath}/kontakt`} className="mt-8 inline-flex btn-accent">
-            Termin vereinbaren <span aria-hidden>→</span>
-          </Link>
+        <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
+          <div className="md:col-span-6">
+            <p className="font-display text-3xl">{content.brand.name}</p>
+            {content.brand.tagline ? <p className="text-sm text-white/70 mt-2 max-w-sm">{content.brand.tagline}</p> : null}
+          </div>
+          <div className="md:col-span-6 flex flex-col gap-2 md:items-end text-sm">
+            {content.contact.phone ? <a href={`tel:${content.contact.phone}`} className="hover:text-accent">{content.contact.phone}</a> : null}
+            {content.contact.email ? <a href={`mailto:${content.contact.email}`} className="hover:text-accent">{content.contact.email}</a> : null}
+            {content.contact.address ? <p className="text-white/70">{content.contact.address}{content.contact.city ? `, ${content.contact.city}` : ''}</p> : null}
+          </div>
         </div>
 
         <div className="grid md:grid-cols-12 gap-10 py-16">
           <div className="md:col-span-5">
-            <p className="font-display text-3xl">{content.brand.name}</p>
-            {content.brand.tagline ? <p className="text-sm text-white/70 mt-2 max-w-sm">{content.brand.tagline}</p> : null}
-          </div>
-          <div className="md:col-span-3">
             <p className="text-xs uppercase tracking-widest text-white/50 mb-4">Kontakt</p>
             <ul className="space-y-2 text-sm">
-              {content.contact.phone ? <li><a href={`tel:${content.contact.phone}`} className="hover:text-accent">{content.contact.phone}</a></li> : null}
-              {content.contact.email ? <li><a href={`mailto:${content.contact.email}`} className="hover:text-accent">{content.contact.email}</a></li> : null}
-              {content.contact.address ? <li className="text-white/70">{content.contact.address}{content.contact.city ? `, ${content.contact.city}` : ''}</li> : null}
+              {content.contact.hours.length ? (
+                content.contact.hours.map((h, i) => (
+                  <li key={i} className="flex justify-between max-w-xs text-white/75"><span>{h.day}</span><span className="font-mono text-xs">{h.time}</span></li>
+                ))
+              ) : null}
             </ul>
           </div>
           <div className="md:col-span-4">

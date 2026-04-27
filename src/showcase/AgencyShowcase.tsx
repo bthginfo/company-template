@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate } from 're
 import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import type { TemplateKey } from '@/lib/types';
+import AdminDemo from './AdminDemo';
 import RestaurantTemplate from '@/templates/restaurant';
 import SalonTemplate from '@/templates/salon';
 import TradesmanTemplate from '@/templates/tradesman';
@@ -77,6 +78,7 @@ export default function AgencyShowcase() {
         <Route path="kontakt" element={<Contact />} />
       </Route>
       <Route path="/preview/:key/*" element={<TemplatePreview />} />
+      <Route path="/admin-demo" element={<AdminDemo />} />
     </Routes>
   );
 }
@@ -98,6 +100,7 @@ function ShowcaseShell() {
     { to: '/prozess', label: 'Ablauf' },
     { to: '/preise', label: 'Preise' },
     { to: '/ueber-uns', label: 'Über uns' },
+    { to: '/admin-demo', label: 'Admin-Demo' },
     { to: '/kontakt', label: 'Kontakt' },
   ];
 
@@ -111,15 +114,15 @@ function ShowcaseShell() {
           {[
             'Aktuell freie Kapazitäten · Mai/Juni 2026',
             'Komplettpaket inkl. Foto- & Videoshooting',
-            'In 7 Tagen live',
+            'In rund einer Woche live',
             'Innsbruck · München · Ingolstadt · DACH',
-            'Hosting auf Vercel inklusive',
+            'Hosting & Wartung inklusive',
           ].concat([
             'Aktuell freie Kapazitäten · Mai/Juni 2026',
             'Komplettpaket inkl. Foto- & Videoshooting',
-            'In 7 Tagen live',
+            'In rund einer Woche live',
             'Innsbruck · München · Ingolstadt · DACH',
-            'Hosting auf Vercel inklusive',
+            'Hosting & Wartung inklusive',
           ]).map((m, i) => (
             <span key={i} className="whitespace-nowrap inline-flex items-center gap-3">
               <span className="opacity-80">{m}</span>
@@ -219,22 +222,15 @@ function ShowcaseFooter() {
       <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
 
       <div className="container-x">
-        <div className="border-b border-white/10 pb-16 grid md:grid-cols-12 gap-10">
-          <div className="md:col-span-7">
-            <p className="inline-flex items-center gap-3 mb-4 text-xs uppercase tracking-[0.18em] text-white/60">
-              <span className="inline-block w-7 h-px bg-white/40" />Sagen Sie hallo
-            </p>
-            <h3 className="headline-lg">
-              Bauen wir <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>Ihre Website</em>?
-            </h3>
-            <Link to="/kontakt" className="mt-8 inline-flex btn-accent">
-              Beratung vereinbaren <span aria-hidden>→</span>
-            </Link>
-          </div>
-          <div className="md:col-span-5 flex flex-col justify-end gap-3 text-lg">
-            <a href={`mailto:${AGENCY.email}`} className="link-underline hover:text-accent">{AGENCY.email}</a>
-            <a href={`tel:${AGENCY.phone}`} className="link-underline hover:text-accent">{AGENCY.phone}</a>
-            <p className="text-sm text-white/60">Innsbruck · München · Ingolstadt</p>
+        <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
+          <div className="md:col-span-5">
+            <p className="font-display text-3xl">{AGENCY.name}</p>
+            <p className="text-sm text-white/70 mt-2 max-w-sm">{AGENCY.tagline}</p>
+            <div className="mt-6 flex flex-col gap-1.5 text-sm">
+              <a href={`mailto:${AGENCY.email}`} className="hover:text-accent">{AGENCY.email}</a>
+              <a href={`tel:${AGENCY.phone}`} className="hover:text-accent">{AGENCY.phone}</a>
+              <span className="text-white/60">Innsbruck · München · Ingolstadt</span>
+            </div>
           </div>
         </div>
 
@@ -550,7 +546,7 @@ function ManifestoSection() {
             },
             {
               t: 'Geschwindigkeit ist Respekt.',
-              d: '< 2 s Ladezeit, 100/100 Lighthouse, mobile-first. Wer wartet, klickt weg. Wir lassen Sie nicht warten.',
+              d: 'Schnelle Ladezeiten, sauberes Mobile-Design, gute Auffindbarkeit bei Google. Damit Ihre Gäste finden, was sie suchen – und bleiben.',
             },
           ].map((b, i) => (
             <div key={i} className="border-t border-white/15 pt-8">
@@ -803,15 +799,13 @@ function NumbersSection() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 md:gap-y-0 reveal-stagger">
           {[
             { v: 47, s: '', l: 'Live-Projekte' },
-            { v: 100, s: '', l: 'Lighthouse Score' },
-            { v: 1.4, s: ' s', l: 'Ø Ladezeit', decimals: 1 },
-            { v: 7, s: ' Tage', l: 'Bis online' },
+            { v: 65, s: ' %', l: 'Empfehlungs-Quote' },
+            { v: 7, s: ' Tage', l: 'Bis online (Ø)' },
+            { v: 24, s: ' h', l: 'Antwortzeit' },
           ].map((m, i) => (
             <div key={i} className="md:border-l border-line md:pl-8">
               <p className="num-display text-6xl md:text-8xl leading-none">
-                {('decimals' in m && m.decimals)
-                  ? <>{m.v.toFixed(m.decimals)}{m.s}</>
-                  : <AnimatedCounter to={m.v} suffix={m.s} />}
+                <AnimatedCounter to={m.v} suffix={m.s} />
               </p>
               <p className="mt-4 text-xs uppercase tracking-widest text-muted">{m.l}</p>
             </div>
@@ -1108,10 +1102,10 @@ function Pricing() {
       features: [
         'Eines unserer 3 Branchen-Templates',
         '5 Unterseiten, mehrsprachig optional',
-        'Admin-Bereich inklusive',
-        'SSL & Hosting auf Vercel',
+        'Admin-Bereich zum selbst pflegen',
+        'SSL-Verschlüsselung & Hosting inklusive',
         '1 Stunde Einrichtungs-Support',
-        'In 7 Tagen online',
+        'In rund einer Woche online',
       ],
     },
     {
@@ -1242,7 +1236,7 @@ function Pricing() {
             items={[
               { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise 5–10 Arbeitstage nach Inhalts-Übergabe. Komplettpakete mit Foto/Video brauchen 2–3 Wochen, weil ein Shooting-Termin und ein Schnitt-Slot dazukommen.' },
               { q: 'Kann ich Inhalte selbst pflegen?', a: 'Ja. Sie erhalten einen einfachen Admin-Bereich mit Login. Texte, Bilder, Speisekarte und Öffnungszeiten ändern Sie ohne Vorkenntnisse direkt im Browser. Sie sehen den Effekt sofort.' },
-              { q: 'Was passiert, wenn etwas kaputt ist?', a: 'Im Pflegepaket ist Monitoring inklusive – wir bekommen Probleme oft mit, bevor Sie es tun. Reaktionszeit < 4 h innerhalb der Geschäftszeiten. Bei kritischen Ausfällen sofort.' },
+              { q: 'Was passiert, wenn etwas kaputt ist?', a: 'Im Pflegepaket überwachen wir Ihre Seite automatisch – wir bekommen Probleme oft mit, bevor Sie es tun. Wir reagieren innerhalb der Geschäftszeiten in der Regel binnen weniger Stunden.' },
               { q: 'Wem gehört die Website?', a: 'Ihnen. Sie können den Quellcode jederzeit anfordern, das Hosting wechseln und mit anderen Agenturen weiterarbeiten. Wir liefern keine Verträge mit Lock-in-Klauseln.' },
               { q: 'Was kostet eine zusätzliche Sprache?', a: 'Mehrsprachigkeit (DE + EN) kostet einmalig ab 290 €. Weitere Sprachen je nach Umfang. Inhalte können von uns übersetzt oder bereitgestellt werden.' },
               { q: 'Welche Zahlungsweise?', a: '50 % Anzahlung bei Auftrag, 50 % bei Live-Schaltung. Beide Rechnungen mit MwSt. Hosting wird monatlich abgebucht (kündbar zum Monatsende).' },
