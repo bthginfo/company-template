@@ -405,7 +405,7 @@ function ShowcaseFooter() {
 function Landing() {
   return (
     <>
-      <Seo title="BTH Studio · Websites für lokale Marken" description="Editorial-Design für Restaurants, Salons und Handwerksbetriebe in der DACH-Region. Inhalte, die Sie selbst pflegen." />
+      <Seo title="BTH Studio · Websites für lokale Marken" description="Editorial-Design für Restaurants, Salons, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Sie selbst pflegen." />
       <HeroSection />
       <ClientLogosSection />
       <ServicesSection />
@@ -528,7 +528,7 @@ function ServicesSection() {
     {
       n: '01',
       title: 'Branchen-Templates',
-      copy: 'Mehrseitige, animierte Templates für Restaurant, Salon und Handwerk. Live-Vorschau im Browser, Farbschema in Sekunden.',
+      copy: 'Mehrseitige, animierte Templates für Restaurant, Salon, Handwerk, Praxen, Beratung, Studios und viele mehr. Live-Vorschau im Browser, Farbschema in Sekunden.',
       tag: 'In 7 Tagen live',
     },
     {
@@ -540,7 +540,7 @@ function ServicesSection() {
     {
       n: '03',
       title: 'Foto & Video',
-      copy: 'Eigenes Team kommt zu Ihnen ins Lokal, in den Salon oder auf die Baustelle. Bilder die nach Ihnen aussehen, nicht nach Stockfotos.',
+      copy: 'Eigenes Team kommt zu Ihnen ins Lokal, in die Praxis, in den Salon, ins Studio oder auf die Baustelle. Bilder, die nach Ihnen aussehen – nicht nach Stockfotos.',
       tag: 'On-Location',
     },
     {
@@ -897,7 +897,7 @@ function ProductionSection() {
             </h2>
           </div>
           <p className="md:col-span-5 text-lg text-white/80 reveal">
-            Buchbar als Add-on. Wir kommen ins Lokal, in den Salon oder auf die Baustelle und produzieren Inhalte, die zu Ihrer Marke passen – nur wenn Sie es wünschen.
+            Buchbar als Add-on. Wir kommen ins Lokal, in die Praxis, in den Salon, ins Studio oder auf die Baustelle und produzieren Inhalte, die zu Ihrer Marke passen – nur wenn Sie es wünschen.
           </p>
         </div>
 
@@ -1039,7 +1039,7 @@ function TemplatesGallery() {
   useReveal();
   return (
     <>
-      <Seo title="Templates · BTH Studio" description="Drei Branchen, drei Stile: wählen Sie Ihr Template als Klassisch, Modern oder Bold." />
+      <Seo title="Templates · BTH Studio" description="Sechs Branchen, drei Stile, viele weitere auf Anfrage: wählen Sie Ihr Template als Klassisch, Modern oder Bold." />
       <section className="pt-44 pb-20 md:pb-28">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Galerie · Templates</p>
@@ -1251,7 +1251,7 @@ function AboutPage() {
               Sie sind herzlich willkommen vorbeizukommen – wir machen besseren Kaffee als die meisten.
             </p>
             <p className="mt-4 text-lg text-muted leading-relaxed">
-              Unsere Kunden sind Restaurants, Salons und Handwerksbetriebe in Innsbruck,
+              Unsere Kunden sind Restaurants, Salons, Handwerksbetriebe, Praxen, Kanzleien, Studios und viele mehr in Innsbruck,
               München, Ingolstadt und gelegentlich darüber hinaus. Über 65 % der Aufträge kommen von Empfehlungen.
             </p>
           </div>
@@ -1526,6 +1526,11 @@ function Contact() {
                       <option>Restaurant / Gastro</option>
                       <option>Salon / Beauty</option>
                       <option>Handwerk / Service</option>
+                      <option>Praxis / Ärzte</option>
+                      <option>Beratung / Kanzlei</option>
+                      <option>Studio / Coaching</option>
+                      <option>Hotel / Pension</option>
+                      <option>Café / Bäckerei</option>
                       <option>Andere</option>
                     </select>
                   </Field>
