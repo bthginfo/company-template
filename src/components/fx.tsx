@@ -3,6 +3,11 @@ import {
   forwardRef, ComponentPropsWithoutRef,
 } from 'react';
 
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /* ─── Marquee ──────────────────────────────────────────────────────────
  * Infinite horizontal scroll. Pauses on hover.
  */
@@ -93,6 +98,7 @@ export function AnimatedCounter({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (prefersReducedMotion()) { setN(to); return; }
     let raf = 0;
     const io = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
@@ -130,6 +136,7 @@ export function RotatingWord({
 }) {
   const [i, setI] = useState(0);
   useEffect(() => {
+    if (prefersReducedMotion()) return;
     const id = setInterval(() => setI((v) => (v + 1) % words.length), interval);
     return () => clearInterval(id);
   }, [words.length, interval]);
@@ -159,6 +166,7 @@ export function ParallaxImage({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (prefersReducedMotion()) return;
     let raf = 0;
     const update = () => {
       const r = el.getBoundingClientRect();
@@ -350,6 +358,10 @@ export function SplitText({ children, className = '' }: { children: string; clas
 export function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll('.reveal:not(.is-visible), .reveal-fast:not(.is-visible), .reveal-stagger:not(.is-visible)');
+    if (prefersReducedMotion()) {
+      els.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-visible')),
       { threshold: 0.12 }
