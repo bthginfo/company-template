@@ -16,6 +16,12 @@ export function getTemplateKey(): string {
   return import.meta.env.VITE_TEMPLATE || 'restaurant';
 }
 
+export type TemplateStyle = 'classic' | 'modern' | 'bold';
+export function getTemplateStyle(): TemplateStyle {
+  const s = import.meta.env.VITE_STYLE;
+  return s === 'modern' || s === 'bold' ? s : 'classic';
+}
+
 /**
  * Showcase mode: agency landing page where prospects can preview templates.
  * Set VITE_MODE=showcase in the showcase Vercel project.

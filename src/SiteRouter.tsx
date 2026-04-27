@@ -1,11 +1,13 @@
 import { useContent } from './lib/content-context';
-import { getTemplateKey } from './lib/tenant';
+import { getTemplateKey, getTemplateStyle, type TemplateStyle } from './lib/tenant';
 import RestaurantTemplate from './templates/restaurant';
 import SalonTemplate from './templates/salon';
 import TradesmanTemplate from './templates/tradesman';
 import type { SiteContent } from './lib/types';
 
-const TEMPLATES: Record<string, (props: { content: SiteContent }) => JSX.Element> = {
+type TplProps = { content: SiteContent; style?: TemplateStyle };
+
+const TEMPLATES: Record<string, (props: TplProps) => JSX.Element> = {
   restaurant: RestaurantTemplate,
   salon: SalonTemplate,
   tradesman: TradesmanTemplate,
@@ -29,6 +31,8 @@ export function SiteRouter() {
   }
 
   const key = state.tenant.template || getTemplateKey();
+  const style: TemplateStyle =
+    (state.tenant.style as TemplateStyle | undefined) || getTemplateStyle();
   const Tpl = TEMPLATES[key] ?? RestaurantTemplate;
-  return <Tpl content={state.content} />;
+  return <Tpl content={state.content} style={style} />;
 }

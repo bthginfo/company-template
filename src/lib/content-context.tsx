@@ -5,7 +5,7 @@ import { getTenantSlug } from './tenant';
 type State =
   | { status: 'loading' }
   | { status: 'error'; error: string }
-  | { status: 'ready'; tenant: { slug: string; name: string; template: string }; content: SiteContent };
+  | { status: 'ready'; tenant: { slug: string; name: string; template: string; style?: string }; content: SiteContent };
 
 const Ctx = createContext<{
   state: State;

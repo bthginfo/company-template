@@ -9,7 +9,7 @@
  * 6. Triggers the first production deployment
  *
  * Usage:
- *   npm run tenant:provision -- <slug> "<Display Name>" <restaurant|salon|tradesman>
+ *   npm run tenant:provision -- <slug> "<Display Name>" <restaurant|salon|tradesman> [classic|modern|bold]
  *
  * Required env vars (read from .env.local):
  *   VERCEL_TOKEN          - personal access token
@@ -29,12 +29,24 @@ import { randomBytes } from 'crypto';
 import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema, type SiteContent, type TemplateKey } from '../src/lib/types';
 
-const [, , slug, name, template] = process.argv;
+const [, , slug, name, template, styleArg] = process.argv;
 
+const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <restaurant|salon|tradesman> [classic|modern|bold]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n`;
+
+if (slug === '--help' || slug === '-h') {
+  console.log(HELP);
+  process.exit(0);
+}
 if (!slug || !name || !template || !['restaurant', 'salon', 'tradesman'].includes(template)) {
-  console.error('Usage: tsx scripts/provision-tenant.ts <slug> "<Display Name>" <restaurant|salon|tradesman>');
+  console.error(HELP);
   process.exit(1);
 }
+if (!/^[a-z0-9-]+$/.test(slug)) {
+  console.error(`✗ Slug "${slug}" must contain only lowercase letters, digits, and dashes.`);
+  process.exit(1);
+}
+const style: 'classic' | 'modern' | 'bold' =
+  styleArg === 'modern' || styleArg === 'bold' ? styleArg : 'classic';
 
 const TOKEN = required('VERCEL_TOKEN');
 const TEAM = required('VERCEL_TEAM_ID');
@@ -132,11 +144,11 @@ async function main() {
   const existing = await db.query.tenants.findFirst({ where: eq(schema.tenants.slug, slug) });
   let tenantId: string;
   if (existing) {
-    await db.update(schema.tenants).set({ passwordHash, name, template }).where(eq(schema.tenants.id, existing.id));
+    await db.update(schema.tenants).set({ passwordHash, name, template, style }).where(eq(schema.tenants.id, existing.id));
     tenantId = existing.id;
     console.log(`  ✓ Tenant row updated (existed)`);
   } else {
-    const [row] = await db.insert(schema.tenants).values({ slug, name, template, passwordHash }).returning();
+    const [row] = await db.insert(schema.tenants).values({ slug, name, template, style, passwordHash }).returning();
     tenantId = row.id;
     await db.insert(schema.siteContent).values({ tenantId, data: DEFAULT_CONTENT[template as TemplateKey] }).onConflictDoNothing();
     console.log(`  ✓ Tenant row + default content created`);
@@ -183,6 +195,7 @@ async function main() {
     TENANT_SLUG: slug,
     VITE_TENANT_SLUG: slug,
     VITE_TEMPLATE: template,
+    VITE_STYLE: style,
   };
   console.log(`\n→ Setting ${Object.keys(tenantEnv).length} env vars on '${projectName}'`);
 
@@ -234,14 +247,17 @@ async function main() {
   console.log(`  Tenant:        ${name}`);
   console.log(`  Slug:          ${slug}`);
   console.log(`  Template:      ${template}`);
+  console.log(`  Style:         ${style}`);
   console.log(`  Password:      ${password}`);
   console.log(`  Project URL:   https://${projectName}.vercel.app`);
   console.log(`  Login URL:     https://${projectName}.vercel.app/admin/login`);
   console.log(`  Deploy URL:    https://${deployment.url}`);
   console.log('──────────────────────────────────────────');
-  console.log('\nNote: First deploy takes ~1 min. Then:');
-  console.log(`  1. Disable SSO: Settings → Deployment Protection → Off`);
-  console.log(`  2. (Optional) Add a custom domain in Settings → Domains`);
+  console.log('\nNext steps:');
+  console.log(`  1. Wait ~60s for the first deploy to finish.`);
+  console.log(`  2. Open the Login URL with username "${slug}" and the password above.`);
+  console.log(`  3. (Optional) Add a custom domain via Vercel → Settings → Domains.`);
+  console.log(`  4. Save the password somewhere safe — it is not shown again.\n`);
 }
 
 main()

@@ -25,7 +25,7 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
 
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
   res.json({
-    tenant: { slug: tenant.slug, name: tenant.name, template: tenant.template },
+    tenant: { slug: tenant.slug, name: tenant.name, template: tenant.template, style: tenant.style },
     content: content?.data ?? null,
   });
 }

@@ -10,6 +10,7 @@ export const tenants = pgTable('tenants', {
   slug: text('slug').notNull().unique(),
   name: text('name').notNull(),
   template: text('template').notNull(), // 'restaurant' | 'salon' | 'tradesman'
+  style: text('style').notNull().default('classic'), // 'classic' | 'modern' | 'bold'
   passwordHash: text('password_hash'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

@@ -355,19 +355,38 @@ export function SplitText({ children, className = '' }: { children: string; clas
 }
 
 /* ─── useReveal: scroll-reveal helper ─────────────────────────────────── */
+/* ─── useReveal: scroll-reveal helper ─────────────────────────────────── */
 export function useReveal() {
   useEffect(() => {
-    const els = document.querySelectorAll('.reveal:not(.is-visible), .reveal-fast:not(.is-visible), .reveal-stagger:not(.is-visible)');
-    if (prefersReducedMotion()) {
-      els.forEach((el) => el.classList.add('is-visible'));
-      return;
+    const reduced = prefersReducedMotion();
+    const SEL = '.reveal:not(.is-visible), .reveal-fast:not(.is-visible), .reveal-stagger:not(.is-visible)';
+    if (reduced) {
+      const apply = () =>
+        document.querySelectorAll(SEL).forEach((el) => el.classList.add('is-visible'));
+      apply();
+      const mo = new MutationObserver(apply);
+      mo.observe(document.body, { childList: true, subtree: true });
+      return () => mo.disconnect();
     }
     const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-visible')),
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-visible');
+            io.unobserve(e.target);
+          }
+        }),
       { threshold: 0.12 }
     );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    const observeAll = () => document.querySelectorAll(SEL).forEach((el) => io.observe(el));
+    observeAll();
+    // Re-scan as new reveal nodes are added (style/route/content swaps).
+    const mo = new MutationObserver(() => observeAll());
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      io.disconnect();
+      mo.disconnect();
+    };
   }, []);
 }
 
