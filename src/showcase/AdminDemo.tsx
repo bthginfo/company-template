@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { DEMO_CONTENT } from '@/lib/demo-content';
+import { clearOverride, downloadJson, loadFor, writeOverride } from '@/lib/demo-overrides';
 
 /**
  * AdminDemo — interactive replica of the customer admin area.
@@ -10,19 +11,44 @@ import { DEMO_CONTENT } from '@/lib/demo-content';
  */
 export default function AdminDemo() {
   const [tplKey, setTplKey] = useState<TemplateKey>('restaurant');
-  const [data, setData] = useState<SiteContent>(DEMO_CONTENT.restaurant);
+  const [data, setDataInternal] = useState<SiteContent>(() => loadFor('restaurant'));
   const [pageId, setPageId] = useState<PageId>('home');
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
+  // Persist every change to localStorage so /preview/:key picks it up live.
+  const setData: typeof setDataInternal = (updater) => {
+    setDataInternal((prev) => {
+      const next = typeof updater === 'function' ? (updater as (p: SiteContent) => SiteContent)(prev) : updater;
+      writeOverride(tplKey, next);
+      return next;
+    });
+  };
+
   const switchTpl = (k: TemplateKey) => {
     setTplKey(k);
-    setData(DEMO_CONTENT[k]);
+    setDataInternal(loadFor(k));
     setSavedAt(null);
   };
   const fakeSave = () => {
     setSavedAt(new Date().toLocaleTimeString('de-DE'));
     setTimeout(() => setSavedAt(null), 4000);
   };
+  const resetDemo = () => {
+    clearOverride(tplKey);
+    setDataInternal(DEMO_CONTENT[tplKey]);
+    setSavedAt(null);
+  };
+  const exportJson = () => downloadJson(`${tplKey}-content.json`, data);
+
+  // React to external resets (e.g. from preview floating panel).
+  useEffect(() => {
+    const onOverride = (e: Event) => {
+      const detail = (e as CustomEvent<{ key: TemplateKey }>).detail;
+      if (detail?.key === tplKey) setDataInternal(loadFor(tplKey));
+    };
+    window.addEventListener('bth:override', onOverride);
+    return () => window.removeEventListener('bth:override', onOverride);
+  }, [tplKey]);
 
   const pages = pagesFor(tplKey);
   const activePage = pages.find((p) => p.id === pageId) ?? pages[0];
@@ -109,8 +135,9 @@ export default function AdminDemo() {
                 ? <span className="text-emerald-700">✓ Gespeichert um {savedAt} · in der Demo nur lokal</span>
                 : 'Diese Demo speichert nichts. Im echten Admin-Bereich sind Änderungen sofort live.'}
             </div>
-            <div className="flex gap-2">
-              <button className="btn-ghost !px-4 !py-2 text-sm">Verwerfen</button>
+            <div className="flex gap-2 flex-wrap">
+              <button onClick={exportJson} className="btn-ghost !px-4 !py-2 text-sm" title="Inhalte als JSON-Datei exportieren">Als JSON exportieren</button>
+              <button onClick={resetDemo} className="btn-ghost !px-4 !py-2 text-sm" title="Auf Demo-Daten zurücksetzen">Auf Demo zurücksetzen</button>
               <button onClick={fakeSave} className="btn-primary !px-5 !py-2 text-sm">Speichern</button>
             </div>
           </div>

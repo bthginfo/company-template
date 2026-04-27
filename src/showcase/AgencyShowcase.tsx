@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
-import type { TemplateKey } from '@/lib/types';
+import type { SiteContent, TemplateKey } from '@/lib/types';
+import { clearOverride, loadFor, readOverride } from '@/lib/demo-overrides';
 import AdminDemo from './AdminDemo';
 import { Imprint, Privacy } from './Legal';
 import Seo from '@/components/Seo';
@@ -1413,7 +1414,26 @@ function TemplatePreview() {
   const presets = PRESETS[tplKey];
   const [presetIdx, setPresetIdx] = useState(0);
   const preset = presets[presetIdx];
-  const content = DEMO_CONTENT[tplKey];
+
+  // Live-read content (override from AdminDemo wins over DEMO_CONTENT).
+  const [content, setContent] = useState<SiteContent>(() => loadFor(tplKey));
+  useEffect(() => { setContent(loadFor(tplKey)); }, [tplKey]);
+  useEffect(() => {
+    const onOverride = (e: Event) => {
+      const detail = (e as CustomEvent<{ key: TemplateKey }>).detail;
+      if (detail?.key === tplKey) setContent(loadFor(tplKey));
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key && e.key.includes(tplKey)) setContent(loadFor(tplKey));
+    };
+    window.addEventListener('bth:override', onOverride);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener('bth:override', onOverride);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, [tplKey]);
+  const hasOverride = !!readOverride(tplKey);
 
   const themedContent = useMemo(() => ({
     ...content,
@@ -1426,21 +1446,51 @@ function TemplatePreview() {
   const Tpl = tplKey === 'restaurant' ? RestaurantTemplate : tplKey === 'salon' ? SalonTemplate : TradesmanTemplate;
   const basePath = styleParam ? `/preview/${tplKey}/style/${style}` : `/preview/${tplKey}`;
 
+  const switchBranche = (k: TemplateKey) => {
+    navigate(styleParam ? `/preview/${k}/style/${style}` : `/preview/${k}`);
+  };
+  const switchStyle = (s: 'classic' | 'modern' | 'bold') => {
+    navigate(s === 'classic' ? `/preview/${tplKey}` : `/preview/${tplKey}/style/${s}`);
+  };
+  const onReset = () => { clearOverride(tplKey); };
+
   return (
     <div>
       <Tpl content={themedContent} basePath={basePath} style={style} />
 
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div className="glass shadow-2xl rounded-2xl p-3 border border-line">
-          <p className="text-[10px] uppercase tracking-widest text-muted px-2 mb-2">Farbschema</p>
-          <div className="flex gap-2">
+        <div className="glass shadow-2xl rounded-2xl p-3 border border-line w-[260px]">
+          {hasOverride && (
+            <div className="flex items-center justify-between gap-2 mb-2 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 text-[11px]">
+              <span>● Live-Daten aus Admin</span>
+              <button onClick={onReset} className="underline underline-offset-2 hover:opacity-80">Reset</button>
+            </div>
+          )}
+          <p className="text-[10px] uppercase tracking-widest text-muted px-2 mb-1">Branche</p>
+          <div className="grid grid-cols-3 gap-1 mb-2">
+            {(['restaurant','salon','tradesman'] as TemplateKey[]).map((k) => (
+              <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-brand text-white border-brand' : 'bg-white border-line hover:border-brand/40'}`}>
+                {TEMPLATE_META[k].label.split(' ')[0]}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] uppercase tracking-widest text-muted px-2 mb-1">Stil</p>
+          <div className="grid grid-cols-3 gap-1 mb-2">
+            {(['classic','modern','bold'] as const).map((s) => (
+              <button key={s} onClick={() => switchStyle(s)} className={`text-[11px] py-1.5 rounded-md border transition capitalize ${s === style ? 'bg-brand text-white border-brand' : 'bg-white border-line hover:border-brand/40'}`}>
+                {s}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] uppercase tracking-widest text-muted px-2 mb-1">Farbschema</p>
+          <div className="flex gap-2 px-1">
             {presets.map((p: ThemePreset, i: number) => (
               <button
                 key={p.id}
                 onClick={() => setPresetIdx(i)}
                 title={p.label}
                 aria-label={p.label}
-                className={`h-9 w-9 rounded-full border-2 transition ${
+                className={`h-8 w-8 rounded-full border-2 transition ${
                   i === presetIdx ? 'border-brand scale-110' : 'border-white shadow-md hover:scale-105'
                 }`}
                 style={{ background: `linear-gradient(135deg, ${p.primary}, ${p.accent})` }}
