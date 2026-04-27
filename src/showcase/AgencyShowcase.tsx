@@ -24,7 +24,44 @@ const AGENCY = {
   phone: '+43 660 0000 000',
 };
 
-const ROTATING_WORDS = ['Restaurants.', 'Salons.', 'Handwerker:innen.'];
+const ROTATING_WORDS = [
+  'Restaurants.',
+  'Salons.',
+  'Handwerker:innen.',
+  'Cafés.',
+  'Praxen.',
+  'Beratungen.',
+  'Studios.',
+  'Ateliers.',
+  'Werkstätten.',
+  'Hotels.',
+  'Bäckereien.',
+  'Boutiquen.',
+];
+
+/* ─── Showcase palette ─────────────────────────────────────────────
+ * Single source of truth for the showcase identity. Re-applied on every
+ * marketing-route mount so demo theme overrides (applied via lib/theme.ts
+ * inside /preview/* routes) cannot bleed into the landing/marketing pages.
+ */
+const SHOWCASE_PALETTE = {
+  '--brand-color': '#0b0b10',
+  '--brand-fg': '#ffffff',
+  '--accent-color': '#c4ff3a',
+  '--accent-color-2': '#ff5b3a',
+  '--surface-color': '#f4f3ee',
+  '--bg-color': '#fafaf7',
+  '--text-color': '#0b0b10',
+} as const;
+
+function applyShowcasePalette() {
+  const r = document.documentElement.style;
+  for (const [k, v] of Object.entries(SHOWCASE_PALETTE)) r.setProperty(k, v);
+  // applyTheme() in lib/theme.ts sets these inline on body — clear them so
+  // our CSS variables drive body colors again.
+  document.body.style.backgroundColor = '';
+  document.body.style.color = '';
+}
 
 /* ─── Template metadata ────────────────────────────────────────────── */
 const TEMPLATE_META: Record<TemplateKey, {
@@ -79,15 +116,46 @@ const STYLE_PREVIEW: Record<TemplateKey, { classic: string; modern: string; bold
   },
 };
 
+/* ─── Extra branches (showcase-only — no live preview yet) ───────── */
+type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
+const EXTRA_BRANCHES: Record<ExtraBranchKey, {
+  label: string;
+  tagline: string;
+  description: string;
+  image: string;
+  accent: string;
+  bullets: string[];
+}> = {
+  consulting: {
+    label: 'Beratung & Kanzlei',
+    tagline: 'Consulting · Steuer · Recht',
+    description: 'Seriöser Auftritt mit klarer Hierarchie, Team-Profilen und Mandanten-Login auf Wunsch.',
+    image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80',
+    accent: '#1e3a8a',
+    bullets: ['Team- & Expertise-Seiten', 'Mandanten-Bereich (optional)', 'Termin-Anfrage mit Vorab-Briefing', 'Whitepaper & Case-Studies'],
+  },
+  medical: {
+    label: 'Praxen & Ärzte',
+    tagline: 'Arzt · Therapie · Praxis',
+    description: 'Ruhige, vertrauenswürdige Ästhetik mit Online-Termin-Anbindung und barrierearmer Navigation.',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1400&q=80',
+    accent: '#0e7490',
+    bullets: ['Leistungs- & Therapie-Übersicht', 'Doctolib / jameda-Integration', 'Notfall-Hinweise & Sprechzeiten', 'Mehrsprachig & barrierearm'],
+  },
+  fitness: {
+    label: 'Studios & Coaching',
+    tagline: 'Fitness · Yoga · Personal',
+    description: 'Energiegeladenes Editorial mit Kurs-Plan, Trainer-Bios und Probetraining-Funnel.',
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=80',
+    accent: '#9333ea',
+    bullets: ['Kursplan mit Filter', 'Trainer-Profile & Stories', 'Probetraining-Anmeldung', 'Mitglieder-Bereich (optional)'],
+  },
+};
+
 /* ─── Showcase root ────────────────────────────────────────────────── */
 export default function AgencyShowcase() {
   useEffect(() => {
-    document.documentElement.style.setProperty('--brand-color', '#0b0b10');
-    document.documentElement.style.setProperty('--accent-color', '#c4ff3a');
-    document.documentElement.style.setProperty('--accent-color-2', '#ff5b3a');
-    document.documentElement.style.setProperty('--surface-color', '#f4f3ee');
-    document.documentElement.style.setProperty('--bg-color', '#fafaf7');
-    document.documentElement.style.setProperty('--text-color', '#0b0b10');
+    applyShowcasePalette();
   }, []);
 
   return (
@@ -118,6 +186,11 @@ export default function AgencyShowcase() {
 function ShowcaseShell() {
   const [scrolled, setScrolled] = useState(false);
   const [mobile, setMobile] = useState(false);
+  // Restore showcase palette on every shell mount so demo theme overrides
+  // applied inside /preview/* never persist into the marketing pages.
+  useEffect(() => {
+    applyShowcasePalette();
+  }, []);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -424,22 +497,27 @@ function HeroSection() {
 
 function ClientLogosSection() {
   const ITEMS = [
-    'Trattoria Innsbruck', 'Studio Lumière', 'Mayer & Söhne', 'Café Bergblick',
-    'Atelier Linda', 'Tischlerei Höflinger', 'Pizzeria Da Marco',
-    'Salon Korall', 'Holz & Liebe',
+    'Restaurants', 'Salons & Beauty', 'Handwerk', 'Cafés', 'Bäckereien',
+    'Hotels & Pensionen', 'Praxen & Ärzte', 'Beratung & Kanzleien',
+    'Studios & Coaching', 'Ateliers', 'Werkstätten', 'Boutiquen',
+    'Weingüter', 'Bars & Clubs', 'Immobilien-Makler', 'Floristen',
   ];
   return (
     <section className="py-12 md:py-16 surface border-y border-line" id="mehr">
       <div className="container-x mb-6">
-        <p className="eyebrow">Über 40 lokale Betriebe vertrauen uns</p>
+        <p className="eyebrow">Branchen, die wir verstehen</p>
       </div>
       <Marquee speed="slow">
-        {ITEMS.concat(ITEMS).map((n, i) => (
+        {[...ITEMS, ...ITEMS].map((n, i) => (
           <span key={i} className="font-display text-3xl md:text-5xl text-muted whitespace-nowrap">
             {n}
             <span className="text-[var(--accent-color-2)] ml-12">✦</span>
           </span>
         ))}
+        <span className="font-display text-3xl md:text-5xl whitespace-nowrap italic" style={{ color: 'var(--accent-color-2)' }}>
+          und viele mehr
+          <span className="text-muted ml-12">✦</span>
+        </span>
       </Marquee>
     </section>
   );
@@ -513,13 +591,13 @@ function TemplatesPreviewSection() {
           <div className="md:col-span-7 reveal">
             <p className="eyebrow mb-5">Templates</p>
             <h2 className="headline-lg">
-              Drei Branchen.<br />
+              Sechs Branchen.<br />
               <em className="italic-pop">Endlos viele Welten.</em>
             </h2>
           </div>
           <p className="md:col-span-5 text-lg text-muted reveal">
-            Jedes Template ist mehrseitig, mit Foto-Galerien, animiertem Hero und 4 vorbereiteten Farbschemen.
-            Klicken Sie sich live durch.
+            Drei Templates sind sofort live klickbar, drei weitere Branchen zeigen, wie sich der Studio-Stil
+            anpassen lässt. Mehr Branchen jederzeit auf Anfrage.
           </p>
         </div>
 
@@ -547,6 +625,34 @@ function TemplatesPreviewSection() {
                   <p className="mt-3 text-sm text-white/80 leading-relaxed max-w-xs">{m.description}</p>
                   <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium border-t border-white/20 pt-4">
                     Live-Vorschau ansehen
+                    <span aria-hidden className="transition-transform group-hover:translate-x-2">→</span>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+          {(Object.keys(EXTRA_BRANCHES) as ExtraBranchKey[]).map((k) => {
+            const m = EXTRA_BRANCHES[k];
+            return (
+              <Link
+                key={k}
+                to="/kontakt"
+                className="group relative rounded-3xl overflow-hidden aspect-[4/5] hover-lift block"
+              >
+                <img src={m.image} alt={m.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                <div className="absolute top-5 left-5 right-5 flex justify-between items-start">
+                  <span className="text-xs font-mono text-white/80 uppercase tracking-widest">/ {k}</span>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-white/90 bg-white/10 backdrop-blur px-2.5 py-1 rounded-full border border-white/20">
+                    Auf Anfrage
+                  </span>
+                </div>
+                <div className="relative p-8 h-full flex flex-col justify-end text-white">
+                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: m.accent }}>{m.tagline}</p>
+                  <h3 className="font-display text-4xl md:text-5xl">{m.label}</h3>
+                  <p className="mt-3 text-sm text-white/80 leading-relaxed max-w-xs">{m.description}</p>
+                  <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium border-t border-white/20 pt-4">
+                    Konzept anfragen
                     <span aria-hidden className="transition-transform group-hover:translate-x-2">→</span>
                   </div>
                 </div>
@@ -987,6 +1093,61 @@ function TemplatesGallery() {
                       </div>
                     </Link>
                   ))}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Showcase-only branches — no live preview, link to contact */}
+          <div className="reveal pt-8 border-t border-line">
+            <p className="eyebrow mb-3">Weitere Branchen</p>
+            <h2 className="headline-lg">
+              Auch dafür haben wir<br />
+              <em className="italic-pop">einen Plan.</em>
+            </h2>
+            <p className="mt-4 text-base text-muted max-w-2xl">
+              Branchen-spezifische Konzepte, die im Studio-Stil gebaut werden. Auf Anfrage als Custom-Projekt
+              oder als nächstes Branchen-Template.
+            </p>
+          </div>
+          {(Object.keys(EXTRA_BRANCHES) as ExtraBranchKey[]).map((k, i) => {
+            const m = EXTRA_BRANCHES[k];
+            return (
+              <div key={k} className="reveal">
+                <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-widest" style={{ color: m.accent }}>/ Branche · 0{i + 4}</p>
+                    <h2 className="headline-lg mt-3">{m.label}</h2>
+                    <p className="mt-2 text-base text-muted max-w-xl">{m.tagline}</p>
+                  </div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest bg-[var(--surface-color)] border border-line px-3 py-1.5 rounded-full text-muted">
+                    Auf Anfrage · Custom
+                  </span>
+                </div>
+                <div className="grid md:grid-cols-3 gap-5">
+                  <div className="md:col-span-2 group block rounded-3xl overflow-hidden bg-white border border-line">
+                    <div className="aspect-[16/9] overflow-hidden relative">
+                      <img src={m.image} alt={m.label} className="w-full h-full object-cover" loading="lazy" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    </div>
+                    <div className="p-6">
+                      <p className="text-base text-muted leading-relaxed">{m.description}</p>
+                    </div>
+                  </div>
+                  <div className="bg-white border border-line rounded-3xl p-6 flex flex-col">
+                    <p className="font-mono text-[11px] uppercase tracking-widest text-muted mb-3">Module</p>
+                    <ul className="space-y-2 text-sm text-brand mb-6">
+                      {m.bullets.map((b) => (
+                        <li key={b} className="flex gap-2">
+                          <span style={{ color: m.accent }}>✦</span>
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Link to="/kontakt" className="btn-outline mt-auto self-start text-sm">
+                      Konzept anfragen <span aria-hidden>→</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
