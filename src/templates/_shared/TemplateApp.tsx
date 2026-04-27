@@ -564,17 +564,24 @@ function ModernGalleryGrid({ images }: { images: string[] }) {
 
 function MasonryGrid({ images }: { images: string[] }) {
   return (
-    <div className="columns-2 md:columns-3 lg:columns-4 gap-4 reveal-stagger [column-fill:_balance]">
-      {images.map((src, i) => {
-        // Vary aspect ratios for visual rhythm
-        const ratios = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[5/4]', 'aspect-[3/4]', 'aspect-[2/3]'];
-        const ar = ratios[i % ratios.length];
-        return (
-          <div key={i} className={`mb-4 break-inside-avoid overflow-hidden rounded-2xl img-zoom ${ar}`}>
-            <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-          </div>
-        );
-      })}
+    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:_balance] reveal-stagger">
+      {images.map((src, i) => (
+        <figure
+          key={i}
+          className="mb-4 break-inside-avoid overflow-hidden rounded-2xl img-zoom group relative"
+        >
+          <img
+            src={src}
+            alt=""
+            className="block w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            loading="lazy"
+          />
+          <figcaption className="absolute bottom-3 left-3 right-3 text-[10px] font-mono uppercase tracking-[0.25em] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity">
+            / {String(i + 1).padStart(2, '0')}
+          </figcaption>
+          <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        </figure>
+      ))}
     </div>
   );
 }
@@ -1043,26 +1050,43 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
         </div>
 
         <div className="mt-10 reveal">
-          <a
-            href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(content.contact.address)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="block aspect-[16/7] rounded-3xl overflow-hidden border border-line bg-slate-100 relative group"
-            aria-label={`Karte: ${content.contact.address}`}
-          >
-            <img
-              src={`https://staticmap.openstreetmap.de/staticmap.php?center=${variant === 'restaurant' ? '47.2692,11.4041' : variant === 'salon' ? '48.1633,11.5867' : '48.7665,11.4258'}&zoom=14&size=1200x500&maptype=mapnik`}
-              alt=""
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-            <span className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-widest group-hover:bg-white transition">
-              In Karte öffnen ↗
-            </span>
-          </a>
+          <ContactMap content={content} />
         </div>
       </Section>
     </>
+  );
+}
+
+function ContactMap({ content }: { content: SiteContent }) {
+  const address = content.contact.address || '';
+  const explicitEmbed = content.contact.mapsUrl || '';
+  // Treat URL as a usable embed only if it contains the trusted Google Maps embed pattern
+  const isUsableEmbed =
+    /^https:\/\/(www\.)?google\.[^/]+\/maps\/embed/i.test(explicitEmbed) ||
+    /[?&]output=embed/i.test(explicitEmbed);
+  const embedSrc = isUsableEmbed
+    ? explicitEmbed
+    : `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+  const linkHref = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
+  return (
+    <div className="rounded-3xl overflow-hidden border border-line bg-slate-100 relative group">
+      <iframe
+        src={embedSrc}
+        title={`Karte: ${address}`}
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        className="block w-full aspect-[16/7] border-0"
+        allow="fullscreen"
+      />
+      <a
+        href={linkHref}
+        target="_blank"
+        rel="noreferrer"
+        className="absolute bottom-4 right-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-widest hover:bg-white transition shadow-sm"
+      >
+        In Karte öffnen ↗
+      </a>
+    </div>
   );
 }
 

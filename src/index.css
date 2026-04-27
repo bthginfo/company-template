@@ -33,6 +33,38 @@
   .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 }
 
+/* ─── Per-style font swaps ─────────────────────────────────────────
+ * Each template root carries .tpl-style-<style>; we scope font-family
+ * so switching style also visibly changes typography.
+ */
+.tpl-style-classic { /* defaults — Instrument Serif display, Geist body */ }
+
+.tpl-style-modern {
+  font-family: 'Space Grotesk', 'Geist', system-ui, sans-serif;
+}
+.tpl-style-modern h1,
+.tpl-style-modern h2,
+.tpl-style-modern h3,
+.tpl-style-modern .font-display {
+  font-family: 'Space Grotesk', 'Geist', system-ui, sans-serif;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+}
+.tpl-style-modern .italic-pop { font-style: normal; }
+
+.tpl-style-bold {
+  font-family: 'Geist', system-ui, sans-serif;
+}
+.tpl-style-bold h1,
+.tpl-style-bold h2,
+.tpl-style-bold h3,
+.tpl-style-bold .font-display {
+  font-family: 'Bricolage Grotesque', 'Instrument Serif', serif;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  font-stretch: 110%;
+}
+
 @layer components {
   .btn-primary {
     @apply relative inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 font-medium
