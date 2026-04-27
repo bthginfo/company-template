@@ -4,6 +4,8 @@ import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import type { TemplateKey } from '@/lib/types';
 import AdminDemo from './AdminDemo';
+import { Imprint, Privacy } from './Legal';
+import Seo from '@/components/Seo';
 import RestaurantTemplate from '@/templates/restaurant';
 import SalonTemplate from '@/templates/salon';
 import TradesmanTemplate from '@/templates/tradesman';
@@ -19,7 +21,7 @@ const AGENCY = {
   phone: '+43 660 0000 000',
 };
 
-const ROTATING_WORDS = ['Restaurants.', 'Salons.', 'Handwerker:innen.', 'Hotels.', 'Boutiquen.'];
+const ROTATING_WORDS = ['Restaurants.', 'Salons.', 'Handwerker:innen.'];
 
 /* ─── Template metadata ────────────────────────────────────────────── */
 const TEMPLATE_META: Record<TemplateKey, {
@@ -32,7 +34,7 @@ const TEMPLATE_META: Record<TemplateKey, {
 }> = {
   restaurant: {
     label: 'Restaurant',
-    tagline: 'Gastronomie · Cafés · Hotels',
+    tagline: 'Gastronomie · Trattoria · Café',
     description: 'Speisekarte, Reservierungen, Foodie-Galerie und Story-Telling, das Hunger macht.',
     image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80',
     accent: '#9a3412',
@@ -76,6 +78,8 @@ export default function AgencyShowcase() {
         <Route path="preise" element={<Pricing />} />
         <Route path="ueber-uns" element={<AboutPage />} />
         <Route path="kontakt" element={<Contact />} />
+        <Route path="impressum" element={<Imprint />} />
+        <Route path="datenschutz" element={<Privacy />} />
       </Route>
       <Route path="/preview/:key/*" element={<TemplatePreview />} />
       <Route path="/preview/:key/style/:style/*" element={<TemplatePreview />} />
@@ -114,16 +118,16 @@ function ShowcaseShell() {
         <Marquee speed="slow">
           {[
             'Aktuell freie Kapazitäten · Mai/Juni 2026',
-            'Komplettpaket inkl. Foto- & Videoshooting',
-            'In rund einer Woche live',
+            'Foto- & Videoshooting optional als Add-on',
+            'In 2–3 Wochen live',
             'Innsbruck · München · Ingolstadt · DACH',
-            'Hosting & Wartung inklusive',
+            'Hosting & kleine Pflege inklusive',
           ].concat([
             'Aktuell freie Kapazitäten · Mai/Juni 2026',
-            'Komplettpaket inkl. Foto- & Videoshooting',
-            'In rund einer Woche live',
+            'Foto- & Videoshooting optional als Add-on',
+            'In 2–3 Wochen live',
             'Innsbruck · München · Ingolstadt · DACH',
-            'Hosting & Wartung inklusive',
+            'Hosting & kleine Pflege inklusive',
           ]).map((m, i) => (
             <span key={i} className="whitespace-nowrap inline-flex items-center gap-3">
               <span className="opacity-80">{m}</span>
@@ -293,6 +297,7 @@ function ShowcaseFooter() {
 function Landing() {
   return (
     <>
+      <Seo title="BTH Studio · Websites für lokale Marken" description="Editorial-Design für Restaurants, Salons und Handwerksbetriebe in der DACH-Region. Inhalte, die Sie selbst pflegen." />
       <HeroSection />
       <ClientLogosSection />
       <ServicesSection />
@@ -385,7 +390,7 @@ function HeroSection() {
 function ClientLogosSection() {
   const ITEMS = [
     'Trattoria Innsbruck', 'Studio Lumière', 'Mayer & Söhne', 'Café Bergblick',
-    'Hofgarten Hotel', 'Atelier Linda', 'Tischlerei Höflinger', 'Pizzeria Da Marco',
+    'Atelier Linda', 'Tischlerei Höflinger', 'Pizzeria Da Marco',
     'Salon Korall', 'Holz & Liebe',
   ];
   return (
@@ -659,20 +664,20 @@ function ProcessTimelineSection() {
     {
       n: '02',
       t: 'Foto- & Videoshooting',
-      d: 'Wenn gewünscht: Wir kommen vor Ort, fotografieren, drehen und schneiden. Sie kümmern sich nur um Ihren Betrieb.',
-      meta: 'Tag 1–3',
+      d: 'Optional als Add-on: Wir kommen mit kleinem Team vor Ort und produzieren passende Bilder und kurzen Bewegtbild-Content. Buchbar auch separat.',
+      meta: 'Optional',
     },
     {
       n: '03',
       t: 'Aufbau & Befüllung',
       d: 'Sie wählen Template und Farbschema. Wir bauen auf, befüllen mit Ihren Inhalten und schicken Ihnen einen Preview-Link.',
-      meta: 'Tag 3–6',
+      meta: 'Woche 1–2',
     },
     {
       n: '04',
       t: 'Live-Schaltung',
       d: 'Sie geben grünes Licht. Wir schalten live, übergeben den Admin-Bereich und sind ab da Ihr direkter Ansprechpartner.',
-      meta: 'Tag 7',
+      meta: 'Woche 2–3',
     },
   ];
   return (
@@ -681,7 +686,7 @@ function ProcessTimelineSection() {
         <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
           <div className="md:col-span-7 reveal">
             <p className="eyebrow mb-5">Ablauf</p>
-            <h2 className="headline-lg">In <em className="italic-pop">7 Tagen</em> online.</h2>
+            <h2 className="headline-lg">In <em className="italic-pop">2–3 Wochen</em> online.</h2>
           </div>
           <p className="md:col-span-5 text-lg text-muted reveal">
             Vom ersten Anruf bis zur Live-Schaltung – ein klarer Ablauf ohne Überraschungen.
@@ -719,19 +724,19 @@ function ProductionSection() {
   const cards = [
     {
       t: 'Foto-Shooting',
-      lines: ['4–8 Stunden vor Ort', '20–40 bearbeitete Bilder', 'Unbegrenzte Nutzung', 'Lieferung in 7 Tagen'],
+      lines: ['Halber bis ganzer Tag vor Ort', '20–40 bearbeitete Bilder', 'Unbegrenzte Nutzung', 'Lieferung in ca. 2 Wochen'],
       img: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=900&q=80',
       featured: false,
     },
     {
       t: 'Imagefilm',
-      lines: ['30–60 Sekunden Film', 'Drohnenaufnahmen optional', 'Lizenzierte Hintergrundmusik', 'Web- & Social-Schnitt'],
+      lines: ['30–60 Sekunden Film', 'Kurzer Bewegtbild-Inhalt', 'Lizenzierte Hintergrundmusik', 'Web- & Social-Schnitt'],
       img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=900&q=80',
       featured: true,
     },
     {
-      t: 'Komplett-Set',
-      lines: ['Foto + Video gemeinsam', 'Storyboard-Beratung', 'Social-Media-Cuts', 'Beste Preisleistung'],
+      t: 'Foto + Film',
+      lines: ['Beides am gleichen Tag', 'Kombi-Konditionen', 'Social-Media-Cuts', 'Beste Preisleistung'],
       img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=900&q=80',
       featured: false,
     },
@@ -743,15 +748,15 @@ function ProductionSection() {
         <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
           <div className="md:col-span-7 reveal">
             <p className="eyebrow !text-white/60 mb-5" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              <span style={{ background: 'rgba(255,255,255,0.4)' }} />Komplettpaket
+              <span style={{ background: 'rgba(255,255,255,0.4)' }} />Add-on · optional
             </p>
             <h2 className="headline-lg">
-              Wir machen die Bilder.<br />
-              <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>Wir drehen das Video.</em>
+              Auf Wunsch:<br />
+              <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>Bilder & kurzer Film.</em>
             </h2>
           </div>
           <p className="md:col-span-5 text-lg text-white/80 reveal">
-            Buchbar einzeln oder als Komplettpaket. Wir kommen ins Lokal, in den Salon oder auf die Baustelle und produzieren Inhalte, die wirklich nach Ihnen aussehen.
+            Buchbar als Add-on. Wir kommen ins Lokal, in den Salon oder auf die Baustelle und produzieren Inhalte, die zu Ihrer Marke passen – nur wenn Sie es wünschen.
           </p>
         </div>
 
@@ -893,6 +898,7 @@ function TemplatesGallery() {
   useReveal();
   return (
     <>
+      <Seo title="Templates · BTH Studio" description="Drei Branchen, drei Stile: wählen Sie Ihr Template als Klassisch, Modern oder Bold." />
       <section className="pt-44 pb-20 md:pb-28">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Galerie · Templates</p>
@@ -960,21 +966,22 @@ function ProcessPage() {
   useReveal();
   const steps = [
     { d: 'Tag 0', t: 'Kennenlernen', body: '30-Minuten-Call (Zoom oder Telefon). Wir verstehen Ihren Betrieb, Ihre Konkurrenz, Ihre Ziele. Sie bekommen unsere ehrliche Einschätzung.' },
-    { d: 'Tag 1', t: 'Briefing & Auswahl', body: 'Sie wählen Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.' },
-    { d: 'Tag 1–3', t: 'Foto- & Videoshooting', body: 'Optional: Wir kommen mit zwei Mitarbeitenden, einer Kamera-Ausrüstung im Wert von 25 k €, einer Drohne und einem Plan, was wir produzieren wollen. 4–8 Stunden vor Ort.' },
-    { d: 'Tag 3–5', t: 'Aufbau', body: 'Wir richten das Template ein, importieren Ihre Inhalte, optimieren Bilder, schreiben SEO-Texte vor.' },
-    { d: 'Tag 5–6', t: 'Feedback-Schleife', body: 'Sie schauen sich den Preview-Link an. Eine Korrektur-Runde inkludiert. Sie senden Anmerkungen, wir setzen um.' },
-    { d: 'Tag 7', t: 'Live-Schaltung', body: 'Wir verbinden Ihre Domain und übergeben den Admin-Bereich. Sie sind online.' },
-    { d: 'Ab Tag 7', t: 'Pflege & Support', body: 'Sie pflegen Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.' },
+    { d: 'Woche 1', t: 'Briefing & Auswahl', body: 'Sie wählen Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.' },
+    { d: 'Optional', t: 'Foto- & Videoshooting', body: 'Add-on, kein Standard. Auf Wunsch kommen wir mit kleinem Team vor Ort und produzieren Bild- und Filmmaterial. Auch nachträglich oder separat buchbar.' },
+    { d: 'Woche 1–2', t: 'Aufbau', body: 'Wir richten das Template ein, importieren Ihre Inhalte, optimieren Bilder, schreiben SEO-Texte vor.' },
+    { d: 'Woche 2', t: 'Feedback-Schleife', body: 'Sie schauen sich den Preview-Link an. Eine Korrektur-Runde inkludiert. Sie senden Anmerkungen, wir setzen um.' },
+    { d: 'Woche 2–3', t: 'Live-Schaltung', body: 'Wir verbinden Ihre Domain und übergeben den Admin-Bereich. Sie sind online.' },
+    { d: 'Laufend', t: 'Pflege & Support', body: 'Sie pflegen Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.' },
   ];
   return (
     <>
+      <Seo title="Ablauf · BTH Studio" description="Vom ersten Gespräch bis zur Live-Schaltung. Klar geplant, ohne Überraschungen." />
       <section className="pt-44 pb-16">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Ablauf</p>
           <h1 className="headline-xl max-w-5xl reveal">
             Sieben Schritte.<br />
-            <em className="italic-pop">Sieben Tage.</em>
+            <em className="italic-pop">Sauber geplant.</em>
           </h1>
         </div>
       </section>
@@ -1010,6 +1017,7 @@ function AboutPage() {
   useReveal();
   return (
     <>
+      <Seo title="Über uns · BTH Studio" description="Studio für lokale Marken in der DACH-Region. Wer wir sind, wie wir arbeiten." />
       <section className="pt-44 pb-16">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Über uns</p>
@@ -1044,7 +1052,7 @@ function AboutPage() {
               Sie sind herzlich willkommen vorbeizukommen – wir machen besseren Kaffee als die meisten.
             </p>
             <p className="mt-4 text-lg text-muted leading-relaxed">
-              Unsere Kunden sind Restaurants, Salons, Handwerksbetriebe, Hotels und Boutiquen in Innsbruck,
+              Unsere Kunden sind Restaurants, Salons und Handwerksbetriebe in Innsbruck,
               München, Ingolstadt und gelegentlich darüber hinaus. Über 65 % der Aufträge kommen von Empfehlungen.
             </p>
           </div>
@@ -1068,7 +1076,7 @@ function AboutPage() {
                 n: 'Lena B.',
                 r: 'Foto & Visual',
                 img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&q=80',
-                bio: 'Foto-Studium in Wien, fünf Jahre für österreichische Hotels und Magazine. Drohnen-Pilotin (gewerblich).',
+                bio: 'Foto-Studium in Wien, fünf Jahre für österreichische Magazine und lokale Marken. Schwerpunkt: Foto und kurzes Bewegtbild.',
               },
               {
                 n: 'Tom H.',
@@ -1114,22 +1122,22 @@ function Pricing() {
         'Admin-Bereich zum selbst pflegen',
         'Hosting & Pflege inklusive',
         '1 Stunde Einrichtungs-Support',
-        'In rund einer Woche online',
+        'In 2–3 Wochen online',
       ],
     },
     {
-      name: 'Komplettpaket',
+      name: 'Mit Foto-Add-on',
       price: '2.890 €',
       sub: 'einmalig',
       monthly: '+ 29 € / Monat Hosting & Pflege',
       featured: true,
-      badge: 'Beliebteste Wahl',
+      badge: 'Mit Bild & Film',
       features: [
         'Alles aus „Template"',
-        'Foto-Shooting bei Ihnen vor Ort (4–8 h)',
+        'Foto-Shooting bei Ihnen vor Ort (halber–ganzer Tag)',
         '20–40 bearbeitete Fotos',
-        '30–60 Sekunden Imagefilm',
-        'Storyboard- und Stylings-Beratung',
+        '30–60 Sekunden kurzer Imagefilm',
+        'Beratung zu Bildsprache und Look',
         'Social-Media-Cuts inklusive',
       ],
     },
@@ -1243,7 +1251,7 @@ function Pricing() {
           </h2>
           <Accordion
             items={[
-              { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise 5–10 Arbeitstage nach Inhalts-Übergabe. Komplettpakete mit Foto/Video brauchen 2–3 Wochen, weil ein Shooting-Termin und ein Schnitt-Slot dazukommen.' },
+              { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise 2–3 Wochen nach Inhalts-Übergabe. Mit Foto-Add-on planen wir zusätzlich Zeit für Shooting und Schnitt ein.' },
               { q: 'Kann ich Inhalte selbst pflegen?', a: 'Ja. Sie erhalten einen einfachen Admin-Bereich mit Login. Texte, Bilder, Speisekarte und Öffnungszeiten ändern Sie ohne Vorkenntnisse direkt im Browser. Sie sehen den Effekt sofort.' },
               { q: 'Was passiert, wenn etwas kaputt ist?', a: 'Im Pflegepaket überwachen wir Ihre Seite automatisch – wir bekommen Probleme oft mit, bevor Sie es tun. Wir reagieren innerhalb der Geschäftszeiten in der Regel binnen weniger Stunden.' },
               { q: 'Wem gehört die Website?', a: 'Ihnen. Sie können den Quellcode jederzeit anfordern, das Hosting wechseln und mit anderen Agenturen weiterarbeiten. Wir liefern keine Verträge mit Lock-in-Klauseln.' },
@@ -1266,6 +1274,7 @@ function Contact() {
   const [sent, setSent] = useState(false);
   return (
     <>
+      <Seo title="Kontakt · BTH Studio" description="Erstgespräch, Angebot oder einfach mal Hallo. Wir antworten innerhalb von 24 Stunden." />
       <section className="pt-44 pb-12">
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-6 reveal">
@@ -1318,14 +1327,13 @@ function Contact() {
                       <option>Restaurant / Gastro</option>
                       <option>Salon / Beauty</option>
                       <option>Handwerk / Service</option>
-                      <option>Hotel / Pension</option>
                       <option>Andere</option>
                     </select>
                   </Field>
                   <Field label="Paket-Interesse">
                     <select name="paket" className="w-full bg-[var(--surface-color)] rounded-xl px-4 py-3 border border-line focus:border-brand outline-none transition">
                       <option>Template (1.490 €)</option>
-                      <option>Komplettpaket (2.890 €)</option>
+                      <option>Mit Foto-Add-on (2.890 €)</option>
                       <option>Custom (auf Anfrage)</option>
                       <option>Noch unentschieden</option>
                     </select>
