@@ -1,19 +1,19 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { put } from '@vercel/blob';
-import { getSessionUser, unauthorized, forbidden } from './_lib/auth';
+import { getSession, unauthorized } from './_lib/auth';
 
 export const config = { api: { bodyParser: false } };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const user = await getSessionUser(req);
-  if (!user) return unauthorized(res);
-  if (!user.tenantId) return forbidden(res);
+  const session = await getSession(req);
+  if (!session) return unauthorized(res);
 
   const filename = String(req.query.filename || `upload-${Date.now()}`);
   const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const key = `tenants/${user.tenantId}/${Date.now()}-${safeName}`;
+  const scope = session.tenantId ?? 'super';
+  const key = `tenants/${scope}/${Date.now()}-${safeName}`;
 
   const chunks: Buffer[] = [];
   for await (const chunk of req) chunks.push(chunk as Buffer);

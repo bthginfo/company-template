@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema } from '../src/lib/types';
-import { getSessionUser, unauthorized, forbidden } from './_lib/auth';
+import { getSession, unauthorized, forbidden } from './_lib/auth';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') return handleGet(req, res);
@@ -31,9 +31,19 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handlePut(req: VercelRequest, res: VercelResponse) {
-  const user = await getSessionUser(req);
-  if (!user) return unauthorized(res);
-  if (!user.tenantId) return forbidden(res);
+  const session = await getSession(req);
+  if (!session) return unauthorized(res);
+
+  const slug = String(req.query.slug || '');
+  if (!slug) return res.status(400).json({ error: 'slug required' });
+
+  const tenant = await db.query.tenants.findFirst({
+    where: eq(schema.tenants.slug, slug),
+  });
+  if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
+
+  // Tenant role can only edit own tenant. Super can edit any.
+  if (session.role === 'tenant' && session.tenantId !== tenant.id) return forbidden(res);
 
   const parse = SiteContentSchema.safeParse(req.body);
   if (!parse.success) {
@@ -42,7 +52,7 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
 
   await db
     .insert(schema.siteContent)
-    .values({ tenantId: user.tenantId, data: parse.data })
+    .values({ tenantId: tenant.id, data: parse.data })
     .onConflictDoUpdate({
       target: schema.siteContent.tenantId,
       set: { data: parse.data, updatedAt: new Date() },

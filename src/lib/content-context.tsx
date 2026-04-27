@@ -32,11 +32,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       const r = await fetch(`/api/content?slug=${encodeURIComponent(slug)}`);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const json = await r.json();
-      const parsed = json.content
-        ? SiteContentSchema.parse(json.content)
-        : FALLBACK_CONTENT;
+      const parsed = json.content ? SiteContentSchema.parse(json.content) : FALLBACK_CONTENT;
       setState({ status: 'ready', tenant: json.tenant, content: parsed });
-      // apply primary color CSS var
       document.documentElement.style.setProperty('--brand-color', parsed.brand.primaryColor);
     } catch (e: any) {
       // eslint-disable-next-line no-console
@@ -50,7 +47,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const save = async (next: SiteContent) => {
-    const r = await fetch('/api/content', {
+    const slug = getTenantSlug();
+    const r = await fetch(`/api/content?slug=${encodeURIComponent(slug)}`, {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(next),

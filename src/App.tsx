@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import { ContentProvider } from './lib/content-context';
 import { SiteRouter } from './SiteRouter';
 import { AdminLogin } from './admin/Login';
-import { AdminCheckEmail } from './admin/CheckEmail';
 import { AdminApp } from './admin/AdminApp';
 import { isShowcaseMode } from './lib/tenant';
 import AgencyShowcase from './showcase/AgencyShowcase';
@@ -16,7 +15,6 @@ export default function App() {
     <ContentProvider>
       <Routes>
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/check-email" element={<AdminCheckEmail />} />
         <Route path="/admin/*" element={<AdminApp />} />
         <Route path="/*" element={<SiteRouter />} />
       </Routes>

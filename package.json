@@ -11,17 +11,18 @@
     "lint": "tsc -b --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx scripts/seed.ts",
+    "tenant:create": "tsx scripts/create-tenant.ts",
+    "hash": "tsx scripts/hash-password.ts",
     "vercel:setup": "powershell -ExecutionPolicy Bypass -File ./scripts/vercel-setup.ps1",
     "vercel:customer": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-customer.ps1"
   },
   "dependencies": {
-    "@auth/core": "^0.37.0",
-    "@auth/drizzle-adapter": "^1.7.0",
     "@vercel/blob": "^0.27.0",
     "@vercel/postgres": "^0.10.0",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.0",
+    "jose": "^5.9.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.0",
@@ -29,6 +30,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
