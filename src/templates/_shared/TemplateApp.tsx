@@ -546,7 +546,22 @@ function BoldServicesList({ services }: { services: SiteContent['services'] }) {
   );
 }
 
-/* ─── Reusable masonry grid ──────────────────────────────────────── */
+/* ─── Reusable gallery grids ─────────────────────────────────────── */
+function ModernGalleryGrid({ images }: { images: string[] }) {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 reveal-stagger">
+      {images.map((src, i) => (
+        <figure key={i} className="group relative aspect-[4/3] overflow-hidden rounded-2xl border border-line">
+          <img src={src} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" loading="lazy" />
+          <figcaption className="absolute inset-x-0 bottom-0 px-4 py-3 text-xs font-mono uppercase tracking-widest text-white bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition">
+            / {String(i + 1).padStart(2, '0')}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
 function MasonryGrid({ images }: { images: string[] }) {
   return (
     <div className="columns-2 md:columns-3 lg:columns-4 gap-4 reveal-stagger [column-fill:_balance]">
@@ -639,6 +654,8 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         eyebrow={cfg.servicesEyebrow}
         title={cfg.servicesHeadline}
         subtitle={teaserSubtitleFor(variant)}
+        style={style}
+        image={style === 'modern' ? content.gallery[2] || content.gallery[0] : undefined}
       />
 
       {/* Highlights ribbon */}
@@ -755,11 +772,14 @@ function GalleryPage({
               ? 'Looks unserer Kund:innen – mit Erlaubnis dokumentiert.'
               : 'Aktuelle Projekte aus den letzten Monaten – von kleiner Reparatur bis zur kompletten Sanierung.'
         }
+        style={style}
       />
 
       <Section spacing="lg">
-        {style === 'bold' || style === 'modern' ? (
+        {style === 'bold' ? (
           <MasonryGrid images={content.gallery} />
+        ) : style === 'modern' ? (
+          <ModernGalleryGrid images={content.gallery} />
         ) : (
           <GalleryShowcase variant={variant} images={content.gallery} mode="full" />
         )}
@@ -777,26 +797,56 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
       <PageHero
         eyebrow={style === 'bold' ? 'Wer wir sind' : 'Über uns'}
         title={content.about?.title || 'Unsere Geschichte.'}
+        subtitle={style === 'modern' ? 'Wer wir sind, wie wir denken, was uns wichtig ist.' : undefined}
+        style={style}
+        image={style === 'modern' ? content.about?.imageUrl || content.gallery[0] : undefined}
       />
 
-      <Section spacing="lg">
-        <div className="grid lg:grid-cols-12 gap-10 items-start">
-          <div className="lg:col-span-5">
-            <ParallaxImage
-              src={content.about?.imageUrl || content.gallery[0]}
-              alt={content.brand.name}
-              className="rounded-3xl aspect-[4/5] reveal"
-            />
-          </div>
-          <div className="lg:col-span-7 lg:pl-4">
-            <div className="reveal">
-              {(content.about?.body || '').split('\n\n').map((p, i) => (
-                <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
-              ))}
+      {style !== 'modern' && (
+        <Section spacing="lg">
+          <div className={`grid lg:grid-cols-12 gap-10 items-start ${style === 'bold' ? '' : ''}`}>
+            <div className="lg:col-span-5">
+              <ParallaxImage
+                src={content.about?.imageUrl || content.gallery[0]}
+                alt={content.brand.name}
+                className={`${style === 'bold' ? 'rounded-none' : 'rounded-3xl'} aspect-[4/5] reveal`}
+              />
+            </div>
+            <div className="lg:col-span-7 lg:pl-4">
+              <div className="reveal">
+                {(content.about?.body || '').split('\n\n').map((p, i) => (
+                  <p key={i} className={`leading-relaxed mb-6 ${style === 'bold' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl text-muted'}`}>{p}</p>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </Section>
+        </Section>
+      )}
+
+      {style === 'modern' && (
+        <Section spacing="lg">
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-7 lg:col-start-1 reveal">
+              {(content.about?.body || '').split('\n\n').map((p, i) => (
+                <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
+              ))}
+            </div>
+            <aside className="lg:col-span-4 lg:col-start-9 reveal">
+              <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
+                <p className="eyebrow mb-4">Auf einen Blick</p>
+                <dl className="space-y-3 text-sm">
+                  {VARIANT_HERO_META[variant].map((m, i) => (
+                    <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
+                      <dt className="text-muted">{m.label}</dt>
+                      <dd className="font-display">{m.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </aside>
+          </div>
+        </Section>
+      )}
 
       <ValuesSection variant={variant} />
 
@@ -949,7 +999,6 @@ function PressSection() {
 
 /* ─── Contact ────────────────────────────────────────────────────── */
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
-  void style;
   const arrival: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Mit dem Auto', d: 'Tiefgarage Maria-Theresien direkt nebenan. Erste Stunde gratis bei Reservierung.' },
@@ -979,6 +1028,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
               : 'Anfrage senden oder Notdienst rufen.'
         }
       />
+        style={style}
       <ContactBlock content={content} />
 
       <Section eyebrow="Wegbeschreibung" title={<>So <em className="italic-pop">finden Sie uns.</em></>} className="surface">
@@ -996,7 +1046,51 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   );
 }
 
-function PageHero({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
+function PageHero({ eyebrow, title, subtitle, style = 'classic', image }: {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  style?: TemplateStyle;
+  image?: string;
+}) {
+  if (style === 'bold') {
+    return (
+      <section className="pt-40 pb-16 grain relative overflow-hidden">
+        <div className="container-x">
+          <p className="eyebrow mb-6 reveal">{eyebrow}</p>
+          <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[14vw] md:text-[10vw] lg:text-[140px]">
+            {title.toUpperCase()}
+          </h1>
+          {subtitle && <p className="mt-10 text-xl md:text-2xl max-w-3xl reveal leading-snug">{subtitle}</p>}
+        </div>
+      </section>
+    );
+  }
+  if (style === 'modern') {
+    return (
+      <section className="pt-40 pb-20 surface border-b border-line">
+        <div className="container-x grid lg:grid-cols-12 gap-10 items-end">
+          <div className={image ? 'lg:col-span-7 reveal' : 'lg:col-span-12 reveal'}>
+            <p className="eyebrow mb-5">{eyebrow}</p>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]">
+              {splitTitle(title)}
+            </h1>
+            {subtitle && <p className="mt-8 text-lg text-muted max-w-2xl">{subtitle}</p>}
+          </div>
+          {image && (
+            <div className="lg:col-span-5 reveal">
+              <div className="relative">
+                <div className="absolute -inset-4 rounded-[2rem] bg-[var(--accent-color)] opacity-20 blur-2xl" aria-hidden />
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-line shadow-xl">
+                  <img src={image} alt="" className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="pt-44 pb-12">
       <div className="container-x">

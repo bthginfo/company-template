@@ -58,6 +58,24 @@ const TEMPLATE_META: Record<TemplateKey, {
   },
 };
 
+const STYLE_PREVIEW: Record<TemplateKey, { classic: string; modern: string; bold: string }> = {
+  restaurant: {
+    classic: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80',
+    modern: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80',
+    bold: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1400&q=80',
+  },
+  salon: {
+    classic: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1400&q=80',
+    modern: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1400&q=80',
+    bold: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1400&q=80',
+  },
+  tradesman: {
+    classic: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1400&q=80',
+    modern: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1400&q=80',
+    bold: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1400&q=80',
+  },
+};
+
 /* ─── Showcase root ────────────────────────────────────────────────── */
 export default function AgencyShowcase() {
   useEffect(() => {
@@ -914,41 +932,44 @@ function TemplatesGallery() {
       </section>
 
       <section className="pb-32">
-        <div className="container-x grid gap-6">
+        <div className="container-x flex flex-col gap-16">
           {(Object.keys(TEMPLATE_META) as TemplateKey[]).map((k, i) => {
             const m = TEMPLATE_META[k];
-            const styles: { id: 'classic' | 'modern' | 'bold'; label: string; tag: string }[] = [
-              { id: 'classic', label: 'Klassisch', tag: 'editorial · warm' },
-              { id: 'modern', label: 'Modern', tag: 'klar · SaaS-Ästhetik' },
-              { id: 'bold', label: 'Bold', tag: 'magazinhaft · groß' },
+            const styles: { id: 'classic' | 'modern' | 'bold'; label: string; tag: string; img: string }[] = [
+              { id: 'classic', label: 'Klassisch', tag: 'Editorial · warm · italic-pop', img: STYLE_PREVIEW[k].classic },
+              { id: 'modern', label: 'Modern', tag: 'Klar · SaaS · Karten-Grid', img: STYLE_PREVIEW[k].modern },
+              { id: 'bold', label: 'Bold', tag: 'Magazinhaft · große Typografie', img: STYLE_PREVIEW[k].bold },
             ];
             return (
-              <div key={k} className="rounded-3xl overflow-hidden bg-white border border-line reveal">
-                <div className="grid md:grid-cols-12 gap-0">
-                  <div className={`md:col-span-5 aspect-[4/3] md:aspect-auto img-zoom ${i % 2 ? 'md:order-2' : ''}`}>
-                    <img src={m.image} alt={m.label} className="w-full h-full object-cover" loading="lazy" />
-                  </div>
-                  <div className={`md:col-span-7 p-10 md:p-14 ${i % 2 ? 'md:order-1' : ''}`}>
+              <div key={k} className="reveal">
+                <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
+                  <div>
                     <p className="font-mono text-xs uppercase tracking-widest" style={{ color: m.accent }}>/ Branche · 0{i + 1}</p>
-                    <h2 className="headline-lg mt-4">{m.label}</h2>
-                    <p className="mt-4 text-lg text-muted">{m.tagline}</p>
-                    <p className="mt-8 eyebrow">Drei Stile</p>
-                    <div className="mt-4 grid sm:grid-cols-3 gap-3">
-                      {styles.map((s) => (
-                        <Link
-                          key={s.id}
-                          to={s.id === 'classic' ? `/preview/${k}` : `/preview/${k}/style/${s.id}`}
-                          className="group block rounded-2xl border border-line p-5 hover:border-brand hover:bg-[#fafaf7] transition"
-                        >
-                          <p className="font-display text-2xl">{s.label}</p>
-                          <p className="mt-1 text-xs text-muted">{s.tag}</p>
-                          <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted group-hover:text-brand transition">
-                            Live ansehen <span aria-hidden>→</span>
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
+                    <h2 className="headline-lg mt-3">{m.label}</h2>
+                    <p className="mt-2 text-base text-muted max-w-xl">{m.tagline}</p>
                   </div>
+                  <p className="text-xs uppercase tracking-widest text-muted">3 Stile · Live ansehen</p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-5">
+                  {styles.map((s) => (
+                    <Link
+                      key={s.id}
+                      to={s.id === 'classic' ? `/preview/${k}` : `/preview/${k}/style/${s.id}`}
+                      className="group block rounded-3xl overflow-hidden bg-white border border-line hover-lift"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden img-zoom relative">
+                        <img src={s.img} alt={`${m.label} · ${s.label}`} className="w-full h-full object-cover" loading="lazy" />
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-[10px] font-mono uppercase tracking-widest text-brand">{s.label}</span>
+                      </div>
+                      <div className="p-5 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-display text-xl">{m.label} · {s.label}</p>
+                          <p className="text-xs text-muted mt-1">{s.tag}</p>
+                        </div>
+                        <span aria-hidden className="text-brand group-hover:translate-x-1 transition">→</span>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </div>
             );
