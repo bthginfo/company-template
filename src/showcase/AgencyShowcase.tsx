@@ -427,7 +427,7 @@ function ServicesSection() {
     {
       n: '04',
       title: 'Hosting & Pflege',
-      copy: 'SSL, Backups, Monitoring und kleine Anpassungen pauschal. 29 €/Monat. Wir sind erreichbar – auf einem realen Telefon.',
+      copy: 'Unkompliziertes Hosting und kleine Anpassungen zum Pauschalpreis. 29 €/Monat – wir sind ansprechbar, wenn Sie uns brauchen.',
       tag: 'Per Empfehlung',
     },
   ];
@@ -574,10 +574,10 @@ function AdminPreviewSection() {
           </p>
           <ul className="mt-10 space-y-4">
             {[
-              'Login mit Passwort. Keine Magic-Link-Schleifen.',
-              'Bilder per Drag & Drop. Automatisch komprimiert.',
-              'Sofort live. Kein Warten auf Builds.',
-              'Versioniert. Rollback in einem Klick.',
+              'Login mit Passwort. Einfach und ohne Umwege.',
+              'Bilder per Drag & Drop hochladen.',
+              'Änderungen erscheinen direkt auf der Seite.',
+              'Ältere Stände lassen sich wiederherstellen.',
             ].map((t, i) => (
               <li key={i} className="flex gap-3 items-start">
                 <span className="mt-1 inline-flex h-6 w-6 rounded-full bg-[var(--accent-color)] items-center justify-center">
@@ -955,8 +955,8 @@ function ProcessPage() {
     { d: 'Tag 1–3', t: 'Foto- & Videoshooting', body: 'Optional: Wir kommen mit zwei Mitarbeitenden, einer Kamera-Ausrüstung im Wert von 25 k €, einer Drohne und einem Plan, was wir produzieren wollen. 4–8 Stunden vor Ort.' },
     { d: 'Tag 3–5', t: 'Aufbau', body: 'Wir richten das Template ein, importieren Ihre Inhalte, optimieren Bilder, schreiben SEO-Texte vor.' },
     { d: 'Tag 5–6', t: 'Feedback-Schleife', body: 'Sie schauen sich den Preview-Link an. Eine Korrektur-Runde inkludiert. Sie senden Anmerkungen, wir setzen um.' },
-    { d: 'Tag 7', t: 'Live-Schaltung', body: 'Wir verbinden Ihre Domain, aktivieren SSL, übergeben den Admin-Bereich. Sie sind online.' },
-    { d: 'Ab Tag 7', t: 'Pflege & Support', body: 'Sie pflegen Inhalte selbst. Wir halten Server, Sicherheit und kleine Anpassungen am Laufen. 29 €/Monat.' },
+    { d: 'Tag 7', t: 'Live-Schaltung', body: 'Wir verbinden Ihre Domain und übergeben den Admin-Bereich. Sie sind online.' },
+    { d: 'Ab Tag 7', t: 'Pflege & Support', body: 'Sie pflegen Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.' },
   ];
   return (
     <>
@@ -1103,7 +1103,7 @@ function Pricing() {
         'Eines unserer 3 Branchen-Templates',
         '5 Unterseiten, mehrsprachig optional',
         'Admin-Bereich zum selbst pflegen',
-        'SSL-Verschlüsselung & Hosting inklusive',
+        'Hosting & Pflege inklusive',
         '1 Stunde Einrichtungs-Support',
         'In rund einer Woche online',
       ],
