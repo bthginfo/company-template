@@ -355,19 +355,36 @@ export function SplitText({ children, className = '' }: { children: string; clas
 }
 
 /* ─── useReveal: scroll-reveal helper ─────────────────────────────────── */
-/* ─── useReveal: scroll-reveal helper ─────────────────────────────────── */
 export function useReveal() {
   useEffect(() => {
     const reduced = prefersReducedMotion();
     const SEL = '.reveal:not(.is-visible), .reveal-fast:not(.is-visible), .reveal-stagger:not(.is-visible)';
+
+    const REVEAL_RE = /(^|\s)(reveal|reveal-fast|reveal-stagger)(\s|$)/;
+    const hasRevealNode = (mutations: MutationRecord[]) => {
+      for (const m of mutations) {
+        for (const n of Array.from(m.addedNodes)) {
+          if (n.nodeType !== 1) continue;
+          const el = n as Element;
+          if (REVEAL_RE.test(el.className) || el.querySelector?.('.reveal, .reveal-fast, .reveal-stagger')) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
     if (reduced) {
       const apply = () =>
         document.querySelectorAll(SEL).forEach((el) => el.classList.add('is-visible'));
       apply();
-      const mo = new MutationObserver(apply);
+      const mo = new MutationObserver((mutations) => {
+        if (hasRevealNode(mutations)) apply();
+      });
       mo.observe(document.body, { childList: true, subtree: true });
       return () => mo.disconnect();
     }
+
     const io = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -378,11 +395,38 @@ export function useReveal() {
         }),
       { threshold: 0.12 }
     );
-    const observeAll = () => document.querySelectorAll(SEL).forEach((el) => io.observe(el));
+
+    // Observe each not-yet-visible reveal element.
+    // If it's already at or above the viewport (e.g. user scrolled past, then
+    // React re-mounted the section), reveal it immediately — IO would never fire
+    // for it because it's not going to intersect from below.
+    const observeAll = () => {
+      const vh = window.innerHeight;
+      document.querySelectorAll(SEL).forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top < vh * 0.88) {
+          // Already in or above viewport — show right away.
+          el.classList.add('is-visible');
+        } else {
+          io.observe(el);
+        }
+      });
+    };
     observeAll();
-    // Re-scan as new reveal nodes are added (style/route/content swaps).
-    const mo = new MutationObserver(() => observeAll());
+
+    // Re-scan only when a reveal node is actually added (style/route/content swap).
+    let scheduled = false;
+    const mo = new MutationObserver((mutations) => {
+      if (scheduled || !hasRevealNode(mutations)) return;
+      scheduled = true;
+      // Coalesce; let React finish committing before we measure.
+      requestAnimationFrame(() => {
+        scheduled = false;
+        observeAll();
+      });
+    });
     mo.observe(document.body, { childList: true, subtree: true });
+
     return () => {
       io.disconnect();
       mo.disconnect();
