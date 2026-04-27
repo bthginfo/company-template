@@ -11,6 +11,7 @@ import {
 import { TLink } from '@/components/site-blocks';
 
 export type TemplateVariant = TemplateKey;
+export type TemplateStyle = 'classic' | 'modern' | 'bold';
 
 const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLabel: string; nav: NavItem[]; servicesEyebrow: string; servicesHeadline: string }> = {
   restaurant: {
@@ -103,10 +104,12 @@ export default function TemplateApp({
   variant,
   content,
   basePath = '',
+  style = 'classic',
 }: {
   variant: TemplateVariant;
   content: SiteContent;
   basePath?: string;
+  style?: TemplateStyle;
 }) {
   const cfg = NAV_BY_VARIANT[variant];
   const announcements = announcementsFor(variant);
@@ -114,18 +117,18 @@ export default function TemplateApp({
 
   return (
     <BasePathProvider value={basePath}>
-      <div className="min-h-screen flex flex-col">
+      <div className={`min-h-screen flex flex-col tpl-style-${style}`}>
         <SiteHeader content={content} nav={cfg.nav} basePath={basePath} announcements={announcements} />
         <main className="flex-1">
           <ScrollToTopOnRoute />
           <Routes>
-            <Route index element={<HomePage variant={variant} content={content} />} />
-            <Route path={cfg.servicesPath.replace(/^\//, '')} element={<ServicesPage variant={variant} content={content} />} />
-            <Route path="galerie" element={<GalleryPage content={content} variant={variant} />} />
-            <Route path="referenzen" element={<GalleryPage content={content} variant={variant} title="Referenzen" eyebrow="Projekte" />} />
-            <Route path="ueber-uns" element={<AboutPage variant={variant} content={content} />} />
-            <Route path="kontakt" element={<ContactPage content={content} variant={variant} />} />
-            <Route path="*" element={<HomePage variant={variant} content={content} />} />
+            <Route index element={<HomePage variant={variant} content={content} style={style} />} />
+            <Route path={cfg.servicesPath.replace(/^\//, '')} element={<ServicesPage variant={variant} content={content} style={style} />} />
+            <Route path="galerie" element={<GalleryPage content={content} variant={variant} style={style} />} />
+            <Route path="referenzen" element={<GalleryPage content={content} variant={variant} style={style} title="Referenzen" eyebrow="Projekte" />} />
+            <Route path="ueber-uns" element={<AboutPage variant={variant} content={content} style={style} />} />
+            <Route path="kontakt" element={<ContactPage content={content} variant={variant} style={style} />} />
+            <Route path="*" element={<HomePage variant={variant} content={content} style={style} />} />
           </Routes>
         </main>
         <SiteFooter content={content} basePath={basePath} nav={cfg.nav} />
@@ -147,7 +150,13 @@ function announcementsFor(v: TemplateVariant) {
 }
 
 /* ─── Home ─────────────────────────────────────────────────────────── */
-function HomePage({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  if (style === 'modern') return <HomePageModern variant={variant} content={content} />;
+  if (style === 'bold') return <HomePageBold variant={variant} content={content} />;
+  return <HomePageClassic variant={variant} content={content} />;
+}
+
+function HomePageClassic({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const featuredServices = content.services.slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
@@ -240,6 +249,321 @@ function HomePage({ variant, content }: { variant: TemplateVariant; content: Sit
   );
 }
 
+/* ─── Home: Modern (SaaS-clean) ──────────────────────────────────── */
+function HomePageModern({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  const cfg = NAV_BY_VARIANT[variant];
+  const featuredServices = content.services.slice(0, 6);
+  const featuredGallery = content.gallery.slice(0, 6);
+  const heroImg = content.gallery[0] || content.about?.imageUrl;
+  const meta = VARIANT_HERO_META[variant];
+
+  return (
+    <>
+      {/* Split hero – text left, framed image right */}
+      <section className="pt-44 pb-20 md:pb-28">
+        <div className="container-x grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-6 reveal">
+            <p className="eyebrow mb-5">{content.brand.tagline || 'Willkommen'}</p>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
+              {content.brand.name}.<br />
+              <span className="text-muted">{teaserSubtitleFor(variant).split('.')[0]}.</span>
+            </h1>
+            <p className="mt-8 text-lg text-muted max-w-xl">{teaserSubtitleFor(variant)}</p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <TLink to="/kontakt" className="btn-primary">Kontakt aufnehmen <span aria-hidden>→</span></TLink>
+              <TLink to={cfg.servicesPath} className="btn-outline">{cfg.servicesLabel} ansehen</TLink>
+            </div>
+            <dl className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-4 max-w-xl">
+              {meta.map((m, i) => (
+                <div key={i}>
+                  <dt className="text-[10px] uppercase tracking-widest text-muted">{m.label}</dt>
+                  <dd className="mt-1 font-display text-2xl">{m.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className="lg:col-span-6 reveal">
+            {heroImg && (
+              <div className="relative">
+                <div className="absolute -inset-6 rounded-[2rem] bg-[var(--accent-color)] opacity-20 blur-3xl" aria-hidden />
+                <div className="relative rounded-3xl overflow-hidden border border-line shadow-2xl aspect-[4/5] bg-white">
+                  <img src={heroImg} alt={content.brand.name} className="w-full h-full object-cover" />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Feature grid */}
+      <Section eyebrow={cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={teaserSubtitleFor(variant)} className="surface">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+          {featuredServices.map((s, i) => (
+            <article key={i} className="bg-white border border-line rounded-2xl p-7 hover-lift">
+              <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+                <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <h3 className="font-display text-xl mt-5">{s.title}</h3>
+              {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+              {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
+            </article>
+          ))}
+        </div>
+        <div className="mt-12 reveal">
+          <TLink to={cfg.servicesPath} className="btn-primary">Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
+        </div>
+      </Section>
+
+      {/* Logos / press strip */}
+      <section className="py-14 border-y border-line">
+        <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+          {(variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
+            : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
+              : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA']
+          ).map((n) => (
+            <span key={n} className="font-display text-2xl tracking-wide">{n}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* About teaser */}
+      {content.about?.body && (
+        <Section eyebrow="Über uns" title={<>{splitTitle(content.about.title || 'Über uns')}</>}>
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            <div className="prose-lite reveal">
+              {(content.about.body || '').split('\n\n').slice(0, 2).map((p, i) => (
+                <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
+              ))}
+              <TLink to="/ueber-uns" className="btn-outline mt-2">Mehr erfahren <span aria-hidden>→</span></TLink>
+            </div>
+            {content.about.imageUrl && (
+              <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3] reveal">
+                <img src={content.about.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+              </div>
+            )}
+          </div>
+        </Section>
+      )}
+
+      {/* Gallery teaser – clean grid */}
+      {featuredGallery.length > 0 && (
+        <Section eyebrow="Galerie" title={galleryTeaserTitle(variant)} className="surface">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
+            {featuredGallery.map((src, i) => (
+              <div key={i} className="aspect-square overflow-hidden rounded-xl img-zoom">
+                <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 reveal">
+            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">Alles ansehen <span aria-hidden>→</span></TLink>
+          </div>
+        </Section>
+      )}
+
+      {/* FAQ accordion */}
+      <Section eyebrow="Häufig gefragt" title={<>Antworten auf <em className="italic-pop">Ihre Fragen.</em></>}>
+        <Accordion items={VARIANT_FAQ[variant].slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      </Section>
+
+      {/* Soft CTA */}
+      <section className="py-24 surface">
+        <div className="container-x">
+          <div className="rounded-3xl bg-white border border-line p-10 md:p-14 text-center reveal">
+            <p className="eyebrow justify-center mb-4">Bereit?</p>
+            <h2 className="headline-lg">Lassen Sie uns sprechen.</h2>
+            <p className="mt-5 text-muted max-w-xl mx-auto">Kostenloses Erstgespräch – unverbindlich, persönlich.</p>
+            <TLink to="/kontakt" className="btn-primary mt-8">Termin vereinbaren <span aria-hidden>→</span></TLink>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ─── Home: Bold (magazine/poster) ───────────────────────────────── */
+function HomePageBold({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  const cfg = NAV_BY_VARIANT[variant];
+  const featuredServices = content.services.slice(0, 8);
+  const featuredGallery = content.gallery.slice(0, 12);
+  const heroImg = content.gallery[0];
+
+  return (
+    <>
+      {/* Type-driven full-bleed hero */}
+      <section className="pt-40 pb-10 grain relative overflow-hidden">
+        <div className="container-x">
+          <p className="eyebrow mb-6 reveal">{content.brand.tagline || cfg.servicesEyebrow}</p>
+          <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[18vw] md:text-[14vw] lg:text-[180px]">
+            {content.brand.name.toUpperCase()}
+          </h1>
+        </div>
+        <div className="mt-6">
+          <Marquee speed="fast">
+            {marqueeWordsFor(variant).concat(marqueeWordsFor(variant)).map((w, i) => (
+              <span key={i} className="inline-flex items-center gap-8 font-display text-5xl md:text-7xl whitespace-nowrap">
+                <span className="text-brand">{w}</span><span className="text-[var(--accent-color)]">●</span>
+              </span>
+            ))}
+          </Marquee>
+        </div>
+        {heroImg && (
+          <div className="container-x mt-12 reveal">
+            <div className="aspect-[21/9] overflow-hidden rounded-none">
+              <img src={heroImg} alt="" className="w-full h-full object-cover" />
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Asymmetric statement split */}
+      <section className="py-24 md:py-36">
+        <div className="container-x grid md:grid-cols-12 gap-10">
+          <div className="md:col-span-5 md:col-start-2">
+            <p className="eyebrow mb-5 reveal">Manifest</p>
+            <h2 className="font-display text-5xl md:text-6xl leading-[0.95] reveal">
+              {variant === 'restaurant' ? <>Italianità.<br /><em className="italic-pop">Ohne Kompromisse.</em></>
+                : variant === 'salon' ? <>Schönheit ist<br /><em className="italic-pop">Handwerk.</em></>
+                  : <>Handwerk ist<br /><em className="italic-pop">Vertrauen.</em></>}
+            </h2>
+          </div>
+          <div className="md:col-span-5 md:pt-14 reveal">
+            {(content.about?.body || teaserSubtitleFor(variant)).split('\n\n').slice(0, 2).map((p, i) => (
+              <p key={i} className="text-lg md:text-xl leading-relaxed mb-5">{p}</p>
+            ))}
+            <TLink to="/ueber-uns" className="link-underline mt-2 inline-flex">Unsere Geschichte <span aria-hidden>→</span></TLink>
+          </div>
+        </div>
+      </section>
+
+      {/* Big colored services as numbered editorial list */}
+      <section className="py-24 md:py-36 bg-brand text-white">
+        <div className="container-x">
+          <div className="flex items-end justify-between gap-6 mb-16">
+            <div>
+              <p className="eyebrow mb-4 !text-white/70">{cfg.servicesEyebrow}</p>
+              <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
+            </div>
+            <TLink to={cfg.servicesPath} className="btn-accent hidden md:inline-flex">Alle <span aria-hidden>→</span></TLink>
+          </div>
+          <ol className="divide-y divide-white/15 reveal-stagger">
+            {featuredServices.map((s, i) => (
+              <li key={i} className="grid md:grid-cols-12 gap-6 py-7 items-baseline group hover:bg-white/5 transition-colors -mx-4 px-4 rounded">
+                <span className="md:col-span-2 font-mono text-xs text-white/50">/ {String(i + 1).padStart(2, '0')}</span>
+                <h3 className="md:col-span-5 font-display text-3xl md:text-4xl">{s.title}</h3>
+                {s.description && <p className="md:col-span-4 text-white/70 text-sm">{s.description}</p>}
+                {s.price && <span className="md:col-span-1 font-mono text-sm md:text-right text-[var(--accent-color)]">{s.price}</span>}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Oversized stats with grain */}
+      <NumbersBand variant={variant} />
+
+      {/* Real masonry gallery teaser */}
+      {featuredGallery.length > 0 && (
+        <section className="py-24 md:py-36">
+          <div className="container-x">
+            <div className="flex items-end justify-between gap-6 mb-12">
+              <div>
+                <p className="eyebrow mb-4">Galerie</p>
+                <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant)}</h2>
+              </div>
+              <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="link-underline hidden md:inline-flex">Alle Bilder <span aria-hidden>→</span></TLink>
+            </div>
+            <MasonryGrid images={featuredGallery} />
+          </div>
+        </section>
+      )}
+
+      {/* Testimonials – big quote */}
+      {content.testimonials.length > 0 && (
+        <section className="py-24 md:py-36 surface">
+          <div className="container-x grid md:grid-cols-12 gap-10">
+            <div className="md:col-span-7 reveal">
+              <span className="font-display text-[140px] md:text-[200px] leading-[0.6] text-[var(--accent-color)] block">&ldquo;</span>
+              <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{content.testimonials[0].text}</p>
+              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
+            </div>
+            <div className="md:col-span-5 space-y-4">
+              {content.testimonials.slice(1, 4).map((t, i) => (
+                <blockquote key={i} className="bg-white border border-line rounded-2xl p-6 reveal">
+                  <p className="text-base leading-relaxed">{t.text}</p>
+                  <footer className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">— {t.author}</footer>
+                </blockquote>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Bold CTA */}
+      <section className="py-32 md:py-44 bg-[var(--accent-color)] text-brand grain">
+        <div className="container-x text-center reveal">
+          <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">
+            {variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : 'Auftrag?'}
+          </h2>
+          <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto">Schreiben Sie uns. Wir antworten.</p>
+          <TLink to="/kontakt" className="btn-primary mt-10">Jetzt Kontakt <span aria-hidden>→</span></TLink>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ─── Style-specific service layouts ─────────────────────────────── */
+function ModernServicesGrid({ services }: { services: SiteContent['services'] }) {
+  return (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+      {services.map((s, i) => (
+        <article key={i} className="bg-white border border-line rounded-2xl p-7 hover-lift">
+          <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+            <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <h3 className="font-display text-2xl mt-5">{s.title}</h3>
+          {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+          {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function BoldServicesList({ services }: { services: SiteContent['services'] }) {
+  return (
+    <ol className="divide-y divide-line reveal-stagger">
+      {services.map((s, i) => (
+        <li key={i} className="grid md:grid-cols-12 gap-6 py-8 items-baseline">
+          <span className="md:col-span-2 font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+          <h3 className="md:col-span-5 font-display text-3xl md:text-5xl leading-[0.95]">{s.title}</h3>
+          {s.description && <p className="md:col-span-4 text-muted text-base">{s.description}</p>}
+          {s.price && <span className="md:col-span-1 font-mono text-sm md:text-right text-[var(--accent-color)]">{s.price}</span>}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/* ─── Reusable masonry grid ──────────────────────────────────────── */
+function MasonryGrid({ images }: { images: string[] }) {
+  return (
+    <div className="columns-2 md:columns-3 lg:columns-4 gap-4 reveal-stagger [column-fill:_balance]">
+      {images.map((src, i) => {
+        // Vary aspect ratios for visual rhythm
+        const ratios = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[5/4]', 'aspect-[3/4]', 'aspect-[2/3]'];
+        const ar = ratios[i % ratios.length];
+        return (
+          <div key={i} className={`mb-4 break-inside-avoid overflow-hidden rounded-2xl img-zoom ${ar}`}>
+            <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function NumbersBand({ variant }: { variant: TemplateVariant }) {
   const stats: Record<TemplateVariant, { v: number; s?: string; l: string }[]> = {
     restaurant: [
@@ -307,7 +631,7 @@ function CtaBand({ variant }: { variant: TemplateVariant }) {
 }
 
 /* ─── Services / Speisekarte / Leistungen ────────────────────────── */
-function ServicesPage({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const cfg = NAV_BY_VARIANT[variant];
   return (
     <>
@@ -320,8 +644,14 @@ function ServicesPage({ variant, content }: { variant: TemplateVariant; content:
       {/* Highlights ribbon */}
       <ServiceHighlights variant={variant} />
 
-      <Section spacing="lg">
-        <ServicesShowcase variant={variant} services={content.services} />
+      <Section spacing="lg" className={style === 'modern' ? 'surface' : ''}>
+        {style === 'bold' ? (
+          <BoldServicesList services={content.services} />
+        ) : style === 'modern' ? (
+          <ModernServicesGrid services={content.services} />
+        ) : (
+          <ServicesShowcase variant={variant} services={content.services} />
+        )}
       </Section>
 
       {/* How it works strip */}
@@ -411,8 +741,8 @@ function ServiceProcess({ variant }: { variant: TemplateVariant }) {
 
 /* ─── Gallery / Referenzen ───────────────────────────────────────── */
 function GalleryPage({
-  content, variant, title, eyebrow,
-}: { content: SiteContent; variant: TemplateVariant; title?: string; eyebrow?: string }) {
+  content, variant, title, eyebrow, style,
+}: { content: SiteContent; variant: TemplateVariant; title?: string; eyebrow?: string; style: TemplateStyle }) {
   return (
     <>
       <PageHero
@@ -428,7 +758,11 @@ function GalleryPage({
       />
 
       <Section spacing="lg">
-        <GalleryShowcase variant={variant} images={content.gallery} mode="full" />
+        {style === 'bold' || style === 'modern' ? (
+          <MasonryGrid images={content.gallery} />
+        ) : (
+          <GalleryShowcase variant={variant} images={content.gallery} mode="full" />
+        )}
       </Section>
 
       <CtaBand variant={variant} />
@@ -437,11 +771,11 @@ function GalleryPage({
 }
 
 /* ─── About ──────────────────────────────────────────────────────── */
-function AboutPage({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   return (
     <>
       <PageHero
-        eyebrow="Über uns"
+        eyebrow={style === 'bold' ? 'Wer wir sind' : 'Über uns'}
         title={content.about?.title || 'Unsere Geschichte.'}
       />
 
@@ -614,7 +948,8 @@ function PressSection() {
 }
 
 /* ─── Contact ────────────────────────────────────────────────────── */
-function ContactPage({ content, variant }: { content: SiteContent; variant: TemplateVariant }) {
+function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
+  void style;
   const arrival: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Mit dem Auto', d: 'Tiefgarage Maria-Theresien direkt nebenan. Erste Stunde gratis bei Reservierung.' },

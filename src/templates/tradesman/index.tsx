@@ -1,6 +1,6 @@
 import type { SiteContent } from '@/lib/types';
-import TemplateApp from '../_shared/TemplateApp';
+import TemplateApp, { type TemplateStyle } from '../_shared/TemplateApp';
 
-export default function TradesmanTemplate({ content, basePath }: { content: SiteContent; basePath?: string }) {
-  return <TemplateApp variant="tradesman" content={content} basePath={basePath} />;
+export default function TradesmanTemplate({ content, basePath, style }: { content: SiteContent; basePath?: string; style?: TemplateStyle }) {
+  return <TemplateApp variant="tradesman" content={content} basePath={basePath} style={style} />;
 }

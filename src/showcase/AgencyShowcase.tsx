@@ -78,6 +78,7 @@ export default function AgencyShowcase() {
         <Route path="kontakt" element={<Contact />} />
       </Route>
       <Route path="/preview/:key/*" element={<TemplatePreview />} />
+      <Route path="/preview/:key/style/:style/*" element={<TemplatePreview />} />
       <Route path="/admin-demo" element={<AdminDemo />} />
     </Routes>
   );
@@ -910,32 +911,40 @@ function TemplatesGallery() {
         <div className="container-x grid gap-6">
           {(Object.keys(TEMPLATE_META) as TemplateKey[]).map((k, i) => {
             const m = TEMPLATE_META[k];
+            const styles: { id: 'classic' | 'modern' | 'bold'; label: string; tag: string }[] = [
+              { id: 'classic', label: 'Klassisch', tag: 'editorial · warm' },
+              { id: 'modern', label: 'Modern', tag: 'klar · SaaS-Ästhetik' },
+              { id: 'bold', label: 'Bold', tag: 'magazinhaft · groß' },
+            ];
             return (
-              <Link
-                key={k}
-                to={`/preview/${k}`}
-                className="group relative rounded-3xl overflow-hidden grid md:grid-cols-12 gap-0 reveal hover-lift bg-white border border-line"
-              >
-                <div className={`md:col-span-7 aspect-[4/3] md:aspect-auto img-zoom ${i % 2 ? 'md:order-2' : ''}`}>
-                  <img src={m.image} alt={m.label} className="w-full h-full object-cover" loading="lazy" />
+              <div key={k} className="rounded-3xl overflow-hidden bg-white border border-line reveal">
+                <div className="grid md:grid-cols-12 gap-0">
+                  <div className={`md:col-span-5 aspect-[4/3] md:aspect-auto img-zoom ${i % 2 ? 'md:order-2' : ''}`}>
+                    <img src={m.image} alt={m.label} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                  <div className={`md:col-span-7 p-10 md:p-14 ${i % 2 ? 'md:order-1' : ''}`}>
+                    <p className="font-mono text-xs uppercase tracking-widest" style={{ color: m.accent }}>/ Branche · 0{i + 1}</p>
+                    <h2 className="headline-lg mt-4">{m.label}</h2>
+                    <p className="mt-4 text-lg text-muted">{m.tagline}</p>
+                    <p className="mt-8 eyebrow">Drei Stile</p>
+                    <div className="mt-4 grid sm:grid-cols-3 gap-3">
+                      {styles.map((s) => (
+                        <Link
+                          key={s.id}
+                          to={s.id === 'classic' ? `/preview/${k}` : `/preview/${k}/style/${s.id}`}
+                          className="group block rounded-2xl border border-line p-5 hover:border-brand hover:bg-[#fafaf7] transition"
+                        >
+                          <p className="font-display text-2xl">{s.label}</p>
+                          <p className="mt-1 text-xs text-muted">{s.tag}</p>
+                          <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted group-hover:text-brand transition">
+                            Live ansehen <span aria-hidden>→</span>
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className={`md:col-span-5 p-10 md:p-14 flex flex-col justify-center ${i % 2 ? 'md:order-1' : ''}`}>
-                  <p className="font-mono text-xs uppercase tracking-widest" style={{ color: m.accent }}>/ Template · 0{i + 1}</p>
-                  <h2 className="headline-lg mt-4">{m.label}</h2>
-                  <p className="mt-4 text-lg text-muted">{m.tagline}</p>
-                  <ul className="mt-8 space-y-2 text-sm">
-                    {m.bullets.map((b) => (
-                      <li key={b} className="flex gap-2 items-start">
-                        <span className="mt-1.5 inline-block w-3 h-px bg-brand" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <span className="mt-10 inline-flex items-center gap-2 font-medium link-underline">
-                    Live ansehen <span aria-hidden>→</span>
-                  </span>
-                </div>
-              </Link>
+              </div>
             );
           })}
         </div>
@@ -1368,9 +1377,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 /* ─── Template preview ──────────────────────────────────────────── */
 function TemplatePreview() {
-  const { key } = useParams<{ key: TemplateKey }>();
+  const { key, style: styleParam } = useParams<{ key: TemplateKey; style?: string }>();
   const navigate = useNavigate();
   const tplKey = (key && key in DEMO_CONTENT ? key : 'restaurant') as TemplateKey;
+  const style = (styleParam === 'modern' || styleParam === 'bold' ? styleParam : 'classic') as 'classic' | 'modern' | 'bold';
   const presets = PRESETS[tplKey];
   const [presetIdx, setPresetIdx] = useState(0);
   const preset = presets[presetIdx];
@@ -1385,11 +1395,11 @@ function TemplatePreview() {
   useEffect(() => setPresetIdx(0), [tplKey]);
 
   const Tpl = tplKey === 'restaurant' ? RestaurantTemplate : tplKey === 'salon' ? SalonTemplate : TradesmanTemplate;
-  const basePath = `/preview/${tplKey}`;
+  const basePath = styleParam ? `/preview/${tplKey}/style/${style}` : `/preview/${tplKey}`;
 
   return (
     <div>
-      <Tpl content={themedContent} basePath={basePath} />
+      <Tpl content={themedContent} basePath={basePath} style={style} />
 
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <div className="glass shadow-2xl rounded-2xl p-3 border border-line">
