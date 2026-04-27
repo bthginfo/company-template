@@ -1,32 +1,22 @@
 import { ReactNode, useEffect, useRef, useState, createContext, useContext } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import type { SiteContent } from '@/lib/types';
+import { Marquee, SplitText, useReveal as _useReveal } from './fx';
 
 export type NavItem = { to: string; label: string };
 
-/**
- * Shared base-path context. Templates rendered standalone use ''.
- * Templates rendered inside the showcase set this to '/preview/<key>'
- * so that all internal links resolve correctly.
- */
+/* ─── Base path context ────────────────────────────────────────────── */
 const BasePathCtx = createContext<string>('');
 export function BasePathProvider({ value, children }: { value: string; children: ReactNode }) {
   return <BasePathCtx.Provider value={value}>{children}</BasePathCtx.Provider>;
 }
-export function useBasePath() {
-  return useContext(BasePathCtx);
-}
-/** Build an absolute path that respects the surrounding base path. */
+export function useBasePath() { return useContext(BasePathCtx); }
+
 export function withBase(basePath: string, to: string) {
   if (!to.startsWith('/')) return to;
   return `${basePath}${to}` || '/';
 }
 
-/**
- * Drop-in replacement for react-router's <Link> that automatically
- * prefixes absolute hrefs with the active base path. Use this for all
- * internal navigation inside templates.
- */
 export function TLink({
   to,
   className,
@@ -41,24 +31,40 @@ export function TLink({
   );
 }
 
-/**
- * Sticky, responsive top nav. Becomes solid on scroll.
- * Mobile drawer included.
- */
+/* ─── Top announcement marquee ─────────────────────────────────────── */
+export function AnnouncementBar({ messages }: { messages: string[] }) {
+  return (
+    <div className="bg-brand text-white text-xs uppercase tracking-[0.2em] py-2.5 fixed top-0 left-0 right-0 z-50">
+      <Marquee speed="slow">
+        {messages.concat(messages).map((m, i) => (
+          <span key={i} className="inline-flex items-center gap-3 whitespace-nowrap">
+            <span className="opacity-80">{m}</span>
+            <span aria-hidden className="opacity-40">✦</span>
+          </span>
+        ))}
+      </Marquee>
+    </div>
+  );
+}
+
+/* ─── Header ───────────────────────────────────────────────────────── */
 export function SiteHeader({
   content,
   nav,
   basePath: basePathProp,
+  announcements,
 }: {
   content: SiteContent;
   nav: NavItem[];
   basePath?: string;
+  announcements?: string[];
 }) {
   const ctxBase = useBasePath();
   const basePath = basePathProp ?? ctxBase;
   const [scrolled, setScrolled] = useState(false);
   const [mobile, setMobile] = useState(false);
   const loc = useLocation();
+  const hasAnn = !!(announcements && announcements.length);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -68,117 +74,113 @@ export function SiteHeader({
   }, []);
   useEffect(() => setMobile(false), [loc.pathname]);
 
-  const linkBase = scrolled
-    ? 'text-slate-700 hover:text-slate-900'
-    : 'text-white/90 hover:text-white drop-shadow';
+  const isLight = !scrolled;
+  const txt = isLight ? 'text-white' : 'text-slate-900';
+  const sub = isLight ? 'text-white/85 hover:text-white' : 'text-slate-700 hover:text-slate-900';
 
   return (
-    <header
-      className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
-        scrolled ? 'bg-white/85 backdrop-blur-md shadow-sm border-b border-slate-200/60' : 'bg-transparent'
-      }`}
-    >
-      <div className="container-x flex items-center justify-between py-4">
-        <Link to={`${basePath || '/'}`} className="flex items-center gap-3">
-          {content.brand.logoUrl ? (
-            <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto" />
-          ) : (
-            <span
-              className="h-9 w-9 rounded-full"
-              style={{ background: `linear-gradient(135deg,var(--brand-color),var(--accent-color))` }}
-            />
-          )}
-          <span
-            className={`font-display text-xl font-semibold tracking-tight transition-colors ${
-              scrolled ? 'text-slate-900' : 'text-white'
-            }`}
-          >
-            {content.brand.name}
-          </span>
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
-          {nav.map((n) => (
-            <NavLink
-              key={n.to}
-              to={`${basePath}${n.to}`}
-              end={n.to === '/'}
-              className={({ isActive }) =>
-                `${linkBase} relative transition ${isActive ? 'after:content-[\'\'] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-current' : ''}`
-              }
-            >
-              {n.label}
-            </NavLink>
-          ))}
-          <Link to={`${basePath}/kontakt`} className="btn-primary !py-2 !px-5 text-sm">
-            Kontakt
+    <>
+      {hasAnn && <AnnouncementBar messages={announcements!} />}
+      <header
+        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${hasAnn ? 'top-[36px]' : 'top-0'} ${
+          scrolled
+            ? 'bg-white/90 backdrop-blur-xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border-b border-line'
+            : 'bg-transparent'
+        }`}
+      >
+        <div className="container-x flex items-center justify-between py-4">
+          <Link to={`${basePath || '/'}`} className="flex items-center gap-3 group">
+            {content.brand.logoUrl ? (
+              <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto" />
+            ) : (
+              <span
+                className="h-9 w-9 rounded-full transition-transform duration-500 group-hover:rotate-90"
+                style={{ background: `conic-gradient(from 90deg, var(--accent-color), var(--accent-color-2), var(--brand-color), var(--accent-color))` }}
+              />
+            )}
+            <span className={`font-display text-2xl tracking-tight transition-colors ${txt}`}>
+              {content.brand.name}
+            </span>
           </Link>
-        </nav>
 
-        <button
-          onClick={() => setMobile(true)}
-          className={`md:hidden p-2 rounded-lg ${scrolled ? 'text-slate-800' : 'text-white'}`}
-          aria-label="Menü öffnen"
-        >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
-          </svg>
-        </button>
-      </div>
-
-      {mobile && (
-        <div className="fixed inset-0 z-50 bg-white">
-          <div className="container-x py-5 flex justify-between items-center">
-            <span className="font-display text-xl font-semibold text-slate-900">{content.brand.name}</span>
-            <button onClick={() => setMobile(false)} className="p-2 text-slate-700" aria-label="Schließen">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
-              </svg>
-            </button>
-          </div>
-          <nav className="container-x flex flex-col gap-1 mt-6">
+          <nav className="hidden md:flex items-center gap-1">
             {nav.map((n) => (
               <NavLink
                 key={n.to}
                 to={`${basePath}${n.to}`}
                 end={n.to === '/'}
                 className={({ isActive }) =>
-                  `py-4 text-3xl font-display font-semibold border-b border-slate-100 ${
-                    isActive ? 'text-brand' : 'text-slate-800'
-                  }`
+                  `link-underline px-4 py-2 text-sm font-medium transition-colors ${sub} ${isActive ? 'is-active' : ''}`
                 }
               >
                 {n.label}
               </NavLink>
             ))}
-            <Link to={`${basePath}/kontakt`} className="btn-primary mt-8 self-start">
-              Kontakt aufnehmen
+            <Link to={`${basePath}/kontakt`} className="ml-4 btn-accent !py-2.5 !px-5 text-sm">
+              Termin <span aria-hidden>→</span>
             </Link>
           </nav>
+
+          <button
+            onClick={() => setMobile(true)}
+            className={`md:hidden p-2 rounded-full border ${isLight ? 'text-white border-white/30' : 'text-slate-800 border-line'}`}
+            aria-label="Menü öffnen"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
-      )}
-    </header>
+
+        {mobile && (
+          <div className="fixed inset-0 z-50 bg-[var(--bg-color)]">
+            <div className="container-x py-5 flex justify-between items-center">
+              <span className="font-display text-2xl text-slate-900">{content.brand.name}</span>
+              <button onClick={() => setMobile(false)} className="p-2 text-slate-700" aria-label="Schließen">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            <nav className="container-x flex flex-col gap-1 mt-8">
+              {nav.map((n) => (
+                <NavLink
+                  key={n.to}
+                  to={`${basePath}${n.to}`}
+                  end={n.to === '/'}
+                  className={({ isActive }) =>
+                    `py-5 text-5xl font-display border-b border-line transition-transform hover:translate-x-2 ${
+                      isActive ? 'italic-pop text-brand' : 'text-slate-800'
+                    }`
+                  }
+                >
+                  {n.label}
+                </NavLink>
+              ))}
+              <Link to={`${basePath}/kontakt`} className="btn-accent mt-10 self-start">
+                Termin anfragen <span aria-hidden>→</span>
+              </Link>
+            </nav>
+          </div>
+        )}
+      </header>
+    </>
   );
 }
 
-/**
- * Premium hero with mouse-tracked spotlight glow.
- * Falls back to a brand-color gradient when no image is set.
- */
+/* ─── Hero ─────────────────────────────────────────────────────────── */
 export function Hero({
   content,
-  height = '92vh',
-  overlay = 'rgba(8,8,12,0.55)',
   align = 'left',
   showCta = true,
   showScroll = true,
+  meta,
 }: {
   content: SiteContent;
-  height?: string;
-  overlay?: string;
   align?: 'left' | 'center';
   showCta?: boolean;
   showScroll?: boolean;
+  meta?: { label: string; value: string }[];
 }) {
   const ref = useRef<HTMLElement>(null);
   const [pos, setPos] = useState({ x: 50, y: 50 });
@@ -195,78 +197,103 @@ export function Hero({
     return () => el.removeEventListener('mousemove', onMove);
   }, []);
 
-  const bg = content.hero.imageUrl
-    ? `linear-gradient(${overlay},${overlay}), url(${content.hero.imageUrl})`
-    : 'linear-gradient(135deg,var(--brand-color),var(--accent-color))';
-
   return (
     <section
       ref={ref}
-      className="relative flex items-center text-white overflow-hidden"
-      style={{ minHeight: height, backgroundImage: bg, backgroundSize: 'cover', backgroundPosition: 'center' }}
+      className="relative flex items-end overflow-hidden text-white grain"
+      style={{ minHeight: '100vh' }}
     >
-      {/* mouse-tracked spotlight */}
+      {content.hero.imageUrl ? (
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            backgroundImage: `url(${content.hero.imageUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            animation: 'kenburns 20s ease-in-out infinite alternate',
+          }}
+        />
+      ) : (
+        <div
+          className="absolute inset-0 -z-10"
+          style={{ background: `linear-gradient(135deg, var(--brand-color), color-mix(in oklab, var(--accent-color) 70%, var(--brand-color)))` }}
+        />
+      )}
+
+      <div className="absolute inset-0 -z-[1] bg-gradient-to-t from-black/85 via-black/30 to-black/40 pointer-events-none" />
+
       <div
-        className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+        className="pointer-events-none absolute inset-0 -z-[1]"
         style={{
-          background: `radial-gradient(600px circle at ${pos.x}% ${pos.y}%, rgba(255,255,255,0.18), transparent 60%)`,
+          background: `radial-gradient(700px circle at ${pos.x}% ${pos.y}%, color-mix(in oklab, var(--accent-color) 25%, transparent), transparent 60%)`,
         }}
       />
-      {/* floating accent blob */}
-      <div
-        className="pointer-events-none absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full opacity-30 blur-3xl animate-pulse-slow"
-        style={{ background: 'var(--accent-color)' }}
-      />
 
-      <div className={`container-x relative z-10 py-32 ${align === 'center' ? 'text-center mx-auto' : ''}`}>
+      <div className="blob -top-32 -right-32 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)' }} />
+
+      <div className={`container-x relative z-10 pt-40 pb-20 md:pb-28 ${align === 'center' ? 'text-center mx-auto' : ''}`}>
         {content.brand.tagline ? (
-          <p className="uppercase tracking-[0.3em] text-xs md:text-sm text-white/80 mb-5 reveal is-visible">
-            {content.brand.tagline}
+          <p className="inline-flex items-center gap-3 mb-7 text-xs uppercase tracking-[0.18em] text-white/85">
+            <span className="inline-block w-7 h-px bg-white/60" />{content.brand.tagline}
           </p>
         ) : null}
-        <h1
-          className={`font-display font-bold leading-[1.05] reveal is-visible
-                      text-5xl md:text-7xl lg:text-8xl ${align === 'center' ? 'mx-auto max-w-4xl' : 'max-w-4xl'}`}
-        >
-          {content.hero.title}
+        <h1 className={`headline-xl ${align === 'center' ? 'mx-auto max-w-5xl' : 'max-w-5xl'}`}>
+          <SplitText>{content.hero.title}</SplitText>
         </h1>
         {content.hero.subtitle ? (
           <p
-            className={`mt-7 text-lg md:text-2xl text-white/90 leading-relaxed reveal is-visible
-                       ${align === 'center' ? 'mx-auto max-w-2xl' : 'max-w-2xl'}`}
+            className={`mt-8 text-lg md:text-2xl text-white/85 leading-relaxed reveal-fast is-visible ${
+              align === 'center' ? 'mx-auto max-w-2xl' : 'max-w-2xl'
+            }`}
           >
             {content.hero.subtitle}
           </p>
         ) : null}
         {showCta && content.hero.ctaLabel ? (
-          <div className={`mt-12 flex flex-wrap gap-4 reveal is-visible ${align === 'center' ? 'justify-center' : ''}`}>
-            <Link to={withBase(basePath, content.hero.ctaHref || '/kontakt')} className="btn-primary">
-              {content.hero.ctaLabel}
+          <div className={`mt-12 flex flex-wrap gap-4 ${align === 'center' ? 'justify-center' : ''}`}>
+            <Link to={withBase(basePath, content.hero.ctaHref || '/kontakt')} className="btn-accent">
+              {content.hero.ctaLabel} <span aria-hidden>→</span>
             </Link>
-            <a href="#mehr" className="btn-outline !border-white !text-white hover:!bg-white hover:!text-slate-900">
+            <a href="#mehr" className="btn-outline !border-white/60 !text-white hover:!bg-white hover:!text-slate-900">
               Mehr erfahren
             </a>
           </div>
         ) : null}
+
+        {meta && meta.length > 0 && (
+          <div className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl ${align === 'center' ? 'mx-auto' : ''}`}>
+            {meta.map((m, i) => (
+              <div key={i} className="reveal-fast is-visible pl-4 border-l border-white/25">
+                <p className="num-display text-3xl md:text-4xl">{m.value}</p>
+                <p className="text-xs uppercase tracking-widest text-white/60 mt-1">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {showScroll && (
         <a
           href="#mehr"
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/80 hover:text-white animate-bounce-slow"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/90 hover:text-white flex flex-col items-center gap-2"
           aria-label="Weiter scrollen"
         >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <span className="text-[10px] uppercase tracking-[0.3em] opacity-80">Scroll</span>
+          <span className="block h-10 w-[1px] bg-white/40 relative overflow-hidden">
+            <span className="absolute top-0 left-0 right-0 h-1/3 bg-white" style={{ animation: 'scrollLine 1.6s ease-in-out infinite' }} />
+          </span>
         </a>
       )}
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-black/40" />
+      <style>{`
+        @keyframes kenburns { 0%{transform:scale(1) translate(0,0)} 100%{transform:scale(1.08) translate(-10px,-10px)} }
+        @keyframes scrollLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(300%)} }
+      `}</style>
     </section>
   );
 }
 
+/* ─── Section wrapper ─────────────────────────────────────────────── */
 export function Section({
   id,
   eyebrow,
@@ -274,30 +301,27 @@ export function Section({
   subtitle,
   children,
   className = '',
-  align = 'center',
+  align = 'left',
+  spacing = 'lg',
 }: {
   id?: string;
   eyebrow?: string;
-  title?: string;
+  title?: ReactNode;
   subtitle?: string;
   children: ReactNode;
   className?: string;
   align?: 'left' | 'center';
+  spacing?: 'md' | 'lg' | 'xl';
 }) {
+  const pad = spacing === 'xl' ? 'py-28 md:py-40' : spacing === 'lg' ? 'py-24 md:py-32' : 'py-16 md:py-24';
   return (
-    <section id={id} className={`py-20 md:py-28 ${className}`}>
+    <section id={id} className={`relative ${pad} ${className}`}>
       <div className="container-x">
-        {(title || eyebrow) && (
-          <header
-            className={`mb-14 reveal ${align === 'center' ? 'text-center max-w-2xl mx-auto' : 'max-w-2xl'}`}
-          >
-            {eyebrow ? (
-              <p className="uppercase tracking-[0.22em] text-xs font-semibold text-brand mb-3">{eyebrow}</p>
-            ) : null}
-            {title ? (
-              <h2 className="font-display text-4xl md:text-5xl font-semibold leading-tight">{title}</h2>
-            ) : null}
-            {subtitle ? <p className="mt-4 text-lg opacity-80 leading-relaxed">{subtitle}</p> : null}
+        {(title || eyebrow || subtitle) && (
+          <header className={`mb-16 reveal ${align === 'center' ? 'text-center max-w-3xl mx-auto' : 'max-w-3xl'}`}>
+            {eyebrow ? <p className="eyebrow mb-5">{eyebrow}</p> : null}
+            {title ? <h2 className="headline-md">{title}</h2> : null}
+            {subtitle ? <p className="mt-5 text-lg md:text-xl text-muted leading-relaxed">{subtitle}</p> : null}
           </header>
         )}
         {children}
@@ -306,40 +330,58 @@ export function Section({
   );
 }
 
+/* ─── ContactBlock ───────────────────────────────────────────────── */
 export function ContactBlock({ content }: { content: SiteContent }) {
   const c = content.contact;
   return (
-    <Section id="kontakt" eyebrow="Besuch & Anfrage" title="Wir freuen uns auf Sie" className="surface" align="center">
-      <div className="grid md:grid-cols-2 gap-10">
-        <div className="space-y-5 text-lg reveal">
-          {c.address ? (
-            <Field label="Adresse">{c.address}{c.city ? `, ${c.city}` : ''}</Field>
-          ) : null}
-          {c.phone ? (
-            <Field label="Telefon"><a href={`tel:${c.phone}`} className="hover:underline">{c.phone}</a></Field>
-          ) : null}
-          {c.email ? (
-            <Field label="E-Mail"><a href={`mailto:${c.email}`} className="hover:underline">{c.email}</a></Field>
-          ) : null}
-          {c.hours.length ? (
-            <div className="pt-4">
-              <p className="text-xs uppercase tracking-widest opacity-60 mb-2">Öffnungszeiten</p>
-              <ul className="space-y-1">
-                {c.hours.map((h, i) => (
-                  <li key={i} className="flex justify-between max-w-xs">
-                    <span className="font-medium">{h.day}</span>
-                    <span className="opacity-70">{h.time}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+    <Section id="kontakt" className="surface" align="left">
+      <div className="grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-5 reveal">
+          <p className="eyebrow mb-5">Kontakt</p>
+          <h2 className="headline-md">Wir freuen <em className="italic-pop">uns auf Sie.</em></h2>
+          <p className="mt-5 text-lg text-muted">Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da.</p>
+
+          <div className="mt-10 space-y-6 text-lg">
+            {c.phone ? (
+              <a href={`tel:${c.phone}`} className="block group">
+                <p className="text-xs uppercase tracking-widest text-muted">Telefon</p>
+                <p className="mt-1 text-2xl font-display group-hover:translate-x-1 transition-transform">{c.phone}</p>
+              </a>
+            ) : null}
+            {c.email ? (
+              <a href={`mailto:${c.email}`} className="block group">
+                <p className="text-xs uppercase tracking-widest text-muted">E-Mail</p>
+                <p className="mt-1 text-2xl font-display group-hover:translate-x-1 transition-transform">{c.email}</p>
+              </a>
+            ) : null}
+            {c.address ? (
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted">Adresse</p>
+                <p className="mt-1 text-xl">{c.address}{c.city ? `, ${c.city}` : ''}</p>
+              </div>
+            ) : null}
+            {c.hours.length ? (
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted">Öffnungszeiten</p>
+                <ul className="mt-2 space-y-1.5">
+                  {c.hours.map((h, i) => (
+                    <li key={i} className="flex justify-between max-w-xs">
+                      <span className="font-medium">{h.day}</span>
+                      <span className="text-muted font-mono text-sm">{h.time}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
         </div>
-        <div className="reveal">
+        <div className="lg:col-span-7 reveal">
           {c.mapsUrl ? (
-            <iframe title="Karte" src={c.mapsUrl} className="w-full h-80 rounded-3xl border-0 shadow-xl" loading="lazy" />
+            <div className="rounded-3xl overflow-hidden border border-line h-[520px] shadow-2xl">
+              <iframe title="Karte" src={c.mapsUrl} className="w-full h-full border-0" loading="lazy" />
+            </div>
           ) : (
-            <div className="w-full h-80 rounded-3xl bg-black/5" />
+            <div className="w-full h-[520px] rounded-3xl bg-black/5" />
           )}
         </div>
       </div>
@@ -347,60 +389,65 @@ export function ContactBlock({ content }: { content: SiteContent }) {
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div>
-      <p className="text-xs uppercase tracking-widest opacity-60">{label}</p>
-      <p>{children}</p>
-    </div>
-  );
-}
-
-export function SiteFooter({ content, basePath: basePathProp }: { content: SiteContent; basePath?: string }) {
+/* ─── Footer ─────────────────────────────────────────────────────── */
+export function SiteFooter({ content, basePath: basePathProp, nav }: { content: SiteContent; basePath?: string; nav?: NavItem[] }) {
   const ctxBase = useBasePath();
   const basePath = basePathProp ?? ctxBase;
   return (
-    <footer className="bg-slate-950 text-slate-300 py-14 mt-auto">
-      <div className="container-x grid md:grid-cols-3 gap-10">
-        <div>
-          <p className="font-display text-2xl text-white">{content.brand.name}</p>
-          {content.brand.tagline ? <p className="text-sm mt-2 opacity-80">{content.brand.tagline}</p> : null}
+    <footer className="bg-brand text-white pt-24 pb-10 mt-auto relative overflow-hidden grain">
+      <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
+
+      <div className="container-x">
+        <div className="border-b border-white/10 pb-16">
+          <p className="inline-flex items-center gap-3 mb-4 text-xs uppercase tracking-[0.18em] text-white/60">
+            <span className="inline-block w-7 h-px bg-white/40" />Sagen Sie hallo
+          </p>
+          <h3 className="headline-lg">
+            Lust auf <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>etwas Neues?</em>
+          </h3>
+          <Link to={`${basePath}/kontakt`} className="mt-8 inline-flex btn-accent">
+            Termin vereinbaren <span aria-hidden>→</span>
+          </Link>
         </div>
-        <div className="text-sm space-y-1">
-          {content.contact.address ? (
-            <p>{content.contact.address}{content.contact.city ? `, ${content.contact.city}` : ''}</p>
-          ) : null}
-          {content.contact.phone ? (
-            <p><a href={`tel:${content.contact.phone}`} className="hover:text-white">{content.contact.phone}</a></p>
-          ) : null}
-          {content.contact.email ? (
-            <p><a href={`mailto:${content.contact.email}`} className="hover:text-white">{content.contact.email}</a></p>
-          ) : null}
+
+        <div className="grid md:grid-cols-12 gap-10 py-16">
+          <div className="md:col-span-5">
+            <p className="font-display text-3xl">{content.brand.name}</p>
+            {content.brand.tagline ? <p className="text-sm text-white/70 mt-2 max-w-sm">{content.brand.tagline}</p> : null}
+          </div>
+          <div className="md:col-span-3">
+            <p className="text-xs uppercase tracking-widest text-white/50 mb-4">Kontakt</p>
+            <ul className="space-y-2 text-sm">
+              {content.contact.phone ? <li><a href={`tel:${content.contact.phone}`} className="hover:text-accent">{content.contact.phone}</a></li> : null}
+              {content.contact.email ? <li><a href={`mailto:${content.contact.email}`} className="hover:text-accent">{content.contact.email}</a></li> : null}
+              {content.contact.address ? <li className="text-white/70">{content.contact.address}{content.contact.city ? `, ${content.contact.city}` : ''}</li> : null}
+            </ul>
+          </div>
+          <div className="md:col-span-4">
+            <p className="text-xs uppercase tracking-widest text-white/50 mb-4">Navigation</p>
+            <ul className="grid grid-cols-2 gap-2 text-sm">
+              {(nav ?? []).map((n) => (
+                <li key={n.to}><Link to={`${basePath}${n.to}`} className="hover:text-accent">{n.label}</Link></li>
+              ))}
+              <li><Link to={`${basePath}/impressum`} className="hover:text-accent">Impressum</Link></li>
+              <li><Link to={`${basePath}/datenschutz`} className="hover:text-accent">Datenschutz</Link></li>
+            </ul>
+          </div>
         </div>
-        <div className="text-sm flex md:justify-end gap-5">
-          <Link to={`${basePath}/impressum`} className="hover:text-white">Impressum</Link>
-          <Link to={`${basePath}/datenschutz`} className="hover:text-white">Datenschutz</Link>
+
+        <Marquee speed="slow" className="py-2">
+          <span className="font-display leading-none whitespace-nowrap" style={{ fontSize: 'clamp(4rem,12vw,12rem)', color: 'rgba(255,255,255,0.08)' }}>
+            {content.brand.name} · {content.brand.name} · {content.brand.name} ·
+          </span>
+        </Marquee>
+
+        <div className="mt-10 pt-6 border-t border-white/10 text-xs text-white/50 flex flex-col md:flex-row gap-2 justify-between">
+          <span>© {new Date().getFullYear()} {content.brand.name}. Alle Rechte vorbehalten.</span>
+          <span className="font-mono">Made with care · DACH</span>
         </div>
-      </div>
-      <div className="container-x mt-10 pt-6 border-t border-white/10 text-xs opacity-60">
-        © {new Date().getFullYear()} {content.brand.name}. Alle Rechte vorbehalten.
       </div>
     </footer>
   );
 }
 
-/**
- * Scroll-reveal helper. Adds .is-visible when element enters viewport.
- * Use as `useReveal()` once per page.
- */
-export function useReveal() {
-  useEffect(() => {
-    const els = document.querySelectorAll('.reveal:not(.is-visible)');
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-visible')),
-      { threshold: 0.12 }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-}
+export const useReveal = _useReveal;
