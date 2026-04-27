@@ -12,6 +12,7 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "tenant:create": "tsx scripts/create-tenant.ts",
+    "tenant:provision": "tsx scripts/provision-tenant.ts",
     "hash": "tsx scripts/hash-password.ts",
     "vercel:setup": "powershell -ExecutionPolicy Bypass -File ./scripts/vercel-setup.ps1",
     "vercel:customer": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-customer.ps1"
