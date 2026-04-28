@@ -1126,8 +1126,11 @@ function DeviceShowcaseSection() {
         .device-phone .device-frame__inner > div {
           transform: scale(calc(100cqw / 390));
         }
-        /* Use container queries so the scale factor follows the frame width. */
-        .device-laptop, .device-tablet, .device-phone { container-type: inline-size; }
+        /* Use container queries on the inner screen wrapper so the scale
+           factor follows the actual content area (excluding device padding /
+           bezels). Scaling by the outer frame width caused a few px of
+           overflow equal to the device padding. */
+        .device-frame__inner { container-type: inline-size; }
         @media (prefers-reduced-motion: reduce) {
           .device-laptop, .device-tablet, .device-phone { transition: none; }
         }
