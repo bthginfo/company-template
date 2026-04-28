@@ -97,7 +97,7 @@ export function SiteHeader({
         <div className="container-x flex items-center justify-between py-4">
           <Link to={`${basePath || '/'}`} className="flex items-center gap-3 group">
             {content.brand.logoUrl ? (
-              <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto" />
+              <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto max-w-[180px] object-contain" />
             ) : (
               <span
                 className="h-9 w-9 rounded-full transition-transform duration-500 group-hover:rotate-90"
@@ -141,7 +141,11 @@ export function SiteHeader({
         {mobile && (
           <div className="fixed inset-0 z-50 bg-[var(--bg-color)]">
             <div className="container-x py-5 flex justify-between items-center">
-              <span className="font-display text-2xl text-slate-900">{content.brand.name}</span>
+              {content.brand.logoUrl ? (
+                <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto max-w-[180px] object-contain" />
+              ) : (
+                <span className="font-display text-2xl text-slate-900">{content.brand.name}</span>
+              )}
               <button onClick={() => setMobile(false)} className="p-2 text-slate-700" aria-label="Schließen">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
@@ -364,6 +368,13 @@ export function Section({
 /* ─── ContactBlock ───────────────────────────────────────────────── */
 export function ContactBlock({ content, showForm = true, formTenant }: { content: SiteContent; showForm?: boolean; formTenant?: string }) {
   const c = content.contact;
+  // Tenant slug for /api/contact resolution. Server-side this is used to look up
+  // the tenant's own SMTP config; falls back to env if absent. Brand name alone
+  // is NOT a slug, so prefer the env-injected VITE_TENANT_SLUG when running on
+  // a per-tenant project.
+  const tenantSlug = formTenant
+    || (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_TENANT_SLUG : '')
+    || '';
   return (
     <Section id="kontakt" className="surface" align="left">
       <div className="grid lg:grid-cols-12 gap-10">
@@ -410,8 +421,8 @@ export function ContactBlock({ content, showForm = true, formTenant }: { content
           {showForm ? (
             <div className="space-y-6">
               <ContactForm
-                tenant={formTenant || content.brand.name}
-                source={`tenant:${(content.brand.name || '').toLowerCase().replace(/\s+/g, '-')}`}
+                tenant={tenantSlug || content.brand.name}
+                source={`tenant:${tenantSlug || (content.brand.name || '').toLowerCase().replace(/\s+/g, '-')}`}
                 fields={['name', 'email', 'phone', 'subject', 'message']}
               />
               {(c.mapsUrl || c.address) && (
@@ -464,6 +475,13 @@ export function SiteFooter({ content, basePath: basePathProp, nav }: { content: 
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
           <div className="md:col-span-6">
+            {content.brand.logoUrl ? (
+              <img
+                src={content.brand.logoUrl}
+                alt={content.brand.name}
+                className="h-12 w-auto max-w-[220px] object-contain mb-3 brightness-0 invert"
+              />
+            ) : null}
             <p className="font-display text-3xl">{content.brand.name}</p>
             {(() => {
               const footerTagline = (content as any).footer?.tagline as string | undefined;

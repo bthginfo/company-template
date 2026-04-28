@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useContent } from '@/lib/content-context';
 import { AdminEditorBody, type UploadImageFn } from './AdminEditorBody';
 import type { SiteContent, TemplateKey } from '@/lib/types';
@@ -56,10 +57,13 @@ export function AdminApp() {
     try {
       setSaving(true);
       await save(draft);
-      setSavedAt(new Date().toLocaleTimeString('de-DE'));
+      const ts = new Date().toLocaleTimeString('de-DE');
+      setSavedAt(ts);
       setTimeout(() => setSavedAt(null), 5000);
+      toast.success('Gespeichert', { description: `Alle Änderungen sind live · ${ts}` });
     } catch (e: any) {
-      alert(`Speichern fehlgeschlagen: ${e?.message || e}`);
+      const msg = e?.message || String(e);
+      toast.error('Speichern fehlgeschlagen', { description: msg });
     } finally {
       setSaving(false);
     }

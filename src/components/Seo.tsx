@@ -37,7 +37,8 @@ export function useSeo({
     const effectiveTitle = override?.title || globalSeo?.title || title;
     const effectiveDescription = override?.description || description || globalSeo?.description || '';
     const effectiveKeywords = override?.keywords || keywords || globalSeo?.keywords || '';
-    const effectiveImage = override?.ogImage || image || globalSeo?.ogImage || DEFAULT_OG;
+    const brandLogo = content?.brand?.logoUrl || '';
+    const effectiveImage = override?.ogImage || image || globalSeo?.ogImage || brandLogo || DEFAULT_OG;
     const effectiveNoindex = !!override?.noindex || noindex;
 
     const brandName = content?.brand?.name || 'FlamingoMedia';
@@ -65,6 +66,12 @@ export function useSeo({
     setMeta('name', 'googlebot', effectiveNoindex ? 'noindex,nofollow' : 'index,follow');
 
     setLink('canonical', canonical || globalSeo?.canonical || stripQuery(window.location.href));
+
+    // Favicon: prefer brand logo if uploaded, otherwise leave existing default in index.html.
+    if (brandLogo) {
+      setLink('icon', brandLogo);
+      setLink('apple-touch-icon', brandLogo);
+    }
 
     setJsonLd('bth-jsonld-page', buildJsonLd(content, template, fullTitle, effectiveDescription));
   }, [title, description, image, noindex, canonical, keywords, content, template, page]);
@@ -162,7 +169,7 @@ function buildJsonLd(content: SiteContent | undefined, template: TemplateKey | u
     telephone: c.phone || undefined,
     email: c.email || undefined,
     address,
-    image: content.hero?.imageUrl || (content as any)?.seo?.ogImage || undefined,
+    image: content.hero?.imageUrl || (content as any)?.seo?.ogImage || (content as any)?.brand?.logoUrl || undefined,
     sameAs: sameAs.length ? sameAs : undefined,
     openingHoursSpecification: openingHours.length ? openingHours : undefined,
     priceRange: '$$',

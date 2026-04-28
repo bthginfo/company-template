@@ -6,57 +6,51 @@ import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types';
+import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
+import { BRANCH_TEXT_DEFAULTS } from '../src/lib/branch-text-defaults';
 
 const [, , slug, name, template] = process.argv;
 
 if (!slug || !name || !template) {
-  console.error('Usage: tsx scripts/create-tenant.ts <slug> "<Display Name>" <restaurant|salon|tradesman>');
+  console.error('Usage: tsx scripts/create-tenant.ts <slug> "<Display Name>" <restaurant|salon|tradesman|hotel|tourism|consulting|medical|fitness>');
   process.exit(1);
 }
 
-if (!['restaurant', 'salon', 'tradesman'].includes(template)) {
-  console.error('template must be one of: restaurant, salon, tradesman');
+const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
+if (!VALID_TEMPLATES.includes(template as any)) {
+  console.error(`template must be one of: ${VALID_TEMPLATES.join(', ')}`);
   process.exit(1);
 }
 
-const DEFAULT_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteContent> = {
-  restaurant: SiteContentSchema.parse({
-    brand: { name, tagline: 'Authentische Küche aus der Region', primaryColor: '#9a3412' },
-    hero: { title: `Willkommen bei ${name}`, subtitle: 'Frische, regionale Zutaten – mit Liebe zubereitet.', ctaLabel: 'Tisch reservieren', ctaHref: '#kontakt' },
-    about: { title: 'Unsere Geschichte', body: 'Seit vielen Jahren bringen wir die kulinarische Tradition unserer Heimat auf Ihren Teller.' },
-    services: [
-      { title: 'Tagesmenü', description: 'Wechselnde Spezialitäten der Saison.', price: '14,90 €' },
-      { title: 'Hauptgerichte', description: 'Klassiker und kreative Kreationen.', price: 'ab 16,50 €' },
-    ],
-    gallery: [],
-    testimonials: [{ author: 'Sabine M.', text: 'Tolles Essen, herzliche Bedienung – wir kommen wieder!' }],
-    contact: { phone: '', email: '', address: '', city: '', hours: [{ day: 'Mo–Fr', time: '11:30–22:00' }, { day: 'So', time: 'Ruhetag' }], mapsUrl: '' },
-  }),
-  salon: SiteContentSchema.parse({
-    brand: { name, tagline: 'Ihr Salon für Stil & Wohlbefinden', primaryColor: '#be185d' },
-    hero: { title: name, subtitle: 'Friseur · Beauty · Wohlfühlen', ctaLabel: 'Termin buchen', ctaHref: '#kontakt' },
-    about: { title: 'Über uns', body: 'Unser Team aus erfahrenen Stylist:innen verwöhnt Sie in entspannter Atmosphäre.' },
-    services: [
-      { title: 'Damen-Schnitt', description: 'Inkl. Waschen & Styling.', price: '55 €' },
-      { title: 'Färben & Strähnen', description: 'Hochwertige Pflegeprodukte.', price: 'ab 75 €' },
-    ],
-    gallery: [],
-    testimonials: [{ author: 'Lisa K.', text: 'Endlich ein Salon, dem ich zu 100 % vertraue!' }],
-    contact: { phone: '', email: '', address: '', city: '', hours: [{ day: 'Di–Fr', time: '09:00–19:00' }, { day: 'Sa', time: '09:00–15:00' }], mapsUrl: '' },
-  }),
-  tradesman: SiteContentSchema.parse({
-    brand: { name, tagline: 'Ihr Meisterbetrieb in der Region', primaryColor: '#1d4ed8' },
-    hero: { title: `${name} – schnell, sauber, zuverlässig`, subtitle: 'Über 20 Jahre Erfahrung. Festpreis-Garantie.', ctaLabel: 'Jetzt anfragen', ctaHref: '#kontakt' },
-    about: { title: 'Über uns', body: 'Wir sind ein traditionsreicher Meisterbetrieb mit einem eingespielten Team.' },
-    services: [
-      { title: 'Reparaturen', description: 'Schnelle Hilfe bei allen Notfällen.', price: '79 €' },
-      { title: 'Sanierung', description: 'Beratung, Planung, Ausführung.', price: 'auf Anfrage' },
-    ],
-    gallery: [],
-    testimonials: [{ author: 'Familie Huber', text: 'Termin eingehalten, Preis eingehalten – ehrliche Arbeit.' }],
-    contact: { phone: '', email: '', address: '', city: '', hours: [{ day: 'Mo–Fr', time: '07:00–17:00' }, { day: 'Notdienst', time: '24/7' }], mapsUrl: '' },
-  }),
-};
+type AnyTemplate = typeof VALID_TEMPLATES[number];
+
+/** Build rich default content for any of the 8 supported templates,
+ *  reusing the showcase demo content (DEMO_CONTENT / EXTRA_DEMO_CONTENT). */
+function defaultsFor(t: AnyTemplate): SiteContent {
+  if (t === 'consulting' || t === 'medical' || t === 'fitness') {
+    const base = EXTRA_DEMO_CONTENT[t];
+    return SiteContentSchema.parse({
+      ...base,
+      brand: { ...base.brand, name },
+      hero: { ...base.hero, title: name },
+      branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[t] },
+    });
+  }
+  const base = DEMO_CONTENT[t];
+  return SiteContentSchema.parse({
+    ...base,
+    brand: { ...base.brand, name },
+    hero: { ...base.hero, title: name },
+    branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[t] },
+    contact: {
+      ...base.contact,
+      // Strip showcase phone/email/address so the tenant fills their own.
+      phone: '', email: '', address: '',
+      city: base.contact?.city || '',
+      mapsUrl: '',
+    },
+  });
+}
 
 async function main() {
   const password = randomBytes(12).toString('base64').replace(/[+/=]/g, '').slice(0, 16);
@@ -75,7 +69,7 @@ async function main() {
       .values({ slug, name, template, passwordHash })
       .returning();
     tenantId = row.id;
-    const content = DEFAULT_CONTENT[template as 'restaurant' | 'salon' | 'tradesman'];
+    const content = defaultsFor(template as AnyTemplate);
     await db.insert(schema.siteContent).values({ tenantId, data: content }).onConflictDoNothing();
     console.log(`Tenant '${slug}' created with default content.`);
   }

@@ -950,7 +950,7 @@ function ProcessTimelineSection() {
       n: '01',
       t: 'Kennenlernen',
       d: 'Wir sprechen 30 Minuten über Ihren Betrieb, Ihr Ziel und Ihren Stil. Kostenlos, unverbindlich, ohne Sales-Gedöns.',
-      meta: 'Tag 0',
+      meta: 'Tag 1',
     },
     {
       n: '02',
@@ -962,13 +962,13 @@ function ProcessTimelineSection() {
       n: '03',
       t: 'Aufbau & Befüllung',
       d: 'Sie wählen Template und Farbschema. Wir bauen auf, befüllen mit Ihren Inhalten und schicken Ihnen einen Preview-Link.',
-      meta: 'Woche 1–2',
+      meta: 'Tag 2–7',
     },
     {
       n: '04',
       t: 'Live-Schaltung',
       d: 'Sie geben grünes Licht. Wir schalten live, übergeben den Admin-Bereich und sind ab da Ihr direkter Ansprechpartner.',
-      meta: 'Woche 2–3',
+      meta: 'Tag 8–10',
     },
   ];
   return (
@@ -1315,12 +1315,12 @@ function TemplatesGallery() {
 function ProcessPage() {
   useReveal();
   const steps = [
-    { d: 'Tag 0', t: 'Kennenlernen', body: '30-Minuten-Call (Zoom oder Telefon). Wir verstehen Ihren Betrieb, Ihre Konkurrenz, Ihre Ziele. Sie bekommen unsere ehrliche Einschätzung.' },
-    { d: 'Woche 1', t: 'Briefing & Auswahl', body: 'Sie wählen Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.' },
+    { d: 'Tag 1', t: 'Kennenlernen', body: '30-Minuten Online-Call oder Telefon. Wir verstehen Ihren Betrieb, Ihre Konkurrenz, Ihre Ziele. Sie bekommen unsere ehrliche Einschätzung.' },
+    { d: 'Tag 2', t: 'Briefing & Auswahl', body: 'Sie wählen Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.' },
     { d: 'Optional', t: 'Foto- & Videoshooting', body: 'Add-on, kein Standard. Auf Wunsch kommen wir mit kleinem Team vor Ort und produzieren Bild- und Filmmaterial. Auch nachträglich oder separat buchbar.' },
-    { d: 'Woche 1–2', t: 'Aufbau', body: 'Wir richten das Template ein, importieren Ihre Inhalte, optimieren Bilder, schreiben SEO-Texte vor.' },
-    { d: 'Woche 2', t: 'Feedback-Schleife', body: 'Sie schauen sich den Preview-Link an. Eine Korrektur-Runde inkludiert. Sie senden Anmerkungen, wir setzen um.' },
-    { d: 'Woche 2–3', t: 'Live-Schaltung', body: 'Wir verbinden Ihre Domain und übergeben den Admin-Bereich. Sie sind online.' },
+    { d: 'Tag 3–7', t: 'Aufbau', body: 'Wir richten das Template ein, importieren Ihre Inhalte, optimieren Bilder, schreiben SEO-Texte vor.' },
+    { d: 'Tag 8', t: 'Feedback-Schleife', body: 'Sie schauen sich den Preview-Link an. Eine Korrektur-Runde inkludiert. Sie senden Anmerkungen, wir setzen um.' },
+    { d: 'Tag 9–10', t: 'Live-Schaltung', body: 'Wir verbinden Ihre Domain und übergeben den Admin-Bereich. Sie sind online.' },
     { d: 'Laufend', t: 'Pflege & Support', body: 'Sie pflegen Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.' },
   ];
   return (

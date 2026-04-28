@@ -1085,6 +1085,19 @@ function MailPage({ data, setData }: SetterProps) {
 function MailTestButton() {
   const [state, setState] = useState<'idle' | 'sending' | 'ok' | 'err'>('idle');
   const [msg, setMsg] = useState('');
+  const [tenantSlug, setTenantSlug] = useState<string>('');
+
+  // Resolve tenant slug from the admin session so the test mail uses the
+  // tenant's own SMTP config (resolveMailConfig() looks it up by slug).
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/admin/session')
+      .then((r) => r.json())
+      .then((j) => { if (alive && j?.session?.slug) setTenantSlug(j.session.slug); })
+      .catch(() => { /* noop */ });
+    return () => { alive = false; };
+  }, []);
+
   const sendTest = async () => {
     setState('sending'); setMsg('');
     try {
@@ -1096,6 +1109,7 @@ function MailTestButton() {
           email: 'noreply@example.com',
           message: 'Dies ist eine Test-Nachricht aus dem Admin. Wenn Sie diese Mail erhalten, funktioniert Ihr Postausgang korrekt.',
           source: 'admin-mail-test',
+          tenant: tenantSlug,
         }),
       });
       const j = await r.json().catch(() => ({}));
