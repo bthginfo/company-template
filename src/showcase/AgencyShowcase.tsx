@@ -38,19 +38,19 @@ const AGENCY = {
   phone: '+49 1515 5338029',
   phoneAt: '+43 677 6368 1543',
   /** Wordmark variants (text only). */
-  logoTextSrc: '/brand/flamingo-text-beside.svg',
-  logoTextWhiteSrc: '/brand/flamingo-text-beside.svg',
+  logoTextSrc: '/brand/flamingo-text-beside.png',
+  logoTextWhiteSrc: '/brand/flamingo-text-beside.png',
   /** Icon-only mark for headers / favicon-style spots. */
-  logoMarkSrc: '/brand/flamingo-icon.svg',
-  logoMarkWhiteSrc: '/brand/flamingo-icon.svg',
+  logoMarkSrc: '/brand/flamingo-icon.png',
+  logoMarkWhiteSrc: '/brand/flamingo-icon.png',
   /** Full lockup (icon + wordmark beside) — best for hero / footer. */
-  logoFullSrc: '/brand/flamingo-full.svg',
-  logoFullBesideSrc: '/brand/flamingo-full-beside.svg',
+  logoFullSrc: '/brand/flamingo-full.png',
+  logoFullBesideSrc: '/brand/flamingo-full-beside.png',
   /** Vertical stacks. */
-  logoTextAboveSrc: '/brand/flamingo-text-above.svg',
-  logoTextAboveV2Src: '/brand/flamingo-text-above-v2.svg',
+  logoTextAboveSrc: '/brand/flamingo-text-above.png',
+  logoTextAboveV2Src: '/brand/flamingo-text-above-v2.png',
   /** Backwards-compat alias. */
-  logoSrc: '/brand/flamingo-full-beside.svg',
+  logoSrc: '/brand/flamingo-full-beside.png',
 };
 
 const ROTATING_WORDS = [
@@ -325,17 +325,11 @@ function ShowcaseShell() {
         }`}
       >
         <div className="container-x flex items-center justify-between py-4">
-          <Link to="/" className="flex items-center gap-2.5 leading-none group" aria-label={AGENCY.fullName}>
+          <Link to="/" className="flex items-center leading-none group" aria-label={AGENCY.fullName}>
             <img
-              src={AGENCY.logoMarkSrc}
-              alt=""
-              aria-hidden
-              className="h-7 md:h-8 w-auto transition-transform group-hover:rotate-[-4deg]"
-            />
-            <img
-              src={headerLight ? AGENCY.logoTextSrc : AGENCY.logoTextWhiteSrc}
+              src={AGENCY.logoFullBesideSrc}
               alt={AGENCY.name}
-              className="h-4 md:h-5 w-auto transition-opacity"
+              className="h-11 md:h-14 w-auto transition-transform group-hover:scale-[1.03]"
             />
           </Link>
           <nav className="hidden md:flex items-center gap-1">
@@ -371,9 +365,8 @@ function ShowcaseShell() {
       {mobile && (
         <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
           <div className="container-x py-5 flex justify-between items-center">
-            <div className="flex items-center gap-2.5 leading-none">
-              <img src={AGENCY.logoMarkSrc} alt="" aria-hidden className="h-8 w-auto" />
-              <img src={AGENCY.logoTextSrc} alt={AGENCY.name} className="h-5 w-auto" />
+            <div className="flex items-center leading-none">
+              <img src={AGENCY.logoFullBesideSrc} alt={AGENCY.name} className="h-12 w-auto" />
             </div>
             <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -414,17 +407,11 @@ function ShowcaseFooter() {
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
           <div className="md:col-span-5">
-            <div className="flex items-center gap-3 leading-none">
+            <div className="flex items-center leading-none">
               <img
-                src={AGENCY.logoMarkWhiteSrc}
-                alt=""
-                aria-hidden
-                className="h-9 w-auto"
-              />
-              <img
-                src={AGENCY.logoTextWhiteSrc}
+                src={AGENCY.logoFullSrc}
                 alt={AGENCY.name}
-                className="h-6 w-auto"
+                className="h-20 md:h-24 w-auto"
               />
             </div>
             <p className="text-sm text-white/70 mt-4 max-w-sm">{AGENCY.tagline}</p>
@@ -536,9 +523,9 @@ function HeroSection() {
       >
         <div className="hero-brand-mark__glow" />
         <img
-          src={AGENCY.logoFullSrc}
+          src={AGENCY.logoMarkSrc}
           alt=""
-          className="hero-brand-mark__img w-[68%] max-w-[820px] md:w-[60%] lg:w-[55%]"
+          className="hero-brand-mark__img w-[52%] max-w-[620px] md:w-[44%] lg:w-[38%]"
         />
       </div>
       <style>{`
