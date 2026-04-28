@@ -175,15 +175,15 @@ async function main() {
     console.log(`  ✓ Tenant row + default content created`);
   }
 
-  // 2. Source project — pull all env vars (decrypted)
-  console.log(`\n→ Reading shared env vars from '${SOURCE}'`);
-  const sourceEnv = await vercel(`/v9/projects/${SOURCE}/env?decrypt=true`);
+  // 2. Read shared env vars from local .env.local (already pulled via `vercel env pull`)
+  // The Vercel API's decrypt=true returns ciphertext blobs unless called with a higher-scoped
+  // token, so we rely on the local file as the source of truth.
+  console.log(`\n→ Reading shared env vars from local .env.local`);
   const envMap = new Map<string, string>();
-  for (const e of sourceEnv.envs as Array<{ key: string; value: string; target: string[] }>) {
-    if (SHARED_KEYS.includes(e.key) && !envMap.has(e.key)) envMap.set(e.key, e.value);
-  }
   for (const k of SHARED_KEYS) {
-    if (!envMap.has(k)) console.warn(`  ⚠ Source project missing ${k}`);
+    const v = process.env[k];
+    if (v) envMap.set(k, v);
+    else console.warn(`  ⚠ .env.local missing ${k}`);
   }
 
   // 3. Create or fetch project
