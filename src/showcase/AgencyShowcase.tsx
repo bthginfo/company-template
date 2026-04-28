@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
@@ -485,6 +485,7 @@ function Landing() {
       <Seo title="FlamingoMedia · Websites für lokale Marken" description="Editorial-Design mit Pop für Restaurants, Hotels, Tourismus, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Du selbst pflegst." />
       <HeroSection />
       <ClientLogosSection />
+      <DeviceShowcaseSection />
       <ServicesSection />
       <TemplatesPreviewSection />
       <ManifestoSection />
@@ -908,6 +909,304 @@ function ManifestoSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ─── Device Showcase: live iframes inside MacBook + iPad + iPhone ─── */
+type DeviceItem = {
+  kind: 'laptop' | 'tablet' | 'phone';
+  src: string;
+  label: string;
+  caption: string;
+};
+
+const DEVICE_ITEMS: DeviceItem[] = [
+  {
+    kind: 'laptop',
+    src: '/preview/hotel/style/modern',
+    label: 'Hotel · Modern',
+    caption: 'Hotel-Template auf dem Desktop',
+  },
+  {
+    kind: 'tablet',
+    src: '/admin-demo',
+    label: 'Admin-Bereich',
+    caption: 'Inhalte pflegen, ohne Code',
+  },
+  {
+    kind: 'phone',
+    src: '/preview/salon/style/bold',
+    label: 'Salon · Bold',
+    caption: 'Mobile zuerst gedacht',
+  },
+];
+
+function LiveDeviceFrame({ item }: { item: DeviceItem }) {
+  // Only mount the iframe once the device scrolls into view, then keep it
+  // alive. Saves the landing page from booting three full SPA instances on
+  // first paint while still feeling instant once the user scrolls down.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [mount, setMount] = useState(false);
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || mount) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setMount(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '300px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [mount]);
+
+  // Each device gets its own logical viewport so the embedded site renders at
+  // a believable resolution and is then scaled to fit the frame.
+  const dims =
+    item.kind === 'laptop'
+      ? { vw: 1280, vh: 800, frameW: 'w-full', aspect: 'aspect-[16/10]' }
+      : item.kind === 'tablet'
+        ? { vw: 1024, vh: 1366, frameW: 'w-full', aspect: 'aspect-[3/4]' }
+        : { vw: 390, vh: 844, frameW: 'w-full', aspect: 'aspect-[9/19.5]' };
+
+  const iframe = mount ? (
+    <iframe
+      title={item.label}
+      src={item.src}
+      loading="lazy"
+      tabIndex={-1}
+      // Disable interactions so the mockup behaves like a screenshot.
+      // No allow-* tokens → cannot run inline scripts that aren't
+      // already part of the same-origin SPA bundle (which is fine —
+      // it's our own app).
+      sandbox="allow-same-origin allow-scripts"
+      style={{
+        width: `${dims.vw}px`,
+        height: `${dims.vh}px`,
+        border: '0',
+        pointerEvents: 'none',
+      }}
+    />
+  ) : (
+    <div
+      style={{ width: `${dims.vw}px`, height: `${dims.vh}px` }}
+      className="bg-slate-100 grid place-items-center text-xs text-slate-400"
+    >
+      lädt …
+    </div>
+  );
+
+  return (
+    <div ref={wrapRef} className="device-frame__inner">
+      {iframe}
+    </div>
+  );
+}
+
+function DeviceShowcaseSection() {
+  return (
+    <section className="relative py-24 md:py-32 overflow-hidden bg-[#0b0810] text-white">
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-0 opacity-70"
+        style={{
+          background:
+            'radial-gradient(50% 50% at 15% 20%, rgba(242,65,113,0.18), transparent 70%),' +
+            'radial-gradient(50% 50% at 85% 80%, rgba(124,58,237,0.18), transparent 70%)',
+        }}
+      />
+      <div className="container-x relative">
+        <div className="max-w-3xl reveal">
+          <p className="eyebrow text-white/70 mb-5">In Aktion</p>
+          <h2 className="headline-md">
+            Echte Templates.<br />
+            <em className="italic-pop">Echter Admin.</em>
+          </h2>
+          <p className="mt-6 text-white/75 max-w-xl">
+            Keine Photoshop-Mockups — Du siehst die echten Seiten und den echten Editor live.
+            Auf jedem Gerät, in jeder Größe.
+          </p>
+        </div>
+
+        <div className="mt-16 md:mt-20 grid lg:grid-cols-12 gap-10 lg:gap-8 items-end">
+          {/* Laptop — left, takes more space */}
+          <div className="lg:col-span-7 reveal">
+            <DeviceLaptop>
+              <LiveDeviceFrame item={DEVICE_ITEMS[0]} />
+            </DeviceLaptop>
+            <DeviceCaption {...DEVICE_ITEMS[0]} />
+          </div>
+
+          {/* Right column: tablet + phone stacked */}
+          <div className="lg:col-span-5 grid grid-cols-5 gap-4 lg:gap-6 reveal">
+            <div className="col-span-3">
+              <DeviceTablet>
+                <LiveDeviceFrame item={DEVICE_ITEMS[1]} />
+              </DeviceTablet>
+              <DeviceCaption {...DEVICE_ITEMS[1]} dark />
+            </div>
+            <div className="col-span-2">
+              <DevicePhone>
+                <LiveDeviceFrame item={DEVICE_ITEMS[2]} />
+              </DevicePhone>
+              <DeviceCaption {...DEVICE_ITEMS[2]} dark />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        /* Shared inner wrapper: fits any iframe and scales it to the frame. */
+        .device-frame__inner {
+          position: absolute;
+          inset: 0;
+          background: #ffffff;
+          overflow: hidden;
+        }
+        .device-frame__inner > iframe,
+        .device-frame__inner > div {
+          transform-origin: top left;
+        }
+        /* Laptop frame (MacBook-ish). */
+        .device-laptop {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 10;
+          border-radius: 18px;
+          padding: 14px;
+          background: linear-gradient(180deg, #2a2530, #15131a);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: 0 40px 80px -30px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .device-laptop__screen {
+          position: absolute;
+          inset: 14px;
+          border-radius: 6px;
+          overflow: hidden;
+          background: #fff;
+        }
+        .device-laptop__notch {
+          position: absolute;
+          top: 4px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 60px;
+          height: 6px;
+          border-radius: 0 0 8px 8px;
+          background: #0b0810;
+        }
+        .device-laptop__base {
+          position: absolute;
+          left: -3%;
+          right: -3%;
+          bottom: -10px;
+          height: 14px;
+          border-radius: 0 0 14px 14px;
+          background: linear-gradient(180deg, #1c1922, #0b0810);
+          box-shadow: 0 14px 30px -10px rgba(0,0,0,0.6);
+        }
+        .device-laptop .device-frame__inner > iframe,
+        .device-laptop .device-frame__inner > div {
+          transform: scale(calc(100cqw / 1280));
+        }
+        /* Tablet frame (iPad-ish). */
+        .device-tablet {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 3 / 4;
+          border-radius: 28px;
+          padding: 10px;
+          background: linear-gradient(180deg, #2a2530, #15131a);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: 0 30px 60px -25px rgba(0,0,0,0.6);
+        }
+        .device-tablet__screen {
+          position: absolute;
+          inset: 10px;
+          border-radius: 18px;
+          overflow: hidden;
+          background: #fff;
+        }
+        .device-tablet .device-frame__inner > iframe,
+        .device-tablet .device-frame__inner > div {
+          transform: scale(calc(100cqw / 1024));
+        }
+        /* Phone frame (iPhone-ish with dynamic island). */
+        .device-phone {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 9 / 19.5;
+          border-radius: 36px;
+          padding: 8px;
+          background: linear-gradient(180deg, #2a2530, #15131a);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: 0 30px 50px -20px rgba(0,0,0,0.65);
+        }
+        .device-phone__screen {
+          position: absolute;
+          inset: 8px;
+          border-radius: 28px;
+          overflow: hidden;
+          background: #fff;
+        }
+        .device-phone__island {
+          position: absolute;
+          top: 14px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 32%;
+          height: 18px;
+          border-radius: 9999px;
+          background: #0b0810;
+          z-index: 2;
+        }
+        .device-phone .device-frame__inner > iframe,
+        .device-phone .device-frame__inner > div {
+          transform: scale(calc(100cqw / 390));
+        }
+        /* Use container queries so the scale factor follows the frame width. */
+        .device-laptop, .device-tablet, .device-phone { container-type: inline-size; }
+        @media (prefers-reduced-motion: reduce) {
+          .device-laptop, .device-tablet, .device-phone { transition: none; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function DeviceLaptop({ children }: { children: ReactNode }) {
+  return (
+    <div className="device-laptop">
+      <div className="device-laptop__notch" aria-hidden />
+      <div className="device-laptop__screen">{children}</div>
+      <div className="device-laptop__base" aria-hidden />
+    </div>
+  );
+}
+function DeviceTablet({ children }: { children: ReactNode }) {
+  return (
+    <div className="device-tablet">
+      <div className="device-tablet__screen">{children}</div>
+    </div>
+  );
+}
+function DevicePhone({ children }: { children: ReactNode }) {
+  return (
+    <div className="device-phone">
+      <div className="device-phone__island" aria-hidden />
+      <div className="device-phone__screen">{children}</div>
+    </div>
+  );
+}
+function DeviceCaption({ label, caption, dark }: { label: string; caption: string; dark?: boolean }) {
+  return (
+    <div className={`mt-5 ${dark ? 'text-white/80' : 'text-white/85'}`}>
+      <p className="text-xs uppercase tracking-widest text-accent">{label}</p>
+      <p className="mt-1 text-sm text-white/70">{caption}</p>
+    </div>
   );
 }
 
