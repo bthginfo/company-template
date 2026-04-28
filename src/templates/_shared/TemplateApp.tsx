@@ -13,13 +13,14 @@ import {
   Tilt3DCard, HoverGlow, HardShadowCard,
 } from '@/components/motion-fx';
 import {
-  AuroraBackground, SpotlightSection, AnimatedGridPattern, ScrollVelocityText, TextReveal,
+  AuroraBackground, SpotlightSection, AnimatedGridPattern, MarqueeTrack, TextReveal,
 } from '@/components/fx-21st';
 import { TLink } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
+import { BranchSignature } from './BranchSignature';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -338,6 +339,9 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
         </Section>
       )}
 
+      {/* Branch + style signature block */}
+      <BranchSignature variant={variant} style="classic" content={content} />
+
       {/* Numbers / testimonial line */}
       <NumbersBand variant={variant} content={content} />
 
@@ -457,6 +461,9 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
         </Section>
       </SpotlightSection>
 
+      {/* Branch + style signature block */}
+      <BranchSignature variant={variant} style="modern" content={content} />
+
       {/* Logos / press strip */}
       <section className="py-14 border-y border-line">
         <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
@@ -549,14 +556,17 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
             {(content.hero?.title || content.brand.name).toUpperCase()}
           </h1>
         </div>
-        {/* Massive velocity-driven brand strip */}
-        <div className="mt-10">
-          <ScrollVelocityText className="font-display text-7xl md:text-[10rem] leading-none uppercase tracking-tighter" baseVelocity={80}>
-            <span className="text-brand">{content.brand.name}</span>
-            <span className="text-[var(--accent-color)] mx-8">●</span>
-            <span className="text-muted">{cfg.servicesEyebrow}</span>
-            <span className="text-[var(--accent-color)] mx-8">●</span>
-          </ScrollVelocityText>
+        {/* Smooth brand strip */}
+        <div className="mt-10 border-y border-line py-4 bg-white">
+          <MarqueeTrack speed={45}>
+            <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap text-brand">
+              {marqueeWordsFor(variant, content).concat(marqueeWordsFor(variant, content)).map((w, i) => (
+                <span key={i} className="inline-flex items-center gap-10">
+                  <span>{w}</span><span className="text-[var(--accent-color)]">●</span>
+                </span>
+              ))}
+            </span>
+          </MarqueeTrack>
         </div>
         {heroImg && (
           <div className="container-x mt-12 reveal">
@@ -584,6 +594,9 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           </div>
         </div>
       </section>
+
+      {/* Branch + style signature block */}
+      <BranchSignature variant={variant} style="bold" content={content} />
 
       {/* Big colored services as numbered editorial list */}
       <section className="py-24 md:py-36 bg-brand text-white">
@@ -630,12 +643,16 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
       {/* Testimonials – big quote */}
       {content.testimonials.length > 0 && (
         <>
-          <ScrollVelocityText className="font-display text-6xl md:text-9xl leading-none uppercase tracking-tighter py-10 bg-[var(--accent-color)] text-[var(--accent-fg)]" baseVelocity={-50}>
-            <span>Stimmen</span>
-            <span className="mx-8 opacity-60">/</span>
-            <span>Ehrliche Worte</span>
-            <span className="mx-8 opacity-60">/</span>
-          </ScrollVelocityText>
+          <div className="py-8 bg-[var(--accent-color)] text-[var(--accent-fg)] border-y border-brand/20">
+            <MarqueeTrack speed={50}>
+              <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap uppercase tracking-tight">
+                <span>Stimmen</span><span className="opacity-50">/</span>
+                <span>Ehrliche Worte</span><span className="opacity-50">/</span>
+                <span>Vertrauen</span><span className="opacity-50">/</span>
+                <span>Stimmen</span><span className="opacity-50">/</span>
+              </span>
+            </MarqueeTrack>
+          </div>
           <section className="py-24 md:py-36 surface">
             <div className="container-x grid md:grid-cols-12 gap-10">
               <div className="md:col-span-7 reveal">

@@ -19,11 +19,11 @@ import {
   Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, useReveal,
 } from '@/components/fx';
 import {
-  Tilt3DCard, MagneticButton, GradientText,
+  Tilt3DCard, MagneticButton,
 } from '@/components/motion-fx';
 import {
   AuroraBackground, SpotlightSection, AnimatedGridPattern,
-  ScrollVelocityText, TextReveal, BentoCard,
+  TextReveal, BentoCard,
 } from '@/components/fx-21st';
 import { ConsentProvider } from '@/lib/consent';
 import { CookieBanner } from '@/components/CookieBanner';
@@ -548,12 +548,10 @@ function HeroSection() {
         </p>
 
         <h1 className="headline-xl max-w-6xl">
-          <TextReveal text="Websites für" />
+          Websites für
           <br />
-          <em className="italic-pop">
-            <GradientText from="#F24171" via="#FFB347" to="#F24171">
-              <RotatingWord words={ROTATING_WORDS} />
-            </GradientText>
+          <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>
+            <RotatingWord words={ROTATING_WORDS} />
           </em>
         </h1>
 
@@ -579,17 +577,10 @@ function HeroSection() {
         </div>
       </div>
 
-      {/* Massive scroll-velocity strip at the very bottom of the hero */}
-      <div className="absolute bottom-0 left-0 right-0 z-0 pointer-events-none border-t border-white/10 bg-black/20 backdrop-blur-sm py-3">
-        <ScrollVelocityText baseVelocity={40} className="font-display text-white/30">
-          <span className="text-7xl md:text-9xl font-display tracking-tight">FlamingoMedia · Editorial-Design · Websites mit Pop · Innsbruck · München · Ingolstadt · DACH ·&nbsp;</span>
-        </ScrollVelocityText>
-      </div>
-
       {/* Scroll indicator */}
       <a
         href="#mehr"
-        className="absolute bottom-24 left-1/2 -translate-x-1/2 text-white/90 hover:text-white flex flex-col items-center gap-2 z-20"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/90 hover:text-white flex flex-col items-center gap-2 z-20"
         aria-label="Weiter scrollen"
       >
         <span className="text-[10px] uppercase tracking-[0.3em] opacity-80">Scroll</span>
@@ -989,20 +980,20 @@ function ProcessTimelineSection() {
           </p>
         </div>
 
-        <ol className="relative md:grid md:grid-cols-4 md:gap-0">
+        <ol className="relative md:grid md:grid-cols-4 md:gap-6">
           {steps.map((s, i) => (
             <li
               key={s.n}
-              className={`relative md:border-l border-t md:border-t-0 border-line p-8 md:p-10 reveal ${i === 0 ? '' : ''}`}
+              className={`relative md:border-l border-t md:border-t-0 border-line p-6 md:p-7 reveal min-w-0 ${i === 0 ? '' : ''}`}
             >
               {/* connector dot */}
               <span
-                className="absolute -left-1.5 -top-1.5 md:left-[-7px] md:top-9 h-3 w-3 rounded-full bg-brand"
+                className="absolute -left-1.5 -top-1.5 md:left-[-7px] md:top-7 h-3 w-3 rounded-full bg-brand"
                 style={{ boxShadow: '0 0 0 6px var(--surface-color)' }}
               />
               <p className="font-mono text-xs text-muted">{s.n} · {s.meta}</p>
-              <h3 className="headline-md mt-4">{s.t}</h3>
-              <p className="mt-4 text-muted leading-relaxed">{s.d}</p>
+              <h3 className="font-display text-2xl md:text-3xl leading-tight mt-3 break-words hyphens-auto" lang="de">{s.t}</h3>
+              <p className="mt-4 text-muted leading-relaxed text-sm md:text-base">{s.d}</p>
             </li>
           ))}
         </ol>
