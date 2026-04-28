@@ -86,6 +86,8 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
                 <option value="restaurant">Demo-Daten: Restaurant</option>
                 <option value="salon">Demo-Daten: Salon</option>
                 <option value="tradesman">Demo-Daten: Handwerk</option>
+                <option value="hotel">Demo-Daten: Hotel</option>
+                <option value="tourism">Demo-Daten: Tourismus</option>
                 <option value="consulting">Demo-Daten: Beratung</option>
                 <option value="medical">Demo-Daten: Praxis</option>
                 <option value="fitness">Demo-Daten: Studio</option>
@@ -2041,18 +2043,20 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
 
 /* ───────────── Defaults ───────────── */
 function defaultAnnouncements(t: TemplateKey): string[] {
-  if (t === 'restaurant') return ['Heute geöffnet · 17:30 – 22:00', 'Tisch online reservieren', 'Trüffel-Saison läuft', 'Innsbruck'];
-  if (t === 'salon') return ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Kérastase Education-Partner', 'München-Schwabing'];
-  if (t === 'consulting') return ['Strategie-Workshop verfügbar', 'Erstgespräch kostenlos', 'Hybrid: Remote & vor Ort', 'München · Berlin · Wien'];
-  if (t === 'medical') return ['Online-Termine verfügbar', 'Privat & alle Kassen', 'Hausarzt & Vorsorge', 'Hamburg-Eppendorf'];
-  if (t === 'fitness') return ['Probetraining gratis', 'Mo – So 06:00 – 23:00', 'Kurse · PT · Yoga', 'Köln-Süd'];
-  return ['24/7 Notdienst · 60 min Anfahrt', 'KfW-Förderung bis 35 %', 'Festpreis-Garantie', 'Ingolstadt & Umgebung'];
+  if (t === 'restaurant') return ['Heute geöffnet', 'Tisch online reservieren', 'Saisonale Karte', 'Reservierung empfohlen'];
+  if (t === 'salon') return ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Premium-Pflegepartner', 'Termin online buchen'];
+  if (t === 'hotel') return ['Zimmer verfügbar', 'Spa & Sauna inklusive', 'Familienbetrieb', 'Direktbuchung mit Bestpreis'];
+  if (t === 'tourism') return ['Täglich geführte Touren', 'Kleine Gruppen', 'Lizenzierte Guides', 'Mehrsprachig'];
+  if (t === 'consulting') return ['Strategie-Workshop verfügbar', 'Erstgespräch kostenlos', 'Hybrid: Remote & vor Ort', 'DACH-weit'];
+  if (t === 'medical') return ['Online-Termine verfügbar', 'Privat & alle Kassen', 'Hausarzt & Vorsorge', 'Termin buchen'];
+  if (t === 'fitness') return ['Probetraining gratis', 'Mo – So 06:00 – 23:00', 'Kurse · PT · Yoga', 'Mitgliedschaft flexibel'];
+  return ['24/7 Notdienst', 'Förderberatung inklusive', 'Festpreis-Garantie', 'Meisterbetrieb'];
 }
 function defaultHighlights(t: TemplateKey) {
   if (t === 'restaurant') return [
     { t: 'Saisonale Karte', d: 'Wechselt mit den Jahreszeiten.' },
     { t: 'Hausgemachte Pasta', d: 'Täglich frisch gezogen.' },
-    { t: 'Wein vom Winzer', d: 'Über 50 Positionen, 28 offen.' },
+    { t: 'Wein vom Winzer', d: 'Sorgfältig kuratierte Auswahl, gerne mit Beratung.' },
     { t: 'Allergene gekennzeichnet', d: 'Klar markiert in der Karte.' },
   ];
   if (t === 'salon') return [
@@ -2150,7 +2154,7 @@ function defaultFaq(t: TemplateKey) {
     { q: 'Welche Kurse werden angeboten?', a: 'HIIT, Yoga, Boxing Cardio und Personal Training.' },
   ];
   return [
-    { q: 'Wie schnell ist der Notdienst da?', a: 'In der Regel binnen 60 min im Stadtgebiet.' },
+    { q: 'Wie schnell ist der Notdienst da?', a: 'In der Regel zügig im Stadtgebiet – wir sagen Ihnen die Anfahrtszeit ehrlich am Telefon.' },
     { q: 'Was kostet eine Beratung?', a: 'Erstberatung kostenlos.' },
   ];
 }
@@ -2237,7 +2241,7 @@ function defaultNumbers(t: TemplateKey) {
   return [
     { value: '50+', label: 'Jahre Erfahrung' },
     { value: '18', label: 'Mitarbeitende' },
-    { value: '60 min', label: 'Anfahrt Notdienst' },
+    { value: 'schnell', label: 'Anfahrt Notdienst' },
     { value: '65 %', label: 'Empfehlungsquote' },
   ];
 }

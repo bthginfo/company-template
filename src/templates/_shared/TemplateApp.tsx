@@ -120,7 +120,7 @@ const VARIANT_FAQ: Record<TemplateVariant, { q: string; a: string }[]> = {
     { q: 'Kann ich mein eigenes Mittel mitbringen?', a: 'Sehr gerne, falls Sie auf bestimmte Inhaltsstoffe verzichten möchten. Sprechen Sie uns einfach an.' },
   ],
   tradesman: [
-    { q: 'Wie schnell ist der Notdienst da?', a: 'In der Regel innerhalb von 60 Minuten im Stadtgebiet Ingolstadt. Außerhalb je nach Verkehrslage – wir sagen Ihnen die Anfahrtszeit ehrlich am Telefon.' },
+    { q: 'Wie schnell ist der Notdienst da?', a: 'In der Regel zügig im Stadtgebiet. Außerhalb je nach Verkehrslage – wir sagen Ihnen die Anfahrtszeit ehrlich am Telefon.' },
     { q: 'Was kostet eine Beratung?', a: 'Die erste Vor-Ort-Beratung ist kostenlos. Bei umfangreicher Energieberatung verrechnen wir 290 € pauschal, die bei Auftrag voll angerechnet werden.' },
     { q: 'Mit welchen Förderungen kann ich rechnen?', a: 'KfW, BAFA, regionale Programme und je nach Bauteil bis zu 35 % Zuschuss. Wir kalkulieren Ihre Förderquote schriftlich vor Auftrag.' },
     { q: 'Wer rechnet mit der Versicherung ab?', a: 'Auf Wunsch übernehmen wir die direkte Abrechnung mit Ihrer Gebäudeversicherung – Sie bekommen das Schadenprotokoll als PDF.' },
@@ -293,11 +293,11 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
   let base: string[];
   if (overlay && overlay.length) {
     base = overlay.filter((s) => s && s.trim());
-  } else if (v === 'restaurant') base = ['Heute geöffnet', 'Tisch online reservieren', 'Trueffel-Saison läuft', 'Innsbruck · Maria-Theresien-Straße'];
-  else if (v === 'salon') base = ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Kérastase Education-Partner', 'München-Schwabing'];
-  else if (v === 'hotel') base = ['Zimmer verfügbar', 'Spa & Sauna inklusive', 'Familienbetrieb seit 1958', 'Igls bei Innsbruck'];
-  else if (v === 'tourism') base = ['Täglich geführte Touren', 'Kleine Gruppen', 'Lizenzierte Guides', 'Innsbruck · Tirol'];
-  else base = ['24/7 Notdienst', 'KfW-Förderung bis 35 %', 'Festpreis-Garantie', 'Ingolstadt & Umgebung'];
+  } else if (v === 'restaurant') base = ['Heute geöffnet', 'Tisch online reservieren', 'Saisonale Karte', 'Reservierung empfohlen'];
+  else if (v === 'salon') base = ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Premium-Pflegepartner', 'Termin online buchen'];
+  else if (v === 'hotel') base = ['Zimmer verfügbar', 'Spa & Sauna inklusive', 'Familienbetrieb', 'Direktbuchung mit Bestpreis'];
+  else if (v === 'tourism') base = ['Täglich geführte Touren', 'Kleine Gruppen', 'Lizenzierte Guides', 'Mehrsprachig'];
+  else base = ['24/7 Notdienst', 'Förderberatung inklusive', 'Festpreis-Garantie', 'Meisterbetrieb'];
 
   // 2. Auto-prepend a real "Heute geöffnet · HH:MM – HH:MM" indicator when
   //    the tenant has structured opening hours we can parse.
@@ -1527,7 +1527,7 @@ function TeamSection({ variant, content }: { variant: TemplateVariant; content: 
     tradesman: [
       { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80', bio: 'Übernahm den Familienbetrieb 2008. Spezialgebiet: Heizungsmodernisierung und Förderberatung.' },
       { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=900&q=80', bio: 'Verantwortet Großprojekte von Badsanierung bis Mehrfamilienhaus. Über 200 Projekte begleitet.' },
-      { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80', bio: 'Steht 24/7 für Notfälle bereit. Kennt jede Heizungsanlage in Ingolstadt – und wenn nicht, kennt er jemanden, der sie kennt.' },
+      { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80', bio: 'Steht 24/7 für Notfälle bereit. Kennt nahezu jede Heizungsanlage in der Region – und wenn nicht, kennt er jemanden, der sie kennt.' },
     ],
     hotel: [
       { n: 'Anna Hofer', r: 'Gastgeberin · Inhaberin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80', bio: 'Führt das Haus in dritter Generation – mit Liebe zum Detail und einem offenen Ohr für jeden Gast.' },
@@ -1615,27 +1615,27 @@ function PressSection() {
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
   const arrivalFallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
-      { t: 'Mit dem Auto', d: 'Tiefgarage Maria-Theresien direkt nebenan. Erste Stunde gratis bei Reservierung.' },
-      { t: 'Mit der Bahn', d: '5 Minuten Fußweg vom Hauptbahnhof. Ein Spaziergang durch die Altstadt.' },
+      { t: 'Mit dem Auto', d: 'Parkmöglichkeiten in unmittelbarer Nähe. Gerne bei Reservierung anfragen.' },
+      { t: 'Mit der Bahn', d: 'Wenige Gehminuten vom Bahnhof entfernt. Ein Spaziergang durch das Zentrum.' },
       { t: 'Barrierefrei', d: 'Hauptraum ebenerdig. Behindertengerechte Toilette vorhanden.' },
     ],
     salon: [
-      { t: 'Anfahrt', d: 'U3/U6 Münchner Freiheit, dann 3 Minuten zu Fuß.' },
-      { t: 'Parken', d: 'Tiefgarage Leopoldpark direkt vor der Tür. Erste Stunde frei für Kund:innen.' },
+      { t: 'Anfahrt', d: 'Öffentlich gut erreichbar – wenige Minuten zu Fuß vom nächsten Halt.' },
+      { t: 'Parken', d: 'Parkmöglichkeiten in der Nähe. Bei Bedarf reservieren wir gerne für Sie mit.' },
       { t: 'Termin verlegen', d: 'Bis 24 h vorher gerne kostenlos – am liebsten per WhatsApp.' },
     ],
     tradesman: [
       { t: 'Notdienst', d: 'Rund um die Uhr erreichbar – auch am Wochenende und an Feiertagen.' },
-      { t: 'Anfahrtsgebiet', d: 'Ingolstadt und 30 km Umkreis. Größere Distanzen auf Anfrage.' },
+      { t: 'Anfahrtsgebiet', d: 'Region und Umkreis abgedeckt. Größere Distanzen auf Anfrage.' },
       { t: 'Beratung vor Ort', d: 'Erstgespräch und Angebot kostenlos. Unverbindlich.' },
     ],
     hotel: [
       { t: 'Mit dem Auto', d: 'Hauseigene Tiefgarage, Ladestationen für E-Autos verfügbar.' },
-      { t: 'Mit der Bahn', d: 'Shuttle ab Hauptbahnhof Innsbruck auf Voranmeldung.' },
+      { t: 'Mit der Bahn', d: 'Shuttle ab Hauptbahnhof auf Voranmeldung.' },
       { t: 'Check-in', d: 'Ab 15:00 Uhr. Frühere Ankunft? Wir lagern Ihr Gepäck gerne.' },
     ],
     tourism: [
-      { t: 'Treffpunkt', d: 'Innsbruck Hauptbahnhof oder hauseigenes Büro – Details mit der Buchungsbestätigung.' },
+      { t: 'Treffpunkt', d: 'Hauptbahnhof oder hauseigenes Büro – Details mit der Buchungsbestätigung.' },
       { t: 'Transfer', d: 'Mehrtägige Touren ab Hotel oder Bahnhof. Auf Wunsch mit Kleinbus.' },
       { t: 'Beratung', d: 'Sie wissen nicht, welche Tour passt? Wir telefonieren gerne 15 Minuten unverbindlich.' },
     ],

@@ -115,13 +115,13 @@ export function defaultGalleryCategories(t: AnyTemplateKey): { t: string; d: str
 
 export function defaultArrival(t: AnyTemplateKey): { t: string; d: string }[] {
   if (t === 'restaurant') return [
-    { t: 'Mit dem Auto', d: 'Tiefgarage Maria-Theresien direkt nebenan.' },
-    { t: 'Mit der Bahn', d: '5 Minuten Fußweg vom Hauptbahnhof.' },
+    { t: 'Mit dem Auto', d: 'Parkmöglichkeiten in unmittelbarer Nähe.' },
+    { t: 'Mit der Bahn', d: 'Wenige Gehminuten vom Bahnhof entfernt.' },
     { t: 'Barrierefrei', d: 'Hauptraum ebenerdig.' },
   ];
   if (t === 'salon') return [
-    { t: 'Anfahrt', d: 'U3/U6 Münchner Freiheit, 3 Min zu Fuß.' },
-    { t: 'Parken', d: 'Tiefgarage Leopoldpark vor der Tür.' },
+    { t: 'Anfahrt', d: 'Öffentlich gut erreichbar – wenige Minuten zu Fuß vom nächsten Halt.' },
+    { t: 'Parken', d: 'Parkmöglichkeiten in der Nähe.' },
     { t: 'Termin verlegen', d: 'Bis 24 h vorher gerne kostenlos.' },
   ];
   if (t === 'hotel') return [
