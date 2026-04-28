@@ -556,16 +556,13 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title={tpl === 'restaurant' ? 'Gerichte' : 'Leistungen'} description="Vollständige Liste – Reihenfolge, Bild, Preis, Beschreibung." badge="Sektion 3">
         <ServicesListEditor data={data} setData={setData} />
       </SectionCard>
-      <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte „So läuft es ab".'} badge="Sektion 4">
-        <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
-      </SectionCard>
       {tpl === 'fitness' && (
-        <SectionCard title="Programme" description="Kurse / Trainings, die im Programm-Spotlight erscheinen." badge="Sektion 4b">
+        <SectionCard title="Programme" description="Kurse / Trainings, die im Programm-Spotlight erscheinen." badge="Sektion 3b">
           <ProgramsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'medical' && (
-        <SectionCard title="Hinweise (Online-Termin & Notfall)" description="Texte für die Service-Karten." badge="Sektion 4b">
+        <SectionCard title="Hinweise (Online-Termin & Notfall)" description="Texte für die Service-Karten." badge="Sektion 3b">
           <MedicalNoticeEditor data={data} setData={setData} />
         </SectionCard>
       )}
@@ -626,6 +623,9 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           <EmergencyBannerEditor data={data} setData={setData} />
         </SectionCard>
       )}
+      <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte „So läuft es ab".'} badge="Sektion 4">
+        <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
+      </SectionCard>
       <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5">
         <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
       </SectionCard>
@@ -731,11 +731,11 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Werte / Grundsätze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3">
         <ValuesEditor data={data} setData={setData} defaults={defaultValues(tpl)} />
       </SectionCard>
-      <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 4">
-        <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
-      </SectionCard>
-      <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, Jubiläen — als vertikale Zeitleiste." badge="Sektion 5">
+      <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, Jubiläen — als vertikale Zeitleiste." badge="Sektion 4">
         <TimelineEditor data={data} setData={setData} />
+      </SectionCard>
+      <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 5">
+        <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
       </SectionCard>
       <SectionCard title="Zahlen-Band" badge="Sektion 6">
         <NumbersEditor data={data} setData={setData} tpl={tpl} />

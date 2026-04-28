@@ -37,14 +37,20 @@ const AGENCY = {
   email: 'hello@flamingomedia.de',
   phone: '+49 1515 5338029',
   phoneAt: '+43 677 6368 1543',
-  /** Wordmark (text-only). Use in nav and inline contexts. */
-  logoTextSrc: '/brand/flamingo-text.png',
-  logoTextWhiteSrc: '/brand/flamingo-text-white.png',
-  /** Flamingo mark (icon-only). Use as standalone mark / favicon-style spots. */
-  logoMarkSrc: '/brand/flamingo-mark.png',
-  logoMarkWhiteSrc: '/brand/flamingo-mark-white.png',
-  /** Backwards-compat alias used by some legacy spots. Defaults to wordmark. */
-  logoSrc: '/brand/flamingo-text.png',
+  /** Wordmark variants (text only). */
+  logoTextSrc: '/brand/flamingo-text-beside.svg',
+  logoTextWhiteSrc: '/brand/flamingo-text-beside.svg',
+  /** Icon-only mark for headers / favicon-style spots. */
+  logoMarkSrc: '/brand/flamingo-icon.svg',
+  logoMarkWhiteSrc: '/brand/flamingo-icon.svg',
+  /** Full lockup (icon + wordmark beside) — best for hero / footer. */
+  logoFullSrc: '/brand/flamingo-full.svg',
+  logoFullBesideSrc: '/brand/flamingo-full-beside.svg',
+  /** Vertical stacks. */
+  logoTextAboveSrc: '/brand/flamingo-text-above.svg',
+  logoTextAboveV2Src: '/brand/flamingo-text-above-v2.svg',
+  /** Backwards-compat alias. */
+  logoSrc: '/brand/flamingo-full-beside.svg',
 };
 
 const ROTATING_WORDS = [
@@ -508,7 +514,7 @@ function Landing() {
 
 function HeroSection() {
   return (
-    <section className="relative min-h-[100vh] flex items-end overflow-hidden text-white grain">
+    <section className="relative min-h-[100vh] flex items-end overflow-hidden text-white grain group/hero">
       {/* Layered backgrounds — one solid base, one GPU-only mouse glow, a thin grid for texture. */}
       <div className="absolute inset-0 -z-10 bg-[#0b1020]" />
       <MouseGlow
@@ -522,6 +528,49 @@ function HeroSection() {
         height={40}
         dotSize={1.2}
       />
+
+      {/* Centered brand mark — sits behind copy, glows on hover */}
+      <div
+        className="hero-brand-mark pointer-events-none absolute inset-0 -z-[3] flex items-center justify-center"
+        aria-hidden
+      >
+        <div className="hero-brand-mark__glow" />
+        <img
+          src={AGENCY.logoFullSrc}
+          alt=""
+          className="hero-brand-mark__img w-[68%] max-w-[820px] md:w-[60%] lg:w-[55%]"
+        />
+      </div>
+      <style>{`
+        .hero-brand-mark__img {
+          opacity: 0.12;
+          filter: drop-shadow(0 0 60px rgba(242,65,113,0.18));
+          transition: opacity 600ms ease, filter 600ms ease, transform 800ms ease;
+          will-change: opacity, filter, transform;
+        }
+        .hero-brand-mark__glow {
+          position: absolute;
+          inset: 0;
+          margin: auto;
+          width: 60%;
+          max-width: 720px;
+          aspect-ratio: 1 / 1;
+          border-radius: 9999px;
+          background: radial-gradient(closest-side, rgba(242,65,113,0.55), rgba(242,65,113,0) 70%);
+          opacity: 0;
+          filter: blur(40px);
+          transition: opacity 700ms ease;
+        }
+        .group\\/hero:hover .hero-brand-mark__img {
+          opacity: 0.42;
+          filter: drop-shadow(0 0 80px rgba(242,65,113,0.85)) drop-shadow(0 0 28px rgba(124,58,237,0.45));
+          transform: scale(1.02);
+        }
+        .group\\/hero:hover .hero-brand-mark__glow { opacity: 0.9; }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-brand-mark__img, .hero-brand-mark__glow { transition: none; }
+        }
+      `}</style>
 
       <div className="container-x relative z-10 pt-44 pb-24 md:pb-32">
         <p className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-white/80 mb-8">
