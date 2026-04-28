@@ -139,7 +139,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
     },
     hero: {
       title: 'Schnell. Sauber. Verlässlich.',
-      subtitle: 'Drei Generationen Installation, Sanitär und Heizungstechnik. Vom kleinen Notfall bis zur Großsanierung – wir sind in 60 Minuten bei Ihnen, mit Festpreis und Meisterprüfung.',
+      subtitle: 'Sanitär & Heizung in Meisterhand – 60 Min. vor Ort, Festpreis, drei Generationen Erfahrung.',
       imageUrl: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=2000&q=80',
       ctaLabel: 'Kostenlos anfragen',
       ctaHref: '/kontakt',

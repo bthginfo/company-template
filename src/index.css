@@ -112,7 +112,9 @@
 .tpl-branch-fitness h1,
 .tpl-branch-fitness h2,
 .tpl-branch-fitness .italic-pop { font-style: italic; }
-.tpl-branch-fitness .rounded-3xl { border-radius: 999px 999px 1.5rem 1.5rem; }
+/* Arch silhouette is reserved for opt-in decorative blocks (.fitness-arch).
+ * Applying it globally to .rounded-3xl truncated card content (cf. package highlight). */
+.tpl-branch-fitness .fitness-arch { border-radius: 999px 999px 1.5rem 1.5rem; }
 .tpl-branch-fitness .eyebrow::before { content: '⚡ '; }
 
 @layer components {
