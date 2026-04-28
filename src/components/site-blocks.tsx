@@ -53,11 +53,16 @@ export function SiteHeader({
   nav,
   basePath: basePathProp,
   announcements,
+  /** When true (default), nav text is white at top of page (over a dark hero).
+   *  Set to false for templates whose hero is light/white (e.g. modern style)
+   *  so the nav remains readable. */
+  transparentTextDark = false,
 }: {
   content: SiteContent;
   nav: NavItem[];
   basePath?: string;
   announcements?: string[];
+  transparentTextDark?: boolean;
 }) {
   const ctxBase = useBasePath();
   const basePath = basePathProp ?? ctxBase;
@@ -74,7 +79,7 @@ export function SiteHeader({
   }, []);
   useEffect(() => setMobile(false), [loc.pathname]);
 
-  const isLight = !scrolled;
+  const isLight = !scrolled && !transparentTextDark;
   const txt = isLight ? 'text-white' : 'text-slate-900';
   const sub = isLight ? 'text-white/85 hover:text-white' : 'text-slate-700 hover:text-slate-900';
 

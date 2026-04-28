@@ -111,6 +111,8 @@ export const SiteContentSchema = z.object({
     date: z.string().default(''),
     excerpt: z.string().default(''),
     body: z.string().default(''),
+    /** Rich-text HTML version of the body. When present, takes precedence over `body`. Sanitised at render time. */
+    bodyHtml: z.string().optional().default(''),
     imageUrl: z.string().optional().default(''),
     published: z.boolean().default(true),
   })).optional().default([]),
@@ -118,5 +120,5 @@ export const SiteContentSchema = z.object({
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;
 
-export type TemplateKey = 'restaurant' | 'salon' | 'tradesman' | 'consulting' | 'medical' | 'fitness';
+export type TemplateKey = 'restaurant' | 'hotel' | 'tourism' | 'salon' | 'tradesman' | 'consulting' | 'medical' | 'fitness';
 export type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage';

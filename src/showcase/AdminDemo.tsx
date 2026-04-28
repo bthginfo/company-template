@@ -6,10 +6,10 @@ import { clearOverride, downloadJson, loadFor, writeOverride } from '@/lib/demo-
 import { AdminEditorBody } from '@/admin/AdminEditorBody';
 
 type DemoKey = TemplateKey;
-const ALL_DEMO_KEYS: DemoKey[] = ['restaurant', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const ALL_DEMO_KEYS: DemoKey[] = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'];
 const isDemoKey = (k: string): k is DemoKey => (ALL_DEMO_KEYS as string[]).includes(k);
 const baseFor = (k: DemoKey): SiteContent =>
-  k === 'restaurant' || k === 'salon' || k === 'tradesman' ? DEMO_CONTENT[k] : EXTRA_DEMO_CONTENT[k];
+  k === 'restaurant' || k === 'salon' || k === 'tradesman' || k === 'hotel' || k === 'tourism' ? DEMO_CONTENT[k] : EXTRA_DEMO_CONTENT[k];
 
 /**
  * AdminDemo — showcase wrapper around the shared admin editor body.

@@ -6,7 +6,7 @@ import type { SiteContent, TemplateKey } from '@/lib/types';
 
 type Session = { role: 'super' | 'tenant'; tenantId: string | null; slug: string | null } | null;
 
-const VALID_TEMPLATES: TemplateKey[] = ['restaurant', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const VALID_TEMPLATES: TemplateKey[] = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'];
 function asTemplateKey(v: string | undefined): TemplateKey {
   return VALID_TEMPLATES.includes(v as TemplateKey) ? (v as TemplateKey) : 'restaurant';
 }

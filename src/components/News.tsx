@@ -1,5 +1,6 @@
 import { Link, useParams, Navigate } from 'react-router-dom';
 import type { SiteContent } from '@/lib/types';
+import { sanitizeHtml } from '@/lib/sanitize-html';
 
 type Post = NonNullable<SiteContent['posts']>[number];
 
@@ -11,6 +12,7 @@ const DEFAULT_POSTS: Post[] = [
     date: '2025-03-15',
     excerpt: 'Frische Zutaten der Saison – wir haben die Karte komplett neu gedacht.',
     body: 'Wir haben unsere Karte für den Frühling überarbeitet.\n\nIm Mittelpunkt: heimische Spargel-Variationen, frische Wildkräuter und neue vegetarische Hauptgerichte. Reservieren Sie gerne online oder per Telefon.',
+    bodyHtml: '',
     imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1600&q=80',
     published: true,
   },
@@ -112,7 +114,8 @@ export function NewsDetailPage({ content, basePath = '' }: { content: SiteConten
   const posts = usePublishedPosts(content);
   const post = posts.find((p) => p.slug === slug || p.id === slug);
   if (!post) return <Navigate to={`${basePath}/news`} replace />;
-  const paragraphs = (post.body || '').split(/\n\s*\n/).filter(Boolean);
+  const html = (post as any).bodyHtml ? sanitizeHtml((post as any).bodyHtml) : '';
+  const paragraphs = !html ? (post.body || '').split(/\n\s*\n/).filter(Boolean) : [];
   return (
     <article className="pt-32 md:pt-40 pb-24">
       <div className="container-x max-w-3xl">
@@ -125,9 +128,13 @@ export function NewsDetailPage({ content, basePath = '' }: { content: SiteConten
           </div>
         )}
         {post.excerpt && <p className="mt-10 text-xl text-muted leading-relaxed">{post.excerpt}</p>}
-        <div className="mt-8 space-y-5 text-lg leading-relaxed">
-          {paragraphs.map((p, i) => <p key={i}>{p}</p>)}
-        </div>
+        {html ? (
+          <div className="news-body mt-8 text-lg leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />
+        ) : (
+          <div className="mt-8 space-y-5 text-lg leading-relaxed">
+            {paragraphs.map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        )}
       </div>
     </article>
   );

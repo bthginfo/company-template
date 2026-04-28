@@ -4,7 +4,7 @@ import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content';
 const KEY = (k: TemplateKey) => `bth.demo.override.${k}`;
 
 function baseFor(k: TemplateKey): SiteContent {
-  if (k === 'restaurant' || k === 'salon' || k === 'tradesman') return DEMO_CONTENT[k];
+  if (k === 'restaurant' || k === 'salon' || k === 'tradesman' || k === 'hotel' || k === 'tourism') return DEMO_CONTENT[k];
   return EXTRA_DEMO_CONTENT[k];
 }
 

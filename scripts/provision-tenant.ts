@@ -28,14 +28,17 @@ import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types';
-import { EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
+import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
 
-const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'] as const;
+const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
 type AnyTemplate = typeof VALID_TEMPLATES[number];
 
-const [, , slug, name, template, styleArg] = process.argv;
+const RAW_ARGS = process.argv.slice(2);
+const RESEED = RAW_ARGS.includes('--reseed');
+const FILTERED = RAW_ARGS.filter((a) => a !== '--reseed');
+const [slug, name, template, styleArg] = FILTERED;
 
-const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <restaurant|salon|tradesman|consulting|medical|fitness> [classic|modern|bold]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n`;
+const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <restaurant|salon|tradesman|hotel|tourism|consulting|medical|fitness> [classic|modern|bold]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n`;
 
 if (slug === '--help' || slug === '-h') {
   console.log(HELP);
@@ -84,44 +87,14 @@ async function vercel(path: string, init: RequestInit = {}): Promise<any> {
   return json;
 }
 
-const DEFAULT_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteContent> = {
-  restaurant: SiteContentSchema.parse({
-    brand: { name, tagline: 'Authentische Küche aus der Region', primaryColor: '#9a3412' },
-    hero: { title: `Willkommen bei ${name}`, subtitle: 'Frische, regionale Zutaten – mit Liebe zubereitet.', ctaLabel: 'Tisch reservieren', ctaHref: '#kontakt' },
-    about: { title: 'Unsere Geschichte', body: 'Seit vielen Jahren bringen wir die kulinarische Tradition unserer Heimat auf Ihren Teller.' },
-    services: [
-      { title: 'Tagesmenü', description: 'Wechselnde Spezialitäten der Saison.', price: '14,90 €' },
-      { title: 'Hauptgerichte', description: 'Klassiker und kreative Kreationen.', price: 'ab 16,50 €' },
-    ],
-    gallery: [],
-    testimonials: [{ author: 'Sabine M.', text: 'Tolles Essen, herzliche Bedienung – wir kommen wieder!' }],
-    contact: { phone: '', email: '', address: '', city: '', hours: [{ day: 'Mo–Fr', time: '11:30–22:00' }, { day: 'So', time: 'Ruhetag' }], mapsUrl: '' },
-  }),
-  salon: SiteContentSchema.parse({
-    brand: { name, tagline: 'Ihr Salon für Stil & Wohlbefinden', primaryColor: '#be185d' },
-    hero: { title: name, subtitle: 'Friseur · Beauty · Wohlfühlen', ctaLabel: 'Termin buchen', ctaHref: '#kontakt' },
-    about: { title: 'Über uns', body: 'Unser Team aus erfahrenen Stylist:innen verwöhnt Sie in entspannter Atmosphäre.' },
-    services: [
-      { title: 'Damen-Schnitt', description: 'Inkl. Waschen & Styling.', price: '55 €' },
-      { title: 'Färben & Strähnen', description: 'Hochwertige Pflegeprodukte.', price: 'ab 75 €' },
-    ],
-    gallery: [],
-    testimonials: [{ author: 'Lisa K.', text: 'Endlich ein Salon, dem ich zu 100 % vertraue!' }],
-    contact: { phone: '', email: '', address: '', city: '', hours: [{ day: 'Di–Fr', time: '09:00–19:00' }, { day: 'Sa', time: '09:00–15:00' }], mapsUrl: '' },
-  }),
-  tradesman: SiteContentSchema.parse({
-    brand: { name, tagline: 'Ihr Meisterbetrieb in der Region', primaryColor: '#1d4ed8' },
-    hero: { title: `${name} – schnell, sauber, zuverlässig`, subtitle: 'Über 20 Jahre Erfahrung. Festpreis-Garantie.', ctaLabel: 'Jetzt anfragen', ctaHref: '#kontakt' },
-    about: { title: 'Über uns', body: 'Wir sind ein traditionsreicher Meisterbetrieb mit einem eingespielten Team.' },
-    services: [
-      { title: 'Reparaturen', description: 'Schnelle Hilfe bei allen Notfällen.', price: '79 €' },
-      { title: 'Sanierung', description: 'Beratung, Planung, Ausführung.', price: 'auf Anfrage' },
-    ],
-    gallery: [],
-    testimonials: [{ author: 'Familie Huber', text: 'Termin eingehalten, Preis eingehalten – ehrliche Arbeit.' }],
-    contact: { phone: '', email: '', address: '', city: '', hours: [{ day: 'Mo–Fr', time: '07:00–17:00' }, { day: 'Notdienst', time: '24/7' }], mapsUrl: '' },
-  }),
+const DEFAULT_CONTENT_PRIMARY: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism', string> = {
+  restaurant: '#9a3412',
+  salon: '#be185d',
+  tradesman: '#1d4ed8',
+  hotel: '#7c5e3c',
+  tourism: '#0e7490',
 };
+void DEFAULT_CONTENT_PRIMARY;
 
 /** Defaults for branches that share the single-page ExtraBranchTemplate.
  *  We seed from the showcase demo content so the freshly provisioned site
@@ -135,9 +108,32 @@ function extraDefaults(key: 'consulting' | 'medical' | 'fitness'): SiteContent {
   });
 }
 
+/** Defaults for full-template branches (restaurant/salon/tradesman/hotel/tourism).
+ *  We seed from the rich showcase demo so the new tenant site is fully populated
+ *  out of the box (gallery, services, testimonials, FAQ, numbers, contact-stub).
+ *  Brand name + hero title get the provided tenant name. */
+function fullDefaults(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism'): SiteContent {
+  const base = DEMO_CONTENT[key];
+  return SiteContentSchema.parse({
+    ...base,
+    brand: { ...base.brand, name },
+    hero: { ...base.hero, title: name },
+    contact: {
+      ...base.contact,
+      // Strip showcase phone/email/address so the tenant fills their own – avoids
+      // a fresh tenant accidentally publishing the demo restaurant's number.
+      phone: '',
+      email: '',
+      address: '',
+      city: base.contact?.city || '',
+      mapsUrl: '',
+    },
+  });
+}
+
 function defaultsFor(t: AnyTemplate): SiteContent {
   if (t === 'consulting' || t === 'medical' || t === 'fitness') return extraDefaults(t);
-  return DEFAULT_CONTENT[t as 'restaurant' | 'salon' | 'tradesman'];
+  return fullDefaults(t as 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism');
 }
 
 const SHARED_KEYS = [
@@ -167,6 +163,17 @@ async function main() {
     await db.update(schema.tenants).set({ passwordHash, name, template, style }).where(eq(schema.tenants.id, existing.id));
     tenantId = existing.id;
     console.log(`  ✓ Tenant row updated (existed)`);
+    if (RESEED) {
+      const seed = defaultsFor(template as AnyTemplate);
+      const hasContent = await db.query.siteContent.findFirst({ where: eq(schema.siteContent.tenantId, tenantId) });
+      if (hasContent) {
+        await db.update(schema.siteContent).set({ data: seed }).where(eq(schema.siteContent.tenantId, tenantId));
+        console.log(`  ✓ Content reseeded from rich demo (--reseed)`);
+      } else {
+        await db.insert(schema.siteContent).values({ tenantId, data: seed });
+        console.log(`  ✓ Content seeded (no prior row, --reseed)`);
+      }
+    }
   } else {
     const [row] = await db.insert(schema.tenants).values({ slug, name, template, style, passwordHash }).returning();
     tenantId = row.id;

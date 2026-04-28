@@ -12,6 +12,8 @@ import Seo from '@/components/Seo';
 import RestaurantTemplate from '@/templates/restaurant';
 import SalonTemplate from '@/templates/salon';
 import TradesmanTemplate from '@/templates/tradesman';
+import HotelTemplate from '@/templates/hotel';
+import TourismTemplate from '@/templates/tourism';
 import ExtraBranchTemplate from '@/templates/extra';
 import {
   Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, SplitText, useReveal,
@@ -73,7 +75,7 @@ function applyShowcasePalette() {
 }
 
 /* ─── Template metadata ────────────────────────────────────────────── */
-const TEMPLATE_META: Record<'restaurant' | 'salon' | 'tradesman', {
+const TEMPLATE_META: Record<'restaurant' | 'hotel' | 'tourism', {
   label: string;
   tagline: string;
   description: string;
@@ -89,6 +91,59 @@ const TEMPLATE_META: Record<'restaurant' | 'salon' | 'tradesman', {
     accent: '#9a3412',
     bullets: ['Mehrseitige Speisekarte', 'Online-Reservierungs-Anbindung', 'Foto-Galerie & Stimmungs-Mood', 'Mehrsprachig auf Wunsch'],
   },
+  hotel: {
+    label: 'Hotels',
+    tagline: 'Hotel · Pension · Resort',
+    description: 'Zimmer-Showcase, Spa- und Lage-Storytelling, direkte Reservierungs-Funnel ohne Provision.',
+    image: 'https://images.unsplash.com/photo-1455587734955-081b22074882?auto=format&fit=crop&w=1400&q=80',
+    accent: '#7c5e3c',
+    bullets: ['Zimmer- & Suiten-Galerie', 'Spa- und Halbpension-Module', 'Direkt-Reservierung statt Booking-Provision', 'Gästestimmen aus echten Erlebnissen'],
+  },
+  tourism: {
+    label: 'Tourismus',
+    tagline: 'Touren · Guides · Erlebnisse',
+    description: 'Touren-Katalog, Guide-Profile, Buchungs-Funnel und kraftvolle Bildwelten für Region und Erlebnis.',
+    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80',
+    accent: '#0e7490',
+    bullets: ['Touren-Katalog mit Schwierigkeitsgrad', 'Guide-Profile mit Sprachen', 'Direkter Buchungs-Funnel', 'Galerie mit Region & Erlebnis'],
+  },
+};
+
+const STYLE_PREVIEW: Record<'restaurant' | 'hotel' | 'tourism', { classic: string; modern: string; bold: string }> = {
+  restaurant: {
+    classic: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80',
+    modern: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80',
+    bold: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1400&q=80',
+  },
+  hotel: {
+    classic: 'https://images.unsplash.com/photo-1455587734955-081b22074882?auto=format&fit=crop&w=1400&q=80',
+    modern: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1400&q=80',
+    bold: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1400&q=80',
+  },
+  tourism: {
+    classic: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80',
+    modern: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1400&q=80',
+    bold: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80',
+  },
+};
+
+/* ─── Extra branches (showcase-only — single-page preview) ───────── */
+type ExtraBranchKey = 'salon' | 'tradesman' | 'consulting' | 'medical' | 'fitness';
+type BranchKey = TemplateKey | ExtraBranchKey;
+const EXTRA_KEYS: ExtraBranchKey[] = ['salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const isExtraKey = (k: string | undefined): k is ExtraBranchKey =>
+  !!k && (EXTRA_KEYS as string[]).includes(k);
+
+// Color presets for extras now come from PRESETS in @/lib/theme (single source of truth).
+
+const EXTRA_BRANCHES: Record<ExtraBranchKey, {
+  label: string;
+  tagline: string;
+  description: string;
+  image: string;
+  accent: string;
+  bullets: string[];
+}> = {
   salon: {
     label: 'Salon & Beauty',
     tagline: 'Friseur · Spa · Kosmetik',
@@ -105,43 +160,6 @@ const TEMPLATE_META: Record<'restaurant' | 'salon' | 'tradesman', {
     accent: '#1d4ed8',
     bullets: ['Notdienst-Sticky-Banner', 'Anfrage-Formular mit Versand', 'Referenz-Galerie', 'Förder-Kalkulator-Modul'],
   },
-};
-
-const STYLE_PREVIEW: Record<'restaurant' | 'salon' | 'tradesman', { classic: string; modern: string; bold: string }> = {
-  restaurant: {
-    classic: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80',
-    modern: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80',
-    bold: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1400&q=80',
-  },
-  salon: {
-    classic: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1400&q=80',
-    modern: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1400&q=80',
-    bold: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1400&q=80',
-  },
-  tradesman: {
-    classic: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1400&q=80',
-    modern: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1400&q=80',
-    bold: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1400&q=80',
-  },
-};
-
-/* ─── Extra branches (showcase-only — single-page preview) ───────── */
-type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
-type BranchKey = TemplateKey | ExtraBranchKey;
-const EXTRA_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
-const isExtraKey = (k: string | undefined): k is ExtraBranchKey =>
-  !!k && (EXTRA_KEYS as string[]).includes(k);
-
-// Color presets for extras now come from PRESETS in @/lib/theme (single source of truth).
-
-const EXTRA_BRANCHES: Record<ExtraBranchKey, {
-  label: string;
-  tagline: string;
-  description: string;
-  image: string;
-  accent: string;
-  bullets: string[];
-}> = {
   consulting: {
     label: 'Beratung & Kanzlei',
     tagline: 'Consulting · Steuer · Recht',
@@ -1021,19 +1039,19 @@ function NumbersSection() {
 function TestimonialsSection() {
   const quotes = [
     {
-      t: 'Wyldworks hat unsere Speisekarte digital so übersetzt, wie wir sie selbst nicht beschreiben hätten können. Seit Launch reservieren 40 % mehr Gäste online.',
-      a: 'Giulia Conti',
-      r: 'Trattoria Innsbruck',
+      t: 'Wyldworks hat unsere Brautstyling-Welt online genauso gefühlvoll gezeigt, wie wir sie morgens im Studio leben. Anfragen kommen jetzt vorab gebrieft – kein leeres Postfach mehr, sondern echte Termine.',
+      a: 'Magdalena Johanna',
+      r: 'Brautstylistin · Ingolstadt',
     },
     {
-      t: 'Endlich eine Website, bei der ich nicht ständig den Webmaster anrufen muss. Inhalte pflege ich selbst, in fünf Minuten.',
-      a: 'Marie Hofer',
-      r: 'Studio Lumière, München',
+      t: 'Endlich eine Praxis-Website, die nicht steril wirkt. Online-Termin, klare Leistungen, Eltern finden auf einen Blick, was sie brauchen. Saubere Arbeit, fairer Preis, freundliche Betreuung.',
+      a: 'Julian Burg',
+      r: 'Kieferorthopäde · München',
     },
     {
-      t: 'Klare Arbeit, klarer Preis, klarer Zeitplan. Vor Ort gefilmt, in 14 Tagen live. Empfehlung.',
-      a: 'Stefan Mayer',
-      r: 'Mayer & Söhne, Ingolstadt',
+      t: 'Wir verkaufen Olivenöl auf Geschichte und Vertrauen – das Wyldworks-Team hat das verstanden und in einen Auftritt verwandelt, der unsere Hände, unsere Bäume und unsere Werte zeigt. Direktverkauf hat sich verdoppelt.',
+      a: 'Monika Girardi',
+      r: 'The Girardi Oil · Innsbruck',
     },
   ];
   return (
@@ -1718,14 +1736,20 @@ function TemplatePreview() {
 
   return (
     <div>
-      {isExtra ? (
-        <ExtraBranchTemplate content={themedContent} style={style} branch={tplKey as ExtraBranchKey} eyebrow={EXTRA_BRANCHES[tplKey as ExtraBranchKey].tagline} basePath={basePath} />
-      ) : (
-        (() => {
-          const RealTpl = tplKey === 'restaurant' ? RestaurantTemplate : tplKey === 'salon' ? SalonTemplate : TradesmanTemplate;
-          return <RealTpl content={themedContent} basePath={basePath} style={style} />;
-        })()
-      )}
+      {(() => {
+        // consulting/medical/fitness are single-page extras → ExtraBranchTemplate
+        if (tplKey === 'consulting' || tplKey === 'medical' || tplKey === 'fitness') {
+          return <ExtraBranchTemplate content={themedContent} style={style} branch={tplKey} eyebrow={EXTRA_BRANCHES[tplKey].tagline} basePath={basePath} />;
+        }
+        // restaurant/salon/tradesman/hotel/tourism → full TemplateApp variants
+        const RealTpl =
+          tplKey === 'restaurant' ? RestaurantTemplate :
+          tplKey === 'salon' ? SalonTemplate :
+          tplKey === 'tradesman' ? TradesmanTemplate :
+          tplKey === 'hotel' ? HotelTemplate :
+          TourismTemplate;
+        return <RealTpl content={themedContent} basePath={basePath} style={style} />;
+      })()}
 
       <PreviewControls
         tplKey={tplKey}
@@ -1782,7 +1806,7 @@ function PreviewControls({
       )}
       <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Branche</p>
       <div className="grid grid-cols-3 gap-1 mb-2">
-        {(['restaurant','salon','tradesman'] as Array<keyof typeof TEMPLATE_META>).map((k) => (
+        {(['restaurant','hotel','tourism'] as Array<keyof typeof TEMPLATE_META>).map((k) => (
           <button key={k} onClick={() => onSwitchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
             {TEMPLATE_META[k].label.split(' ')[0]}
           </button>

@@ -3,7 +3,7 @@ import { SiteContentSchema, type SiteContent } from './types';
 /**
  * Demo content for the showcase preview pages.
  */
-export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteContent> = {
+export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism', SiteContent> = {
   restaurant: SiteContentSchema.parse({
     brand: {
       name: 'Trattoria Innsbruck',
@@ -187,6 +187,121 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteCont
     },
     social: {
       whatsapp: '+498419876543',
+    },
+  }),
+
+  hotel: SiteContentSchema.parse({
+    brand: {
+      name: 'Hotel Bergkristall',
+      tagline: 'Boutique-Hotel · Tirol · Seit 1956',
+      primaryColor: '#92400e',
+    },
+    hero: {
+      title: 'Ankommen, durchatmen, bleiben.',
+      subtitle: '34 individuelle Zimmer, eine Küche, die ihre Quellen kennt, und ein Spa mit Blick auf die Nordkette. Drei Generationen Gastgeberschaft.',
+      imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80',
+      ctaLabel: 'Zimmer anfragen',
+      ctaHref: '/kontakt',
+    },
+    about: {
+      title: 'Mehr Hotelier, weniger Hotel-Kette.',
+      body: 'Das Bergkristall ist ein Familienbetrieb in dritter Generation. Großvater Anton hat 1956 angefangen mit zwölf Zimmern, einer Sennhütte und einer Idee von Gastfreundschaft, die nicht im Standardhandbuch steht.\n\nHeute führen wir 34 Zimmer und Suiten – jedes anders, jedes mit echtem Holz, lokalen Stoffen und einer Aussicht, für die wir nichts können (außer dankbar sein). Unser Spa ist klein, ruhig und nicht für Bus-Gruppen.\n\nWir kochen mit Produzent:innen aus einem Umkreis von 60 Kilometern. Wir kennen ihre Vornamen.',
+      imageUrl: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=80',
+    },
+    services: [
+      { title: 'Zimmer & Suiten', description: '18 Zimmer, 12 Junior-Suiten, 4 Panorama-Suiten – alle mit Balkon, alle nicht zur Strasse. Ab 189 € / Nacht.', imageUrl: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Spa & Pool', description: '20-Meter Innenpool, Finnische Sauna, Bio-Sauna, Dampfbad, Ruheraum mit Bergblick. Massagen auf Anfrage.', imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Restaurant & Bar', description: 'Drei-Hauben-Küche von Sebastian Berger. Sechs-Gang-Menü, à la carte oder Bar-Snacks bis 23 Uhr.', imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Tagungen & Events', description: 'Zwei Tagungsräume bis 40 Personen, Hochzeitssaal bis 80, exklusive Buchung des ganzen Hauses möglich.', imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Bergführer & Aktivprogramm', description: 'Geführte Wanderungen, Mountainbike-Touren, Skitourenkurse, Yoga am Berg – im Sommer wie Winter.', imageUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Frühstück & Halbpension', description: 'Frühstück bis 11 Uhr, Halbpensions-Aufpreis 49 €. Ja, mit hausgemachten Marillenknödeln.', imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=900&q=80' },
+    ],
+    gallery: [
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1400&q=80',
+    ],
+    testimonials: [
+      { author: 'Familie Hauser, Hamburg', text: 'Wir kommen seit acht Jahren. Das Personal kennt unsere Kinder beim Namen, das Frühstück ist eine Liebeserklärung an den Tag.' },
+      { author: 'Lina B., Berlin', text: 'Spa-Aufenthalt zum Geburtstag. Drei Tage komplett offline, am vierten wollte ich nicht mehr weg. 12 / 10.' },
+      { author: 'Patrick W., München', text: 'Tagung mit 28 Personen perfekt organisiert. Technik, Pausen, Abendessen – alles saß. Kommen wieder.' },
+    ],
+    contact: {
+      phone: '+43 5234 5678 0',
+      email: 'willkommen@hotel-bergkristall.at',
+      address: 'Dorfstraße 8',
+      city: '6080 Igls bei Innsbruck',
+      hours: [
+        { day: 'Rezeption', time: '24/7' },
+        { day: 'Restaurant', time: '12:00 – 14:30 · 18:30 – 22:00' },
+      ],
+      mapsUrl: 'https://www.google.com/maps?q=Igls+Innsbruck&output=embed',
+    },
+    social: {
+      instagram: 'hotel.bergkristall',
+      facebook: 'hotelbergkristall',
+    },
+  }),
+
+  tourism: SiteContentSchema.parse({
+    brand: {
+      name: 'Alpenroute Tirol',
+      tagline: 'Geführte Touren · Erlebnisse · Tirol',
+      primaryColor: '#0369a1',
+    },
+    hero: {
+      title: 'Tirol, wie es Einheimische sehen.',
+      subtitle: 'Geführte Wanderungen, Wein-Touren in Südtirol, Foto-Workshops in den Dolomiten. Kleine Gruppen, lokale Guides, keine Selfie-Stick-Karawanen.',
+      imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80',
+      ctaLabel: 'Tour finden',
+      ctaHref: '/leistungen',
+    },
+    about: {
+      title: 'Reisen mit Tiefe statt Tempo.',
+      body: 'Alpenroute Tirol wurde 2014 von Bergführer Lukas Kofler gegründet, mit der Idee, Reisen anzubieten, die er selbst buchen würde – kein Mainstream-Programm, keine Touristen-Bullets.\n\nUnser Team aus 14 Guides spricht fünf Sprachen, alle leben in Tirol oder Südtirol. Wir arbeiten ausschließlich mit lokalen Hütten, Winzer:innen und Familienbetrieben. Jede Tour ist auf maximal acht Gäste begrenzt.\n\nWir nehmen uns Zeit. Eine Tagestour dauert acht Stunden, nicht vier. Eine Mehrtagestour endet, wenn die Geschichten erzählt sind, nicht der Bus losfährt.',
+      imageUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=1400&q=80',
+    },
+    services: [
+      { title: 'Tagestouren Tirol', description: 'Achensee-Umrundung, Zugspitze-Klettersteig, Pitztaler Gletscher. Inkl. Lunchpaket vom Hofladen. Ab 89 €.', imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Mehrtages-Touren Dolomiten', description: 'Drei bis sieben Tage durch UNESCO-Welterbe, Übernachtung in Hütten oder Boutique-Hotels. Ab 690 €.', imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Wein- & Genuss-Touren', description: 'Vinschgau, Eisacktal, Kalterer See. Drei Weingüter, ein Mittagessen, Gespräche mit Produzent:innen. 169 €.', imageUrl: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Foto- & Naturworkshops', description: 'Sonnenaufgang am Karwendel, Astrofotografie auf der Zugspitze. Mit Fotograf Markus Eder.', imageUrl: 'https://images.unsplash.com/photo-1516214104703-d870798883c5?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Privat- & Firmen-Tours', description: 'Maßgeschneiderte Tagesprogramme für Gruppen bis 12 Personen. Incentives, Teamtage, Hochzeitsausflüge.', imageUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Winter-Erlebnisse', description: 'Skitourenkurse, Schneeschuh-Wanderung mit Fackeln, Eisklettern für Anfänger. Zertifizierte Berg-Guides.', imageUrl: 'https://images.unsplash.com/photo-1551524559-8af4e6624178?auto=format&fit=crop&w=900&q=80' },
+    ],
+    gallery: [
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1486162928267-e6274cb3106f?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1444930694458-01babe71870e?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1516214104703-d870798883c5?auto=format&fit=crop&w=1400&q=80',
+    ],
+    testimonials: [
+      { author: 'Anna & Tom, Hamburg', text: 'Drei Tage Dolomiten mit Lukas. Wir haben mehr gelernt als in zwei Italien-Urlauben zusammen. Klare Empfehlung.' },
+      { author: 'Christine R., Wien', text: 'Wein-Tour im Vinschgau – kein Standard-Programm, sondern echte Begegnungen mit Winzer:innen. Großartig.' },
+      { author: 'Boris N., Berlin', text: 'Foto-Workshop am Karwendel: kompetent, geduldig, mit Auge für Details. Der Sonnenaufgang werde ich nicht vergessen.' },
+    ],
+    contact: {
+      phone: '+43 512 87 65 43',
+      email: 'tour@alpenroute.tirol',
+      address: 'Maria-Theresien-Straße 12',
+      city: '6020 Innsbruck',
+      hours: [
+        { day: 'Mo – Fr', time: '09:00 – 18:00' },
+        { day: 'Sa', time: '10:00 – 14:00' },
+      ],
+      mapsUrl: 'https://www.google.com/maps?q=Innsbruck&output=embed',
+    },
+    social: {
+      instagram: 'alpenroute.tirol',
     },
   }),
 };

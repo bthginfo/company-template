@@ -14,7 +14,7 @@ import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 
-export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman';
+export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
 
 const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLabel: string; nav: NavItem[]; servicesEyebrow: string; servicesHeadline: string }> = {
@@ -57,6 +57,32 @@ const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLa
       { to: '/kontakt', label: 'Anfrage' },
     ],
   },
+  hotel: {
+    servicesPath: '/zimmer',
+    servicesLabel: 'Zimmer',
+    servicesEyebrow: 'Zimmer & Suiten',
+    servicesHeadline: 'Ihr Zuhause auf Zeit.',
+    nav: [
+      { to: '/', label: 'Start' },
+      { to: '/zimmer', label: 'Zimmer' },
+      { to: '/galerie', label: 'Haus & Spa' },
+      { to: '/ueber-uns', label: 'Geschichte' },
+      { to: '/kontakt', label: 'Reservieren' },
+    ],
+  },
+  tourism: {
+    servicesPath: '/touren',
+    servicesLabel: 'Touren',
+    servicesEyebrow: 'Programm',
+    servicesHeadline: 'Unser Programm.',
+    nav: [
+      { to: '/', label: 'Start' },
+      { to: '/touren', label: 'Touren' },
+      { to: '/galerie', label: 'Eindrücke' },
+      { to: '/ueber-uns', label: 'Guides' },
+      { to: '/kontakt', label: 'Buchen' },
+    ],
+  },
 };
 
 const VARIANT_FAQ: Record<TemplateVariant, { q: string; a: string }[]> = {
@@ -81,6 +107,20 @@ const VARIANT_FAQ: Record<TemplateVariant, { q: string; a: string }[]> = {
     { q: 'Wer rechnet mit der Versicherung ab?', a: 'Auf Wunsch übernehmen wir die direkte Abrechnung mit Ihrer Gebäudeversicherung – Sie bekommen das Schadenprotokoll als PDF.' },
     { q: 'Garantie?', a: 'Auf Material 2 Jahre, auf unsere Arbeit 5 Jahre Gewährleistung. Bei Heizungsmodernisierungen optional Wartungsvertrag.' },
   ],
+  hotel: [
+    { q: 'Wann sind Check-in und Check-out?', a: 'Check-in ab 15:00 Uhr, Check-out bis 11:00 Uhr. Auf Wunsch lagern wir Ihr Gepäck gerne vor und nach dem Aufenthalt.' },
+    { q: 'Ist Halbpension inklusive?', a: 'Im Standardtarif ist ein reichhaltiges Frühstücksbuffet enthalten. Halbpension buchen Sie für 38 € pro Person und Tag dazu.' },
+    { q: 'Sind Hunde willkommen?', a: 'Ja, kleine bis mittelgroße Hunde sind herzlich willkommen (15 €/Nacht inkl. Decke und Napf). Bitte bei Buchung anmelden.' },
+    { q: 'Wie nutze ich den Spa?', a: 'Der Wellnessbereich mit Sauna, Dampfbad und Außenpool steht Hausgästen täglich von 7:00 bis 21:00 Uhr offen – Bademantel und Slipper liegen im Zimmer bereit.' },
+    { q: 'Stornierungsbedingungen?', a: 'Kostenfreie Stornierung bis 7 Tage vor Anreise. Danach berechnen wir 80 % des Aufenthalts. Reiserücktrittsversicherung empfehlen wir.' },
+  ],
+  tourism: [
+    { q: 'Wie viele Personen pro Gruppe?', a: 'Maximal 12 Gäste pro Guide. So bleibt es persönlich und auch in den Bergen sicher.' },
+    { q: 'Welche Sprachen sprechen die Guides?', a: 'Alle Touren auf Deutsch und Englisch, viele Guides zusätzlich Italienisch, Französisch oder Spanisch. Bitte bei Buchung angeben.' },
+    { q: 'Was ist im Preis enthalten?', a: 'Guide, Eintritte, Transfer ab Innsbruck und – je nach Tour – Verpflegung. Detail-Inklusivleistungen finden Sie bei jeder Tour.' },
+    { q: 'Welche Fitness brauche ich?', a: 'Wir kennzeichnen jede Tour mit einem Level (1–4). Stufe 1 ist familientauglich, Stufe 4 setzt alpine Erfahrung voraus. Sprechen Sie uns gerne an.' },
+    { q: 'Stornierung?', a: 'Bis 14 Tage vor Tourbeginn kostenfrei, danach 50 %. Bei Wetterabsage durch uns erstatten wir vollständig oder verschieben.' },
+  ],
 };
 
 const VARIANT_HERO_META: Record<TemplateVariant, { label: string; value: string }[]> = {
@@ -101,6 +141,18 @@ const VARIANT_HERO_META: Record<TemplateVariant, { label: string; value: string 
     { label: 'Mitarbeitende', value: '18' },
     { label: 'Notdienst', value: '24/7' },
     { label: 'Empfehlungen', value: '> 65 %' },
+  ],
+  hotel: [
+    { label: 'Familienbetrieb seit', value: '1958' },
+    { label: 'Zimmer & Suiten', value: '34' },
+    { label: 'Spa-Fläche', value: '600 m²' },
+    { label: 'Bewertung', value: '4,9 ★' },
+  ],
+  tourism: [
+    { label: 'Touren pro Jahr', value: '180+' },
+    { label: 'Guides', value: '14' },
+    { label: 'Sprachen', value: '6' },
+    { label: 'Bewertung', value: '4,9 ★' },
   ],
 };
 
@@ -146,7 +198,7 @@ export default function TemplateApp({
     <BasePathProvider value={basePath}>
       <div className={`min-h-screen flex flex-col tpl-style-${style}`}>
         <ConsentScripts scripts={(content as any).customScripts} />
-        <SiteHeader content={content} nav={cfg.nav} basePath={basePath} announcements={announcements} />
+        <SiteHeader content={content} nav={cfg.nav} basePath={basePath} announcements={announcements} transparentTextDark={style !== 'classic'} />
         <main className="flex-1">
           <ScrollToTopOnRoute />
           <Routes>
@@ -208,6 +260,8 @@ function PageSeo({ page, variant, content }: { page: PageId; variant: TemplateVa
 function announcementsFor(v: TemplateVariant) {
   if (v === 'restaurant') return ['Heute geöffnet · 17:30 – 22:00', 'Tisch online reservieren', 'Trüffel-Saison läuft', 'Innsbruck · Maria-Theresien-Straße'];
   if (v === 'salon') return ['Aktuell freie Termine · Diese Woche', 'Bridal-Beratung kostenlos', 'Kérastase Education-Partner', 'München-Schwabing'];
+  if (v === 'hotel') return ['Zimmer verfügbar · Wochenende', 'Spa & Sauna inklusive', 'Familienbetrieb seit 1958', 'Igls bei Innsbruck'];
+  if (v === 'tourism') return ['Täglich geführte Touren', 'Kleine Gruppen · max. 12', '14 lizenzierte Guides', 'Innsbruck · Tirol'];
   return ['24/7 Notdienst · 60 Minuten Anfahrt', 'KfW-Förderung bis 35 %', 'Festpreis-Garantie', 'Ingolstadt & Umgebung'];
 }
 
@@ -267,7 +321,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
         <Section
           eyebrow={cfg.servicesEyebrow}
           title={<>{splitTitle(cfg.servicesHeadline)}</>}
-          subtitle={teaserSubtitleFor(variant)}
+          subtitle={subtitleFor(variant, content)}
           className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
         >
           <ServicesShowcase variant={variant} services={featuredServices} compact />
@@ -327,10 +381,10 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           <div className="lg:col-span-6 reveal">
             <p className="eyebrow mb-5">{content.brand.tagline || 'Willkommen'}</p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
-              {content.brand.name}.<br />
-              <span className="text-muted">{teaserSubtitleFor(variant).split('.')[0]}.</span>
+              {content.hero?.title || `${content.brand.name}.`}<br />
+              <span className="text-muted">{subtitleFor(variant, content).split('.')[0]}.</span>
             </h1>
-            <p className="mt-8 text-lg text-muted max-w-xl">{teaserSubtitleFor(variant)}</p>
+            <p className="mt-8 text-lg text-muted max-w-xl">{subtitleFor(variant, content)}</p>
             <div className="mt-10 flex flex-wrap gap-3">
               <TLink to="/kontakt" className="btn-primary">Kontakt aufnehmen <span aria-hidden>→</span></TLink>
               <TLink to={cfg.servicesPath} className="btn-outline">{cfg.servicesLabel} ansehen</TLink>
@@ -358,7 +412,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       </section>
 
       {/* Feature grid */}
-      <Section eyebrow={cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={teaserSubtitleFor(variant)} className="surface">
+      <Section eyebrow={cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)} className="surface">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
           {featuredServices.map((s, i) => (
             <article key={i} className="bg-white border border-line rounded-2xl p-7 hover-lift">
@@ -459,7 +513,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         <div className="container-x">
           <p className="eyebrow mb-6 reveal">{content.brand.tagline || cfg.servicesEyebrow}</p>
           <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[18vw] md:text-[14vw] lg:text-[180px]">
-            {content.brand.name.toUpperCase()}
+            {(content.hero?.title || content.brand.name).toUpperCase()}
           </h1>
         </div>
         <div className="mt-6">
@@ -492,7 +546,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
             </h2>
           </div>
           <div className="md:col-span-5 md:pt-14 reveal">
-            {(content.about?.body || teaserSubtitleFor(variant)).split('\n\n').slice(0, 2).map((p, i) => (
+            {(content.about?.body || subtitleFor(variant, content)).split('\n\n').slice(0, 2).map((p, i) => (
               <p key={i} className="text-lg md:text-xl leading-relaxed mb-5">{p}</p>
             ))}
             <TLink to="/ueber-uns" className="link-underline mt-2 inline-flex">Unsere Geschichte <span aria-hidden>→</span></TLink>
@@ -672,6 +726,18 @@ function NumbersBand({ variant, content }: { variant: TemplateVariant; content?:
       { v: 60, s: ' min', l: 'Anfahrtszeit Notdienst' },
       { v: 65, s: ' %', l: 'Empfehlungsquote' },
     ],
+    hotel: [
+      { v: 1958, l: 'Familienbetrieb seit' },
+      { v: 34, l: 'Zimmer & Suiten' },
+      { v: 4, s: ',9', l: 'Sterne ø' },
+      { v: 600, s: ' m²', l: 'Spa-Fläche' },
+    ],
+    tourism: [
+      { v: 14, l: 'Lizenzierte Guides' },
+      { v: 180, s: '+', l: 'Touren pro Jahr' },
+      { v: 12, l: 'Max. pro Gruppe' },
+      { v: 4, s: ',9', l: 'Sterne ø' },
+    ],
   };
   const overlay = content && ((content as any).numbers as { value: string; label: string }[] | undefined);
   const stats: { v: number; s?: string; l: string; raw?: boolean }[] = overlay && overlay.length
@@ -705,6 +771,8 @@ function CtaBand({ variant }: { variant: TemplateVariant }) {
     restaurant: { lead: 'Hunger?', cta: 'Tisch reservieren', sub: 'Wir freuen uns, Sie an unserem Tisch begrüßen zu dürfen.' },
     salon: { lead: 'Bereit für etwas Neues?', cta: 'Termin buchen', sub: 'Wir nehmen uns die Zeit – für Sie, für Ihren Look.' },
     tradesman: { lead: 'Etwas tropft?', cta: 'Jetzt anfragen', sub: 'Wir melden uns innerhalb von 24 Stunden mit einem Festpreis-Angebot.' },
+    hotel: { lead: 'Pause buchen?', cta: 'Zimmer anfragen', sub: 'Wir antworten persönlich – ohne Formularkette, mit allen Optionen für Ihren Aufenthalt.' },
+    tourism: { lead: 'Auf in die Berge?', cta: 'Tour buchen', sub: 'Wir beraten ehrlich, welche Tour zu Ihrer Gruppe und Saison passt.' },
   };
   const t = text[variant];
   return (
@@ -732,7 +800,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
       <PageHero
         eyebrow={cfg.servicesEyebrow}
         title={cfg.servicesHeadline}
-        subtitle={teaserSubtitleFor(variant)}
+        subtitle={subtitleFor(variant, content)}
         style={style}
         image={style === 'modern' ? content.gallery[2] || content.gallery[0] : undefined}
       />
@@ -783,6 +851,18 @@ function ServiceHighlights({ variant }: { variant: TemplateVariant }) {
       { t: 'Notdienst 24/7', d: 'Auch am Wochenende und an Feiertagen erreichbar.' },
       { t: 'Garantie über Gesetz hinaus', d: 'Auf unsere Arbeit fünf Jahre Gewährleistung – freiwillig.' },
     ],
+    hotel: [
+      { t: 'Spa inklusive', d: 'Sauna, Dampfbad und Außenpool stehen Hausgästen täglich offen.' },
+      { t: 'Genuss aus der Küche', d: 'Halbpension, regionale Produkte, hausgemachte Mehlspeisen.' },
+      { t: 'Kostenfreie Stornierung', d: 'Bis 7 Tage vor Anreise – weil Pläne sich ändern dürfen.' },
+      { t: 'Hund willkommen', d: 'Mit Decke, Napf und festen Auslaufzeiten in der Anlage.' },
+    ],
+    tourism: [
+      { t: 'Kleine Gruppen', d: 'Maximal 12 Gäste pro Guide – persönlich und sicher.' },
+      { t: 'Lizenzierte Guides', d: 'Bergführer, Wanderführer und Wein-Sommelière mit Prüfung.' },
+      { t: 'Mehrsprachig', d: 'Deutsch und Englisch immer dabei, weitere Sprachen auf Anfrage.' },
+      { t: 'Wetterbedingt flexibel', d: 'Bei Tour-Absage durch uns volle Erstattung oder Verschiebung.' },
+    ],
   };
   return (
     <section className="py-10 surface border-y border-line">
@@ -817,6 +897,18 @@ function ServiceProcess({ variant }: { variant: TemplateVariant }) {
       { t: 'Termin vor Ort', d: 'Kostenlos, unverbindlich. Wir schauen uns alles in Ruhe an.' },
       { t: 'Festpreis-Angebot', d: 'Schriftlich, mit Material- und Förder-Aufstellung.' },
       { t: 'Ausführung', d: 'Sauber, pünktlich, mit Schutzmaßnahmen und Endreinigung.' },
+    ],
+    hotel: [
+      { t: 'Anfrage', d: 'Reisedaten und Wünsche schicken – wir antworten persönlich.' },
+      { t: 'Bestätigung', d: 'Fixe Reservierung mit allen Optionen Ihres Aufenthalts.' },
+      { t: 'Ankunft', d: 'Check-in ab 15:00 mit Begrüßungstee und kurzer Hausführung.' },
+      { t: 'Aufenthalt', d: 'Spa, Restaurant, Wandertipps – Sie müssen sich um nichts kümmern.' },
+    ],
+    tourism: [
+      { t: 'Tour wählen', d: 'Termine, Level und Sprache über unsere Übersicht oder persönlich.' },
+      { t: 'Briefing', d: 'Vorab-Info zu Ausrüstung, Treffpunkt und Gruppenzusammensetzung.' },
+      { t: 'Tour', d: 'Mit lizenziertem Guide unterwegs – entspannt, sicher, mit Geschichten.' },
+      { t: 'Erinnerung', d: 'Fotos und Tour-Rückblick per Mail im Nachgang.' },
     ],
   };
   return (
@@ -974,6 +1066,16 @@ function ValuesSection({ variant }: { variant: TemplateVariant }) {
       { t: 'Pünktlich heißt pünktlich.', d: 'Wir kommen, wenn wir uns angekündigt haben. Wenn etwas dazwischen kommt, hören Sie davon – nicht von uns sondern vorher.' },
       { t: 'Sauber arbeiten.', d: 'Schutzfolien, Staubschutz, Endreinigung. Sie merken nicht erst nach dem Großputz, dass wir dawaren.' },
     ],
+    hotel: [
+      { t: 'Familie statt Konzern.', d: 'Drei Generationen Gastgeben – entschieden wird am Familientisch, nicht im Vorstand.' },
+      { t: 'Zeit zum Ankommen.', d: 'Ruhe ist kein Bonus, sondern unser Versprechen. Keine Beschallung im Spa, keine Hektik im Restaurant.' },
+      { t: 'Aus der Region.', d: 'Wir kennen unsere Lieferanten beim Vornamen – vom Bäcker bis zur Imkerei nebenan.' },
+    ],
+    tourism: [
+      { t: 'Klein und ehrlich.', d: 'Maximal 12 Gäste pro Guide. So bleibt Zeit für Geschichten, Pausen und echte Gespräche.' },
+      { t: 'Sicher unterwegs.', d: 'Alle Guides lizenziert, jede Tour mit klarem Plan B. Wir sagen ehrlich, wenn das Wetter nicht mitspielt.' },
+      { t: 'Lokal verwurzelt.', d: 'Wir leben hier. Sie bekommen die Tour, die wir Freund:innen empfehlen würden.' },
+    ],
   };
   return (
     <Section eyebrow="Was uns wichtig ist" title={<>Drei <em className="italic-pop">Grundsätze.</em></>} className="surface">
@@ -1007,6 +1109,16 @@ function TeamSection({ variant }: { variant: TemplateVariant }) {
       { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80', bio: 'Übernahm den Familienbetrieb 2008. Spezialgebiet: Heizungsmodernisierung und Förderberatung.' },
       { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80', bio: 'Verantwortet Großprojekte von Badsanierung bis Mehrfamilienhaus. Über 200 Projekte begleitet.' },
       { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80', bio: 'Steht 24/7 für Notfälle bereit. Kennt jede Heizungsanlage in Ingolstadt – und wenn nicht, kennt er jemanden, der sie kennt.' },
+    ],
+    hotel: [
+      { n: 'Anna Hofer', r: 'Gastgeberin · Inhaberin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80', bio: 'Führt das Haus in dritter Generation – mit Liebe zum Detail und einem offenen Ohr für jeden Gast.' },
+      { n: 'Markus Hofer', r: 'Küchenchef', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80', bio: 'Kocht regional, saisonal und ehrlich. Bezieht 80 % der Zutaten aus dem Umkreis von 30 km.' },
+      { n: 'Lena Brugger', r: 'Spa & Wellness', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&q=80', bio: 'Zertifizierte Spa-Therapeutin, plant Wellness-Tage und berät persönlich zu allen Treatments.' },
+    ],
+    tourism: [
+      { n: 'Lukas Steiner', r: 'Bergführer & Inhaber', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80', bio: 'Lizenzierter Bergführer seit 15 Jahren. Kennt jede Route zwischen Karwendel und Dolomiten.' },
+      { n: 'Marie Holzer', r: 'Wein & Kultur', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Sommelière mit Schwerpunkt Tirol & Südtirol. Führt unsere Wein- und Genusstouren.' },
+      { n: 'Jakob Pichler', r: 'Foto & Outdoor', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80', bio: 'Outdoor-Fotograf und Wanderführer. Spezialist für Sonnenaufgangs- und Sterne-Touren.' },
     ],
   };
   return (
@@ -1095,6 +1207,16 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
       { t: 'Notdienst', d: 'Rund um die Uhr erreichbar – auch am Wochenende und an Feiertagen.' },
       { t: 'Anfahrtsgebiet', d: 'Ingolstadt und 30 km Umkreis. Größere Distanzen auf Anfrage.' },
       { t: 'Beratung vor Ort', d: 'Erstgespräch und Angebot kostenlos. Unverbindlich.' },
+    ],
+    hotel: [
+      { t: 'Mit dem Auto', d: 'Hauseigene Tiefgarage, Ladestationen für E-Autos verfügbar.' },
+      { t: 'Mit der Bahn', d: 'Shuttle ab Hauptbahnhof Innsbruck auf Voranmeldung.' },
+      { t: 'Check-in', d: 'Ab 15:00 Uhr. Frühere Ankunft? Wir lagern Ihr Gepäck gerne.' },
+    ],
+    tourism: [
+      { t: 'Treffpunkt', d: 'Innsbruck Hauptbahnhof oder hauseigenes Büro – Details mit der Buchungsbestätigung.' },
+      { t: 'Transfer', d: 'Mehrtägige Touren ab Hotel oder Bahnhof. Auf Wunsch mit Kleinbus.' },
+      { t: 'Beratung', d: 'Sie wissen nicht, welche Tour passt? Wir telefonieren gerne 15 Minuten unverbindlich.' },
     ],
   };
   return (
@@ -1236,18 +1358,28 @@ function splitTitle(t: string): React.ReactNode {
 function teaserSubtitleFor(v: TemplateVariant) {
   if (v === 'restaurant') return 'Hausgemachte Pasta, Holzofen-Pizza und ein wechselndes Tagesgericht. Saisonal, ehrlich, ohne Kompromisse.';
   if (v === 'salon') return 'Schnitt, Farbe, Pflege und Beauty – mit ehrlicher Beratung und hochwertigen Produkten.';
+  if (v === 'hotel') return 'Zimmer mit Bergblick, ein Spa zum Abschalten und ein Restaurant, in das wir selbst gerne gehen würden.';
+  if (v === 'tourism') return 'Geführte Touren für alle, die Tirol mehr als nur sehen wollen – klein, persönlich, authentisch.';
   return 'Vom kleinen Notfall bis zur Großsanierung. Festpreis, Meisterprüfung, transparente Kommunikation.';
+}
+
+function subtitleFor(v: TemplateVariant, content: SiteContent): string {
+  return (content.hero?.subtitle && content.hero.subtitle.trim()) || teaserSubtitleFor(v);
 }
 
 function marqueeWordsFor(v: TemplateVariant): string[] {
   if (v === 'restaurant') return ['Pasta fresca', 'Holzofen-Pizza', 'Naturweine', 'Antipasti', 'Tiramisu della Nonna', 'Tartufo nero'];
   if (v === 'salon') return ['Hair', 'Skin', 'Soul', 'Balayage', 'Bridal', 'Spa', 'Treatment'];
+  if (v === 'hotel') return ['Bergblick', 'Spa & Sauna', 'Frühstück', 'Bibliothek', 'Wandern', 'Lounge', 'Sonnenterrasse'];
+  if (v === 'tourism') return ['Berg', 'Tal', 'Wein', 'Geschichte', 'Foto', 'Hütte', 'Sonnenaufgang', 'Sterne'];
   return ['Notdienst 24/7', 'Festpreis-Garantie', 'Meisterbetrieb', 'KfW-Förderung', 'Smart Home', 'Wärmepumpe'];
 }
 
 function galleryTeaserTitle(v: TemplateVariant): React.ReactNode {
   if (v === 'restaurant') return <>Bilder, die <em className="italic-pop">erzählen.</em></>;
   if (v === 'salon') return <>Looks aus dem <em className="italic-pop">Studio.</em></>;
+  if (v === 'hotel') return <>Eindrücke aus dem <em className="italic-pop">Haus.</em></>;
+  if (v === 'tourism') return <>Momente aus den <em className="italic-pop">Bergen.</em></>;
   return <>Projekte aus der <em className="italic-pop">Werkstatt.</em></>;
 }
 

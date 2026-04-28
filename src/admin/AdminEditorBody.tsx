@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';
+import { RichTextEditor } from './RichTextEditor';
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -184,6 +185,20 @@ function pagesFor(t: TemplateKey): PageDef[] {
     { id: 'gallery', label: 'Looks', icon: '▦', previewPath: '/galerie' },
     { id: 'about', label: 'Studio', icon: '☉', previewPath: '/ueber-uns' },
     { id: 'contactPage', label: 'Termin', icon: '✉', previewPath: '/kontakt' },
+  ];
+  if (t === 'hotel') return [
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Zimmer', icon: '☰', previewPath: '/zimmer' },
+    { id: 'gallery', label: 'Haus & Spa', icon: '▦', previewPath: '/galerie' },
+    { id: 'about', label: 'Geschichte', icon: '☉', previewPath: '/ueber-uns' },
+    { id: 'contactPage', label: 'Reservieren', icon: '✉', previewPath: '/kontakt' },
+  ];
+  if (t === 'tourism') return [
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Touren', icon: '☰', previewPath: '/touren' },
+    { id: 'gallery', label: 'Eindrücke', icon: '▦', previewPath: '/galerie' },
+    { id: 'about', label: 'Guides', icon: '☉', previewPath: '/ueber-uns' },
+    { id: 'contactPage', label: 'Buchen', icon: '✉', previewPath: '/kontakt' },
   ];
   return [
     { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
@@ -947,8 +962,13 @@ function NewsPage({ data, setData }: SetterProps) {
                   <Field label="Kurzbeschreibung" hint="Wird in der Übersicht angezeigt. 1–2 Sätze.">
                     <textarea className={inputCls} rows={2} value={p.excerpt} onChange={(e) => update(i, { excerpt: e.target.value })} />
                   </Field>
-                  <Field label="Inhalt" hint="Leerzeile = neuer Absatz.">
-                    <textarea className={inputCls} rows={10} value={p.body} onChange={(e) => update(i, { body: e.target.value })} />
+                  <Field label="Inhalt" hint="Rich-Text-Editor: Überschriften, Listen, Links, Zitate. Format-Buttons in der Leiste oben.">
+                    <RichTextEditor
+                      value={p.bodyHtml || ''}
+                      onChange={(html) => update(i, { bodyHtml: html })}
+                      placeholder="Schreiben Sie hier den Beitrag …"
+                      rows={12}
+                    />
                   </Field>
                   <div className="flex justify-end">
                     <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Beitrag löschen</button>

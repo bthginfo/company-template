@@ -40,6 +40,22 @@ export const PRESETS: Record<TemplateKey, ThemePreset[]> = {
     { id: 'mono',       label: 'Mono',           primary: '#111111', primaryFg: '#ffffff', accent: '#111111', surface: '#f5f5f5', bg: '#ffffff', text: '#0a0a0a' },
     { id: 'slate',      label: 'Slate Pro',      primary: '#0ea5e9', primaryFg: '#f0f9ff', accent: '#0ea5e9', surface: '#1e293b', bg: '#0f172a', text: '#f1f5f9' },
   ],
+  hotel: [
+    { id: 'goldsand',   label: 'Gold & Sand',    primary: '#92400e', primaryFg: '#fffbeb', accent: '#d4a373', surface: '#faf6ef', bg: '#fffdf8', text: '#1c1812' },
+    { id: 'alpine',     label: 'Alpine Slate',   primary: '#1f2937', primaryFg: '#f8fafc', accent: '#cbd5e1', surface: '#f1f5f9', bg: '#ffffff', text: '#0f172a' },
+    { id: 'lakeside',   label: 'Lakeside',       primary: '#0c4a6e', primaryFg: '#f0f9ff', accent: '#7dd3fc', surface: '#f0f9ff', bg: '#ffffff', text: '#0c1f2e' },
+    { id: 'velvet',     label: 'Velvet',         primary: '#3f1d38', primaryFg: '#fdf4ff', accent: '#c084fc', surface: '#fdf6fb', bg: '#ffffff', text: '#1c0f1a' },
+    { id: 'mono',       label: 'Mono',           primary: '#111111', primaryFg: '#ffffff', accent: '#111111', surface: '#f5f5f5', bg: '#ffffff', text: '#0a0a0a' },
+    { id: 'midnight',   label: 'Midnight Suite', primary: '#facc15', primaryFg: '#1c1917', accent: '#facc15', surface: '#1c1917', bg: '#0c0a09', text: '#fafaf9' },
+  ],
+  tourism: [
+    { id: 'horizon',    label: 'Horizon',        primary: '#0369a1', primaryFg: '#f0f9ff', accent: '#fbbf24', surface: '#f0f9ff', bg: '#ffffff', text: '#0c1f2e' },
+    { id: 'meadow',     label: 'Meadow',         primary: '#15803d', primaryFg: '#f0fdf4', accent: '#facc15', surface: '#f0fdf4', bg: '#ffffff', text: '#0c1f12' },
+    { id: 'sunset',     label: 'Sunset',         primary: '#c2410c', primaryFg: '#fff7ed', accent: '#fde047', surface: '#fff7ed', bg: '#ffffff', text: '#1c0f06' },
+    { id: 'glacier',    label: 'Glacier',        primary: '#0e7490', primaryFg: '#ecfeff', accent: '#a5f3fc', surface: '#ecfeff', bg: '#ffffff', text: '#0c1f24' },
+    { id: 'mono',       label: 'Mono',           primary: '#111111', primaryFg: '#ffffff', accent: '#111111', surface: '#f5f5f5', bg: '#ffffff', text: '#0a0a0a' },
+    { id: 'aurora',     label: 'Aurora',         primary: '#5eead4', primaryFg: '#0c1c1a', accent: '#5eead4', surface: '#134e4a', bg: '#042f2e', text: '#ecfdf5' },
+  ],
   consulting: [
     { id: 'navy',       label: 'Navy',           primary: '#1e3a8a', primaryFg: '#eff6ff', accent: '#60a5fa', surface: '#f1f5f9', bg: '#ffffff', text: '#0f172a' },
     { id: 'graphite',   label: 'Graphite',       primary: '#1f2937', primaryFg: '#f9fafb', accent: '#fbbf24', surface: '#f3f4f6', bg: '#ffffff', text: '#111827' },

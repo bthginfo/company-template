@@ -3,6 +3,8 @@ import { getTemplateKey, getTemplateStyle, type TemplateStyle } from './lib/tena
 import RestaurantTemplate from './templates/restaurant';
 import SalonTemplate from './templates/salon';
 import TradesmanTemplate from './templates/tradesman';
+import HotelTemplate from './templates/hotel';
+import TourismTemplate from './templates/tourism';
 import ExtraBranchTemplate, { isExtraBranchKey } from './templates/extra';
 import type { SiteContent } from './lib/types';
 
@@ -12,6 +14,8 @@ const TEMPLATES: Record<string, (props: TplProps) => JSX.Element> = {
   restaurant: RestaurantTemplate,
   salon: SalonTemplate,
   tradesman: TradesmanTemplate,
+  hotel: HotelTemplate,
+  tourism: TourismTemplate,
   consulting: ExtraBranchTemplate,
   medical: ExtraBranchTemplate,
   fitness: ExtraBranchTemplate,
