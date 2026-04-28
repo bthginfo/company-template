@@ -14,7 +14,7 @@
  * Required env vars (read from .env.local):
  *   VERCEL_TOKEN          - personal access token
  *   VERCEL_TEAM_ID        - team scope (team_...)
- *   VERCEL_SOURCE_PROJECT - project to copy shared env vars from (default: wyldworks-websites)
+
  *   GITHUB_REPO           - owner/repo (default: bthginfo/company-template)
  *   POSTGRES_URL          - already in .env.local after `vercel env pull`
  */
@@ -54,7 +54,6 @@ const style: 'classic' | 'modern' | 'bold' =
 
 const TOKEN = required('VERCEL_TOKEN');
 const TEAM = required('VERCEL_TEAM_ID');
-const SOURCE = process.env.VERCEL_SOURCE_PROJECT || 'wyldworks-websites';
 const REPO = process.env.GITHUB_REPO || 'bthginfo/company-template';
 
 function required(key: string): string {
