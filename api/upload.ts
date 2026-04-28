@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { put } from '@vercel/blob';
-import { getSession, unauthorized } from './_lib/auth';
+import { getSession, unauthorized } from './_lib/auth.js';
 
 export const config = { api: { bodyParser: false } };
 

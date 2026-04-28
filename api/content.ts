@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { eq } from 'drizzle-orm';
-import { db, schema } from '../src/lib/db/client';
-import { SiteContentSchema } from '../src/lib/types';
-import { getSession, unauthorized, forbidden } from './_lib/auth';
+import { db, schema } from '../src/lib/db/client.js';
+import { SiteContentSchema } from '../src/lib/types.js';
+import { getSession, unauthorized, forbidden } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') return handleGet(req, res);
