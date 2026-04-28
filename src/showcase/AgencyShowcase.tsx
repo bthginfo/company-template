@@ -30,13 +30,13 @@ const AGENCY = {
   phone: '+49 1515 5338029',
   phoneAt: '+43 677 6368 1543',
   /** Wordmark (text-only). Use in nav and inline contexts. */
-  logoTextSrc: '/brand/flamingo-text.svg',
-  logoTextWhiteSrc: '/brand/flamingo-text-white.svg',
+  logoTextSrc: '/brand/flamingo-text.png',
+  logoTextWhiteSrc: '/brand/flamingo-text-white.png',
   /** Flamingo mark (icon-only). Use as standalone mark / favicon-style spots. */
-  logoMarkSrc: '/brand/flamingo-mark.svg',
-  logoMarkWhiteSrc: '/brand/flamingo-mark-white.svg',
+  logoMarkSrc: '/brand/flamingo-mark.png',
+  logoMarkWhiteSrc: '/brand/flamingo-mark-white.png',
   /** Backwards-compat alias used by some legacy spots. Defaults to wordmark. */
-  logoSrc: '/brand/flamingo-text.svg',
+  logoSrc: '/brand/flamingo-text.png',
 };
 
 const ROTATING_WORDS = [
