@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
@@ -255,11 +255,12 @@ function ShowcaseShell() {
   const [scrolled, setScrolled] = useState(false);
   const [mobile, setMobile] = useState(false);
   const { pathname } = useLocation();
-  // Subpages have light backgrounds; force the scrolled (light-bg) header
-  // style so nav links remain readable. Only the landing page ("/") has a
-  // dark hero where white nav text is appropriate.
   const isLanding = pathname === '/';
-  const headerLight = scrolled || !isLanding;
+  // Header is always rendered with dark styling so the brand logo (designed for
+  // dark backgrounds) stays readable. On the landing page we keep the bar
+  // transparent at the very top (hero is dark already), then switch to a solid
+  // dark bar on scroll. Subpages have the solid dark bar from the start.
+  const headerSolid = scrolled || !isLanding;
   // Restore showcase palette on every shell mount so demo theme overrides
   // applied inside /preview/* never persist into the marketing pages.
   useEffect(() => {
@@ -319,8 +320,8 @@ function ShowcaseShell() {
 
       <header
         className={`fixed top-[36px] left-0 right-0 z-40 transition-all duration-300 ${
-          headerLight
-            ? 'bg-white/90 backdrop-blur-xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border-b border-line'
+          headerSolid
+            ? 'bg-[#0b0810]/95 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.5)]'
             : 'bg-transparent'
         }`}
       >
@@ -338,9 +339,7 @@ function ShowcaseShell() {
                 key={n.to}
                 to={n.to}
                 className={({ isActive }) =>
-                  `link-underline px-4 py-2 text-sm font-medium transition-colors ${
-                    headerLight ? 'text-slate-700 hover:text-slate-900' : 'text-white/85 hover:text-white'
-                  } ${isActive ? 'is-active' : ''}`
+                  `link-underline px-4 py-2 text-sm font-medium transition-colors text-white/85 hover:text-white ${isActive ? 'is-active' : ''}`
                 }
               >
                 {n.label}
@@ -352,7 +351,7 @@ function ShowcaseShell() {
           </nav>
           <button
             onClick={() => setMobile(true)}
-            className={`md:hidden p-2 rounded-full border ${headerLight ? 'text-slate-800 border-line' : 'text-white border-white/30'}`}
+            className="md:hidden p-2 rounded-full border text-white border-white/30"
             aria-label="Menü öffnen"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -500,8 +499,41 @@ function Landing() {
 }
 
 function HeroSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const sec = sectionRef.current;
+    if (!sec) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    let raf = 0;
+    let tx = -9999;
+    let ty = -9999;
+    const onMove = (e: PointerEvent) => {
+      const r = sec.getBoundingClientRect();
+      tx = e.clientX - r.left;
+      ty = e.clientY - r.top;
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
+    const onLeave = () => {
+      tx = -9999;
+      ty = -9999;
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
+    const apply = () => {
+      raf = 0;
+      sec.style.setProperty('--hero-mx', `${tx}px`);
+      sec.style.setProperty('--hero-my', `${ty}px`);
+    };
+    sec.addEventListener('pointermove', onMove);
+    sec.addEventListener('pointerleave', onLeave);
+    return () => {
+      sec.removeEventListener('pointermove', onMove);
+      sec.removeEventListener('pointerleave', onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
   return (
-    <section className="relative min-h-[100vh] flex items-end overflow-hidden text-white grain group/hero">
+    <section ref={sectionRef} className="relative min-h-[100vh] flex items-end overflow-hidden text-white grain group/hero">
       {/* Layered backgrounds — one solid base, one GPU-only mouse glow, a thin grid for texture. */}
       <div className="absolute inset-0 -z-10 bg-[#0b1020]" />
       <MouseGlow
@@ -516,7 +548,9 @@ function HeroSection() {
         dotSize={1.2}
       />
 
-      {/* Centered brand mark — sits behind copy, glows on hover */}
+      {/* Centered brand mark — soft base layer + spotlight-bright layer revealed
+          only where the cursor is, so the flamingo lights up under the mouse
+          (combined with the MouseGlow above for a flashlight effect). */}
       <div
         className="hero-brand-mark pointer-events-none absolute inset-0 -z-[3] flex items-center justify-center"
         aria-hidden
@@ -525,37 +559,45 @@ function HeroSection() {
         <img
           src={AGENCY.logoMarkSrc}
           alt=""
-          className="hero-brand-mark__img w-[52%] max-w-[620px] md:w-[44%] lg:w-[38%]"
+          className="hero-brand-mark__img hero-brand-mark__img--base w-[52%] max-w-[620px] md:w-[44%] lg:w-[38%]"
+        />
+        <img
+          src={AGENCY.logoMarkSrc}
+          alt=""
+          className="hero-brand-mark__img hero-brand-mark__img--bright w-[52%] max-w-[620px] md:w-[44%] lg:w-[38%]"
         />
       </div>
       <style>{`
         .hero-brand-mark__img {
-          opacity: 0.12;
+          will-change: opacity, filter;
+        }
+        .hero-brand-mark__img--base {
+          opacity: 0.14;
           filter: drop-shadow(0 0 60px rgba(242,65,113,0.18));
-          transition: opacity 600ms ease, filter 600ms ease, transform 800ms ease;
-          will-change: opacity, filter, transform;
+        }
+        .hero-brand-mark__img--bright {
+          position: absolute;
+          opacity: 0.92;
+          filter: drop-shadow(0 0 80px rgba(242,65,113,0.85)) drop-shadow(0 0 28px rgba(124,58,237,0.45));
+          -webkit-mask-image: radial-gradient(260px circle at var(--hero-mx,-9999px) var(--hero-my,-9999px), black 0%, rgba(0,0,0,0.6) 35%, transparent 75%);
+          mask-image: radial-gradient(260px circle at var(--hero-mx,-9999px) var(--hero-my,-9999px), black 0%, rgba(0,0,0,0.6) 35%, transparent 75%);
         }
         .hero-brand-mark__glow {
           position: absolute;
-          inset: 0;
-          margin: auto;
-          width: 60%;
-          max-width: 720px;
-          aspect-ratio: 1 / 1;
+          left: var(--hero-mx, -9999px);
+          top: var(--hero-my, -9999px);
+          width: 520px;
+          height: 520px;
+          margin-left: -260px;
+          margin-top: -260px;
           border-radius: 9999px;
-          background: radial-gradient(closest-side, rgba(242,65,113,0.55), rgba(242,65,113,0) 70%);
-          opacity: 0;
-          filter: blur(40px);
-          transition: opacity 700ms ease;
+          background: radial-gradient(closest-side, rgba(242,65,113,0.45), rgba(242,65,113,0) 70%);
+          filter: blur(30px);
+          pointer-events: none;
         }
-        .group\\/hero:hover .hero-brand-mark__img {
-          opacity: 0.42;
-          filter: drop-shadow(0 0 80px rgba(242,65,113,0.85)) drop-shadow(0 0 28px rgba(124,58,237,0.45));
-          transform: scale(1.02);
-        }
-        .group\\/hero:hover .hero-brand-mark__glow { opacity: 0.9; }
         @media (prefers-reduced-motion: reduce) {
-          .hero-brand-mark__img, .hero-brand-mark__glow { transition: none; }
+          .hero-brand-mark__img--bright { display: none; }
+          .hero-brand-mark__glow { display: none; }
         }
       `}</style>
 
@@ -1327,45 +1369,286 @@ function TemplatesGallery() {
 function ProcessPage() {
   useReveal();
   const steps = [
-    { d: 'Tag 1', t: 'Kennenlernen', body: '30-Minuten Online-Call oder Telefon. Wir verstehen Deinen Betrieb, Deine Konkurrenz, Deine Ziele. Du bekommst unsere ehrliche Einschätzung.' },
-    { d: 'Tag 2', t: 'Briefing & Auswahl', body: 'Du wählst Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.' },
-    { d: 'Optional', t: 'Foto- & Videoshooting', body: 'Add-on, kein Standard. Auf Wunsch kommen wir mit kleinem Team vor Ort und produzieren Bild- und Filmmaterial. Auch nachträglich oder separat buchbar.' },
-    { d: 'Tag 3–7', t: 'Aufbau', body: 'Wir richten das Template ein, importieren Deine Inhalte, optimieren Bilder, schreiben SEO-Texte vor.' },
-    { d: 'Tag 8', t: 'Feedback-Schleife', body: 'Du schaust Dir den Preview-Link an. Eine Korrektur-Runde inkludiert. Du sendest Anmerkungen, wir setzen um.' },
-    { d: 'Tag 9–10', t: 'Live-Schaltung', body: 'Wir verbinden Deine Domain und übergeben den Admin-Bereich. Du bist online.' },
-    { d: 'Laufend', t: 'Pflege & Support', body: 'Du pflegst Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.' },
+    {
+      d: 'Tag 1',
+      t: 'Kennenlernen',
+      icon: '☎',
+      body: '30-Minuten Online-Call oder Telefon. Wir verstehen Deinen Betrieb, Deine Konkurrenz, Deine Ziele. Du bekommst unsere ehrliche Einschätzung.',
+      bullets: ['Branche & Wettbewerb', 'Ziele & Zielgruppe', 'Erste Empfehlung'],
+    },
+    {
+      d: 'Tag 2',
+      t: 'Briefing & Auswahl',
+      icon: '✎',
+      body: 'Du wählst Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.',
+      bullets: ['Template & Stil', 'Module & Features', 'Verbindliches Angebot'],
+    },
+    {
+      d: 'Optional',
+      t: 'Foto- & Videoshooting',
+      icon: '◉',
+      body: 'Add-on, kein Standard. Auf Wunsch kommen wir mit kleinem Team vor Ort und produzieren Bild- und Filmmaterial. Auch nachträglich oder separat buchbar.',
+      bullets: ['Halber oder ganzer Tag', 'Bildauswahl mit Dir', 'Druckreife Lieferung'],
+    },
+    {
+      d: 'Tag 3–7',
+      t: 'Aufbau',
+      icon: '✦',
+      body: 'Wir richten das Template ein, importieren Deine Inhalte, optimieren Bilder, schreiben SEO-Texte vor.',
+      bullets: ['Template-Setup', 'Inhalte & Bilder', 'SEO-Vorlagen'],
+    },
+    {
+      d: 'Tag 8',
+      t: 'Feedback-Schleife',
+      icon: '↻',
+      body: 'Du schaust Dir den Preview-Link an. Eine Korrektur-Runde inkludiert. Du sendest Anmerkungen, wir setzen um.',
+      bullets: ['Privater Preview-Link', '1× Korrektur-Runde inkl.', 'Schnelle Umsetzung'],
+    },
+    {
+      d: 'Tag 9–10',
+      t: 'Live-Schaltung',
+      icon: '⚡',
+      body: 'Wir verbinden Deine Domain und übergeben den Admin-Bereich. Du bist online.',
+      bullets: ['Domain & SSL', 'Admin-Zugang & Schulung', 'Online — fertig'],
+    },
+    {
+      d: 'Laufend',
+      t: 'Pflege & Support',
+      icon: '♥',
+      body: 'Du pflegst Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.',
+      bullets: ['Du pflegst Inhalte selbst', 'Hosting inklusive', 'Kleine Anpassungen on demand'],
+    },
   ];
+
+  // Track which step is currently in view to drive the side rail + counter.
+  const [activeIdx, setActiveIdx] = useState(0);
+  const stepRefs = useRef<(HTMLLIElement | null)[]>([]);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Pick the entry closest to the top of the viewport.
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (!visible.length) return;
+        visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const idx = stepRefs.current.findIndex((el) => el === visible[0].target);
+        if (idx >= 0) setActiveIdx(idx);
+      },
+      { rootMargin: '-30% 0px -55% 0px', threshold: 0 },
+    );
+    stepRefs.current.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Scroll-driven progress bar (0..1) for the side rail fill.
+  const [progress, setProgress] = useState(0);
+  const trackRef = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    const onScroll = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const winH = window.innerHeight;
+      const total = r.height + winH * 0.5;
+      const passed = Math.min(Math.max(winH * 0.6 - r.top, 0), total);
+      setProgress(passed / total);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <>
       <Seo title="Ablauf · FlamingoMedia" description="Vom ersten Gespräch bis zur Live-Schaltung. Klar geplant, ohne Überraschungen." />
-      <section className="pt-44 pb-16">
+
+      {/* Hero with day-track preview */}
+      <section className="relative pt-44 pb-12 overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              'radial-gradient(60% 50% at 20% 10%, rgba(242,65,113,0.10), transparent 70%),' +
+              'radial-gradient(50% 45% at 90% 0%, rgba(124,58,237,0.10), transparent 70%)',
+          }}
+        />
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Ablauf</p>
           <h1 className="headline-xl max-w-5xl reveal">
-            Sieben Schritte.<br />
-            <em className="italic-pop">Sauber geplant.</em>
+            Von der Idee bis live.<br />
+            <em className="italic-pop">In sieben Schritten.</em>
           </h1>
+          <p className="mt-8 max-w-2xl text-lg md:text-xl text-muted reveal">
+            Klare Stationen, transparente Kosten, kein Agentur-Theater.
+            Du weißt jederzeit, wo wir stehen — und was als nächstes kommt.
+          </p>
+
+          {/* Horizontal day-track preview */}
+          <div className="mt-14 reveal">
+            <div className="relative">
+              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-line" />
+              <div
+                className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-accent transition-[width] duration-500"
+                style={{ width: `${((activeIdx + 1) / steps.length) * 100}%` }}
+              />
+              <ol className="relative grid grid-cols-7 gap-2">
+                {steps.map((s, i) => (
+                  <li key={s.t} className="flex flex-col items-center text-center">
+                    <button
+                      type="button"
+                      onClick={() => stepRefs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                      className={`relative z-10 grid place-items-center h-10 w-10 rounded-full border-2 transition-all ${
+                        i <= activeIdx
+                          ? 'bg-accent border-accent text-white shadow-[0_0_24px_rgba(242,65,113,0.5)]'
+                          : 'bg-white border-line text-slate-500 hover:border-accent hover:text-accent'
+                      }`}
+                      aria-label={`Springe zu ${s.t}`}
+                    >
+                      <span className="text-sm font-mono">{i + 1}</span>
+                    </button>
+                    <span className={`mt-2 text-[10px] uppercase tracking-widest hidden md:block transition-colors ${i <= activeIdx ? 'text-accent font-semibold' : 'text-muted'}`}>
+                      {s.d}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="pb-24">
-        <div className="container-tight">
-          <ol className="relative space-y-3">
-            {steps.map((s, i) => (
-              <li key={s.t} className="relative bg-white border border-line rounded-3xl p-8 md:p-10 reveal hover-lift">
-                <div className="grid md:grid-cols-12 gap-6 items-start">
-                  <div className="md:col-span-3">
-                    <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
-                    <p className="font-display text-3xl mt-2">{s.d}</p>
+      {/* Stepper with sticky side rail */}
+      <section className="pb-32 relative">
+        <div className="container-tight relative">
+          <div className="grid lg:grid-cols-[120px_1fr] gap-8 lg:gap-12">
+            {/* Sticky side rail with vertical progress + active counter */}
+            <aside className="hidden lg:block">
+              <div className="sticky top-32">
+                <div className="relative h-[60vh] w-full">
+                  <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-line" />
+                  <div
+                    className="absolute left-1/2 -translate-x-1/2 top-0 w-[3px] bg-gradient-to-b from-accent via-[#7c3aed] to-accent rounded-full transition-[height] duration-300"
+                    style={{ height: `${Math.max(0, Math.min(100, progress * 100))}%`, boxShadow: '0 0 24px rgba(242,65,113,0.6)' }}
+                  />
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 grid place-items-center h-9 w-9 rounded-full bg-black text-white font-mono text-xs">
+                    {String(activeIdx + 1).padStart(2, '0')}
                   </div>
-                  <div className="md:col-span-9">
-                    <h3 className="headline-md">{s.t}</h3>
-                    <p className="mt-4 text-lg text-muted leading-relaxed">{s.body}</p>
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 grid place-items-center h-9 w-9 rounded-full bg-white border-2 border-line text-slate-400 font-mono text-xs">
+                    {String(steps.length).padStart(2, '0')}
                   </div>
                 </div>
-              </li>
-            ))}
-          </ol>
+                <p className="mt-6 text-center text-xs uppercase tracking-widest text-muted">
+                  Schritt
+                  <span className="block mt-1 font-display text-3xl text-slate-900 normal-case tracking-normal">
+                    {String(activeIdx + 1).padStart(2, '0')}
+                    <span className="text-muted">/{String(steps.length).padStart(2, '0')}</span>
+                  </span>
+                </p>
+              </div>
+            </aside>
+
+            {/* Stack of step cards */}
+            <ol ref={trackRef} className="relative space-y-10 lg:space-y-16">
+              {steps.map((s, i) => {
+                const align = i % 2 === 0;
+                return (
+                  <li
+                    key={s.t}
+                    ref={(el) => { stepRefs.current[i] = el; }}
+                    className="reveal scroll-mt-32"
+                  >
+                    <article
+                      className={`relative bg-white border border-line rounded-3xl p-8 md:p-12 hover-lift transition-all duration-500 ${
+                        i === activeIdx
+                          ? 'shadow-[0_30px_80px_-30px_rgba(242,65,113,0.35)] border-accent/30'
+                          : 'shadow-sm'
+                      }`}
+                    >
+                      {/* Big translucent step number watermark */}
+                      <span
+                        aria-hidden
+                        className={`pointer-events-none absolute ${align ? '-right-2 -top-6' : '-left-2 -top-6'} font-display text-[8rem] md:text-[12rem] leading-none transition-colors ${
+                          i === activeIdx ? 'text-accent/15' : 'text-slate-100'
+                        }`}
+                      >
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+
+                      <div className="relative grid md:grid-cols-12 gap-6 md:gap-8 items-start">
+                        <div className="md:col-span-4">
+                          <div
+                            className={`grid place-items-center h-14 w-14 rounded-2xl text-2xl mb-4 transition-all ${
+                              i === activeIdx
+                                ? 'bg-accent text-white shadow-[0_8px_24px_rgba(242,65,113,0.4)] scale-105'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            <span aria-hidden>{s.icon}</span>
+                          </div>
+                          <p className="font-mono text-xs text-muted uppercase tracking-widest">
+                            Schritt {String(i + 1).padStart(2, '0')}
+                          </p>
+                          <p className="font-display text-4xl md:text-5xl mt-1 leading-tight">{s.d}</p>
+                        </div>
+                        <div className="md:col-span-8">
+                          <h3 className="headline-md">{s.t}</h3>
+                          <p className="mt-4 text-lg text-muted leading-relaxed">{s.body}</p>
+                          <ul className="mt-6 grid sm:grid-cols-3 gap-3">
+                            {s.bullets.map((b) => (
+                              <li
+                                key={b}
+                                className="flex items-start gap-2 text-sm bg-slate-50 border border-line rounded-xl px-3 py-2.5"
+                              >
+                                <span aria-hidden className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />
+                                <span className="text-slate-700">{b}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+
+                      {/* Connector chevron to next step (decorative) */}
+                      {i < steps.length - 1 && (
+                        <div className="absolute left-1/2 -translate-x-1/2 -bottom-7 z-10 hidden md:block">
+                          <div className="grid place-items-center h-12 w-12 rounded-full bg-white border border-line shadow-sm text-accent">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M6 9l6 6 6-6" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                    </article>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          {/* Final CTA banner */}
+          <div className="mt-24 reveal">
+            <div className="relative overflow-hidden rounded-3xl bg-black text-white p-10 md:p-14 text-center">
+              <div
+                aria-hidden
+                className="absolute inset-0 opacity-60"
+                style={{
+                  background:
+                    'radial-gradient(40% 60% at 20% 100%, rgba(242,65,113,0.45), transparent 60%),' +
+                    'radial-gradient(40% 60% at 80% 0%, rgba(124,58,237,0.45), transparent 60%)',
+                }}
+              />
+              <div className="relative">
+                <p className="eyebrow text-white/70">Bereit?</p>
+                <h2 className="headline-md mt-3">In 10 Tagen online.</h2>
+                <p className="mt-4 text-white/80 max-w-xl mx-auto">
+                  Schreib uns kurz, was Du brauchst. Wir melden uns am selben Tag mit einer ehrlichen Einschätzung.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3 justify-center">
+                  <Link to="/kontakt" className="btn-accent">Beratung anfragen</Link>
+                  <Link to="/preise" className="px-5 py-2.5 rounded-full border border-white/30 text-white hover:bg-white/10 transition-colors">Preise ansehen</Link>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

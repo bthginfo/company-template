@@ -54,6 +54,12 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
   // when template changes externally, snap back to home
   useEffect(() => { setPageId('home'); }, [tplKey]);
 
+  // Scroll the editor area to the top whenever the user switches sections —
+  // otherwise long sections leave the new section scrolled to the middle.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pageId]);
+
   const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news' || pageId === 'navigation' || pageId === 'mail';
 
   return (
