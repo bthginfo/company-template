@@ -16,11 +16,15 @@ import HotelTemplate from '@/templates/hotel';
 import TourismTemplate from '@/templates/tourism';
 import ExtraBranchTemplate from '@/templates/extra';
 import {
-  Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, SplitText, useReveal,
+  Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, useReveal,
 } from '@/components/fx';
 import {
   Tilt3DCard, MagneticButton, GradientText,
 } from '@/components/motion-fx';
+import {
+  AuroraBackground, SpotlightSection, AnimatedGridPattern,
+  ScrollVelocityText, TextReveal, BentoCard,
+} from '@/components/fx-21st';
 import { ConsentProvider } from '@/lib/consent';
 import { CookieBanner } from '@/components/CookieBanner';
 
@@ -513,11 +517,16 @@ function HeroSection() {
     >
       {/* Layered backgrounds */}
       <div className="absolute inset-0 -z-10 bg-brand" />
-      <div
-        className="absolute inset-0 -z-[2]"
-        style={{
-          background: 'radial-gradient(circle at 30% 30%, rgba(242,65,113,0.30), transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,179,71,0.22), transparent 55%)',
-        }}
+      <AuroraBackground
+        colors={['#F24171', '#FFB347', '#7C3AED', '#22d3ee']}
+        intensity={0.45}
+        className="-z-[3] opacity-90"
+      />
+      <AnimatedGridPattern
+        className="-z-[2] text-white/[0.06]"
+        width={40}
+        height={40}
+        dotSize={1.4}
       />
       <div
         className="pointer-events-none absolute inset-0 -z-[1] transition-[background] duration-150 ease-out"
@@ -525,8 +534,6 @@ function HeroSection() {
           background: `radial-gradient(700px circle at ${pos.x}% ${pos.y}%, rgba(242,65,113,0.28), transparent 60%)`,
         }}
       />
-      <div className="blob top-1/3 -left-40 w-[480px] h-[480px]" style={{ background: '#F24171' }} />
-      <div className="blob bottom-0 right-0 w-[420px] h-[420px]" style={{ background: '#FFB347' }} />
       <motion.div
         className="pointer-events-none absolute -z-[1] h-72 w-72 rounded-full blur-3xl"
         style={{ background: 'rgba(242,65,113,0.4)', left: `calc(${pos.x}% - 9rem)`, top: `calc(${pos.y}% - 9rem)` }}
@@ -541,7 +548,8 @@ function HeroSection() {
         </p>
 
         <h1 className="headline-xl max-w-6xl">
-          <SplitText>{`Websites für`}</SplitText><br />
+          <TextReveal text="Websites für" />
+          <br />
           <em className="italic-pop">
             <GradientText from="#F24171" via="#FFB347" to="#F24171">
               <RotatingWord words={ROTATING_WORDS} />
@@ -571,10 +579,17 @@ function HeroSection() {
         </div>
       </div>
 
+      {/* Massive scroll-velocity strip at the very bottom of the hero */}
+      <div className="absolute bottom-0 left-0 right-0 z-0 pointer-events-none border-t border-white/10 bg-black/20 backdrop-blur-sm py-3">
+        <ScrollVelocityText baseVelocity={40} className="font-display text-white/30">
+          <span className="text-7xl md:text-9xl font-display tracking-tight">FlamingoMedia · Editorial-Design · Websites mit Pop · Innsbruck · München · Ingolstadt · DACH ·&nbsp;</span>
+        </ScrollVelocityText>
+      </div>
+
       {/* Scroll indicator */}
       <a
         href="#mehr"
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/90 hover:text-white flex flex-col items-center gap-2"
+        className="absolute bottom-24 left-1/2 -translate-x-1/2 text-white/90 hover:text-white flex flex-col items-center gap-2 z-20"
         aria-label="Weiter scrollen"
       >
         <span className="text-[10px] uppercase tracking-[0.3em] opacity-80">Scroll</span>
@@ -616,62 +631,105 @@ function ClientLogosSection() {
 }
 
 function ServicesSection() {
-  const items = [
-    {
-      n: '01',
-      title: 'Branchen-Templates',
-      copy: 'Mehrseitige, animierte Templates für Restaurant, Salon, Handwerk, Praxen, Beratung, Studios und viele mehr. Live-Vorschau im Browser, Farbschema in Sekunden.',
-      tag: 'In 7 Tagen live',
-    },
-    {
-      n: '02',
-      title: 'Custom Design',
-      copy: 'Wenn Template nicht reicht: individuelles Design, eigene Funktionen, eigene Bibliothek. Wie ein Maßanzug.',
-      tag: 'Ab 4 Wochen',
-    },
-    {
-      n: '03',
-      title: 'Foto & Video',
-      copy: 'Eigenes Team kommt zu Ihnen ins Lokal, in die Praxis, in den Salon, ins Studio oder auf die Baustelle. Bilder, die nach Ihnen aussehen – nicht nach Stockfotos.',
-      tag: 'On-Location',
-    },
-    {
-      n: '04',
-      title: 'Hosting & Pflege',
-      copy: 'Unkompliziertes Hosting und kleine Anpassungen zum Pauschalpreis. 29 €/Monat – wir sind ansprechbar, wenn Sie uns brauchen.',
-      tag: 'Per Empfehlung',
-    },
-  ];
   return (
-    <section className="py-24 md:py-32">
-      <div className="container-x">
+    <SpotlightSection
+      as="section"
+      color="rgba(242,65,113,0.18)"
+      size={700}
+      className="py-24 md:py-32 bg-brand text-white"
+    >
+      <AnimatedGridPattern className="text-white/[0.05]" width={48} height={48} dotSize={1.5} />
+      <div className="container-x relative">
         <div className="grid md:grid-cols-12 gap-8 mb-16 items-end">
           <div className="md:col-span-7 reveal">
-            <p className="eyebrow mb-5">Was wir machen</p>
-            <h2 className="headline-lg">
-              Studio<br />
-              <em className="italic-pop">für lokale Marken.</em>
+            <p className="eyebrow mb-5" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              <span style={{ background: 'rgba(255,255,255,0.5)' }} />Was wir machen
+            </p>
+            <h2 className="headline-lg text-white">
+              <TextReveal text="Studio" /><br />
+              <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>
+                <TextReveal text="für lokale Marken." />
+              </em>
             </h2>
           </div>
-          <p className="md:col-span-5 text-lg text-muted leading-relaxed reveal">
-            Vier Leistungen. Ein Team. Wir bauen, fotografieren, hosten und kümmern uns – damit Sie sich um Ihren Betrieb kümmern können.
+          <p className="md:col-span-5 text-lg text-white/75 leading-relaxed reveal">
+            Vier Leistungen. Ein Team. Wir bauen, fotografieren, hosten und kümmern uns –
+            damit Sie sich um Ihren Betrieb kümmern können.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4 reveal-stagger">
-          {items.map((s) => (
-            <article key={s.n} className="group relative bg-white border border-line rounded-3xl p-8 md:p-10 hover-lift">
-              <div className="flex items-start justify-between mb-10">
-                <span className="font-mono text-xs text-muted">{s.n}</span>
-                <span className="text-xs uppercase tracking-widest text-muted bg-[var(--accent-color)] text-brand px-3 py-1 rounded-full">{s.tag}</span>
-              </div>
-              <h3 className="headline-md">{s.title}</h3>
-              <p className="mt-5 text-lg text-muted leading-relaxed">{s.copy}</p>
-            </article>
-          ))}
+        {/* Bento grid: 4 tiles with asymmetric sizes */}
+        <div className="grid md:grid-cols-6 gap-4 reveal-stagger">
+          <BentoCard
+            className="md:col-span-4 p-8 md:p-12 min-h-[320px] !bg-white text-slate-900"
+            accent="rgba(242,65,113,0.22)"
+          >
+            <div className="flex items-start justify-between mb-12">
+              <span className="font-mono text-xs text-muted">01</span>
+              <span className="text-xs uppercase tracking-widest text-brand bg-[var(--accent-color)] text-white px-3 py-1 rounded-full">
+                In 7 Tagen live
+              </span>
+            </div>
+            <h3 className="font-display text-3xl md:text-5xl leading-[1.05] tracking-tight">Branchen-Templates</h3>
+            <p className="mt-6 text-base md:text-lg text-muted leading-relaxed max-w-xl">
+              Mehrseitige, animierte Templates für Restaurant, Salon, Handwerk, Praxen, Beratung,
+              Studios und viele mehr. Live-Vorschau im Browser, Farbschema in Sekunden.
+            </p>
+            <div className="mt-8 flex gap-2">
+              {['Restaurant', 'Salon', 'Hotel', 'Tourismus', 'Handwerk', 'Praxis', 'Beratung', 'Studio'].map((b) => (
+                <span key={b} className="hidden md:inline-block text-[11px] font-mono uppercase tracking-widest border border-line rounded-full px-2.5 py-1 text-muted">{b}</span>
+              ))}
+            </div>
+          </BentoCard>
+
+          <BentoCard
+            className="md:col-span-2 p-8 md:p-10 min-h-[320px] !bg-[var(--accent-color)] !border-transparent text-white"
+            accent="rgba(255,255,255,0.18)"
+          >
+            <span className="font-mono text-xs text-white/80">02</span>
+            <h3 className="mt-12 font-display text-3xl md:text-4xl leading-[1.05] tracking-tight">Custom Design</h3>
+            <p className="mt-5 text-sm text-white/90 leading-relaxed">
+              Wenn Template nicht reicht: individuell entworfen, eigene Funktionen, eigene
+              Bibliothek. Wie ein Maßanzug.
+            </p>
+            <p className="mt-6 text-[11px] uppercase tracking-widest text-white/80 font-mono">Ab 4 Wochen</p>
+          </BentoCard>
+
+          <BentoCard
+            className="md:col-span-3 p-8 md:p-10 min-h-[280px] !bg-slate-900 !border-white/10 text-white"
+            accent="rgba(255,179,71,0.25)"
+          >
+            <div className="flex items-start justify-between">
+              <span className="font-mono text-xs text-white/60">03</span>
+              <span className="text-[11px] font-mono uppercase tracking-widest text-white/70 border border-white/20 rounded-full px-2.5 py-1">On-Location</span>
+            </div>
+            <h3 className="mt-10 font-display text-3xl md:text-4xl leading-[1.05] tracking-tight">Foto &amp; Video</h3>
+            <p className="mt-5 text-sm text-white/75 leading-relaxed max-w-md">
+              Eigenes Team kommt zu Ihnen ins Lokal, in die Praxis, in den Salon oder auf die
+              Baustelle. Bilder, die nach Ihnen aussehen – nicht nach Stockfotos.
+            </p>
+          </BentoCard>
+
+          <BentoCard
+            className="md:col-span-3 p-8 md:p-10 min-h-[280px] !bg-white text-slate-900"
+            accent="rgba(124,58,237,0.18)"
+          >
+            <div className="flex items-start justify-between">
+              <span className="font-mono text-xs text-muted">04</span>
+              <span className="text-[11px] font-mono uppercase tracking-widest text-muted border border-line rounded-full px-2.5 py-1">Per Empfehlung</span>
+            </div>
+            <h3 className="mt-10 font-display text-3xl md:text-4xl leading-[1.05] tracking-tight">Hosting &amp; Pflege</h3>
+            <p className="mt-5 text-sm text-muted leading-relaxed">
+              Unkompliziertes Hosting und kleine Anpassungen zum Pauschalpreis. 29 €/Monat –
+              wir sind ansprechbar, wenn Sie uns brauchen.
+            </p>
+            <p className="mt-6 font-display text-3xl tabular-nums">
+              29<span className="text-base text-muted ml-1">€/Monat</span>
+            </p>
+          </BentoCard>
         </div>
       </div>
-    </section>
+    </SpotlightSection>
   );
 }
 

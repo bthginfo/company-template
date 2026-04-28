@@ -10,8 +10,11 @@ import {
   Marquee, Accordion, AnimatedCounter, useReveal, ParallaxImage,
 } from '@/components/fx';
 import {
-  Tilt3DCard, HoverGlow,
+  Tilt3DCard, HoverGlow, HardShadowCard,
 } from '@/components/motion-fx';
+import {
+  AuroraBackground, SpotlightSection, AnimatedGridPattern, ScrollVelocityText, TextReveal,
+} from '@/components/fx-21st';
 import { TLink } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
@@ -328,7 +331,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
           subtitle={subtitleFor(variant, content)}
           className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
         >
-          <ServicesShowcase variant={variant} services={featuredServices} compact />
+          <ClassicServicesGrid services={featuredServices} />
           <div className="mt-12 reveal">
             <TLink to={cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
           </div>
@@ -381,17 +384,19 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
 
   return (
     <>
-      {/* Split hero – text left, framed image right */}
-      <section className="pt-44 pb-20 md:pb-28">
-        <div className="container-x grid lg:grid-cols-12 gap-12 items-center">
+      {/* Split hero – text left, framed image right, with aurora + dot grid backdrop */}
+      <section className="pt-44 pb-20 md:pb-28 relative overflow-hidden">
+        <AuroraBackground intensity={0.18} colors={['var(--accent-color)', '#FFB347', '#7C3AED', '#22d3ee']} />
+        <AnimatedGridPattern className="text-brand/[0.07]" width={40} height={40} dotSize={1.2} />
+        <div className="container-x grid lg:grid-cols-12 gap-12 items-center relative">
           <div className="lg:col-span-6 reveal">
             <p className="eyebrow mb-5">{content.brand.tagline || 'Willkommen'}</p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
-              {content.hero?.title || `${content.brand.name}.`}
+              <TextReveal text={content.hero?.title || (content.brand.name + '.')} />
               {content.hero?.subtitle ? (
                 <>
                   <br />
-                  <span className="text-muted">{content.hero.subtitle}</span>
+                  <span className="text-muted"><TextReveal text={content.hero.subtitle} /></span>
                 </>
               ) : null}
             </h1>
@@ -411,35 +416,46 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           </div>
           <div className="lg:col-span-6 reveal">
             {heroImg && (
-              <div className="relative">
-                <div className="absolute -inset-6 rounded-[2rem] bg-[var(--accent-color)] opacity-20 blur-3xl" aria-hidden />
-                <div className="relative rounded-3xl overflow-hidden border border-line shadow-2xl aspect-[4/5] bg-white">
-                  <img src={heroImg} alt={content.brand.name} className="w-full h-full object-cover" />
+              <Tilt3DCard className="rounded-3xl">
+                <div className="relative">
+                  <div className="absolute -inset-6 rounded-[2rem] bg-[var(--accent-color)] opacity-25 blur-3xl" aria-hidden />
+                  <div className="relative rounded-3xl overflow-hidden border border-line shadow-2xl aspect-[4/5] bg-white">
+                    <img src={heroImg} alt={content.brand.name} className="w-full h-full object-cover" />
+                  </div>
                 </div>
-              </div>
+              </Tilt3DCard>
             )}
           </div>
         </div>
       </section>
 
-      {/* Feature grid */}
-      <Section eyebrow={cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)} className="surface">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-          {featuredServices.map((s, i) => (
-            <article key={i} className="bg-white border border-line rounded-2xl p-7 hover-lift">
-              <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
-                <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
-              </div>
-              <h3 className="font-display text-xl mt-5">{s.title}</h3>
-              {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
-              {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
-            </article>
-          ))}
-        </div>
-        <div className="mt-12 reveal">
-          <TLink to={cfg.servicesPath} className="btn-primary">Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
-        </div>
-      </Section>
+      {/* Feature grid wrapped with cursor-following spotlight */}
+      <SpotlightSection
+        as="div"
+        color="rgba(242,65,113,0.16)"
+        size={620}
+        className="surface"
+      >
+        <Section eyebrow={cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+            {featuredServices.map((s, i) => (
+              <Tilt3DCard key={i} max={5} className="rounded-2xl">
+                <article className="bg-white border border-line rounded-2xl p-7 hover-lift h-full">
+                  <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+                    <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+                  </div>
+                  <h3 className="font-display text-xl mt-5">{s.title}</h3>
+                  {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+                  {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
+                </article>
+              </Tilt3DCard>
+            ))}
+          </div>
+          <div className="mt-12 reveal">
+            <TLink to={cfg.servicesPath} className="btn-primary">Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
+          </div>
+        </Section>
+      </SpotlightSection>
 
       {/* Logos / press strip */}
       <section className="py-14 border-y border-line">
@@ -526,20 +542,21 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
     <>
       {/* Type-driven full-bleed hero */}
       <section className="pt-40 pb-10 grain relative overflow-hidden">
-        <div className="container-x">
+        <AuroraBackground intensity={0.22} colors={['var(--accent-color)', '#FFB347', '#22d3ee', '#7C3AED']} />
+        <div className="container-x relative">
           <p className="eyebrow mb-6 reveal">{content.brand.tagline || cfg.servicesEyebrow}</p>
           <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[18vw] md:text-[14vw] lg:text-[180px]">
             {(content.hero?.title || content.brand.name).toUpperCase()}
           </h1>
         </div>
-        <div className="mt-6">
-          <Marquee speed="fast">
-            {marqueeWordsFor(variant, content).concat(marqueeWordsFor(variant, content)).map((w, i) => (
-              <span key={i} className="inline-flex items-center gap-8 font-display text-5xl md:text-7xl whitespace-nowrap">
-                <span className="text-brand">{w}</span><span className="text-[var(--accent-color)]">●</span>
-              </span>
-            ))}
-          </Marquee>
+        {/* Massive velocity-driven brand strip */}
+        <div className="mt-10">
+          <ScrollVelocityText className="font-display text-7xl md:text-[10rem] leading-none uppercase tracking-tighter" baseVelocity={80}>
+            <span className="text-brand">{content.brand.name}</span>
+            <span className="text-[var(--accent-color)] mx-8">●</span>
+            <span className="text-muted">{cfg.servicesEyebrow}</span>
+            <span className="text-[var(--accent-color)] mx-8">●</span>
+          </ScrollVelocityText>
         </div>
         {heroImg && (
           <div className="container-x mt-12 reveal">
@@ -612,23 +629,31 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
 
       {/* Testimonials – big quote */}
       {content.testimonials.length > 0 && (
-        <section className="py-24 md:py-36 surface">
-          <div className="container-x grid md:grid-cols-12 gap-10">
-            <div className="md:col-span-7 reveal">
-              <span className="font-display text-[140px] md:text-[200px] leading-[0.6] text-[var(--accent-color)] block">&ldquo;</span>
-              <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{content.testimonials[0].text}</p>
-              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
+        <>
+          <ScrollVelocityText className="font-display text-6xl md:text-9xl leading-none uppercase tracking-tighter py-10 bg-[var(--accent-color)] text-[var(--accent-fg)]" baseVelocity={-50}>
+            <span>Stimmen</span>
+            <span className="mx-8 opacity-60">/</span>
+            <span>Ehrliche Worte</span>
+            <span className="mx-8 opacity-60">/</span>
+          </ScrollVelocityText>
+          <section className="py-24 md:py-36 surface">
+            <div className="container-x grid md:grid-cols-12 gap-10">
+              <div className="md:col-span-7 reveal">
+                <span className="font-display text-[140px] md:text-[200px] leading-[0.6] text-[var(--accent-color)] block">&ldquo;</span>
+                <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{content.testimonials[0].text}</p>
+                <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
+              </div>
+              <div className="md:col-span-5 space-y-5">
+                {content.testimonials.slice(1, 4).map((t, i) => (
+                  <HardShadowCard key={i} className="bg-white border border-brand rounded-none p-6 reveal" offset={6}>
+                    <p className="text-base leading-relaxed">{t.text}</p>
+                    <footer className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">— {t.author}</footer>
+                  </HardShadowCard>
+                ))}
+              </div>
             </div>
-            <div className="md:col-span-5 space-y-4">
-              {content.testimonials.slice(1, 4).map((t, i) => (
-                <blockquote key={i} className="bg-white border border-line rounded-2xl p-6 reveal">
-                  <p className="text-base leading-relaxed">{t.text}</p>
-                  <footer className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">— {t.author}</footer>
-                </blockquote>
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        </>
       )}
 
       <NewsPreview content={content} eyebrow="Aktuelles" title="Notizen." />
