@@ -26,6 +26,7 @@ import {
   TextReveal, BentoCard,
 } from '@/components/fx-21st';
 import { ConsentProvider } from '@/lib/consent';
+import { ContactForm } from '@/components/ContactForm';
 import { CookieBanner } from '@/components/CookieBanner';
 
 /* ─── Brand ─────────────────────────────────────────────────────────── */
@@ -1615,7 +1616,6 @@ function Pricing() {
 /* ─── Contact page ────────────────────────────────────────────────── */
 function Contact() {
   useReveal();
-  const [sent, setSent] = useState(false);
   return (
     <>
       <Seo title="Kontakt · FlamingoMedia" description="Erstgespräch, Angebot oder einfach mal Hallo. Wir antworten innerhalb von 24 Stunden." />
@@ -1648,57 +1648,28 @@ function Contact() {
           </div>
 
           <div className="md:col-span-6 reveal">
-            <form
-              onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-              className="bg-white border border-line rounded-3xl p-8 md:p-10 space-y-5"
-            >
-              {sent ? (
-                <div className="py-12 text-center">
-                  <div className="text-5xl mb-4">✓</div>
-                  <h3 className="font-display text-3xl">Vielen Dank.</h3>
-                  <p className="mt-3 text-muted">Wir melden uns innerhalb von 24 Stunden.</p>
-                </div>
-              ) : (
-                <>
-                  <Field label="Name">
-                    <input required name="name" className="w-full bg-[var(--surface-color)] rounded-xl px-4 py-3 border border-line focus:border-brand outline-none transition" />
-                  </Field>
-                  <Field label="E-Mail">
-                    <input required type="email" name="email" className="w-full bg-[var(--surface-color)] rounded-xl px-4 py-3 border border-line focus:border-brand outline-none transition" />
-                  </Field>
-                  <Field label="Branche">
-                    <select name="branche" className="w-full bg-[var(--surface-color)] rounded-xl px-4 py-3 border border-line focus:border-brand outline-none transition">
-                      <option>Restaurant / Gastro</option>
-                      <option>Salon / Beauty</option>
-                      <option>Handwerk / Service</option>
-                      <option>Praxis / Ärzte</option>
-                      <option>Beratung / Kanzlei</option>
-                      <option>Studio / Coaching</option>
-                      <option>Hotel / Pension</option>
-                      <option>Café / Bäckerei</option>
-                      <option>Andere</option>
-                    </select>
-                  </Field>
-                  <Field label="Paket-Interesse">
-                    <select name="paket" className="w-full bg-[var(--surface-color)] rounded-xl px-4 py-3 border border-line focus:border-brand outline-none transition">
-                      <option>Template (1.490 €)</option>
-                      <option>Mit Foto-Add-on (2.890 €)</option>
-                      <option>Custom (auf Anfrage)</option>
-                      <option>Noch unentschieden</option>
-                    </select>
-                  </Field>
-                  <Field label="Ihre Nachricht">
-                    <textarea name="message" rows={5} className="w-full bg-[var(--surface-color)] rounded-xl px-4 py-3 border border-line focus:border-brand outline-none transition" />
-                  </Field>
-                  <button type="submit" className="btn-primary w-full justify-center">
-                    Anfrage senden <span aria-hidden>→</span>
-                  </button>
-                  <p className="text-xs text-muted text-center">
-                    Mit dem Absenden stimmen Sie der Verarbeitung Ihrer Daten gemäß unserem Datenschutz zu.
-                  </p>
-                </>
-              )}
-            </form>
+            <ContactForm
+              source="agency-landing"
+              tenant="FlamingoMedia"
+              fields={['name', 'email', 'branche', 'paket', 'message']}
+              brancheOptions={[
+                'Restaurant / Gastro',
+                'Salon / Beauty',
+                'Handwerk / Service',
+                'Praxis / Ärzte',
+                'Beratung / Kanzlei',
+                'Studio / Coaching',
+                'Hotel / Pension',
+                'Café / Bäckerei',
+                'Andere',
+              ]}
+              paketOptions={[
+                'Template (1.490 €)',
+                'Mit Foto-Add-on (2.890 €)',
+                'Custom (auf Anfrage)',
+                'Noch unentschieden',
+              ]}
+            />
           </div>
         </div>
       </section>
@@ -1740,14 +1711,6 @@ function Contact() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="block text-xs uppercase tracking-widest text-muted mb-1.5">{label}</span>
-      {children}
-    </label>
-  );
-}
 
 function TemplatePreview() {
   const { key, style: styleParam } = useParams<{ key: string; style?: string }>();

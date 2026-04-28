@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useRef, useState, createContext, useContext } fro
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import type { SiteContent } from '@/lib/types';
 import { Marquee, SplitText, useReveal as _useReveal } from './fx';
+import { ContactForm } from './ContactForm';
 
 export type NavItem = { to: string; label: string };
 
@@ -361,7 +362,7 @@ export function Section({
 }
 
 /* ─── ContactBlock ───────────────────────────────────────────────── */
-export function ContactBlock({ content }: { content: SiteContent }) {
+export function ContactBlock({ content, showForm = true, formTenant }: { content: SiteContent; showForm?: boolean; formTenant?: string }) {
   const c = content.contact;
   return (
     <Section id="kontakt" className="surface" align="left">
@@ -406,7 +407,20 @@ export function ContactBlock({ content }: { content: SiteContent }) {
           </div>
         </div>
         <div className="lg:col-span-7 reveal">
-          <SafeMapEmbed mapsUrl={c.mapsUrl || ''} address={c.address || ''} city={c.city || ''} className="h-[520px]" />
+          {showForm ? (
+            <div className="space-y-6">
+              <ContactForm
+                tenant={formTenant || content.brand.name}
+                source={`tenant:${(content.brand.name || '').toLowerCase().replace(/\s+/g, '-')}`}
+                fields={['name', 'email', 'phone', 'subject', 'message']}
+              />
+              {(c.mapsUrl || c.address) && (
+                <SafeMapEmbed mapsUrl={c.mapsUrl || ''} address={c.address || ''} city={c.city || ''} className="h-[280px]" />
+              )}
+            </div>
+          ) : (
+            <SafeMapEmbed mapsUrl={c.mapsUrl || ''} address={c.address || ''} city={c.city || ''} className="h-[520px]" />
+          )}
         </div>
       </div>
     </Section>
