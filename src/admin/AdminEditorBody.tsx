@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';
+import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { RichTextEditor } from './RichTextEditor';
 
 /**
@@ -910,44 +911,6 @@ function ScriptsPage({ data, setData }: SetterProps) {
 }
 
 /* ─── Branchen-Texte editor (variant copy overrides) ──────────── */
-
-function branchTextDefaults(tpl: TemplateKey) {
-  const v = tpl;
-  const teaserSubtitle =
-    v === 'restaurant' ? 'Hausgemachte Pasta, Holzofen-Pizza und ein wechselndes Tagesgericht. Saisonal, ehrlich, ohne Kompromisse.'
-    : v === 'salon' ? 'Schnitt, Farbe, Pflege und Beauty – mit ehrlicher Beratung und hochwertigen Produkten.'
-    : v === 'hotel' ? 'Zimmer mit Bergblick, ein Spa zum Abschalten und ein Restaurant, in das wir selbst gerne gehen würden.'
-    : v === 'tourism' ? 'Geführte Touren für alle, die Tirol mehr als nur sehen wollen – klein, persönlich, authentisch.'
-    : 'Vom kleinen Notfall bis zur Großsanierung. Festpreis, Meisterprüfung, transparente Kommunikation.';
-  const marqueeWords =
-    v === 'restaurant' ? ['Pasta fresca', 'Holzofen-Pizza', 'Naturweine', 'Antipasti', 'Tiramisu della Nonna', 'Tartufo nero']
-    : v === 'salon' ? ['Hair', 'Skin', 'Soul', 'Balayage', 'Bridal', 'Spa', 'Treatment']
-    : v === 'hotel' ? ['Bergblick', 'Spa & Sauna', 'Frühstück', 'Bibliothek', 'Wandern', 'Lounge', 'Sonnenterrasse']
-    : v === 'tourism' ? ['Berg', 'Tal', 'Wein', 'Geschichte', 'Foto', 'Hütte', 'Sonnenaufgang', 'Sterne']
-    : ['Notdienst 24/7', 'Festpreis-Garantie', 'Meisterbetrieb', 'KfW-Förderung', 'Smart Home', 'Wärmepumpe'];
-  const galleryTeaserTitle =
-    v === 'restaurant' ? 'Bilder, die erzählen.'
-    : v === 'salon' ? 'Looks aus dem Studio.'
-    : v === 'hotel' ? 'Eindrücke aus dem Haus.'
-    : v === 'tourism' ? 'Momente aus den Bergen.'
-    : 'Projekte aus der Werkstatt.';
-  return {
-    teaserSubtitle,
-    marqueeWords,
-    galleryTeaserTitle,
-    testimonialsEyebrow: 'Stimmen',
-    testimonialsTitle: 'Was unsere Kund:innen sagen.',
-    manifestEyebrow: 'Manifest',
-    manifestTitle:
-      v === 'restaurant' ? 'Italianità, ehrlich gelebt.'
-      : v === 'salon' ? 'Schönheit, ehrlich gemeint.'
-      : 'Handwerk, ehrlich geliefert.',
-    softCtaEyebrow: 'Bereit?',
-    softCtaTitle: 'Lassen Sie uns sprechen.',
-    softCtaText: 'Kostenloses Erstgespräch – unverbindlich, persönlich.',
-    softCtaButton: 'Termin vereinbaren',
-  };
-}
 
 function BranchTextEditor({ data, setData, tpl }: SectionProps) {
   const bt = ((data as any).branchText ?? {}) as Record<string, any>;

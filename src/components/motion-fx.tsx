@@ -43,6 +43,13 @@ export function Tilt3DCard({
   const sy = useSpring(y, { stiffness: 220, damping: 22, mass: 0.6 });
   const rotateX = useTransform(sy, [-0.5, 0.5], [max, -max]);
   const rotateY = useTransform(sx, [-0.5, 0.5], [-max, max]);
+  // Hooks called unconditionally — even if `glare` is false — to keep
+  // hook order stable across re-renders.
+  const glareBg = useTransform(
+    [sx, sy] as any,
+    ([gx, gy]: any) =>
+      `radial-gradient(circle at ${50 + gx * 100}% ${50 + gy * 100}%, rgba(255,255,255,0.18), transparent 50%)`
+  );
 
   const onMove = (e: React.MouseEvent) => {
     if (reduced()) return;
@@ -72,13 +79,7 @@ export function Tilt3DCard({
         <motion.div
           aria-hidden
           className="pointer-events-none absolute inset-0 rounded-[inherit] mix-blend-overlay"
-          style={{
-            background: useTransform(
-              [sx, sy] as any,
-              ([gx, gy]: any) =>
-                `radial-gradient(circle at ${50 + gx * 100}% ${50 + gy * 100}%, rgba(255,255,255,0.18), transparent 50%)`
-            ),
-          } as MotionStyle}
+          style={{ background: glareBg } as MotionStyle}
         />
       )}
     </motion.div>

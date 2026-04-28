@@ -16,6 +16,7 @@ import { TLink } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
+import { branchTextDefaults } from '@/lib/branch-text-defaults';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -349,7 +350,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
 
       {/* Testimonials */}
       {content.testimonials.length > 0 && (
-        <Section eyebrow={(content as any).branchText?.testimonialsEyebrow || 'Stimmen'} title={(content as any).branchText?.testimonialsTitle ? splitTitle((content as any).branchText.testimonialsTitle) : <>Was unsere Kund<em className="italic-pop">:innen sagen.</em></>} className="surface">
+        <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
             {content.testimonials.slice(0, 3).map((t, i) => (
               <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
@@ -495,16 +496,21 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       <NewsPreview content={content} />
 
       {/* Soft CTA */}
-      <section className="py-24 surface">
-        <div className="container-x">
-          <div className="rounded-3xl bg-white border border-line p-10 md:p-14 text-center reveal">
-            <p className="eyebrow justify-center mb-4">{(content as any).branchText?.softCtaEyebrow || 'Bereit?'}</p>
-            <h2 className="headline-lg">{(content as any).branchText?.softCtaTitle || 'Lassen Sie uns sprechen.'}</h2>
-            <p className="mt-5 text-muted max-w-xl mx-auto">{(content as any).branchText?.softCtaText || 'Kostenloses Erstgespräch – unverbindlich, persönlich.'}</p>
-            <TLink to="/kontakt" className="btn-primary mt-8">{(content as any).branchText?.softCtaButton || 'Termin vereinbaren'} <span aria-hidden>→</span></TLink>
-          </div>
-        </div>
-      </section>
+      {(() => {
+        const t = effectiveBranchText(variant, content);
+        return (
+          <section className="py-24 surface">
+            <div className="container-x">
+              <div className="rounded-3xl bg-white border border-line p-10 md:p-14 text-center reveal">
+                <p className="eyebrow justify-center mb-4">{t.softCtaEyebrow}</p>
+                <h2 className="headline-lg">{t.softCtaTitle}</h2>
+                <p className="mt-5 text-muted max-w-xl mx-auto">{t.softCtaText}</p>
+                <TLink to="/kontakt" className="btn-primary mt-8">{t.softCtaButton} <span aria-hidden>→</span></TLink>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
     </>
   );
 }
@@ -548,12 +554,9 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
       <section className="py-24 md:py-36">
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-5 md:col-start-2">
-            <p className="eyebrow mb-5 reveal">{(content as any).branchText?.manifestEyebrow || 'Manifest'}</p>
+            <p className="eyebrow mb-5 reveal">{effectiveBranchText(variant, content).manifestEyebrow}</p>
             <h2 className="font-display text-5xl md:text-6xl leading-[0.95] reveal">
-              {(content as any).branchText?.manifestTitle ? splitTitle((content as any).branchText.manifestTitle)
-                : variant === 'restaurant' ? <>Italianità.<br /><em className="italic-pop">Ohne Kompromisse.</em></>
-                  : variant === 'salon' ? <>Schönheit ist<br /><em className="italic-pop">Handwerk.</em></>
-                    : <>Handwerk ist<br /><em className="italic-pop">Vertrauen.</em></>}
+              {splitTitle(effectiveBranchText(variant, content).manifestTitle)}
             </h2>
           </div>
           <div className="md:col-span-5 md:pt-14 reveal">
@@ -1086,7 +1089,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
       {variant === 'restaurant' && <PressSection />}
 
       {content.testimonials.length > 0 && (
-        <Section eyebrow={(content as any).branchText?.testimonialsEyebrow || 'Stimmen'} title={(content as any).branchText?.testimonialsTitle ? splitTitle((content as any).branchText.testimonialsTitle) : <>Was unsere Kund<em className="italic-pop">:innen sagen.</em></>} className="surface">
+        <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
           <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
             {content.testimonials.map((t, i) => (
               <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
@@ -1413,11 +1416,17 @@ function splitTitle(t: string): React.ReactNode {
 function teaserSubtitleFor(v: TemplateVariant, content?: SiteContent) {
   const override = (content as any)?.branchText?.teaserSubtitle as string | undefined;
   if (override && override.trim()) return override;
-  if (v === 'restaurant') return 'Hausgemachte Pasta, Holzofen-Pizza und ein wechselndes Tagesgericht. Saisonal, ehrlich, ohne Kompromisse.';
-  if (v === 'salon') return 'Schnitt, Farbe, Pflege und Beauty – mit ehrlicher Beratung und hochwertigen Produkten.';
-  if (v === 'hotel') return 'Zimmer mit Bergblick, ein Spa zum Abschalten und ein Restaurant, in das wir selbst gerne gehen würden.';
-  if (v === 'tourism') return 'Geführte Touren für alle, die Tirol mehr als nur sehen wollen – klein, persönlich, authentisch.';
-  return 'Vom kleinen Notfall bis zur Großsanierung. Festpreis, Meisterprüfung, transparente Kommunikation.';
+  return branchTextDefaults(v).teaserSubtitle;
+}
+
+/** Returns a merged branch-text record (per-tenant overrides + branch defaults). */
+function effectiveBranchText(v: TemplateVariant, content?: SiteContent) {
+  const overrides = ((content as any)?.branchText ?? {}) as Record<string, any>;
+  const def = branchTextDefaults(v);
+  return { ...def, ...Object.fromEntries(Object.entries(overrides).filter(([, val]) => {
+    if (Array.isArray(val)) return val.length > 0;
+    return typeof val === 'string' ? val.trim().length > 0 : val != null;
+  })) } as ReturnType<typeof branchTextDefaults>;
 }
 
 function subtitleFor(v: TemplateVariant, content: SiteContent): string {
@@ -1433,21 +1442,13 @@ function heroBodyFor(v: TemplateVariant, content: SiteContent): string {
 function marqueeWordsFor(v: TemplateVariant, content?: SiteContent): string[] {
   const override = (content as any)?.branchText?.marqueeWords as string[] | undefined;
   if (override && override.filter(Boolean).length > 0) return override.filter(Boolean);
-  if (v === 'restaurant') return ['Pasta fresca', 'Holzofen-Pizza', 'Naturweine', 'Antipasti', 'Tiramisu della Nonna', 'Tartufo nero'];
-  if (v === 'salon') return ['Hair', 'Skin', 'Soul', 'Balayage', 'Bridal', 'Spa', 'Treatment'];
-  if (v === 'hotel') return ['Bergblick', 'Spa & Sauna', 'Frühstück', 'Bibliothek', 'Wandern', 'Lounge', 'Sonnenterrasse'];
-  if (v === 'tourism') return ['Berg', 'Tal', 'Wein', 'Geschichte', 'Foto', 'Hütte', 'Sonnenaufgang', 'Sterne'];
-  return ['Notdienst 24/7', 'Festpreis-Garantie', 'Meisterbetrieb', 'KfW-Förderung', 'Smart Home', 'Wärmepumpe'];
+  return branchTextDefaults(v).marqueeWords;
 }
 
 function galleryTeaserTitle(v: TemplateVariant, content?: SiteContent): React.ReactNode {
   const override = (content as any)?.branchText?.galleryTeaserTitle as string | undefined;
-  if (override && override.trim()) return splitTitle(override);
-  if (v === 'restaurant') return <>Bilder, die <em className="italic-pop">erzählen.</em></>;
-  if (v === 'salon') return <>Looks aus dem <em className="italic-pop">Studio.</em></>;
-  if (v === 'hotel') return <>Eindrücke aus dem <em className="italic-pop">Haus.</em></>;
-  if (v === 'tourism') return <>Momente aus den <em className="italic-pop">Bergen.</em></>;
-  return <>Projekte aus der <em className="italic-pop">Werkstatt.</em></>;
+  const raw = (override && override.trim()) || branchTextDefaults(v).galleryTeaserTitle;
+  return splitTitle(raw);
 }
 
 /* ─── Branch-specific service layouts ─────────────────────────────── */

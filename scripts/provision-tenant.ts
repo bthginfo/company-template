@@ -29,6 +29,7 @@ import { randomBytes } from 'crypto';
 import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
+import { BRANCH_TEXT_DEFAULTS } from '../src/lib/branch-text-defaults';
 
 const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
 type AnyTemplate = typeof VALID_TEMPLATES[number];
@@ -105,6 +106,7 @@ function extraDefaults(key: 'consulting' | 'medical' | 'fitness'): SiteContent {
     ...base,
     brand: { ...base.brand, name },
     hero: { ...base.hero, title: name },
+    branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[key] },
   });
 }
 
@@ -118,6 +120,7 @@ function fullDefaults(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tou
     ...base,
     brand: { ...base.brand, name },
     hero: { ...base.hero, title: name },
+    branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[key] },
     contact: {
       ...base.contact,
       // Strip showcase phone/email/address so the tenant fills their own – avoids
