@@ -989,7 +989,7 @@ function DeviceShowcaseSection() {
         </div>
 
         <div className="mt-16 md:mt-20 grid lg:grid-cols-12 gap-10 lg:gap-8 items-end">
-          {/* Laptop — left, takes more space */}
+          {/* Laptop — left, takes more space on lg+; full width on mobile */}
           <div className="lg:col-span-7 reveal">
             <DeviceLaptop>
               <LiveDeviceFrame item={DEVICE_ITEMS[0]} />
@@ -997,15 +997,17 @@ function DeviceShowcaseSection() {
             <DeviceCaption {...DEVICE_ITEMS[0]} />
           </div>
 
-          {/* Right column: tablet + phone stacked */}
-          <div className="lg:col-span-5 grid grid-cols-5 gap-4 lg:gap-6 reveal">
-            <div className="col-span-3">
+          {/* Right column: tablet + phone. Stack on mobile so each device
+              has enough width to render its content readably; side-by-side
+              from sm: upward, integrated into the laptop column from lg:. */}
+          <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-5 gap-8 sm:gap-4 lg:gap-6 reveal">
+            <div className="sm:col-span-3">
               <DeviceTablet>
                 <LiveDeviceFrame item={DEVICE_ITEMS[1]} />
               </DeviceTablet>
               <DeviceCaption {...DEVICE_ITEMS[1]} dark />
             </div>
-            <div className="col-span-2">
+            <div className="sm:col-span-2 max-w-[60%] sm:max-w-none mx-auto sm:mx-0">
               <DevicePhone>
                 <LiveDeviceFrame item={DEVICE_ITEMS[2]} />
               </DevicePhone>
@@ -1089,7 +1091,7 @@ function DeviceShowcaseSection() {
         }
         .device-tablet .device-frame__inner > iframe,
         .device-tablet .device-frame__inner > div {
-          transform: scale(calc(100cqw / 1024));
+          transform: scale(calc(100cqw / 820));
         }
         /* Phone frame (iPhone-ish with dynamic island). */
         .device-phone {
@@ -1687,7 +1689,9 @@ function ProcessPage() {
   const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
+    let raf = 0;
     const compute = () => {
+      raf = 0;
       const track = timelineRef.current;
       if (!track) return;
       const r = track.getBoundingClientRect();
@@ -1715,12 +1719,22 @@ function ProcessPage() {
       });
       setActiveIdx(best);
     };
+    const schedule = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(compute);
+    };
     compute();
-    window.addEventListener('scroll', compute, { passive: true });
-    window.addEventListener('resize', compute);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    // Lenis emits its own 'scroll' event on window via dispatchEvent in newer
+    // versions, but we also hook into it directly for snappier sync.
+    const lenis = (window as any).__lenis as { on?: (e: string, cb: () => void) => void; off?: (e: string, cb: () => void) => void } | undefined;
+    lenis?.on?.('scroll', schedule);
     return () => {
-      window.removeEventListener('scroll', compute);
-      window.removeEventListener('resize', compute);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      lenis?.off?.('scroll', schedule);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
@@ -1811,14 +1825,14 @@ function ProcessPage() {
       <section className="py-16 md:py-24">
         <div className="container-tight">
           <div ref={timelineRef} className="relative">
-            {/* Vertical track + animated fill (centered on md+, left on mobile) */}
+            {/* Vertical track + animated fill (centered on md+, left-aligned with node centers on mobile) */}
             <div
               aria-hidden
-              className="absolute top-0 bottom-0 left-6 md:left-1/2 md:-translate-x-1/2 w-[3px] bg-line rounded-full"
+              className="absolute top-0 bottom-0 left-6 md:left-1/2 -translate-x-1/2 w-[3px] bg-line rounded-full"
             />
             <div
               aria-hidden
-              className="absolute top-0 left-6 md:left-1/2 md:-translate-x-1/2 w-[3px] rounded-full bg-gradient-to-b from-accent via-[#7c3aed] to-accent transition-[height] duration-200 ease-out"
+              className="absolute top-0 left-6 md:left-1/2 -translate-x-1/2 w-[3px] rounded-full bg-gradient-to-b from-accent via-[#7c3aed] to-accent"
               style={{
                 height: `${Math.max(0, Math.min(100, progress * 100))}%`,
                 boxShadow: '0 0 18px rgba(242,65,113,0.45)',
@@ -1835,7 +1849,7 @@ function ProcessPage() {
                     {/* Node */}
                     <div
                       aria-hidden
-                      className={`absolute left-6 md:left-1/2 md:-translate-x-1/2 -translate-y-0 top-6 z-10 grid place-items-center transition-all duration-500 ${
+                      className={`absolute left-6 md:left-1/2 -translate-x-1/2 -translate-y-0 top-6 z-10 grid place-items-center transition-all duration-500 ${
                         isActive ? 'scale-110' : ''
                       }`}
                     >
