@@ -6,6 +6,7 @@ import { useContent } from '@/lib/content-context';
 import { AdminEditorBody, type UploadImageFn } from './AdminEditorBody';
 import { assertValidUpload, humanizeUploadError } from './upload-limits';
 import type { SiteContent, TemplateKey } from '@/lib/types';
+import { applyTheme, getPreset } from '@/lib/theme';
 
 type Session = { role: 'super' | 'tenant'; tenantId: string | null; slug: string | null } | null;
 
@@ -54,6 +55,15 @@ export function AdminApp() {
     () => (state.status === 'ready' ? asTemplateKey(state.tenant.template) : 'restaurant'),
     [state],
   );
+
+  // Mirror the tenant's selected color scheme on the admin shell so
+  // chrome (buttons, badges, focus rings) match the live site.
+  const presetId = state.status === 'ready' ? state.content?.brand?.themePresetId : undefined;
+  useEffect(() => {
+    if (!presetId) return;
+    const preset = getPreset(tplKey, presetId);
+    if (preset) applyTheme(preset);
+  }, [tplKey, presetId]);
 
   const logout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' });

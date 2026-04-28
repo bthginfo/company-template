@@ -12,6 +12,8 @@ export const SiteContentSchema = z.object({
     primaryColor: z.string().default('#0f172a'),
     /** When true and a logo is uploaded, hides the brand name text next to the logo (logo only). */
     hideName: z.boolean().optional().default(false),
+    /** Selected preset id (matches PRESETS[template][n].id). When set, overrides primaryColor at runtime via applyTheme(). */
+    themePresetId: z.string().optional().default(''),
   }),
   hero: z.object({
     title: z.string(),
@@ -67,6 +69,10 @@ export const SiteContentSchema = z.object({
     canonical: z.string().optional().default(''),
     twitter: z.string().optional().default(''),
     locale: z.string().optional().default('de_AT'),
+    /** Schema.org priceRange ($, $$, $$$, $$$$ or e.g. "€10–25"). */
+    priceRange: z.string().optional().default(''),
+    /** Restaurants only: cuisine label used in JSON-LD `servesCuisine`. */
+    cuisine: z.string().optional().default(''),
     /** OpenAPI-style structured-data overrides (geo, founding date, currency …) */
     extra: z.record(z.string()).optional().default({}),
   }).optional(),

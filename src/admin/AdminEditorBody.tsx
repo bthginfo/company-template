@@ -5,6 +5,7 @@ import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@
 import { RichTextEditor } from './RichTextEditor';
 import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
 import { scrollToTop } from '@/lib/scroll';
+import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -172,7 +173,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
           </div>
 
           <div className="p-6 md:p-8 space-y-10">
-            {pageId === 'brand' && <BrandPage data={data} setData={setData} />}
+            {pageId === 'brand' && <BrandPage data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'navigation' && <NavigationPage data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'contact' && <ContactGlobal data={data} setData={setData} />}
             {pageId === 'social' && <SocialPage data={data} setData={setData} />}
@@ -998,14 +999,74 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
   );
 }
 
-function BrandPage({ data, setData }: SetterProps) {
+function BrandPage({ data, setData, tpl }: SectionProps) {
+  const presets = PRESETS[tpl] ?? [];
+  const activeId = data.brand.themePresetId || '';
+  const onPickPreset = (p: ThemePreset) => {
+    setData({
+      ...data,
+      brand: {
+        ...data.brand,
+        themePresetId: p.id,
+        // mirror primary into the legacy primaryColor field so non-preset code paths stay consistent
+        primaryColor: p.primary,
+      },
+    });
+    // Apply immediately so the admin shell + any open preview re-paint
+    try { applyTheme(p); } catch { /* SSR / no-DOM */ }
+  };
+  const onClearPreset = () => {
+    setData({ ...data, brand: { ...data.brand, themePresetId: '' } });
+  };
   return (
     <>
       <SectionCard title="Name & Slogan">
         <Field label="Name"><input className={inputCls} value={data.brand.name} onChange={(e) => setData({ ...data, brand: { ...data.brand, name: e.target.value } })} /></Field>
         <Field label="Slogan / Tagline"><input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => setData({ ...data, brand: { ...data.brand, tagline: e.target.value } })} /></Field>
       </SectionCard>
-      <SectionCard title="Farbe & Logo">
+      <SectionCard
+        title="Farbschema"
+        description="Sechs branchengerechte Paletten – ein Klick wechselt sofort Hintergrund, Text, Buttons und Akzente."
+        badge="Empfohlen"
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {presets.map((p) => {
+            const isActive = activeId === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => onPickPreset(p)}
+                className={`group relative rounded-xl border p-3 text-left transition ${
+                  isActive
+                    ? 'border-slate-900 ring-2 ring-slate-900/15 shadow-sm'
+                    : 'border-line hover:border-slate-400'
+                }`}
+              >
+                <div
+                  className="h-14 w-full rounded-lg mb-2 ring-1 ring-black/5"
+                  style={{ background: `linear-gradient(135deg, ${p.primary} 0%, ${p.primary} 60%, ${p.accent} 60%, ${p.accent} 100%)` }}
+                />
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-medium text-slate-900 truncate">{p.label}</span>
+                  {isActive && <span className="text-[10px] text-emerald-700">aktiv</span>}
+                </div>
+                <div className="mt-1 flex gap-1">
+                  <span className="h-3 w-3 rounded-full border border-black/10" style={{ background: p.bg }} title="Hintergrund" />
+                  <span className="h-3 w-3 rounded-full border border-black/10" style={{ background: p.surface }} title="Surface" />
+                  <span className="h-3 w-3 rounded-full border border-black/10" style={{ background: p.text }} title="Text" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        {activeId && (
+          <button type="button" onClick={onClearPreset} className="mt-3 text-xs text-slate-500 hover:text-slate-700 underline underline-offset-2">
+            Schema entfernen (nur eigene Hauptfarbe verwenden)
+          </button>
+        )}
+      </SectionCard>
+      <SectionCard title="Eigene Farbe (Fallback)" description="Wird verwendet, wenn kein Schema gewählt ist – sonst überschreibt das Schema oben.">
         <Field label="Hauptfarbe" hint="Wird für Buttons und Akzente verwendet.">
           <div className="flex items-center gap-3">
             <input type="color" value={data.brand.primaryColor} onChange={(e) => setData({ ...data, brand: { ...data.brand, primaryColor: e.target.value } })} className="h-10 w-16 rounded-lg border border-line" />
@@ -1048,7 +1109,7 @@ function SocialPage({ data, setData }: SetterProps) {
   );
 }
 function SeoPage({ data, setData }: SetterProps) {
-  const seo = (data as any).seo ?? { title: '', description: '', keywords: '', ogImage: '', canonical: '', locale: 'de_AT' };
+  const seo = (data as any).seo ?? { title: '', description: '', keywords: '', ogImage: '', canonical: '', locale: 'de_AT', priceRange: '', cuisine: '' };
   const set = (patch: any) => setData({ ...(data as any), seo: { ...seo, ...patch } } as SiteContent);
   const pageSeo = ((data as any).pageSeo ?? {}) as Record<string, { title?: string; description?: string; keywords?: string; ogImage?: string; noindex?: boolean }>;
   const setPage = (id: string, patch: any) => setData({
@@ -1082,6 +1143,20 @@ function SeoPage({ data, setData }: SetterProps) {
       </SectionCard>
       <SectionCard title="Vorschau-Bild" description="Erscheint beim Teilen in WhatsApp, Instagram, Facebook, LinkedIn." badge="Sektion 2">
         <ImagePickerField label="OG-Bild (1200×630 empfohlen)" value={seo.ogImage || ''} onChange={(v) => set({ ogImage: v })} ratio="aspect-[1200/630]" />
+        <p className="text-xs text-muted leading-relaxed">
+          Lassen Sie das Feld leer, wird automatisch ein gebrandetes Vorschau-Bild
+          aus Markenname, Slogan und Hauptfarbe erzeugt – ideal für jeden Tenant ohne eigenes Asset.
+        </p>
+      </SectionCard>
+      <SectionCard title="Schema.org-Details" description="Optionale Strukturdaten für Google Rich Results & KI-Crawler." badge="Sektion 2b">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Preisniveau" hint={'Schema.org priceRange. z. B. „$", „$$" oder „€10–25". Leer lassen für „nicht angegeben".'}>
+            <input className={inputCls} value={seo.priceRange || ''} onChange={(e) => set({ priceRange: e.target.value })} placeholder="z. B. €€" />
+          </Field>
+          <Field label="Küche / servesCuisine" hint="Nur für Restaurants. z. B. Italienisch, Mediterran, Tirolerisch.">
+            <input className={inputCls} value={seo.cuisine || ''} onChange={(e) => set({ cuisine: e.target.value })} placeholder="z. B. Italienisch" />
+          </Field>
+        </div>
       </SectionCard>
       <SectionCard title="Pro Seite" description="Wenn eine Seite eigene Meta-Daten haben soll – z. B. eigene Beschreibung für die Speisekarte – hier eintragen." badge="Sektion 3">
         <div className="space-y-6">

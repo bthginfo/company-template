@@ -112,6 +112,14 @@ export function applyTheme(p: ThemePreset) {
   document.body.style.color = p.text;
 }
 
+/** Find a preset by id within a template's preset list. Returns null when not found. */
+export function getPreset(template: TemplateKey, id: string | undefined | null): ThemePreset | null {
+  if (!id) return null;
+  const list = PRESETS[template];
+  if (!list) return null;
+  return list.find((p) => p.id === id) ?? null;
+}
+
 /** Pick black or white as foreground based on hex color luminance. */
 function autoContrastFg(hex: string): string {
   const m = hex.replace('#', '');

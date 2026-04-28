@@ -38,10 +38,13 @@ export function useSeo({
     const effectiveDescription = override?.description || description || globalSeo?.description || '';
     const effectiveKeywords = override?.keywords || keywords || globalSeo?.keywords || '';
     const brandLogo = content?.brand?.logoUrl || '';
-    const effectiveImage = override?.ogImage || image || globalSeo?.ogImage || brandLogo || DEFAULT_OG;
+    const brandName = content?.brand?.name || 'FlamingoMedia';
+    const brandTagline = content?.brand?.tagline || '';
+    const brandPrimary = content?.brand?.primaryColor || '#0f172a';
+    const dynamicOg = buildDynamicOgUrl(brandName, brandTagline, brandPrimary);
+    const effectiveImage = override?.ogImage || image || globalSeo?.ogImage || dynamicOg || brandLogo || DEFAULT_OG;
     const effectiveNoindex = !!override?.noindex || noindex;
 
-    const brandName = content?.brand?.name || 'FlamingoMedia';
     const fullTitle = effectiveTitle.includes(brandName) || effectiveTitle.includes('FlamingoMedia')
       ? effectiveTitle
       : `${effectiveTitle} · ${brandName}`;
@@ -82,6 +85,21 @@ function stripQuery(href: string) {
 }
 function toAbsolute(url: string): string {
   try { return new URL(url, window.location.origin).href; } catch { return url; }
+}
+
+/**
+ * Build a URL pointing at the dynamic OG-image API endpoint.
+ * The endpoint renders a branded SVG (1200×630) with the tenant's
+ * name, tagline and primary color – ideal fallback when no
+ * upload is provided.
+ */
+function buildDynamicOgUrl(name: string, tagline: string, color: string): string {
+  if (typeof window === 'undefined') return '';
+  const params = new URLSearchParams();
+  if (name) params.set('name', name.slice(0, 80));
+  if (tagline) params.set('tagline', tagline.slice(0, 120));
+  if (color) params.set('color', color);
+  return `/api/og?${params.toString()}`;
 }
 
 function setMeta(attr: 'name' | 'property', key: string, value: string) {
@@ -172,10 +190,12 @@ function buildJsonLd(content: SiteContent | undefined, template: TemplateKey | u
     image: content.hero?.imageUrl || (content as any)?.seo?.ogImage || (content as any)?.brand?.logoUrl || undefined,
     sameAs: sameAs.length ? sameAs : undefined,
     openingHoursSpecification: openingHours.length ? openingHours : undefined,
-    priceRange: '$$',
   };
+  const customPriceRange = (content as any)?.seo?.priceRange?.trim?.();
+  if (customPriceRange) (localBusiness as any).priceRange = customPriceRange;
   if (template === 'restaurant') {
-    (localBusiness as any).servesCuisine = 'Italian';
+    const customCuisine = (content as any)?.seo?.cuisine?.trim?.();
+    if (customCuisine) (localBusiness as any).servesCuisine = customCuisine;
   }
 
   const services = (content.services || []).slice(0, 12).map((s) => ({

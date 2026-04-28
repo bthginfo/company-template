@@ -6,7 +6,9 @@ import TradesmanTemplate from './templates/tradesman';
 import HotelTemplate from './templates/hotel';
 import TourismTemplate from './templates/tourism';
 import ExtraBranchTemplate, { isExtraBranchKey } from './templates/extra';
-import type { SiteContent } from './lib/types';
+import type { SiteContent, TemplateKey } from './lib/types';
+import { useEffect } from 'react';
+import { applyTheme, getPreset } from './lib/theme';
 
 type TplProps = { content: SiteContent; style?: TemplateStyle };
 
@@ -23,6 +25,15 @@ const TEMPLATES: Record<string, (props: TplProps) => JSX.Element> = {
 
 export function SiteRouter() {
   const { state } = useContent();
+
+  // Apply the tenant's chosen color scheme (if any) whenever it changes.
+  const presetId = state.status === 'ready' ? state.content?.brand?.themePresetId : undefined;
+  const themeKey = state.status === 'ready' ? (state.tenant.template || getTemplateKey()) : null;
+  useEffect(() => {
+    if (!presetId || !themeKey) return;
+    const preset = getPreset(themeKey as TemplateKey, presetId);
+    if (preset) applyTheme(preset);
+  }, [themeKey, presetId]);
 
   if (state.status === 'loading') {
     return <div className="min-h-screen grid place-items-center text-slate-500">Lädt …</div>;
