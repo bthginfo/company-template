@@ -5,6 +5,8 @@ import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/componen
 import Seo from '@/components/Seo';
 import { BasePathProvider, useBasePath, withBase } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
+import { Timeline } from '@/components/Timeline';
+import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -77,6 +79,8 @@ export default function ExtraBranchTemplate({
             <Route path="galerie" element={<><PageSeoExtra content={content} branch={branch} page="gallery" /><SubPage content={content} branch={branch} page="gallery" style={style} eyebrow={eb} /></>} />
             <Route path="ueber-uns" element={<><PageSeoExtra content={content} branch={branch} page="about" /><SubPage content={content} branch={branch} page="about" style={style} eyebrow={eb} /></>} />
             <Route path="kontakt" element={<><PageSeoExtra content={content} branch={branch} page="contact" /><SubPage content={content} branch={branch} page="contact" style={style} eyebrow={eb} /></>} />
+            <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} />} />
+            <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} />} />
             <Route path="*" element={<><PageSeoExtra content={content} branch={branch} page="home" /><Layout content={content} eyebrow={eb} branch={branch} page="home" /></>} />
           </Routes>
         </main>
@@ -169,6 +173,7 @@ function SubPage({ content, branch, page, style, eyebrow }: {
             </section>
           )}
           <BranchTeam branch={branch} style={style} content={content} />
+          <Timeline content={content} />
           {content.testimonials.length > 0 && (
             <section className="py-16 md:py-24 surface">
               <div className="container-x">
@@ -310,6 +315,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         </section>
       )}
 
+      <NewsPreview content={content} />
       <ContactSection content={content} variant="classic" />
     </>
   );
@@ -479,6 +485,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
         </section>
       )}
 
+      <NewsPreview content={content} />
       <ContactSection content={content} variant="modern" />
     </>
   );
@@ -602,6 +609,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         </section>
       )}
 
+      <NewsPreview content={content} eyebrow="Aktuelles" title="Notizen." />
       <ContactSection content={content} variant="bold" />
     </>
   );
@@ -893,7 +901,11 @@ const BRANCH_TEAM_DEFAULT: Record<ExtraBranchKey, TeamMember[]> = {
     { n: 'Mira Klein',  r: 'Yin & Mindful Movement',     img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
     { n: 'Jonas Renz',  r: 'Reformer Pilates',           img: 'https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?auto=format&fit=crop&w=600&q=80', bio: 'Physiotherapeut mit Pilates-Spezialisierung. Trainiert Sportler:innen und Reha-Klient:innen.' },
   ],
-  medical: [],
+  medical: [
+    { n: 'Dr. Anna Lindner', r: 'Praxisinhaberin · Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80', bio: 'Studium in Innsbruck und Zürich. Ganzheitlicher Ansatz mit Zeit für Gespräche.' },
+    { n: 'Dr. Felix Bauer',  r: 'Internist · Diagnostik',          img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80', bio: 'Zehn Jahre Universitätsklinik. Schwerpunkt internistische Vorsorge.' },
+    { n: 'Maria Holzer',     r: 'Praxisleitung · MTA',            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80', bio: 'Koordiniert Termine und Abläufe. Erste Ansprechpartnerin am Empfang.' },
+  ],
 };
 function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember[] {
   const overlay = (content as any).team as TeamMember[] | undefined;
@@ -901,11 +913,10 @@ function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember
   return BRANCH_TEAM_DEFAULT[branch];
 }
 function BranchTeam({ branch, style, content }: { branch: ExtraBranchKey; style: ExtraStyle; content: SiteContent }) {
-  if (branch === 'medical') return null; // medical uses MedicalServiceInfo + service grid instead
   const team = useBranchTeam(content, branch);
   if (team.length === 0) return null;
-  const heading = branch === 'fitness' ? 'Trainer:innen.' : 'Das Team.';
-  const eyebrow = branch === 'fitness' ? 'Trainer:innen' : 'Team';
+  const heading = branch === 'fitness' ? 'Trainer:innen.' : branch === 'medical' ? 'Ärzt:innen & Team.' : 'Das Team.';
+  const eyebrow = branch === 'fitness' ? 'Trainer:innen' : branch === 'medical' ? 'Ärzt:innen' : 'Team';
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-40 bg-[var(--text-color)] text-[var(--bg-color)]">

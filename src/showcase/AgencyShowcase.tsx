@@ -288,13 +288,19 @@ function ShowcaseShell() {
         }`}
       >
         <div className="container-x flex items-center justify-between py-4">
-          <Link to="/" className="flex items-center group" aria-label={AGENCY.fullName}>
+          <Link to="/" className="flex items-center gap-2 group" aria-label={AGENCY.fullName}>
             <img
               src={AGENCY.logoSrc}
-              alt={AGENCY.fullName}
-              className="h-7 md:h-8 w-auto transition-opacity"
+              alt={AGENCY.name}
+              className="h-5 md:h-[22px] w-auto transition-opacity"
               style={{ filter: headerLight ? 'none' : 'brightness(0) invert(1)' }}
             />
+            <span
+              className={`font-display italic text-base md:text-lg leading-none tracking-tight ${headerLight ? 'text-slate-900' : 'text-white'}`}
+              aria-hidden
+            >
+              websites
+            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {NAV.map((n) => (
@@ -329,7 +335,8 @@ function ShowcaseShell() {
       {mobile && (
         <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
           <div className="container-x py-5 flex justify-between items-center">
-            <img src={AGENCY.logoSrc} alt={AGENCY.fullName} className="h-7 w-auto" />
+            <img src={AGENCY.logoSrc} alt={AGENCY.name} className="h-5 w-auto" />
+            <span className="font-display italic text-base text-slate-900 leading-none ml-2" aria-hidden>websites</span>
             <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
@@ -373,10 +380,11 @@ function ShowcaseFooter() {
           <div className="md:col-span-5">
             <img
               src={AGENCY.logoSrc}
-              alt={AGENCY.fullName}
-              className="h-9 w-auto"
+              alt={AGENCY.name}
+              className="h-7 w-auto inline-block align-middle"
               style={{ filter: 'brightness(0) invert(1)' }}
             />
+            <span className="font-display italic text-xl text-white leading-none ml-2 align-middle" aria-hidden>websites</span>
             <p className="text-sm text-white/70 mt-4 max-w-sm">{AGENCY.tagline}</p>
             <div className="mt-6 flex flex-col gap-1.5 text-sm">
               <a href={`mailto:${AGENCY.email}`} className="hover:text-accent">{AGENCY.email}</a>
@@ -983,14 +991,14 @@ function NumbersSection() {
             In <em className="italic-pop">Zahlen.</em>
           </h2>
           <p className="md:col-span-5 text-lg text-muted reveal">
-            Drei Jahre Studio-Arbeit, dokumentiert. Updaten wir vierteljährlich.
+            Wyldworks Websites ist ein neues Studio in Innsbruck. Diese Zahlen halten wir bewusst transparent — kein Marketing-Budget-Trick.
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 md:gap-y-0 reveal-stagger">
           {[
-            { v: 47, s: '', l: 'Live-Projekte' },
-            { v: 65, s: ' %', l: 'Empfehlungs-Quote' },
+            { v: 6, s: '', l: 'Branchen-Templates' },
+            { v: 3, s: '', l: 'Stilrichtungen je Template' },
             { v: 7, s: ' Tage', l: 'Bis online (Ø)' },
             { v: 24, s: ' h', l: 'Antwortzeit' },
           ].map((m, i) => (

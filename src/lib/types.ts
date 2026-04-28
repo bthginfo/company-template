@@ -91,6 +91,29 @@ export const SiteContentSchema = z.object({
     enabled: z.boolean().default(true),
     placement: z.enum(['head', 'body']).default('head'),
   })).optional().default([]),
+
+  /** Story/Timeline entries shown on the About page. */
+  timeline: z.array(z.object({
+    year: z.string().default(''),
+    title: z.string().default(''),
+    description: z.string().default(''),
+  })).optional().default([]),
+
+  /**
+   * News / Blog posts. Latest entries are shown on the home page; full
+   * archive lives at /news with detail pages at /news/:slug.
+   * `body` is plain text — paragraphs are rendered by splitting on blank lines.
+   */
+  posts: z.array(z.object({
+    id: z.string(),
+    title: z.string().default(''),
+    slug: z.string().default(''),
+    date: z.string().default(''),
+    excerpt: z.string().default(''),
+    body: z.string().default(''),
+    imageUrl: z.string().optional().default(''),
+    published: z.boolean().default(true),
+  })).optional().default([]),
 });
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;

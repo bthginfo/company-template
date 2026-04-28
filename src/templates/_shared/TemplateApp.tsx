@@ -11,6 +11,8 @@ import {
 } from '@/components/fx';
 import { TLink } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
+import { Timeline } from '@/components/Timeline';
+import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -154,6 +156,8 @@ export default function TemplateApp({
             <Route path="referenzen" element={<><PageSeo page="gallery" variant={variant} content={content} /><GalleryPage content={content} variant={variant} style={style} title="Referenzen" eyebrow="Projekte" /></>} />
             <Route path="ueber-uns" element={<><PageSeo page="about" variant={variant} content={content} /><AboutPage variant={variant} content={content} style={style} /></>} />
             <Route path="kontakt" element={<><PageSeo page="contactPage" variant={variant} content={content} /><ContactPage content={content} variant={variant} style={style} /></>} />
+            <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} />} />
+            <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} />} />
             <Route path="*" element={<><PageSeo page="home" variant={variant} content={content} /><HomePage variant={variant} content={content} style={style} /></>} />
           </Routes>
         </main>
@@ -424,6 +428,8 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
         <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
 
+      <NewsPreview content={content} />
+
       {/* Soft CTA */}
       <section className="py-24 surface">
         <div className="container-x">
@@ -556,6 +562,8 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           </div>
         </section>
       )}
+
+      <NewsPreview content={content} eyebrow="Aktuelles" title="Notizen." />
 
       {/* Bold CTA */}
       <section className="py-32 md:py-44 bg-[var(--accent-color)] text-brand grain">
@@ -920,6 +928,8 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
       )}
 
       <ValuesSection variant={variant} />
+
+      <Timeline content={content} />
 
       <TeamSection variant={variant} />
 

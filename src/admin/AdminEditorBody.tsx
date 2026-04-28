@@ -51,7 +51,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
   // when template changes externally, snap back to home
   useEffect(() => { setPageId('home'); }, [tplKey]);
 
-  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts';
+  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news';
 
   return (
     <div className="min-h-screen bg-[#f6f6f3]">
@@ -97,6 +97,9 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
               </SidebarItem>
             ))}
           </SidebarGroup>
+          <SidebarGroup label="Inhalte">
+            <SidebarItem active={pageId === 'news'} onClick={() => setPageId('news')} icon="✎">News & Blog</SidebarItem>
+          </SidebarGroup>
           <SidebarGroup label="Global">
             <SidebarItem active={pageId === 'brand'} onClick={() => setPageId('brand')} icon="✦">Marke & Design</SidebarItem>
             <SidebarItem active={pageId === 'contact'} onClick={() => setPageId('contact')} icon="✉">Kontaktdaten</SidebarItem>
@@ -129,6 +132,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'social' && <SocialPage data={data} setData={setData} />}
             {pageId === 'seo' && <SeoPage data={data} setData={setData} />}
             {pageId === 'scripts' && <ScriptsPage data={data} setData={setData} />}
+            {pageId === 'news' && <NewsPage data={data} setData={setData} />}
             {pageId === 'home' && <HomePageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'services' && <ServicesPageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'gallery' && <GalleryPageEditor data={data} setData={setData} tpl={tplKey} />}
@@ -156,7 +160,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 }
 
 /* ───────────── Pages config per template ───────────── */
-type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts';
+type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news';
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
@@ -196,6 +200,7 @@ function labelForGlobal(p: PageId) {
   if (p === 'social') return 'Social Media';
   if (p === 'seo') return 'SEO & Sichtbarkeit';
   if (p === 'scripts') return 'Skripte & Tracking';
+  if (p === 'news') return 'News & Blog';
   return '';
 }
 
@@ -604,7 +609,10 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 4">
         <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
       </SectionCard>
-      <SectionCard title="Zahlen-Band" badge="Sektion 5">
+      <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, Jubiläen — als vertikale Zeitleiste." badge="Sektion 5">
+        <TimelineEditor data={data} setData={setData} />
+      </SectionCard>
+      <SectionCard title="Zahlen-Band" badge="Sektion 6">
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
       {tpl === 'tradesman' && (
@@ -846,7 +854,149 @@ function ScriptsPage({ data, setData }: SetterProps) {
   );
 }
 
-/* ───────────── Reusable editors ───────────── */
+/* ─── News / Blog editor (CRUD) ─────────────────────────────── */
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+function NewsPage({ data, setData }: SetterProps) {
+  const list = ((data as any).posts ?? []) as any[];
+  const setList = (next: any[]) => setData({ ...(data as any), posts: next } as SiteContent);
+  const update = (i: number, patch: any) => setList(list.map((p, j) => j === i ? { ...p, ...patch } : p));
+  const remove = (i: number) => {
+    if (!confirm('Diesen Beitrag wirklich löschen?')) return;
+    setList(list.filter((_, j) => j !== i));
+  };
+  const add = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    setList([
+      {
+        id: 'p_' + Math.random().toString(36).slice(2, 9),
+        title: 'Neuer Beitrag',
+        slug: 'neuer-beitrag-' + Date.now(),
+        date: today,
+        excerpt: '',
+        body: '',
+        imageUrl: '',
+        published: false,
+      },
+      ...list,
+    ]);
+  };
+  return (
+    <>
+      <SectionCard title="So funktioniert's" description="Beiträge erscheinen auf der Startseite (die 3 neuesten) und unter /news. Reihenfolge: nach Datum, neueste oben." badge="Info">
+        <ul className="text-sm text-slate-700 space-y-2 list-disc pl-5">
+          <li><strong>Veröffentlicht:</strong> sichtbar auf der Website. Deaktivieren = Entwurf.</li>
+          <li><strong>Datum:</strong> bestimmt die Reihenfolge.</li>
+          <li><strong>Slug:</strong> Teil der URL — wird automatisch aus dem Titel gebildet.</li>
+          <li><strong>Text:</strong> Leerzeile = neuer Absatz.</li>
+        </ul>
+      </SectionCard>
+
+      <SectionCard title="Beiträge" description="Neue Artikel anlegen, bestehende bearbeiten oder löschen." badge={`${list.length} ${list.length === 1 ? 'Beitrag' : 'Beiträge'}`}>
+        <button type="button" onClick={add} className="btn-primary !py-2 !px-4 text-sm">+ Neuer Beitrag</button>
+        {list.length === 0 ? (
+          <p className="text-sm text-muted mt-4">Noch keine Beiträge angelegt.</p>
+        ) : (
+          <div className="space-y-4 mt-2">
+            {list.map((p, i) => (
+              <details key={p.id} className="border border-line rounded-2xl overflow-hidden bg-white" open={i === 0}>
+                <summary className="cursor-pointer px-5 py-4 bg-[#fafaf7] flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={`inline-flex items-center justify-center w-2 h-2 rounded-full ${p.published ? 'bg-emerald-500' : 'bg-amber-400'}`} aria-hidden />
+                    <span className="font-medium truncate max-w-[18rem]">{p.title || '(ohne Titel)'}</span>
+                    <span className="text-xs text-muted">{p.date}</span>
+                  </div>
+                  <span className="text-xs text-muted">{p.published ? 'veröffentlicht' : 'Entwurf'}</span>
+                </summary>
+                <div className="p-5 space-y-3">
+                  <div className="grid sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
+                    <Field label="Titel">
+                      <input
+                        className={inputCls}
+                        value={p.title}
+                        onChange={(e) => {
+                          const title = e.target.value;
+                          // Auto-update slug only if user hasn't customised it
+                          const autoSlug = !p.slug || p.slug === slugify(p.title || '');
+                          update(i, { title, ...(autoSlug ? { slug: slugify(title) } : {}) });
+                        }}
+                      />
+                    </Field>
+                    <Field label="Datum">
+                      <input
+                        className={inputCls}
+                        type="date"
+                        value={p.date || ''}
+                        onChange={(e) => update(i, { date: e.target.value })}
+                      />
+                    </Field>
+                    <Toggle value={!!p.published} onChange={(v) => update(i, { published: v })} label={p.published ? 'Veröffentlicht' : 'Entwurf'} />
+                  </div>
+                  <Field label="Slug (URL)" hint="Wird aus dem Titel erzeugt. Manuell anpassbar.">
+                    <input className={inputCls} value={p.slug} onChange={(e) => update(i, { slug: slugify(e.target.value) })} />
+                  </Field>
+                  <ImagePickerField label="Titelbild" value={p.imageUrl || ''} onChange={(v) => update(i, { imageUrl: v })} ratio="aspect-[16/9]" />
+                  <Field label="Kurzbeschreibung" hint="Wird in der Übersicht angezeigt. 1–2 Sätze.">
+                    <textarea className={inputCls} rows={2} value={p.excerpt} onChange={(e) => update(i, { excerpt: e.target.value })} />
+                  </Field>
+                  <Field label="Inhalt" hint="Leerzeile = neuer Absatz.">
+                    <textarea className={inputCls} rows={10} value={p.body} onChange={(e) => update(i, { body: e.target.value })} />
+                  </Field>
+                  <div className="flex justify-end">
+                    <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Beitrag löschen</button>
+                  </div>
+                </div>
+              </details>
+            ))}
+          </div>
+        )}
+      </SectionCard>
+    </>
+  );
+}
+
+/* ─── Timeline editor ───────────────────────────────────────── */
+function TimelineEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).timeline ?? []) as { year: string; title: string; description: string }[];
+  const setList = (next: any[]) => setData({ ...(data as any), timeline: next } as SiteContent);
+  const update = (i: number, patch: any) => setList(list.map((t, j) => j === i ? { ...t, ...patch } : t));
+  const remove = (i: number) => setList(list.filter((_, j) => j !== i));
+  const add = () => setList([...list, { year: '', title: '', description: '' }]);
+  return (
+    <>
+      <p className="text-sm text-muted">Die Timeline erscheint auf der „Über uns"-Seite zwischen Werten und Team. Lassen Sie sie leer, wenn Sie sie nicht brauchen.</p>
+      <div className="space-y-3">
+        {list.map((t, i) => (
+          <div key={i} className="border border-line rounded-2xl p-4 grid md:grid-cols-[7rem_1fr_auto] gap-3 items-start bg-white">
+            <Field label="Jahr / Marker">
+              <input className={inputCls} value={t.year} onChange={(e) => update(i, { year: e.target.value })} placeholder="z. B. 2008 oder Heute" />
+            </Field>
+            <div className="space-y-2">
+              <Field label="Titel">
+                <input className={inputCls} value={t.title} onChange={(e) => update(i, { title: e.target.value })} placeholder="z. B. Eröffnung." />
+              </Field>
+              <Field label="Beschreibung">
+                <textarea className={inputCls} rows={2} value={t.description} onChange={(e) => update(i, { description: e.target.value })} />
+              </Field>
+            </div>
+            <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline self-start mt-7">Entfernen</button>
+          </div>
+        ))}
+      </div>
+      <button type="button" onClick={add} className="btn-outline !py-2 !px-4 text-sm">+ Eintrag</button>
+    </>
+  );
+}
+
+/* ─── Reusable editors ───────────── */
 function ContactFields({ data, setData }: SetterProps) {
   const c = data.contact;
   const set = (patch: Partial<SiteContent['contact']>) => setData({ ...data, contact: { ...c, ...patch } });
