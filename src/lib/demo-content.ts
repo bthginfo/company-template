@@ -12,7 +12,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
     },
     hero: {
       title: 'Italien beginnt am ersten Bissen.',
-      subtitle: 'Handgemachte Pasta, Holzofen-Pizza und Naturweine im Herzen von Innsbruck. Drei Generationen Familie. Eine ehrliche Küche.',
+      subtitle: 'Pasta, Pizza, Naturweine – seit 1998 in Innsbruck.',
       imageUrl: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=2000&q=80',
       ctaLabel: 'Tisch reservieren',
       ctaHref: '/kontakt',
@@ -76,7 +76,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
     },
     hero: {
       title: 'Ihr Look. Unser Handwerk.',
-      subtitle: 'Ein Salon in München-Schwabing, der Pflege als Kunst versteht. Hochwertige Produkte. Stylist:innen mit internationaler Ausbildung. Eine Atmosphäre, die Sie sofort runterkommen lässt.',
+      subtitle: 'Boutique-Salon in München-Schwabing – Pflege als Kunst.',
       imageUrl: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=2000&q=80',
       ctaLabel: 'Termin buchen',
       ctaHref: '/kontakt',
@@ -198,7 +198,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
     },
     hero: {
       title: 'Ankommen, durchatmen, bleiben.',
-      subtitle: '34 individuelle Zimmer, eine Küche, die ihre Quellen kennt, und ein Spa mit Blick auf die Nordkette. Drei Generationen Gastgeberschaft.',
+      subtitle: '34 Zimmer, ein Spa, drei Generationen Gastgeber.',
       imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80',
       ctaLabel: 'Zimmer anfragen',
       ctaHref: '/kontakt',
@@ -256,7 +256,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
     },
     hero: {
       title: 'Tirol, wie es Einheimische sehen.',
-      subtitle: 'Geführte Wanderungen, Wein-Touren in Südtirol, Foto-Workshops in den Dolomiten. Kleine Gruppen, lokale Guides, keine Selfie-Stick-Karawanen.',
+      subtitle: 'Kleine Gruppen, lokale Guides, echte Begegnungen.',
       imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80',
       ctaLabel: 'Tour finden',
       ctaHref: '/leistungen',
@@ -319,7 +319,7 @@ export const EXTRA_DEMO_CONTENT = {
     },
     hero: {
       title: 'Kluge Entscheidungen brauchen klare Köpfe.',
-      subtitle: 'Wir beraten mittelständische Unternehmen in Steuer-, Wirtschafts- und Strategiefragen – seit 1994. Ehrlich, gründlich, persönlich.',
+      subtitle: 'Steuer, Strategie, Recht – ehrlich beraten seit 1994.',
       imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=2000&q=80',
       ctaLabel: 'Erstgespräch vereinbaren',
       ctaHref: '/kontakt',
@@ -376,7 +376,7 @@ export const EXTRA_DEMO_CONTENT = {
     },
     hero: {
       title: 'Medizin, die Zeit hat.',
-      subtitle: 'Hausärztliche Versorgung in Innsbruck-Saggen mit Termin – ohne Hetze, ohne Wartezimmer-Marathon. Schulmedizin und sanfte Verfahren in einer Praxis.',
+      subtitle: 'Hausärztliche Praxis in Innsbruck – 30 Min. pro Termin.',
       imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=2000&q=80',
       ctaLabel: 'Termin online vereinbaren',
       ctaHref: '/kontakt',
@@ -434,7 +434,7 @@ export const EXTRA_DEMO_CONTENT = {
     },
     hero: {
       title: 'Bewegung, die wieder bei Ihnen ankommt.',
-      subtitle: 'Ein kleines Studio in München-Glockenbach mit großen Fenstern, viel Holz und Lehrer:innen, die Sie nicht aus den Augen verlieren. Maximal acht Personen pro Kurs.',
+      subtitle: 'Kleines Studio, max. 8 pro Kurs – Yoga, Pilates, Mindful Movement.',
       imageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=2000&q=80',
       ctaLabel: 'Probetraining buchen',
       ctaHref: '/kontakt',

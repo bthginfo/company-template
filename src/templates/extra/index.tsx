@@ -97,7 +97,7 @@ function PageHero({ eyebrow, title, style }: { eyebrow: string; title: string; s
     <section className="pt-32 md:pt-40 pb-12 md:pb-16 surface">
       <div className="container-x">
         {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
-        <h1 className={`reveal ${style === 'bold' ? 'font-display text-5xl md:text-8xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
+        <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
       </div>
     </section>
   );
@@ -345,7 +345,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)]" /> {eyebrow}
               </p>
             )}
-            <h1 className="font-display text-5xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
               {content.hero.title}
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted max-w-xl">{content.hero.subtitle}</p>
@@ -538,10 +538,10 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         <section id="about" className="py-24 md:py-40">
           <div className="container-x grid md:grid-cols-12 gap-10">
             <div className="md:col-span-2 reveal">
-              <p className="font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">01</p>
+              <p className="font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">01</p>
             </div>
             <div className="md:col-span-10 reveal">
-              <h2 className="font-display text-5xl md:text-7xl leading-[0.95] mb-10">{content.about.title}</h2>
+              <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] mb-10">{content.about.title}</h2>
               <div className="grid md:grid-cols-2 gap-8 text-xl md:text-2xl leading-relaxed">
                 {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
               </div>
@@ -558,8 +558,8 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         <section id="leistungen" className="py-24 md:py-40 surface">
           <div className="container-x">
             <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
-              <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">02</p>
-              <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">Leistungen.</h2>
+              <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">02</p>
+              <h2 className="md:col-span-10 font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">Leistungen.</h2>
             </div>
             <ul className="reveal-stagger">
               {content.services.map((s, i) => (
@@ -588,8 +588,8 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         <section id="galerie" className="py-24 md:py-40">
           <div className="container-x">
             <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
-              <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">03</p>
-              <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">Bilder.</h2>
+              <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">03</p>
+              <h2 className="md:col-span-10 font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">Bilder.</h2>
             </div>
             <ExtraMasonry images={content.gallery} />
           </div>

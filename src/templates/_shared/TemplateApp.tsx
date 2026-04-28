@@ -432,7 +432,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
         <div className="container-x grid lg:grid-cols-12 gap-12 items-center relative">
           <div className="lg:col-span-6 reveal">
             <p className="eyebrow mb-5">{content.brand.tagline || 'Willkommen'}</p>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
               <TextReveal text={content.hero?.title || (content.brand.name + '.')} />
               {content.hero?.subtitle ? (
                 <>
@@ -626,7 +626,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-5 md:col-start-2">
             <p className="eyebrow mb-5 reveal">{effectiveBranchText(variant, content).manifestEyebrow}</p>
-            <h2 className="font-display text-5xl md:text-6xl leading-[0.95] reveal">
+            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] reveal">
               {splitTitle(effectiveBranchText(variant, content).manifestTitle)}
             </h2>
           </div>
@@ -1574,7 +1574,7 @@ function PageHero({ eyebrow, title, subtitle, style = 'classic', image }: {
         <div className="container-x grid lg:grid-cols-12 gap-10 items-end">
           <div className={image ? 'lg:col-span-7 reveal' : 'lg:col-span-12 reveal'}>
             <p className="eyebrow mb-5">{eyebrow}</p>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]">
               {splitTitle(title)}
             </h1>
             {subtitle && <p className="mt-8 text-lg text-muted max-w-2xl">{subtitle}</p>}
@@ -1760,15 +1760,16 @@ function GalleryShowcase({
 }
 
 function RestaurantGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
-  // Editorial: alternating big landscape with caption + 3-up thumbnail strips
+  // Editorial: alternating big landscape with caption + 3-up thumbnail strips.
+  // Always render *complete* blocks of 4 (1 hero + 3 thumbs) to avoid dangling cells.
   const captions = ['Cucina', 'Sala', 'Pasta', 'Vino', 'Famiglia', 'Tartufo', 'Piazza', 'Dolce', 'Forno'];
-  const used = mode === 'teaser' ? images.slice(0, 7) : images;
-  // Build pairs: [hero, thumb, thumb, thumb, hero, thumb, ...]
+  const cap = mode === 'teaser' ? 8 : Math.floor(images.length / 4) * 4;
+  const used = images.slice(0, Math.max(cap, 4));
+  // pad to a multiple of 4 by repeating the last image (defensive – shouldn't normally trigger)
+  while (used.length % 4 !== 0 && used.length > 0) used.push(used[used.length - 1]);
   const blocks: { hero: string; thumbs: string[]; caption: string }[] = [];
   for (let i = 0; i < used.length; i += 4) {
-    const hero = used[i];
-    const thumbs = used.slice(i + 1, i + 4);
-    if (hero) blocks.push({ hero, thumbs, caption: captions[blocks.length % captions.length] });
+    blocks.push({ hero: used[i], thumbs: used.slice(i + 1, i + 4), caption: captions[blocks.length % captions.length] });
   }
   return (
     <div className="space-y-12 reveal-stagger">
@@ -1782,15 +1783,13 @@ function RestaurantGallery({ images, mode }: { images: string[]; mode: 'teaser' 
               ※ {b.caption} · {String(i + 1).padStart(2, '0')}
             </figcaption>
           </figure>
-          {b.thumbs.length > 0 && (
-            <div className="md:col-span-4 md:[direction:ltr] grid grid-cols-3 md:grid-cols-1 gap-3">
-              {b.thumbs.map((src, j) => (
-                <div key={j} className="aspect-[4/3] md:aspect-[5/4] overflow-hidden rounded-2xl img-zoom">
-                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="md:col-span-4 md:[direction:ltr] grid grid-cols-3 md:grid-cols-1 gap-3">
+            {b.thumbs.map((src, j) => (
+              <div key={j} className="aspect-[4/3] md:aspect-[5/4] overflow-hidden rounded-2xl img-zoom">
+                <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>
