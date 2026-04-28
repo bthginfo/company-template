@@ -12,24 +12,26 @@ export type ExtraStyle = 'classic' | 'modern' | 'bold';
 type Props = {
   content: SiteContent;
   style?: ExtraStyle;
+  /** Branch flavour — switches branch-specific sections (process / service / programs). */
+  branch?: ExtraBranchKey;
   /** Optional eyebrow above hero (defaults to content.brand.tagline) */
   eyebrow?: string;
 };
 
 /** Single-page showcase template with three distinct layouts (classic / modern / bold). */
-export default function ExtraBranchTemplate({ content, style = 'classic', eyebrow }: Props) {
+export default function ExtraBranchTemplate({ content, style = 'classic', branch = 'consulting', eyebrow }: Props) {
   useReveal();
   const eb = eyebrow ?? content.brand.tagline ?? '';
   return (
-    <div className={`min-h-screen flex flex-col tpl-style-${style} bg-[var(--bg-color)] text-[var(--text-color)]`}>
-      <ExtraHeader content={content} style={style} />
+    <div className={`min-h-screen flex flex-col tpl-style-${style} tpl-branch-${branch} bg-[var(--bg-color)] text-[var(--text-color)]`}>
+      <ExtraHeader content={content} style={style} branch={branch} />
       <main className="flex-1">
         {style === 'modern' ? (
-          <ModernLayout content={content} eyebrow={eb} />
+          <ModernLayout content={content} eyebrow={eb} branch={branch} />
         ) : style === 'bold' ? (
-          <BoldLayout content={content} eyebrow={eb} />
+          <BoldLayout content={content} eyebrow={eb} branch={branch} />
         ) : (
-          <ClassicLayout content={content} eyebrow={eb} />
+          <ClassicLayout content={content} eyebrow={eb} branch={branch} />
         )}
       </main>
       <ExtraFooter content={content} style={style} />
@@ -40,7 +42,7 @@ export default function ExtraBranchTemplate({ content, style = 'classic', eyebro
 /* ─────────────────────────────────────────────────────────────────────
  *  CLASSIC — editorial, centered, parallax about, varied gallery
  * ──────────────────────────────────────────────────────────────────── */
-function ClassicLayout({ content, eyebrow }: { content: SiteContent; eyebrow: string }) {
+function ClassicLayout({ content, eyebrow, branch }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey }) {
   return (
     <>
       <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
@@ -112,6 +114,8 @@ function ClassicLayout({ content, eyebrow }: { content: SiteContent; eyebrow: st
         </section>
       )}
 
+      <BranchSpotlight branch={branch} style="classic" content={content} />
+
       {content.gallery.length > 0 && (
         <section id="galerie" className="py-24 md:py-32 surface">
           <div className="container-x">
@@ -159,7 +163,7 @@ function ClassicLayout({ content, eyebrow }: { content: SiteContent; eyebrow: st
  *  MODERN — SaaS clean: split hero, sticky-rail about, feature cards,
  *  uniform gallery grid, two-column contact with form-style sidebar
  * ──────────────────────────────────────────────────────────────────── */
-function ModernLayout({ content, eyebrow }: { content: SiteContent; eyebrow: string }) {
+function ModernLayout({ content, eyebrow, branch }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey }) {
   const stats = [
     { value: content.testimonials.length, suffix: '+', label: 'Kund:innen' },
     { value: content.services.length, suffix: '', label: 'Leistungen' },
@@ -267,6 +271,8 @@ function ModernLayout({ content, eyebrow }: { content: SiteContent; eyebrow: str
         </section>
       )}
 
+      <BranchSpotlight branch={branch} style="modern" content={content} />
+
       {/* Gallery — uniform 3-col grid with caption labels */}
       {content.gallery.length > 0 && (
         <section id="galerie" className="py-24 md:py-32 surface">
@@ -323,7 +329,7 @@ function ModernLayout({ content, eyebrow }: { content: SiteContent; eyebrow: str
 /* ─────────────────────────────────────────────────────────────────────
  *  BOLD — magazine: oversized type, full-bleed image, masonry, dramatic
  * ──────────────────────────────────────────────────────────────────── */
-function BoldLayout({ content, eyebrow }: { content: SiteContent; eyebrow: string }) {
+function BoldLayout({ content, eyebrow, branch }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey }) {
   return (
     <>
       {/* Hero — oversized headline overlapping image */}
@@ -402,6 +408,8 @@ function BoldLayout({ content, eyebrow }: { content: SiteContent; eyebrow: strin
           </div>
         </section>
       )}
+
+      <BranchSpotlight branch={branch} style="bold" content={content} />
 
       {/* Gallery — true masonry */}
       {content.gallery.length > 0 && (
@@ -559,7 +567,7 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
 }
 
 /* ─── Header (style-aware) ──────────────────────────────────────── */
-function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraStyle }) {
+function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraStyle; branch: ExtraBranchKey }) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -631,5 +639,307 @@ function ExtraMasonry({ images }: { images: string[] }) {
         </figure>
       ))}
     </div>
+  );
+}
+
+/* ─── Branch-specific spotlight section ──────────────────────────────
+ *  Renders a different feature block per branch (consulting / medical /
+ *  fitness) so the three branches read as distinct products even when
+ *  the surrounding layout style is identical.
+ * ──────────────────────────────────────────────────────────────────── */
+function BranchSpotlight({
+  branch,
+  style,
+  content,
+}: {
+  branch: ExtraBranchKey;
+  style: ExtraStyle;
+  content: SiteContent;
+}) {
+  if (branch === 'consulting') return <ConsultingProcess style={style} />;
+  if (branch === 'medical') return <MedicalServiceInfo style={style} content={content} />;
+  return <FitnessPrograms style={style} />;
+}
+
+/* CONSULTING — 4-step process / methodology */
+const CONSULTING_STEPS: Array<{ k: string; t: string; d: string }> = [
+  { k: '01', t: 'Erstgespräch', d: 'Unverbindliches Sondieren — wir hören zu, klären den Bedarf und Rahmenbedingungen.' },
+  { k: '02', t: 'Analyse',      d: 'Strukturierte Bestandsaufnahme inkl. Risiken, Chancen und nächsten Hebeln.' },
+  { k: '03', t: 'Strategie',    d: 'Klare Empfehlung, Roadmap und priorisierte Maßnahmen — auf Wunsch mit Pitch-Deck.' },
+  { k: '04', t: 'Umsetzung',    d: 'Begleitung in der Implementierung, Reviews und Sparring auf Augenhöhe.' },
+];
+function ConsultingProcess({ style }: { style: ExtraStyle }) {
+  if (style === 'bold') {
+    return (
+      <section className="py-24 md:py-40 surface">
+        <div className="container-x grid md:grid-cols-12 gap-8 mb-14 reveal">
+          <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">★</p>
+          <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">Unser Vorgehen.</h2>
+        </div>
+        <ul className="reveal-stagger">
+          {CONSULTING_STEPS.map((s) => (
+            <li key={s.k} className="group border-t border-line last:border-b py-8 md:py-10">
+              <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
+                <span className="md:col-span-1 font-display text-3xl text-[var(--accent-color)]">{s.k}</span>
+                <h3 className="md:col-span-4 font-display text-3xl md:text-4xl">{s.t}</h3>
+                <p className="md:col-span-7 text-lg text-muted leading-relaxed">{s.d}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+  if (style === 'modern') {
+    return (
+      <section className="py-24 md:py-32">
+        <div className="container-x">
+          <div className="max-w-2xl reveal mb-14">
+            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">Vorgehen</p>
+            <h2 className="font-display text-4xl md:text-5xl">In vier Schritten zum Ziel.</h2>
+          </div>
+          <ol className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 reveal-stagger">
+            {CONSULTING_STEPS.map((s) => (
+              <li key={s.k} className="relative bg-white border border-line rounded-2xl p-6">
+                <span className="absolute -top-4 -left-2 font-display text-5xl text-[var(--accent-color)]/40">{s.k}</span>
+                <h3 className="font-display text-xl mb-2 mt-4">{s.t}</h3>
+                <p className="text-sm text-muted leading-relaxed">{s.d}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    );
+  }
+  return (
+    <section className="py-24 md:py-32">
+      <div className="container-x">
+        <div className="grid md:grid-cols-12 gap-8 mb-12 reveal">
+          <div className="md:col-span-5">
+            <p className="eyebrow mb-5">Vorgehen</p>
+            <h2 className="headline-lg">Wie wir<br /><em className="italic-pop">arbeiten.</em></h2>
+          </div>
+          <p className="md:col-span-7 text-lg text-muted self-end">
+            Strukturiert, transparent und immer mit klarem Ergebnis. Vier Etappen, kein Bullshit.
+          </p>
+        </div>
+        <ol className="grid md:grid-cols-2 gap-x-12 gap-y-10 reveal-stagger">
+          {CONSULTING_STEPS.map((s) => (
+            <li key={s.k} className="border-t border-line pt-6">
+              <div className="flex items-baseline gap-4">
+                <span className="font-mono text-sm text-muted">{s.k}</span>
+                <h3 className="font-display text-2xl md:text-3xl">{s.t}</h3>
+              </div>
+              <p className="mt-3 text-base text-muted leading-relaxed">{s.d}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+/* MEDICAL — service info: hours, emergency, online appointment */
+function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: SiteContent }) {
+  const hours = content.contact.hours.length
+    ? content.contact.hours
+    : [
+        { day: 'Mo – Fr', time: '08:00 – 18:00' },
+        { day: 'Sa', time: '09:00 – 12:00' },
+        { day: 'So', time: 'Geschlossen' },
+      ];
+  if (style === 'bold') {
+    return (
+      <section className="py-24 md:py-40 bg-[var(--accent-color)]/10">
+        <div className="container-x grid md:grid-cols-12 gap-10">
+          <div className="md:col-span-5 reveal">
+            <p className="font-display text-6xl md:text-8xl leading-[0.9] text-[var(--accent-color)]">+</p>
+            <h2 className="mt-6 font-display text-4xl md:text-6xl leading-tight">Service<br />&amp; Sprechzeiten.</h2>
+          </div>
+          <div className="md:col-span-7 grid sm:grid-cols-2 gap-4 reveal-stagger">
+            <div className="bg-white border border-line rounded-3xl p-6">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted mb-4">Sprechzeiten</p>
+              <ul className="space-y-2">
+                {hours.map((h, i) => (
+                  <li key={i} className="flex justify-between text-base"><span className="text-muted">{h.day}</span><span className="font-medium">{h.time}</span></li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-white border border-line rounded-3xl p-6">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted mb-4">Online-Termin</p>
+              <p className="text-base leading-relaxed">Buchen Sie Ihren Termin direkt über unser Online-Portal — Doctolib & jameda angebunden.</p>
+              <a href="#kontakt" className="mt-5 inline-block font-medium text-[var(--accent-color)]">Termin buchen →</a>
+            </div>
+            <div className="bg-white border border-line rounded-3xl p-6 sm:col-span-2">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-rose-600 mb-4">⚠ Notfall</p>
+              <p className="text-base leading-relaxed">Im akuten Notfall wählen Sie bitte <span className="font-display text-xl">112</span> oder den ärztlichen Bereitschaftsdienst <span className="font-display text-xl">116 117</span>.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  if (style === 'modern') {
+    return (
+      <section className="py-24 md:py-32">
+        <div className="container-x grid lg:grid-cols-3 gap-4 reveal-stagger">
+          <article className="bg-white border border-line rounded-2xl p-6">
+            <div className="w-10 h-10 rounded-full bg-[var(--accent-color)]/20 grid place-items-center mb-4">⏱</div>
+            <h3 className="font-display text-2xl mb-3">Sprechzeiten</h3>
+            <ul className="space-y-1.5 text-sm">
+              {hours.map((h, i) => <li key={i} className="flex justify-between"><span className="text-muted">{h.day}</span><span>{h.time}</span></li>)}
+            </ul>
+          </article>
+          <article className="bg-white border border-line rounded-2xl p-6">
+            <div className="w-10 h-10 rounded-full bg-[var(--accent-color)]/20 grid place-items-center mb-4">📅</div>
+            <h3 className="font-display text-2xl mb-3">Online-Termin</h3>
+            <p className="text-sm text-muted leading-relaxed mb-4">Buchen Sie bequem online — Doctolib- und jameda-Anbindung möglich. Schnelle Bestätigung per E-Mail.</p>
+            <a href="#kontakt" className="text-sm font-medium text-[var(--accent-color)]">Termin anfragen →</a>
+          </article>
+          <article className="bg-rose-50 border border-rose-100 rounded-2xl p-6">
+            <div className="w-10 h-10 rounded-full bg-rose-100 grid place-items-center mb-4 text-rose-600">⚠</div>
+            <h3 className="font-display text-2xl mb-3 text-rose-700">Notfall</h3>
+            <p className="text-sm leading-relaxed text-rose-900/80">Im akuten Notfall: <strong>112</strong>. Außerhalb der Sprechzeiten ärztlicher Bereitschaftsdienst <strong>116 117</strong>.</p>
+          </article>
+        </div>
+      </section>
+    );
+  }
+  return (
+    <section className="py-24 md:py-32">
+      <div className="container-x grid md:grid-cols-12 gap-10">
+        <div className="md:col-span-4 reveal">
+          <p className="eyebrow mb-5">Service &amp; Info</p>
+          <h2 className="headline-lg">Für Sie<br /><em className="italic-pop">erreichbar.</em></h2>
+        </div>
+        <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 reveal-stagger">
+          <div className="bg-white border border-line rounded-3xl p-7">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted mb-4">Sprechzeiten</p>
+            <ul className="space-y-2 text-base">
+              {hours.map((h, i) => <li key={i} className="flex justify-between"><span className="text-muted">{h.day}</span><span>{h.time}</span></li>)}
+            </ul>
+          </div>
+          <div className="bg-white border border-line rounded-3xl p-7">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted mb-4">Online-Termin</p>
+            <p className="text-base leading-relaxed">Vereinbaren Sie Ihren Termin direkt online — Doctolib & jameda angebunden, Bestätigung per E-Mail.</p>
+          </div>
+          <div className="sm:col-span-2 bg-rose-50 border border-rose-100 rounded-3xl p-7">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-rose-600 mb-2">⚠ Notfall</p>
+            <p className="text-base text-rose-900/80">Im akuten Notfall <strong>112</strong> wählen — außerhalb der Sprechzeiten ärztlicher Bereitschaftsdienst <strong>116 117</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* FITNESS — programs grid + stats */
+const FITNESS_PROGRAMS: Array<{ k: string; t: string; d: string; meta: string }> = [
+  { k: 'HIIT',     t: 'High Intensity', d: 'Maximaler Output in 45 Minuten — Kraft, Cardio, Core kombiniert.', meta: '45 min · Mo / Mi / Fr' },
+  { k: 'YOGA',     t: 'Flow & Stretch', d: 'Beweglichkeit, Atem und mentale Klarheit. Für Einsteiger:innen geeignet.',  meta: '60 min · Di / Do' },
+  { k: 'PT',       t: 'Personal Training', d: '1-zu-1 Coaching mit individuellem Plan, Tracking und Ernährung.',          meta: 'flexibel · n. Vereinb.' },
+  { k: 'BOX',      t: 'Boxing Cardio',     d: 'Technik, Kondition und Stressabbau am Sandsack — keine Vorerfahrung nötig.', meta: '50 min · Mo / Do' },
+];
+function FitnessPrograms({ style }: { style: ExtraStyle }) {
+  const stats = [
+    { v: 12, s: '+', l: 'Programme' },
+    { v: 8,  s: '',  l: 'Trainer:innen' },
+    { v: 350, s: '+', l: 'aktive Mitglieder' },
+  ];
+  if (style === 'bold') {
+    return (
+      <section className="py-24 md:py-40 bg-[var(--text-color)] text-[var(--bg-color)]">
+        <div className="container-x">
+          <div className="grid md:grid-cols-12 gap-8 mb-14 reveal">
+            <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">⚡</p>
+            <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">Programme.</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-px bg-current/10 reveal-stagger">
+            {FITNESS_PROGRAMS.map((p) => (
+              <article key={p.k} className="bg-[var(--text-color)] p-8 md:p-12 hover:bg-[var(--accent-color)]/20 transition">
+                <div className="flex items-baseline justify-between mb-4">
+                  <span className="font-display text-3xl text-[var(--accent-color)]">{p.k}</span>
+                  <span className="font-mono text-xs uppercase tracking-widest opacity-60">{p.meta}</span>
+                </div>
+                <h3 className="font-display text-3xl md:text-4xl mb-3">{p.t}</h3>
+                <p className="opacity-80 leading-relaxed">{p.d}</p>
+              </article>
+            ))}
+          </div>
+          <div className="mt-16 grid grid-cols-3 gap-4 reveal-stagger">
+            {stats.map((s, i) => (
+              <div key={i} className="border-t border-current/30 pt-6">
+                <p className="font-display text-5xl md:text-7xl"><AnimatedCounter to={s.v} />{s.s}</p>
+                <p className="font-mono text-[11px] uppercase tracking-widest opacity-60 mt-2">{s.l}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+  if (style === 'modern') {
+    return (
+      <section className="py-24 md:py-32">
+        <div className="container-x">
+          <div className="flex items-end justify-between gap-6 mb-12 reveal">
+            <div>
+              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">Programme</p>
+              <h2 className="font-display text-4xl md:text-5xl">Finde deinen Flow.</h2>
+            </div>
+            <dl className="hidden md:flex gap-8">
+              {stats.map((s, i) => (
+                <div key={i}>
+                  <dt className="font-display text-3xl"><AnimatedCounter to={s.v} />{s.s}</dt>
+                  <dd className="text-xs uppercase tracking-widest text-muted mt-1">{s.l}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 reveal-stagger">
+            {FITNESS_PROGRAMS.map((p) => (
+              <article key={p.k} className="group bg-white border border-line rounded-2xl p-6 hover:border-[var(--accent-color)] transition">
+                <span className="inline-block font-mono text-xs px-2 py-1 rounded-md bg-[var(--accent-color)]/15 text-[var(--accent-color)] mb-4">{p.k}</span>
+                <h3 className="font-display text-xl mb-2">{p.t}</h3>
+                <p className="text-sm text-muted leading-relaxed mb-4">{p.d}</p>
+                <p className="text-[11px] font-mono uppercase tracking-widest text-muted pt-3 border-t border-line">{p.meta}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+  return (
+    <section className="py-24 md:py-32">
+      <div className="container-x">
+        <div className="grid md:grid-cols-12 gap-8 mb-12 reveal">
+          <div className="md:col-span-6">
+            <p className="eyebrow mb-5">Programme</p>
+            <h2 className="headline-lg">Für jedes<br /><em className="italic-pop">Ziel.</em></h2>
+          </div>
+          <dl className="md:col-span-6 grid grid-cols-3 gap-6 self-end">
+            {stats.map((s, i) => (
+              <div key={i} className="border-l border-line pl-4">
+                <dt className="font-display text-3xl"><AnimatedCounter to={s.v} />{s.s}</dt>
+                <dd className="text-xs uppercase tracking-widest text-muted mt-1">{s.l}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+          {FITNESS_PROGRAMS.map((p) => (
+            <article key={p.k} className="bg-white border border-line rounded-3xl p-7 hover-lift">
+              <div className="flex items-baseline justify-between mb-3">
+                <span className="font-display text-2xl text-[var(--accent-color)]">{p.k}</span>
+                <span className="font-mono text-[11px] uppercase tracking-widest text-muted">{p.meta}</span>
+              </div>
+              <h3 className="font-display text-2xl mb-2">{p.t}</h3>
+              <p className="text-muted leading-relaxed">{p.d}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

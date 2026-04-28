@@ -3,7 +3,7 @@ import { getTemplateKey, getTemplateStyle, type TemplateStyle } from './lib/tena
 import RestaurantTemplate from './templates/restaurant';
 import SalonTemplate from './templates/salon';
 import TradesmanTemplate from './templates/tradesman';
-import ExtraBranchTemplate from './templates/extra';
+import ExtraBranchTemplate, { isExtraBranchKey } from './templates/extra';
 import type { SiteContent } from './lib/types';
 
 type TplProps = { content: SiteContent; style?: TemplateStyle };
@@ -37,6 +37,9 @@ export function SiteRouter() {
   const key = state.tenant.template || getTemplateKey();
   const style: TemplateStyle =
     (state.tenant.style as TemplateStyle | undefined) || getTemplateStyle();
+  if (isExtraBranchKey(key)) {
+    return <ExtraBranchTemplate content={state.content} style={style} branch={key} />;
+  }
   const Tpl = TEMPLATES[key] ?? RestaurantTemplate;
   return <Tpl content={state.content} style={style} />;
 }

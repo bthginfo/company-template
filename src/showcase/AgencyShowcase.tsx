@@ -1652,7 +1652,7 @@ function TemplatePreview() {
   return (
     <div>
       {isExtra ? (
-        <ExtraBranchTemplate content={themedContent} style={style} eyebrow={EXTRA_BRANCHES[tplKey as ExtraBranchKey].tagline} />
+        <ExtraBranchTemplate content={themedContent} style={style} branch={tplKey as ExtraBranchKey} eyebrow={EXTRA_BRANCHES[tplKey as ExtraBranchKey].tagline} />
       ) : (
         (() => {
           const RealTpl = tplKey === 'restaurant' ? RestaurantTemplate : tplKey === 'salon' ? SalonTemplate : TradesmanTemplate;
