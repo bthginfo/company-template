@@ -155,7 +155,7 @@ const SHARED_KEYS = [
 ];
 
 async function main() {
-  const projectName = `bth-${slug}`;
+  const projectName = `wyldworks-${slug}`;
   console.log(`\n→ Provisioning tenant '${slug}' as Vercel project '${projectName}'\n`);
 
   // 1. DB tenant + password
