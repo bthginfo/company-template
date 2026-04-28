@@ -86,6 +86,9 @@ export function applyTheme(p: ThemePreset) {
   const r = document.documentElement.style;
   r.setProperty('--brand-color', p.primary);
   r.setProperty('--brand-fg', p.primaryFg);
+  // If accent equals primary (e.g. "mono" preset), splitting them on dark
+  // surfaces breaks (text-accent invisible on bg-brand). Force a readable
+  // accent-on-dark fallback so .bg-brand .text-accent stays visible.
   r.setProperty('--accent-color', p.accent);
   // accent-fg: explicit override, else auto-pick contrasting color from accent luminance
   const accentFg = p.accentFg ?? autoContrastFg(p.accent);
@@ -93,6 +96,17 @@ export function applyTheme(p: ThemePreset) {
   r.setProperty('--surface-color', p.surface);
   r.setProperty('--bg-color', p.bg);
   r.setProperty('--text-color', p.text);
+  // Derive muted + line tokens from the body text color so dark presets
+  // (light text on dark bg) get readable secondary text and visible borders
+  // automatically, without each component needing to know the theme.
+  const textIsLight = autoContrastFg(p.bg) === '#ffffff';
+  if (textIsLight) {
+    r.setProperty('--muted-color', 'rgba(255,255,255,0.72)');
+    r.setProperty('--line-color', 'rgba(255,255,255,0.18)');
+  } else {
+    r.setProperty('--muted-color', '#6b6b76');
+    r.setProperty('--line-color', 'rgba(11,11,16,0.10)');
+  }
   // body color sync (Tailwind uses utility classes; we set CSS vars and consume them via body)
   document.body.style.backgroundColor = p.bg;
   document.body.style.color = p.text;

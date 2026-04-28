@@ -184,6 +184,10 @@
     --muted-color: #6b6b76;
     --line-color: rgba(11, 11, 16, 0.10);
   }
+  /* Mono / monochrome presets where accent === brand-color: text-accent on
+   * a .bg-brand section would render same color as background → invisible.
+   * Force the brand foreground (auto-contrasted) instead. */
+  .bg-brand .text-accent { color: var(--brand-fg); }
 
   .eyebrow {
     @apply inline-flex items-center gap-2 text-xs font-medium uppercase;

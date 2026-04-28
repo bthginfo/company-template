@@ -86,8 +86,8 @@ export function SiteHeader({
   // landing route.
   const isHome = loc.pathname === basePath || loc.pathname === `${basePath}/` || (!basePath && (loc.pathname === '/' || loc.pathname === ''));
   const isLight = !scrolled && !transparentTextDark && isHome;
-  const txt = isLight ? 'text-white' : 'text-slate-900';
-  const sub = isLight ? 'text-white/85 hover:text-white' : 'text-slate-700 hover:text-slate-900';
+  const txt = isLight ? 'text-white' : 'text-[var(--text-color)]';
+  const sub = isLight ? 'text-white/85 hover:text-white' : 'text-[var(--muted-color)] hover:text-[var(--text-color)]';
 
   return (
     <>
@@ -95,7 +95,7 @@ export function SiteHeader({
       <header
         className={`fixed left-0 right-0 z-40 transition-all duration-300 ${hasAnn ? 'top-[36px]' : 'top-0'} ${
           scrolled
-            ? 'bg-white/90 backdrop-blur-xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border-b border-line'
+            ? 'backdrop-blur-xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border-b border-line bg-[color-mix(in_oklab,var(--bg-color)_88%,transparent)]'
             : 'bg-transparent'
         }`}
       >
@@ -136,7 +136,7 @@ export function SiteHeader({
 
           <button
             onClick={() => setMobile(true)}
-            className={`md:hidden p-2 rounded-full border ${isLight ? 'text-white border-white/30' : 'text-slate-800 border-line'}`}
+            className={`md:hidden p-2 rounded-full border ${isLight ? 'text-white border-white/30' : 'text-[var(--text-color)] border-line'}`}
             aria-label="Menü öffnen"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -151,8 +151,8 @@ export function SiteHeader({
               {content.brand.logoUrl ? (
                 <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto max-w-[180px] object-contain" />
               ) : (
-                <span className="font-display text-2xl text-slate-900">{content.brand.name}</span>
-              )}              <button onClick={() => setMobile(false)} className="p-2 text-slate-700" aria-label="Schließen">
+                <span className="font-display text-2xl text-[var(--text-color)]">{content.brand.name}</span>
+              )}              <button onClick={() => setMobile(false)} className="p-2 text-[var(--muted-color)]" aria-label="Schließen">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
                 </svg>
@@ -166,7 +166,7 @@ export function SiteHeader({
                   end={n.to === '/'}
                   className={({ isActive }) =>
                     `py-5 text-5xl font-display border-b border-line transition-transform hover:translate-x-2 ${
-                      isActive ? 'italic-pop text-brand' : 'text-slate-800'
+                      isActive ? 'italic-pop text-brand' : 'text-[var(--text-color)]'
                     }`
                   }
                 >
