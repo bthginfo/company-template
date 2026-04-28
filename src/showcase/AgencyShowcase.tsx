@@ -137,7 +137,7 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
   consulting: {
     label: 'Beratung & Kanzlei',
     tagline: 'Consulting · Steuer · Recht',
-    description: 'Seriöser Auftritt mit klarer Hierarchie, Team-Profilen und Mandanten-Login auf Wunsch.',
+    description: 'Seriöser Auftritt mit klarer Hierarchie, Team-Profilen und durchgängigem Stil.',
     image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80',
     accent: '#1e3a8a',
     bullets: ['Team- & Expertise-Seiten', 'Mandanten-Bereich (optional)', 'Termin-Anfrage mit Vorab-Briefing', 'Whitepaper & Case-Studies'],
@@ -156,7 +156,7 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
     description: 'Energiegeladenes Editorial mit Kurs-Plan, Trainer-Bios und Probetraining-Funnel.',
     image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=80',
     accent: '#9333ea',
-    bullets: ['Kursplan mit Filter', 'Trainer-Profile & Stories', 'Probetraining-Anmeldung', 'Mitglieder-Bereich (optional)'],
+    bullets: ['Kursplan mit Filter', 'Trainer-Profile & Stories', 'Probetraining-Anmeldung', 'Klare Preisliste'],
   },
 };
 
@@ -729,7 +729,7 @@ function AdminPreviewSection() {
           </p>
           <ul className="mt-10 space-y-4">
             {[
-              'Login mit Passwort. Einfach und ohne Umwege.',
+              'Einfacher Admin-Zugang. Direkt im Browser.',
               'Bilder per Drag & Drop hochladen.',
               'Änderungen erscheinen direkt auf der Seite.',
               'Ältere Stände lassen sich wiederherstellen.',
@@ -1355,7 +1355,7 @@ function Pricing() {
       monthly: 'Hosting individuell',
       features: [
         'Individuelles Design ohne Template-Bindung',
-        'Beliebige Funktionen (Buchung, Shop, Multi-Standort)',
+        'Beliebige Inhalts-Funktionen (Newsletter, Multi-Standort, Mehrsprachigkeit)',
         'Persönlicher Projektmanager',
         'Iterative Design-Schleifen mit Style-Guide',
         'API-Anbindungen möglich',
@@ -1459,7 +1459,7 @@ function Pricing() {
           <Accordion
             items={[
               { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise 2–3 Wochen nach Inhalts-Übergabe. Mit Foto-Add-on planen wir zusätzlich Zeit für Shooting und Schnitt ein.' },
-              { q: 'Kann ich Inhalte selbst pflegen?', a: 'Ja. Sie erhalten einen einfachen Admin-Bereich mit Login. Texte, Bilder, Speisekarte und Öffnungszeiten ändern Sie ohne Vorkenntnisse direkt im Browser. Sie sehen den Effekt sofort.' },
+              { q: 'Kann ich Inhalte selbst pflegen?', a: 'Ja. Sie erhalten einen einfachen Admin-Bereich. Texte, Bilder, Speisekarte und Öffnungszeiten ändern Sie ohne Vorkenntnisse direkt im Browser. Sie sehen den Effekt sofort.' },
               { q: 'Was passiert, wenn etwas kaputt ist?', a: 'Im Pflegepaket überwachen wir Ihre Seite automatisch – wir bekommen Probleme oft mit, bevor Sie es tun. Wir reagieren innerhalb der Geschäftszeiten in der Regel binnen weniger Stunden.' },
               { q: 'Wem gehört die Website?', a: 'Ihnen. Sie können den Quellcode jederzeit anfordern, das Hosting wechseln und mit anderen Agenturen weiterarbeiten. Wir liefern keine Verträge mit Lock-in-Klauseln.' },
               { q: 'Was kostet eine zusätzliche Sprache?', a: 'Mehrsprachigkeit (DE + EN) kostet einmalig ab 290 €. Weitere Sprachen je nach Umfang. Inhalte können von uns übersetzt oder bereitgestellt werden.' },

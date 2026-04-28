@@ -62,6 +62,7 @@ function ClassicLayout({ content, eyebrow, branch }: { content: SiteContent; eye
           </div>
         </div>
       </section>
+      <BranchHeroBadges branch={branch} style="classic" content={content} />
 
       {content.about && (
         <section id="about" className="py-24 md:py-32 surface">
@@ -219,6 +220,7 @@ function ModernLayout({ content, eyebrow, branch }: { content: SiteContent; eyeb
           </div>
         </div>
       </section>
+      <BranchHeroBadges branch={branch} style="modern" content={content} />
 
       {/* About — sticky rail */}
       {content.about && (
@@ -352,6 +354,7 @@ function BoldLayout({ content, eyebrow, branch }: { content: SiteContent; eyebro
           </div>
         </div>
       </section>
+      <BranchHeroBadges branch={branch} style="bold" content={content} />
 
       {/* Marquee separator */}
       <div className="border-y border-line py-8 overflow-hidden">
@@ -656,19 +659,82 @@ function BranchSpotlight({
   style: ExtraStyle;
   content: SiteContent;
 }) {
-  if (branch === 'consulting') return <ConsultingProcess style={style} />;
+  if (branch === 'consulting') return <ConsultingProcess style={style} content={content} />;
   if (branch === 'medical') return <MedicalServiceInfo style={style} content={content} />;
-  return <FitnessPrograms style={style} />;
+  return <FitnessPrograms style={style} content={content} />;
+}
+
+/* Branch identity chips — strong visual differentiator just under the hero. */
+const BRANCH_CHIPS_DEFAULT: Record<ExtraBranchKey, string[]> = {
+  consulting: ['Strategie', 'Workshops', 'Analyse', 'Umsetzung'],
+  medical: ['Vorsorge', 'Diagnostik', 'Therapie', 'Begleitung'],
+  fitness: ['Yoga', 'Pilates', 'Kleingruppen', 'Personal Training'],
+};
+const BRANCH_LABEL: Record<ExtraBranchKey, string> = {
+  consulting: 'Beratung',
+  medical: 'Praxis',
+  fitness: 'Studio',
+};
+function useBranchChips(content: SiteContent, branch: ExtraBranchKey): string[] {
+  const overlay = (content as any).branchChips as string[] | undefined;
+  if (overlay && overlay.length > 0) return overlay.filter(Boolean);
+  return BRANCH_CHIPS_DEFAULT[branch];
+}
+function BranchHeroBadges({ branch, style, content }: { branch: ExtraBranchKey; style: ExtraStyle; content: SiteContent }) {
+  const chips = useBranchChips(content, branch);
+  if (chips.length === 0) return null;
+  const label = BRANCH_LABEL[branch];
+  if (style === 'bold') {
+    return (
+      <div className="container-x mt-10 reveal">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-mono uppercase tracking-[0.25em]">
+          <span className="text-[var(--accent-color)]">— {label} —</span>
+          {chips.map((c, i) => (
+            <span key={i} className="text-muted">{c}</span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (style === 'modern') {
+    return (
+      <div className="container-x mt-8 reveal">
+        <div className="flex flex-wrap gap-2">
+          <span className="px-3 py-1.5 rounded-full bg-[var(--accent-color)] text-[var(--accent-fg)] text-xs font-medium uppercase tracking-widest">{label}</span>
+          {chips.map((c, i) => (
+            <span key={i} className="px-3 py-1.5 rounded-full bg-white border border-line text-xs">{c}</span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  // classic
+  return (
+    <div className="container-x mt-10 reveal">
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <span className="font-mono text-[11px] uppercase tracking-widest text-[var(--accent-color)]">{label}</span>
+        {chips.map((c, i) => (
+          <span key={i} className="px-3 py-1 rounded-full border border-line bg-[var(--surface-color)] text-muted">{c}</span>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 /* CONSULTING — 4-step process / methodology */
-const CONSULTING_STEPS: Array<{ k: string; t: string; d: string }> = [
+const CONSULTING_STEPS_DEFAULT: Array<{ k: string; t: string; d: string }> = [
   { k: '01', t: 'Erstgespräch', d: 'Unverbindliches Sondieren — wir hören zu, klären den Bedarf und Rahmenbedingungen.' },
   { k: '02', t: 'Analyse',      d: 'Strukturierte Bestandsaufnahme inkl. Risiken, Chancen und nächsten Hebeln.' },
   { k: '03', t: 'Strategie',    d: 'Klare Empfehlung, Roadmap und priorisierte Maßnahmen — auf Wunsch mit Pitch-Deck.' },
   { k: '04', t: 'Umsetzung',    d: 'Begleitung in der Implementierung, Reviews und Sparring auf Augenhöhe.' },
 ];
-function ConsultingProcess({ style }: { style: ExtraStyle }) {
+function useConsultingSteps(content: SiteContent) {
+  const overlay = (content as any).serviceProcess as Array<{ t: string; d: string }> | undefined;
+  if (!overlay || overlay.length === 0) return CONSULTING_STEPS_DEFAULT;
+  return overlay.map((s, i) => ({ k: String(i + 1).padStart(2, '0'), t: s.t, d: s.d }));
+}
+function ConsultingProcess({ style, content }: { style: ExtraStyle; content: SiteContent }) {
+  const STEPS = useConsultingSteps(content);
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-40 surface">
@@ -677,7 +743,7 @@ function ConsultingProcess({ style }: { style: ExtraStyle }) {
           <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">Unser Vorgehen.</h2>
         </div>
         <ul className="reveal-stagger">
-          {CONSULTING_STEPS.map((s) => (
+          {STEPS.map((s) => (
             <li key={s.k} className="group border-t border-line last:border-b py-8 md:py-10">
               <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
                 <span className="md:col-span-1 font-display text-3xl text-[var(--accent-color)]">{s.k}</span>
@@ -699,7 +765,7 @@ function ConsultingProcess({ style }: { style: ExtraStyle }) {
             <h2 className="font-display text-4xl md:text-5xl">In vier Schritten zum Ziel.</h2>
           </div>
           <ol className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 reveal-stagger">
-            {CONSULTING_STEPS.map((s) => (
+            {STEPS.map((s) => (
               <li key={s.k} className="relative bg-white border border-line rounded-2xl p-6">
                 <span className="absolute -top-4 -left-2 font-display text-5xl text-[var(--accent-color)]/40">{s.k}</span>
                 <h3 className="font-display text-xl mb-2 mt-4">{s.t}</h3>
@@ -724,7 +790,7 @@ function ConsultingProcess({ style }: { style: ExtraStyle }) {
           </p>
         </div>
         <ol className="grid md:grid-cols-2 gap-x-12 gap-y-10 reveal-stagger">
-          {CONSULTING_STEPS.map((s) => (
+          {STEPS.map((s) => (
             <li key={s.k} className="border-t border-line pt-6">
               <div className="flex items-baseline gap-4">
                 <span className="font-mono text-sm text-muted">{s.k}</span>
@@ -748,6 +814,13 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
         { day: 'Sa', time: '09:00 – 12:00' },
         { day: 'So', time: 'Geschlossen' },
       ];
+  const notice = ((content as any).medicalNotice ?? {}) as { online?: string; emergency?: string };
+  const onlineText = notice.online && notice.online.length > 0
+    ? notice.online
+    : 'Buchen Sie Ihren Termin direkt über unser Online-Portal — Doctolib & jameda angebunden.';
+  const emergencyText = notice.emergency && notice.emergency.length > 0
+    ? notice.emergency
+    : 'Im akuten Notfall wählen Sie bitte 112 oder den ärztlichen Bereitschaftsdienst 116 117.';
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-40 bg-[var(--accent-color)]/10">
@@ -767,12 +840,12 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
             </div>
             <div className="bg-white border border-line rounded-3xl p-6">
               <p className="font-mono text-[11px] uppercase tracking-widest text-muted mb-4">Online-Termin</p>
-              <p className="text-base leading-relaxed">Buchen Sie Ihren Termin direkt über unser Online-Portal — Doctolib & jameda angebunden.</p>
+              <p className="text-base leading-relaxed">{onlineText}</p>
               <a href="#kontakt" className="mt-5 inline-block font-medium text-[var(--accent-color)]">Termin buchen →</a>
             </div>
             <div className="bg-white border border-line rounded-3xl p-6 sm:col-span-2">
               <p className="font-mono text-[11px] uppercase tracking-widest text-rose-600 mb-4">⚠ Notfall</p>
-              <p className="text-base leading-relaxed">Im akuten Notfall wählen Sie bitte <span className="font-display text-xl">112</span> oder den ärztlichen Bereitschaftsdienst <span className="font-display text-xl">116 117</span>.</p>
+              <p className="text-base leading-relaxed">{emergencyText}</p>
             </div>
           </div>
         </div>
@@ -793,13 +866,13 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
           <article className="bg-white border border-line rounded-2xl p-6">
             <div className="w-10 h-10 rounded-full bg-[var(--accent-color)]/20 grid place-items-center mb-4">📅</div>
             <h3 className="font-display text-2xl mb-3">Online-Termin</h3>
-            <p className="text-sm text-muted leading-relaxed mb-4">Buchen Sie bequem online — Doctolib- und jameda-Anbindung möglich. Schnelle Bestätigung per E-Mail.</p>
+            <p className="text-sm text-muted leading-relaxed mb-4">{onlineText}</p>
             <a href="#kontakt" className="text-sm font-medium text-[var(--accent-color)]">Termin anfragen →</a>
           </article>
           <article className="bg-rose-50 border border-rose-100 rounded-2xl p-6">
             <div className="w-10 h-10 rounded-full bg-rose-100 grid place-items-center mb-4 text-rose-600">⚠</div>
             <h3 className="font-display text-2xl mb-3 text-rose-700">Notfall</h3>
-            <p className="text-sm leading-relaxed text-rose-900/80">Im akuten Notfall: <strong>112</strong>. Außerhalb der Sprechzeiten ärztlicher Bereitschaftsdienst <strong>116 117</strong>.</p>
+            <p className="text-sm leading-relaxed text-rose-900/80">{emergencyText}</p>
           </article>
         </div>
       </section>
@@ -821,11 +894,11 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
           </div>
           <div className="bg-white border border-line rounded-3xl p-7">
             <p className="font-mono text-[11px] uppercase tracking-widest text-muted mb-4">Online-Termin</p>
-            <p className="text-base leading-relaxed">Vereinbaren Sie Ihren Termin direkt online — Doctolib & jameda angebunden, Bestätigung per E-Mail.</p>
+            <p className="text-base leading-relaxed">{onlineText}</p>
           </div>
           <div className="sm:col-span-2 bg-rose-50 border border-rose-100 rounded-3xl p-7">
             <p className="font-mono text-[11px] uppercase tracking-widest text-rose-600 mb-2">⚠ Notfall</p>
-            <p className="text-base text-rose-900/80">Im akuten Notfall <strong>112</strong> wählen — außerhalb der Sprechzeiten ärztlicher Bereitschaftsdienst <strong>116 117</strong>.</p>
+            <p className="text-base text-rose-900/80">{emergencyText}</p>
           </div>
         </div>
       </div>
@@ -834,18 +907,29 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
 }
 
 /* FITNESS — programs grid + stats */
-const FITNESS_PROGRAMS: Array<{ k: string; t: string; d: string; meta: string }> = [
-  { k: 'HIIT',     t: 'High Intensity', d: 'Maximaler Output in 45 Minuten — Kraft, Cardio, Core kombiniert.', meta: '45 min · Mo / Mi / Fr' },
-  { k: 'YOGA',     t: 'Flow & Stretch', d: 'Beweglichkeit, Atem und mentale Klarheit. Für Einsteiger:innen geeignet.',  meta: '60 min · Di / Do' },
-  { k: 'PT',       t: 'Personal Training', d: '1-zu-1 Coaching mit individuellem Plan, Tracking und Ernährung.',          meta: 'flexibel · n. Vereinb.' },
-  { k: 'BOX',      t: 'Boxing Cardio',     d: 'Technik, Kondition und Stressabbau am Sandsack — keine Vorerfahrung nötig.', meta: '50 min · Mo / Do' },
+const FITNESS_PROGRAMS_DEFAULT: Array<{ k: string; t: string; d: string; meta: string }> = [
+  { k: 'YOGA', t: 'Vinyasa Flow',     d: 'Dynamisches Yoga im Atemrhythmus. Für alle, die Bewegung lieben.', meta: '75 min · Mo / Mi / Fr' },
+  { k: 'YIN',  t: 'Yin Yoga',         d: 'Lange gehaltene, ruhige Positionen. Tiefe Faszien-Arbeit.',          meta: '60 min · Di / Do' },
+  { k: 'PIL',  t: 'Reformer Pilates', d: 'Kleingruppen mit max. 5 Personen. Präzise Korrekturen.',             meta: '60 min · n. Vereinb.' },
+  { k: 'PT',   t: 'Personal Training',d: '60 oder 90 Minuten – ganz auf Sie zugeschnitten.',                   meta: 'flexibel · n. Vereinb.' },
 ];
-function FitnessPrograms({ style }: { style: ExtraStyle }) {
-  const stats = [
-    { v: 12, s: '+', l: 'Programme' },
-    { v: 8,  s: '',  l: 'Trainer:innen' },
-    { v: 350, s: '+', l: 'aktive Mitglieder' },
-  ];
+function FitnessPrograms({ style, content }: { style: ExtraStyle; content: SiteContent }) {
+  const overlayPrograms = (content as any).programs as Array<{ k: string; t: string; d: string; meta: string }> | undefined;
+  const PROGRAMS = overlayPrograms && overlayPrograms.length > 0 ? overlayPrograms : FITNESS_PROGRAMS_DEFAULT;
+  const overlayNumbers = (content as any).numbers as Array<{ value: string; label: string }> | undefined;
+  const stats = (overlayNumbers && overlayNumbers.length > 0
+    ? overlayNumbers.slice(0, 3).map((n) => ({ raw: n.value, l: n.label }))
+    : [
+        { raw: '12+',  l: 'Klassen pro Woche' },
+        { raw: '5',    l: 'Lehrer:innen' },
+        { raw: '350+', l: 'Stammgäste' },
+      ]
+  ).map((s) => {
+    const m = /^([\d.,]+)(.*)$/.exec(s.raw.trim());
+    const v = m ? parseInt(m[1].replace(/\D/g, ''), 10) || 0 : 0;
+    const suffix = m ? m[2] : '';
+    return { v, s: suffix, l: s.l };
+  });
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-40 bg-[var(--text-color)] text-[var(--bg-color)]">
@@ -855,7 +939,7 @@ function FitnessPrograms({ style }: { style: ExtraStyle }) {
             <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">Programme.</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-px bg-current/10 reveal-stagger">
-            {FITNESS_PROGRAMS.map((p) => (
+            {PROGRAMS.map((p) => (
               <article key={p.k} className="bg-[var(--text-color)] p-8 md:p-12 hover:bg-[var(--accent-color)]/20 transition">
                 <div className="flex items-baseline justify-between mb-4">
                   <span className="font-display text-3xl text-[var(--accent-color)]">{p.k}</span>
@@ -897,7 +981,7 @@ function FitnessPrograms({ style }: { style: ExtraStyle }) {
             </dl>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 reveal-stagger">
-            {FITNESS_PROGRAMS.map((p) => (
+            {PROGRAMS.map((p) => (
               <article key={p.k} className="group bg-white border border-line rounded-2xl p-6 hover:border-[var(--accent-color)] transition">
                 <span className="inline-block font-mono text-xs px-2 py-1 rounded-md bg-[var(--accent-color)]/15 text-[var(--accent-color)] mb-4">{p.k}</span>
                 <h3 className="font-display text-xl mb-2">{p.t}</h3>
@@ -928,7 +1012,7 @@ function FitnessPrograms({ style }: { style: ExtraStyle }) {
           </dl>
         </div>
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {FITNESS_PROGRAMS.map((p) => (
+          {PROGRAMS.map((p) => (
             <article key={p.k} className="bg-white border border-line rounded-3xl p-7 hover-lift">
               <div className="flex items-baseline justify-between mb-3">
                 <span className="font-display text-2xl text-[var(--accent-color)]">{p.k}</span>

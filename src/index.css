@@ -65,6 +65,31 @@
   font-stretch: 110%;
 }
 
+/* ─── Per-branch flavour ─────────────────────────────────────────
+ * Each extras root carries .tpl-branch-<key>; subtle visual cues
+ * (corner radii, hover behaviour, accent intensity) make the three
+ * branches feel like distinct products even at identical style.
+ */
+.tpl-branch-consulting { /* sober, geometric */ }
+.tpl-branch-consulting .rounded-3xl { border-radius: 0.75rem; }
+.tpl-branch-consulting .rounded-2xl { border-radius: 0.5rem; }
+.tpl-branch-consulting .italic-pop { font-style: normal; text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.12em; }
+
+.tpl-branch-medical { /* calm, soft, generous spacing */ }
+.tpl-branch-medical .rounded-3xl,
+.tpl-branch-medical .rounded-2xl { border-radius: 1.75rem; }
+.tpl-branch-medical .btn-primary,
+.tpl-branch-medical .btn-accent { letter-spacing: 0.02em; }
+.tpl-branch-medical h1,
+.tpl-branch-medical h2 { letter-spacing: -0.01em; }
+
+.tpl-branch-fitness { /* energetic, italic + tighter */ }
+.tpl-branch-fitness h1,
+.tpl-branch-fitness h2,
+.tpl-branch-fitness .italic-pop { font-style: italic; }
+.tpl-branch-fitness .rounded-3xl { border-radius: 999px 999px 1.5rem 1.5rem; }
+.tpl-branch-fitness .eyebrow::before { content: '⚡ '; }
+
 @layer components {
   .btn-primary {
     @apply relative inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 font-medium

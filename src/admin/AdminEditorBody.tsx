@@ -390,6 +390,12 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
+      {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
+        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 1b">
+          <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
+        </SectionCard>
+      )}
+
       <SectionCard title="Lauftext-Banner" description="Die kleine Marquee-Zeile mit aktuellen Hinweisen." badge="Sektion 2">
         <RepeatableList
           items={announcements ?? defaultAnnouncements(tpl)}
@@ -477,6 +483,16 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte „So läuft es ab".'} badge="Sektion 4">
         <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
       </SectionCard>
+      {tpl === 'fitness' && (
+        <SectionCard title="Programme" description="Kurse / Trainings, die im Programm-Spotlight erscheinen." badge="Sektion 4b">
+          <ProgramsEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'medical' && (
+        <SectionCard title="Hinweise (Online-Termin & Notfall)" description="Texte für die Service-Karten." badge="Sektion 4b">
+          <MedicalNoticeEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
       <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5">
         <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
       </SectionCard>
@@ -866,6 +882,65 @@ function StepsEditor({ data, setData, field, defaults }: SetterProps & { field: 
   );
 }
 
+function ProgramsEditor({ data, setData }: SetterProps) {
+  const [list, set] = useExtra<{ k: string; t: string; d: string; meta: string }[]>(data, setData, 'programs', [
+    { k: 'YOGA', t: 'Vinyasa Flow', d: 'Dynamisches Yoga im Atemrhythmus. Für alle, die Bewegung lieben.', meta: '75 min · Mo / Mi / Fr' },
+    { k: 'YIN', t: 'Yin Yoga', d: 'Lange gehaltene, ruhige Positionen. Tiefe Faszien-Arbeit.', meta: '60 min · Di / Do' },
+    { k: 'PIL', t: 'Reformer Pilates', d: 'Kleingruppen mit max. 5 Personen. Präzise Korrekturen, klare Progression.', meta: '60 min · n. Vereinb.' },
+    { k: 'PT', t: 'Personal Training', d: '60 oder 90 Minuten – ganz auf Sie zugeschnitten.', meta: 'flexibel · n. Vereinb.' },
+  ]);
+  return (
+    <RepeatableList items={list} onChange={set} newItem={() => ({ k: '', t: '', d: '', meta: '' })} addLabel="+ Programm hinzufügen"
+      render={(v, _i, setItem) => (
+        <div className="grid sm:grid-cols-[80px_1fr] gap-2 flex-1">
+          <input className={inputCls} placeholder="Kürzel" value={v.k} onChange={(e) => setItem({ ...v, k: e.target.value })} />
+          <input className={inputCls} placeholder="Titel" value={v.t} onChange={(e) => setItem({ ...v, t: e.target.value })} />
+          <div className="sm:col-span-2 grid sm:grid-cols-2 gap-2">
+            <input className={inputCls} placeholder="Beschreibung" value={v.d} onChange={(e) => setItem({ ...v, d: e.target.value })} />
+            <input className={inputCls} placeholder="Meta (z. B. 45 min · Mo/Mi/Fr)" value={v.meta} onChange={(e) => setItem({ ...v, meta: e.target.value })} />
+          </div>
+        </div>
+      )}
+    />
+  );
+}
+
+function BranchChipsEditor({ data, setData, tpl }: SetterProps & { tpl: TemplateKey }) {
+  const branchDefaults: Record<string, string[]> = {
+    consulting: ['Strategie', 'Workshops', 'Analyse', 'Umsetzung'],
+    medical: ['Vorsorge', 'Diagnostik', 'Therapie', 'Begleitung'],
+    fitness: ['Yoga', 'Pilates', 'Kleingruppen', 'Personal Training'],
+  };
+  const fallback = branchDefaults[tpl] ?? [];
+  const [list, set] = useExtra<string[]>(data, setData, 'branchChips', fallback);
+  return (
+    <RepeatableList items={list} onChange={set} newItem={() => ''} addLabel="+ Stichwort hinzufügen"
+      render={(v, i, setItem) => (
+        <input className={inputCls} placeholder={`Stichwort ${i + 1}`} value={v} onChange={(e) => setItem(e.target.value)} />
+      )}
+    />
+  );
+}
+
+function MedicalNoticeEditor({ data, setData }: SetterProps) {
+  const [v, set] = useExtra<{ online: string; emergency: string }>(data, setData, 'medicalNotice', {
+    online: 'Buchen Sie Ihren Termin direkt über unser Online-Portal — Doctolib & jameda angebunden.',
+    emergency: 'Im akuten Notfall wählen Sie bitte 112 oder den ärztlichen Bereitschaftsdienst 116 117.',
+  });
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-xs text-muted block mb-1">Online-Termin (Hinweistext)</label>
+        <textarea className={inputCls} rows={2} value={v.online} onChange={(e) => set({ ...v, online: e.target.value })} />
+      </div>
+      <div>
+        <label className="text-xs text-muted block mb-1">Notfall-Hinweis</label>
+        <textarea className={inputCls} rows={2} value={v.emergency} onChange={(e) => set({ ...v, emergency: e.target.value })} />
+      </div>
+    </div>
+  );
+}
+
 function FaqEditor({ data, setData, defaults }: SetterProps & { defaults: { q: string; a: string }[] }) {
   const [list, set] = useExtra<{ q: string; a: string }[]>(data, setData, 'faq', defaults);
   return (
@@ -1031,6 +1106,9 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
 function defaultAnnouncements(t: TemplateKey): string[] {
   if (t === 'restaurant') return ['Heute geöffnet · 17:30 – 22:00', 'Tisch online reservieren', 'Trüffel-Saison läuft', 'Innsbruck'];
   if (t === 'salon') return ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Kérastase Education-Partner', 'München-Schwabing'];
+  if (t === 'consulting') return ['Strategie-Workshop verfügbar', 'Erstgespräch kostenlos', 'Hybrid: Remote & vor Ort', 'München · Berlin · Wien'];
+  if (t === 'medical') return ['Online-Termine verfügbar', 'Privat & alle Kassen', 'Hausarzt & Vorsorge', 'Hamburg-Eppendorf'];
+  if (t === 'fitness') return ['Probetraining gratis', 'Mo – So 06:00 – 23:00', 'Kurse · PT · Yoga', 'Köln-Süd'];
   return ['24/7 Notdienst · 60 min Anfahrt', 'KfW-Förderung bis 35 %', 'Festpreis-Garantie', 'Ingolstadt & Umgebung'];
 }
 function defaultHighlights(t: TemplateKey) {
@@ -1045,6 +1123,24 @@ function defaultHighlights(t: TemplateKey) {
     { t: 'Terminerinnerung', d: 'Per SMS am Tag vorher.' },
     { t: 'Gutscheine', d: 'Online erhältlich, kein Verfall.' },
     { t: 'Bridal-Beratung', d: 'Probestyling bis zur Trauung.' },
+  ];
+  if (t === 'consulting') return [
+    { t: 'Erstgespräch kostenlos', d: '45 Minuten, unverbindlich.' },
+    { t: 'Festpreis-Workshops', d: 'Klare Outputs, keine Stunden-Falle.' },
+    { t: 'Hands-on Umsetzung', d: 'Wir bleiben bis zum Live-Gang dabei.' },
+    { t: 'Vertraulich', d: 'NDA standardmäßig inklusive.' },
+  ];
+  if (t === 'medical') return [
+    { t: 'Online-Termin', d: 'Doctolib & jameda angebunden.' },
+    { t: 'Kurze Wartezeiten', d: 'Im Schnitt unter 12 Minuten.' },
+    { t: 'Privat & alle Kassen', d: 'Volle Abdeckung.' },
+    { t: 'Barrierefrei', d: 'Aufzug, behindertengerechtes WC.' },
+  ];
+  if (t === 'fitness') return [
+    { t: 'Probetraining gratis', d: 'Erste Stunde geht aufs Haus.' },
+    { t: 'Kleine Gruppen', d: 'Maximal 8 Teilnehmende pro Klasse.' },
+    { t: 'Persönliche Betreuung', d: 'Lehrer:innen sehen jede Person.' },
+    { t: 'Faires Pricing', d: 'Einzelstunden, 10er-Karte, Monatspass.' },
   ];
   return [
     { t: 'Festpreis-Garantie', d: 'Schriftlich vor Auftrag.' },
@@ -1066,6 +1162,24 @@ function defaultProcess(t: TemplateKey) {
     { t: 'Behandlung', d: 'Schritt für Schritt erklärt.' },
     { t: 'Pflege zuhause', d: 'Empfehlung der passenden Produkte.' },
   ];
+  if (t === 'consulting') return [
+    { t: 'Discover', d: 'Wir hören zu, analysieren Daten und Stakeholder.' },
+    { t: 'Define', d: 'Klares Zielbild, KPIs, Roadmap.' },
+    { t: 'Design', d: 'Konzept, Prototyp, Validierung.' },
+    { t: 'Deliver', d: 'Umsetzung mit Ihrem Team — messbar.' },
+  ];
+  if (t === 'medical') return [
+    { t: 'Termin buchen', d: 'Online oder telefonisch — schnell bestätigt.' },
+    { t: 'Anamnese', d: 'Wir nehmen uns Zeit für Ihre Geschichte.' },
+    { t: 'Untersuchung', d: 'Präzise Diagnostik, klare Erklärung.' },
+    { t: 'Therapie', d: 'Plan, Verlaufskontrolle, Rückfragen jederzeit.' },
+  ];
+  if (t === 'fitness') return [
+    { t: 'Probetraining', d: 'Eine Stunde mit Lehrer:in — unverbindlich.' },
+    { t: 'Kennenlernen', d: 'Kurzes Vorgespräch über Ziele und Körper.' },
+    { t: 'Trainieren', d: 'Klassen, Kleingruppen oder 1:1.' },
+    { t: 'Dranbleiben', d: 'Persönliche Rückmeldung nach jeder Stunde.' },
+  ];
   return [
     { t: 'Anfrage', d: 'Wir melden uns binnen 24 h.' },
     { t: 'Termin vor Ort', d: 'Kostenlos, unverbindlich.' },
@@ -1082,6 +1196,21 @@ function defaultFaq(t: TemplateKey) {
   if (t === 'salon') return [
     { q: 'Wie lange im Voraus muss ich buchen?', a: 'Schnitt 3–7 Tage, Färben 2–3 Wochen.' },
     { q: 'Welche Produktlinien?', a: 'Kérastase, Olaplex, Davines, Aveda.' },
+  ];
+  if (t === 'consulting') return [
+    { q: 'Wie läuft ein Projekt typischerweise ab?', a: 'Discover → Define → Design → Deliver, in 6–12 Wochen.' },
+    { q: 'Arbeiten Sie remote?', a: 'Ja, hybrid — wichtige Workshops gerne vor Ort.' },
+    { q: 'Was kostet ein Erstgespräch?', a: '45 Minuten kostenlos und unverbindlich.' },
+  ];
+  if (t === 'medical') return [
+    { q: 'Welche Kassen werden akzeptiert?', a: 'Alle gesetzlichen und privaten Kassen.' },
+    { q: 'Wie buche ich einen Termin?', a: 'Über Doctolib, jameda, telefonisch oder direkt online.' },
+    { q: 'Sind Sie barrierefrei?', a: 'Ja — Aufzug und behindertengerechtes WC vorhanden.' },
+  ];
+  if (t === 'fitness') return [
+    { q: 'Gibt es ein Probetraining?', a: 'Ja, die erste Einheit ist gratis.' },
+    { q: 'Wie lange ist die Vertragslaufzeit?', a: 'Monatlich kündbar — keine Knebelverträge.' },
+    { q: 'Welche Kurse werden angeboten?', a: 'HIIT, Yoga, Boxing Cardio und Personal Training.' },
   ];
   return [
     { q: 'Wie schnell ist der Notdienst da?', a: 'In der Regel binnen 60 min im Stadtgebiet.' },
@@ -1152,6 +1281,24 @@ function defaultNumbers(t: TemplateKey) {
     { value: '4,9', label: 'Sterne Ø' },
     { value: '2017', label: 'Studio seit' },
   ];
+  if (t === 'consulting') return [
+    { value: '120+', label: 'Projekte' },
+    { value: '18', label: 'Branchen' },
+    { value: '92 %', label: 'NPS' },
+    { value: '6–12', label: 'Wochen Laufzeit' },
+  ];
+  if (t === 'medical') return [
+    { value: '12', label: 'Ø Wartezeit (min)' },
+    { value: '8', label: 'Behandlungsräume' },
+    { value: '4,9', label: 'Sterne Ø' },
+    { value: '2009', label: 'Praxis seit' },
+  ];
+  if (t === 'fitness') return [
+    { value: '12+', label: 'Klassen pro Woche' },
+    { value: '350+', label: 'Stammgäste' },
+    { value: '8', label: 'max. pro Klasse' },
+    { value: '5', label: 'Lehrer:innen' },
+  ];
   return [
     { value: '50+', label: 'Jahre Erfahrung' },
     { value: '18', label: 'Mitarbeitende' },
@@ -1162,5 +1309,8 @@ function defaultNumbers(t: TemplateKey) {
 function defaultCta(t: TemplateKey) {
   if (t === 'restaurant') return { eyebrow: 'Bereit?', lead: 'Hunger?', sub: 'Wir freuen uns, Sie an unserem Tisch begrüßen zu dürfen.', cta: 'Tisch reservieren', ctaHref: '/kontakt' };
   if (t === 'salon') return { eyebrow: 'Bereit?', lead: 'Bereit für etwas Neues?', sub: 'Wir nehmen uns die Zeit – für Sie, für Ihren Look.', cta: 'Termin buchen', ctaHref: '/kontakt' };
+  if (t === 'consulting') return { eyebrow: 'Bereit?', lead: 'Lassen Sie uns reden.', sub: '45 Minuten Erstgespräch — kostenlos und unverbindlich.', cta: 'Termin vereinbaren', ctaHref: '/kontakt' };
+  if (t === 'medical') return { eyebrow: 'Bereit?', lead: 'Wir sind für Sie da.', sub: 'Online-Termin in unter zwei Minuten gebucht.', cta: 'Termin buchen', ctaHref: '/kontakt' };
+  if (t === 'fitness') return { eyebrow: 'Bereit?', lead: 'Starten Sie heute.', sub: 'Probetraining gratis — wir freuen uns auf Sie.', cta: 'Probetraining sichern', ctaHref: '/kontakt' };
   return { eyebrow: 'Bereit?', lead: 'Etwas tropft?', sub: 'Wir melden uns binnen 24 h mit einem Festpreis-Angebot.', cta: 'Jetzt anfragen', ctaHref: '/kontakt' };
 }

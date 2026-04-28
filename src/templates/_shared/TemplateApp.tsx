@@ -100,6 +100,29 @@ const VARIANT_HERO_META: Record<TemplateVariant, { label: string; value: string 
   ],
 };
 
+/* Resolve numbers/faq overlays from admin content. */
+function resolveHeroMeta(variant: TemplateVariant, content: SiteContent): { label: string; value: string }[] {
+  const overlay = (content as any).numbers as { value: string; label: string }[] | undefined;
+  if (overlay && overlay.length) return overlay.map((n) => ({ label: n.label, value: n.value }));
+  return VARIANT_HERO_META[variant];
+}
+function resolveFaq(variant: TemplateVariant, content: SiteContent): { q: string; a: string }[] {
+  const overlay = (content as any).faq as { q: string; a: string }[] | undefined;
+  if (overlay && overlay.length) return overlay;
+  return VARIANT_FAQ[variant];
+}
+function parseNumberValue(raw: string): { v: number; s?: string; raw?: boolean } {
+  const m = String(raw).match(/^(-?\d+(?:[.,]\d+)?)(.*)$/);
+  if (!m) return { v: 0, s: String(raw), raw: true };
+  const [, num, rest] = m;
+  const hasComma = num.includes(',');
+  const hasDot = num.includes('.');
+  const intPart = hasComma ? num.split(',')[0] : hasDot ? num.split('.')[0] : num;
+  const frac = hasComma ? ',' + num.split(',')[1] : hasDot ? '.' + num.split('.')[1] : '';
+  const suffix = (frac || '') + (rest || '');
+  return { v: Number(intPart) || 0, s: suffix || undefined };
+}
+
 export default function TemplateApp({
   variant,
   content,
@@ -160,7 +183,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
   const cfg = NAV_BY_VARIANT[variant];
   const featuredServices = content.services.slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
-  const heroMeta = VARIANT_HERO_META[variant];
+  const heroMeta = resolveHeroMeta(variant, content);
 
   return (
     <>
@@ -216,7 +239,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
       )}
 
       {/* Numbers / testimonial line */}
-      <NumbersBand variant={variant} />
+      <NumbersBand variant={variant} content={content} />
 
       {/* Gallery teaser - branch-specific */}
       {featuredGallery.length > 0 && (
@@ -255,7 +278,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
   const featuredServices = content.services.slice(0, 6);
   const featuredGallery = content.gallery.slice(0, 6);
   const heroImg = content.gallery[0] || content.about?.imageUrl;
-  const meta = VARIANT_HERO_META[variant];
+  const meta = resolveHeroMeta(variant, content);
 
   return (
     <>
@@ -363,7 +386,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
 
       {/* FAQ accordion */}
       <Section eyebrow="Häufig gefragt" title={<>Antworten auf <em className="italic-pop">Ihre Fragen.</em></>}>
-        <Accordion items={VARIANT_FAQ[variant].slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+        <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
 
       {/* Soft CTA */}
@@ -460,7 +483,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
       </section>
 
       {/* Oversized stats with grain */}
-      <NumbersBand variant={variant} />
+      <NumbersBand variant={variant} content={content} />
 
       {/* Real masonry gallery teaser */}
       {featuredGallery.length > 0 && (
@@ -586,8 +609,8 @@ function MasonryGrid({ images }: { images: string[] }) {
   );
 }
 
-function NumbersBand({ variant }: { variant: TemplateVariant }) {
-  const stats: Record<TemplateVariant, { v: number; s?: string; l: string }[]> = {
+function NumbersBand({ variant, content }: { variant: TemplateVariant; content?: SiteContent }) {
+  const defaults: Record<TemplateVariant, { v: number; s?: string; l: string }[]> = {
     restaurant: [
       { v: 1998, l: 'Familienbetrieb seit' },
       { v: 64, l: 'Plätze drinnen' },
@@ -607,17 +630,23 @@ function NumbersBand({ variant }: { variant: TemplateVariant }) {
       { v: 65, s: ' %', l: 'Empfehlungsquote' },
     ],
   };
+  const overlay = content && ((content as any).numbers as { value: string; label: string }[] | undefined);
+  const stats: { v: number; s?: string; l: string; raw?: boolean }[] = overlay && overlay.length
+    ? overlay.map((n) => ({ ...parseNumberValue(n.value), l: n.label }))
+    : defaults[variant];
   return (
     <section className="py-20 md:py-28 bg-brand text-white grain relative overflow-hidden">
       <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
       <div className="container-x relative">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 md:gap-y-0 reveal-stagger">
-          {stats[variant].map((m, i) => (
+          {stats.map((m, i) => (
             <div key={i} className="md:border-l border-white/15 md:pl-8">
               <p className="num-display text-5xl md:text-7xl leading-none">
-                {m.s && m.s.startsWith(',')
-                  ? <>{m.v}{m.s}</>
-                  : <AnimatedCounter to={m.v} suffix={m.s || ''} />}
+                {m.raw
+                  ? <>{m.s}</>
+                  : m.s && m.s.startsWith(',')
+                    ? <>{m.v}{m.s}</>
+                    : <AnimatedCounter to={m.v} suffix={m.s || ''} />}
               </p>
               <p className="mt-3 text-xs uppercase tracking-widest text-white/60">{m.l}</p>
             </div>
@@ -683,7 +712,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
 
       {/* FAQ */}
       <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>} className="surface">
-        <Accordion items={VARIANT_FAQ[variant].map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+        <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
 
       <CtaBand variant={variant} />
@@ -842,7 +871,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
               <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
                 <p className="eyebrow mb-4">Auf einen Blick</p>
                 <dl className="space-y-3 text-sm">
-                  {VARIANT_HERO_META[variant].map((m, i) => (
+                  {resolveHeroMeta(variant, content).map((m, i) => (
                     <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
                       <dt className="text-muted">{m.label}</dt>
                       <dd className="font-display">{m.value}</dd>
@@ -859,7 +888,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
 
       <TeamSection variant={variant} />
 
-      <NumbersBand variant={variant} />
+      <NumbersBand variant={variant} content={content} />
 
       {variant === 'tradesman' && <CertificationsSection />}
       {variant === 'restaurant' && <PressSection />}
