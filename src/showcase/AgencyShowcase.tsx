@@ -491,9 +491,9 @@ function Landing() {
       <Seo title="FlamingoMedia · Websites für lokale Marken" description="Editorial-Design mit Pop für Restaurants, Hotels, Tourismus, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Du selbst pflegst." />
       <HeroSection />
       <ClientLogosSection />
-      <DeviceShowcaseSection />
       <ServicesSection />
       <TemplatesPreviewSection />
+      <DeviceShowcaseSection />
       <ManifestoSection />
       <AdminPreviewSection />
       <ProcessTimelineSection />
@@ -506,48 +506,17 @@ function Landing() {
 }
 
 function HeroSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const sec = sectionRef.current;
-    if (!sec) return;
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return;
-    let raf = 0;
-    let tx = -9999;
-    let ty = -9999;
-    const onMove = (e: PointerEvent) => {
-      const r = sec.getBoundingClientRect();
-      tx = e.clientX - r.left;
-      ty = e.clientY - r.top;
-      if (!raf) raf = requestAnimationFrame(apply);
-    };
-    const onLeave = () => {
-      tx = -9999;
-      ty = -9999;
-      if (!raf) raf = requestAnimationFrame(apply);
-    };
-    const apply = () => {
-      raf = 0;
-      sec.style.setProperty('--hero-mx', `${tx}px`);
-      sec.style.setProperty('--hero-my', `${ty}px`);
-    };
-    sec.addEventListener('pointermove', onMove);
-    sec.addEventListener('pointerleave', onLeave);
-    return () => {
-      sec.removeEventListener('pointermove', onMove);
-      sec.removeEventListener('pointerleave', onLeave);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
   return (
-    <section ref={sectionRef} className="relative min-h-[100vh] flex items-end overflow-hidden text-white grain group/hero">
-      {/* Layered backgrounds — one solid base, one GPU-only mouse glow, a thin grid for texture. */}
+    <section className="relative min-h-[100vh] flex items-end overflow-hidden text-white grain group/hero">
+      {/* Layered backgrounds — solid base, GPU-only mouse glow (desktop only), thin grid for texture. */}
       <div className="absolute inset-0 -z-10 bg-[#0b1020]" />
-      <MouseGlow
-        className="-z-[5]"
-        colorA="rgba(124,58,237,0.55)"
-        colorB="rgba(242,65,113,0.65)"
-      />
+      <div className="hidden md:block">
+        <MouseGlow
+          className="-z-[5]"
+          colorA="rgba(124,58,237,0.55)"
+          colorB="rgba(242,65,113,0.65)"
+        />
+      </div>
       <AnimatedGridPattern
         className="-z-[2] text-white/[0.05]"
         width={40}
@@ -555,56 +524,34 @@ function HeroSection() {
         dotSize={1.2}
       />
 
-      {/* Centered brand mark — soft base layer + spotlight-bright layer revealed
-          only where the cursor is, so the flamingo lights up under the mouse
-          (combined with the MouseGlow above for a flashlight effect). */}
+      {/* Centered brand mark — sits behind copy, glows on hover (desktop). On mobile we just show the mark a bit larger as a static backdrop since there's no cursor. */}
       <div
         className="hero-brand-mark pointer-events-none absolute inset-0 -z-[3] flex items-center justify-center"
         aria-hidden
       >
-        <div className="hero-brand-mark__glow" />
         <img
-          src={AGENCY.logoMarkSrc}
+          src={AGENCY.logoFullSrc}
           alt=""
-          className="hero-brand-mark__img hero-brand-mark__img--base w-[52%] max-w-[620px] md:w-[44%] lg:w-[38%]"
-        />
-        <img
-          src={AGENCY.logoMarkSrc}
-          alt=""
-          className="hero-brand-mark__img hero-brand-mark__img--bright w-[52%] max-w-[620px] md:w-[44%] lg:w-[38%]"
+          className="hero-brand-mark__img w-[88%] max-w-[820px] md:w-[60%] lg:w-[55%]"
         />
       </div>
       <style>{`
         .hero-brand-mark__img {
-          will-change: opacity, filter;
-        }
-        .hero-brand-mark__img--base {
-          opacity: 0.14;
+          opacity: 0.18;
           filter: drop-shadow(0 0 60px rgba(242,65,113,0.18));
+          will-change: opacity, filter, transform;
+          transition: opacity 700ms ease, filter 700ms ease, transform 700ms ease;
         }
-        .hero-brand-mark__img--bright {
-          position: absolute;
-          opacity: 0.92;
-          filter: drop-shadow(0 0 80px rgba(242,65,113,0.85)) drop-shadow(0 0 28px rgba(124,58,237,0.45));
-          -webkit-mask-image: radial-gradient(260px circle at var(--hero-mx,-9999px) var(--hero-my,-9999px), black 0%, rgba(0,0,0,0.6) 35%, transparent 75%);
-          mask-image: radial-gradient(260px circle at var(--hero-mx,-9999px) var(--hero-my,-9999px), black 0%, rgba(0,0,0,0.6) 35%, transparent 75%);
-        }
-        .hero-brand-mark__glow {
-          position: absolute;
-          left: var(--hero-mx, -9999px);
-          top: var(--hero-my, -9999px);
-          width: 520px;
-          height: 520px;
-          margin-left: -260px;
-          margin-top: -260px;
-          border-radius: 9999px;
-          background: radial-gradient(closest-side, rgba(242,65,113,0.45), rgba(242,65,113,0) 70%);
-          filter: blur(30px);
-          pointer-events: none;
+        @media (hover: hover) and (pointer: fine) {
+          .hero-brand-mark__img { opacity: 0.12; }
+          .group\\/hero:hover .hero-brand-mark__img {
+            opacity: 0.42;
+            filter: drop-shadow(0 0 80px rgba(242,65,113,0.85)) drop-shadow(0 0 28px rgba(124,58,237,0.45));
+            transform: scale(1.02);
+          }
         }
         @media (prefers-reduced-motion: reduce) {
-          .hero-brand-mark__img--bright { display: none; }
-          .hero-brand-mark__glow { display: none; }
+          .hero-brand-mark__img { transition: none; }
         }
       `}</style>
 
@@ -929,9 +876,9 @@ type DeviceItem = {
 const DEVICE_ITEMS: DeviceItem[] = [
   {
     kind: 'laptop',
-    src: '/preview/hotel/style/modern',
-    label: 'Hotel · Modern',
-    caption: 'Hotel-Template auf dem Desktop',
+    src: '/preview/restaurant/style/classic',
+    label: 'Restaurant · Klassisch',
+    caption: 'Restaurant-Template auf dem Desktop',
   },
   {
     kind: 'tablet',
@@ -941,8 +888,8 @@ const DEVICE_ITEMS: DeviceItem[] = [
   },
   {
     kind: 'phone',
-    src: '/preview/salon/style/bold',
-    label: 'Salon · Bold',
+    src: '/preview/hotel/style/modern',
+    label: 'Hotel · Modern',
     caption: 'Mobile zuerst gedacht',
   },
 ];
@@ -971,11 +918,15 @@ function LiveDeviceFrame({ item }: { item: DeviceItem }) {
 
   // Each device gets its own logical viewport so the embedded site renders at
   // a believable resolution and is then scaled to fit the frame.
+  // Each device gets a viewport that matches its actual form-factor so the
+  // embedded site renders the right responsive layout — desktop on the
+  // laptop, tablet layout on the iPad (below `lg:` breakpoint), mobile on the
+  // phone.
   const dims =
     item.kind === 'laptop'
       ? { vw: 1280, vh: 800, frameW: 'w-full', aspect: 'aspect-[16/10]' }
       : item.kind === 'tablet'
-        ? { vw: 1024, vh: 1366, frameW: 'w-full', aspect: 'aspect-[3/4]' }
+        ? { vw: 820, vh: 1180, frameW: 'w-full', aspect: 'aspect-[3/4]' }
         : { vw: 390, vh: 844, frameW: 'w-full', aspect: 'aspect-[9/19.5]' };
 
   const iframe = mount ? (

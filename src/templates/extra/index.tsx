@@ -102,7 +102,7 @@ function PageHero({ eyebrow, title, style }: { eyebrow: string; title: string; s
     <section className="pt-32 md:pt-40 pb-12 md:pb-16 surface">
       <div className="container-x">
         {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
-        <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
+        <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9] break-words [overflow-wrap:anywhere] [hyphens:auto]' : 'headline-xl'}`}>{title}</h1>
       </div>
     </section>
   );
@@ -510,7 +510,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
       <section className="relative pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="container-x">
           {eyebrow && <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-8 reveal">— {eyebrow} —</p>}
-          <h1 className="font-display text-[clamp(3rem,12vw,11rem)] leading-[0.85] tracking-tight reveal">
+          <h1 className="font-display text-[clamp(2.5rem,11vw,11rem)] leading-[0.88] md:leading-[0.85] tracking-tight reveal break-words [overflow-wrap:anywhere] [hyphens:auto]">
             <SplitText>{content.hero.title}</SplitText>
           </h1>
         </div>

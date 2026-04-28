@@ -611,7 +611,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         <AuroraBackground intensity={0.22} colors={['var(--accent-color)', '#FFB347', '#22d3ee', '#7C3AED']} />
         <div className="container-x relative">
           <p className="eyebrow mb-6 reveal">{content.brand.tagline || cfg.servicesEyebrow}</p>
-          <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[18vw] md:text-[14vw] lg:text-[180px]">
+          <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[clamp(2.5rem,13vw,180px)] md:text-[14vw] lg:text-[180px] break-words [overflow-wrap:anywhere] [hyphens:auto]">
             {(content.hero?.title || content.brand.name).toUpperCase()}
           </h1>
         </div>
