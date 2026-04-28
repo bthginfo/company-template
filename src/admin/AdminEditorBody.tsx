@@ -4,7 +4,7 @@ import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { RichTextEditor } from './RichTextEditor';
 
 /**
- * AdminEditorBody â€” the rich page-grouped editor shared by:
+ * AdminEditorBody — the rich page-grouped editor shared by:
  *  - the showcase AdminDemo (localStorage-backed, no real save)
  *  - the real per-tenant AdminApp (API-backed, persistent save)
  *
@@ -62,7 +62,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
       <header className="bg-white border-b border-line sticky top-0 z-30">
         <div className="container-x flex items-center justify-between py-3 md:py-4 gap-3 md:gap-4">
           <div className="flex items-center gap-2 md:gap-3 min-w-0">
-            <span className="font-display text-base md:text-xl truncate">Admin Â· {brandTitle ?? data.brand.name}</span>
+            <span className="font-display text-base md:text-xl truncate">Admin · {brandTitle ?? data.brand.name}</span>
             {headerStatus}
           </div>
           <div className="flex items-center gap-2 md:gap-3 text-sm shrink-0">
@@ -82,7 +82,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             )}
             {previewUrlBase !== undefined && (
               <a href={previewUrlBase || '/'} target="_blank" rel="noreferrer" className="text-sm text-slate-600 hover:text-slate-900 hidden md:inline">
-                Website ansehen â†—
+                Website ansehen ↗
               </a>
             )}
           </div>
@@ -128,15 +128,15 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             ))}
           </SidebarGroup>
           <SidebarGroup label="Inhalte">
-            <SidebarItem active={pageId === 'news'} onClick={() => setPageId('news')} icon="âœŽ">News & Blog</SidebarItem>
+            <SidebarItem active={pageId === 'news'} onClick={() => setPageId('news')} icon="✎">News & Blog</SidebarItem>
           </SidebarGroup>
           <SidebarGroup label="Global">
-            <SidebarItem active={pageId === 'navigation'} onClick={() => setPageId('navigation')} icon="â‰£">Navigation & Footer</SidebarItem>
-            <SidebarItem active={pageId === 'brand'} onClick={() => setPageId('brand')} icon="âœ¦">Marke & Design</SidebarItem>
-            <SidebarItem active={pageId === 'contact'} onClick={() => setPageId('contact')} icon="âœ‰">Kontaktdaten</SidebarItem>
+            <SidebarItem active={pageId === 'navigation'} onClick={() => setPageId('navigation')} icon="≣">Navigation & Footer</SidebarItem>
+            <SidebarItem active={pageId === 'brand'} onClick={() => setPageId('brand')} icon="✦">Marke & Design</SidebarItem>
+            <SidebarItem active={pageId === 'contact'} onClick={() => setPageId('contact')} icon="✉">Kontaktdaten</SidebarItem>
             <SidebarItem active={pageId === 'social'} onClick={() => setPageId('social')} icon="@">Social Media</SidebarItem>
-            <SidebarItem active={pageId === 'seo'} onClick={() => setPageId('seo')} icon="â—Ž">SEO & Sichtbarkeit</SidebarItem>
-            <SidebarItem active={pageId === 'scripts'} onClick={() => setPageId('scripts')} icon="âŒ©">Skripte & Tracking</SidebarItem>
+            <SidebarItem active={pageId === 'seo'} onClick={() => setPageId('seo')} icon="◎">SEO & Sichtbarkeit</SidebarItem>
+            <SidebarItem active={pageId === 'scripts'} onClick={() => setPageId('scripts')} icon="〈">Skripte & Tracking</SidebarItem>
             <SidebarItem active={pageId === 'mail'} onClick={() => setPageId('mail')} icon="M">Mail-Server</SidebarItem>
           </SidebarGroup>
         </aside>
@@ -153,7 +153,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             </div>
             {!isGlobal && previewUrlBase !== undefined && (
               <a href={`${previewUrlBase}${activePage?.previewPath || ''}`} target="_blank" rel="noreferrer" className="text-sm text-slate-600 hover:text-slate-900 underline underline-offset-2">
-                Live ansehen â†—
+                Live ansehen ↗
               </a>
             )}
           </div>
@@ -177,13 +177,13 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
           <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7] rounded-b-2xl">
             <div className="text-sm text-muted">
               {savedAt
-                ? <span className="text-emerald-700">âœ“ Gespeichert um {savedAt}</span>
-                : (footerStatus ?? 'Ã„nderungen werden beim Speichern Ã¼bernommen.')}
+                ? <span className="text-emerald-700">✓ Gespeichert um {savedAt}</span>
+                : (footerStatus ?? 'Änderungen werden beim Speichern übernommen.')}
             </div>
             <div className="flex gap-2 flex-wrap">
               {footerExtraActions}
               <button onClick={() => onSave()} disabled={saving} className="btn-primary !px-5 !py-2 text-sm disabled:opacity-60">
-                {saving ? 'Speichert â€¦' : 'Speichern'}
+                {saving ? 'Speichert …' : 'Speichern'}
               </button>
             </div>
           </div>
@@ -193,52 +193,52 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
   );
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Pages config per template â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── Pages config per template ───────────── */
 type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation' | 'mail';
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
   if (t === 'consulting' || t === 'medical' || t === 'fitness') return [
-    { id: 'home', label: 'Startseite', icon: 'â—', previewPath: '' },
-    { id: 'services', label: 'Leistungen', icon: 'â˜°', previewPath: '#leistungen' },
-    { id: 'gallery', label: 'Galerie', icon: 'â–¦', previewPath: '#galerie' },
-    { id: 'about', label: 'Ãœber uns', icon: 'â˜‰', previewPath: '#about' },
-    { id: 'contactPage', label: 'Kontakt', icon: 'âœ‰', previewPath: '#kontakt' },
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Leistungen', icon: '☰', previewPath: '#leistungen' },
+    { id: 'gallery', label: 'Galerie', icon: '▦', previewPath: '#galerie' },
+    { id: 'about', label: 'Über uns', icon: '☉', previewPath: '#about' },
+    { id: 'contactPage', label: 'Kontakt', icon: '✉', previewPath: '#kontakt' },
   ];
   if (t === 'restaurant') return [
-    { id: 'home', label: 'Startseite', icon: 'â—', previewPath: '' },
-    { id: 'services', label: 'Speisekarte', icon: 'â˜°', previewPath: '/speisekarte' },
-    { id: 'gallery', label: 'Galerie', icon: 'â–¦', previewPath: '/galerie' },
-    { id: 'about', label: 'Ãœber uns', icon: 'â˜‰', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Kontakt', icon: 'âœ‰', previewPath: '/kontakt' },
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Speisekarte', icon: '☰', previewPath: '/speisekarte' },
+    { id: 'gallery', label: 'Galerie', icon: '▦', previewPath: '/galerie' },
+    { id: 'about', label: 'Über uns', icon: '☉', previewPath: '/ueber-uns' },
+    { id: 'contactPage', label: 'Kontakt', icon: '✉', previewPath: '/kontakt' },
   ];
   if (t === 'salon') return [
-    { id: 'home', label: 'Startseite', icon: 'â—', previewPath: '' },
-    { id: 'services', label: 'Leistungen', icon: 'â˜°', previewPath: '/leistungen' },
-    { id: 'gallery', label: 'Looks', icon: 'â–¦', previewPath: '/galerie' },
-    { id: 'about', label: 'Studio', icon: 'â˜‰', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Termin', icon: 'âœ‰', previewPath: '/kontakt' },
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Leistungen', icon: '☰', previewPath: '/leistungen' },
+    { id: 'gallery', label: 'Looks', icon: '▦', previewPath: '/galerie' },
+    { id: 'about', label: 'Studio', icon: '☉', previewPath: '/ueber-uns' },
+    { id: 'contactPage', label: 'Termin', icon: '✉', previewPath: '/kontakt' },
   ];
   if (t === 'hotel') return [
-    { id: 'home', label: 'Startseite', icon: 'â—', previewPath: '' },
-    { id: 'services', label: 'Zimmer', icon: 'â˜°', previewPath: '/zimmer' },
-    { id: 'gallery', label: 'Haus & Spa', icon: 'â–¦', previewPath: '/galerie' },
-    { id: 'about', label: 'Geschichte', icon: 'â˜‰', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Reservieren', icon: 'âœ‰', previewPath: '/kontakt' },
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Zimmer', icon: '☰', previewPath: '/zimmer' },
+    { id: 'gallery', label: 'Haus & Spa', icon: '▦', previewPath: '/galerie' },
+    { id: 'about', label: 'Geschichte', icon: '☉', previewPath: '/ueber-uns' },
+    { id: 'contactPage', label: 'Reservieren', icon: '✉', previewPath: '/kontakt' },
   ];
   if (t === 'tourism') return [
-    { id: 'home', label: 'Startseite', icon: 'â—', previewPath: '' },
-    { id: 'services', label: 'Touren', icon: 'â˜°', previewPath: '/touren' },
-    { id: 'gallery', label: 'EindrÃ¼cke', icon: 'â–¦', previewPath: '/galerie' },
-    { id: 'about', label: 'Guides', icon: 'â˜‰', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Buchen', icon: 'âœ‰', previewPath: '/kontakt' },
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Touren', icon: '☰', previewPath: '/touren' },
+    { id: 'gallery', label: 'Eindrücke', icon: '▦', previewPath: '/galerie' },
+    { id: 'about', label: 'Guides', icon: '☉', previewPath: '/ueber-uns' },
+    { id: 'contactPage', label: 'Buchen', icon: '✉', previewPath: '/kontakt' },
   ];
   return [
-    { id: 'home', label: 'Startseite', icon: 'â—', previewPath: '' },
-    { id: 'services', label: 'Leistungen', icon: 'â˜°', previewPath: '/leistungen' },
-    { id: 'gallery', label: 'Referenzen', icon: 'â–¦', previewPath: '/referenzen' },
-    { id: 'about', label: 'Betrieb', icon: 'â˜‰', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Anfrage', icon: 'âœ‰', previewPath: '/kontakt' },
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Leistungen', icon: '☰', previewPath: '/leistungen' },
+    { id: 'gallery', label: 'Referenzen', icon: '▦', previewPath: '/referenzen' },
+    { id: 'about', label: 'Betrieb', icon: '☉', previewPath: '/ueber-uns' },
+    { id: 'contactPage', label: 'Anfrage', icon: '✉', previewPath: '/kontakt' },
   ];
 }
 
@@ -254,7 +254,7 @@ function labelForGlobal(p: PageId) {
   return '';
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Sidebar pieces â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── Sidebar pieces ───────────── */
 function SidebarGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-2xl p-2 shadow-sm">
@@ -279,7 +279,7 @@ function SidebarItem({ active, onClick, icon, children }: { active?: boolean; on
   );
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Shared form atoms â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── Shared form atoms ───────────── */
 type SetterProps = { data: SiteContent; setData: (d: SiteContent) => void };
 type SectionProps = SetterProps & { tpl: TemplateKey };
 const inputCls = 'w-full bg-[#f6f6f3] rounded-xl px-4 py-2.5 border border-line focus:border-brand focus:bg-white outline-none transition text-sm';
@@ -347,14 +347,14 @@ function ImagePickerField({ label, value, onChange, ratio = 'aspect-[4/3]' }: { 
   };
 
   return (
-    <Field label={label} hint={_ctx.uploadImage ? 'Bild hochladen oder URL einfÃ¼gen.' : 'In der Demo wird das Bild nur lokal angezeigt.'}>
+    <Field label={label} hint={_ctx.uploadImage ? 'Bild hochladen oder URL einfügen.' : 'In der Demo wird das Bild nur lokal angezeigt.'}>
       <div className="grid sm:grid-cols-[180px_1fr] gap-3 items-start">
         <div className={`${ratio} rounded-xl overflow-hidden bg-[#f6f6f3] border border-line grid place-items-center`}>
           {value ? <img src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Kein Bild</span>}
         </div>
         <div className="space-y-2">
           <label className="btn-outline !py-2 !px-4 text-sm w-full inline-grid place-items-center cursor-pointer">
-            {busy ? 'LÃ¤dt â€¦' : 'Bild hochladen'}
+            {busy ? 'Lädt …' : 'Bild hochladen'}
             <input
               type="file"
               accept="image/*"
@@ -366,7 +366,7 @@ function ImagePickerField({ label, value, onChange, ratio = 'aspect-[4/3]' }: { 
               }}
             />
           </label>
-          <input className={inputCls} placeholder="oder URL einfÃ¼gen" value={value} onChange={(e) => onChange(e.target.value)} />
+          <input className={inputCls} placeholder="oder URL einfügen" value={value} onChange={(e) => onChange(e.target.value)} />
           {error && <p className="text-xs text-rose-600">{error}</p>}
         </div>
       </div>
@@ -393,7 +393,7 @@ function LinkTargetField({ label, value, onChange, sections }: { label: string; 
           value={sections.some((s) => s.id === value) ? value : ''}
           onChange={(e) => onChange(e.target.value)}
         >
-          <option value="">â€” Sektion wÃ¤hlen â€”</option>
+          <option value="">— Sektion wählen —</option>
           {sections.map((s) => (
             <option key={s.id} value={s.id}>{s.label}</option>
           ))}
@@ -401,7 +401,7 @@ function LinkTargetField({ label, value, onChange, sections }: { label: string; 
       ) : (
         <input
           className={inputCls}
-          placeholder="https://â€¦ oder mailto:â€¦ oder tel:â€¦"
+          placeholder="https://… oder mailto:… oder tel:…"
           value={isExternal ? value : ''}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -413,35 +413,39 @@ function LinkTargetField({ label, value, onChange, sections }: { label: string; 
 function homeSectionsFor(_t: TemplateKey) {
   return [
     { id: '#hero', label: 'Startbereich (oben)' },
-    { id: '#about', label: 'Ãœber uns' },
+    { id: '#about', label: 'Über uns' },
     { id: '#services', label: 'Leistungen / Speisekarte' },
-    { id: '#gallery', label: 'Galerie / EindrÃ¼cke' },
+    { id: '#gallery', label: 'Galerie / Eindrücke' },
     { id: '#testimonials', label: 'Bewertungen' },
-    { id: '/kontakt', label: 'â†’ Seite: Kontakt' },
-    { id: '/ueber-uns', label: 'â†’ Seite: Ãœber uns' },
+    { id: '/kontakt', label: '→ Seite: Kontakt' },
+    { id: '/ueber-uns', label: '→ Seite: Über uns' },
   ];
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════════════════════════════════
    PAGE EDITORS
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   ═══════════════════════════════════════════════════════════════════ */
 
 function HomePageEditor({ data, setData, tpl }: SectionProps) {
   const set = (patch: Partial<SiteContent>) => setData({ ...data, ...patch });
   const announcements = (data as any).announcements as string[] | undefined;
   return (
     <>
-      <SectionCard title="Hero (Startbereich)" description="Erster Eindruck â€“ Titel, Untertitel, Hintergrund, Haupt-Button." badge="Sektion 1">
-        <Field label="Slogan / Eyebrow" hint="Kleine Zeile Ã¼ber der Ãœberschrift.">
+      <SectionCard title="Sichtbarkeit der Sektionen" description="Schalten Sie ganze Sektionen auf der Startseite sichtbar oder unsichtbar." badge="Layout">
+        <SectionVisibilityEditor data={data} setData={setData} tpl={tpl} />
+      </SectionCard>
+
+      <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Haupt-Button." badge="Sektion 1">
+        <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift.">
           <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
         </Field>
-        <Field label="HauptÃ¼berschrift">
+        <Field label="Hauptüberschrift">
           <input className={inputCls} value={data.hero.title} onChange={(e) => set({ hero: { ...data.hero, title: e.target.value } })} />
         </Field>
         <Field label="Untertitel" hint="Kurze Zeile direkt unter dem Titel (z. B. ein zweiter Halbsatz).">
           <input className={inputCls} value={data.hero.subtitle || ''} onChange={(e) => set({ hero: { ...data.hero, subtitle: e.target.value } })} />
         </Field>
-        <Field label="Beschreibungstext" hint="LÃ¤ngerer FlieÃŸtext unter dem Untertitel â€“ beschreibt das Angebot in 1â€“3 SÃ¤tzen.">
+        <Field label="Beschreibungstext" hint="Längerer Fließtext unter dem Untertitel – beschreibt das Angebot in 1–3 Sätzen.">
           <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
         </Field>
         <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
@@ -452,7 +456,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
-        <SectionCard title="Branchen-Stichworte" description="Kurze SchlagwÃ¶rter direkt unter dem Hero â€“ geben der Variante ein klares Profil." badge="Sektion 1b">
+        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 1b">
           <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
         </SectionCard>
       )}
@@ -465,23 +469,23 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             <input className={inputCls} value={v} onChange={(e) => set(e.target.value)} placeholder={`Hinweis ${i + 1}`} />
           )}
           newItem={() => ''}
-          addLabel="+ Hinweis hinzufÃ¼gen"
+          addLabel="+ Hinweis hinzufügen"
         />
       </SectionCard>
 
-      <SectionCard title="Ãœber-uns-Teaser" description="Kurzer Auszug, der auf die Ãœber-uns-Seite verweist." badge="Sektion 3">
-        <Field label="Ãœberschrift">
+      <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 3">
+        <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
-        <Field label="Text" hint="Wird automatisch auf 2â€“3 AbsÃ¤tze gekÃ¼rzt auf der Startseite.">
+        <Field label="Text" hint="Wird automatisch auf 2–3 Absätze gekürzt auf der Startseite.">
           <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
         </Field>
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
       </SectionCard>
 
-      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 EintrÃ¤ge erscheinen auf der Startseite." badge="Sektion 4">
+      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 4">
         <p className="text-xs text-muted">
-          Bearbeiten Sie die Liste unter <strong>{tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen'}</strong> in der Seitenleiste. Hier wÃ¤hlen Sie nur, welche zuerst erscheinen.
+          Bearbeiten Sie die Liste unter <strong>{tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen'}</strong> in der Seitenleiste. Hier wählen Sie nur, welche zuerst erscheinen.
         </p>
         <ReorderList
           items={data.services}
@@ -499,11 +503,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         />
       </SectionCard>
 
-      <SectionCard title="Zahlen-Band" description={'Vier Eckdaten â€“ auf der Startseite und in â€žÃœber uns".'} badge="Sektion 5">
-        <NumbersEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
-
-      <SectionCard title="Galerie-Teaser" description="Sieben Bilder fÃ¼r die Vorschau auf der Startseite." badge="Sektion 6">
+      <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 5">
         <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten 7 Bilder erscheinen hier.</p>
         <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
           {data.gallery.slice(0, 7).map((src, i) => (
@@ -514,18 +514,22 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
+      <SectionCard title="Zahlen-Band" description={'Vier Eckdaten – auf der Startseite und in „Über uns".'} badge="Sektion 6">
+        <NumbersEditor data={data} setData={setData} tpl={tpl} />
+      </SectionCard>
+
       <SectionCard title="Bewertungen-Teaser" description="Die ersten drei Stimmen erscheinen auf der Startseite." badge="Sektion 7">
         <TestimonialsEditor data={data} setData={setData} max={3} />
       </SectionCard>
 
-      <SectionCard title="News-Teaser" description="Die 3 neuesten verÃ¶ffentlichten BeitrÃ¤ge erscheinen auf der Startseite." badge="Sektion 8">
+      <SectionCard title="News-Teaser" description="Die 3 neuesten veröffentlichten Beiträge erscheinen auf der Startseite." badge="Sektion 8">
         <p className="text-xs text-muted">
-          BeitrÃ¤ge anlegen und bearbeiten Sie unter <strong>News &amp; Blog</strong> in der Seitenleiste. Hier sehen Sie nur, welche aktuell auf der Startseite landen.
+          Beiträge anlegen und bearbeiten Sie unter <strong>News &amp; Blog</strong> in der Seitenleiste. Hier sehen Sie nur, welche aktuell auf der Startseite landen.
         </p>
         <NewsHomePreview data={data} />
       </SectionCard>
 
-      <SectionCard title="Branchen-Texte" description="Ãœberschreiben Sie die mitgelieferten Standard-Texte (Marquee, Manifest, Galerie-Titel, â€¦). Leer lassen = Standardtext der Branche/Stilkombination wird verwendet." badge="Sektion 9">
+      <SectionCard title="Branchen-Texte" description="Überschreiben Sie die mitgelieferten Standard-Texte (Marquee, Manifest, Galerie-Titel, …). Leer lassen = Standardtext der Branche/Stilkombination wird verwendet." badge="Sektion 9">
         <BranchTextEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
@@ -539,20 +543,20 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   return (
     <>
-      <SectionCard title="Seiten-Header" description="Ãœberschrift oben auf der Seite." badge="Sektion 1">
+      <SectionCard title="Seiten-Header" description="Überschrift oben auf der Seite." badge="Sektion 1">
         <PageHeaderEditor data={data} setData={setData} field="services" defaults={{
           eyebrow: tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen',
-          title: tpl === 'restaurant' ? 'Aus der KÃ¼che.' : tpl === 'salon' ? 'Ihre Behandlungen.' : 'Was wir kÃ¶nnen.',
+          title: tpl === 'restaurant' ? 'Aus der Küche.' : tpl === 'salon' ? 'Ihre Behandlungen.' : 'Was wir können.',
           subtitle: '',
         }} />
       </SectionCard>
-      <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Ãœberschrift." badge="Sektion 2">
+      <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Überschrift." badge="Sektion 2">
         <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
       </SectionCard>
-      <SectionCard title={tpl === 'restaurant' ? 'Gerichte' : 'Leistungen'} description="VollstÃ¤ndige Liste â€“ Reihenfolge, Bild, Preis, Beschreibung." badge="Sektion 3">
+      <SectionCard title={tpl === 'restaurant' ? 'Gerichte' : 'Leistungen'} description="Vollständige Liste – Reihenfolge, Bild, Preis, Beschreibung." badge="Sektion 3">
         <ServicesListEditor data={data} setData={setData} />
       </SectionCard>
-      <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte â€žSo lÃ¤uft es ab".'} badge="Sektion 4">
+      <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte „So läuft es ab".'} badge="Sektion 4">
         <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
       </SectionCard>
       {tpl === 'fitness' && (
@@ -561,68 +565,68 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
         </SectionCard>
       )}
       {tpl === 'medical' && (
-        <SectionCard title="Hinweise (Online-Termin & Notfall)" description="Texte fÃ¼r die Service-Karten." badge="Sektion 4b">
+        <SectionCard title="Hinweise (Online-Termin & Notfall)" description="Texte für die Service-Karten." badge="Sektion 4b">
           <MedicalNoticeEditor data={data} setData={setData} />
         </SectionCard>
       )}
 
-      {/* â”€â”€â”€â”€â”€ Branch-specific modules (Phase 2) â”€â”€â”€â”€â”€ */}
+      {/* ───── Branch-specific modules (Phase 2) ───── */}
       {tpl === 'restaurant' && (
-        <SectionCard title="Speisekarte (Kategorien & Gerichte)" description="VollstÃ¤ndige Karte mit Kategorien, Allergenen und Tags. Erscheint als Modul-Block auf der Speisekarte-Seite." badge="Modul Â· Speisekarte">
+        <SectionCard title="Speisekarte (Kategorien & Gerichte)" description="Vollständige Karte mit Kategorien, Allergenen und Tags. Erscheint als Modul-Block auf der Speisekarte-Seite." badge="Modul · Speisekarte">
           <MenuEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'hotel' && (
-        <SectionCard title="Zimmer-Showcase" description="Detaillierte Zimmer mit GrÃ¶ÃŸe, Bett, Preis & Ausstattung. Erscheint als Modul-Block auf der Zimmer-Seite." badge="Modul Â· Zimmer">
+        <SectionCard title="Zimmer-Showcase" description="Detaillierte Zimmer mit Größe, Bett, Preis & Ausstattung. Erscheint als Modul-Block auf der Zimmer-Seite." badge="Modul · Zimmer">
           <RoomsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'tourism' && (
-        <SectionCard title="Tour-Karten" description="Touren mit Schwierigkeit, Dauer, Sprachen und Preis. Erscheint als Modul-Block auf der Touren-Seite." badge="Modul Â· Touren">
+        <SectionCard title="Tour-Karten" description="Touren mit Schwierigkeit, Dauer, Sprachen und Preis. Erscheint als Modul-Block auf der Touren-Seite." badge="Modul · Touren">
           <ToursEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'salon' && (
-        <SectionCard title="Behandlungen (kategorisiert)" description="Kategorisierte Behandlungsliste mit Dauer & Preis." badge="Modul Â· Treatments">
+        <SectionCard title="Behandlungen (kategorisiert)" description="Kategorisierte Behandlungsliste mit Dauer & Preis." badge="Modul · Treatments">
           <TreatmentsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'fitness' && (
-        <SectionCard title="Kursplan" description="Kursliste mit Zeitplan, Level, Trainer und Preis." badge="Modul Â· Kursplan">
+        <SectionCard title="Kursplan" description="Kursliste mit Zeitplan, Level, Trainer und Preis." badge="Modul · Kursplan">
           <CoursesEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {(tpl === 'fitness' || tpl === 'consulting') && (
-        <SectionCard title="Preis-Pakete" description="Drei-Stufen-Pakete mit Highlight-Karte." badge="Modul Â· Pakete">
+        <SectionCard title="Preis-Pakete" description="Drei-Stufen-Pakete mit Highlight-Karte." badge="Modul · Pakete">
           <PackagesEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'consulting' && (
-        <SectionCard title="Prozess-Schritte" description="Horizontale Timeline mit 3â€“6 Stationen Ihres Vorgehens." badge="Modul Â· Prozess">
+        <SectionCard title="Prozess-Schritte" description="Horizontale Timeline mit 3–6 Stationen Ihres Vorgehens." badge="Modul · Prozess">
           <ProcessStepsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'medical' && (
-        <SectionCard title="Ã„rzte & Team" description="Profile der behandelnden Ã„rztinnen und Ã„rzte." badge="Modul Â· Doctors">
+        <SectionCard title="Ärzte & Team" description="Profile der behandelnden Ärztinnen und Ärzte." badge="Modul · Doctors">
           <DoctorsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'medical' && (
-        <SectionCard title="Online-Terminbuchung" description="Doctolib / jameda / TIMIFY-Anbindung. CTA oder Embed." badge="Modul Â· Booking">
+        <SectionCard title="Online-Terminbuchung" description="Doctolib / jameda / TIMIFY-Anbindung. CTA oder Embed." badge="Modul · Booking">
           <BookingEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'tradesman' && (
-        <SectionCard title="FÃ¶rder-Ãœbersicht" description="Liste der FÃ¶rderprogramme mit Prozent-Quote (fÃ¼r den FÃ¶rder-Kalkulator)." badge="Modul Â· FÃ¶rderung">
+        <SectionCard title="Förder-Übersicht" description="Liste der Förderprogramme mit Prozent-Quote (für den Förder-Kalkulator)." badge="Modul · Förderung">
           <FundingEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'tradesman' && (
-        <SectionCard title="Notdienst-Banner" description="Sticky-Banner unten rechts mit 24/7-Hotline." badge="Modul Â· Notdienst">
+        <SectionCard title="Notdienst-Banner" description="Sticky-Banner unten rechts mit 24/7-Hotline." badge="Modul · Notdienst">
           <EmergencyBannerEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      <SectionCard title="FAQ" description="HÃ¤ufig gestellte Fragen am Seitenende." badge="Sektion 5">
+      <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5">
         <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
       </SectionCard>
       <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6">
@@ -663,39 +667,39 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Seiten-Header" badge="Sektion 1">
         <PageHeaderEditor data={data} setData={setData} field="gallery" defaults={{
           eyebrow: tpl === 'tradesman' ? 'Projekte' : 'Galerie',
-          title: tpl === 'tradesman' ? 'Referenzen aus der Werkstatt.' : tpl === 'salon' ? 'Looks & Momente.' : 'Bilder & EindrÃ¼cke.',
+          title: tpl === 'tradesman' ? 'Referenzen aus der Werkstatt.' : tpl === 'salon' ? 'Looks & Momente.' : 'Bilder & Eindrücke.',
           subtitle: '',
         }} />
       </SectionCard>
 
-      <SectionCard title="Bilder hochladen" description="Vom Computer wÃ¤hlen oder per URL." badge="Sektion 2">
+      <SectionCard title="Bilder hochladen" description="Vom Computer wählen oder per URL." badge="Sektion 2">
         <div className="border-2 border-dashed border-line rounded-2xl p-7 text-center bg-[#fafaf7]">
-          <p className="text-2xl mb-2" aria-hidden>â†¥</p>
-          <p className="font-medium text-sm">Bilder auswÃ¤hlen</p>
-          <p className="text-xs text-muted mt-1">JPG, PNG, WebP. Mehrfachauswahl mÃ¶glich.</p>
+          <p className="text-2xl mb-2" aria-hidden>↥</p>
+          <p className="font-medium text-sm">Bilder auswählen</p>
+          <p className="text-xs text-muted mt-1">JPG, PNG, WebP. Mehrfachauswahl möglich.</p>
           <label className="btn-outline mt-4 !py-2 !px-5 text-sm inline-grid place-items-center cursor-pointer">
-            {busy ? 'LÃ¤dt â€¦' : 'Vom Computer wÃ¤hlen'}
+            {busy ? 'Lädt …' : 'Vom Computer wählen'}
             <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
           </label>
         </div>
         <div className="grid grid-cols-[1fr_auto] gap-2">
-          <input className={inputCls} placeholder="oder Bild-URL einfÃ¼gen" value={draft} onChange={(e) => setDraft(e.target.value)} />
-          <button className="btn-primary !py-2 !px-4 text-sm" onClick={() => { add(draft); setDraft(''); }}>HinzufÃ¼gen</button>
+          <input className={inputCls} placeholder="oder Bild-URL einfügen" value={draft} onChange={(e) => setDraft(e.target.value)} />
+          <button className="btn-primary !py-2 !px-4 text-sm" onClick={() => { add(draft); setDraft(''); }}>Hinzufügen</button>
         </div>
       </SectionCard>
 
-      <SectionCard title={`Alle Bilder (${data.gallery.length})`} description="Reihenfolge per â†‘/â†“, Bild entfernen mit Ã—." badge="Sektion 3">
+      <SectionCard title={`Alle Bilder (${data.gallery.length})`} description="Reihenfolge per ↑/↓, Bild entfernen mit ×." badge="Sektion 3">
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {data.gallery.map((src, i) => (
             <div key={i} className="relative group aspect-square overflow-hidden rounded-xl border border-line">
               <img src={src} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-x-0 top-0 p-1.5 flex justify-between opacity-0 group-hover:opacity-100 transition">
                 <span className="bg-white/95 rounded-full text-[10px] px-2 py-0.5 font-mono">{String(i + 1).padStart(2, '0')}</span>
-                <button onClick={() => remove(i)} className="bg-white/95 text-rose-600 rounded-full h-6 w-6 grid place-items-center text-sm" title="Entfernen">Ã—</button>
+                <button onClick={() => remove(i)} className="bg-white/95 text-rose-600 rounded-full h-6 w-6 grid place-items-center text-sm" title="Entfernen">×</button>
               </div>
               <div className="absolute inset-x-0 bottom-0 p-1.5 flex justify-between opacity-0 group-hover:opacity-100 transition">
-                <button onClick={() => move(i, -1)} className="bg-white/95 rounded-full h-6 w-6 grid place-items-center text-xs" title="Hoch">â†‘</button>
-                <button onClick={() => move(i, 1)} className="bg-white/95 rounded-full h-6 w-6 grid place-items-center text-xs" title="Runter">â†“</button>
+                <button onClick={() => move(i, -1)} className="bg-white/95 rounded-full h-6 w-6 grid place-items-center text-xs" title="Hoch">↑</button>
+                <button onClick={() => move(i, 1)} className="bg-white/95 rounded-full h-6 w-6 grid place-items-center text-xs" title="Runter">↓</button>
               </div>
             </div>
           ))}
@@ -713,10 +717,10 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   return (
     <>
       <SectionCard title="Seiten-Header" badge="Sektion 1">
-        <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Ãœber uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
+        <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Über uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
       </SectionCard>
-      <SectionCard title="Geschichte / ErzÃ¤hlung" description="LÃ¤ngerer FlieÃŸtext mit Bild." badge="Sektion 2">
-        <Field label="Ãœberschrift">
+      <SectionCard title="Geschichte / Erzählung" description="Längerer Fließtext mit Bild." badge="Sektion 2">
+        <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
         <Field label="Text" hint="Leerzeile = neuer Absatz.">
@@ -724,20 +728,20 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         </Field>
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
       </SectionCard>
-      <SectionCard title="Werte / GrundsÃ¤tze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3">
+      <SectionCard title="Werte / Grundsätze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3">
         <ValuesEditor data={data} setData={setData} defaults={defaultValues(tpl)} />
       </SectionCard>
       <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 4">
         <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
       </SectionCard>
-      <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, JubilÃ¤en â€” als vertikale Zeitleiste." badge="Sektion 5">
+      <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, Jubiläen — als vertikale Zeitleiste." badge="Sektion 5">
         <TimelineEditor data={data} setData={setData} />
       </SectionCard>
       <SectionCard title="Zahlen-Band" badge="Sektion 6">
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
       {tpl === 'tradesman' && (
-        <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, FÃ¶rderpartner." badge="Sektion 6">
+        <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 6">
           <CertificationsEditor data={data} setData={setData} />
         </SectionCard>
       )}
@@ -766,7 +770,7 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
           subtitle: '',
         }} />
       </SectionCard>
-      <SectionCard title="Kontaktdaten-Block" description="Telefon, E-Mail, Adresse, Ã–ffnungszeiten." badge="Sektion 2">
+      <SectionCard title="Kontaktdaten-Block" description="Telefon, E-Mail, Adresse, Öffnungszeiten." badge="Sektion 2">
         <ContactFields data={data} setData={setData} />
         <HoursEditor data={data} setData={setData} />
       </SectionCard>
@@ -786,13 +790,13 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
   );
 }
 
-/* â”€â”€â”€ Navigation & Footer editor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Navigation & Footer editor ──────────────────────────────────── */
 const NAV_DEFAULTS: Record<TemplateKey, { label: string; path: string }[]> = {
   restaurant: [
     { label: 'Start', path: '/' },
     { label: 'Speisekarte', path: '/speisekarte' },
     { label: 'Galerie', path: '/galerie' },
-    { label: 'Ãœber uns', path: '/ueber-uns' },
+    { label: 'Über uns', path: '/ueber-uns' },
     { label: 'Kontakt', path: '/kontakt' },
   ],
   salon: [
@@ -819,20 +823,20 @@ const NAV_DEFAULTS: Record<TemplateKey, { label: string; path: string }[]> = {
   tourism: [
     { label: 'Start', path: '/' },
     { label: 'Touren', path: '/touren' },
-    { label: 'EindrÃ¼cke', path: '/galerie' },
+    { label: 'Eindrücke', path: '/galerie' },
     { label: 'Guides', path: '/ueber-uns' },
     { label: 'Buchen', path: '/kontakt' },
   ],
   consulting: [
     { label: 'Start', path: '/' },
     { label: 'Leistungen', path: '#leistungen' },
-    { label: 'Ãœber uns', path: '#about' },
+    { label: 'Über uns', path: '#about' },
     { label: 'Kontakt', path: '#kontakt' },
   ],
   medical: [
     { label: 'Start', path: '/' },
     { label: 'Leistungen', path: '#leistungen' },
-    { label: 'Ãœber uns', path: '#about' },
+    { label: 'Über uns', path: '#about' },
     { label: 'Kontakt', path: '#kontakt' },
   ],
   fitness: [
@@ -882,14 +886,14 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
     <>
       <SectionCard
         title="Hauptnavigation"
-        description="Beschriftung, Reihenfolge und Sichtbarkeit jedes MenÃ¼-Eintrags. Erscheint im Header und im Footer."
+        description="Beschriftung, Reihenfolge und Sichtbarkeit jedes Menü-Eintrags. Erscheint im Header und im Footer."
       >
         <div className="space-y-2">
           {list.map((it, i) => (
             <div key={i} className="grid md:grid-cols-[2.5rem_1fr_1fr_auto_auto] gap-2 items-center bg-[#f6f6f3] rounded-xl p-3">
               <div className="flex flex-col">
-                <button onClick={() => move(i, -1)} disabled={i === 0} className="text-xs px-2 py-1 disabled:opacity-30 hover:bg-white rounded">â†‘</button>
-                <button onClick={() => move(i, 1)} disabled={i === list.length - 1} className="text-xs px-2 py-1 disabled:opacity-30 hover:bg-white rounded">â†“</button>
+                <button onClick={() => move(i, -1)} disabled={i === 0} className="text-xs px-2 py-1 disabled:opacity-30 hover:bg-white rounded">↑</button>
+                <button onClick={() => move(i, 1)} disabled={i === list.length - 1} className="text-xs px-2 py-1 disabled:opacity-30 hover:bg-white rounded">↓</button>
               </div>
               <input
                 className={inputCls + ' !bg-white'}
@@ -916,32 +920,32 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
           </datalist>
         </div>
         <div className="flex gap-2 mt-4">
-          <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Eintrag hinzufÃ¼gen</button>
-          <button onClick={reset} className="text-xs text-muted hover:text-slate-900 px-3">Auf Standard zurÃ¼cksetzen</button>
+          <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Eintrag hinzufügen</button>
+          <button onClick={reset} className="text-xs text-muted hover:text-slate-900 px-3">Auf Standard zurücksetzen</button>
         </div>
         <p className="mt-4 text-xs text-muted">
-          Tipp: Pfade sollten zu existierenden Seiten passen. Bekannte Pfade: <span className="font-mono">{KNOWN_PATHS_HINT.join(' Â· ')}</span>
+          Tipp: Pfade sollten zu existierenden Seiten passen. Bekannte Pfade: <span className="font-mono">{KNOWN_PATHS_HINT.join(' · ')}</span>
         </p>
       </SectionCard>
 
       <SectionCard title="Hero-Buttons (Startseite)" description="Beschriftung und Verlinkung der Buttons im Hero-Bereich.">
         <div className="grid md:grid-cols-2 gap-4">
-          <Field label="PrimÃ¤r-Button Beschriftung" hint="z.B. 'Tisch reservieren'">
+          <Field label="Primär-Button Beschriftung" hint="z.B. 'Tisch reservieren'">
             <input className={inputCls} value={heroCta.primaryLabel || ''} onChange={(e) => setHero({ primaryLabel: e.target.value })} placeholder="Kontakt aufnehmen" />
           </Field>
-          <Field label="PrimÃ¤r-Button Ziel" hint="Pfad oder URL">
+          <Field label="Primär-Button Ziel" hint="Pfad oder URL">
             <input className={inputCls + ' font-mono text-xs'} value={heroCta.primaryHref || ''} onChange={(e) => setHero({ primaryHref: e.target.value })} placeholder="/kontakt" />
           </Field>
-          <Field label="SekundÃ¤r-Button Beschriftung">
+          <Field label="Sekundär-Button Beschriftung">
             <input className={inputCls} value={heroCta.secondaryLabel || ''} onChange={(e) => setHero({ secondaryLabel: e.target.value })} placeholder="Speisekarte ansehen" />
           </Field>
-          <Field label="SekundÃ¤r-Button Ziel">
+          <Field label="Sekundär-Button Ziel">
             <input className={inputCls + ' font-mono text-xs'} value={heroCta.secondaryHref || ''} onChange={(e) => setHero({ secondaryHref: e.target.value })} placeholder="/speisekarte" />
           </Field>
         </div>
       </SectionCard>
 
-      <SectionCard title="CTA-Band vor dem Footer" description="GroÃŸer Aufruf zur Aktion am Ende der Startseite.">
+      <SectionCard title="CTA-Band vor dem Footer" description="Großer Aufruf zur Aktion am Ende der Startseite.">
         <div className="grid md:grid-cols-2 gap-4">
           <Field label="Headline" hint="z.B. 'Hunger?' / 'Termin?' / 'Auftrag?'">
             <input className={inputCls} value={ctaBand.lead || ''} onChange={(e) => setBand({ lead: e.target.value })} placeholder="Bereit?" />
@@ -975,7 +979,7 @@ function BrandPage({ data, setData }: SetterProps) {
         <Field label="Slogan / Tagline"><input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => setData({ ...data, brand: { ...data.brand, tagline: e.target.value } })} /></Field>
       </SectionCard>
       <SectionCard title="Farbe & Logo">
-        <Field label="Hauptfarbe" hint="Wird fÃ¼r Buttons und Akzente verwendet.">
+        <Field label="Hauptfarbe" hint="Wird für Buttons und Akzente verwendet.">
           <div className="flex items-center gap-3">
             <input type="color" value={data.brand.primaryColor} onChange={(e) => setData({ ...data, brand: { ...data.brand, primaryColor: e.target.value } })} className="h-10 w-16 rounded-lg border border-line" />
             <input className={inputCls} value={data.brand.primaryColor} onChange={(e) => setData({ ...data, brand: { ...data.brand, primaryColor: e.target.value } })} />
@@ -990,7 +994,7 @@ function ContactGlobal({ data, setData }: SetterProps) {
   return (
     <>
       <SectionCard title="Erreichbarkeit"><ContactFields data={data} setData={setData} /></SectionCard>
-      <SectionCard title="Ã–ffnungszeiten"><HoursEditor data={data} setData={setData} /></SectionCard>
+      <SectionCard title="Öffnungszeiten"><HoursEditor data={data} setData={setData} /></SectionCard>
     </>
   );
 }
@@ -1014,23 +1018,23 @@ function SeoPage({ data, setData }: SetterProps) {
     pageSeo: { ...pageSeo, [id]: { ...(pageSeo[id] || {}), ...patch } },
   } as SiteContent);
   const PAGES: Array<{ id: string; label: string; placeholderTitle: string; placeholderDesc: string }> = [
-    { id: 'home', label: 'Startseite', placeholderTitle: 'z. B. Trattoria Innsbruck Â· Italienische KÃ¼che im Herzen Tirols', placeholderDesc: 'Kurz, klar, mit Schlagworten â€“ wird in Google angezeigt.' },
-    { id: 'services', label: 'Leistungen / Speisekarte', placeholderTitle: 'z. B. Speisekarte â€“ Hausgemachte Pasta & Pizza', placeholderDesc: 'Was findet man auf dieser Seite?' },
+    { id: 'home', label: 'Startseite', placeholderTitle: 'z. B. Trattoria Innsbruck · Italienische Küche im Herzen Tirols', placeholderDesc: 'Kurz, klar, mit Schlagworten – wird in Google angezeigt.' },
+    { id: 'services', label: 'Leistungen / Speisekarte', placeholderTitle: 'z. B. Speisekarte – Hausgemachte Pasta & Pizza', placeholderDesc: 'Was findet man auf dieser Seite?' },
     { id: 'gallery', label: 'Galerie / Referenzen', placeholderTitle: '', placeholderDesc: '' },
-    { id: 'about', label: 'Ãœber uns', placeholderTitle: '', placeholderDesc: '' },
+    { id: 'about', label: 'Über uns', placeholderTitle: '', placeholderDesc: '' },
     { id: 'contactPage', label: 'Kontakt', placeholderTitle: '', placeholderDesc: '' },
   ];
   return (
     <>
-      <SectionCard title="Globale Meta-Daten" description="Standard-Werte â€“ werden verwendet, solange eine Seite keine eigenen Werte hat." badge="Sektion 1">
-        <Field label="Site-Titel" hint="Max. 60 Zeichen. Wird automatisch um Markenname ergÃ¤nzt."><input className={inputCls} value={seo.title || ''} onChange={(e) => set({ title: e.target.value })} placeholder={data.brand.name} /></Field>
+      <SectionCard title="Globale Meta-Daten" description="Standard-Werte – werden verwendet, solange eine Seite keine eigenen Werte hat." badge="Sektion 1">
+        <Field label="Site-Titel" hint="Max. 60 Zeichen. Wird automatisch um Markenname ergänzt."><input className={inputCls} value={seo.title || ''} onChange={(e) => set({ title: e.target.value })} placeholder={data.brand.name} /></Field>
         <Field label="Standard-Beschreibung" hint="Max. 160 Zeichen."><textarea className={inputCls} rows={3} value={seo.description || ''} onChange={(e) => set({ description: e.target.value })} /></Field>
-        <Field label="SchlÃ¼sselwÃ¶rter" hint="Komma-getrennt. Auch fÃ¼r AI-/LLM-Crawler relevant."><input className={inputCls} value={seo.keywords || ''} onChange={(e) => set({ keywords: e.target.value })} /></Field>
+        <Field label="Schlüsselwörter" hint="Komma-getrennt. Auch für AI-/LLM-Crawler relevant."><input className={inputCls} value={seo.keywords || ''} onChange={(e) => set({ keywords: e.target.value })} /></Field>
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Canonical-URL" hint="Optional â€“ nur wenn die Domain abweicht."><input className={inputCls} value={seo.canonical || ''} onChange={(e) => set({ canonical: e.target.value })} placeholder="https://www.beispiel.at" /></Field>
+          <Field label="Canonical-URL" hint="Optional – nur wenn die Domain abweicht."><input className={inputCls} value={seo.canonical || ''} onChange={(e) => set({ canonical: e.target.value })} placeholder="https://www.beispiel.at" /></Field>
           <Field label="Sprache / Locale">
             <select className={inputCls} value={seo.locale || 'de_AT'} onChange={(e) => set({ locale: e.target.value })}>
-              <option value="de_AT">Deutsch (Ã–sterreich)</option>
+              <option value="de_AT">Deutsch (Österreich)</option>
               <option value="de_DE">Deutsch (Deutschland)</option>
               <option value="de_CH">Deutsch (Schweiz)</option>
               <option value="en_US">English (US)</option>
@@ -1039,9 +1043,9 @@ function SeoPage({ data, setData }: SetterProps) {
         </div>
       </SectionCard>
       <SectionCard title="Vorschau-Bild" description="Erscheint beim Teilen in WhatsApp, Instagram, Facebook, LinkedIn." badge="Sektion 2">
-        <ImagePickerField label="OG-Bild (1200Ã—630 empfohlen)" value={seo.ogImage || ''} onChange={(v) => set({ ogImage: v })} ratio="aspect-[1200/630]" />
+        <ImagePickerField label="OG-Bild (1200×630 empfohlen)" value={seo.ogImage || ''} onChange={(v) => set({ ogImage: v })} ratio="aspect-[1200/630]" />
       </SectionCard>
-      <SectionCard title="Pro Seite" description="Wenn eine Seite eigene Meta-Daten haben soll â€“ z. B. eigene Beschreibung fÃ¼r die Speisekarte â€“ hier eintragen." badge="Sektion 3">
+      <SectionCard title="Pro Seite" description="Wenn eine Seite eigene Meta-Daten haben soll – z. B. eigene Beschreibung für die Speisekarte – hier eintragen." badge="Sektion 3">
         <div className="space-y-6">
           {PAGES.map((p) => {
             const v = pageSeo[p.id] || {};
@@ -1049,24 +1053,24 @@ function SeoPage({ data, setData }: SetterProps) {
               <details key={p.id} className="border border-line rounded-2xl overflow-hidden">
                 <summary className="cursor-pointer px-5 py-3 bg-[#fafaf7] flex items-center justify-between">
                   <span className="font-medium">{p.label}</span>
-                  <span className="text-xs text-muted">{v.title || v.description ? 'âœ“ angepasst' : 'Standard'}</span>
+                  <span className="text-xs text-muted">{v.title || v.description ? '✓ angepasst' : 'Standard'}</span>
                 </summary>
                 <div className="p-5 space-y-4">
                   <Field label="Seiten-Titel"><input className={inputCls} value={v.title || ''} onChange={(e) => setPage(p.id, { title: e.target.value })} placeholder={p.placeholderTitle} /></Field>
                   <Field label="Beschreibung"><textarea className={inputCls} rows={2} value={v.description || ''} onChange={(e) => setPage(p.id, { description: e.target.value })} placeholder={p.placeholderDesc} /></Field>
-                  <Field label="SchlÃ¼sselwÃ¶rter"><input className={inputCls} value={v.keywords || ''} onChange={(e) => setPage(p.id, { keywords: e.target.value })} /></Field>
-                  <ImagePickerField label="OG-Bild (Ã¼berschreibt das globale)" value={v.ogImage || ''} onChange={(val) => setPage(p.id, { ogImage: val })} ratio="aspect-[1200/630]" />
-                  <Toggle value={!!v.noindex} onChange={(b) => setPage(p.id, { noindex: b })} label="Seite von Suchmaschinen ausschlieÃŸen (noindex)" />
+                  <Field label="Schlüsselwörter"><input className={inputCls} value={v.keywords || ''} onChange={(e) => setPage(p.id, { keywords: e.target.value })} /></Field>
+                  <ImagePickerField label="OG-Bild (überschreibt das globale)" value={v.ogImage || ''} onChange={(val) => setPage(p.id, { ogImage: val })} ratio="aspect-[1200/630]" />
+                  <Toggle value={!!v.noindex} onChange={(b) => setPage(p.id, { noindex: b })} label="Seite von Suchmaschinen ausschließen (noindex)" />
                 </div>
               </details>
             );
           })}
         </div>
       </SectionCard>
-      <SectionCard title="AI-/LLM-Sichtbarkeit" description="Strukturierte Daten (JSON-LD) werden automatisch generiert: LocalBusiness, Ã–ffnungszeiten, Adresse, Leistungen. Damit Sprach-KIs (ChatGPT, Perplexity, Claude) Ihre Website korrekt erfassen." badge="Info">
+      <SectionCard title="AI-/LLM-Sichtbarkeit" description="Strukturierte Daten (JSON-LD) werden automatisch generiert: LocalBusiness, Öffnungszeiten, Adresse, Leistungen. Damit Sprach-KIs (ChatGPT, Perplexity, Claude) Ihre Website korrekt erfassen." badge="Info">
         <p className="text-sm text-muted leading-relaxed">
-          Diese Felder werden automatisch aus Ihren Inhalten erzeugt â€“ keine manuelle Pflege nÃ¶tig.
-          Stellen Sie nur sicher, dass <em>Adresse</em>, <em>Telefon</em>, <em>Ã–ffnungszeiten</em> und <em>Leistungen</em> aktuell sind.
+          Diese Felder werden automatisch aus Ihren Inhalten erzeugt – keine manuelle Pflege nötig.
+          Stellen Sie nur sicher, dass <em>Adresse</em>, <em>Telefon</em>, <em>Öffnungszeiten</em> und <em>Leistungen</em> aktuell sind.
         </p>
       </SectionCard>
     </>
@@ -1080,10 +1084,10 @@ function MailPage({ data, setData }: SetterProps) {
     <>
       <SectionCard
         title="Eigener Mail-Server"
-        description="Wenn aktiviert, werden Anfragen aus dem Kontakt-Formular direkt Ã¼ber Ihr eigenes Postfach versendet. Solange ausgeschaltet, lÃ¤uft alles Ã¼ber die Plattform-Adresse (FlamingoMedia)."
+        description="Wenn aktiviert, werden Anfragen aus dem Kontakt-Formular direkt über Ihr eigenes Postfach versendet. Solange ausgeschaltet, läuft alles über die Plattform-Adresse (FlamingoMedia)."
         badge={m.enabled ? 'Aktiv' : 'Standard (Plattform)'}
       >
-        <Toggle value={!!m.enabled} onChange={(v: boolean) => set({ enabled: v })} label="Eigenes Postfach fÃ¼r Kontakt-Formular verwenden" />
+        <Toggle value={!!m.enabled} onChange={(v: boolean) => set({ enabled: v })} label="Eigenes Postfach für Kontakt-Formular verwenden" />
       </SectionCard>
 
       {m.enabled && (
@@ -1104,25 +1108,25 @@ function MailPage({ data, setData }: SetterProps) {
               <Field label="Benutzername / Login-Adresse">
                 <input className={inputCls} value={m.user || ''} onChange={(e) => set({ user: e.target.value })} placeholder="kontakt@meine-firma.de" autoComplete="off" />
               </Field>
-              <Field label="Passwort" hint="Wird verschlÃ¼sselt gespeichert.">
-                <input type="password" className={inputCls} value={m.pass || ''} onChange={(e) => set({ pass: e.target.value })} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autoComplete="new-password" />
+              <Field label="Passwort" hint="Wird verschlüsselt gespeichert.">
+                <input type="password" className={inputCls} value={m.pass || ''} onChange={(e) => set({ pass: e.target.value })} placeholder="••••••••" autoComplete="new-password" />
               </Field>
             </div>
           </SectionCard>
 
-          <SectionCard title="Adressen" description="Absender- und EmpfÃ¤nger-Adresse fÃ¼r eingehende Anfragen.">
+          <SectionCard title="Adressen" description="Absender- und Empfänger-Adresse für eingehende Anfragen.">
             <div className="grid sm:grid-cols-2 gap-3">
               <Field label="Absender-Adresse" hint="Erscheint im 'Von'-Feld. Sollte zu Ihrem SMTP-Konto passen.">
                 <input type="email" className={inputCls} value={m.from || ''} onChange={(e) => set({ from: e.target.value })} placeholder="kontakt@meine-firma.de" />
               </Field>
-              <Field label="EmpfÃ¤nger-Adresse" hint="Wohin Anfragen gesendet werden.">
+              <Field label="Empfänger-Adresse" hint="Wohin Anfragen gesendet werden.">
                 <input type="email" className={inputCls} value={m.to || ''} onChange={(e) => set({ to: e.target.value })} placeholder="anfragen@meine-firma.de" />
               </Field>
             </div>
             <Toggle value={m.autoReply !== false} onChange={(v: boolean) => set({ autoReply: v })} label="Auto-Reply an Absender senden ('Wir haben Ihre Nachricht erhalten')" />
           </SectionCard>
 
-          <SectionCard title="Test-Versand" description="PrÃ¼fen, ob die Zugangsdaten funktionieren." badge="Empfehlung">
+          <SectionCard title="Test-Versand" description="Prüfen, ob die Zugangsdaten funktionieren." badge="Empfehlung">
             <MailTestButton />
           </SectionCard>
         </>
@@ -1130,10 +1134,10 @@ function MailPage({ data, setData }: SetterProps) {
 
       <SectionCard title="Schnellanleitung" description="Wo finden Sie diese Daten?">
         <ul className="text-sm text-slate-700 space-y-2 list-disc pl-5">
-          <li><strong>IONOS:</strong> Kundencenter â†’ E-Mail â†’ Postfach â†’ Konfiguration. Server <code>smtp.ionos.de</code>, Port <code>587</code>.</li>
-          <li><strong>Strato:</strong> Kundenbereich â†’ E-Mail â†’ Postfach. <code>smtp.strato.de</code>, Port <code>587</code>.</li>
-          <li><strong>All-Inkl:</strong> KAS â†’ E-Mail. <code>smtp.your-server.de</code>, Port <code>587</code>.</li>
-          <li><strong>Google Workspace:</strong> App-Passwort erstellen unter â€žSicherheitâ€œ. <code>smtp.gmail.com</code>, Port <code>587</code>.</li>
+          <li><strong>IONOS:</strong> Kundencenter → E-Mail → Postfach → Konfiguration. Server <code>smtp.ionos.de</code>, Port <code>587</code>.</li>
+          <li><strong>Strato:</strong> Kundenbereich → E-Mail → Postfach. <code>smtp.strato.de</code>, Port <code>587</code>.</li>
+          <li><strong>All-Inkl:</strong> KAS → E-Mail. <code>smtp.your-server.de</code>, Port <code>587</code>.</li>
+          <li><strong>Google Workspace:</strong> App-Passwort erstellen unter „Sicherheit“. <code>smtp.gmail.com</code>, Port <code>587</code>.</li>
           <li><strong>Microsoft 365:</strong> SMTP AUTH muss vom Admin freigeschaltet sein. <code>smtp.office365.com</code>, Port <code>587</code>.</li>
         </ul>
       </SectionCard>
@@ -1172,7 +1176,7 @@ function MailTestButton() {
         }),
       });
       const j = await r.json().catch(() => ({}));
-      if (r.ok && j.ok) { setState('ok'); setMsg('Test-Mail wurde versendet. Bitte prÃ¼fen Sie Ihren Posteingang.'); }
+      if (r.ok && j.ok) { setState('ok'); setMsg('Test-Mail wurde versendet. Bitte prüfen Sie Ihren Posteingang.'); }
       else { setState('err'); setMsg(j?.error || 'Versand fehlgeschlagen.'); }
     } catch {
       setState('err'); setMsg('Netzwerkfehler.');
@@ -1181,7 +1185,7 @@ function MailTestButton() {
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <button type="button" onClick={sendTest} disabled={state === 'sending'} className="btn-primary !py-2 !px-4 text-sm disabled:opacity-60">
-        {state === 'sending' ? 'Sendeâ€¦' : 'Test-Mail senden'}
+        {state === 'sending' ? 'Sende…' : 'Test-Mail senden'}
       </button>
       {msg && <p className={`text-sm ${state === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>{msg}</p>}
     </div>
@@ -1214,13 +1218,13 @@ function ScriptsPage({ data, setData }: SetterProps) {
           <li><strong>Marketing:</strong> z. B. Meta Pixel, Google Ads, TikTok Pixel.</li>
         </ul>
         <p className="text-xs text-muted">
-          Sie kÃ¶nnen entweder einen JS-Schnipsel einfÃ¼gen <em>oder</em> eine vollstÃ¤ndige URL (https://â€¦/script.js) â€” externe Skripte werden dann als <code>&lt;script src="â€¦"&gt;</code> eingebunden.
+          Sie können entweder einen JS-Schnipsel einfügen <em>oder</em> eine vollständige URL (https://…/script.js) — externe Skripte werden dann als <code>&lt;script src="…"&gt;</code> eingebunden.
         </p>
       </SectionCard>
 
       <SectionCard title="Skripte" description="Liste aller eingebundenen Skripte. Reihenfolge entspricht der Einbindung." badge={`${list.length} aktiv`}>
         {list.length === 0 && (
-          <p className="text-sm text-muted">Noch keine Skripte eingerichtet. FÃ¼gen Sie z. B. Ihren Plausible-Snippet ein.</p>
+          <p className="text-sm text-muted">Noch keine Skripte eingerichtet. Fügen Sie z. B. Ihren Plausible-Snippet ein.</p>
         )}
         <div className="space-y-4">
           {list.map((s: any, i: number) => (
@@ -1253,25 +1257,64 @@ function ScriptsPage({ data, setData }: SetterProps) {
                 <Toggle value={s.enabled} onChange={(v) => update(i, { enabled: v })} label="Aktiv" />
                 <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline ml-auto">Entfernen</button>
               </div>
-              <Field label="Code oder URL" hint="Inline-JS-Code ODER vollstÃ¤ndige URL (https://â€¦). Ein leerer Wert wird ignoriert.">
+              <Field label="Code oder URL" hint="Inline-JS-Code ODER vollständige URL (https://…). Ein leerer Wert wird ignoriert.">
                 <textarea
                   className={inputCls + ' font-mono text-xs'}
                   rows={5}
                   value={s.code}
                   onChange={(e) => update(i, { code: e.target.value })}
-                  placeholder='z. B. https://plausible.io/js/script.js  oder  window.dataLayer = window.dataLayer || []; â€¦'
+                  placeholder='z. B. https://plausible.io/js/script.js  oder  window.dataLayer = window.dataLayer || []; …'
                 />
               </Field>
             </div>
           ))}
         </div>
-        <button type="button" onClick={add} className="btn-outline !py-2 !px-4 text-sm">+ Skript hinzufÃ¼gen</button>
+        <button type="button" onClick={add} className="btn-outline !py-2 !px-4 text-sm">+ Skript hinzufügen</button>
       </SectionCard>
     </>
   );
 }
 
-/* â”€â”€â”€ Branchen-Texte editor (variant copy overrides) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Section visibility (per-tenant per-section show/hide) ──────── */
+
+const SECTION_FLAGS: { key: string; label: string; description: string }[] = [
+  { key: 'action', label: 'Aktions-Leiste', description: 'Branchenspezifische Info-Leiste direkt unter dem Hero.' },
+  { key: 'signature', label: 'Branchen-Signatur', description: 'Variantenspezifischer Akzent-Block (z. B. Manifest).' },
+  { key: 'services', label: 'Leistungen / Speisekarte', description: 'Highlight-Liste der Hauptleistungen.' },
+  { key: 'branchModule', label: 'Branchen-Modul', description: 'Modul für Branche (Menu, Zimmer, Touren, Treatments, Förderung …).' },
+  { key: 'about', label: 'Über uns', description: 'Über-uns-Teaser auf der Startseite.' },
+  { key: 'gallery', label: 'Galerie', description: 'Galerie-Vorschau auf der Startseite.' },
+  { key: 'numbers', label: 'Zahlen-Band', description: 'Vier Eckdaten als Stat-Strip.' },
+  { key: 'testimonials', label: 'Bewertungen', description: 'Kundenstimmen-Block.' },
+  { key: 'logos', label: 'Logo-Strip', description: 'Partner / Presse Logos (nur Modern).' },
+  { key: 'faq', label: 'FAQ', description: 'Häufige Fragen mit Akkordeon (nur Modern).' },
+  { key: 'news', label: 'News-Teaser', description: 'Neueste Beiträge.' },
+  { key: 'softCta', label: 'Abschluss-Aufruf', description: 'CTA-Block am Seitenende.' },
+];
+
+function SectionVisibilityEditor({ data, setData }: SectionProps) {
+  const flags = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
+  const isVisible = (key: string) => flags[key] !== false;
+  const setFlag = (key: string, v: boolean) => {
+    const next = { ...flags, [key]: v };
+    setData({ ...(data as any), sectionVisibility: next } as SiteContent);
+  };
+  return (
+    <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+      {SECTION_FLAGS.map((s) => (
+        <div key={s.key} className="flex items-start justify-between gap-3 py-2 border-b border-line/60 last:border-b-0">
+          <div className="min-w-0">
+            <p className="text-sm font-medium">{s.label}</p>
+            <p className="text-xs text-muted">{s.description}</p>
+          </div>
+          <Toggle value={isVisible(s.key)} onChange={(v) => setFlag(s.key, v)} label="" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Branchen-Texte editor (variant copy overrides) ──────────── */
 
 function BranchTextEditor({ data, setData, tpl }: SectionProps) {
   const bt = ((data as any).branchText ?? {}) as Record<string, any>;
@@ -1291,7 +1334,7 @@ function BranchTextEditor({ data, setData, tpl }: SectionProps) {
           placeholder={def.teaserSubtitle}
         />
       </Field>
-      <Field label="Marquee / Laufband-WÃ¶rter (kommagetrennt)" hint={`Standard: ${def.marqueeWords.join(', ')}`}>
+      <Field label="Marquee / Laufband-Wörter (kommagetrennt)" hint={`Standard: ${def.marqueeWords.join(', ')}`}>
         <input
           className={inputCls}
           value={marqueeStr}
@@ -1302,7 +1345,7 @@ function BranchTextEditor({ data, setData, tpl }: SectionProps) {
           placeholder={def.marqueeWords.join(', ')}
         />
       </Field>
-      <Field label="Galerie-Teaser-Titel" hint={`Standard: ${def.galleryTeaserTitle} â€“ die zweite HÃ¤lfte wird automatisch kursiv.`}>
+      <Field label="Galerie-Teaser-Titel" hint={`Standard: ${def.galleryTeaserTitle} – die zweite Hälfte wird automatisch kursiv.`}>
         <input
           className={inputCls}
           value={bt.galleryTeaserTitle ?? ''}
@@ -1344,7 +1387,7 @@ function BranchTextEditor({ data, setData, tpl }: SectionProps) {
   );
 }
 
-/* â”€â”€â”€ News / Blog editor (CRUD) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── News / Blog editor (CRUD) ─────────────────────────────── */
 
 function NewsHomePreview({ data }: { data: SiteContent }) {
   const list = (((data as any).posts as any[] | undefined) ?? [])
@@ -1352,7 +1395,7 @@ function NewsHomePreview({ data }: { data: SiteContent }) {
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
     .slice(0, 3);
   if (list.length === 0) {
-    return <p className="text-xs text-muted">Aktuell keine verÃ¶ffentlichten BeitrÃ¤ge â€“ die Sektion bleibt auf der Website ausgeblendet.</p>;
+    return <p className="text-xs text-muted">Aktuell keine veröffentlichten Beiträge – die Sektion bleibt auf der Website ausgeblendet.</p>;
   }
   return (
     <ul className="grid sm:grid-cols-3 gap-3">
@@ -1373,7 +1416,7 @@ function slugify(s: string): string {
   return s
     .toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/Ã¤/g, 'ae').replace(/Ã¶/g, 'oe').replace(/Ã¼/g, 'ue').replace(/ÃŸ/g, 'ss')
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 80);
@@ -1384,7 +1427,7 @@ function NewsPage({ data, setData }: SetterProps) {
   const setList = (next: any[]) => setData({ ...(data as any), posts: next } as SiteContent);
   const update = (i: number, patch: any) => setList(list.map((p, j) => j === i ? { ...p, ...patch } : p));
   const remove = (i: number) => {
-    if (!confirm('Diesen Beitrag wirklich lÃ¶schen?')) return;
+    if (!confirm('Diesen Beitrag wirklich löschen?')) return;
     setList(list.filter((_, j) => j !== i));
   };
   const add = () => {
@@ -1412,19 +1455,19 @@ function NewsPage({ data, setData }: SetterProps) {
   };
   return (
     <>
-      <SectionCard title="So funktioniert's" description="BeitrÃ¤ge erscheinen auf der Startseite (die 3 neuesten) und unter /news. Reihenfolge: nach Datum, neueste oben." badge="Info">
+      <SectionCard title="So funktioniert's" description="Beiträge erscheinen auf der Startseite (die 3 neuesten) und unter /news. Reihenfolge: nach Datum, neueste oben." badge="Info">
         <ul className="text-sm text-slate-700 space-y-2 list-disc pl-5">
-          <li><strong>VerÃ¶ffentlicht:</strong> sichtbar auf der Website. Deaktivieren = Entwurf.</li>
+          <li><strong>Veröffentlicht:</strong> sichtbar auf der Website. Deaktivieren = Entwurf.</li>
           <li><strong>Datum:</strong> bestimmt die Reihenfolge.</li>
-          <li><strong>Slug:</strong> Teil der URL â€” wird automatisch aus dem Titel gebildet.</li>
+          <li><strong>Slug:</strong> Teil der URL — wird automatisch aus dem Titel gebildet.</li>
           <li><strong>Text:</strong> Leerzeile = neuer Absatz.</li>
         </ul>
       </SectionCard>
 
-      <SectionCard title="BeitrÃ¤ge" description="Neue Artikel anlegen, bestehende bearbeiten oder lÃ¶schen." badge={`${list.length} ${list.length === 1 ? 'Beitrag' : 'BeitrÃ¤ge'}`}>
+      <SectionCard title="Beiträge" description="Neue Artikel anlegen, bestehende bearbeiten oder löschen." badge={`${list.length} ${list.length === 1 ? 'Beitrag' : 'Beiträge'}`}>
         <button type="button" onClick={add} className="btn-primary !py-2 !px-4 text-sm">+ Neuer Beitrag</button>
         {list.length === 0 ? (
-          <p className="text-sm text-muted mt-4">Noch keine BeitrÃ¤ge angelegt.</p>
+          <p className="text-sm text-muted mt-4">Noch keine Beiträge angelegt.</p>
         ) : (
           <div className="space-y-4 mt-2">
             {list.map((p, i) => (
@@ -1435,7 +1478,7 @@ function NewsPage({ data, setData }: SetterProps) {
                     <span className="font-medium truncate max-w-[18rem]">{p.title || '(ohne Titel)'}</span>
                     <span className="text-xs text-muted">{p.date}</span>
                   </div>
-                  <span className="text-xs text-muted">{p.published ? 'verÃ¶ffentlicht' : 'Entwurf'}</span>
+                  <span className="text-xs text-muted">{p.published ? 'veröffentlicht' : 'Entwurf'}</span>
                 </summary>
                 <div className="p-5 space-y-3">
                   <div className="grid sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
@@ -1459,25 +1502,25 @@ function NewsPage({ data, setData }: SetterProps) {
                         onChange={(e) => update(i, { date: e.target.value })}
                       />
                     </Field>
-                    <Toggle value={!!p.published} onChange={(v) => update(i, { published: v })} label={p.published ? 'VerÃ¶ffentlicht' : 'Entwurf'} />
+                    <Toggle value={!!p.published} onChange={(v) => update(i, { published: v })} label={p.published ? 'Veröffentlicht' : 'Entwurf'} />
                   </div>
                   <Field label="Slug (URL)" hint="Wird aus dem Titel erzeugt. Manuell anpassbar.">
                     <input className={inputCls} value={p.slug} onChange={(e) => update(i, { slug: slugify(e.target.value) })} />
                   </Field>
                   <ImagePickerField label="Titelbild" value={p.imageUrl || ''} onChange={(v) => update(i, { imageUrl: v })} ratio="aspect-[16/9]" />
-                  <Field label="Kurzbeschreibung" hint="Wird in der Ãœbersicht angezeigt. 1â€“2 SÃ¤tze.">
+                  <Field label="Kurzbeschreibung" hint="Wird in der Übersicht angezeigt. 1–2 Sätze.">
                     <textarea className={inputCls} rows={2} value={p.excerpt} onChange={(e) => update(i, { excerpt: e.target.value })} />
                   </Field>
-                  <Field label="Inhalt" hint="Rich-Text-Editor: Ãœberschriften, Listen, Links, Zitate. Format-Buttons in der Leiste oben.">
+                  <Field label="Inhalt" hint="Rich-Text-Editor: Überschriften, Listen, Links, Zitate. Format-Buttons in der Leiste oben.">
                     <RichTextEditor
                       value={p.bodyHtml || ''}
                       onChange={(html) => update(i, { bodyHtml: html })}
-                      placeholder="Schreiben Sie hier den Beitrag â€¦"
+                      placeholder="Schreiben Sie hier den Beitrag …"
                       rows={12}
                     />
                   </Field>
                   <div className="flex justify-end">
-                    <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Beitrag lÃ¶schen</button>
+                    <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Beitrag löschen</button>
                   </div>
                 </div>
               </details>
@@ -1489,7 +1532,7 @@ function NewsPage({ data, setData }: SetterProps) {
   );
 }
 
-/* â”€â”€â”€ Timeline editor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Timeline editor ───────────────────────────────────────── */
 function TimelineEditor({ data, setData }: SetterProps) {
   const list = ((data as any).timeline ?? []) as { year: string; title: string; description: string }[];
   const setList = (next: any[]) => setData({ ...(data as any), timeline: next } as SiteContent);
@@ -1498,7 +1541,7 @@ function TimelineEditor({ data, setData }: SetterProps) {
   const add = () => setList([...list, { year: '', title: '', description: '' }]);
   return (
     <>
-      <p className="text-sm text-muted">Die Timeline erscheint auf der â€žÃœber uns"-Seite zwischen Werten und Team. Lassen Sie sie leer, wenn Sie sie nicht brauchen.</p>
+      <p className="text-sm text-muted">Die Timeline erscheint auf der „Über uns"-Seite zwischen Werten und Team. Lassen Sie sie leer, wenn Sie sie nicht brauchen.</p>
       <div className="space-y-3">
         {list.map((t, i) => (
           <div key={i} className="border border-line rounded-2xl p-4 grid md:grid-cols-[7rem_1fr_auto] gap-3 items-start bg-white">
@@ -1507,7 +1550,7 @@ function TimelineEditor({ data, setData }: SetterProps) {
             </Field>
             <div className="space-y-2">
               <Field label="Titel">
-                <input className={inputCls} value={t.title} onChange={(e) => update(i, { title: e.target.value })} placeholder="z. B. ErÃ¶ffnung." />
+                <input className={inputCls} value={t.title} onChange={(e) => update(i, { title: e.target.value })} placeholder="z. B. Eröffnung." />
               </Field>
               <Field label="Beschreibung">
                 <textarea className={inputCls} rows={2} value={t.description} onChange={(e) => update(i, { description: e.target.value })} />
@@ -1522,7 +1565,7 @@ function TimelineEditor({ data, setData }: SetterProps) {
   );
 }
 
-/* â”€â”€â”€ Reusable editors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Reusable editors ───────────── */
 function ContactFields({ data, setData }: SetterProps) {
   const c = data.contact;
   const set = (patch: Partial<SiteContent['contact']>) => setData({ ...data, contact: { ...c, ...patch } });
@@ -1546,11 +1589,11 @@ function HoursEditor({ data, setData }: SetterProps) {
           <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
             <input className={inputCls} placeholder="Tag(e)" value={h.day} onChange={(e) => set({ hours: c.hours.map((x, j) => j === i ? { ...x, day: e.target.value } : x) })} />
             <input className={inputCls} placeholder="Uhrzeit" value={h.time} onChange={(e) => set({ hours: c.hours.map((x, j) => j === i ? { ...x, time: e.target.value } : x) })} />
-            <button onClick={() => set({ hours: c.hours.filter((_, j) => j !== i) })} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">Ã—</button>
+            <button onClick={() => set({ hours: c.hours.filter((_, j) => j !== i) })} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">×</button>
           </div>
         ))}
       </div>
-      <button onClick={() => set({ hours: [...c.hours, { day: '', time: '' }] })} className="btn-outline !px-4 !py-2 text-sm mt-3">+ Zeile hinzufÃ¼gen</button>
+      <button onClick={() => set({ hours: [...c.hours, { day: '', time: '' }] })} className="btn-outline !px-4 !py-2 text-sm mt-3">+ Zeile hinzufügen</button>
     </div>
   );
 }
@@ -1572,7 +1615,7 @@ function ServicesListEditor({ data, setData }: SetterProps) {
             {s.imageUrl ? <img src={s.imageUrl} alt="" className="h-9 w-9 object-cover rounded" /> : <div className="h-9 w-9 rounded bg-[#eaeae3]" />}
             <span className="flex-1 truncate text-sm font-medium">{s.title}</span>
             <span className="text-xs font-mono text-muted">{s.price}</span>
-            <span className="ml-2 text-muted text-xs">â–¾</span>
+            <span className="ml-2 text-muted text-xs">▾</span>
           </summary>
           <div className="px-4 pb-4 space-y-3 border-t border-line pt-3">
             <div className="grid sm:grid-cols-3 gap-3">
@@ -1583,15 +1626,15 @@ function ServicesListEditor({ data, setData }: SetterProps) {
             <ImagePickerField label="Bild" value={s.imageUrl || ''} onChange={(v) => update(i, { imageUrl: v })} />
             <div className="flex justify-between items-center">
               <div className="flex gap-1">
-                <button onClick={() => move(i, -1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">â†‘ hoch</button>
-                <button onClick={() => move(i, 1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">â†“ runter</button>
+                <button onClick={() => move(i, -1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↑ hoch</button>
+                <button onClick={() => move(i, 1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↓ runter</button>
               </div>
               <button onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Entfernen</button>
             </div>
           </div>
         </details>
       ))}
-      <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Eintrag hinzufÃ¼gen</button>
+      <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Eintrag hinzufügen</button>
     </div>
   );
 }
@@ -1610,7 +1653,7 @@ function TestimonialsEditor({ data, setData, max }: SetterProps & { max?: number
           <div className="flex justify-end"><button onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Entfernen</button></div>
         </div>
       ))}
-      <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Bewertung hinzufÃ¼gen</button>
+      <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Bewertung hinzufügen</button>
     </div>
   );
 }
@@ -1621,7 +1664,7 @@ function RepeatableList<T>({ items, onChange, render, newItem, addLabel }: { ite
       {items.map((it, i) => (
         <div key={i} className="grid grid-cols-[1fr_auto] gap-2 items-center">
           {render(it, i, (v) => onChange(items.map((x, j) => j === i ? v : x)))}
-          <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">Ã—</button>
+          <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">×</button>
         </div>
       ))}
       <button onClick={() => onChange([...items, newItem()])} className="btn-outline !px-4 !py-2 text-sm">{addLabel}</button>
@@ -1639,8 +1682,8 @@ function ReorderList<T>({ items, onChange, render, getKey }: { items: T[]; onCha
         <li key={getKey(it, i)} className="flex items-center gap-3 px-3 py-2">
           <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
           <div className="flex-1 min-w-0">{render(it)}</div>
-          <button onClick={() => move(i, -1)} className="h-7 w-7 grid place-items-center rounded hover:bg-[#f6f6f3] text-xs">â†‘</button>
-          <button onClick={() => move(i, 1)} className="h-7 w-7 grid place-items-center rounded hover:bg-[#f6f6f3] text-xs">â†“</button>
+          <button onClick={() => move(i, -1)} className="h-7 w-7 grid place-items-center rounded hover:bg-[#f6f6f3] text-xs">↑</button>
+          <button onClick={() => move(i, 1)} className="h-7 w-7 grid place-items-center rounded hover:bg-[#f6f6f3] text-xs">↓</button>
         </li>
       ))}
     </ul>
@@ -1660,7 +1703,7 @@ function PageHeaderEditor({ data, setData, field, defaults }: SetterProps & { fi
   return (
     <>
       <Field label="Eyebrow"><input className={inputCls} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} /></Field>
-      <Field label="Ãœberschrift"><input className={inputCls} value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} /></Field>
+      <Field label="Überschrift"><input className={inputCls} value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} /></Field>
       <Field label="Untertitel"><textarea className={inputCls} rows={2} value={v.subtitle} onChange={(e) => set({ ...v, subtitle: e.target.value })} /></Field>
     </>
   );
@@ -1669,7 +1712,7 @@ function PageHeaderEditor({ data, setData, field, defaults }: SetterProps & { fi
 function HighlightsEditor({ data, setData, field, defaults }: SetterProps & { field: string; defaults: { t: string; d: string }[] }) {
   const [list, set] = useExtra<{ t: string; d: string }[]>(data, setData, field, defaults);
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Highlight hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Highlight hinzufügen"
       render={(v, _i, setItem) => (
         <div className="grid sm:grid-cols-2 gap-2 flex-1">
           <input className={inputCls} placeholder="Titel" value={v.t} onChange={(e) => setItem({ ...v, t: e.target.value })} />
@@ -1683,7 +1726,7 @@ function HighlightsEditor({ data, setData, field, defaults }: SetterProps & { fi
 function StepsEditor({ data, setData, field, defaults }: SetterProps & { field: string; defaults: { t: string; d: string }[] }) {
   const [list, set] = useExtra<{ t: string; d: string }[]>(data, setData, field, defaults);
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Schritt hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Schritt hinzufügen"
       render={(v, i, setItem) => (
         <div className="grid sm:grid-cols-[80px_1fr_2fr] gap-2 flex-1 items-start">
           <span className="font-mono text-xs text-muted self-center">Schritt {i + 1}</span>
@@ -1697,20 +1740,20 @@ function StepsEditor({ data, setData, field, defaults }: SetterProps & { field: 
 
 function ProgramsEditor({ data, setData }: SetterProps) {
   const [list, set] = useExtra<{ k: string; t: string; d: string; meta: string }[]>(data, setData, 'programs', [
-    { k: 'YOGA', t: 'Vinyasa Flow', d: 'Dynamisches Yoga im Atemrhythmus. FÃ¼r alle, die Bewegung lieben.', meta: '75 min Â· Mo / Mi / Fr' },
-    { k: 'YIN', t: 'Yin Yoga', d: 'Lange gehaltene, ruhige Positionen. Tiefe Faszien-Arbeit.', meta: '60 min Â· Di / Do' },
-    { k: 'PIL', t: 'Reformer Pilates', d: 'Kleingruppen mit max. 5 Personen. PrÃ¤zise Korrekturen, klare Progression.', meta: '60 min Â· n. Vereinb.' },
-    { k: 'PT', t: 'Personal Training', d: '60 oder 90 Minuten â€“ ganz auf Sie zugeschnitten.', meta: 'flexibel Â· n. Vereinb.' },
+    { k: 'YOGA', t: 'Vinyasa Flow', d: 'Dynamisches Yoga im Atemrhythmus. Für alle, die Bewegung lieben.', meta: '75 min · Mo / Mi / Fr' },
+    { k: 'YIN', t: 'Yin Yoga', d: 'Lange gehaltene, ruhige Positionen. Tiefe Faszien-Arbeit.', meta: '60 min · Di / Do' },
+    { k: 'PIL', t: 'Reformer Pilates', d: 'Kleingruppen mit max. 5 Personen. Präzise Korrekturen, klare Progression.', meta: '60 min · n. Vereinb.' },
+    { k: 'PT', t: 'Personal Training', d: '60 oder 90 Minuten – ganz auf Sie zugeschnitten.', meta: 'flexibel · n. Vereinb.' },
   ]);
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ({ k: '', t: '', d: '', meta: '' })} addLabel="+ Programm hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ({ k: '', t: '', d: '', meta: '' })} addLabel="+ Programm hinzufügen"
       render={(v, _i, setItem) => (
         <div className="grid sm:grid-cols-[80px_1fr] gap-2 flex-1">
-          <input className={inputCls} placeholder="KÃ¼rzel" value={v.k} onChange={(e) => setItem({ ...v, k: e.target.value })} />
+          <input className={inputCls} placeholder="Kürzel" value={v.k} onChange={(e) => setItem({ ...v, k: e.target.value })} />
           <input className={inputCls} placeholder="Titel" value={v.t} onChange={(e) => setItem({ ...v, t: e.target.value })} />
           <div className="sm:col-span-2 grid sm:grid-cols-2 gap-2">
             <input className={inputCls} placeholder="Beschreibung" value={v.d} onChange={(e) => setItem({ ...v, d: e.target.value })} />
-            <input className={inputCls} placeholder="Meta (z. B. 45 min Â· Mo/Mi/Fr)" value={v.meta} onChange={(e) => setItem({ ...v, meta: e.target.value })} />
+            <input className={inputCls} placeholder="Meta (z. B. 45 min · Mo/Mi/Fr)" value={v.meta} onChange={(e) => setItem({ ...v, meta: e.target.value })} />
           </div>
         </div>
       )}
@@ -1727,7 +1770,7 @@ function BranchChipsEditor({ data, setData, tpl }: SetterProps & { tpl: Template
   const fallback = branchDefaults[tpl] ?? [];
   const [list, set] = useExtra<string[]>(data, setData, 'branchChips', fallback);
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ''} addLabel="+ Stichwort hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ''} addLabel="+ Stichwort hinzufügen"
       render={(v, i, setItem) => (
         <input className={inputCls} placeholder={`Stichwort ${i + 1}`} value={v} onChange={(e) => setItem(e.target.value)} />
       )}
@@ -1737,8 +1780,8 @@ function BranchChipsEditor({ data, setData, tpl }: SetterProps & { tpl: Template
 
 function MedicalNoticeEditor({ data, setData }: SetterProps) {
   const [v, set] = useExtra<{ online: string; emergency: string }>(data, setData, 'medicalNotice', {
-    online: 'Buchen Sie Ihren Termin direkt Ã¼ber unser Online-Portal â€” Doctolib & jameda angebunden.',
-    emergency: 'Im akuten Notfall wÃ¤hlen Sie bitte 112 oder den Ã¤rztlichen Bereitschaftsdienst 116 117.',
+    online: 'Buchen Sie Ihren Termin direkt über unser Online-Portal — Doctolib & jameda angebunden.',
+    emergency: 'Im akuten Notfall wählen Sie bitte 112 oder den ärztlichen Bereitschaftsdienst 116 117.',
   });
   return (
     <div className="space-y-3">
@@ -1765,7 +1808,7 @@ function FaqEditor({ data, setData, defaults }: SetterProps & { defaults: { q: s
           <div className="flex justify-end"><button onClick={() => set(list.filter((_, j) => j !== i))} className="text-xs text-rose-600 hover:underline">Entfernen</button></div>
         </div>
       ))}
-      <button onClick={() => set([...list, { q: '', a: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Frage hinzufÃ¼gen</button>
+      <button onClick={() => set([...list, { q: '', a: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Frage hinzufügen</button>
     </div>
   );
 }
@@ -1773,11 +1816,11 @@ function FaqEditor({ data, setData, defaults }: SetterProps & { defaults: { q: s
 function ValuesEditor({ data, setData, defaults }: SetterProps & { defaults: { t: string; d: string }[] }) {
   const [list, set] = useExtra<{ t: string; d: string }[]>(data, setData, 'values', defaults);
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Grundsatz hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Grundsatz hinzufügen"
       render={(v, _i, setItem) => (
         <div className="grid sm:grid-cols-[1fr_2fr] gap-2 flex-1">
-          <input className={inputCls} placeholder="Ãœberschrift" value={v.t} onChange={(e) => setItem({ ...v, t: e.target.value })} />
-          <input className={inputCls} placeholder="ErlÃ¤uterung" value={v.d} onChange={(e) => setItem({ ...v, d: e.target.value })} />
+          <input className={inputCls} placeholder="Überschrift" value={v.t} onChange={(e) => setItem({ ...v, t: e.target.value })} />
+          <input className={inputCls} placeholder="Erläuterung" value={v.d} onChange={(e) => setItem({ ...v, d: e.target.value })} />
         </div>
       )}
     />
@@ -1796,7 +1839,7 @@ function TeamEditor({ data, setData, defaults }: SetterProps & { defaults: { n: 
               <p className="text-sm font-medium truncate">{m.n || 'Neues Team-Mitglied'}</p>
               <p className="text-xs text-muted truncate">{m.r}</p>
             </div>
-            <span className="text-muted text-xs">â–¾</span>
+            <span className="text-muted text-xs">▾</span>
           </summary>
           <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
             <div className="grid sm:grid-cols-2 gap-3">
@@ -1809,7 +1852,7 @@ function TeamEditor({ data, setData, defaults }: SetterProps & { defaults: { n: 
           </div>
         </details>
       ))}
-      <button onClick={() => set([...list, { n: '', r: '', img: '', bio: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Person hinzufÃ¼gen</button>
+      <button onClick={() => set([...list, { n: '', r: '', img: '', bio: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Person hinzufügen</button>
     </div>
   );
 }
@@ -1817,7 +1860,7 @@ function TeamEditor({ data, setData, defaults }: SetterProps & { defaults: { n: 
 function NumbersEditor({ data, setData, tpl }: SectionProps) {
   const [list, set] = useExtra<{ value: string; label: string }[]>(data, setData, 'numbers', defaultNumbers(tpl));
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ({ value: '', label: '' })} addLabel="+ Zahl hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ({ value: '', label: '' })} addLabel="+ Zahl hinzufügen"
       render={(v, _i, setItem) => (
         <div className="grid sm:grid-cols-[120px_1fr] gap-2 flex-1">
           <input className={inputCls} placeholder="Zahl" value={v.value} onChange={(e) => setItem({ ...v, value: e.target.value })} />
@@ -1834,11 +1877,11 @@ function CertificationsEditor({ data, setData }: SetterProps) {
     { t: 'Innungsmitglied', d: '' },
   ]);
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Qualifikation hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Qualifikation hinzufügen"
       render={(v, _i, setItem) => (
         <div className="grid sm:grid-cols-[1fr_2fr] gap-2 flex-1">
           <input className={inputCls} placeholder="Bezeichnung" value={v.t} onChange={(e) => setItem({ ...v, t: e.target.value })} />
-          <input className={inputCls} placeholder="ErlÃ¤uterung" value={v.d} onChange={(e) => setItem({ ...v, d: e.target.value })} />
+          <input className={inputCls} placeholder="Erläuterung" value={v.d} onChange={(e) => setItem({ ...v, d: e.target.value })} />
         </div>
       )} />
   );
@@ -1848,7 +1891,7 @@ function PressEditor({ data, setData }: SetterProps) {
     { src: 'Falstaff', q: '', y: '2024' },
   ]);
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ({ src: '', q: '', y: '' })} addLabel="+ Pressestimme hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ({ src: '', q: '', y: '' })} addLabel="+ Pressestimme hinzufügen"
       render={(v, _i, setItem) => (
         <div className="grid sm:grid-cols-[140px_1fr_80px] gap-2 flex-1">
           <input className={inputCls} placeholder="Quelle" value={v.src} onChange={(e) => setItem({ ...v, src: e.target.value })} />
@@ -1862,7 +1905,7 @@ function PressEditor({ data, setData }: SetterProps) {
 function ArrivalEditor({ data, setData, defaults }: SetterProps & { defaults: { t: string; d: string }[] }) {
   const [list, set] = useExtra<{ t: string; d: string }[]>(data, setData, 'arrival', defaults);
   return (
-    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Hinweis hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Hinweis hinzufügen"
       render={(v, _i, setItem) => (
         <div className="grid sm:grid-cols-[1fr_2fr] gap-2 flex-1">
           <input className={inputCls} placeholder="Titel" value={v.t} onChange={(e) => setItem({ ...v, t: e.target.value })} />
@@ -1883,7 +1926,7 @@ function FormFieldsEditor({ data, setData }: SetterProps) {
       {list.map((f, i) => (
         <div key={i} className="grid grid-cols-[1fr_1fr_120px_auto_auto] gap-2 items-center">
           <input className={inputCls} placeholder="Beschriftung" value={f.label} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
-          <input className={inputCls} placeholder="SchlÃ¼ssel" value={f.key} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, key: e.target.value } : x))} />
+          <input className={inputCls} placeholder="Schlüssel" value={f.key} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, key: e.target.value } : x))} />
           <select className={inputCls} value={f.type} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, type: e.target.value as any } : x))}>
             <option value="text">Text</option>
             <option value="email">E-Mail</option>
@@ -1892,10 +1935,10 @@ function FormFieldsEditor({ data, setData }: SetterProps) {
             <option value="date">Datum</option>
           </select>
           <Toggle value={f.required} onChange={(v) => set(list.map((x, j) => j === i ? { ...x, required: v } : x))} label="Pflicht" />
-          <button onClick={() => set(list.filter((_, j) => j !== i))} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">Ã—</button>
+          <button onClick={() => set(list.filter((_, j) => j !== i))} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">×</button>
         </div>
       ))}
-      <button onClick={() => set([...list, { key: '', label: '', required: false, type: 'text' }])} className="btn-outline !px-4 !py-2 text-sm">+ Feld hinzufÃ¼gen</button>
+      <button onClick={() => set([...list, { key: '', label: '', required: false, type: 'text' }])} className="btn-outline !px-4 !py-2 text-sm">+ Feld hinzufügen</button>
     </div>
   );
 }
@@ -1915,33 +1958,33 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
   );
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Defaults â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ───────────── Defaults ───────────── */
 function defaultAnnouncements(t: TemplateKey): string[] {
-  if (t === 'restaurant') return ['Heute geÃ¶ffnet Â· 17:30 â€“ 22:00', 'Tisch online reservieren', 'TrÃ¼ffel-Saison lÃ¤uft', 'Innsbruck'];
-  if (t === 'salon') return ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'KÃ©rastase Education-Partner', 'MÃ¼nchen-Schwabing'];
-  if (t === 'consulting') return ['Strategie-Workshop verfÃ¼gbar', 'ErstgesprÃ¤ch kostenlos', 'Hybrid: Remote & vor Ort', 'MÃ¼nchen Â· Berlin Â· Wien'];
-  if (t === 'medical') return ['Online-Termine verfÃ¼gbar', 'Privat & alle Kassen', 'Hausarzt & Vorsorge', 'Hamburg-Eppendorf'];
-  if (t === 'fitness') return ['Probetraining gratis', 'Mo â€“ So 06:00 â€“ 23:00', 'Kurse Â· PT Â· Yoga', 'KÃ¶ln-SÃ¼d'];
-  return ['24/7 Notdienst Â· 60 min Anfahrt', 'KfW-FÃ¶rderung bis 35 %', 'Festpreis-Garantie', 'Ingolstadt & Umgebung'];
+  if (t === 'restaurant') return ['Heute geöffnet · 17:30 – 22:00', 'Tisch online reservieren', 'Trüffel-Saison läuft', 'Innsbruck'];
+  if (t === 'salon') return ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Kérastase Education-Partner', 'München-Schwabing'];
+  if (t === 'consulting') return ['Strategie-Workshop verfügbar', 'Erstgespräch kostenlos', 'Hybrid: Remote & vor Ort', 'München · Berlin · Wien'];
+  if (t === 'medical') return ['Online-Termine verfügbar', 'Privat & alle Kassen', 'Hausarzt & Vorsorge', 'Hamburg-Eppendorf'];
+  if (t === 'fitness') return ['Probetraining gratis', 'Mo – So 06:00 – 23:00', 'Kurse · PT · Yoga', 'Köln-Süd'];
+  return ['24/7 Notdienst · 60 min Anfahrt', 'KfW-Förderung bis 35 %', 'Festpreis-Garantie', 'Ingolstadt & Umgebung'];
 }
 function defaultHighlights(t: TemplateKey) {
   if (t === 'restaurant') return [
     { t: 'Saisonale Karte', d: 'Wechselt mit den Jahreszeiten.' },
-    { t: 'Hausgemachte Pasta', d: 'TÃ¤glich frisch gezogen.' },
-    { t: 'Wein vom Winzer', d: 'Ãœber 50 Positionen, 28 offen.' },
+    { t: 'Hausgemachte Pasta', d: 'Täglich frisch gezogen.' },
+    { t: 'Wein vom Winzer', d: 'Über 50 Positionen, 28 offen.' },
     { t: 'Allergene gekennzeichnet', d: 'Klar markiert in der Karte.' },
   ];
   if (t === 'salon') return [
     { t: 'Kostenlose Beratung', d: '15 Minuten vor Ihrem Termin.' },
     { t: 'Terminerinnerung', d: 'Per SMS am Tag vorher.' },
-    { t: 'Gutscheine', d: 'Online erhÃ¤ltlich, kein Verfall.' },
+    { t: 'Gutscheine', d: 'Online erhältlich, kein Verfall.' },
     { t: 'Bridal-Beratung', d: 'Probestyling bis zur Trauung.' },
   ];
   if (t === 'consulting') return [
-    { t: 'ErstgesprÃ¤ch kostenlos', d: '45 Minuten, unverbindlich.' },
+    { t: 'Erstgespräch kostenlos', d: '45 Minuten, unverbindlich.' },
     { t: 'Festpreis-Workshops', d: 'Klare Outputs, keine Stunden-Falle.' },
     { t: 'Hands-on Umsetzung', d: 'Wir bleiben bis zum Live-Gang dabei.' },
-    { t: 'Vertraulich', d: 'NDA standardmÃ¤ÃŸig inklusive.' },
+    { t: 'Vertraulich', d: 'NDA standardmäßig inklusive.' },
   ];
   if (t === 'medical') return [
     { t: 'Online-Termin', d: 'Doctolib & jameda angebunden.' },
@@ -1952,77 +1995,77 @@ function defaultHighlights(t: TemplateKey) {
   if (t === 'fitness') return [
     { t: 'Probetraining gratis', d: 'Erste Stunde geht aufs Haus.' },
     { t: 'Kleine Gruppen', d: 'Maximal 8 Teilnehmende pro Klasse.' },
-    { t: 'PersÃ¶nliche Betreuung', d: 'Lehrer:innen sehen jede Person.' },
+    { t: 'Persönliche Betreuung', d: 'Lehrer:innen sehen jede Person.' },
     { t: 'Faires Pricing', d: 'Einzelstunden, 10er-Karte, Monatspass.' },
   ];
   return [
     { t: 'Festpreis-Garantie', d: 'Schriftlich vor Auftrag.' },
-    { t: 'FÃ¶rderberatung', d: 'KfW, BAFA, regional.' },
+    { t: 'Förderberatung', d: 'KfW, BAFA, regional.' },
     { t: 'Notdienst 24/7', d: 'Auch am Wochenende.' },
-    { t: 'Erweiterte Garantie', d: 'FÃ¼nf Jahre auf unsere Arbeit.' },
+    { t: 'Erweiterte Garantie', d: 'Fünf Jahre auf unsere Arbeit.' },
   ];
 }
 function defaultProcess(t: TemplateKey) {
   if (t === 'restaurant') return [
-    { t: 'Reservieren', d: 'Online oder telefonisch â€“ wir bestÃ¤tigen sofort.' },
-    { t: 'Ankommen', d: 'Wir empfangen Sie persÃ¶nlich am Eingang.' },
-    { t: 'GenieÃŸen', d: 'Beratung von Service und SommeliÃ¨re.' },
-    { t: 'Wiederkommen', d: 'NÃ¤chsten Tisch direkt vor Ort buchen.' },
+    { t: 'Reservieren', d: 'Online oder telefonisch – wir bestätigen sofort.' },
+    { t: 'Ankommen', d: 'Wir empfangen Sie persönlich am Eingang.' },
+    { t: 'Genießen', d: 'Beratung von Service und Sommelière.' },
+    { t: 'Wiederkommen', d: 'Nächsten Tisch direkt vor Ort buchen.' },
   ];
   if (t === 'salon') return [
-    { t: 'Beratung', d: '15 Minuten GesprÃ¤ch Ã¼ber Ihre WÃ¼nsche.' },
+    { t: 'Beratung', d: '15 Minuten Gespräch über Ihre Wünsche.' },
     { t: 'Termin', d: 'In Ruhe geplant, ohne Stress.' },
-    { t: 'Behandlung', d: 'Schritt fÃ¼r Schritt erklÃ¤rt.' },
+    { t: 'Behandlung', d: 'Schritt für Schritt erklärt.' },
     { t: 'Pflege zuhause', d: 'Empfehlung der passenden Produkte.' },
   ];
   if (t === 'consulting') return [
-    { t: 'Discover', d: 'Wir hÃ¶ren zu, analysieren Daten und Stakeholder.' },
+    { t: 'Discover', d: 'Wir hören zu, analysieren Daten und Stakeholder.' },
     { t: 'Define', d: 'Klares Zielbild, KPIs, Roadmap.' },
     { t: 'Design', d: 'Konzept, Prototyp, Validierung.' },
-    { t: 'Deliver', d: 'Umsetzung mit Ihrem Team â€” messbar.' },
+    { t: 'Deliver', d: 'Umsetzung mit Ihrem Team — messbar.' },
   ];
   if (t === 'medical') return [
-    { t: 'Termin buchen', d: 'Online oder telefonisch â€” schnell bestÃ¤tigt.' },
-    { t: 'Anamnese', d: 'Wir nehmen uns Zeit fÃ¼r Ihre Geschichte.' },
-    { t: 'Untersuchung', d: 'PrÃ¤zise Diagnostik, klare ErklÃ¤rung.' },
-    { t: 'Therapie', d: 'Plan, Verlaufskontrolle, RÃ¼ckfragen jederzeit.' },
+    { t: 'Termin buchen', d: 'Online oder telefonisch — schnell bestätigt.' },
+    { t: 'Anamnese', d: 'Wir nehmen uns Zeit für Ihre Geschichte.' },
+    { t: 'Untersuchung', d: 'Präzise Diagnostik, klare Erklärung.' },
+    { t: 'Therapie', d: 'Plan, Verlaufskontrolle, Rückfragen jederzeit.' },
   ];
   if (t === 'fitness') return [
-    { t: 'Probetraining', d: 'Eine Stunde mit Lehrer:in â€” unverbindlich.' },
-    { t: 'Kennenlernen', d: 'Kurzes VorgesprÃ¤ch Ã¼ber Ziele und KÃ¶rper.' },
+    { t: 'Probetraining', d: 'Eine Stunde mit Lehrer:in — unverbindlich.' },
+    { t: 'Kennenlernen', d: 'Kurzes Vorgespräch über Ziele und Körper.' },
     { t: 'Trainieren', d: 'Klassen, Kleingruppen oder 1:1.' },
-    { t: 'Dranbleiben', d: 'PersÃ¶nliche RÃ¼ckmeldung nach jeder Stunde.' },
+    { t: 'Dranbleiben', d: 'Persönliche Rückmeldung nach jeder Stunde.' },
   ];
   return [
     { t: 'Anfrage', d: 'Wir melden uns binnen 24 h.' },
     { t: 'Termin vor Ort', d: 'Kostenlos, unverbindlich.' },
-    { t: 'Festpreis-Angebot', d: 'Schriftlich, mit Material und FÃ¶rderung.' },
-    { t: 'AusfÃ¼hrung', d: 'Sauber, pÃ¼nktlich, mit Endreinigung.' },
+    { t: 'Festpreis-Angebot', d: 'Schriftlich, mit Material und Förderung.' },
+    { t: 'Ausführung', d: 'Sauber, pünktlich, mit Endreinigung.' },
   ];
 }
 function defaultFaq(t: TemplateKey) {
   if (t === 'restaurant') return [
-    { q: 'Kann man reservieren?', a: 'Ja, online Ã¼ber das Formular oder telefonisch.' },
+    { q: 'Kann man reservieren?', a: 'Ja, online über das Formular oder telefonisch.' },
     { q: 'Bieten Sie vegetarische Speisen?', a: 'Ja, drei vegetarische und zwei vegane Hauptgerichte.' },
     { q: 'Sind Sie barrierefrei?', a: 'Hauptraum ebenerdig, behindertengerechte Toilette vorhanden.' },
   ];
   if (t === 'salon') return [
-    { q: 'Wie lange im Voraus muss ich buchen?', a: 'Schnitt 3â€“7 Tage, FÃ¤rben 2â€“3 Wochen.' },
-    { q: 'Welche Produktlinien?', a: 'KÃ©rastase, Olaplex, Davines, Aveda.' },
+    { q: 'Wie lange im Voraus muss ich buchen?', a: 'Schnitt 3–7 Tage, Färben 2–3 Wochen.' },
+    { q: 'Welche Produktlinien?', a: 'Kérastase, Olaplex, Davines, Aveda.' },
   ];
   if (t === 'consulting') return [
-    { q: 'Wie lÃ¤uft ein Projekt typischerweise ab?', a: 'Discover â†’ Define â†’ Design â†’ Deliver, in 6â€“12 Wochen.' },
-    { q: 'Arbeiten Sie remote?', a: 'Ja, hybrid â€” wichtige Workshops gerne vor Ort.' },
-    { q: 'Was kostet ein ErstgesprÃ¤ch?', a: '45 Minuten kostenlos und unverbindlich.' },
+    { q: 'Wie läuft ein Projekt typischerweise ab?', a: 'Discover → Define → Design → Deliver, in 6–12 Wochen.' },
+    { q: 'Arbeiten Sie remote?', a: 'Ja, hybrid — wichtige Workshops gerne vor Ort.' },
+    { q: 'Was kostet ein Erstgespräch?', a: '45 Minuten kostenlos und unverbindlich.' },
   ];
   if (t === 'medical') return [
     { q: 'Welche Kassen werden akzeptiert?', a: 'Alle gesetzlichen und privaten Kassen.' },
-    { q: 'Wie buche ich einen Termin?', a: 'Ãœber Doctolib, jameda, telefonisch oder direkt online.' },
-    { q: 'Sind Sie barrierefrei?', a: 'Ja â€” Aufzug und behindertengerechtes WC vorhanden.' },
+    { q: 'Wie buche ich einen Termin?', a: 'Über Doctolib, jameda, telefonisch oder direkt online.' },
+    { q: 'Sind Sie barrierefrei?', a: 'Ja — Aufzug und behindertengerechtes WC vorhanden.' },
   ];
   if (t === 'fitness') return [
     { q: 'Gibt es ein Probetraining?', a: 'Ja, die erste Einheit ist gratis.' },
-    { q: 'Wie lange ist die Vertragslaufzeit?', a: 'Monatlich kÃ¼ndbar â€” keine KnebelvertrÃ¤ge.' },
+    { q: 'Wie lange ist die Vertragslaufzeit?', a: 'Monatlich kündbar — keine Knebelverträge.' },
     { q: 'Welche Kurse werden angeboten?', a: 'HIIT, Yoga, Boxing Cardio und Personal Training.' },
   ];
   return [
@@ -2032,98 +2075,98 @@ function defaultFaq(t: TemplateKey) {
 }
 function defaultValues(t: TemplateKey) {
   if (t === 'restaurant') return [
-    { t: 'Saisonal & ehrlich.', d: 'Lieber weniger Karte, dafÃ¼r perfekt.' },
+    { t: 'Saisonal & ehrlich.', d: 'Lieber weniger Karte, dafür perfekt.' },
     { t: 'Familie kocht.', d: 'Drei Generationen geben weiter.' },
-    { t: 'Zeit fÃ¼r GÃ¤ste.', d: 'Bewusst weniger Tische als mÃ¶glich.' },
+    { t: 'Zeit für Gäste.', d: 'Bewusst weniger Tische als möglich.' },
   ];
   if (t === 'salon') return [
     { t: 'Beratung vor Schere.', d: 'Was passt zu Ihrem Alltag, Haar, Ihnen.' },
-    { t: 'Pflege ist Handwerk.', d: 'Ehrliche Empfehlungen fÃ¼r zuhause.' },
-    { t: 'WohlfÃ¼hlen zÃ¤hlt.', d: 'Tee, Musik, Couch zum Warten.' },
+    { t: 'Pflege ist Handwerk.', d: 'Ehrliche Empfehlungen für zuhause.' },
+    { t: 'Wohlfühlen zählt.', d: 'Tee, Musik, Couch zum Warten.' },
   ];
   return [
     { t: 'Festpreis, keine Tricks.', d: 'Schriftlich vor Auftrag.' },
-    { t: 'PÃ¼nktlich heiÃŸt pÃ¼nktlich.', d: 'Sie hÃ¶ren vorher von uns.' },
+    { t: 'Pünktlich heißt pünktlich.', d: 'Sie hören vorher von uns.' },
     { t: 'Sauber arbeiten.', d: 'Schutzfolien, Endreinigung.' },
   ];
 }
 function defaultTeam(t: TemplateKey) {
   if (t === 'restaurant') return [
-    { n: 'Giulia Conti', r: 'KÃ¼chenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', bio: 'Lernte bei den GroÃŸeltern, kochte in Bologna und Wien.' },
-    { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: 'Steht seit zwÃ¶lf Jahren am Steinofen.' },
-    { n: 'Sofia Bianchi', r: 'SommeliÃ¨re', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', bio: 'BerÃ¤t zu Naturweinen.' },
+    { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien.' },
+    { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: 'Steht seit zwölf Jahren am Steinofen.' },
+    { n: 'Sofia Bianchi', r: 'Sommelière', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', bio: 'Berät zu Naturweinen.' },
   ];
   if (t === 'salon') return [
-    { n: 'Marie Hofer', r: 'Salon Lead', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: 'GrÃ¼ndete Studio LumiÃ¨re 2017.' },
-    { n: 'Anna Becker', r: 'Color-Spezialistin', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80', bio: 'KÃ©rastase Educator.' },
+    { n: 'Marie Hofer', r: 'Salon Lead', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: 'Gründete Studio Lumière 2017.' },
+    { n: 'Anna Becker', r: 'Color-Spezialistin', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80', bio: 'Kérastase Educator.' },
     { n: 'Lina Voss', r: 'Skin & Make-up', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', bio: 'Kosmetikerin und Make-up-Artistin.' },
   ];
   if (t === 'consulting') return [
-    { n: 'Dr. Klaus Hofer', r: 'Senior Partner Â· Strategie', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Ãœber 25 Jahre Beratung im Mittelstand. Schwerpunkt Industrie und Familienunternehmen.' },
-    { n: 'Lena Weiss', r: 'Partnerin Â· Steuer & Recht', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Steuerberaterin und AnwÃ¤ltin. Zuvor zehn Jahre in einer Big-Four-Kanzlei.' },
-    { n: 'Marcus Berg', r: 'Senior Manager Â· M&A', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'Begleitet Ãœbernahmen und Nachfolgen. Drei Jahre London, fÃ¼nf Jahre Wien.' },
+    { n: 'Dr. Klaus Hofer', r: 'Senior Partner · Strategie', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Über 25 Jahre Beratung im Mittelstand. Schwerpunkt Industrie und Familienunternehmen.' },
+    { n: 'Lena Weiss', r: 'Partnerin · Steuer & Recht', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Steuerberaterin und Anwältin. Zuvor zehn Jahre in einer Big-Four-Kanzlei.' },
+    { n: 'Marcus Berg', r: 'Senior Manager · M&A', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'Begleitet Übernahmen und Nachfolgen. Drei Jahre London, fünf Jahre Wien.' },
   ];
   if (t === 'medical') return [
-    { n: 'Dr. Anna Lindner', r: 'Praxisinhaberin Â· Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80', bio: 'Studium in Innsbruck und ZÃ¼rich. Ganzheitlicher Ansatz mit Zeit fÃ¼r GesprÃ¤che.' },
-    { n: 'Dr. Felix Bauer', r: 'Internist Â· Diagnostik', img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80', bio: 'Zehn Jahre UniversitÃ¤tsklinik. Schwerpunkt internistische Vorsorge.' },
-    { n: 'Maria Holzer', r: 'Praxisleitung Â· MTA', img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80', bio: 'Koordiniert Termine und AblÃ¤ufe. Erste Ansprechpartnerin am Empfang.' },
+    { n: 'Dr. Anna Lindner', r: 'Praxisinhaberin · Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80', bio: 'Studium in Innsbruck und Zürich. Ganzheitlicher Ansatz mit Zeit für Gespräche.' },
+    { n: 'Dr. Felix Bauer', r: 'Internist · Diagnostik', img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80', bio: 'Zehn Jahre Universitätsklinik. Schwerpunkt internistische Vorsorge.' },
+    { n: 'Maria Holzer', r: 'Praxisleitung · MTA', img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80', bio: 'Koordiniert Termine und Abläufe. Erste Ansprechpartnerin am Empfang.' },
   ];
   if (t === 'fitness') return [
-    { n: 'Sarah Berg', r: 'Studio-Leitung Â· Vinyasa', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
-    { n: 'Mira Klein', r: 'Yin & Mindful Movement', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im AllgÃ¤u.' },
+    { n: 'Sarah Berg', r: 'Studio-Leitung · Vinyasa', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
+    { n: 'Mira Klein', r: 'Yin & Mindful Movement', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
     { n: 'Jonas Renz', r: 'Reformer Pilates', img: 'https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?auto=format&fit=crop&w=600&q=80', bio: 'Physiotherapeut mit Pilates-Spezialisierung. Trainiert Sportler:innen und Reha-Klient:innen.' },
   ];
   return [
-    { n: 'Stefan Mayer', r: 'GeschÃ¤ftsfÃ¼hrer Â· Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Ãœbernahm den Familienbetrieb 2008.' },
-    { n: 'Andreas Mayer', r: 'Bauleiter Â· Meister', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80', bio: 'Ãœber 200 Projekte begleitet.' },
-    { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: '24/7 fÃ¼r NotfÃ¤lle bereit.' },
+    { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Übernahm den Familienbetrieb 2008.' },
+    { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80', bio: 'Über 200 Projekte begleitet.' },
+    { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: '24/7 für Notfälle bereit.' },
   ];
 }
 function defaultArrival(t: TemplateKey) {
   if (t === 'restaurant') return [
     { t: 'Mit dem Auto', d: 'Tiefgarage Maria-Theresien direkt nebenan.' },
-    { t: 'Mit der Bahn', d: '5 Minuten FuÃŸweg vom Hauptbahnhof.' },
+    { t: 'Mit der Bahn', d: '5 Minuten Fußweg vom Hauptbahnhof.' },
     { t: 'Barrierefrei', d: 'Hauptraum ebenerdig.' },
   ];
   if (t === 'salon') return [
-    { t: 'Anfahrt', d: 'U3/U6 MÃ¼nchner Freiheit, 3 Min zu FuÃŸ.' },
-    { t: 'Parken', d: 'Tiefgarage Leopoldpark vor der TÃ¼r.' },
+    { t: 'Anfahrt', d: 'U3/U6 Münchner Freiheit, 3 Min zu Fuß.' },
+    { t: 'Parken', d: 'Tiefgarage Leopoldpark vor der Tür.' },
     { t: 'Termin verlegen', d: 'Bis 24 h vorher gerne kostenlos.' },
   ];
   return [
     { t: 'Notdienst', d: 'Rund um die Uhr erreichbar.' },
     { t: 'Anfahrtsgebiet', d: 'Ingolstadt und 30 km Umkreis.' },
-    { t: 'Beratung vor Ort', d: 'ErstgesprÃ¤ch kostenlos.' },
+    { t: 'Beratung vor Ort', d: 'Erstgespräch kostenlos.' },
   ];
 }
 function defaultNumbers(t: TemplateKey) {
   if (t === 'restaurant') return [
     { value: '1998', label: 'Familienbetrieb seit' },
-    { value: '64', label: 'PlÃ¤tze drinnen' },
-    { value: '4,9', label: 'Sterne Ã˜' },
+    { value: '64', label: 'Plätze drinnen' },
+    { value: '4,9', label: 'Sterne Ø' },
     { value: '28', label: 'Weine offen' },
   ];
   if (t === 'salon') return [
     { value: '6', label: 'Stylist:innen' },
     { value: '12', label: 'Treatments' },
-    { value: '4,9', label: 'Sterne Ã˜' },
+    { value: '4,9', label: 'Sterne Ø' },
     { value: '2017', label: 'Studio seit' },
   ];
   if (t === 'consulting') return [
     { value: '120+', label: 'Projekte' },
     { value: '18', label: 'Branchen' },
     { value: '92 %', label: 'NPS' },
-    { value: '6â€“12', label: 'Wochen Laufzeit' },
+    { value: '6–12', label: 'Wochen Laufzeit' },
   ];
   if (t === 'medical') return [
-    { value: '12', label: 'Ã˜ Wartezeit (min)' },
-    { value: '8', label: 'BehandlungsrÃ¤ume' },
-    { value: '4,9', label: 'Sterne Ã˜' },
+    { value: '12', label: 'Ø Wartezeit (min)' },
+    { value: '8', label: 'Behandlungsräume' },
+    { value: '4,9', label: 'Sterne Ø' },
     { value: '2009', label: 'Praxis seit' },
   ];
   if (t === 'fitness') return [
     { value: '12+', label: 'Klassen pro Woche' },
-    { value: '350+', label: 'StammgÃ¤ste' },
+    { value: '350+', label: 'Stammgäste' },
     { value: '8', label: 'max. pro Klasse' },
     { value: '5', label: 'Lehrer:innen' },
   ];
@@ -2135,20 +2178,20 @@ function defaultNumbers(t: TemplateKey) {
   ];
 }
 function defaultCta(t: TemplateKey) {
-  if (t === 'restaurant') return { eyebrow: 'Bereit?', lead: 'Hunger?', sub: 'Wir freuen uns, Sie an unserem Tisch begrÃ¼ÃŸen zu dÃ¼rfen.', cta: 'Tisch reservieren', ctaHref: '/kontakt' };
-  if (t === 'salon') return { eyebrow: 'Bereit?', lead: 'Bereit fÃ¼r etwas Neues?', sub: 'Wir nehmen uns die Zeit â€“ fÃ¼r Sie, fÃ¼r Ihren Look.', cta: 'Termin buchen', ctaHref: '/kontakt' };
-  if (t === 'consulting') return { eyebrow: 'Bereit?', lead: 'Lassen Sie uns reden.', sub: '45 Minuten ErstgesprÃ¤ch â€” kostenlos und unverbindlich.', cta: 'Termin vereinbaren', ctaHref: '/kontakt' };
-  if (t === 'medical') return { eyebrow: 'Bereit?', lead: 'Wir sind fÃ¼r Sie da.', sub: 'Online-Termin in unter zwei Minuten gebucht.', cta: 'Termin buchen', ctaHref: '/kontakt' };
-  if (t === 'fitness') return { eyebrow: 'Bereit?', lead: 'Starten Sie heute.', sub: 'Probetraining gratis â€” wir freuen uns auf Sie.', cta: 'Probetraining sichern', ctaHref: '/kontakt' };
+  if (t === 'restaurant') return { eyebrow: 'Bereit?', lead: 'Hunger?', sub: 'Wir freuen uns, Sie an unserem Tisch begrüßen zu dürfen.', cta: 'Tisch reservieren', ctaHref: '/kontakt' };
+  if (t === 'salon') return { eyebrow: 'Bereit?', lead: 'Bereit für etwas Neues?', sub: 'Wir nehmen uns die Zeit – für Sie, für Ihren Look.', cta: 'Termin buchen', ctaHref: '/kontakt' };
+  if (t === 'consulting') return { eyebrow: 'Bereit?', lead: 'Lassen Sie uns reden.', sub: '45 Minuten Erstgespräch — kostenlos und unverbindlich.', cta: 'Termin vereinbaren', ctaHref: '/kontakt' };
+  if (t === 'medical') return { eyebrow: 'Bereit?', lead: 'Wir sind für Sie da.', sub: 'Online-Termin in unter zwei Minuten gebucht.', cta: 'Termin buchen', ctaHref: '/kontakt' };
+  if (t === 'fitness') return { eyebrow: 'Bereit?', lead: 'Starten Sie heute.', sub: 'Probetraining gratis — wir freuen uns auf Sie.', cta: 'Probetraining sichern', ctaHref: '/kontakt' };
   return { eyebrow: 'Bereit?', lead: 'Etwas tropft?', sub: 'Wir melden uns binnen 24 h mit einem Festpreis-Angebot.', cta: 'Jetzt anfragen', ctaHref: '/kontakt' };
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   Phase 2 â€” Branch-specific module editors
+/* ═══════════════════════════════════════════════════════════════════
+   Phase 2 — Branch-specific module editors
    Wired into ServicesPageEditor (conditional by tpl).
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* â”€â”€â”€â”€â”€ Restaurant: menu (categorised) â”€â”€â”€â”€â”€ */
+/* ───── Restaurant: menu (categorised) ───── */
 type MenuItem = { name: string; description?: string; price?: string; allergens?: string; tags?: string[] };
 type MenuCategory = { category: string; description?: string; items: MenuItem[] };
 
@@ -2166,7 +2209,7 @@ function MenuEditor({ data, setData }: SetterProps) {
               <p className="text-sm font-medium truncate">{cat.category || 'Neue Kategorie'}</p>
               <p className="text-xs text-muted truncate">{cat.items.length} Gerichte</p>
             </div>
-            <span className="text-muted text-xs">â–¾</span>
+            <span className="text-muted text-xs">▾</span>
           </summary>
           <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
             <Field label="Kategorie">
@@ -2194,7 +2237,7 @@ function MenuEditor({ data, setData }: SetterProps) {
                     </div>
                   </div>
                 ))}
-                <button onClick={() => setCat(i, { ...cat, items: [...cat.items, { name: '', description: '', price: '', allergens: '', tags: [] }] })} className="btn-outline !px-4 !py-2 text-sm">+ Gericht hinzufÃ¼gen</button>
+                <button onClick={() => setCat(i, { ...cat, items: [...cat.items, { name: '', description: '', price: '', allergens: '', tags: [] }] })} className="btn-outline !px-4 !py-2 text-sm">+ Gericht hinzufügen</button>
               </div>
             </div>
             <div className="flex justify-end">
@@ -2203,12 +2246,12 @@ function MenuEditor({ data, setData }: SetterProps) {
           </div>
         </details>
       ))}
-      <button onClick={() => setList([...list, { category: '', description: '', items: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Kategorie hinzufÃ¼gen</button>
+      <button onClick={() => setList([...list, { category: '', description: '', items: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Kategorie hinzufügen</button>
     </div>
   );
 }
 
-/* â”€â”€â”€â”€â”€ Hotel: rooms â”€â”€â”€â”€â”€ */
+/* ───── Hotel: rooms ───── */
 type Room = { name: string; description?: string; size?: string; beds?: string; price?: string; imageUrl?: string; features?: string[] };
 
 function RoomsEditor({ data, setData }: SetterProps) {
@@ -2223,17 +2266,17 @@ function RoomsEditor({ data, setData }: SetterProps) {
             {r.imageUrl ? <img src={r.imageUrl} alt="" className="h-9 w-12 rounded object-cover" /> : <div className="h-9 w-12 rounded bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{r.name || 'Neues Zimmer'}</p>
-              <p className="text-xs text-muted truncate">{[r.size, r.beds, r.price].filter(Boolean).join(' Â· ')}</p>
+              <p className="text-xs text-muted truncate">{[r.size, r.beds, r.price].filter(Boolean).join(' · ')}</p>
             </div>
-            <span className="text-muted text-xs">â–¾</span>
+            <span className="text-muted text-xs">▾</span>
           </summary>
           <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
             <Field label="Name"><input className={inputCls} value={r.name} onChange={(e) => update(i, { ...r, name: e.target.value })} /></Field>
             <Field label="Beschreibung"><textarea className={inputCls} rows={2} value={r.description || ''} onChange={(e) => update(i, { ...r, description: e.target.value })} /></Field>
             <div className="grid sm:grid-cols-3 gap-2">
-              <input className={inputCls} placeholder="GrÃ¶ÃŸe (z. B. 32 mÂ²)" value={r.size || ''} onChange={(e) => update(i, { ...r, size: e.target.value })} />
+              <input className={inputCls} placeholder="Größe (z. B. 32 m²)" value={r.size || ''} onChange={(e) => update(i, { ...r, size: e.target.value })} />
               <input className={inputCls} placeholder="Betten (z. B. King)" value={r.beds || ''} onChange={(e) => update(i, { ...r, beds: e.target.value })} />
-              <input className={inputCls} placeholder="Preis (z. B. ab 180 â‚¬)" value={r.price || ''} onChange={(e) => update(i, { ...r, price: e.target.value })} />
+              <input className={inputCls} placeholder="Preis (z. B. ab 180 €)" value={r.price || ''} onChange={(e) => update(i, { ...r, price: e.target.value })} />
             </div>
             <Field label="Ausstattung (kommasepariert)">
               <input className={inputCls} value={(r.features || []).join(', ')} onChange={(e) => update(i, { ...r, features: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} />
@@ -2243,12 +2286,12 @@ function RoomsEditor({ data, setData }: SetterProps) {
           </div>
         </details>
       ))}
-      <button onClick={() => setList([...list, { name: '', description: '', size: '', beds: '', price: '', imageUrl: '', features: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Zimmer hinzufÃ¼gen</button>
+      <button onClick={() => setList([...list, { name: '', description: '', size: '', beds: '', price: '', imageUrl: '', features: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Zimmer hinzufügen</button>
     </div>
   );
 }
 
-/* â”€â”€â”€â”€â”€ Tourism: tours â”€â”€â”€â”€â”€ */
+/* ───── Tourism: tours ───── */
 type Tour = { name: string; description?: string; duration?: string; level?: string; groupSize?: string; price?: string; imageUrl?: string; languages?: string[] };
 
 function ToursEditor({ data, setData }: SetterProps) {
@@ -2263,9 +2306,9 @@ function ToursEditor({ data, setData }: SetterProps) {
             {t.imageUrl ? <img src={t.imageUrl} alt="" className="h-9 w-12 rounded object-cover" /> : <div className="h-9 w-12 rounded bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{t.name || 'Neue Tour'}</p>
-              <p className="text-xs text-muted truncate">{[t.duration, t.level, t.price].filter(Boolean).join(' Â· ')}</p>
+              <p className="text-xs text-muted truncate">{[t.duration, t.level, t.price].filter(Boolean).join(' · ')}</p>
             </div>
-            <span className="text-muted text-xs">â–¾</span>
+            <span className="text-muted text-xs">▾</span>
           </summary>
           <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
             <Field label="Name"><input className={inputCls} value={t.name} onChange={(e) => update(i, { ...t, name: e.target.value })} /></Field>
@@ -2273,7 +2316,7 @@ function ToursEditor({ data, setData }: SetterProps) {
             <div className="grid sm:grid-cols-2 gap-2">
               <input className={inputCls} placeholder="Dauer (z. B. 4 Std.)" value={t.duration || ''} onChange={(e) => update(i, { ...t, duration: e.target.value })} />
               <input className={inputCls} placeholder='Level (z. B. "2/4 mittel")' value={t.level || ''} onChange={(e) => update(i, { ...t, level: e.target.value })} />
-              <input className={inputCls} placeholder="GruppengrÃ¶ÃŸe" value={t.groupSize || ''} onChange={(e) => update(i, { ...t, groupSize: e.target.value })} />
+              <input className={inputCls} placeholder="Gruppengröße" value={t.groupSize || ''} onChange={(e) => update(i, { ...t, groupSize: e.target.value })} />
               <input className={inputCls} placeholder="Preis" value={t.price || ''} onChange={(e) => update(i, { ...t, price: e.target.value })} />
             </div>
             <Field label="Sprachen (kommasepariert)">
@@ -2284,26 +2327,26 @@ function ToursEditor({ data, setData }: SetterProps) {
           </div>
         </details>
       ))}
-      <button onClick={() => setList([...list, { name: '', description: '', duration: '', level: '', groupSize: '', price: '', imageUrl: '', languages: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Tour hinzufÃ¼gen</button>
+      <button onClick={() => setList([...list, { name: '', description: '', duration: '', level: '', groupSize: '', price: '', imageUrl: '', languages: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Tour hinzufügen</button>
     </div>
   );
 }
 
-/* â”€â”€â”€â”€â”€ Salon: treatments â”€â”€â”€â”€â”€ */
+/* ───── Salon: treatments ───── */
 type Treatment = { name: string; description?: string; duration?: string; price?: string; category?: string };
 
 function TreatmentsEditor({ data, setData }: SetterProps) {
   const list = ((data as any).treatments as Treatment[] | undefined) ?? [];
   const setList = (next: Treatment[]) => setData({ ...(data as any), treatments: next } as SiteContent);
   return (
-    <RepeatableList items={list} onChange={setList} addLabel="+ Behandlung hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={setList} addLabel="+ Behandlung hinzufügen"
       newItem={() => ({ name: '', description: '', duration: '', price: '', category: '' })}
       render={(v, _i, set) => (
         <div className="grid sm:grid-cols-2 gap-2 flex-1">
-          <input className={inputCls} placeholder="Kategorie (z. B. Hair â€“ Color)" value={v.category || ''} onChange={(e) => set({ ...v, category: e.target.value })} />
+          <input className={inputCls} placeholder="Kategorie (z. B. Hair – Color)" value={v.category || ''} onChange={(e) => set({ ...v, category: e.target.value })} />
           <input className={inputCls} placeholder="Name" value={v.name} onChange={(e) => set({ ...v, name: e.target.value })} />
           <input className={inputCls} placeholder="Dauer (z. B. 60 min)" value={v.duration || ''} onChange={(e) => set({ ...v, duration: e.target.value })} />
-          <input className={inputCls} placeholder="Preis (z. B. ab 75 â‚¬)" value={v.price || ''} onChange={(e) => set({ ...v, price: e.target.value })} />
+          <input className={inputCls} placeholder="Preis (z. B. ab 75 €)" value={v.price || ''} onChange={(e) => set({ ...v, price: e.target.value })} />
           <input className={inputCls + ' sm:col-span-2'} placeholder="Beschreibung (optional)" value={v.description || ''} onChange={(e) => set({ ...v, description: e.target.value })} />
         </div>
       )}
@@ -2311,19 +2354,19 @@ function TreatmentsEditor({ data, setData }: SetterProps) {
   );
 }
 
-/* â”€â”€â”€â”€â”€ Fitness: courses â”€â”€â”€â”€â”€ */
+/* ───── Fitness: courses ───── */
 type Course = { name: string; description?: string; schedule?: string; level?: string; duration?: string; trainer?: string; price?: string };
 
 function CoursesEditor({ data, setData }: SetterProps) {
   const list = ((data as any).courses as Course[] | undefined) ?? [];
   const setList = (next: Course[]) => setData({ ...(data as any), courses: next } as SiteContent);
   return (
-    <RepeatableList items={list} onChange={setList} addLabel="+ Kurs hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={setList} addLabel="+ Kurs hinzufügen"
       newItem={() => ({ name: '', description: '', schedule: '', level: '', duration: '', trainer: '', price: '' })}
       render={(v, _i, set) => (
         <div className="grid sm:grid-cols-2 gap-2 flex-1">
           <input className={inputCls} placeholder="Name" value={v.name} onChange={(e) => set({ ...v, name: e.target.value })} />
-          <input className={inputCls} placeholder="Zeitplan (Mo 18:00 Â· Mi 19:30)" value={v.schedule || ''} onChange={(e) => set({ ...v, schedule: e.target.value })} />
+          <input className={inputCls} placeholder="Zeitplan (Mo 18:00 · Mi 19:30)" value={v.schedule || ''} onChange={(e) => set({ ...v, schedule: e.target.value })} />
           <input className={inputCls} placeholder="Level" value={v.level || ''} onChange={(e) => set({ ...v, level: e.target.value })} />
           <input className={inputCls} placeholder="Dauer (60 min)" value={v.duration || ''} onChange={(e) => set({ ...v, duration: e.target.value })} />
           <input className={inputCls} placeholder="Trainer:in" value={v.trainer || ''} onChange={(e) => set({ ...v, trainer: e.target.value })} />
@@ -2335,7 +2378,7 @@ function CoursesEditor({ data, setData }: SetterProps) {
   );
 }
 
-/* â”€â”€â”€â”€â”€ Fitness/Consulting: packages â”€â”€â”€â”€â”€ */
+/* ───── Fitness/Consulting: packages ───── */
 type Pkg = { name: string; price: string; period?: string; description?: string; features?: string[]; highlight?: boolean; ctaLabel?: string; ctaHref?: string };
 
 function PackagesEditor({ data, setData }: SetterProps) {
@@ -2352,12 +2395,12 @@ function PackagesEditor({ data, setData }: SetterProps) {
               <p className="text-sm font-medium truncate">{p.name || 'Neues Paket'}{p.highlight && <span className="ml-2 text-[10px] uppercase bg-brand text-white rounded-full px-2 py-0.5">Highlight</span>}</p>
               <p className="text-xs text-muted truncate">{[p.price, p.period].filter(Boolean).join(' ')}</p>
             </div>
-            <span className="text-muted text-xs">â–¾</span>
+            <span className="text-muted text-xs">▾</span>
           </summary>
           <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
             <div className="grid sm:grid-cols-2 gap-2">
               <input className={inputCls} placeholder="Paket-Name" value={p.name} onChange={(e) => update(i, { ...p, name: e.target.value })} />
-              <input className={inputCls} placeholder="Preis (z. B. 89 â‚¬)" value={p.price} onChange={(e) => update(i, { ...p, price: e.target.value })} />
+              <input className={inputCls} placeholder="Preis (z. B. 89 €)" value={p.price} onChange={(e) => update(i, { ...p, price: e.target.value })} />
               <input className={inputCls} placeholder="Periode (z. B. / Monat)" value={p.period || ''} onChange={(e) => update(i, { ...p, period: e.target.value })} />
               <input className={inputCls} placeholder="Kurzbeschreibung" value={p.description || ''} onChange={(e) => update(i, { ...p, description: e.target.value })} />
             </div>
@@ -2375,19 +2418,19 @@ function PackagesEditor({ data, setData }: SetterProps) {
           </div>
         </details>
       ))}
-      <button onClick={() => setList([...list, { name: '', price: '', period: '', description: '', features: [], highlight: false, ctaLabel: '', ctaHref: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Paket hinzufÃ¼gen</button>
+      <button onClick={() => setList([...list, { name: '', price: '', period: '', description: '', features: [], highlight: false, ctaLabel: '', ctaHref: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Paket hinzufügen</button>
     </div>
   );
 }
 
-/* â”€â”€â”€â”€â”€ Consulting: process steps â”€â”€â”€â”€â”€ */
+/* ───── Consulting: process steps ───── */
 type Step = { title: string; description?: string; duration?: string };
 
 function ProcessStepsEditor({ data, setData }: SetterProps) {
   const list = ((data as any).processSteps as Step[] | undefined) ?? [];
   const setList = (next: Step[]) => setData({ ...(data as any), processSteps: next } as SiteContent);
   return (
-    <RepeatableList items={list} onChange={setList} addLabel="+ Schritt hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={setList} addLabel="+ Schritt hinzufügen"
       newItem={() => ({ title: '', description: '', duration: '' })}
       render={(v, i, set) => (
         <div className="grid sm:grid-cols-[80px_1fr_120px] gap-2 flex-1 items-start">
@@ -2401,7 +2444,7 @@ function ProcessStepsEditor({ data, setData }: SetterProps) {
   );
 }
 
-/* â”€â”€â”€â”€â”€ Medical: doctors â”€â”€â”€â”€â”€ */
+/* ───── Medical: doctors ───── */
 type Doctor = { name: string; role?: string; specialty?: string; imageUrl?: string; bio?: string };
 
 function DoctorsEditor({ data, setData }: SetterProps) {
@@ -2416,13 +2459,13 @@ function DoctorsEditor({ data, setData }: SetterProps) {
             {d.imageUrl ? <img src={d.imageUrl} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{d.name || 'Neuer Eintrag'}</p>
-              <p className="text-xs text-muted truncate">{[d.role, d.specialty].filter(Boolean).join(' Â· ')}</p>
+              <p className="text-xs text-muted truncate">{[d.role, d.specialty].filter(Boolean).join(' · ')}</p>
             </div>
-            <span className="text-muted text-xs">â–¾</span>
+            <span className="text-muted text-xs">▾</span>
           </summary>
           <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
             <div className="grid sm:grid-cols-2 gap-2">
-              <input className={inputCls} placeholder="Name (z. B. Dr. med. â€¦)" value={d.name} onChange={(e) => update(i, { ...d, name: e.target.value })} />
+              <input className={inputCls} placeholder="Name (z. B. Dr. med. …)" value={d.name} onChange={(e) => update(i, { ...d, name: e.target.value })} />
               <input className={inputCls} placeholder="Rolle (z. B. Praxisinhaberin)" value={d.role || ''} onChange={(e) => update(i, { ...d, role: e.target.value })} />
             </div>
             <Field label="Fachgebiet"><input className={inputCls} value={d.specialty || ''} onChange={(e) => update(i, { ...d, specialty: e.target.value })} /></Field>
@@ -2432,12 +2475,12 @@ function DoctorsEditor({ data, setData }: SetterProps) {
           </div>
         </details>
       ))}
-      <button onClick={() => setList([...list, { name: '', role: '', specialty: '', imageUrl: '', bio: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Person hinzufÃ¼gen</button>
+      <button onClick={() => setList([...list, { name: '', role: '', specialty: '', imageUrl: '', bio: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Person hinzufügen</button>
     </div>
   );
 }
 
-/* â”€â”€â”€â”€â”€ Medical: booking config â”€â”€â”€â”€â”€ */
+/* ───── Medical: booking config ───── */
 type Booking = { enabled?: boolean; provider?: string; url?: string; embedUrl?: string; note?: string };
 
 function BookingEditor({ data, setData }: SetterProps) {
@@ -2449,7 +2492,7 @@ function BookingEditor({ data, setData }: SetterProps) {
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Anbieter">
           <select className={inputCls} value={v.provider || ''} onChange={(e) => set({ ...v, provider: e.target.value })}>
-            <option value="">â€” wÃ¤hlen â€”</option>
+            <option value="">— wählen —</option>
             <option value="Doctolib">Doctolib</option>
             <option value="jameda">jameda</option>
             <option value="TIMIFY">TIMIFY</option>
@@ -2457,7 +2500,7 @@ function BookingEditor({ data, setData }: SetterProps) {
             <option value="Custom">Andere</option>
           </select>
         </Field>
-        <Field label="Profil-URL (fÃ¼r CTA)"><input className={inputCls} placeholder="https://www.doctolib.de/â€¦" value={v.url || ''} onChange={(e) => set({ ...v, url: e.target.value })} /></Field>
+        <Field label="Profil-URL (für CTA)"><input className={inputCls} placeholder="https://www.doctolib.de/…" value={v.url || ''} onChange={(e) => set({ ...v, url: e.target.value })} /></Field>
       </div>
       <Field label="Embed-URL (optional)" hint="Wenn gesetzt wird ein Iframe eingebettet statt eines CTA-Buttons.">
         <input className={inputCls} value={v.embedUrl || ''} onChange={(e) => set({ ...v, embedUrl: e.target.value })} />
@@ -2467,14 +2510,14 @@ function BookingEditor({ data, setData }: SetterProps) {
   );
 }
 
-/* â”€â”€â”€â”€â”€ Tradesman: funding items â”€â”€â”€â”€â”€ */
+/* ───── Tradesman: funding items ───── */
 type FundingItem = { title: string; description?: string; percent?: string; program?: string };
 
 function FundingEditor({ data, setData }: SetterProps) {
   const list = ((data as any).fundingItems as FundingItem[] | undefined) ?? [];
   const setList = (next: FundingItem[]) => setData({ ...(data as any), fundingItems: next } as SiteContent);
   return (
-    <RepeatableList items={list} onChange={setList} addLabel="+ FÃ¶rderung hinzufÃ¼gen"
+    <RepeatableList items={list} onChange={setList} addLabel="+ Förderung hinzufügen"
       newItem={() => ({ title: '', description: '', percent: '', program: '' })}
       render={(v, _i, set) => (
         <div className="grid sm:grid-cols-2 gap-2 flex-1">
@@ -2488,7 +2531,7 @@ function FundingEditor({ data, setData }: SetterProps) {
   );
 }
 
-/* â”€â”€â”€â”€â”€ Tradesman: emergency banner â”€â”€â”€â”€â”€ */
+/* ───── Tradesman: emergency banner ───── */
 type EmergencyBanner = { enabled?: boolean; text?: string; phone?: string; sticky?: boolean };
 
 function EmergencyBannerEditor({ data, setData }: SetterProps) {
@@ -2501,7 +2544,7 @@ function EmergencyBannerEditor({ data, setData }: SetterProps) {
         <input className={inputCls} placeholder="24 h Notdienst" value={v.text || ''} onChange={(e) => set({ ...v, text: e.target.value })} />
       </Field>
       <Field label="Telefonnummer">
-        <input className={inputCls} placeholder="+49 â€¦" value={v.phone || ''} onChange={(e) => set({ ...v, phone: e.target.value })} />
+        <input className={inputCls} placeholder="+49 …" value={v.phone || ''} onChange={(e) => set({ ...v, phone: e.target.value })} />
       </Field>
       <Toggle value={v.sticky !== false} onChange={(b) => set({ ...v, sticky: b })} label="Sticky (unten rechts beim Scrollen einblenden)" />
     </div>

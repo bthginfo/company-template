@@ -320,6 +320,14 @@ export const SiteContentSchema = z.object({
     to: z.string().optional().default(''),
     autoReply: z.boolean().optional().default(true),
   }).optional().default({}),
+
+  /**
+   * Per-section visibility on the home page. Each key maps to a section
+   * (action, signature, services, gallery, numbers, about, testimonials,
+   * news, menu, rooms, tours, treatments, funding). Default: visible (true).
+   * Setting a key to `false` hides that section on the rendered home page.
+   */
+  sectionVisibility: z.record(z.boolean()).optional().default({}),
 });
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;

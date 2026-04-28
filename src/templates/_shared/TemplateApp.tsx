@@ -296,6 +296,12 @@ function HomePage({ variant, content, style }: { variant: TemplateVariant; conte
   return <HomePageClassic variant={variant} content={content} />;
 }
 
+/** Per-tenant visibility check. Defaults to true when no flag is set. */
+function isSectionVisible(content: SiteContent, key: string): boolean {
+  const v = (content as any).sectionVisibility?.[key];
+  return v === undefined ? true : !!v;
+}
+
 /**
  * BRANCH_STYLE_ORDER — full 5×3 = 15 distinct section flows.
  * Each (variant, style) tells a different narrative arc, so Restaurant/Classic
@@ -334,7 +340,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
   const featuredServices = content.services.slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = resolveHeroMeta(variant, content);
-  const order = BRANCH_STYLE_ORDER[variant].classic;
+  const order = BRANCH_STYLE_ORDER[variant].classic.filter((k) => isSectionVisible(content, k));
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
@@ -410,7 +416,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
       {order.map((key) => (
         <React.Fragment key={key}>{blocks[key]}</React.Fragment>
       ))}
-      <CtaBand variant={variant} content={content} />
+      {isSectionVisible(content, 'softCta') && <CtaBand variant={variant} content={content} />}
     </>
   );
 }
@@ -470,9 +476,10 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
         </div>
       </section>
 
-      <BranchActionStrip variant={variant} content={content} />
+      {isSectionVisible(content, 'action') && <BranchActionStrip variant={variant} content={content} />}
 
       {/* Feature grid wrapped with cursor-following spotlight */}
+      {isSectionVisible(content, 'services') && (
       <SpotlightSection
         as="div"
         color="rgba(242,65,113,0.16)"
@@ -499,14 +506,16 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           </div>
         </Section>
       </SpotlightSection>
+      )}
 
       {/* Branch + style signature block */}
-      <BranchSignature variant={variant} style="modern" content={content} />
+      {isSectionVisible(content, 'signature') && <BranchSignature variant={variant} style="modern" content={content} />}
 
       {/* Branch-specific module (Menu / Rooms / Tours / Treatments / Funding…) */}
-      <BranchModulesInline variant={variant} content={content} />
+      {isSectionVisible(content, 'branchModule') && <BranchModulesInline variant={variant} content={content} />}
 
       {/* Logos / press strip */}
+      {isSectionVisible(content, 'logos') && (
       <section className="py-14 border-y border-line">
         <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
           {(variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
@@ -517,9 +526,10 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           ))}
         </div>
       </section>
+      )}
 
       {/* About teaser */}
-      {content.about?.body && (
+      {isSectionVisible(content, 'about') && content.about?.body && (
         <Section eyebrow="Über uns" title={<>{splitTitle(content.about.title || 'Über uns')}</>}>
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div className="prose-lite reveal">
@@ -538,7 +548,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       )}
 
       {/* Gallery teaser – clean grid */}
-      {featuredGallery.length > 0 && (
+      {isSectionVisible(content, 'gallery') && featuredGallery.length > 0 && (
         <Section eyebrow="Galerie" title={galleryTeaserTitle(variant, content)} className="surface">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
             {featuredGallery.map((src, i) => (
@@ -554,14 +564,16 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       )}
 
       {/* FAQ accordion */}
+      {isSectionVisible(content, 'faq') && (
       <Section eyebrow="Häufig gefragt" title={<>Antworten auf <em className="italic-pop">Ihre Fragen.</em></>}>
         <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
+      )}
 
-      <NewsPreview content={content} />
+      {isSectionVisible(content, 'news') && <NewsPreview content={content} />}
 
       {/* Soft CTA */}
-      {(() => {
+      {isSectionVisible(content, 'softCta') && (() => {
         const t = effectiveBranchText(variant, content);
         return (
           <section className="py-24 surface">
@@ -619,9 +631,10 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         )}
       </section>
 
-      <BranchActionStrip variant={variant} content={content} />
+      {isSectionVisible(content, 'action') && <BranchActionStrip variant={variant} content={content} />}
 
       {/* Asymmetric statement split */}
+      {isSectionVisible(content, 'about') && (
       <section className="py-24 md:py-36">
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-5 md:col-start-2">
@@ -638,14 +651,16 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           </div>
         </div>
       </section>
+      )}
 
       {/* Branch + style signature block */}
-      <BranchSignature variant={variant} style="bold" content={content} />
+      {isSectionVisible(content, 'signature') && <BranchSignature variant={variant} style="bold" content={content} />}
 
       {/* Branch-specific module (Menu / Rooms / Tours / Treatments / Funding…) */}
-      <BranchModulesInline variant={variant} content={content} />
+      {isSectionVisible(content, 'branchModule') && <BranchModulesInline variant={variant} content={content} />}
 
       {/* Big colored services as numbered editorial list */}
+      {isSectionVisible(content, 'services') && (
       <section className="py-24 md:py-36 bg-brand text-white">
         <div className="container-x">
           <div className="flex items-end justify-between gap-6 mb-16">
@@ -667,12 +682,13 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           </ol>
         </div>
       </section>
+      )}
 
       {/* Oversized stats with grain */}
-      <NumbersBand variant={variant} content={content} />
+      {isSectionVisible(content, 'numbers') && <NumbersBand variant={variant} content={content} />}
 
       {/* Real masonry gallery teaser */}
-      {featuredGallery.length > 0 && (
+      {isSectionVisible(content, 'gallery') && featuredGallery.length > 0 && (
         <section className="py-24 md:py-36">
           <div className="container-x">
             <div className="flex items-end justify-between gap-6 mb-12">
@@ -688,7 +704,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
       )}
 
       {/* Testimonials – big quote */}
-      {content.testimonials.length > 0 && (
+      {isSectionVisible(content, 'testimonials') && content.testimonials.length > 0 && (
         <>
           <div className="py-8 bg-[var(--accent-color)] text-[var(--accent-fg)] border-y border-brand/20">
             <MarqueeTrack speed={50}>
@@ -720,9 +736,10 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         </>
       )}
 
-      <NewsPreview content={content} eyebrow="Aktuelles" title="Notizen." />
+      {isSectionVisible(content, 'news') && <NewsPreview content={content} eyebrow="Aktuelles" title="Notizen." />}
 
       {/* Bold CTA */}
+      {isSectionVisible(content, 'softCta') && (
       <section className="py-32 md:py-44 bg-[var(--accent-color)] text-brand grain">
         <div className="container-x text-center reveal">
           <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">
@@ -732,6 +749,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           <TLink to="/kontakt" className="btn-primary mt-10">Jetzt Kontakt <span aria-hidden>→</span></TLink>
         </div>
       </section>
+      )}
     </>
   );
 }
@@ -880,20 +898,15 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
   if (variant === 'hotel') {
     return (
       <section className="bg-white border-y border-line">
-        <div className="container-x py-6 grid md:grid-cols-[1fr_auto_auto_auto] gap-3 items-end">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-muted">Verfügbarkeit prüfen</p>
-            <p className="font-display text-xl mt-1">Ihr Aufenthalt bei {content.brand.name}</p>
-          </div>
-          <label className="text-xs">
-            <span className="block text-muted uppercase tracking-widest text-[10px] mb-1">Anreise</span>
-            <input type="date" className="border border-line rounded-lg px-3 py-2 text-sm" />
-          </label>
-          <label className="text-xs">
-            <span className="block text-muted uppercase tracking-widest text-[10px] mb-1">Abreise</span>
-            <input type="date" className="border border-line rounded-lg px-3 py-2 text-sm" />
-          </label>
-          <TLink to="/buchen" className="btn-primary !py-2 !px-5 !text-xs h-fit">Verfügbarkeit prüfen →</TLink>
+        <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
+          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs text-brand">
+            <span className="h-2 w-2 rounded-full bg-[var(--accent-color)]" /> Direkt-Anfrage
+          </span>
+          <span className="text-muted hidden md:inline">Persönliche Beratung · Antwort innerhalb eines Werktages</span>
+          <span className="ml-auto flex flex-wrap gap-3 items-center">
+            {phone && <a href={phoneHref} className="btn-outline !py-2 !px-4 !text-xs">{phone}</a>}
+            <TLink to="/kontakt" className="btn-primary !py-2 !px-5 !text-xs h-fit">Zimmer anfragen →</TLink>
+          </span>
         </div>
       </section>
     );
@@ -931,7 +944,7 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
           <span className="text-muted hidden md:inline">Frei wählbar · Stornierung kostenlos bis 24 h vorher</span>
           <span className="ml-auto flex flex-wrap gap-3">
             {phone && <a href={phoneHref} className="btn-outline !py-2 !px-4 !text-xs">{phone}</a>}
-            <TLink to="/buchen" className="btn-primary !py-2 !px-4 !text-xs">Termin buchen →</TLink>
+            <TLink to="/kontakt" className="btn-primary !py-2 !px-4 !text-xs">Termin buchen →</TLink>
           </span>
         </div>
       </section>
@@ -1885,7 +1898,7 @@ function HotelRoomCards({ services, compact }: { services: SiteContent['services
             {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
             <div className="mt-auto pt-4 border-t border-line flex items-center justify-between text-xs uppercase tracking-widest text-muted">
               <span className="font-mono">Bergblick · Eigenes Bad · WLAN</span>
-              <span className="text-brand">Verfügbarkeit →</span>
+            <span className="text-brand">Anfragen →</span>
             </div>
           </div>
         </article>
