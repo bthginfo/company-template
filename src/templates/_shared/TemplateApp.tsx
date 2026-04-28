@@ -381,10 +381,15 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           <div className="lg:col-span-6 reveal">
             <p className="eyebrow mb-5">{content.brand.tagline || 'Willkommen'}</p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
-              {content.hero?.title || `${content.brand.name}.`}<br />
-              <span className="text-muted">{subtitleFor(variant, content).split('.')[0]}.</span>
+              {content.hero?.title || `${content.brand.name}.`}
+              {content.hero?.subtitle ? (
+                <>
+                  <br />
+                  <span className="text-muted">{content.hero.subtitle}</span>
+                </>
+              ) : null}
             </h1>
-            <p className="mt-8 text-lg text-muted max-w-xl">{subtitleFor(variant, content)}</p>
+            <p className="mt-8 text-lg text-muted max-w-xl">{heroBodyFor(variant, content)}</p>
             <div className="mt-10 flex flex-wrap gap-3">
               <TLink to="/kontakt" className="btn-primary">Kontakt aufnehmen <span aria-hidden>→</span></TLink>
               <TLink to={cfg.servicesPath} className="btn-outline">{cfg.servicesLabel} ansehen</TLink>
@@ -1365,6 +1370,12 @@ function teaserSubtitleFor(v: TemplateVariant) {
 
 function subtitleFor(v: TemplateVariant, content: SiteContent): string {
   return (content.hero?.subtitle && content.hero.subtitle.trim()) || teaserSubtitleFor(v);
+}
+
+function heroBodyFor(v: TemplateVariant, content: SiteContent): string {
+  const body = (content.hero as any)?.body as string | undefined;
+  if (body && body.trim()) return body;
+  return teaserSubtitleFor(v);
 }
 
 function marqueeWordsFor(v: TemplateVariant): string[] {

@@ -254,6 +254,15 @@ export function Hero({
             {content.hero.subtitle}
           </p>
         ) : null}
+        {(content.hero as any).body ? (
+          <p
+            className={`mt-5 text-base md:text-lg text-white/70 leading-relaxed reveal-fast is-visible ${
+              align === 'center' ? 'mx-auto max-w-2xl' : 'max-w-2xl'
+            }`}
+          >
+            {(content.hero as any).body}
+          </p>
+        ) : null}
         {showCta && content.hero.ctaLabel ? (
           <div className={`mt-12 flex flex-wrap gap-4 ${align === 'center' ? 'justify-center' : ''}`}>
             <Link to={withBase(basePath, content.hero.ctaHref || '/kontakt')} className="btn-accent">

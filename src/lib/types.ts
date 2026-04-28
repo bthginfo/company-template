@@ -14,6 +14,7 @@ export const SiteContentSchema = z.object({
   hero: z.object({
     title: z.string(),
     subtitle: z.string().optional().default(''),
+    body: z.string().optional().default(''),
     imageUrl: z.string().url().optional().or(z.literal('')).default(''),
     ctaLabel: z.string().optional().default(''),
     ctaHref: z.string().optional().default('#kontakt'),
