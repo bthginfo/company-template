@@ -2336,7 +2336,7 @@ function defaultCta(t: TemplateKey) {
 
 /* ───── Restaurant: menu (categorised) ───── */
 type MenuItem = { name: string; description?: string; price?: string; allergens?: string; tags?: string[] };
-type MenuCategory = { category: string; description?: string; items: MenuItem[] };
+type MenuCategory = { category: string; description?: string; priceLabel?: string; items: MenuItem[] };
 
 function MenuEditor({ data, setData }: SetterProps) {
   const list = ((data as any).menu as MenuCategory[] | undefined) ?? [];
@@ -2360,6 +2360,9 @@ function MenuEditor({ data, setData }: SetterProps) {
             </Field>
             <Field label="Kategorie-Beschreibung (optional)">
               <input className={inputCls} value={cat.description || ''} onChange={(e) => setCat(i, { ...cat, description: e.target.value })} />
+            </Field>
+            <Field label='Preis-Spalten-Titel (optional, z. B. "Achterl | Flasche" oder "0,33 l | 1,0 l")'>
+              <input className={inputCls} value={cat.priceLabel || ''} onChange={(e) => setCat(i, { ...cat, priceLabel: e.target.value })} />
             </Field>
             <div>
               <p className="text-xs uppercase tracking-widest text-muted mb-2">Gerichte</p>

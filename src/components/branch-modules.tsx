@@ -47,11 +47,14 @@ export function MenuCategoriesModule({ content }: { content: SiteContent }) {
       <div className="grid md:grid-cols-2 gap-x-12 gap-y-14 reveal-stagger">
         {menu.map((cat, i) => (
           <article key={i}>
-            <header className="border-b border-line pb-3 mb-6 flex items-baseline justify-between">
+            <header className="border-b border-line pb-3 mb-6 flex items-baseline justify-between gap-4">
               <h3 className="font-display text-3xl">{cat.category}</h3>
               <span className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
             </header>
-            {cat.description && <p className="text-sm text-muted mb-6 leading-relaxed">{cat.description}</p>}
+            {cat.description && <p className="text-sm text-muted mb-3 leading-relaxed">{cat.description}</p>}
+            {(cat as any).priceLabel && (
+              <p className="mb-4 flex justify-end font-mono text-[10px] uppercase tracking-widest text-muted">{(cat as any).priceLabel}</p>
+            )}
             <ul className="space-y-5">
               {cat.items.map((it, j) => (
                 <li key={j} className="grid grid-cols-[1fr_auto] gap-x-4 items-baseline">

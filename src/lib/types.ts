@@ -211,6 +211,8 @@ export const SiteContentSchema = z.object({
   menu: z.array(z.object({
     category: z.string().default(''),
     description: z.string().optional().default(''),
+    /** Optional column header for prices, e.g. "Achterl | Flasche" or "0,33 l | 1,0 l". */
+    priceLabel: z.string().optional().default(''),
     items: z.array(z.object({
       name: z.string().default(''),
       description: z.string().optional().default(''),
