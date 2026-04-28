@@ -530,9 +530,9 @@ function HeroSection() {
         aria-hidden
       >
         <img
-          src={AGENCY.logoFullSrc}
+          src={AGENCY.logoMarkSrc}
           alt=""
-          className="hero-brand-mark__img w-[88%] max-w-[820px] md:w-[60%] lg:w-[55%]"
+          className="hero-brand-mark__img w-[70%] max-w-[520px] md:w-[44%] lg:w-[38%]"
         />
       </div>
       <style>{`
