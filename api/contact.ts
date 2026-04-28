@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
+import { eq } from 'drizzle-orm';
+import { db, schema } from '../src/lib/db/client.js';
 
 /* ─── Schema ─────────────────────────────────────────────────────── */
 const ContactSchema = z.object({
@@ -40,22 +42,64 @@ function ipFromReq(req: VercelRequest) {
 }
 
 /* ─── Transporter (cached across invocations) ────────────────────── */
-let transporter: nodemailer.Transporter | null = null;
-function getTransporter() {
-  if (transporter) return transporter;
-  const host = process.env.SMTP_HOST || 'smtp.ionos.de';
-  const port = Number(process.env.SMTP_PORT || 587);
+type MailConfig = { host: string; port: number; user: string; pass: string; from: string; to: string; autoReply: boolean };
+
+const transporters = new Map<string, nodemailer.Transporter>();
+function getTransporter(cfg: MailConfig) {
+  const key = `${cfg.host}|${cfg.port}|${cfg.user}`;
+  const existing = transporters.get(key);
+  if (existing) return existing;
+  const tx = nodemailer.createTransport({
+    host: cfg.host,
+    port: cfg.port,
+    secure: cfg.port === 465,
+    requireTLS: cfg.port === 587,
+    auth: { user: cfg.user, pass: cfg.pass },
+  });
+  transporters.set(key, tx);
+  return tx;
+}
+
+/** Resolve mail config — prefer per-tenant settings, fall back to env vars. */
+async function resolveMailConfig(tenantSlug: string | undefined): Promise<MailConfig | null> {
+  // Try tenant-specific config first.
+  if (tenantSlug) {
+    try {
+      const tenant = await db.query.tenants.findFirst({ where: eq(schema.tenants.slug, tenantSlug) });
+      if (tenant) {
+        const row = await db.query.siteContent.findFirst({ where: eq(schema.siteContent.tenantId, tenant.id) });
+        const m = (row?.data as any)?.mail;
+        if (m && m.enabled && m.host && m.user && m.pass) {
+          return {
+            host: String(m.host),
+            port: Number(m.port || 587),
+            user: String(m.user),
+            pass: String(m.pass),
+            from: String(m.from || m.user),
+            to: String(m.to || m.user),
+            autoReply: m.autoReply !== false,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('[contact] tenant lookup failed, falling back to env', e);
+    }
+  }
+
+  // Platform default (env vars).
+  const host = process.env.SMTP_HOST;
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  if (!user || !pass) throw new Error('SMTP credentials missing (SMTP_USER / SMTP_PASS)');
-  transporter = nodemailer.createTransport({
+  if (!host || !user || !pass) return null;
+  return {
     host,
-    port,
-    secure: port === 465, // 587 = STARTTLS, 465 = implicit TLS
-    requireTLS: port === 587,
-    auth: { user, pass },
-  });
-  return transporter;
+    port: Number(process.env.SMTP_PORT || 587),
+    user,
+    pass,
+    from: process.env.MAIL_FROM || user,
+    to: process.env.MAIL_TO || user,
+    autoReply: process.env.MAIL_AUTOREPLY !== 'off',
+  };
 }
 
 /* ─── Handler ────────────────────────────────────────────────────── */
@@ -80,8 +124,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Honeypot triggered — fail silently.
   if (data.website) return res.status(200).json({ ok: true });
 
-  const fromEmail = process.env.MAIL_FROM || process.env.SMTP_USER || 'hello@flamingomedia.online';
-  const toEmail = process.env.MAIL_TO || fromEmail;
+  // Resolve mail config: per-tenant first, fall back to env.
+  const cfg = await resolveMailConfig(data.tenant);
+  if (!cfg) {
+    console.error('[contact] no mail config available (tenant nor env)');
+    return res.status(500).json({ ok: false, error: 'Mailversand nicht konfiguriert.' });
+  }
+
+  const fromEmail = cfg.from;
+  const toEmail = cfg.to;
   const brand = data.tenant || 'FlamingoMedia';
   const subject = data.subject?.trim()
     || `Neue Anfrage · ${brand}${data.paket ? ' · ' + data.paket : ''} · ${data.name}`;
@@ -113,7 +164,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   `;
 
   try {
-    const tx = getTransporter();
+    const tx = getTransporter(cfg);
     await tx.sendMail({
       from: `"${brand} Webformular" <${fromEmail}>`,
       to: toEmail,
@@ -124,7 +175,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     // Auto-reply (best-effort, non-blocking on failure).
-    if (process.env.MAIL_AUTOREPLY !== 'off') {
+    if (cfg.autoReply) {
       try {
         await tx.sendMail({
           from: `"${brand}" <${fromEmail}>`,

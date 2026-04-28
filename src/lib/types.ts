@@ -189,6 +189,22 @@ export const SiteContentSchema = z.object({
     cta: z.string().optional().default(''),
     ctaHref: z.string().optional().default(''),
   }).optional().default({}),
+
+  /**
+   * Per-tenant mail settings — when present the contact form submits to
+   * the tenant's own SMTP account instead of the platform default.
+   * Password is stored opaquely. Empty fields fall back to env vars.
+   */
+  mail: z.object({
+    enabled: z.boolean().optional().default(false),
+    host: z.string().optional().default(''),
+    port: z.number().int().optional().default(587),
+    user: z.string().optional().default(''),
+    pass: z.string().optional().default(''),
+    from: z.string().optional().default(''),
+    to: z.string().optional().default(''),
+    autoReply: z.boolean().optional().default(true),
+  }).optional().default({}),
 });
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;

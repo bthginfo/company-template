@@ -53,7 +53,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
   // when template changes externally, snap back to home
   useEffect(() => { setPageId('home'); }, [tplKey]);
 
-  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news';
+  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news' || pageId === 'navigation' || pageId === 'mail';
 
   return (
     <div className="min-h-screen bg-[#f6f6f3]">
@@ -113,6 +113,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
               <option value="social">Social Media</option>
               <option value="seo">SEO & Sichtbarkeit</option>
               <option value="scripts">Skripte & Tracking</option>
+              <option value="mail">Mail-Server</option>
             </optgroup>
           </select>
         </div>
@@ -162,6 +163,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'social' && <SocialPage data={data} setData={setData} />}
             {pageId === 'seo' && <SeoPage data={data} setData={setData} />}
             {pageId === 'scripts' && <ScriptsPage data={data} setData={setData} />}
+            {pageId === 'mail' && <MailPage data={data} setData={setData} />}
             {pageId === 'news' && <NewsPage data={data} setData={setData} />}
             {pageId === 'home' && <HomePageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'services' && <ServicesPageEditor data={data} setData={setData} tpl={tplKey} />}
@@ -190,7 +192,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 }
 
 /* ───────────── Pages config per template ───────────── */
-type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation';
+type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation' | 'mail';
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
@@ -245,6 +247,7 @@ function labelForGlobal(p: PageId) {
   if (p === 'social') return 'Social Media';
   if (p === 'seo') return 'SEO & Sichtbarkeit';
   if (p === 'scripts') return 'Skripte & Tracking';
+  if (p === 'mail') return 'Mail-Server';
   if (p === 'news') return 'News & Blog';
   return '';
 }
@@ -1008,6 +1011,107 @@ function SeoPage({ data, setData }: SetterProps) {
         </p>
       </SectionCard>
     </>
+  );
+}
+
+function MailPage({ data, setData }: SetterProps) {
+  const m = (data as any).mail || {};
+  const set = (patch: Record<string, any>) => setData({ ...(data as any), mail: { ...m, ...patch } } as SiteContent);
+  return (
+    <>
+      <SectionCard
+        title="Eigener Mail-Server"
+        description="Wenn aktiviert, werden Anfragen aus dem Kontakt-Formular direkt über Ihr eigenes Postfach versendet. Solange ausgeschaltet, läuft alles über die Plattform-Adresse (FlamingoMedia)."
+        badge={m.enabled ? 'Aktiv' : 'Standard (Plattform)'}
+      >
+        <Toggle value={!!m.enabled} onChange={(v: boolean) => set({ enabled: v })} label="Eigenes Postfach für Kontakt-Formular verwenden" />
+      </SectionCard>
+
+      {m.enabled && (
+        <>
+          <SectionCard title="SMTP-Server" description="Zugangsdaten Ihres Postausgangs-Servers." badge="Pflicht">
+            <div className="grid sm:grid-cols-3 gap-3">
+              <Field label="Host" hint="z. B. smtp.ionos.de, smtp.strato.de">
+                <input className={inputCls} value={m.host || ''} onChange={(e) => set({ host: e.target.value })} placeholder="smtp.ionos.de" />
+              </Field>
+              <Field label="Port" hint="587 (TLS) oder 465 (SSL)">
+                <input type="number" className={inputCls} value={m.port ?? 587} onChange={(e) => set({ port: Number(e.target.value || 587) })} />
+              </Field>
+              <Field label="">
+                <button type="button" onClick={() => set({ host: 'smtp.ionos.de', port: 587 })} className="btn-outline !py-2 !px-3 text-xs w-full">IONOS-Standard</button>
+              </Field>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Field label="Benutzername / Login-Adresse">
+                <input className={inputCls} value={m.user || ''} onChange={(e) => set({ user: e.target.value })} placeholder="kontakt@meine-firma.de" autoComplete="off" />
+              </Field>
+              <Field label="Passwort" hint="Wird verschlüsselt gespeichert.">
+                <input type="password" className={inputCls} value={m.pass || ''} onChange={(e) => set({ pass: e.target.value })} placeholder="••••••••" autoComplete="new-password" />
+              </Field>
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Adressen" description="Absender- und Empfänger-Adresse für eingehende Anfragen.">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Field label="Absender-Adresse" hint="Erscheint im 'Von'-Feld. Sollte zu Ihrem SMTP-Konto passen.">
+                <input type="email" className={inputCls} value={m.from || ''} onChange={(e) => set({ from: e.target.value })} placeholder="kontakt@meine-firma.de" />
+              </Field>
+              <Field label="Empfänger-Adresse" hint="Wohin Anfragen gesendet werden.">
+                <input type="email" className={inputCls} value={m.to || ''} onChange={(e) => set({ to: e.target.value })} placeholder="anfragen@meine-firma.de" />
+              </Field>
+            </div>
+            <Toggle value={m.autoReply !== false} onChange={(v: boolean) => set({ autoReply: v })} label="Auto-Reply an Absender senden ('Wir haben Ihre Nachricht erhalten')" />
+          </SectionCard>
+
+          <SectionCard title="Test-Versand" description="Prüfen, ob die Zugangsdaten funktionieren." badge="Empfehlung">
+            <MailTestButton />
+          </SectionCard>
+        </>
+      )}
+
+      <SectionCard title="Schnellanleitung" description="Wo finden Sie diese Daten?">
+        <ul className="text-sm text-slate-700 space-y-2 list-disc pl-5">
+          <li><strong>IONOS:</strong> Kundencenter → E-Mail → Postfach → Konfiguration. Server <code>smtp.ionos.de</code>, Port <code>587</code>.</li>
+          <li><strong>Strato:</strong> Kundenbereich → E-Mail → Postfach. <code>smtp.strato.de</code>, Port <code>587</code>.</li>
+          <li><strong>All-Inkl:</strong> KAS → E-Mail. <code>smtp.your-server.de</code>, Port <code>587</code>.</li>
+          <li><strong>Google Workspace:</strong> App-Passwort erstellen unter „Sicherheit“. <code>smtp.gmail.com</code>, Port <code>587</code>.</li>
+          <li><strong>Microsoft 365:</strong> SMTP AUTH muss vom Admin freigeschaltet sein. <code>smtp.office365.com</code>, Port <code>587</code>.</li>
+        </ul>
+      </SectionCard>
+    </>
+  );
+}
+
+function MailTestButton() {
+  const [state, setState] = useState<'idle' | 'sending' | 'ok' | 'err'>('idle');
+  const [msg, setMsg] = useState('');
+  const sendTest = async () => {
+    setState('sending'); setMsg('');
+    try {
+      const r = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Mail-Test',
+          email: 'noreply@example.com',
+          message: 'Dies ist eine Test-Nachricht aus dem Admin. Wenn Sie diese Mail erhalten, funktioniert Ihr Postausgang korrekt.',
+          source: 'admin-mail-test',
+        }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) { setState('ok'); setMsg('Test-Mail wurde versendet. Bitte prüfen Sie Ihren Posteingang.'); }
+      else { setState('err'); setMsg(j?.error || 'Versand fehlgeschlagen.'); }
+    } catch {
+      setState('err'); setMsg('Netzwerkfehler.');
+    }
+  };
+  return (
+    <div className="flex items-center gap-3 flex-wrap">
+      <button type="button" onClick={sendTest} disabled={state === 'sending'} className="btn-primary !py-2 !px-4 text-sm disabled:opacity-60">
+        {state === 'sending' ? 'Sende…' : 'Test-Mail senden'}
+      </button>
+      {msg && <p className={`text-sm ${state === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>{msg}</p>}
+    </div>
   );
 }
 
@@ -1898,7 +2002,7 @@ function defaultTeam(t: TemplateKey) {
   ];
   return [
     { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Übernahm den Familienbetrieb 2008.' },
-    { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=600&q=80', bio: 'Über 200 Projekte begleitet.' },
+    { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80', bio: 'Über 200 Projekte begleitet.' },
     { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: '24/7 für Notfälle bereit.' },
   ];
 }

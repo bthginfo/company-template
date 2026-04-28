@@ -1308,30 +1308,30 @@ function ValuesSection({ variant }: { variant: TemplateVariant }) {
 function TeamSection({ variant }: { variant: TemplateVariant }) {
   const team: Record<TemplateVariant, { n: string; r: string; img: string; bio: string }[]> = {
     restaurant: [
-      { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien, kam 2018 zurück in den Familienbetrieb.' },
-      { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80', bio: 'Steht seit zwölf Jahren am Steinofen. Zaubert die Margherita DOP, auf die wir stolz sind.' },
-      { n: 'Sofia Bianchi', r: 'Sommelière', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Berät Sie zu unseren Naturweinen und kennt jeden unserer Winzer persönlich.' },
+      { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&w=900&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien, kam 2018 zurück in den Familienbetrieb.' },
+      { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=900&q=80', bio: 'Steht seit zwölf Jahren am Steinofen. Zaubert die Margherita DOP, auf die wir stolz sind.' },
+      { n: 'Sofia Bianchi', r: 'Sommelière', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=80', bio: 'Berät Sie zu unseren Naturweinen und kennt jeden unserer Winzer persönlich.' },
     ],
     salon: [
       { n: 'Marie Hofer', r: 'Salon Lead · Stylistin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80', bio: 'Gründete Studio Lumière 2017. Ausbildung in Paris, mit Schwerpunkt auf Schnitt und Balayage.' },
       { n: 'Anna Becker', r: 'Color-Spezialistin', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&q=80', bio: 'Kérastase Educator und Spezialistin für Air-Touch & Highlights nach französischer Schule.' },
-      { n: 'Lina Voss', r: 'Skin & Make-up', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Kosmetikerin und Make-up-Artistin. Begleitet unsere Bridal-Termine vom Probestyling bis zur Trauung.' },
-      { n: 'Tom Berger', r: 'Herrenschnitt', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80', bio: 'Spezialisiert auf klassische und moderne Herrenschnitte sowie traditionelle Bartpflege.' },
+      { n: 'Lina Voss', r: 'Skin & Make-up', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=80', bio: 'Kosmetikerin und Make-up-Artistin. Begleitet unsere Bridal-Termine vom Probestyling bis zur Trauung.' },
+      { n: 'Tom Berger', r: 'Herrenschnitt', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=900&q=80', bio: 'Spezialisiert auf klassische und moderne Herrenschnitte sowie traditionelle Bartpflege.' },
     ],
     tradesman: [
       { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80', bio: 'Übernahm den Familienbetrieb 2008. Spezialgebiet: Heizungsmodernisierung und Förderberatung.' },
-      { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80', bio: 'Verantwortet Großprojekte von Badsanierung bis Mehrfamilienhaus. Über 200 Projekte begleitet.' },
+      { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=900&q=80', bio: 'Verantwortet Großprojekte von Badsanierung bis Mehrfamilienhaus. Über 200 Projekte begleitet.' },
       { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80', bio: 'Steht 24/7 für Notfälle bereit. Kennt jede Heizungsanlage in Ingolstadt – und wenn nicht, kennt er jemanden, der sie kennt.' },
     ],
     hotel: [
       { n: 'Anna Hofer', r: 'Gastgeberin · Inhaberin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80', bio: 'Führt das Haus in dritter Generation – mit Liebe zum Detail und einem offenen Ohr für jeden Gast.' },
-      { n: 'Markus Hofer', r: 'Küchenchef', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80', bio: 'Kocht regional, saisonal und ehrlich. Bezieht 80 % der Zutaten aus dem Umkreis von 30 km.' },
+      { n: 'Markus Hofer', r: 'Küchenchef', img: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=900&q=80', bio: 'Kocht regional, saisonal und ehrlich. Bezieht 80 % der Zutaten aus dem Umkreis von 30 km.' },
       { n: 'Lena Brugger', r: 'Spa & Wellness', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&q=80', bio: 'Zertifizierte Spa-Therapeutin, plant Wellness-Tage und berät persönlich zu allen Treatments.' },
     ],
     tourism: [
       { n: 'Lukas Steiner', r: 'Bergführer & Inhaber', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80', bio: 'Lizenzierter Bergführer seit 15 Jahren. Kennt jede Route zwischen Karwendel und Dolomiten.' },
       { n: 'Marie Holzer', r: 'Wein & Kultur', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Sommelière mit Schwerpunkt Tirol & Südtirol. Führt unsere Wein- und Genusstouren.' },
-      { n: 'Jakob Pichler', r: 'Foto & Outdoor', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80', bio: 'Outdoor-Fotograf und Wanderführer. Spezialist für Sonnenaufgangs- und Sterne-Touren.' },
+      { n: 'Jakob Pichler', r: 'Foto & Outdoor', img: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=900&q=80', bio: 'Outdoor-Fotograf und Wanderführer. Spezialist für Sonnenaufgangs- und Sterne-Touren.' },
     ],
   };
   return (
