@@ -49,7 +49,7 @@ export default function ExtraBranchTemplate({ content, style = 'classic', eyebro
 
         {/* About */}
         {content.about && (
-          <section className="py-24 md:py-32 surface">
+          <section id="about" className="py-24 md:py-32 surface">
             <div className="container-x grid md:grid-cols-12 gap-10 items-center">
               <div className="md:col-span-5 reveal">
                 <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5]" />
@@ -102,7 +102,7 @@ export default function ExtraBranchTemplate({ content, style = 'classic', eyebro
 
         {/* Gallery */}
         {content.gallery.length > 0 && (
-          <section className="py-24 md:py-32 surface">
+          <section id="galerie" className="py-24 md:py-32 surface">
             <div className="container-x">
               <div className="mb-12 reveal">
                 <p className="eyebrow mb-5">Eindrücke</p>

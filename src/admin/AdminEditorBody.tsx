@@ -161,8 +161,8 @@ function pagesFor(t: TemplateKey): PageDef[] {
   if (t === 'consulting' || t === 'medical' || t === 'fitness') return [
     { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
     { id: 'services', label: 'Leistungen', icon: '☰', previewPath: '#leistungen' },
-    { id: 'gallery', label: 'Galerie', icon: '▦', previewPath: '#leistungen' },
-    { id: 'about', label: 'Über uns', icon: '☉', previewPath: '#leistungen' },
+    { id: 'gallery', label: 'Galerie', icon: '▦', previewPath: '#galerie' },
+    { id: 'about', label: 'Über uns', icon: '☉', previewPath: '#about' },
     { id: 'contactPage', label: 'Kontakt', icon: '✉', previewPath: '#kontakt' },
   ];
   if (t === 'restaurant') return [
