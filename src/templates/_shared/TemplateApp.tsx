@@ -286,21 +286,45 @@ function HomePage({ variant, content, style }: { variant: TemplateVariant; conte
   return <HomePageClassic variant={variant} content={content} />;
 }
 
+/**
+ * BRANCH_STYLE_ORDER — full 5×3 = 15 distinct section flows.
+ * Each (variant, style) tells a different narrative arc, so Restaurant/Classic
+ * does NOT look like Restaurant/Modern, and Hotel/Bold does NOT look like Hotel/Classic.
+ */
+const BRANCH_STYLE_ORDER: Record<TemplateVariant, Record<TemplateStyle, string[]>> = {
+  restaurant: {
+    classic: ['action', 'signature', 'services', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
+    modern:  ['action', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
+    bold:    ['action', 'signature', 'numbers', 'gallery', 'services', 'testimonials', 'about', 'news'],
+  },
+  hotel: {
+    classic: ['action', 'signature', 'gallery', 'about', 'services', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'gallery', 'services', 'signature', 'about', 'numbers', 'testimonials', 'news'],
+    bold:    ['action', 'gallery', 'signature', 'numbers', 'services', 'testimonials', 'about', 'news'],
+  },
+  tradesman: {
+    classic: ['action', 'services', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
+    modern:  ['action', 'numbers', 'services', 'signature', 'gallery', 'about', 'testimonials', 'news'],
+    bold:    ['action', 'services', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
+  },
+  salon: {
+    classic: ['action', 'services', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'signature', 'services', 'gallery', 'testimonials', 'about', 'numbers', 'news'],
+    bold:    ['action', 'gallery', 'services', 'signature', 'about', 'numbers', 'testimonials', 'news'],
+  },
+  tourism: {
+    classic: ['action', 'gallery', 'signature', 'services', 'about', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'signature', 'gallery', 'services', 'numbers', 'about', 'testimonials', 'news'],
+    bold:    ['action', 'gallery', 'numbers', 'signature', 'services', 'testimonials', 'about', 'news'],
+  },
+};
+
 function HomePageClassic({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const featuredServices = content.services.slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = resolveHeroMeta(variant, content);
-
-  // Branch-specific section ordering — each branch tells a different story.
-  const sections: Record<TemplateVariant, string[]> = {
-    restaurant: ['action', 'signature', 'services', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
-    hotel: ['action', 'signature', 'gallery', 'about', 'services', 'testimonials', 'numbers', 'news'],
-    tradesman: ['action', 'services', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
-    salon: ['action', 'services', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
-    tourism: ['action', 'gallery', 'signature', 'services', 'about', 'testimonials', 'numbers', 'news'],
-  };
-  const order = sections[variant];
+  const order = BRANCH_STYLE_ORDER[variant].classic;
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
