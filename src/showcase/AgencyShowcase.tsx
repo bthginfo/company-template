@@ -372,9 +372,7 @@ function ShowcaseShell() {
 
 function ShowcaseFooter() {
   return (
-    <footer className="bg-brand text-white pt-24 pb-10 mt-auto relative overflow-hidden grain">
-      <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
-
+    <footer className="bg-black text-white pt-24 pb-10 mt-auto relative overflow-hidden">
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
           <div className="md:col-span-5">
