@@ -18,6 +18,9 @@ import ExtraBranchTemplate from '@/templates/extra';
 import {
   Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, SplitText, useReveal,
 } from '@/components/fx';
+import {
+  Tilt3DCard, MagneticButton, GradientText,
+} from '@/components/motion-fx';
 import { ConsentProvider } from '@/lib/consent';
 import { CookieBanner } from '@/components/CookieBanner';
 
@@ -539,8 +542,10 @@ function HeroSection() {
 
         <h1 className="headline-xl max-w-6xl">
           <SplitText>{`Websites für`}</SplitText><br />
-          <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>
-            <RotatingWord words={ROTATING_WORDS} />
+          <em className="italic-pop">
+            <GradientText from="#F24171" via="#FFB347" to="#F24171">
+              <RotatingWord words={ROTATING_WORDS} />
+            </GradientText>
           </em>
         </h1>
 
@@ -553,10 +558,14 @@ function HeroSection() {
           <div className="md:col-span-5 md:pl-8 md:border-l border-white/15 self-end reveal-fast is-visible">
             <p className="font-mono text-xs text-white/60 uppercase tracking-widest mb-4">/ Website live in wenigen Tagen</p>
             <div className="flex flex-wrap gap-3">
-              <Link to="/templates" className="btn-accent">Templates ansehen <span aria-hidden>→</span></Link>
-              <Link to="/preise" className="btn-outline !border-white/60 !text-white hover:!bg-white hover:!text-slate-900">
-                Preise &amp; Pakete
-              </Link>
+              <MagneticButton strength={22}>
+                <Link to="/templates" className="btn-accent">Templates ansehen <span aria-hidden>→</span></Link>
+              </MagneticButton>
+              <MagneticButton strength={18}>
+                <Link to="/preise" className="btn-outline !border-white/60 !text-white hover:!bg-white hover:!text-slate-900">
+                  Preise &amp; Pakete
+                </Link>
+              </MagneticButton>
             </div>
           </div>
         </div>
@@ -688,8 +697,8 @@ function TemplatesPreviewSection() {
           {(Object.keys(TEMPLATE_META) as Array<keyof typeof TEMPLATE_META>).map((k) => {
             const m = TEMPLATE_META[k];
             return (
+              <Tilt3DCard key={k} max={8} className="rounded-3xl">
               <Link
-                key={k}
                 to={`/preview/${k}`}
                 className="group relative rounded-3xl overflow-hidden aspect-[4/5] hover-lift block"
               >
@@ -712,13 +721,14 @@ function TemplatesPreviewSection() {
                   </div>
                 </div>
               </Link>
+              </Tilt3DCard>
             );
           })}
           {(Object.keys(EXTRA_BRANCHES) as ExtraBranchKey[]).map((k) => {
             const m = EXTRA_BRANCHES[k];
             return (
+              <Tilt3DCard key={k} max={8} className="rounded-3xl">
               <Link
-                key={k}
                 to={`/preview/${k}`}
                 className="group relative rounded-3xl overflow-hidden aspect-[4/5] hover-lift block"
               >
@@ -740,6 +750,7 @@ function TemplatesPreviewSection() {
                   </div>
                 </div>
               </Link>
+              </Tilt3DCard>
             );
           })}
         </div>

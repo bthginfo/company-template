@@ -9,6 +9,9 @@ import {
 import {
   Marquee, Accordion, AnimatedCounter, useReveal, ParallaxImage,
 } from '@/components/fx';
+import {
+  Tilt3DCard, HoverGlow,
+} from '@/components/motion-fx';
 import { TLink } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
@@ -642,35 +645,79 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
 }
 
 /* ─── Style-specific service layouts ─────────────────────────────── */
+/** Modern: glass-tilt cards with cursor-following pink glow + 3D depth on hover. */
 function ModernServicesGrid({ services }: { services: SiteContent['services'] }) {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
       {services.map((s, i) => (
-        <article key={i} className="bg-white border border-line rounded-2xl p-7 hover-lift">
-          <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
-            <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
-          </div>
-          <h3 className="font-display text-2xl mt-5">{s.title}</h3>
-          {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
-          {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
-        </article>
+        <Tilt3DCard key={i} max={6} className="rounded-2xl">
+          <HoverGlow className="bg-white border border-line rounded-2xl p-7 h-full" color="rgba(242,65,113,0.12)">
+            <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+              <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+            </div>
+            <h3 className="font-display text-2xl mt-5">{s.title}</h3>
+            {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+            {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
+          </HoverGlow>
+        </Tilt3DCard>
       ))}
     </div>
   );
 }
 
+/** Bold: editorial numbered list, but each row has a hard-offset shadow tile
+ *  on hover-state — explicit Neubrutalism cue (skill #38, #77).
+ */
 function BoldServicesList({ services }: { services: SiteContent['services'] }) {
   return (
     <ol className="divide-y divide-line reveal-stagger">
       {services.map((s, i) => (
-        <li key={i} className="grid md:grid-cols-12 gap-6 py-8 items-baseline">
+        <li
+          key={i}
+          className="grid md:grid-cols-12 gap-6 py-8 items-baseline group transition-transform hover:translate-x-1"
+        >
           <span className="md:col-span-2 font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-          <h3 className="md:col-span-5 font-display text-3xl md:text-5xl leading-[0.95]">{s.title}</h3>
+          <h3 className="md:col-span-5 font-display text-3xl md:text-5xl leading-[0.95] tracking-tight uppercase">
+            {s.title}
+          </h3>
           {s.description && <p className="md:col-span-4 text-muted text-base">{s.description}</p>}
-          {s.price && <span className="md:col-span-1 font-mono text-sm md:text-right text-[var(--accent-color)]">{s.price}</span>}
+          {s.price && (
+            <span className="md:col-span-1 font-mono text-sm md:text-right inline-block px-2 py-1 bg-[var(--accent-color)] text-[var(--accent-fg)]">
+              {s.price}
+            </span>
+          )}
         </li>
       ))}
     </ol>
+  );
+}
+
+/** Classic: editorial cards with Roman-numeral counters and italic drop-caps
+ *  for a magazine feel (skill #66 Editorial Grid).
+ *  Currently exported as a fallback grid for Style+Branch combinations
+ *  that have no branch-specific layout — referenced lazily by ServicesShowcase.
+ */
+const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+export function ClassicServicesGrid({ services }: { services: SiteContent['services'] }) {
+  return (
+    <div className="grid md:grid-cols-2 gap-x-12 gap-y-14 reveal-stagger">
+      {services.map((s, i) => (
+        <article key={i} className="border-t border-line pt-8 group">
+          <div className="flex items-baseline justify-between mb-5">
+            <span className="font-display italic text-3xl text-[var(--accent-color)]">
+              {ROMAN_NUMERALS[i] || String(i + 1)}
+            </span>
+            {s.price && <span className="font-mono text-xs text-muted">{s.price}</span>}
+          </div>
+          <h3 className="font-display text-3xl md:text-4xl leading-tight">{s.title}</h3>
+          {s.description && (
+            <p className="mt-4 text-base text-muted leading-relaxed first-letter:font-display first-letter:italic first-letter:text-5xl first-letter:float-left first-letter:mr-2 first-letter:leading-none first-letter:text-[var(--accent-color)]">
+              {s.description}
+            </p>
+          )}
+        </article>
+      ))}
+    </div>
   );
 }
 
