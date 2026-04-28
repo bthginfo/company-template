@@ -292,11 +292,12 @@ function ShowcaseShell() {
             <img
               src={AGENCY.logoSrc}
               alt={AGENCY.name}
-              className="h-3.5 md:h-4 w-auto transition-opacity"
+              className="h-4 md:h-5 w-auto transition-opacity"
               style={{ filter: headerLight ? 'none' : 'brightness(0) invert(1)' }}
             />
             <span
-              className={`font-display italic text-[11px] md:text-xs leading-none tracking-tight mt-1 ${headerLight ? 'text-slate-600' : 'text-white/80'}`}
+              className={`font-mono uppercase text-[10px] md:text-[11px] leading-none mt-1.5 ${headerLight ? 'text-slate-700' : 'text-white/85'}`}
+              style={{ letterSpacing: '0.42em' }}
               aria-hidden
             >
               websites
@@ -336,8 +337,8 @@ function ShowcaseShell() {
         <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
           <div className="container-x py-5 flex justify-between items-center">
             <div className="flex flex-col items-start leading-none">
-              <img src={AGENCY.logoSrc} alt={AGENCY.name} className="h-4 w-auto" />
-              <span className="font-display italic text-[11px] text-slate-600 leading-none mt-1" aria-hidden>websites</span>
+              <img src={AGENCY.logoSrc} alt={AGENCY.name} className="h-5 w-auto" />
+              <span className="font-mono uppercase text-[10px] text-slate-700 leading-none mt-1.5" style={{ letterSpacing: '0.42em' }} aria-hidden>websites</span>
             </div>
             <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -382,10 +383,10 @@ function ShowcaseFooter() {
               <img
                 src={AGENCY.logoSrc}
                 alt={AGENCY.name}
-                className="h-5 w-auto"
+                className="h-6 w-auto"
                 style={{ filter: 'brightness(0) invert(1)' }}
               />
-              <span className="font-display italic text-sm text-white/80 leading-none mt-1.5" aria-hidden>websites</span>
+              <span className="font-mono uppercase text-[11px] text-white/85 leading-none mt-2" style={{ letterSpacing: '0.42em' }} aria-hidden>websites</span>
             </div>
             <p className="text-sm text-white/70 mt-4 max-w-sm">{AGENCY.tagline}</p>
             <div className="mt-6 flex flex-col gap-1.5 text-sm">
