@@ -693,17 +693,68 @@ function SocialPage({ data, setData }: SetterProps) {
   );
 }
 function SeoPage({ data, setData }: SetterProps) {
-  const seo = (data as any).seo ?? { title: '', description: '', keywords: '', ogImage: '' };
+  const seo = (data as any).seo ?? { title: '', description: '', keywords: '', ogImage: '', canonical: '', locale: 'de_AT' };
   const set = (patch: any) => setData({ ...(data as any), seo: { ...seo, ...patch } } as SiteContent);
+  const pageSeo = ((data as any).pageSeo ?? {}) as Record<string, { title?: string; description?: string; keywords?: string; ogImage?: string; noindex?: boolean }>;
+  const setPage = (id: string, patch: any) => setData({
+    ...(data as any),
+    pageSeo: { ...pageSeo, [id]: { ...(pageSeo[id] || {}), ...patch } },
+  } as SiteContent);
+  const PAGES: Array<{ id: string; label: string; placeholderTitle: string; placeholderDesc: string }> = [
+    { id: 'home', label: 'Startseite', placeholderTitle: 'z. B. Trattoria Innsbruck · Italienische Küche im Herzen Tirols', placeholderDesc: 'Kurz, klar, mit Schlagworten – wird in Google angezeigt.' },
+    { id: 'services', label: 'Leistungen / Speisekarte', placeholderTitle: 'z. B. Speisekarte – Hausgemachte Pasta & Pizza', placeholderDesc: 'Was findet man auf dieser Seite?' },
+    { id: 'gallery', label: 'Galerie / Referenzen', placeholderTitle: '', placeholderDesc: '' },
+    { id: 'about', label: 'Über uns', placeholderTitle: '', placeholderDesc: '' },
+    { id: 'contactPage', label: 'Kontakt', placeholderTitle: '', placeholderDesc: '' },
+  ];
   return (
     <>
-      <SectionCard title="Suchmaschinen" description="Was bei Google angezeigt wird.">
-        <Field label="Seiten-Titel" hint="Max. 60 Zeichen."><input className={inputCls} value={seo.title} onChange={(e) => set({ title: e.target.value })} /></Field>
-        <Field label="Beschreibung" hint="Max. 160 Zeichen."><textarea className={inputCls} rows={3} value={seo.description} onChange={(e) => set({ description: e.target.value })} /></Field>
-        <Field label="Schlüsselwörter (komma-getrennt)"><input className={inputCls} value={seo.keywords} onChange={(e) => set({ keywords: e.target.value })} /></Field>
+      <SectionCard title="Globale Meta-Daten" description="Standard-Werte – werden verwendet, solange eine Seite keine eigenen Werte hat." badge="Sektion 1">
+        <Field label="Site-Titel" hint="Max. 60 Zeichen. Wird automatisch um Markenname ergänzt."><input className={inputCls} value={seo.title || ''} onChange={(e) => set({ title: e.target.value })} placeholder={data.brand.name} /></Field>
+        <Field label="Standard-Beschreibung" hint="Max. 160 Zeichen."><textarea className={inputCls} rows={3} value={seo.description || ''} onChange={(e) => set({ description: e.target.value })} /></Field>
+        <Field label="Schlüsselwörter" hint="Komma-getrennt. Auch für AI-/LLM-Crawler relevant."><input className={inputCls} value={seo.keywords || ''} onChange={(e) => set({ keywords: e.target.value })} /></Field>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Canonical-URL" hint="Optional – nur wenn die Domain abweicht."><input className={inputCls} value={seo.canonical || ''} onChange={(e) => set({ canonical: e.target.value })} placeholder="https://www.beispiel.at" /></Field>
+          <Field label="Sprache / Locale">
+            <select className={inputCls} value={seo.locale || 'de_AT'} onChange={(e) => set({ locale: e.target.value })}>
+              <option value="de_AT">Deutsch (Österreich)</option>
+              <option value="de_DE">Deutsch (Deutschland)</option>
+              <option value="de_CH">Deutsch (Schweiz)</option>
+              <option value="en_US">English (US)</option>
+            </select>
+          </Field>
+        </div>
       </SectionCard>
-      <SectionCard title="Vorschau-Bild" description="Erscheint beim Teilen in WhatsApp, Instagram, Facebook etc.">
-        <ImagePickerField label="OG-Bild" value={seo.ogImage} onChange={(v) => set({ ogImage: v })} ratio="aspect-[1200/630]" />
+      <SectionCard title="Vorschau-Bild" description="Erscheint beim Teilen in WhatsApp, Instagram, Facebook, LinkedIn." badge="Sektion 2">
+        <ImagePickerField label="OG-Bild (1200×630 empfohlen)" value={seo.ogImage || ''} onChange={(v) => set({ ogImage: v })} ratio="aspect-[1200/630]" />
+      </SectionCard>
+      <SectionCard title="Pro Seite" description="Wenn eine Seite eigene Meta-Daten haben soll – z. B. eigene Beschreibung für die Speisekarte – hier eintragen." badge="Sektion 3">
+        <div className="space-y-6">
+          {PAGES.map((p) => {
+            const v = pageSeo[p.id] || {};
+            return (
+              <details key={p.id} className="border border-line rounded-2xl overflow-hidden">
+                <summary className="cursor-pointer px-5 py-3 bg-[#fafaf7] flex items-center justify-between">
+                  <span className="font-medium">{p.label}</span>
+                  <span className="text-xs text-muted">{v.title || v.description ? '✓ angepasst' : 'Standard'}</span>
+                </summary>
+                <div className="p-5 space-y-4">
+                  <Field label="Seiten-Titel"><input className={inputCls} value={v.title || ''} onChange={(e) => setPage(p.id, { title: e.target.value })} placeholder={p.placeholderTitle} /></Field>
+                  <Field label="Beschreibung"><textarea className={inputCls} rows={2} value={v.description || ''} onChange={(e) => setPage(p.id, { description: e.target.value })} placeholder={p.placeholderDesc} /></Field>
+                  <Field label="Schlüsselwörter"><input className={inputCls} value={v.keywords || ''} onChange={(e) => setPage(p.id, { keywords: e.target.value })} /></Field>
+                  <ImagePickerField label="OG-Bild (überschreibt das globale)" value={v.ogImage || ''} onChange={(val) => setPage(p.id, { ogImage: val })} ratio="aspect-[1200/630]" />
+                  <Toggle value={!!v.noindex} onChange={(b) => setPage(p.id, { noindex: b })} label="Seite von Suchmaschinen ausschließen (noindex)" />
+                </div>
+              </details>
+            );
+          })}
+        </div>
+      </SectionCard>
+      <SectionCard title="AI-/LLM-Sichtbarkeit" description="Strukturierte Daten (JSON-LD) werden automatisch generiert: LocalBusiness, Öffnungszeiten, Adresse, Leistungen. Damit Sprach-KIs (ChatGPT, Perplexity, Claude) Ihre Website korrekt erfassen." badge="Info">
+        <p className="text-sm text-muted leading-relaxed">
+          Diese Felder werden automatisch aus Ihren Inhalten erzeugt – keine manuelle Pflege nötig.
+          Stellen Sie nur sicher, dass <em>Adresse</em>, <em>Telefon</em>, <em>Öffnungszeiten</em> und <em>Leistungen</em> aktuell sind.
+        </p>
       </SectionCard>
     </>
   );
@@ -1257,13 +1308,13 @@ function defaultTeam(t: TemplateKey) {
   ];
   if (t === 'fitness') return [
     { n: 'Sarah Berg', r: 'Studio-Leitung · Vinyasa', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
-    { n: 'Mira Klein', r: 'Yin & Mindful Movement', img: 'https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
+    { n: 'Mira Klein', r: 'Yin & Mindful Movement', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
     { n: 'Jonas Renz', r: 'Reformer Pilates', img: 'https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?auto=format&fit=crop&w=600&q=80', bio: 'Physiotherapeut mit Pilates-Spezialisierung. Trainiert Sportler:innen und Reha-Klient:innen.' },
   ];
   return [
     { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Übernahm den Familienbetrieb 2008.' },
     { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=600&q=80', bio: 'Über 200 Projekte begleitet.' },
-    { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', bio: '24/7 für Notfälle bereit.' },
+    { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: '24/7 für Notfälle bereit.' },
   ];
 }
 function defaultArrival(t: TemplateKey) {

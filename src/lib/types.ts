@@ -53,8 +53,32 @@ export const SiteContentSchema = z.object({
     facebook: z.string().optional().default(''),
     whatsapp: z.string().optional().default(''),
   }).optional(),
+
+  // SEO — global defaults plus per-page overrides. AI/search-engine friendly metadata
+  // is rendered by the Seo component and the structured-data injector.
+  seo: z.object({
+    title: z.string().optional().default(''),
+    description: z.string().optional().default(''),
+    keywords: z.string().optional().default(''),
+    ogImage: z.string().optional().default(''),
+    canonical: z.string().optional().default(''),
+    twitter: z.string().optional().default(''),
+    locale: z.string().optional().default('de_AT'),
+    /** OpenAPI-style structured-data overrides (geo, founding date, currency …) */
+    extra: z.record(z.string()).optional().default({}),
+  }).optional(),
+
+  /** Per-page SEO overrides keyed by page id (home/services/gallery/about/contactPage). */
+  pageSeo: z.record(z.object({
+    title: z.string().optional().default(''),
+    description: z.string().optional().default(''),
+    keywords: z.string().optional().default(''),
+    ogImage: z.string().optional().default(''),
+    noindex: z.boolean().optional().default(false),
+  })).optional(),
 });
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;
 
 export type TemplateKey = 'restaurant' | 'salon' | 'tradesman' | 'consulting' | 'medical' | 'fitness';
+export type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage';

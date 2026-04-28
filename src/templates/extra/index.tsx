@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { SiteContent } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/components/fx';
+import Seo from '@/components/Seo';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -24,6 +25,13 @@ export default function ExtraBranchTemplate({ content, style = 'classic', branch
   const eb = eyebrow ?? content.brand.tagline ?? '';
   return (
     <div className={`min-h-screen flex flex-col tpl-style-${style} tpl-branch-${branch} bg-[var(--bg-color)] text-[var(--text-color)]`}>
+      <Seo
+        title={content.brand.name}
+        description={content.hero?.subtitle || content.about?.body?.slice(0, 160) || `${content.brand.name} – ${content.brand.tagline || 'offizielle Website'}.`}
+        content={content}
+        template={branch}
+        page="home"
+      />
       <ExtraHeader content={content} style={style} branch={branch} />
       <main className="flex-1">
         {style === 'modern' ? (

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import type { SiteContent } from '@/lib/types';
+import type { SiteContent, TemplateKey, PageId } from '@/lib/types';
+import Seo from '@/components/Seo';
 import {
   SiteHeader, Hero, Section, ContactBlock, SiteFooter, BasePathProvider,
   type NavItem,
@@ -145,13 +146,13 @@ export default function TemplateApp({
         <main className="flex-1">
           <ScrollToTopOnRoute />
           <Routes>
-            <Route index element={<HomePage variant={variant} content={content} style={style} />} />
-            <Route path={cfg.servicesPath.replace(/^\//, '')} element={<ServicesPage variant={variant} content={content} style={style} />} />
-            <Route path="galerie" element={<GalleryPage content={content} variant={variant} style={style} />} />
-            <Route path="referenzen" element={<GalleryPage content={content} variant={variant} style={style} title="Referenzen" eyebrow="Projekte" />} />
-            <Route path="ueber-uns" element={<AboutPage variant={variant} content={content} style={style} />} />
-            <Route path="kontakt" element={<ContactPage content={content} variant={variant} style={style} />} />
-            <Route path="*" element={<HomePage variant={variant} content={content} style={style} />} />
+            <Route index element={<><PageSeo page="home" variant={variant} content={content} /><HomePage variant={variant} content={content} style={style} /></>} />
+            <Route path={cfg.servicesPath.replace(/^\//, '')} element={<><PageSeo page="services" variant={variant} content={content} /><ServicesPage variant={variant} content={content} style={style} /></>} />
+            <Route path="galerie" element={<><PageSeo page="gallery" variant={variant} content={content} /><GalleryPage content={content} variant={variant} style={style} /></>} />
+            <Route path="referenzen" element={<><PageSeo page="gallery" variant={variant} content={content} /><GalleryPage content={content} variant={variant} style={style} title="Referenzen" eyebrow="Projekte" /></>} />
+            <Route path="ueber-uns" element={<><PageSeo page="about" variant={variant} content={content} /><AboutPage variant={variant} content={content} style={style} /></>} />
+            <Route path="kontakt" element={<><PageSeo page="contactPage" variant={variant} content={content} /><ContactPage content={content} variant={variant} style={style} /></>} />
+            <Route path="*" element={<><PageSeo page="home" variant={variant} content={content} /><HomePage variant={variant} content={content} style={style} /></>} />
           </Routes>
         </main>
         <SiteFooter content={content} basePath={basePath} nav={cfg.nav} />
@@ -164,6 +165,38 @@ function ScrollToTopOnRoute() {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); }, [pathname]);
   return null;
+}
+
+function PageSeo({ page, variant, content }: { page: PageId; variant: TemplateVariant; content: SiteContent }) {
+  const tplKey = variant as TemplateKey;
+  const labels: Record<PageId, { title: string; description: string }> = {
+    home: {
+      title: content.brand.name,
+      description: content.hero?.subtitle || content.about?.body?.slice(0, 160) || `${content.brand.name} – ${content.brand.tagline || 'offizielle Website'}.`,
+    },
+    services: {
+      title: variant === 'restaurant' ? 'Speisekarte' : variant === 'tradesman' ? 'Leistungen' : 'Leistungen & Preise',
+      description: variant === 'restaurant'
+        ? `Aktuelle Speisekarte – Vorspeisen, Hauptgerichte, Desserts. Saisonale Karte bei ${content.brand.name}.`
+        : `Alle Leistungen und Preise von ${content.brand.name} im Überblick.`,
+    },
+    gallery: {
+      title: variant === 'tradesman' ? 'Referenzen' : 'Galerie',
+      description: variant === 'tradesman'
+        ? `Ausgewählte Projekte und Referenzen von ${content.brand.name}.`
+        : `Eindrücke und Galerie von ${content.brand.name}.`,
+    },
+    about: {
+      title: content.about?.title || 'Über uns',
+      description: content.about?.body?.slice(0, 160) || `Über ${content.brand.name}.`,
+    },
+    contactPage: {
+      title: 'Kontakt',
+      description: `Adresse, Öffnungszeiten und Kontaktdaten von ${content.brand.name}.`,
+    },
+  };
+  const l = labels[page];
+  return <Seo title={l.title} description={l.description} content={content} template={tplKey} page={page} />;
 }
 
 function announcementsFor(v: TemplateVariant) {

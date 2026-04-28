@@ -1659,11 +1659,16 @@ function TemplatePreview() {
     const onStorage = (e: StorageEvent) => {
       if (e.key && e.key.includes(String(tplKey))) setContent(loadFor(tplKey as TemplateKey));
     };
+    const onFocus = () => setContent(loadFor(tplKey as TemplateKey));
     window.addEventListener('bth:override', onOverride);
     window.addEventListener('storage', onStorage);
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
     return () => {
       window.removeEventListener('bth:override', onOverride);
       window.removeEventListener('storage', onStorage);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
     };
   }, [tplKey]);
   const hasOverride = !!readOverride(tplKey as TemplateKey);
@@ -1697,62 +1702,146 @@ function TemplatePreview() {
         })()
       )}
 
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div className="shadow-2xl rounded-2xl p-3 border border-slate-200 w-[260px] bg-white text-slate-900">
-          {hasOverride && (
-            <div className="flex items-center justify-between gap-2 mb-2 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 text-[11px]">
-              <span>● Live-Daten aus Admin</span>
-              <button onClick={onReset} className="underline underline-offset-2 hover:opacity-80">Reset</button>
-            </div>
-          )}
-          <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Branche</p>
-          <div className="grid grid-cols-3 gap-1 mb-2">
-            {(['restaurant','salon','tradesman'] as Array<keyof typeof TEMPLATE_META>).map((k) => (
-              <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
-                {TEMPLATE_META[k].label.split(' ')[0]}
-              </button>
-            ))}
-            {EXTRA_KEYS.map((k) => (
-              <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
-                {EXTRA_BRANCHES[k].label.split(' ')[0]}
-              </button>
-            ))}
-          </div>
-          <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Stil</p>
-          <div className="grid grid-cols-3 gap-1 mb-2">
-            {(['classic','modern','bold'] as const).map((s) => (
-              <button key={s} onClick={() => switchStyle(s)} className={`text-[11px] py-1.5 rounded-md border transition capitalize ${s === style ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
-                {s}
-              </button>
-            ))}
-          </div>
-          <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Farbschema</p>
-          <div className="flex flex-wrap gap-2 px-1">
-            {presets.map((p: ThemePreset, i: number) => (
-              <button
-                key={p.id}
-                onClick={() => setPresetIdx(i)}
-                title={p.label}
-                aria-label={p.label}
-                className={`h-7 w-7 rounded-full border-2 transition ${
-                  i === presetIdx ? 'border-slate-900 scale-110' : 'border-white ring-1 ring-slate-200 hover:scale-105'
-                }`}
-                style={{ background: `linear-gradient(135deg, ${p.primary}, ${p.accent})` }}
-              />
-            ))}
-          </div>
-          <p className="mt-3 px-2 text-[10px] leading-relaxed text-slate-500 italic">
-            Mehr Layouts, Farben &amp; Funktionen auf Anfrage – individuelle Entwicklung jederzeit möglich.
-          </p>
-        </div>
+      <PreviewControls
+        tplKey={tplKey}
+        style={style}
+        presets={presets}
+        presetIdx={presetIdx}
+        setPresetIdx={setPresetIdx}
+        onSwitchBranche={switchBranche}
+        onSwitchStyle={switchStyle}
+        onReset={onReset}
+        hasOverride={hasOverride}
+        onBack={() => navigate('/templates')}
+      />
+    </div>
+  );
+}
 
+function PreviewControls({
+  tplKey, style, presets, presetIdx, setPresetIdx,
+  onSwitchBranche, onSwitchStyle, onReset, hasOverride, onBack,
+}: {
+  tplKey: BranchKey;
+  style: 'classic' | 'modern' | 'bold';
+  presets: ThemePreset[];
+  presetIdx: number;
+  setPresetIdx: (i: number) => void;
+  onSwitchBranche: (k: BranchKey) => void;
+  onSwitchStyle: (s: 'classic' | 'modern' | 'bold') => void;
+  onReset: () => void;
+  hasOverride: boolean;
+  onBack: () => void;
+}) {
+  // Desktop (md+): always-visible side panel.
+  // Mobile (<md): collapsed by default; toggled via a floating "Live anpassen" FAB.
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const Panel = (
+    <div className="shadow-2xl rounded-2xl p-3 border border-slate-200 w-[280px] bg-white text-slate-900">
+      <div className="flex items-center justify-between gap-2 mb-2 px-1">
+        <span className="text-[10px] uppercase tracking-widest text-slate-500">Live anpassen</span>
+        <button onClick={() => setOpen(false)} className="md:hidden text-slate-500 hover:text-slate-900 text-lg leading-none px-1.5" aria-label="Schließen">×</button>
+      </div>
+      {hasOverride && (
+        <div className="flex items-center justify-between gap-2 mb-2 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 text-[11px]">
+          <span>● Live-Daten aus Admin</span>
+          <button onClick={onReset} className="underline underline-offset-2 hover:opacity-80">Reset</button>
+        </div>
+      )}
+      <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Branche</p>
+      <div className="grid grid-cols-3 gap-1 mb-2">
+        {(['restaurant','salon','tradesman'] as Array<keyof typeof TEMPLATE_META>).map((k) => (
+          <button key={k} onClick={() => onSwitchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
+            {TEMPLATE_META[k].label.split(' ')[0]}
+          </button>
+        ))}
+        {EXTRA_KEYS.map((k) => (
+          <button key={k} onClick={() => onSwitchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
+            {EXTRA_BRANCHES[k].label.split(' ')[0]}
+          </button>
+        ))}
+      </div>
+      <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Stil</p>
+      <div className="grid grid-cols-3 gap-1 mb-2">
+        {(['classic','modern','bold'] as const).map((s) => (
+          <button key={s} onClick={() => onSwitchStyle(s)} className={`text-[11px] py-1.5 rounded-md border transition capitalize ${s === style ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
+            {s}
+          </button>
+        ))}
+      </div>
+      <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Farbschema</p>
+      <div className="flex flex-wrap gap-2 px-1">
+        {presets.map((p: ThemePreset, i: number) => (
+          <button
+            key={p.id}
+            onClick={() => setPresetIdx(i)}
+            title={p.label}
+            aria-label={p.label}
+            className={`h-7 w-7 rounded-full border-2 transition ${
+              i === presetIdx ? 'border-slate-900 scale-110' : 'border-white ring-1 ring-slate-200 hover:scale-105'
+            }`}
+            style={{ background: `linear-gradient(135deg, ${p.primary}, ${p.accent})` }}
+          />
+        ))}
+      </div>
+      <p className="mt-3 px-2 text-[10px] leading-relaxed text-slate-500 italic">
+        Mehr Layouts, Farben &amp; Funktionen auf Anfrage – individuelle Entwicklung jederzeit möglich.
+      </p>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop: panel always visible bottom-right */}
+      <div className="hidden md:flex fixed bottom-6 right-6 z-50 flex-col items-end gap-3">
+        {Panel}
         <button
-          onClick={() => navigate('/templates')}
+          onClick={onBack}
           className="bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-full shadow-2xl hover:bg-slate-700 transition flex items-center gap-2"
         >
-          <span aria-hidden>←</span> Zur Übersicht
+          <span aria-hidden>←</span> Zurück
         </button>
       </div>
-    </div>
+
+      {/* Mobile: FAB + sheet */}
+      <div className="md:hidden">
+        {open && (
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setOpen(false)}
+            aria-hidden
+          />
+        )}
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+          {open && Panel}
+          <div className="flex gap-2">
+            <button
+              onClick={onBack}
+              className="bg-white border border-slate-200 text-slate-900 text-sm font-medium w-11 h-11 rounded-full shadow-xl hover:bg-slate-100 transition flex items-center justify-center"
+              aria-label="Zurück zur Übersicht"
+              title="Zurück"
+            >
+              <span aria-hidden>←</span>
+            </button>
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-full shadow-2xl hover:bg-slate-700 transition flex items-center gap-2"
+              aria-expanded={open}
+              aria-label={open ? 'Live anpassen schließen' : 'Live anpassen öffnen'}
+            >
+              <span aria-hidden>{open ? '×' : '◐'}</span>
+              {open ? 'Schließen' : 'Live anpassen'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

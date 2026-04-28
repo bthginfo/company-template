@@ -60,7 +60,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteCont
         { day: 'Samstag', time: '17:30 – 23:00' },
         { day: 'Sonntag', time: 'Ruhetag' },
       ],
-      mapsUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2702.6037830876796!2d11.39!3d47.27!2m3!1f0!2f0!3f0',
+      mapsUrl: 'https://www.google.com/maps?q=Maria-Theresien-Stra%C3%9Fe+42,+6020+Innsbruck&output=embed',
     },
     social: {
       instagram: 'trattoria.innsbruck',
@@ -123,7 +123,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteCont
         { day: 'Samstag', time: '09:00 – 15:00' },
         { day: 'So + Mo', time: 'Geschlossen' },
       ],
-      mapsUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2663!2d11.58!3d48.16',
+      mapsUrl: 'https://www.google.com/maps?q=Leopoldstra%C3%9Fe+28,+80802+M%C3%BCnchen&output=embed',
     },
     social: {
       instagram: 'studio.lumiere.muc',
@@ -183,7 +183,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteCont
         { day: 'Mo – Fr', time: '07:00 – 17:00' },
         { day: 'Notdienst', time: '24 / 7' },
       ],
-      mapsUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2598!2d11.42!3d48.76',
+      mapsUrl: 'https://www.google.com/maps?q=Schulstra%C3%9Fe+14,+85049+Ingolstadt&output=embed',
     },
     social: {
       whatsapp: '+498419876543',

@@ -376,16 +376,36 @@ export function ContactBlock({ content }: { content: SiteContent }) {
           </div>
         </div>
         <div className="lg:col-span-7 reveal">
-          {c.mapsUrl ? (
-            <div className="rounded-3xl overflow-hidden border border-line h-[520px] shadow-2xl">
-              <iframe title="Karte" src={c.mapsUrl} className="w-full h-full border-0" loading="lazy" />
-            </div>
-          ) : (
-            <div className="w-full h-[520px] rounded-3xl bg-black/5" />
-          )}
+          <SafeMapEmbed mapsUrl={c.mapsUrl || ''} address={c.address || ''} city={c.city || ''} className="h-[520px]" />
         </div>
       </div>
     </Section>
+  );
+}
+
+/* ─── Safe map embed ─────────────────────────────────────────────── */
+export function SafeMapEmbed({ mapsUrl, address, city, className = '' }: { mapsUrl?: string; address?: string; city?: string; className?: string }) {
+  const explicit = (mapsUrl || '').trim();
+  const isUsable =
+    /^https:\/\/(www\.)?google\.[^/]+\/maps\/embed/i.test(explicit) ||
+    /^https:\/\/(www\.)?google\.[^/]+\/maps\?[^"]*[?&]output=embed/i.test(explicit) ||
+    /^https:\/\/(www\.)?openstreetmap\.org\/export\/embed/i.test(explicit);
+  const fullAddress = [address, city].filter(Boolean).join(', ');
+  const fallback = fullAddress
+    ? `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`
+    : '';
+  const src = isUsable ? explicit : fallback;
+  if (!src) return <div className={`w-full rounded-3xl bg-black/5 ${className}`} />;
+  const linkHref = fullAddress ? `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}` : explicit;
+  return (
+    <div className={`rounded-3xl overflow-hidden border border-line shadow-2xl relative ${className}`}>
+      <iframe title={`Karte${fullAddress ? `: ${fullAddress}` : ''}`} src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full border-0" allow="fullscreen" />
+      {linkHref && (
+        <a href={linkHref} target="_blank" rel="noreferrer" className="absolute bottom-4 right-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-widest hover:bg-white transition shadow-sm">
+          In Karte öffnen ↗
+        </a>
+      )}
+    </div>
   );
 }
 
