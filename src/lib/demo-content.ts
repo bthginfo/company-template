@@ -28,10 +28,10 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteCont
       { title: 'Saltimbocca alla Romana', description: 'Kalbsfilet, Parmaschinken DOP, frischer Salbei, Weißwein-Jus.', price: '28,50 €', imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80' },
       { title: 'Tiramisu della Nonna', description: 'Klassisch nach Carlas Originalrezept – Mascarpone, Espresso, Marsala.', price: '8,90 €', imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=900&q=80' },
       { title: 'Risotto ai Funghi', description: 'Carnaroli aus dem Piemont, Steinpilze, Trüffelöl, Crème von Pecorino.', price: '22,50 €', imageUrl: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=900&q=80' },
-      { title: 'Branzino al Forno', description: 'Wolfsbarsch in der Salzkruste, Zitrone, Rosmarin, sizilianisches Olivenöl.', price: '32,00 €', imageUrl: 'https://images.unsplash.com/photo-1535399831218-d4c2e6f4eba6?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Branzino al Forno', description: 'Wolfsbarsch in der Salzkruste, Zitrone, Rosmarin, sizilianisches Olivenöl.', price: '32,00 €', imageUrl: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=80' },
       { title: 'Antipasti della Casa', description: 'Eine Auswahl aus dem Markt – Parmaschinken, Burrata, eingelegtes Gemüse, Crostini.', price: '18,50 €', imageUrl: 'https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&w=900&q=80' },
       { title: 'Pasta del Giorno', description: 'Tagesgericht aus der Pasta-Manufaktur. Die Karte hängt im Eingang.', price: '19,80 €', imageUrl: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=900&q=80' },
-      { title: 'Cantucci & Vin Santo', description: 'Toskanisches Mandelgebäck, dazu ein Glas Vin Santo zum Eintunken.', price: '7,50 €', imageUrl: 'https://images.unsplash.com/photo-1605522863636-2e3b6f3d5f80?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Cantucci & Vin Santo', description: 'Toskanisches Mandelgebäck, dazu ein Glas Vin Santo zum Eintunken.', price: '7,50 €', imageUrl: 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?auto=format&fit=crop&w=900&q=80' },
     ],
     gallery: [
       'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=80',
@@ -152,7 +152,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteCont
     services: [
       { title: 'Notdienst & Reparaturen', description: 'Rohrbruch, Heizungsausfall, verstopfte Leitung – wir sind in 60 Minuten bei Ihnen. 24/7, auch am Wochenende.', price: 'ab 79 €', imageUrl: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80' },
       { title: 'Badsanierung', description: 'Komplettsanierung mit eigener Planung, 3D-Visualisierung und Festpreis-Garantie. Inkl. Bodenleger & Fliesenleger.', price: 'auf Anfrage', imageUrl: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=80' },
-      { title: 'Heizungsmodernisierung', description: 'Wärmepumpe, Pellets, Hybrid, Brennwert. Wir beraten Sie ehrlich zu Förderungen (KfW & BAFA).', price: 'auf Anfrage', imageUrl: 'https://images.unsplash.com/photo-1585129777188-7fd4ed0db75d?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Heizungsmodernisierung', description: 'Wärmepumpe, Pellets, Hybrid, Brennwert. Wir beraten Sie ehrlich zu Förderungen (KfW & BAFA).', price: 'auf Anfrage', imageUrl: 'https://images.unsplash.com/photo-1604061986761-d9d0cc41b0d1?auto=format&fit=crop&w=900&q=80' },
       { title: 'Solarthermie & Photovoltaik', description: 'Komplettpaket inkl. Anmeldung beim Netzbetreiber, Inbetriebnahme und 2 Jahre Wartung.', price: 'auf Anfrage', imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80' },
       { title: 'Wartung & Service', description: 'Jährliche Wartung Ihrer Heizung – inkl. Sicherheitsprüfung. Wir erinnern Sie automatisch.', price: 'ab 149 €', imageUrl: 'https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=900&q=80' },
       { title: 'Smart-Home-Steuerung', description: 'Heizung, Wasser und Lüftung intelligent gesteuert per App – kompatibel mit Apple Home & KNX.', price: 'auf Anfrage', imageUrl: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=900&q=80' },
@@ -161,7 +161,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteCont
     gallery: [
       'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1585129777188-7fd4ed0db75d?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1582719188393-bb71ca45dbb9?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1565538810643-b5bdb714032a?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=900&q=80',
@@ -287,7 +287,7 @@ export const EXTRA_DEMO_CONTENT = {
       'https://images.unsplash.com/photo-1582719188393-bb71ca45dbb9?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1666886573301-b5d526cfd518?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1666214280165-0b6022c52e98?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80',
     ],
     testimonials: [
       { author: 'Margit S., Innsbruck', text: 'Endlich eine Ärztin, die zuhört. 30 Minuten Erstgespräch – das gab es bei meinem alten Arzt nie.' },
@@ -335,7 +335,7 @@ export const EXTRA_DEMO_CONTENT = {
       { title: 'Reformer Pilates', description: 'Kleingruppen mit max. 5 Personen am Reformer. Präzise Korrekturen, klare Progression.', price: 'ab 32 €', imageUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80' },
       { title: 'Mindful Movement', description: 'Eine Mischung aus Yoga, Somatics und Atemarbeit. Ideal für Anfänger:innen und Wiedereinsteiger:innen.', price: 'ab 22 €', imageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80' },
       { title: 'Personal Training', description: '60 oder 90 Minuten – ganz auf Sie zugeschnitten. Inkl. Bewegungs-Analyse und Trainingsplan.', price: 'ab 95 €', imageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80' },
-      { title: 'Workshops & Retreats', description: 'Monatliche Workshops, jährliches Retreat im Allgäu. Themen u. a. Atem, Anatomie, Meditation.', imageUrl: 'https://images.unsplash.com/photo-1593810451137-0904968d2e9b?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Workshops & Retreats', description: 'Monatliche Workshops, jährliches Retreat im Allgäu. Themen u. a. Atem, Anatomie, Meditation.', imageUrl: 'https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=900&q=80' },
     ],
     gallery: [
       'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80',
@@ -343,7 +343,7 @@ export const EXTRA_DEMO_CONTENT = {
       'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1593810451137-0904968d2e9b?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1620207418302-439b387441b0?auto=format&fit=crop&w=900&q=80',
       'https://images.unsplash.com/photo-1593164842264-854604db2260?auto=format&fit=crop&w=900&q=80',
