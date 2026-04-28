@@ -190,6 +190,121 @@ export const SiteContentSchema = z.object({
     ctaHref: z.string().optional().default(''),
   }).optional().default({}),
 
+  /* ─── BRANCH-SPECIFIC MODULES ─────────────────────────────────────
+   * Each block below maps to a dedicated visual module rendered only
+   * for the matching branch (or a small set of branches). All optional;
+   * empty arrays/objects mean the module is hidden for that tenant.
+   */
+
+  /** Restaurant — categorised menu (Speisekarte mit Kategorien & Allergenen). */
+  menu: z.array(z.object({
+    category: z.string().default(''),
+    description: z.string().optional().default(''),
+    items: z.array(z.object({
+      name: z.string().default(''),
+      description: z.string().optional().default(''),
+      price: z.string().optional().default(''),
+      allergens: z.string().optional().default(''),
+      tags: z.array(z.string()).optional().default([]),
+    })).default([]),
+  })).optional().default([]),
+
+  /** Hotel — Zimmer-Showcase with features. */
+  rooms: z.array(z.object({
+    name: z.string().default(''),
+    description: z.string().optional().default(''),
+    size: z.string().optional().default(''),
+    beds: z.string().optional().default(''),
+    price: z.string().optional().default(''),
+    imageUrl: z.string().optional().default(''),
+    features: z.array(z.string()).optional().default([]),
+  })).optional().default([]),
+
+  /** Tourism — Tour-Cards with difficulty level. */
+  tours: z.array(z.object({
+    name: z.string().default(''),
+    description: z.string().optional().default(''),
+    duration: z.string().optional().default(''),
+    level: z.string().optional().default(''), // "1/4 leicht" etc.
+    groupSize: z.string().optional().default(''),
+    price: z.string().optional().default(''),
+    imageUrl: z.string().optional().default(''),
+    languages: z.array(z.string()).optional().default([]),
+  })).optional().default([]),
+
+  /** Salon — Treatment list with duration + price. */
+  treatments: z.array(z.object({
+    name: z.string().default(''),
+    description: z.string().optional().default(''),
+    duration: z.string().optional().default(''),
+    price: z.string().optional().default(''),
+    category: z.string().optional().default(''),
+  })).optional().default([]),
+
+  /** Fitness — courses & schedule. */
+  courses: z.array(z.object({
+    name: z.string().default(''),
+    description: z.string().optional().default(''),
+    schedule: z.string().optional().default(''), // "Mo 18:00 · Mi 19:30"
+    level: z.string().optional().default(''),
+    duration: z.string().optional().default(''),
+    trainer: z.string().optional().default(''),
+    price: z.string().optional().default(''),
+  })).optional().default([]),
+
+  /** Fitness/Consulting — Pricing packages (3-tier compare). */
+  packages: z.array(z.object({
+    name: z.string().default(''),
+    price: z.string().default(''),
+    period: z.string().optional().default(''), // "/ Monat"
+    description: z.string().optional().default(''),
+    features: z.array(z.string()).optional().default([]),
+    highlight: z.boolean().optional().default(false),
+    ctaLabel: z.string().optional().default(''),
+    ctaHref: z.string().optional().default(''),
+  })).optional().default([]),
+
+  /** Consulting — process / engagement steps. */
+  processSteps: z.array(z.object({
+    title: z.string().default(''),
+    description: z.string().optional().default(''),
+    duration: z.string().optional().default(''),
+  })).optional().default([]),
+
+  /** Medical — doctors / specialists. */
+  doctors: z.array(z.object({
+    name: z.string().default(''),
+    role: z.string().optional().default(''),
+    specialty: z.string().optional().default(''),
+    imageUrl: z.string().optional().default(''),
+    bio: z.string().optional().default(''),
+  })).optional().default([]),
+
+  /** Medical — online booking (Doctolib / jameda etc.) */
+  booking: z.object({
+    enabled: z.boolean().optional().default(false),
+    provider: z.string().optional().default(''), // "Doctolib", "jameda", "TIMIFY"
+    url: z.string().optional().default(''),
+    embedUrl: z.string().optional().default(''),
+    note: z.string().optional().default(''),
+  }).optional().default({}),
+
+  /** Tradesman — funding/grants list. */
+  fundingItems: z.array(z.object({
+    title: z.string().default(''),
+    description: z.string().optional().default(''),
+    percent: z.string().optional().default(''), // "35 %"
+    program: z.string().optional().default(''), // "KfW 458"
+  })).optional().default([]),
+
+  /** Tradesman — sticky emergency banner. */
+  emergencyBanner: z.object({
+    enabled: z.boolean().optional().default(false),
+    text: z.string().optional().default(''),
+    phone: z.string().optional().default(''),
+    sticky: z.boolean().optional().default(true),
+  }).optional().default({}),
+
   /**
    * Per-tenant mail settings — when present the contact form submits to
    * the tenant's own SMTP account instead of the platform default.

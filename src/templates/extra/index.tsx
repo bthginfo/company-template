@@ -7,6 +7,7 @@ import { BasePathProvider, useBasePath, withBase } from '@/components/site-block
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
+import { BranchModulesInline } from '@/components/branch-modules';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -142,6 +143,7 @@ function SubPage({ content, branch, page, style, eyebrow }: {
             </section>
           )}
           <BranchSpotlight branch={branch} style={style} content={content} />
+          <BranchModulesInline variant={branch} content={content} />
         </>
       )}
 
@@ -275,6 +277,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
       )}
 
       <BranchSpotlight branch={branch} style="classic" content={content} />
+      <BranchModulesInline variant={branch} content={content} />
       <BranchTeam branch={branch} style="classic" content={content} />
 
       {content.gallery.length > 0 && (
@@ -435,6 +438,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
       )}
 
       <BranchSpotlight branch={branch} style="modern" content={content} />
+      <BranchModulesInline variant={branch} content={content} />
       <BranchTeam branch={branch} style="modern" content={content} />
 
       {/* Gallery — uniform 3-col grid with caption labels */}
@@ -576,6 +580,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
       )}
 
       <BranchSpotlight branch={branch} style="bold" content={content} />
+      <BranchModulesInline variant={branch} content={content} />
       <BranchTeam branch={branch} style="bold" content={content} />
 
       {/* Gallery — true masonry */}

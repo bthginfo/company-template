@@ -484,3 +484,269 @@ export const EXTRA_DEMO_CONTENT = {
     },
   }),
 } as const satisfies Record<string, SiteContent>;
+
+/* ─────────────────────────────────────────────────────────────────
+ * Branch-specific module data — appended onto demo objects so the
+ * new Menu/Rooms/Tours/Treatments/Funding/Process/Doctors/Booking/
+ * Courses/Packages modules render in the showcase out of the box.
+ * Kept here (not inline) to keep the main demo blocks readable.
+ * ─────────────────────────────────────────────────────────────── */
+
+// RESTAURANT — Speisekarte mit Kategorien
+(DEMO_CONTENT.restaurant as any).menu = [
+  {
+    category: 'Antipasti',
+    description: 'Zum Ankommen, zum Teilen, zum Zeit nehmen.',
+    items: [
+      { name: 'Bruschetta al Pomodoro', description: 'Hausgebackenes Sauerteigbrot, San-Marzano-Tomaten, Basilikum, Knoblauch.', price: '8,90 €', allergens: 'A, G', tags: ['vegan'] },
+      { name: 'Burrata di Andria', description: 'Cremige Burrata DOP, eingelegte Tomaten, Basilikum-Öl, Sauerteigcrostini.', price: '14,50 €', allergens: 'A, G' },
+      { name: 'Vitello Tonnato', description: 'Rosa gebratenes Kalb, Thunfisch-Kapern-Creme, Rauke, Zitrone.', price: '16,90 €', allergens: 'D, G, M' },
+      { name: 'Antipasti della Casa', description: 'Auswahl aus dem Markt – Parmaschinken, Burrata, Crostini, eingelegtes Gemüse.', price: '18,50 €', allergens: 'A, G' },
+    ],
+  },
+  {
+    category: 'Pasta & Risotto',
+    description: 'Hausgemacht, täglich frisch aufgezogen.',
+    items: [
+      { name: 'Tagliatelle al Tartufo', description: 'Frische Tagliatelle, schwarzer Sommertrüffel aus Umbrien, Parmigiano 24 Mesi.', price: '24,90 €', allergens: 'A, C, G', tags: ['Signature'] },
+      { name: 'Spaghetti alle Vongole', description: 'Venusmuscheln, Knoblauch, Petersilie, Vermentino.', price: '22,50 €', allergens: 'A, B, R' },
+      { name: 'Risotto ai Funghi', description: 'Carnaroli aus dem Piemont, Steinpilze, Trüffelöl, Pecorino-Crème.', price: '22,50 €', allergens: 'G, L', tags: ['vegetarisch'] },
+      { name: 'Pasta del Giorno', description: 'Tagesempfehlung aus der Pasta-Manufaktur. Karte am Eingang.', price: '19,80 €', allergens: 'A, C' },
+    ],
+  },
+  {
+    category: 'Pizza dal Forno',
+    description: '48-h-Teigführung im Steinofen gebacken.',
+    items: [
+      { name: 'Margherita DOP', description: 'San-Marzano, Büffelmozzarella DOP, Basilikum, Olivenöl.', price: '14,50 €', allergens: 'A, G', tags: ['vegetarisch'] },
+      { name: 'Diavola', description: 'Tomate, Mozzarella, scharfe Salsiccia, Chili, Oregano.', price: '17,50 €', allergens: 'A, G' },
+      { name: 'Tartufata', description: 'Crème von schwarzem Trüffel, Mozzarella, Steinpilze, Rauke.', price: '21,50 €', allergens: 'A, G', tags: ['vegetarisch'] },
+    ],
+  },
+  {
+    category: 'Secondi',
+    description: 'Hauptgänge mit Wein-Empfehlung der Sommelière.',
+    items: [
+      { name: 'Saltimbocca alla Romana', description: 'Kalbsfilet, Parmaschinken DOP, Salbei, Weißwein-Jus.', price: '28,50 €', allergens: 'A, G' },
+      { name: 'Branzino al Forno', description: 'Wolfsbarsch in der Salzkruste, Zitrone, Rosmarin, sizilianisches Olivenöl.', price: '32,00 €', allergens: 'D' },
+      { name: 'Bistecca Fiorentina', description: 'Dry-Aged-Rind aus Südtirol, gegrillter Wirsing, Knochenmark.', price: 'p. 100 g · 8,50 €', tags: ['ab 800 g'] },
+    ],
+  },
+  {
+    category: 'Dolci',
+    description: 'Süßes Finale – auch zum Mitnehmen.',
+    items: [
+      { name: 'Tiramisu della Nonna', description: 'Klassisch nach Carlas Originalrezept – Mascarpone, Espresso, Marsala.', price: '8,90 €', allergens: 'A, C, G', tags: ['Signature'] },
+      { name: 'Panna Cotta ai Frutti', description: 'Mit Beerenkompott aus dem Vinschgau.', price: '7,90 €', allergens: 'G', tags: ['glutenfrei'] },
+      { name: 'Cantucci & Vin Santo', description: 'Toskanisches Mandelgebäck, dazu ein Glas Vin Santo zum Eintunken.', price: '7,50 €', allergens: 'A, C, H' },
+    ],
+  },
+];
+
+// HOTEL — Zimmer & Suiten
+(DEMO_CONTENT.hotel as any).rooms = [
+  {
+    name: 'Doppelzimmer Almblick',
+    description: 'Helles Zimmer mit Massivholz-Bett, eigenem Balkon und Blick auf die Nordkette.',
+    size: '24 m²',
+    beds: 'Doppelbett 180 × 200',
+    price: 'ab 189 € / Nacht',
+    imageUrl: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=80',
+    features: ['Balkon mit Bergblick', 'Regendusche & Wanne', 'Frühstück inklusive', 'Espressomaschine'],
+  },
+  {
+    name: 'Junior Suite Zirbe',
+    description: 'Großzügige Suite ganz in Zirbenholz – schlafen wie unter einem Nadelbaum.',
+    size: '38 m²',
+    beds: 'Boxspring 200 × 200 · Schlafsofa',
+    price: 'ab 269 € / Nacht',
+    imageUrl: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=80',
+    features: ['Wohnbereich mit Kamin', 'Whirlwanne', 'Spa-Zugang inklusive', 'Lokale Mini-Bar'],
+  },
+  {
+    name: 'Panorama-Suite Bergkristall',
+    description: 'Unsere Signature-Suite mit Eckbalkon und freistehender Badewanne im Schlafraum.',
+    size: '54 m²',
+    beds: 'Boxspring 200 × 220',
+    price: 'ab 389 € / Nacht',
+    imageUrl: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=80',
+    features: ['Eckbalkon mit Liegen', 'Sauna en suite', 'Butler-Service auf Wunsch', 'Champagner zur Anreise'],
+  },
+  {
+    name: 'Familien-Apartment',
+    description: 'Zwei verbundene Zimmer mit eigenem Wohnraum – ideal für Familien mit Kindern.',
+    size: '46 m²',
+    beds: '2 Doppelbetten · Schlafsofa',
+    price: 'ab 295 € / Nacht',
+    imageUrl: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1400&q=80',
+    features: ['Wohnzimmer mit Kinderspielen', 'Babybett auf Anfrage', 'Bademantel auch für Kids', 'Auf Wunsch Babyphone'],
+  },
+  {
+    name: 'Spa-Suite Sonnenaufgang',
+    description: 'Suite mit privater Sauna und Ostbalkon – für lange Sonnenaufgänge mit Tee.',
+    size: '42 m²',
+    beds: 'Doppelbett 180 × 200',
+    price: 'ab 329 € / Nacht',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80',
+    features: ['Private Sauna', 'Ostbalkon', 'Aromatherapie-Set', 'Yoga-Matte im Zimmer'],
+  },
+  {
+    name: 'Einzelzimmer Comfort',
+    description: 'Kompaktes Zimmer mit allem, was es braucht – ideal für Geschäftsreisende.',
+    size: '18 m²',
+    beds: 'Einzelbett 120 × 200',
+    price: 'ab 139 € / Nacht',
+    imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1400&q=80',
+    features: ['Schreibtisch & schnelles WLAN', 'Spa-Zugang inklusive', 'Frühstück inklusive', 'Express-Check-out'],
+  },
+];
+
+// TOURISM — Tour-Cards
+(DEMO_CONTENT.tourism as any).tours = [
+  {
+    name: 'Achensee-Umrundung',
+    description: 'Klassische Tagestour rund um den Achensee mit Einkehr in der Gaisalm.',
+    duration: '8 h · Tagestour',
+    level: '2/4 mittel',
+    groupSize: 'max. 12',
+    price: 'ab 89 €',
+    imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80',
+    languages: ['DE', 'EN'],
+  },
+  {
+    name: 'Dolomiten-Trekking 3 Tage',
+    description: 'Drei Tage durch UNESCO-Welterbe – Übernachtung in Hütten mit echtem Bergessen.',
+    duration: '3 Tage / 2 Nächte',
+    level: '3/4 anspruchsvoll',
+    groupSize: 'max. 8',
+    price: 'ab 690 €',
+    imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80',
+    languages: ['DE', 'EN', 'IT'],
+  },
+  {
+    name: 'Wein-Tour Vinschgau',
+    description: 'Drei Weingüter, ein Mittagessen, Gespräche mit den Winzer:innen.',
+    duration: '10 h · Tagestour',
+    level: '1/4 leicht',
+    groupSize: 'max. 8',
+    price: 'ab 169 €',
+    imageUrl: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=1400&q=80',
+    languages: ['DE', 'IT'],
+  },
+  {
+    name: 'Foto-Workshop Karwendel',
+    description: 'Sonnenaufgang am Karwendel mit Outdoor-Fotograf. Inkl. Ausrüstungs-Tipps.',
+    duration: '6 h · Halbtagestour',
+    level: '2/4 mittel',
+    groupSize: 'max. 6',
+    price: 'ab 129 €',
+    imageUrl: 'https://images.unsplash.com/photo-1486162928267-e6274cb3106f?auto=format&fit=crop&w=1400&q=80',
+    languages: ['DE', 'EN'],
+  },
+  {
+    name: 'Schneeschuh-Wanderung mit Fackeln',
+    description: 'Winterlich-magische Tour bei Sonnenuntergang. Inkl. Glühwein an der Hütte.',
+    duration: '4 h · Abend',
+    level: '1/4 leicht',
+    groupSize: 'max. 12',
+    price: 'ab 79 €',
+    imageUrl: 'https://images.unsplash.com/photo-1551524559-8af4e6624178?auto=format&fit=crop&w=1400&q=80',
+    languages: ['DE', 'EN'],
+  },
+  {
+    name: 'Skitouren-Einsteiger-Kurs',
+    description: 'Zwei-Tages-Kurs mit IFMGA-Bergführer. Ausrüstung kann gestellt werden.',
+    duration: '2 Tage',
+    level: '3/4 anspruchsvoll',
+    groupSize: 'max. 6',
+    price: 'ab 449 €',
+    imageUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=1400&q=80',
+    languages: ['DE'],
+  },
+];
+
+// SALON — Treatments
+(DEMO_CONTENT.salon as any).treatments = [
+  // Hair
+  { category: 'Haar · Schnitt', name: 'Damen-Schnitt inkl. Wäsche & Styling', description: 'Persönliche Beratung, individueller Schnitt, Styling-Tipps für zuhause.', duration: '60 min', price: '65 €' },
+  { category: 'Haar · Schnitt', name: 'Herren-Schnitt', description: 'Klassisch oder modern. Bartpflege auf Wunsch.', duration: '45 min', price: '38 €' },
+  { category: 'Haar · Schnitt', name: 'Kinder-Schnitt (bis 12 J.)', duration: '30 min', price: '24 €' },
+  { category: 'Haar · Schnitt', name: 'Pony-Korrektur (zwischen Terminen)', duration: '15 min', price: '12 €' },
+  // Color
+  { category: 'Haar · Color', name: 'Färben Ansatz', description: 'Pflanzliche oder ammoniakfreie Farben.', duration: '90 min', price: 'ab 89 €' },
+  { category: 'Haar · Color', name: 'Strähnen klassisch', description: 'Folientechnik, individuell platziert.', duration: '120 min', price: 'ab 119 €' },
+  { category: 'Haar · Color', name: 'Balayage & Air Touch', description: 'Weiche Farbverläufe nach französischer Schule.', duration: '180 min', price: 'ab 145 €' },
+  { category: 'Haar · Color', name: 'Color Correction', description: 'Aufwändige Farb-Korrektur nach Beratung.', duration: 'auf Anfrage', price: 'ab 220 €' },
+  // Pflege & Spa
+  { category: 'Pflege & Spa', name: 'Hair-Spa Ritual', description: 'Tiefenpflege Kérastase, Kopfhaut-Massage, Föhn & Styling.', duration: '75 min', price: '95 €' },
+  { category: 'Pflege & Spa', name: 'Olaplex Aufbau-Treatment', description: 'Reparatur strapazierter Haarstruktur.', duration: '45 min', price: '49 €' },
+  { category: 'Pflege & Spa', name: 'Kopfhaut-Detox', description: 'Klärendes Peeling und beruhigende Pflanzen-Maske.', duration: '30 min', price: '38 €' },
+  // Beauty
+  { category: 'Beauty', name: 'Maniküre Shellac', description: 'Hochglanz-Finish, bis zu 3 Wochen haltbar.', duration: '60 min', price: '45 €' },
+  { category: 'Beauty', name: 'Augenbrauen-Styling', description: 'Form, Pflanzenfarbe, Pflege.', duration: '30 min', price: '28 €' },
+  { category: 'Beauty', name: 'Wimpern-Lifting & Tönung', duration: '60 min', price: '69 €' },
+  // Bridal
+  { category: 'Bridal', name: 'Probestyling', description: 'Wird beim Hochzeitstermin angerechnet.', duration: '90 min', price: '90 €' },
+  { category: 'Bridal', name: 'Brautstyling am Tag der Hochzeit', description: 'Inkl. Make-up via Partnerstudio.', duration: '120 min', price: 'ab 240 €' },
+];
+
+// TRADESMAN — Funding & Emergency
+(DEMO_CONTENT.tradesman as any).fundingItems = [
+  { title: 'KfW Heizungsförderung', percent: '35 %', program: 'KfW 458', description: 'Grundförderung für hocheffiziente Heizsysteme – Wärmepumpe, Solarthermie, Biomasse.' },
+  { title: 'Klima-Geschwindigkeits-Bonus', percent: '20 %', program: 'KfW 458', description: 'Zusätzlicher Bonus für selbstnutzende Eigentümer:innen bei früher Modernisierung.' },
+  { title: 'Einkommens-Bonus', percent: '30 %', program: 'KfW', description: 'Für Haushalte unter 40.000 € zu versteuerndem Einkommen kombinierbar.' },
+  { title: 'BEG Einzelmaßnahmen', percent: '15 %', program: 'BAFA', description: 'Dämmung, Fenster, Tür-Erneuerung – staatlich gefördert.' },
+  { title: 'Regional-Programm Bayern', percent: '5 %', program: '10.000-Häuser', description: 'Zusätzlich für Bayern – kombinierbar mit Bundesförderung.' },
+];
+
+(DEMO_CONTENT.tradesman as any).emergencyBanner = {
+  enabled: true,
+  text: 'Rohrbruch oder Heizung aus? Wir kommen sofort.',
+  phone: '+49 841 9876 543',
+  sticky: true,
+};
+
+// CONSULTING — Process Steps
+(EXTRA_DEMO_CONTENT.consulting as any).processSteps = [
+  { title: 'Erstgespräch', duration: '60 min · kostenfrei', description: 'Wir hören zu, lernen Ihr Unternehmen kennen und sondieren, ob die Chemie passt.' },
+  { title: 'Diagnose', duration: '2 – 3 Wochen', description: 'Daten, Zahlen, Interviews. Schriftliche Bestandsaufnahme mit klarer Empfehlung.' },
+  { title: 'Strategie', duration: '4 – 8 Wochen', description: 'Gemeinsame Erarbeitung von Optionen, Bewertung, Entscheidung. Mit allen relevanten Stakeholdern.' },
+  { title: 'Umsetzung', duration: 'fortlaufend', description: 'Begleitung der Umsetzung – mit klaren KPIs und regelmäßigen Reviews. Wir bleiben, bis es läuft.' },
+];
+
+(EXTRA_DEMO_CONTENT.consulting as any).packages = [
+  { name: 'Diagnose', price: 'ab 4.900 €', period: 'pauschal', description: 'Schriftliche Bestandsaufnahme mit Empfehlung. Ideal als Einstieg.', features: ['Datenanalyse', '3 Stakeholder-Interviews', 'Schriftlicher Bericht', '90-min Ergebnis-Workshop'], ctaLabel: 'Anfragen' },
+  { name: 'Strategie-Projekt', price: 'ab 24.500 €', period: 'pauschal', description: 'Vollständige Strategie-Entwicklung mit Umsetzungsplan.', features: ['Vollständige Diagnose', 'Strategie-Optionen', 'Umsetzungsroadmap', '4 Workshops vor Ort', 'KPI-Dashboard', '6 Monate Follow-up'], highlight: true, ctaLabel: 'Empfehlung anfragen' },
+  { name: 'Interim-Beratung', price: 'ab 1.890 €', period: '/ Tagessatz', description: 'CFO oder Strategie-Lead auf Zeit – flexibel einsetzbar.', features: ['Mind. 2 Tage / Woche', 'Operative Verantwortung', 'Direkte Reportlinie', 'Monatliche Reviews'], ctaLabel: 'Verfügbarkeit prüfen' },
+];
+
+// MEDICAL — Doctors + Booking
+(EXTRA_DEMO_CONTENT.medical as any).doctors = [
+  { name: 'Dr. med. Lena Lindner', role: 'Praxisinhaberin · Allgemeinmedizin', specialty: 'Akupunktur · Mikronährstoffmedizin', imageUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=900&q=80', bio: 'Fachärztin mit Zusatzbezeichnung Naturheilverfahren. Praxiserfahrung in München, Wien und Innsbruck.' },
+  { name: 'Dr. med. Sophie Auer', role: 'Allgemeinmedizin · DMP-Diabetes', specialty: 'Reisemedizin · Impfungen', imageUrl: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=900&q=80', bio: 'Spezialisiert auf chronische Erkrankungen und Reisemedizin. Tropenmedizin-Diplom (DTM&H).' },
+  { name: 'Anna Pichler, MPA', role: 'Praxismanagerin', specialty: 'Termine · Abrechnung · Beratung', imageUrl: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=900&q=80', bio: 'Erste Ansprechpartnerin am Telefon und am Empfang – kümmert sich um alles, was nicht medizinisch ist.' },
+];
+
+(EXTRA_DEMO_CONTENT.medical as any).booking = {
+  enabled: true,
+  provider: 'Doctolib',
+  url: 'https://www.doctolib.de/',
+  note: 'Wunschtermin direkt aus dem Doctolib-Kalender. Bestätigung sofort, Erinnerung 24 Stunden vorher per Mail.',
+};
+
+// FITNESS — Courses + Packages
+(EXTRA_DEMO_CONTENT.fitness as any).courses = [
+  { name: 'Vinyasa Flow', description: 'Dynamisch, atemorientiert.', schedule: 'Mo 18:00 · Mi 19:30 · Sa 10:00', level: 'Alle Levels', duration: '75 min', trainer: 'Sarah B.', price: '22 €' },
+  { name: 'Yin Yoga', description: 'Lange gehaltene, ruhige Positionen.', schedule: 'Di 20:00 · Do 19:00', level: 'Alle Levels', duration: '60 min', trainer: 'Marie L.', price: '22 €' },
+  { name: 'Reformer Pilates Klein', description: 'Max. 5 Personen am Reformer.', schedule: 'Mo + Mi 09:00 · 17:00', level: 'Mittel', duration: '50 min', trainer: 'Tom K.', price: '32 €' },
+  { name: 'Mindful Movement', description: 'Yoga, Somatics, Atemarbeit.', schedule: 'Fr 18:00 · So 11:00', level: 'Anfänger', duration: '60 min', trainer: 'Sarah B.', price: '22 €' },
+  { name: 'Power Vinyasa', description: 'Kraftvolle Variante mit Gewichten.', schedule: 'Di + Do 06:30 · Sa 08:30', level: 'Fortgeschritten', duration: '60 min', trainer: 'Tom K.', price: '24 €' },
+  { name: 'Restorative Sunday', description: 'Tiefe Entspannung mit Bolstern.', schedule: 'So 17:00', level: 'Alle Levels', duration: '90 min', trainer: 'Marie L.', price: '28 €' },
+];
+
+(EXTRA_DEMO_CONTENT.fitness as any).packages = [
+  { name: 'Probetraining', price: '15 €', period: 'einmalig', description: 'Eine Klasse Ihrer Wahl, ohne Verpflichtung.', features: ['Beliebige Klasse', 'Persönliche Begrüßung', 'Beratungsgespräch', 'Matte & Tee inklusive'], ctaLabel: 'Probetraining buchen' },
+  { name: 'Flex-Mitgliedschaft', price: '129 €', period: '/ Monat', description: 'Unbegrenzt alle Yoga-Klassen, monatlich kündbar.', features: ['Alle Yoga-Formate', 'Bis zu 3× / Woche', 'Online-Klassen inklusive', 'Gast-Pass: 1× / Monat'], highlight: true, ctaLabel: 'Mitglied werden' },
+  { name: 'Reformer 8er-Block', price: '224 €', period: '8 Klassen', description: 'Acht Reformer-Klassen, gültig 12 Wochen.', features: ['8 Reformer-Klassen', 'Gültig 12 Wochen', 'Persönliche Einführung', 'Bewegungs-Analyse'], ctaLabel: 'Block kaufen' },
+];
+

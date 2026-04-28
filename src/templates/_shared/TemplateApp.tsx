@@ -21,6 +21,15 @@ import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { BranchSignature } from './BranchSignature';
+import {
+  MenuCategoriesModule,
+  RoomShowcaseModule,
+  TourCardsModule,
+  TreatmentListModule,
+  FundingCalculatorModule,
+  EmergencyStickyBanner,
+  BranchModulesInline,
+} from '@/components/branch-modules';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -228,6 +237,7 @@ export default function TemplateApp({
           </Routes>
         </main>
         <SiteFooter content={content} basePath={basePath} nav={resolvedNav} />
+        {variant === 'tradesman' && <EmergencyStickyBanner content={content} />}
       </div>
     </BasePathProvider>
   );
@@ -293,29 +303,29 @@ function HomePage({ variant, content, style }: { variant: TemplateVariant; conte
  */
 const BRANCH_STYLE_ORDER: Record<TemplateVariant, Record<TemplateStyle, string[]>> = {
   restaurant: {
-    classic: ['action', 'signature', 'services', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
-    modern:  ['action', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
-    bold:    ['action', 'signature', 'numbers', 'gallery', 'services', 'testimonials', 'about', 'news'],
+    classic: ['action', 'signature', 'menu', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
+    modern:  ['action', 'services', 'menu', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
+    bold:    ['action', 'signature', 'numbers', 'gallery', 'menu', 'testimonials', 'about', 'news'],
   },
   hotel: {
-    classic: ['action', 'signature', 'gallery', 'about', 'services', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'gallery', 'services', 'signature', 'about', 'numbers', 'testimonials', 'news'],
-    bold:    ['action', 'gallery', 'signature', 'numbers', 'services', 'testimonials', 'about', 'news'],
+    classic: ['action', 'signature', 'rooms', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'gallery', 'rooms', 'signature', 'about', 'numbers', 'testimonials', 'news'],
+    bold:    ['action', 'gallery', 'signature', 'numbers', 'rooms', 'testimonials', 'about', 'news'],
   },
   tradesman: {
-    classic: ['action', 'services', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
-    modern:  ['action', 'numbers', 'services', 'signature', 'gallery', 'about', 'testimonials', 'news'],
-    bold:    ['action', 'services', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
+    classic: ['action', 'services', 'funding', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
+    modern:  ['action', 'numbers', 'services', 'funding', 'signature', 'gallery', 'about', 'testimonials', 'news'],
+    bold:    ['action', 'services', 'funding', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
   },
   salon: {
-    classic: ['action', 'services', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'signature', 'services', 'gallery', 'testimonials', 'about', 'numbers', 'news'],
-    bold:    ['action', 'gallery', 'services', 'signature', 'about', 'numbers', 'testimonials', 'news'],
+    classic: ['action', 'treatments', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'signature', 'treatments', 'gallery', 'testimonials', 'about', 'numbers', 'news'],
+    bold:    ['action', 'gallery', 'treatments', 'signature', 'about', 'numbers', 'testimonials', 'news'],
   },
   tourism: {
-    classic: ['action', 'gallery', 'signature', 'services', 'about', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'signature', 'gallery', 'services', 'numbers', 'about', 'testimonials', 'news'],
-    bold:    ['action', 'gallery', 'numbers', 'signature', 'services', 'testimonials', 'about', 'news'],
+    classic: ['action', 'gallery', 'signature', 'tours', 'about', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'signature', 'gallery', 'tours', 'numbers', 'about', 'testimonials', 'news'],
+    bold:    ['action', 'gallery', 'numbers', 'signature', 'tours', 'testimonials', 'about', 'news'],
   },
 };
 
@@ -331,6 +341,12 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
     signature: <BranchSignature variant={variant} style="classic" content={content} />,
     numbers: <NumbersBand variant={variant} content={content} />,
     news: <NewsPreview content={content} />,
+    // branch-specific modules
+    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} /> : null,
+    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} /> : null,
+    tours: variant === 'tourism' ? <TourCardsModule content={content} /> : null,
+    treatments: variant === 'salon' ? <TreatmentListModule content={content} /> : null,
+    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
     about: content.about?.body ? (
       <Section
         eyebrow={variant === 'restaurant' ? 'Unsere Geschichte' : variant === 'salon' ? 'Unser Studio' : variant === 'hotel' ? 'Unser Haus' : variant === 'tourism' ? 'Unsere Region' : 'Unser Betrieb'}
@@ -487,6 +503,9 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       {/* Branch + style signature block */}
       <BranchSignature variant={variant} style="modern" content={content} />
 
+      {/* Branch-specific module (Menu / Rooms / Tours / Treatments / Funding…) */}
+      <BranchModulesInline variant={variant} content={content} />
+
       {/* Logos / press strip */}
       <section className="py-14 border-y border-line">
         <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
@@ -622,6 +641,9 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
 
       {/* Branch + style signature block */}
       <BranchSignature variant={variant} style="bold" content={content} />
+
+      {/* Branch-specific module (Menu / Rooms / Tours / Treatments / Funding…) */}
+      <BranchModulesInline variant={variant} content={content} />
 
       {/* Big colored services as numbered editorial list */}
       <section className="py-24 md:py-36 bg-brand text-white">
@@ -1054,6 +1076,9 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
           <ServicesShowcase variant={variant} services={content.services} />
         )}
       </Section>
+
+      {/* Branch-specific module on the services page (Menu / Rooms / Tours / Treatments / Funding…) */}
+      <BranchModulesInline variant={variant} content={content} />
 
       {/* How it works strip */}
       <ServiceProcess variant={variant} />
