@@ -993,7 +993,7 @@ function NumbersSection() {
             In <em className="italic-pop">Zahlen.</em>
           </h2>
           <p className="md:col-span-5 text-lg text-muted reveal">
-            Wyldworks Websites ist ein neues Studio in Innsbruck. Diese Zahlen halten wir bewusst transparent — kein Marketing-Budget-Trick.
+            Schnelle Websites, klare Prozesse, messbare Ergebnisse. Jedes Projekt ist auf Performance, SEO und Conversion ausgelegt — ohne Bloat, ohne Bullshit.
           </p>
         </div>
 
@@ -1002,7 +1002,7 @@ function NumbersSection() {
             { v: 6, s: '', l: 'Branchen-Templates' },
             { v: 3, s: '', l: 'Stilrichtungen je Template' },
             { v: 7, s: ' Tage', l: 'Bis online (Ø)' },
-            { v: 24, s: ' h', l: 'Antwortzeit' },
+            { v: 100, s: '/100', l: 'PageSpeed Score' },
           ].map((m, i) => (
             <div key={i} className="md:border-l border-line md:pl-8">
               <p className="num-display text-6xl md:text-8xl leading-none">
