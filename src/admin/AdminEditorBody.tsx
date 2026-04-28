@@ -435,7 +435,19 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <SectionVisibilityEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
-      <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Haupt-Button." badge="Sektion 1">
+      <SectionCard title="Lauftext-Banner" description="Die kleine Marquee-Zeile ganz oben über dem Hero." badge="Sektion 1">
+        <RepeatableList
+          items={announcements ?? defaultAnnouncements(tpl)}
+          onChange={(arr) => setData({ ...(data as any), announcements: arr } as SiteContent)}
+          render={(v, i, set) => (
+            <input className={inputCls} value={v} onChange={(e) => set(e.target.value)} placeholder={`Hinweis ${i + 1}`} />
+          )}
+          newItem={() => ''}
+          addLabel="+ Hinweis hinzufügen"
+        />
+      </SectionCard>
+
+      <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Haupt-Button." badge="Sektion 2">
         <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift.">
           <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
         </Field>
@@ -456,24 +468,16 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
-        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 1b">
+        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 2b">
           <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
         </SectionCard>
       )}
 
-      <SectionCard title="Lauftext-Banner" description="Die kleine Marquee-Zeile mit aktuellen Hinweisen." badge="Sektion 2">
-        <RepeatableList
-          items={announcements ?? defaultAnnouncements(tpl)}
-          onChange={(arr) => setData({ ...(data as any), announcements: arr } as SiteContent)}
-          render={(v, i, set) => (
-            <input className={inputCls} value={v} onChange={(e) => set(e.target.value)} placeholder={`Hinweis ${i + 1}`} />
-          )}
-          newItem={() => ''}
-          addLabel="+ Hinweis hinzufügen"
-        />
+      <SectionCard title="Zahlen-Band" description={'Vier Eckdaten – meist direkt unter dem Hero (auch in „Über uns").'} badge="Sektion 3">
+        <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
-      <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 3">
+      <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 4">
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
@@ -483,7 +487,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
       </SectionCard>
 
-      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 4">
+      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 5">
         <p className="text-xs text-muted">
           Bearbeiten Sie die Liste unter <strong>{tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen'}</strong> in der Seitenleiste. Hier wählen Sie nur, welche zuerst erscheinen.
         </p>
@@ -503,7 +507,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         />
       </SectionCard>
 
-      <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 5">
+      <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6">
         <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten 7 Bilder erscheinen hier.</p>
         <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
           {data.gallery.slice(0, 7).map((src, i) => (
@@ -512,10 +516,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             </div>
           ))}
         </div>
-      </SectionCard>
-
-      <SectionCard title="Zahlen-Band" description={'Vier Eckdaten – auf der Startseite und in „Über uns".'} badge="Sektion 6">
-        <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
       <SectionCard title="Bewertungen-Teaser" description="Die ersten drei Stimmen erscheinen auf der Startseite." badge="Sektion 7">
@@ -529,12 +529,12 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <NewsHomePreview data={data} />
       </SectionCard>
 
-      <SectionCard title="Branchen-Texte" description="Überschreiben Sie die mitgelieferten Standard-Texte (Marquee, Manifest, Galerie-Titel, …). Leer lassen = Standardtext der Branche/Stilkombination wird verwendet." badge="Sektion 9">
-        <BranchTextEditor data={data} setData={setData} tpl={tpl} />
+      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der Aufruf am Seitenende." badge="Sektion 9">
+        <CtaBandEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
-      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der Aufruf am Seitenende." badge="Sektion 10">
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} />
+      <SectionCard title="Branchen-Texte (Standard-Überschreibungen)" description="Überschreiben Sie die mitgelieferten Standard-Texte (Marquee, Manifest, Galerie-Titel, News-Heading …). Leer lassen = Standardtext der Branche/Stilkombination wird verwendet." badge="Texte">
+        <BranchTextEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
     </>
   );
@@ -741,19 +741,19 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
       {tpl === 'tradesman' && (
-        <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 6">
+        <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 7">
           <CertificationsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'restaurant' && (
-        <SectionCard title="Presse-Stimmen" description="Drei Zitate aus Magazinen / Zeitungen." badge="Sektion 6">
+        <SectionCard title="Presse-Stimmen" description="Drei Zitate aus Magazinen / Zeitungen." badge="Sektion 7">
           <PressEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      <SectionCard title="Bewertungen" description="Alle Kund:innen-Stimmen." badge="Sektion 7">
+      <SectionCard title="Bewertungen" description="Alle Kund:innen-Stimmen." badge="Sektion 8">
         <TestimonialsEditor data={data} setData={setData} />
       </SectionCard>
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 8">
+      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 9">
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
     </>

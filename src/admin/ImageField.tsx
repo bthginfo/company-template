@@ -22,7 +22,14 @@ export function ImageField({
         headers: { 'content-type': file.type || 'application/octet-stream' },
         body: file,
       });
-      if (!r.ok) throw new Error(`Upload fehlgeschlagen (${r.status})`);
+      if (!r.ok) {
+        let msg = `Upload fehlgeschlagen (${r.status})`;
+        try {
+          const j = await r.json();
+          if (j?.error) msg = j.error;
+        } catch { /* not JSON */ }
+        throw new Error(msg);
+      }
       const json = await r.json();
       onChange(json.url);
     } catch (e: any) {

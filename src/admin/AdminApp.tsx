@@ -18,7 +18,14 @@ const uploadImage: UploadImageFn = async (file) => {
     headers: { 'content-type': file.type || 'application/octet-stream' },
     body: file,
   });
-  if (!r.ok) throw new Error(`Upload fehlgeschlagen (${r.status})`);
+  if (!r.ok) {
+    let msg = `Upload fehlgeschlagen (${r.status})`;
+    try {
+      const j = await r.json();
+      if (j?.error) msg = j.error;
+    } catch { /* not JSON */ }
+    throw new Error(msg);
+  }
   const j = await r.json();
   return j.url as string;
 };
