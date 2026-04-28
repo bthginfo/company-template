@@ -225,8 +225,8 @@ export function CasesIndex() {
   return (
     <>
       <Seo
-        title="Cases · BTH Studio"
-        description="Auswahl an Demo-Cases: Wie BTH Studio kleinere Marken ins Web bringt."
+        title="Cases · Wyldworks"
+        description="Auswahl an Demo-Cases: Wie Wyldworks kleinere Marken ins Web bringt."
       />
       <section className="pt-44 pb-16 container-x">
         <p className="eyebrow mb-5 reveal">Cases · Auswahl</p>

@@ -40,7 +40,7 @@ export function useSeo({
     const effectiveImage = override?.ogImage || image || globalSeo?.ogImage || DEFAULT_OG;
     const effectiveNoindex = !!override?.noindex || noindex;
 
-    const brandName = content?.brand?.name || 'BTH Studio';
+    const brandName = content?.brand?.name || 'Wyldworks';
     const fullTitle = effectiveTitle.includes(brandName) || effectiveTitle.includes('BTH')
       ? effectiveTitle
       : `${effectiveTitle} · ${brandName}`;

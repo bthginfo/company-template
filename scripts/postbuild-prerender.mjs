@@ -2,7 +2,7 @@
 /**
  * postbuild-prerender.mjs
  *
- * Lightweight SEO prerender for the BTH Studio SPA.
+ * Lightweight SEO prerender for the Wyldworks SPA.
  *
  * For each known public route we emit a static `<route>/index.html` that is a
  * copy of the built `dist/index.html` with route-specific <title>,
@@ -25,43 +25,43 @@ if (!existsSync(indexPath)) {
   process.exit(0);
 }
 
-const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://bthstudio.com';
+const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://websites.wyldworks.de';
 
 /** @type {Array<{path: string; title: string; description: string; jsonLd?: object}>} */
 const routes = [
   {
     path: '/',
-    title: 'BTH Studio · Websites für lokale Marken in der DACH-Region',
+    title: 'Wyldworks · Websites für lokale Marken in der DACH-Region',
     description:
-      'BTH Studio gestaltet und betreut Websites für Restaurants, Salons, Handwerk, Praxen, Beratung und Studios in Österreich, Deutschland und der Schweiz. Editorial-Design, das mitwächst.',
+      'Wyldworks gestaltet und betreut Websites für Restaurants, Salons, Handwerk, Praxen, Beratung und Studios in Österreich, Deutschland und der Schweiz. Editorial-Design, das mitwächst.',
   },
   {
     path: '/templates',
-    title: 'Templates · BTH Studio',
+    title: 'Templates · Wyldworks',
     description:
       'Sechs Branchen, drei Stile (Klassisch, Modern, Bold) – alle Templates live ansehen, vergleichen, anpassen.',
   },
   {
     path: '/preise',
-    title: 'Preise · BTH Studio',
+    title: 'Preise · Wyldworks',
     description:
       'Transparente Pakete: Setup, monatliche Pflege und individuelle Erweiterungen. Festpreise statt Stundensätze.',
   },
   {
     path: '/prozess',
-    title: 'Ablauf · BTH Studio',
+    title: 'Ablauf · Wyldworks',
     description:
       'Von der ersten Idee bis zur Live-Schaltung. Jeder Schritt klar geplant – ohne Überraschungen.',
   },
   {
     path: '/ueber-uns',
-    title: 'Über uns · BTH Studio',
+    title: 'Über uns · Wyldworks',
     description:
       'Studio für lokale Marken in Österreich, Deutschland und der Schweiz. Wer wir sind und wie wir arbeiten.',
   },
   {
     path: '/kontakt',
-    title: 'Kontakt · BTH Studio',
+    title: 'Kontakt · Wyldworks',
     description:
       'Erstgespräch, Angebot oder einfach Hallo sagen – wir antworten binnen 24 Stunden, deutschlandweit, österreichweit, schweizweit.',
   },

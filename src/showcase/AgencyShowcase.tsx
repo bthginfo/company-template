@@ -19,10 +19,13 @@ import {
 
 /* ─── Brand ─────────────────────────────────────────────────────────── */
 const AGENCY = {
-  name: 'BTH Studio',
-  tagline: 'Studio für lokale Marken · Innsbruck · DACH',
-  email: 'hello@bth-studio.com',
-  phone: '+43 660 0000 000',
+  name: 'Wyldworks',
+  fullName: 'Wyldworks Websites',
+  tagline: 'Websites für lokale Marken · Innsbruck · DACH',
+  email: 'hey@wyldworks.de',
+  phone: '+49 1515 5338029',
+  phoneAt: '+43 677 6368 1543',
+  logoSrc: '/wyldworks-logo.svg',
 };
 
 const ROTATING_WORDS = [
@@ -280,14 +283,13 @@ function ShowcaseShell() {
         }`}
       >
         <div className="container-x flex items-center justify-between py-4">
-          <Link to="/" className="flex items-center gap-3 group">
-            <span
-              className="h-9 w-9 rounded-full transition-transform duration-700 group-hover:rotate-180"
-              style={{ background: 'conic-gradient(from 90deg, var(--accent-color), var(--accent-color-2), var(--brand-color), var(--accent-color))' }}
+          <Link to="/" className="flex items-center group" aria-label={AGENCY.fullName}>
+            <img
+              src={AGENCY.logoSrc}
+              alt={AGENCY.fullName}
+              className="h-7 md:h-8 w-auto transition-opacity"
+              style={{ filter: headerLight ? 'none' : 'brightness(0) invert(1)' }}
             />
-            <span className={`font-display text-2xl ${headerLight ? 'text-brand' : 'text-white'}`}>
-              {AGENCY.name}
-            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {NAV.map((n) => (
@@ -322,7 +324,7 @@ function ShowcaseShell() {
       {mobile && (
         <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
           <div className="container-x py-5 flex justify-between items-center">
-            <span className="font-display text-2xl text-brand">{AGENCY.name}</span>
+            <img src={AGENCY.logoSrc} alt={AGENCY.fullName} className="h-7 w-auto" />
             <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
@@ -364,11 +366,17 @@ function ShowcaseFooter() {
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
           <div className="md:col-span-5">
-            <p className="font-display text-3xl">{AGENCY.name}</p>
-            <p className="text-sm text-white/70 mt-2 max-w-sm">{AGENCY.tagline}</p>
+            <img
+              src={AGENCY.logoSrc}
+              alt={AGENCY.fullName}
+              className="h-9 w-auto"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+            <p className="text-sm text-white/70 mt-4 max-w-sm">{AGENCY.tagline}</p>
             <div className="mt-6 flex flex-col gap-1.5 text-sm">
               <a href={`mailto:${AGENCY.email}`} className="hover:text-accent">{AGENCY.email}</a>
-              <a href={`tel:${AGENCY.phone}`} className="hover:text-accent">{AGENCY.phone}</a>
+              <a href={`tel:${AGENCY.phone.replace(/\s/g,'')}`} className="hover:text-accent">{AGENCY.phone}</a>
+              <a href={`tel:${AGENCY.phoneAt.replace(/\s/g,'')}`} className="hover:text-accent">{AGENCY.phoneAt}</a>
               <span className="text-white/60">Innsbruck · München · Ingolstadt</span>
             </div>
           </div>
@@ -417,7 +425,7 @@ function ShowcaseFooter() {
             className="font-display leading-none whitespace-nowrap"
             style={{ fontSize: 'clamp(4rem,12vw,12rem)', color: 'rgba(255,255,255,0.08)' }}
           >
-            BTH Studio · BTH Studio · BTH Studio ·
+            WYLDWORKS · WYLDWORKS · WYLDWORKS ·
           </span>
         </Marquee>
 
@@ -434,7 +442,7 @@ function ShowcaseFooter() {
 function Landing() {
   return (
     <>
-      <Seo title="BTH Studio · Websites für lokale Marken" description="Editorial-Design für Restaurants, Salons, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Sie selbst pflegen." />
+      <Seo title="Wyldworks · Websites für lokale Marken" description="Editorial-Design für Restaurants, Salons, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Sie selbst pflegen." />
       <HeroSection />
       <ClientLogosSection />
       <ServicesSection />
@@ -997,7 +1005,7 @@ function NumbersSection() {
 function TestimonialsSection() {
   const quotes = [
     {
-      t: 'BTH Studio hat unsere Speisekarte digital so übersetzt, wie wir sie selbst nicht beschreiben hätten können. Seit Launch reservieren 40 % mehr Gäste online.',
+      t: 'Wyldworks hat unsere Speisekarte digital so übersetzt, wie wir sie selbst nicht beschreiben hätten können. Seit Launch reservieren 40 % mehr Gäste online.',
       a: 'Giulia Conti',
       r: 'Trattoria Innsbruck',
     },
@@ -1070,7 +1078,7 @@ function TemplatesGallery() {
   useReveal();
   return (
     <>
-      <Seo title="Templates · BTH Studio" description="Sechs Branchen, drei Stile, viele weitere auf Anfrage: wählen Sie Ihr Template als Klassisch, Modern oder Bold." />
+      <Seo title="Templates · Wyldworks" description="Sechs Branchen, drei Stile, viele weitere auf Anfrage: wählen Sie Ihr Template als Klassisch, Modern oder Bold." />
       <section className="pt-44 pb-20 md:pb-28">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Galerie · Templates</p>
@@ -1205,7 +1213,7 @@ function ProcessPage() {
   ];
   return (
     <>
-      <Seo title="Ablauf · BTH Studio" description="Vom ersten Gespräch bis zur Live-Schaltung. Klar geplant, ohne Überraschungen." />
+      <Seo title="Ablauf · Wyldworks" description="Vom ersten Gespräch bis zur Live-Schaltung. Klar geplant, ohne Überraschungen." />
       <section className="pt-44 pb-16">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Ablauf</p>
@@ -1247,7 +1255,7 @@ function AboutPage() {
   useReveal();
   return (
     <>
-      <Seo title="Über uns · BTH Studio" description="Studio für lokale Marken in der DACH-Region. Wer wir sind, wie wir arbeiten." />
+      <Seo title="Über uns · Wyldworks" description="Studio für lokale Marken in der DACH-Region. Wer wir sind, wie wir arbeiten." />
       <section className="pt-44 pb-16">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Über uns</p>
@@ -1256,7 +1264,7 @@ function AboutPage() {
             <em className="italic-pop">Ein klarer Anspruch.</em>
           </h1>
           <p className="mt-8 max-w-2xl text-lg md:text-xl text-muted reveal">
-            BTH Studio ist eine Werkstatt für Websites, Foto und Video.
+            Wyldworks ist eine Werkstatt für Websites, Foto und Video.
             Drei Menschen, ein Hund, viel Kaffee. Wir glauben an Handwerk vor Marketing-Sprech.
           </p>
         </div>
@@ -1267,7 +1275,7 @@ function AboutPage() {
           <div className="md:col-span-6 reveal">
             <img
               src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=80"
-              alt="Team BTH Studio"
+              alt="Team Wyldworks"
               className="rounded-3xl w-full aspect-[4/5] object-cover"
               loading="lazy"
             />
@@ -1504,7 +1512,7 @@ function Contact() {
   const [sent, setSent] = useState(false);
   return (
     <>
-      <Seo title="Kontakt · BTH Studio" description="Erstgespräch, Angebot oder einfach mal Hallo. Wir antworten innerhalb von 24 Stunden." />
+      <Seo title="Kontakt · Wyldworks" description="Erstgespräch, Angebot oder einfach mal Hallo. Wir antworten innerhalb von 24 Stunden." />
       <section className="pt-44 pb-12">
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-6 reveal">
@@ -1695,7 +1703,7 @@ function TemplatePreview() {
   return (
     <div>
       {isExtra ? (
-        <ExtraBranchTemplate content={themedContent} style={style} branch={tplKey as ExtraBranchKey} eyebrow={EXTRA_BRANCHES[tplKey as ExtraBranchKey].tagline} />
+        <ExtraBranchTemplate content={themedContent} style={style} branch={tplKey as ExtraBranchKey} eyebrow={EXTRA_BRANCHES[tplKey as ExtraBranchKey].tagline} basePath={basePath} />
       ) : (
         (() => {
           const RealTpl = tplKey === 'restaurant' ? RestaurantTemplate : tplKey === 'salon' ? SalonTemplate : TradesmanTemplate;

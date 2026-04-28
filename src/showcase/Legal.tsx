@@ -3,15 +3,16 @@ import { useReveal } from '@/components/fx';
 import Seo from '@/components/Seo';
 
 const STUDIO = {
-  name: 'BTH Studio',
-  legalOwner: 'BTH Studio GmbH (Beispiel-Eintrag)',
-  street: 'Beispielstraße 1',
+  name: 'Wyldworks',
+  legalOwner: 'Mario Schubert Fotografie',
+  street: 'Bäckerbühelgasse 14',
   city: '6020 Innsbruck',
   country: 'Österreich',
-  email: 'hello@bth-studio.com',
-  phone: '+43 660 0000 000',
+  email: 'hey@wyldworks.de',
+  phone: '+49 1515 5338029',
+  phoneAt: '+43 677 6368 1543',
   uid: 'ATU00000000',
-  hr: 'FN 000000a, Landesgericht Innsbruck',
+  hr: 'Einzelunternehmen',
 };
 
 function Page({ title, children }: { title: string; children: React.ReactNode }) {
@@ -54,13 +55,13 @@ export function Imprint() {
         <h2>Kontakt</h2>
         <p>
           E-Mail: <a href={`mailto:${STUDIO.email}`}>{STUDIO.email}</a><br />
-          Telefon: <a href={`tel:${STUDIO.phone}`}>{STUDIO.phone}</a>
+          Telefon (DE): <a href={`tel:${STUDIO.phone.replace(/\s/g,'')}`}>{STUDIO.phone}</a><br />
+          Telefon (AT): <a href={`tel:${STUDIO.phoneAt.replace(/\s/g,'')}`}>{STUDIO.phoneAt}</a>
         </p>
 
         <h2>Unternehmensdaten</h2>
         <p>
-          Firmenbuchnummer: {STUDIO.hr}<br />
-          UID-Nummer: {STUDIO.uid}
+          {STUDIO.hr}
         </p>
 
         <h2>Aufsichtsbehörde / Kammer</h2>

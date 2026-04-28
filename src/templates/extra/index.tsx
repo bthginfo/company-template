@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import type { SiteContent } from '@/lib/types';
+import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import type { SiteContent, PageId } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/components/fx';
 import Seo from '@/components/Seo';
+import { BasePathProvider, useBasePath, withBase } from '@/components/site-blocks';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -9,6 +11,7 @@ export const isExtraBranchKey = (k: string | undefined): k is ExtraBranchKey =>
   !!k && (EXTRA_BRANCH_KEYS as string[]).includes(k);
 
 export type ExtraStyle = 'classic' | 'modern' | 'bold';
+export type ExtraPage = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 type Props = {
   content: SiteContent;
@@ -17,40 +20,181 @@ type Props = {
   branch?: ExtraBranchKey;
   /** Optional eyebrow above hero (defaults to content.brand.tagline) */
   eyebrow?: string;
+  /** Base path under which the multi-page routes are mounted. */
+  basePath?: string;
 };
 
-/** Single-page showcase template with three distinct layouts (classic / modern / bold). */
-export default function ExtraBranchTemplate({ content, style = 'classic', branch = 'consulting', eyebrow }: Props) {
+const PAGE_TO_SEO: Record<ExtraPage, PageId> = {
+  home: 'home',
+  services: 'services',
+  gallery: 'gallery',
+  about: 'about',
+  contact: 'contactPage',
+};
+const PAGE_TITLES: Record<Exclude<ExtraPage, 'home'>, string> = {
+  services: 'Leistungen',
+  gallery: 'Galerie',
+  about: 'Über uns',
+  contact: 'Kontakt',
+};
+
+function ScrollToTopOnRoute() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); }, [pathname]);
+  return null;
+}
+
+function PageSeoExtra({ content, branch, page }: { content: SiteContent; branch: ExtraBranchKey; page: ExtraPage }) {
+  const t = page === 'home' ? content.brand.name : `${PAGE_TITLES[page as Exclude<ExtraPage, 'home'>]} · ${content.brand.name}`;
+  const desc = page === 'home'
+    ? (content.hero?.subtitle || content.about?.body?.slice(0, 160) || `${content.brand.name} – ${content.brand.tagline || 'offizielle Website'}.`)
+    : `${PAGE_TITLES[page as Exclude<ExtraPage, 'home'>]} bei ${content.brand.name}.`;
+  return <Seo title={t} description={desc} content={content} template={branch} page={PAGE_TO_SEO[page]} />;
+}
+
+/** Multi-page showcase template with three distinct layouts (classic / modern / bold). */
+export default function ExtraBranchTemplate({
+  content,
+  style = 'classic',
+  branch = 'consulting',
+  eyebrow,
+  basePath = '',
+}: Props) {
   useReveal();
   const eb = eyebrow ?? content.brand.tagline ?? '';
+  const Layout = style === 'modern' ? ModernLayout : style === 'bold' ? BoldLayout : ClassicLayout;
   return (
-    <div className={`min-h-screen flex flex-col tpl-style-${style} tpl-branch-${branch} bg-[var(--bg-color)] text-[var(--text-color)]`}>
-      <Seo
-        title={content.brand.name}
-        description={content.hero?.subtitle || content.about?.body?.slice(0, 160) || `${content.brand.name} – ${content.brand.tagline || 'offizielle Website'}.`}
-        content={content}
-        template={branch}
-        page="home"
-      />
-      <ExtraHeader content={content} style={style} branch={branch} />
-      <main className="flex-1">
-        {style === 'modern' ? (
-          <ModernLayout content={content} eyebrow={eb} branch={branch} />
-        ) : style === 'bold' ? (
-          <BoldLayout content={content} eyebrow={eb} branch={branch} />
-        ) : (
-          <ClassicLayout content={content} eyebrow={eb} branch={branch} />
-        )}
-      </main>
-      <ExtraFooter content={content} style={style} />
-    </div>
+    <BasePathProvider value={basePath}>
+      <div className={`min-h-screen flex flex-col tpl-style-${style} tpl-branch-${branch} bg-[var(--bg-color)] text-[var(--text-color)]`}>
+        <ExtraHeader content={content} style={style} branch={branch} />
+        <main className="flex-1">
+          <ScrollToTopOnRoute />
+          <Routes>
+            <Route index element={<><PageSeoExtra content={content} branch={branch} page="home" /><Layout content={content} eyebrow={eb} branch={branch} page="home" /></>} />
+            <Route path="leistungen" element={<><PageSeoExtra content={content} branch={branch} page="services" /><SubPage content={content} branch={branch} page="services" style={style} eyebrow={eb} /></>} />
+            <Route path="galerie" element={<><PageSeoExtra content={content} branch={branch} page="gallery" /><SubPage content={content} branch={branch} page="gallery" style={style} eyebrow={eb} /></>} />
+            <Route path="ueber-uns" element={<><PageSeoExtra content={content} branch={branch} page="about" /><SubPage content={content} branch={branch} page="about" style={style} eyebrow={eb} /></>} />
+            <Route path="kontakt" element={<><PageSeoExtra content={content} branch={branch} page="contact" /><SubPage content={content} branch={branch} page="contact" style={style} eyebrow={eb} /></>} />
+            <Route path="*" element={<><PageSeoExtra content={content} branch={branch} page="home" /><Layout content={content} eyebrow={eb} branch={branch} page="home" /></>} />
+          </Routes>
+        </main>
+        <ExtraFooter content={content} style={style} />
+      </div>
+    </BasePathProvider>
+  );
+}
+
+/* ─── Compact page hero used on subpages ─────────────────────────── */
+function PageHero({ eyebrow, title, style }: { eyebrow: string; title: string; style: ExtraStyle }) {
+  return (
+    <section className="pt-32 md:pt-40 pb-12 md:pb-16 surface">
+      <div className="container-x">
+        {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
+        <h1 className={`reveal ${style === 'bold' ? 'font-display text-5xl md:text-8xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Sub-page renderer (services / gallery / about / contact) ──── */
+function SubPage({ content, branch, page, style, eyebrow }: {
+  content: SiteContent;
+  branch: ExtraBranchKey;
+  page: Exclude<ExtraPage, 'home'>;
+  style: ExtraStyle;
+  eyebrow: string;
+}) {
+  const title = PAGE_TITLES[page];
+  return (
+    <>
+      <PageHero eyebrow={eyebrow} title={title} style={style} />
+
+      {page === 'services' && (
+        <>
+          {content.services.length > 0 && (
+            <section className="py-16 md:py-24">
+              <div className="container-x">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+                  {content.services.map((s, i) => (
+                    <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
+                      {s.imageUrl && (
+                        <div className="aspect-[4/3] overflow-hidden img-zoom">
+                          <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        </div>
+                      )}
+                      <div className="p-6">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="font-display text-2xl">{s.title}</h3>
+                          {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
+                        </div>
+                        {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+          <BranchSpotlight branch={branch} style={style} content={content} />
+        </>
+      )}
+
+      {page === 'gallery' && content.gallery.length > 0 && (
+        <section className="py-16 md:py-24">
+          <div className="container-x">
+            <ExtraMasonry images={content.gallery} />
+          </div>
+        </section>
+      )}
+
+      {page === 'about' && (
+        <>
+          {content.about && (
+            <section className="py-16 md:py-24">
+              <div className="container-x grid md:grid-cols-12 gap-10 items-center">
+                <div className="md:col-span-5 reveal">
+                  {(content.about.imageUrl || content.gallery[0]) && (
+                    <img src={content.about.imageUrl || content.gallery[0]} alt={content.about.title} className="rounded-3xl w-full aspect-[4/5] object-cover" loading="lazy" />
+                  )}
+                </div>
+                <div className="md:col-span-7 reveal">
+                  <h2 className="headline-lg">{content.about.title}</h2>
+                  <div className="mt-6 text-lg text-muted leading-relaxed space-y-5">
+                    {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+          <BranchTeam branch={branch} style={style} content={content} />
+          {content.testimonials.length > 0 && (
+            <section className="py-16 md:py-24 surface">
+              <div className="container-x">
+                <p className="eyebrow mb-5 reveal">Stimmen</p>
+                <h2 className="headline-lg max-w-3xl reveal mb-12">Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></h2>
+                <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+                  {content.testimonials.map((t, i) => (
+                    <figure key={i} className="bg-white border border-line rounded-3xl p-7">
+                      <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
+                      <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+        </>
+      )}
+
+      {page === 'contact' && <ContactSection content={content} variant={style} />}
+    </>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────
  *  CLASSIC — editorial, centered, parallax about, varied gallery
  * ──────────────────────────────────────────────────────────────────── */
-function ClassicLayout({ content, eyebrow, branch }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey }) {
+function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   return (
     <>
       <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
@@ -173,7 +317,7 @@ function ClassicLayout({ content, eyebrow, branch }: { content: SiteContent; eye
  *  MODERN — SaaS clean: split hero, sticky-rail about, feature cards,
  *  uniform gallery grid, two-column contact with form-style sidebar
  * ──────────────────────────────────────────────────────────────────── */
-function ModernLayout({ content, eyebrow, branch }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey }) {
+function ModernLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const stats = [
     { value: content.testimonials.length, suffix: '+', label: 'Kund:innen' },
     { value: content.services.length, suffix: '', label: 'Leistungen' },
@@ -341,7 +485,7 @@ function ModernLayout({ content, eyebrow, branch }: { content: SiteContent; eyeb
 /* ─────────────────────────────────────────────────────────────────────
  *  BOLD — magazine: oversized type, full-bleed image, masonry, dramatic
  * ──────────────────────────────────────────────────────────────────── */
-function BoldLayout({ content, eyebrow, branch }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey }) {
+function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   return (
     <>
       {/* Hero — oversized headline overlapping image */}
@@ -583,33 +727,87 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
 /* ─── Header (style-aware) ──────────────────────────────────────── */
 function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraStyle; branch: ExtraBranchKey }) {
   const [scrolled, setScrolled] = useState(false);
+  const [mobile, setMobile] = useState(false);
+  const basePath = useBasePath();
+  const { pathname } = useLocation();
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+  useEffect(() => { setMobile(false); }, [pathname]);
   const isBold = style === 'bold';
+  const NAV: { to: string; label: string }[] = [
+    { to: '/', label: 'Start' },
+    { to: '/leistungen', label: 'Leistungen' },
+    { to: '/galerie', label: 'Galerie' },
+    { to: '/ueber-uns', label: 'Über uns' },
+    { to: '/kontakt', label: 'Kontakt' },
+  ];
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-40 transition-all ${
-        scrolled
-          ? 'bg-[var(--bg-color)]/90 backdrop-blur shadow-sm'
-          : isBold ? 'bg-[var(--bg-color)]' : 'bg-transparent'
-      }`}
-    >
-      <div className={`container-x flex items-center justify-between ${isBold ? 'py-6 border-b border-line' : 'py-5'}`}>
-        <span className={`font-display ${isBold ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>{content.brand.name}</span>
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          <a href="#about" className="hover:text-[var(--accent-color)] transition">Über uns</a>
-          <a href="#leistungen" className="hover:text-[var(--accent-color)] transition">Leistungen</a>
-          <a href="#galerie" className="hover:text-[var(--accent-color)] transition">Galerie</a>
-        </nav>
-        <a href="#kontakt" className="btn-accent !py-2.5 !px-5 text-sm">
-          {content.hero.ctaLabel || 'Termin'} <span aria-hidden>→</span>
-        </a>
-      </div>
-    </header>
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-40 transition-all ${
+          scrolled
+            ? 'bg-[var(--bg-color)]/90 backdrop-blur shadow-sm'
+            : isBold ? 'bg-[var(--bg-color)]' : 'bg-transparent'
+        }`}
+      >
+        <div className={`container-x flex items-center justify-between ${isBold ? 'py-6 border-b border-line' : 'py-5'}`}>
+          <NavLink to={withBase(basePath, '/')} className={`font-display ${isBold ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>{content.brand.name}</NavLink>
+          <nav className="hidden md:flex items-center gap-6 text-sm">
+            {NAV.map((n) => (
+              <NavLink
+                key={n.to}
+                to={withBase(basePath, n.to)}
+                end={n.to === '/'}
+                className={({ isActive }) => `transition-colors ${isActive ? 'text-[var(--accent-color)]' : 'hover:text-[var(--accent-color)]'}`}
+              >
+                {n.label}
+              </NavLink>
+            ))}
+          </nav>
+          <NavLink to={withBase(basePath, '/kontakt')} className="hidden md:inline-flex btn-accent !py-2.5 !px-5 text-sm">
+            {content.hero.ctaLabel || 'Termin'} <span aria-hidden>→</span>
+          </NavLink>
+          <button
+            onClick={() => setMobile(true)}
+            className="md:hidden p-2 rounded-full border border-line"
+            aria-label="Menü öffnen"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      </header>
+      {mobile && (
+        <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
+          <div className="container-x py-5 flex justify-between items-center">
+            <span className="font-display text-2xl">{content.brand.name}</span>
+            <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+          <nav className="container-x flex flex-col gap-1 mt-8">
+            {NAV.map((n) => (
+              <NavLink
+                key={n.to}
+                to={withBase(basePath, n.to)}
+                end={n.to === '/'}
+                onClick={() => setMobile(false)}
+                className="py-5 text-5xl font-display border-b border-line hover:translate-x-2 transition-transform"
+              >
+                {n.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      )}
+    </>
   );
 }
 
