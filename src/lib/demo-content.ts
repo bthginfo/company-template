@@ -190,3 +190,182 @@ export const DEMO_CONTENT: Record<TemplateKey, SiteContent> = {
     },
   }),
 };
+
+/**
+ * Showcase-only content for branches that don't have a full template yet.
+ * Rendered by AgencyShowcase' `ExtraBranchTemplate` (single-page showcase).
+ */
+export const EXTRA_DEMO_CONTENT = {
+  consulting: SiteContentSchema.parse({
+    brand: {
+      name: 'Hofer & Partner',
+      tagline: 'Strategie · Steuern · Recht',
+      primaryColor: '#1e3a8a',
+    },
+    hero: {
+      title: 'Kluge Entscheidungen brauchen klare Köpfe.',
+      subtitle: 'Wir beraten mittelständische Unternehmen in Steuer-, Wirtschafts- und Strategiefragen – seit 1994. Ehrlich, gründlich, persönlich.',
+      imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=2000&q=80',
+      ctaLabel: 'Erstgespräch vereinbaren',
+      ctaHref: '/kontakt',
+    },
+    about: {
+      title: 'Drei Generationen Vertrauen.',
+      body: 'Hofer & Partner wurde 1994 von Dr. Klaus Hofer in München gegründet – mit dem Anspruch, mittelständischen Unternehmen einen Berater an die Seite zu stellen, der zuhört, statt zu verkaufen.\n\nHeute betreuen wir über 180 Mandate aus Industrie, Handel und Familienunternehmen. Unser Team aus 22 Berater:innen, Steuerberater:innen und Anwält:innen bringt Erfahrung aus DAX-Konzernen, Kanzleien und eigenen Unternehmen mit.\n\nWir glauben an Beratung als Beziehung. Daher arbeiten wir nur mit Mandanten, denen wir auf Augenhöhe begegnen können.',
+      imageUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1400&q=80',
+    },
+    services: [
+      { title: 'Strategie- & Geschäftsmodell-Beratung', description: 'Marktanalyse, Positionierung, Wachstumspfade. Mit klaren KPIs und ehrlichen Annahmen.', imageUrl: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Steuerberatung & Jahresabschluss', description: 'Laufende Buchhaltung, Bilanz, Steuererklärungen, Betriebsprüfungen. Voll digital, transparent abrechenbar.', imageUrl: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Gesellschaftsrecht & M&A', description: 'Gründung, Umwandlung, Beteiligung, Kauf und Verkauf. Mit hauseigenem juristischen Team.', imageUrl: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Nachfolge & Generationenwechsel', description: 'Vom ersten Gespräch bis zur Übergabe. Inklusive Bewertung, Steuergestaltung und Familien-Mediation.', imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Compliance & ESG', description: 'Pragmatische Umsetzung von LkSG, CSRD, Datenschutz. Wir machen es einfach – nicht komplizierter.', imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Interim CFO & Controlling', description: 'Wenn es schnell gehen muss: erfahrene CFOs auf Zeit, Reporting-Aufbau, Liquiditätsplanung.', imageUrl: 'https://images.unsplash.com/photo-1444653614773-995cb1ef9efa?auto=format&fit=crop&w=900&q=80' },
+    ],
+    gallery: [
+      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=900&q=80',
+    ],
+    testimonials: [
+      { author: 'Dr. Maria Wallner, CEO Wallner Industries', text: 'Hofer & Partner haben uns durch eine komplexe Nachfolge geführt – ruhig, klug und mit echtem Verständnis für unsere Familie.' },
+      { author: 'Andreas Reiter, Reiter GmbH', text: 'Seit 12 Jahren unsere Steuerberater. Reaktionszeit unter 24 Stunden, immer ein klarer Plan, nie Bauchgefühl.' },
+      { author: 'Familie Brunner, Brunner Holding', text: 'Beratung auf Augenhöhe. Wir wurden nie etwas verkauft, was wir nicht brauchten.' },
+    ],
+    contact: {
+      phone: '+49 89 22 333 444',
+      email: 'kontakt@hofer-partner.de',
+      address: 'Maximilianstraße 24',
+      city: '80539 München',
+      hours: [
+        { day: 'Mo – Fr', time: '09:00 – 18:00' },
+        { day: 'Termine', time: 'nach Vereinbarung' },
+      ],
+      mapsUrl: '',
+    },
+    social: {
+      linkedin: 'hofer-partner',
+    },
+  }),
+
+  medical: SiteContentSchema.parse({
+    brand: {
+      name: 'Praxis Dr. Lindner',
+      tagline: 'Allgemeinmedizin · Naturheilverfahren',
+      primaryColor: '#0e7490',
+    },
+    hero: {
+      title: 'Medizin, die Zeit hat.',
+      subtitle: 'Hausärztliche Versorgung in Innsbruck-Saggen mit Termin – ohne Hetze, ohne Wartezimmer-Marathon. Schulmedizin und sanfte Verfahren in einer Praxis.',
+      imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=2000&q=80',
+      ctaLabel: 'Termin online vereinbaren',
+      ctaHref: '/kontakt',
+    },
+    about: {
+      title: 'Eine Praxis, die zuhört.',
+      body: 'Dr. med. Lena Lindner gründete diese Praxis 2019 mit einem klaren Anspruch: jedem Patienten genug Zeit zu geben.\n\nUnser Termintaktung ist 30 Minuten – nicht 7 wie im Schnitt. Wir arbeiten mit zwei Ärztinnen, zwei MTAs und einem Praxismanager. Erstgespräche sind ausführlich und kostenfrei nach Terminbuchung.\n\nNeben der hausärztlichen Versorgung bieten wir Akupunktur, Ernährungsmedizin und Mikronährstoff-Therapie als ergänzende Verfahren – alles evidenzbasiert.',
+      imageUrl: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=1400&q=80',
+    },
+    services: [
+      { title: 'Hausärztliche Versorgung', description: 'Vorsorge, Akut-Sprechstunde, chronische Erkrankungen, DMP-Programme – mit Zeit und Sorgfalt.', imageUrl: 'https://images.unsplash.com/photo-1666214280391-8ff5bd3c0bf0?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Vorsorge & Check-up', description: 'Großer Gesundheits-Check inkl. Labor, EKG, Lungenfunktion, persönliches Auswertungsgespräch.', imageUrl: 'https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Akupunktur & TCM', description: 'Klassische Körper-Akupunktur, Ohrakupunktur, Schröpfen – nach individueller Diagnose.', imageUrl: 'https://images.unsplash.com/photo-1591343395082-e120087004b4?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Ernährungs- & Mikronährstoffmedizin', description: 'Laborgestützte Analyse, individuelle Supplementierung, Ernährungsberatung über 6 Monate.', imageUrl: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Reisemedizin & Impfungen', description: 'Reiseberatung, Tropenimpfungen, Gelbfieber-Impfstelle. Auch kurzfristig möglich.', imageUrl: 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Privatleistungen (IGeL)', description: 'Transparente Preisliste, ehrliche Empfehlung – wir verkaufen nur, was sinnvoll ist.', imageUrl: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&w=900&q=80' },
+    ],
+    gallery: [
+      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1631217872822-1c2546d6b864?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1666214280557-f1b5022eb634?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1582719188393-bb71ca45dbb9?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1666886573301-b5d526cfd518?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1666214280165-0b6022c52e98?auto=format&fit=crop&w=900&q=80',
+    ],
+    testimonials: [
+      { author: 'Margit S., Innsbruck', text: 'Endlich eine Ärztin, die zuhört. 30 Minuten Erstgespräch – das gab es bei meinem alten Arzt nie.' },
+      { author: 'Familie Pichler', text: 'Unsere ganze Familie ist dort. Termine immer pünktlich, freundliches Team, ehrliche Beratung.' },
+      { author: 'Robert N.', text: 'Akupunktur hat meine Migräne deutlich reduziert. Frau Dr. Lindner nimmt Beschwerden ernst.' },
+    ],
+    contact: {
+      phone: '+43 512 55 66 77',
+      email: 'praxis@dr-lindner.at',
+      address: 'Falkstraße 18',
+      city: '6020 Innsbruck',
+      hours: [
+        { day: 'Mo, Di, Do', time: '08:00 – 18:00' },
+        { day: 'Mi, Fr', time: '08:00 – 13:00' },
+        { day: 'Termine', time: 'online via Doctolib' },
+      ],
+      mapsUrl: '',
+    },
+    social: {
+      instagram: 'praxis.lindner',
+    },
+  }),
+
+  fitness: SiteContentSchema.parse({
+    brand: {
+      name: 'Studio Anima',
+      tagline: 'Yoga · Pilates · Mindful Movement',
+      primaryColor: '#9333ea',
+    },
+    hero: {
+      title: 'Bewegung, die wieder bei Ihnen ankommt.',
+      subtitle: 'Ein kleines Studio in München-Glockenbach mit großen Fenstern, viel Holz und Lehrer:innen, die Sie nicht aus den Augen verlieren. Maximal acht Personen pro Kurs.',
+      imageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=2000&q=80',
+      ctaLabel: 'Probetraining buchen',
+      ctaHref: '/kontakt',
+    },
+    about: {
+      title: 'Klein. Persönlich. Konsequent.',
+      body: 'Studio Anima wurde 2021 von Sarah Berg gegründet – nach 12 Jahren als Yogalehrerin in Berlin und Lissabon.\n\nUnsere Idee: kleine Klassen, in denen die Lehrer:innen jede Person sehen, jede Korrektur möglich ist und niemand sich zwischen 30 anderen verliert.\n\nWir arbeiten mit fünf festangestellten Lehrer:innen, jeder mit über 500 Stunden Ausbildung. Unser Studio ist FSC-zertifiziertes Holz, Tageslicht, Pflanzen und ein eigener Tee-Bereich.',
+      imageUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1400&q=80',
+    },
+    services: [
+      { title: 'Vinyasa Flow', description: 'Dynamisches Yoga im Atemrhythmus. Für alle, die Bewegung lieben. 75 Minuten.', price: 'ab 22 €', imageUrl: 'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Yin Yoga', description: 'Lange gehaltene, ruhige Positionen. Tiefe Faszien-Arbeit. Perfekt nach langen Arbeitstagen. 60 Minuten.', price: 'ab 22 €', imageUrl: 'https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Reformer Pilates', description: 'Kleingruppen mit max. 5 Personen am Reformer. Präzise Korrekturen, klare Progression.', price: 'ab 32 €', imageUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Mindful Movement', description: 'Eine Mischung aus Yoga, Somatics und Atemarbeit. Ideal für Anfänger:innen und Wiedereinsteiger:innen.', price: 'ab 22 €', imageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Personal Training', description: '60 oder 90 Minuten – ganz auf Sie zugeschnitten. Inkl. Bewegungs-Analyse und Trainingsplan.', price: 'ab 95 €', imageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Workshops & Retreats', description: 'Monatliche Workshops, jährliches Retreat im Allgäu. Themen u. a. Atem, Anatomie, Meditation.', imageUrl: 'https://images.unsplash.com/photo-1593810451137-0904968d2e9b?auto=format&fit=crop&w=900&q=80' },
+    ],
+    gallery: [
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1593810451137-0904968d2e9b?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1620207418302-439b387441b0?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1593164842264-854604db2260?auto=format&fit=crop&w=900&q=80',
+    ],
+    testimonials: [
+      { author: 'Julia W., München', text: 'Endlich ein Studio, in dem ich nicht in der Masse verschwinde. Sarah und ihr Team sind wirklich präsent.' },
+      { author: 'Tom B.', text: 'Reformer Pilates hat meinen Rücken in 3 Monaten verändert. Hier weiß man, was man tut.' },
+      { author: 'Marie L.', text: 'Atmosphäre wie in einem ruhigen Wohnzimmer. Ich komme jede Woche – das ist meine Insel.' },
+    ],
+    contact: {
+      phone: '+49 89 44 55 66',
+      email: 'hello@studio-anima.de',
+      address: 'Pestalozzistraße 9',
+      city: '80469 München',
+      hours: [
+        { day: 'Mo – Fr', time: '07:00 – 21:00' },
+        { day: 'Sa + So', time: '08:30 – 17:00' },
+      ],
+      mapsUrl: '',
+    },
+    social: {
+      instagram: 'studio.anima.muc',
+    },
+  }),
+} as const satisfies Record<string, SiteContent>;

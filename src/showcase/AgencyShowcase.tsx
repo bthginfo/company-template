@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate } from 'react-router-dom';
-import { DEMO_CONTENT } from '@/lib/demo-content';
+import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { clearOverride, loadFor, readOverride } from '@/lib/demo-overrides';
@@ -13,7 +13,7 @@ import RestaurantTemplate from '@/templates/restaurant';
 import SalonTemplate from '@/templates/salon';
 import TradesmanTemplate from '@/templates/tradesman';
 import {
-  Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, SplitText, useReveal,
+  Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, SplitText, useReveal, ParallaxImage,
 } from '@/components/fx';
 
 /* ─── Brand ─────────────────────────────────────────────────────────── */
@@ -116,8 +116,34 @@ const STYLE_PREVIEW: Record<TemplateKey, { classic: string; modern: string; bold
   },
 };
 
-/* ─── Extra branches (showcase-only — no live preview yet) ───────── */
+/* ─── Extra branches (showcase-only — single-page preview) ───────── */
 type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
+type BranchKey = TemplateKey | ExtraBranchKey;
+const EXTRA_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
+const isExtraKey = (k: string | undefined): k is ExtraBranchKey =>
+  !!k && (EXTRA_KEYS as string[]).includes(k);
+
+const EXTRA_PRESETS: Record<ExtraBranchKey, ThemePreset[]> = {
+  consulting: [
+    { id: 'navy',     label: 'Navy',         primary: '#1e3a8a', primaryFg: '#eff6ff', accent: '#60a5fa', surface: '#f1f5f9', bg: '#ffffff', text: '#0f172a' },
+    { id: 'graphite', label: 'Graphite',     primary: '#1f2937', primaryFg: '#f9fafb', accent: '#fbbf24', surface: '#f3f4f6', bg: '#ffffff', text: '#111827' },
+    { id: 'sand',     label: 'Sand',         primary: '#78716c', primaryFg: '#fafaf9', accent: '#d4a373', surface: '#fafaf9', bg: '#ffffff', text: '#1c1917' },
+    { id: 'mid-blue', label: 'Midnight Blue',primary: '#60a5fa', primaryFg: '#0c1322', accent: '#60a5fa', surface: '#1e293b', bg: '#0f172a', text: '#e2e8f0' },
+  ],
+  medical: [
+    { id: 'cyan',     label: 'Cyan Calm',    primary: '#0e7490', primaryFg: '#ecfeff', accent: '#22d3ee', surface: '#f0fdff', bg: '#ffffff', text: '#0c1f24' },
+    { id: 'teal',     label: 'Teal Soft',    primary: '#0f766e', primaryFg: '#f0fdfa', accent: '#5eead4', surface: '#f0fdfa', bg: '#ffffff', text: '#0c1c1a' },
+    { id: 'sage',     label: 'Sage',         primary: '#4d7c0f', primaryFg: '#f7fee7', accent: '#a3e635', surface: '#f7fee7', bg: '#ffffff', text: '#1a2010' },
+    { id: 'cocoon',   label: 'Cocoon',       primary: '#a5f3fc', primaryFg: '#0c1f24', accent: '#a5f3fc', surface: '#0e7490', bg: '#083344', text: '#ecfeff' },
+  ],
+  fitness: [
+    { id: 'violet',   label: 'Violet',       primary: '#9333ea', primaryFg: '#faf5ff', accent: '#c084fc', surface: '#faf5ff', bg: '#ffffff', text: '#1c1126' },
+    { id: 'sunset',   label: 'Sunset',       primary: '#ea580c', primaryFg: '#fff7ed', accent: '#fb923c', surface: '#fff7ed', bg: '#ffffff', text: '#1c0f06' },
+    { id: 'lime',     label: 'Lime Energy',  primary: '#365314', primaryFg: '#f7fee7', accent: '#a3e635', surface: '#f7fee7', bg: '#ffffff', text: '#0f1605' },
+    { id: 'noir-vio', label: 'Noir Violet',  primary: '#c084fc', primaryFg: '#1c1126', accent: '#c084fc', surface: '#27272a', bg: '#18181b', text: '#fafafa' },
+  ],
+};
+
 const EXTRA_BRANCHES: Record<ExtraBranchKey, {
   label: string;
   tagline: string;
@@ -636,7 +662,7 @@ function TemplatesPreviewSection() {
             return (
               <Link
                 key={k}
-                to="/kontakt"
+                to={`/preview/${k}`}
                 className="group relative rounded-3xl overflow-hidden aspect-[4/5] hover-lift block"
               >
                 <img src={m.image} alt={m.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" loading="lazy" />
@@ -644,7 +670,7 @@ function TemplatesPreviewSection() {
                 <div className="absolute top-5 left-5 right-5 flex justify-between items-start">
                   <span className="text-xs font-mono text-white/80 uppercase tracking-widest">/ {k}</span>
                   <span className="text-[10px] font-mono uppercase tracking-widest text-white/90 bg-white/10 backdrop-blur px-2.5 py-1 rounded-full border border-white/20">
-                    Auf Anfrage
+                    Showcase
                   </span>
                 </div>
                 <div className="relative p-8 h-full flex flex-col justify-end text-white">
@@ -652,7 +678,7 @@ function TemplatesPreviewSection() {
                   <h3 className="font-display text-4xl md:text-5xl">{m.label}</h3>
                   <p className="mt-3 text-sm text-white/80 leading-relaxed max-w-xs">{m.description}</p>
                   <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium border-t border-white/20 pt-4">
-                    Konzept anfragen
+                    Showcase ansehen
                     <span aria-hidden className="transition-transform group-hover:translate-x-2">→</span>
                   </div>
                 </div>
@@ -1121,7 +1147,7 @@ function TemplatesGallery() {
                     <p className="mt-2 text-base text-muted max-w-xl">{m.tagline}</p>
                   </div>
                   <span className="text-[10px] font-mono uppercase tracking-widest bg-[var(--surface-color)] border border-line px-3 py-1.5 rounded-full text-muted">
-                    Auf Anfrage · Custom
+                    Live Showcase
                   </span>
                 </div>
                 <div className="grid md:grid-cols-3 gap-5">
@@ -1144,8 +1170,8 @@ function TemplatesGallery() {
                         </li>
                       ))}
                     </ul>
-                    <Link to="/kontakt" className="btn-outline mt-auto self-start text-sm">
-                      Konzept anfragen <span aria-hidden>→</span>
+                    <Link to={`/preview/${k}`} className="btn-outline mt-auto self-start text-sm">
+                      Showcase ansehen <span aria-hidden>→</span>
                     </Link>
                   </div>
                 </div>
@@ -1587,26 +1613,257 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+/* ─── Extra-branch single-page showcase template ───────────────── */
+function ExtraBranchTemplate({
+  content, style, branch,
+}: { content: SiteContent; style: 'classic' | 'modern' | 'bold'; branch: ExtraBranchKey }) {
+  useReveal();
+  const meta = EXTRA_BRANCHES[branch];
+  return (
+    <div className={`min-h-screen flex flex-col tpl-style-${style} bg-[var(--bg-color)] text-[var(--text-color)]`}>
+      <ExtraHeader content={content} />
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
+          <div className="absolute inset-0 -z-10">
+            <img src={content.hero.imageUrl} alt="" className="w-full h-full object-cover opacity-30" loading="eager" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--bg-color) 0%, color-mix(in oklab, var(--bg-color), transparent 25%) 40%, var(--bg-color) 100%)' }} />
+          </div>
+          <div className="container-x">
+            <p className="eyebrow mb-6 reveal">{meta.tagline}</p>
+            <h1 className="headline-xl max-w-5xl reveal">
+              <SplitText>{content.hero.title}</SplitText>
+            </h1>
+            <p className="mt-8 text-lg md:text-2xl text-muted max-w-3xl reveal">{content.hero.subtitle}</p>
+            <div className="mt-12 flex flex-wrap gap-3 reveal">
+              <a href="#kontakt" className="btn-primary">{content.hero.ctaLabel || 'Termin anfragen'} <span aria-hidden>→</span></a>
+              <a href="#leistungen" className="btn-outline">Leistungen ansehen</a>
+            </div>
+          </div>
+        </section>
+
+        {/* About */}
+        {content.about && (
+          <section className="py-24 md:py-32 surface">
+            <div className="container-x grid md:grid-cols-12 gap-10 items-center">
+              <div className="md:col-span-5 reveal">
+                <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5]" />
+              </div>
+              <div className="md:col-span-7 reveal">
+                <p className="eyebrow mb-5">Über uns</p>
+                <h2 className="headline-lg">{content.about.title}</h2>
+                <div className="mt-8 text-lg text-muted leading-relaxed space-y-5 max-w-2xl">
+                  {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Services */}
+        {content.services.length > 0 && (
+          <section id="leistungen" className="py-24 md:py-32">
+            <div className="container-x">
+              <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
+                <div className="md:col-span-7 reveal">
+                  <p className="eyebrow mb-5">Leistungen</p>
+                  <h2 className="headline-lg">Was wir<br /><em className="italic-pop">für Sie tun.</em></h2>
+                </div>
+                <p className="md:col-span-5 text-lg text-muted reveal">
+                  Eine Auswahl aus unserem Repertoire. Mehr im persönlichen Gespräch.
+                </p>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+                {content.services.map((s, i) => (
+                  <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
+                    {s.imageUrl && (
+                      <div className="aspect-[4/3] overflow-hidden img-zoom">
+                        <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="font-display text-2xl">{s.title}</h3>
+                        {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
+                      </div>
+                      {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Gallery */}
+        {content.gallery.length > 0 && (
+          <section className="py-24 md:py-32 surface">
+            <div className="container-x">
+              <div className="mb-12 reveal">
+                <p className="eyebrow mb-5">Eindrücke</p>
+                <h2 className="headline-lg">Bilder aus<br /><em className="italic-pop">unserem Alltag.</em></h2>
+              </div>
+              {style === 'bold' ? (
+                <ExtraMasonry images={content.gallery} />
+              ) : style === 'modern' ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 reveal-stagger">
+                  {content.gallery.map((src, i) => (
+                    <figure key={i} className="aspect-[4/3] overflow-hidden rounded-2xl border border-line img-zoom">
+                      <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                    </figure>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 reveal-stagger">
+                  {content.gallery.map((src, i) => {
+                    const aspects = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[4/5]', 'aspect-[3/4]', 'aspect-[1/1]'];
+                    return (
+                      <figure key={i} className={`overflow-hidden rounded-3xl img-zoom ${aspects[i % aspects.length]}`}>
+                        <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      </figure>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Testimonials */}
+        {content.testimonials.length > 0 && (
+          <section className="py-24 md:py-32">
+            <div className="container-x">
+              <p className="eyebrow mb-5 reveal">Stimmen</p>
+              <h2 className="headline-lg max-w-3xl reveal">Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></h2>
+              <div className="mt-14 grid md:grid-cols-3 gap-5 reveal-stagger">
+                {content.testimonials.map((t, i) => (
+                  <figure key={i} className="bg-[var(--surface-color)] border border-line rounded-3xl p-7">
+                    <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
+                    <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Contact */}
+        <section id="kontakt" className="py-24 md:py-32 surface">
+          <div className="container-x grid md:grid-cols-12 gap-10">
+            <div className="md:col-span-5 reveal">
+              <p className="eyebrow mb-5">Kontakt</p>
+              <h2 className="headline-lg">{content.hero.ctaLabel || 'Termin vereinbaren'}.</h2>
+              <ul className="mt-10 space-y-3 text-base">
+                {content.contact.phone && <li className="font-mono">{content.contact.phone}</li>}
+                {content.contact.email && <li className="font-mono">{content.contact.email}</li>}
+                {(content.contact.address || content.contact.city) && (
+                  <li className="text-muted">{content.contact.address}{content.contact.city ? `, ${content.contact.city}` : ''}</li>
+                )}
+              </ul>
+              {content.contact.hours.length > 0 && (
+                <div className="mt-10">
+                  <p className="font-mono text-xs uppercase tracking-widest text-muted mb-3">Öffnungszeiten</p>
+                  <ul className="space-y-1 text-sm">
+                    {content.contact.hours.map((h, i) => (
+                      <li key={i} className="flex justify-between gap-6">
+                        <span className="text-muted">{h.day}</span>
+                        <span>{h.time}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="md:col-span-7 reveal">
+              <div className="rounded-3xl overflow-hidden border border-line">
+                <iframe
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(`${content.contact.address}, ${content.contact.city}`)}&output=embed`}
+                  title={`Karte: ${content.contact.address}`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="block w-full aspect-[16/12] border-0"
+                  allow="fullscreen"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="bg-brand text-white py-16 grain">
+        <div className="container-x">
+          <p className="font-display text-3xl">{content.brand.name}</p>
+          <p className="text-sm text-white/60 mt-2">{content.brand.tagline}</p>
+          <p className="mt-10 pt-6 border-t border-white/10 text-xs text-white/50">
+            © {new Date().getFullYear()} {content.brand.name} · Showcase-Konzept von BTH Studio
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function ExtraHeader({ content }: { content: SiteContent }) {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <header
+      className={`fixed top-0 left-0 right-0 z-40 transition-all ${scrolled ? 'bg-[var(--bg-color)]/90 backdrop-blur shadow-sm' : 'bg-transparent'}`}
+    >
+      <div className="container-x flex items-center justify-between py-5">
+        <span className="font-display text-2xl">{content.brand.name}</span>
+        <a href="#kontakt" className="btn-accent !py-2.5 !px-5 text-sm">
+          {content.hero.ctaLabel || 'Termin'} <span aria-hidden>→</span>
+        </a>
+      </div>
+    </header>
+  );
+}
+
+function ExtraMasonry({ images }: { images: string[] }) {
+  return (
+    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:_balance] reveal-stagger">
+      {images.map((src, i) => (
+        <figure key={i} className="mb-4 break-inside-avoid overflow-hidden rounded-2xl img-zoom group relative">
+          <img src={src} alt="" className="block w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" />
+        </figure>
+      ))}
+    </div>
+  );
+}
+
 /* ─── Template preview ──────────────────────────────────────────── */
 function TemplatePreview() {
-  const { key, style: styleParam } = useParams<{ key: TemplateKey; style?: string }>();
+  const { key, style: styleParam } = useParams<{ key: string; style?: string }>();
   const navigate = useNavigate();
-  const tplKey = (key && key in DEMO_CONTENT ? key : 'restaurant') as TemplateKey;
+  const isExtra = isExtraKey(key);
+  const validReal = key && (key in DEMO_CONTENT);
+  const tplKey: BranchKey = isExtra ? key : (validReal ? (key as TemplateKey) : 'restaurant');
   const style = (styleParam === 'modern' || styleParam === 'bold' ? styleParam : 'classic') as 'classic' | 'modern' | 'bold';
-  const presets = PRESETS[tplKey];
+  const presets = isExtra ? EXTRA_PRESETS[tplKey as ExtraBranchKey] : PRESETS[tplKey as TemplateKey];
   const [presetIdx, setPresetIdx] = useState(0);
   const preset = presets[presetIdx];
 
-  // Live-read content (override from AdminDemo wins over DEMO_CONTENT).
-  const [content, setContent] = useState<SiteContent>(() => loadFor(tplKey));
-  useEffect(() => { setContent(loadFor(tplKey)); }, [tplKey]);
+  // Live-read content (override from AdminDemo wins over DEMO_CONTENT) — only for real templates.
+  const [content, setContent] = useState<SiteContent>(() =>
+    isExtra ? EXTRA_DEMO_CONTENT[tplKey as ExtraBranchKey] : loadFor(tplKey as TemplateKey)
+  );
   useEffect(() => {
+    setContent(isExtra ? EXTRA_DEMO_CONTENT[tplKey as ExtraBranchKey] : loadFor(tplKey as TemplateKey));
+  }, [tplKey, isExtra]);
+  useEffect(() => {
+    if (isExtra) return; // extras have no admin override
     const onOverride = (e: Event) => {
       const detail = (e as CustomEvent<{ key: TemplateKey }>).detail;
-      if (detail?.key === tplKey) setContent(loadFor(tplKey));
+      if (detail?.key === tplKey) setContent(loadFor(tplKey as TemplateKey));
     };
     const onStorage = (e: StorageEvent) => {
-      if (e.key && e.key.includes(tplKey)) setContent(loadFor(tplKey));
+      if (e.key && e.key.includes(String(tplKey))) setContent(loadFor(tplKey as TemplateKey));
     };
     window.addEventListener('bth:override', onOverride);
     window.addEventListener('storage', onStorage);
@@ -1614,8 +1871,8 @@ function TemplatePreview() {
       window.removeEventListener('bth:override', onOverride);
       window.removeEventListener('storage', onStorage);
     };
-  }, [tplKey]);
-  const hasOverride = !!readOverride(tplKey);
+  }, [tplKey, isExtra]);
+  const hasOverride = !isExtra && !!readOverride(tplKey as TemplateKey);
 
   const themedContent = useMemo(() => ({
     ...content,
@@ -1625,20 +1882,26 @@ function TemplatePreview() {
   useEffect(() => { applyTheme(preset); }, [preset]);
   useEffect(() => setPresetIdx(0), [tplKey]);
 
-  const Tpl = tplKey === 'restaurant' ? RestaurantTemplate : tplKey === 'salon' ? SalonTemplate : TradesmanTemplate;
   const basePath = styleParam ? `/preview/${tplKey}/style/${style}` : `/preview/${tplKey}`;
 
-  const switchBranche = (k: TemplateKey) => {
+  const switchBranche = (k: BranchKey) => {
     navigate(styleParam ? `/preview/${k}/style/${style}` : `/preview/${k}`);
   };
   const switchStyle = (s: 'classic' | 'modern' | 'bold') => {
     navigate(s === 'classic' ? `/preview/${tplKey}` : `/preview/${tplKey}/style/${s}`);
   };
-  const onReset = () => { clearOverride(tplKey); };
+  const onReset = () => { if (!isExtra) clearOverride(tplKey as TemplateKey); };
 
   return (
     <div>
-      <Tpl content={themedContent} basePath={basePath} style={style} />
+      {isExtra ? (
+        <ExtraBranchTemplate content={themedContent} style={style} branch={tplKey as ExtraBranchKey} />
+      ) : (
+        (() => {
+          const RealTpl = tplKey === 'restaurant' ? RestaurantTemplate : tplKey === 'salon' ? SalonTemplate : TradesmanTemplate;
+          return <RealTpl content={themedContent} basePath={basePath} style={style} />;
+        })()
+      )}
 
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <div className="glass shadow-2xl rounded-2xl p-3 border border-line w-[260px]">
@@ -1653,6 +1916,11 @@ function TemplatePreview() {
             {(['restaurant','salon','tradesman'] as TemplateKey[]).map((k) => (
               <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-brand text-white border-brand' : 'bg-white border-line hover:border-brand/40'}`}>
                 {TEMPLATE_META[k].label.split(' ')[0]}
+              </button>
+            ))}
+            {EXTRA_KEYS.map((k) => (
+              <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-brand text-white border-brand' : 'bg-white border-line hover:border-brand/40'}`}>
+                {EXTRA_BRANCHES[k].label.split(' ')[0]}
               </button>
             ))}
           </div>
