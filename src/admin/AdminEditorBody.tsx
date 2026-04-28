@@ -107,6 +107,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
               <option value="news">News & Blog</option>
             </optgroup>
             <optgroup label="Global">
+              <option value="navigation">Navigation & Footer</option>
               <option value="brand">Marke & Design</option>
               <option value="contact">Kontaktdaten</option>
               <option value="social">Social Media</option>
@@ -156,6 +157,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 
           <div className="p-6 md:p-8 space-y-10">
             {pageId === 'brand' && <BrandPage data={data} setData={setData} />}
+            {pageId === 'navigation' && <NavigationPage data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'contact' && <ContactGlobal data={data} setData={setData} />}
             {pageId === 'social' && <SocialPage data={data} setData={setData} />}
             {pageId === 'seo' && <SeoPage data={data} setData={setData} />}
@@ -188,7 +190,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 }
 
 /* ───────────── Pages config per template ───────────── */
-type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news';
+type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation';
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
@@ -237,6 +239,7 @@ function pagesFor(t: TemplateKey): PageDef[] {
 }
 
 function labelForGlobal(p: PageId) {
+  if (p === 'navigation') return 'Navigation & Footer';
   if (p === 'brand') return 'Marke & Design';
   if (p === 'contact') return 'Kontaktdaten';
   if (p === 'social') return 'Social Media';
@@ -716,6 +719,187 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
           <input className={inputCls} value={data.contact.mapsUrl || ''} onChange={(e) => setData({ ...data, contact: { ...data.contact, mapsUrl: e.target.value } })} placeholder="https://maps.google.com/..." />
         </Field>
         <Toggle value={!!data.contact.mapsUrl} onChange={(v) => !v && setData({ ...data, contact: { ...data.contact, mapsUrl: '' } })} label="Karte auf der Kontakt-Seite anzeigen" />
+      </SectionCard>
+    </>
+  );
+}
+
+/* ─── Navigation & Footer editor ──────────────────────────────────── */
+const NAV_DEFAULTS: Record<TemplateKey, { label: string; path: string }[]> = {
+  restaurant: [
+    { label: 'Start', path: '/' },
+    { label: 'Speisekarte', path: '/speisekarte' },
+    { label: 'Galerie', path: '/galerie' },
+    { label: 'Über uns', path: '/ueber-uns' },
+    { label: 'Kontakt', path: '/kontakt' },
+  ],
+  salon: [
+    { label: 'Start', path: '/' },
+    { label: 'Leistungen', path: '/leistungen' },
+    { label: 'Looks', path: '/galerie' },
+    { label: 'Studio', path: '/ueber-uns' },
+    { label: 'Termin', path: '/kontakt' },
+  ],
+  tradesman: [
+    { label: 'Start', path: '/' },
+    { label: 'Leistungen', path: '/leistungen' },
+    { label: 'Referenzen', path: '/referenzen' },
+    { label: 'Betrieb', path: '/ueber-uns' },
+    { label: 'Anfrage', path: '/kontakt' },
+  ],
+  hotel: [
+    { label: 'Start', path: '/' },
+    { label: 'Zimmer', path: '/zimmer' },
+    { label: 'Haus & Spa', path: '/galerie' },
+    { label: 'Geschichte', path: '/ueber-uns' },
+    { label: 'Reservieren', path: '/kontakt' },
+  ],
+  tourism: [
+    { label: 'Start', path: '/' },
+    { label: 'Touren', path: '/touren' },
+    { label: 'Eindrücke', path: '/galerie' },
+    { label: 'Guides', path: '/ueber-uns' },
+    { label: 'Buchen', path: '/kontakt' },
+  ],
+  consulting: [
+    { label: 'Start', path: '/' },
+    { label: 'Leistungen', path: '#leistungen' },
+    { label: 'Über uns', path: '#about' },
+    { label: 'Kontakt', path: '#kontakt' },
+  ],
+  medical: [
+    { label: 'Start', path: '/' },
+    { label: 'Leistungen', path: '#leistungen' },
+    { label: 'Über uns', path: '#about' },
+    { label: 'Kontakt', path: '#kontakt' },
+  ],
+  fitness: [
+    { label: 'Start', path: '/' },
+    { label: 'Programm', path: '#leistungen' },
+    { label: 'Studio', path: '#about' },
+    { label: 'Kontakt', path: '#kontakt' },
+  ],
+};
+
+const KNOWN_PATHS_HINT = ['/', '/speisekarte', '/leistungen', '/zimmer', '/touren', '/galerie', '/referenzen', '/ueber-uns', '/kontakt', '/news'];
+
+function NavigationPage({ data, setData, tpl }: SectionProps) {
+  const items = (data as any).navItems as Array<{ label: string; path: string; visible: boolean }> | undefined;
+  const list = items && items.length ? items : NAV_DEFAULTS[tpl].map((d) => ({ ...d, visible: true }));
+
+  const setItems = (next: Array<{ label: string; path: string; visible: boolean }>) => {
+    setData({ ...data, navItems: next } as any);
+  };
+  const move = (i: number, dir: -1 | 1) => {
+    const next = [...list];
+    const j = i + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[i], next[j]] = [next[j], next[i]];
+    setItems(next);
+  };
+  const update = (i: number, patch: Partial<{ label: string; path: string; visible: boolean }>) => {
+    const next = list.map((it, k) => k === i ? { ...it, ...patch } : it);
+    setItems(next);
+  };
+  const remove = (i: number) => setItems(list.filter((_, k) => k !== i));
+  const add = () => setItems([...list, { label: 'Neuer Eintrag', path: '/', visible: true }]);
+  const reset = () => setData({ ...data, navItems: [] } as any);
+
+  const heroCta = (data as any).heroCta || {};
+  const setHero = (patch: Partial<{ primaryLabel: string; primaryHref: string; secondaryLabel: string; secondaryHref: string }>) => {
+    setData({ ...data, heroCta: { ...heroCta, ...patch } } as any);
+  };
+  const ctaBand = (data as any).ctaBandOverride || {};
+  const setBand = (patch: Partial<{ lead: string; sub: string; cta: string; ctaHref: string }>) => {
+    setData({ ...data, ctaBandOverride: { ...ctaBand, ...patch } } as any);
+  };
+  const footer = (data as any).footer || {};
+  const setFooter = (patch: any) => setData({ ...data, footer: { ...footer, ...patch } } as any);
+
+  return (
+    <>
+      <SectionCard
+        title="Hauptnavigation"
+        description="Beschriftung, Reihenfolge und Sichtbarkeit jedes Menü-Eintrags. Erscheint im Header und im Footer."
+      >
+        <div className="space-y-2">
+          {list.map((it, i) => (
+            <div key={i} className="grid md:grid-cols-[2.5rem_1fr_1fr_auto_auto] gap-2 items-center bg-[#f6f6f3] rounded-xl p-3">
+              <div className="flex flex-col">
+                <button onClick={() => move(i, -1)} disabled={i === 0} className="text-xs px-2 py-1 disabled:opacity-30 hover:bg-white rounded">↑</button>
+                <button onClick={() => move(i, 1)} disabled={i === list.length - 1} className="text-xs px-2 py-1 disabled:opacity-30 hover:bg-white rounded">↓</button>
+              </div>
+              <input
+                className={inputCls + ' !bg-white'}
+                value={it.label}
+                onChange={(e) => update(i, { label: e.target.value })}
+                placeholder="Beschriftung"
+              />
+              <input
+                className={inputCls + ' !bg-white font-mono text-xs'}
+                value={it.path}
+                onChange={(e) => update(i, { path: e.target.value })}
+                placeholder="/pfad"
+                list="known-nav-paths"
+              />
+              <label className="flex items-center gap-2 text-xs text-muted whitespace-nowrap">
+                <input type="checkbox" checked={it.visible !== false} onChange={(e) => update(i, { visible: e.target.checked })} />
+                sichtbar
+              </label>
+              <button onClick={() => remove(i)} className="text-xs px-3 py-1.5 rounded text-red-700 hover:bg-red-50">Entfernen</button>
+            </div>
+          ))}
+          <datalist id="known-nav-paths">
+            {KNOWN_PATHS_HINT.map((p) => <option key={p} value={p} />)}
+          </datalist>
+        </div>
+        <div className="flex gap-2 mt-4">
+          <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Eintrag hinzufügen</button>
+          <button onClick={reset} className="text-xs text-muted hover:text-slate-900 px-3">Auf Standard zurücksetzen</button>
+        </div>
+        <p className="mt-4 text-xs text-muted">
+          Tipp: Pfade sollten zu existierenden Seiten passen. Bekannte Pfade: <span className="font-mono">{KNOWN_PATHS_HINT.join(' · ')}</span>
+        </p>
+      </SectionCard>
+
+      <SectionCard title="Hero-Buttons (Startseite)" description="Beschriftung und Verlinkung der Buttons im Hero-Bereich.">
+        <div className="grid md:grid-cols-2 gap-4">
+          <Field label="Primär-Button Beschriftung" hint="z.B. 'Tisch reservieren'">
+            <input className={inputCls} value={heroCta.primaryLabel || ''} onChange={(e) => setHero({ primaryLabel: e.target.value })} placeholder="Kontakt aufnehmen" />
+          </Field>
+          <Field label="Primär-Button Ziel" hint="Pfad oder URL">
+            <input className={inputCls + ' font-mono text-xs'} value={heroCta.primaryHref || ''} onChange={(e) => setHero({ primaryHref: e.target.value })} placeholder="/kontakt" />
+          </Field>
+          <Field label="Sekundär-Button Beschriftung">
+            <input className={inputCls} value={heroCta.secondaryLabel || ''} onChange={(e) => setHero({ secondaryLabel: e.target.value })} placeholder="Speisekarte ansehen" />
+          </Field>
+          <Field label="Sekundär-Button Ziel">
+            <input className={inputCls + ' font-mono text-xs'} value={heroCta.secondaryHref || ''} onChange={(e) => setHero({ secondaryHref: e.target.value })} placeholder="/speisekarte" />
+          </Field>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="CTA-Band vor dem Footer" description="Großer Aufruf zur Aktion am Ende der Startseite.">
+        <div className="grid md:grid-cols-2 gap-4">
+          <Field label="Headline" hint="z.B. 'Hunger?' / 'Termin?' / 'Auftrag?'">
+            <input className={inputCls} value={ctaBand.lead || ''} onChange={(e) => setBand({ lead: e.target.value })} placeholder="Bereit?" />
+          </Field>
+          <Field label="Untertitel">
+            <input className={inputCls} value={ctaBand.sub || ''} onChange={(e) => setBand({ sub: e.target.value })} placeholder="Schreiben Sie uns. Wir antworten." />
+          </Field>
+          <Field label="Button Beschriftung">
+            <input className={inputCls} value={ctaBand.cta || ''} onChange={(e) => setBand({ cta: e.target.value })} placeholder="Jetzt anfragen" />
+          </Field>
+          <Field label="Button Ziel">
+            <input className={inputCls + ' font-mono text-xs'} value={ctaBand.ctaHref || ''} onChange={(e) => setBand({ ctaHref: e.target.value })} placeholder="/kontakt" />
+          </Field>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Footer-Tagline" description="Kleiner Untertitel-Text neben dem Markennamen im Footer.">
+        <Field label="Tagline">
+          <input className={inputCls} value={footer.tagline || ''} onChange={(e) => setFooter({ tagline: e.target.value })} placeholder={data.brand.tagline || ''} />
+        </Field>
       </SectionCard>
     </>
   );

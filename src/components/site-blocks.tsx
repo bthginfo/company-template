@@ -263,16 +263,32 @@ export function Hero({
             {(content.hero as any).body}
           </p>
         ) : null}
-        {showCta && content.hero.ctaLabel ? (
-          <div className={`mt-12 flex flex-wrap gap-4 ${align === 'center' ? 'justify-center' : ''}`}>
-            <Link to={withBase(basePath, content.hero.ctaHref || '/kontakt')} className="btn-accent">
-              {content.hero.ctaLabel} <span aria-hidden>→</span>
-            </Link>
-            <a href="#mehr" className="btn-outline !border-white/60 !text-white hover:!bg-white hover:!text-slate-900">
-              Mehr erfahren
-            </a>
-          </div>
-        ) : null}
+        {showCta && (content.hero.ctaLabel || (content as any).heroCta?.primaryLabel) ? (() => {
+          const hc = (content as any).heroCta as { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string } | undefined;
+          const primaryLabel = hc?.primaryLabel || content.hero.ctaLabel;
+          const primaryHref = hc?.primaryHref || content.hero.ctaHref || '/kontakt';
+          const secondaryLabel = hc?.secondaryLabel ?? 'Mehr erfahren';
+          const secondaryHref = hc?.secondaryHref || '#mehr';
+          const isAnchor = secondaryHref.startsWith('#') || secondaryHref.startsWith('http');
+          return (
+            <div className={`mt-12 flex flex-wrap gap-4 ${align === 'center' ? 'justify-center' : ''}`}>
+              <Link to={withBase(basePath, primaryHref)} className="btn-accent">
+                {primaryLabel} <span aria-hidden>→</span>
+              </Link>
+              {secondaryLabel ? (
+                isAnchor ? (
+                  <a href={secondaryHref} className="btn-outline !border-white/60 !text-white hover:!bg-white hover:!text-slate-900">
+                    {secondaryLabel}
+                  </a>
+                ) : (
+                  <Link to={withBase(basePath, secondaryHref)} className="btn-outline !border-white/60 !text-white hover:!bg-white hover:!text-slate-900">
+                    {secondaryLabel}
+                  </Link>
+                )
+              ) : null}
+            </div>
+          );
+        })() : null}
 
         {meta && meta.length > 0 && (
           <div className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl ${align === 'center' ? 'mx-auto' : ''}`}>
@@ -435,7 +451,11 @@ export function SiteFooter({ content, basePath: basePathProp, nav }: { content: 
         <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
           <div className="md:col-span-6">
             <p className="font-display text-3xl">{content.brand.name}</p>
-            {content.brand.tagline ? <p className="text-sm text-white/70 mt-2 max-w-sm">{content.brand.tagline}</p> : null}
+            {(() => {
+              const footerTagline = (content as any).footer?.tagline as string | undefined;
+              const tag = (footerTagline && footerTagline.trim()) || content.brand.tagline;
+              return tag ? <p className="text-sm text-white/70 mt-2 max-w-sm">{tag}</p> : null;
+            })()}
           </div>
           <div className="md:col-span-6 flex flex-col gap-2 md:items-end text-sm">
             {content.contact.phone ? <a href={`tel:${content.contact.phone}`} className="hover:text-accent">{content.contact.phone}</a> : null}

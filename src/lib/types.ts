@@ -142,6 +142,53 @@ export const SiteContentSchema = z.object({
     softCtaText: z.string().optional().default(''),
     softCtaButton: z.string().optional().default(''),
   }).optional().default({}),
+
+  /**
+   * Navigation – per-tenant menu. When omitted/empty the template falls back
+   * to NAV_BY_VARIANT defaults. Each item: label + path + visible flag.
+   * The `path` should match an existing template route (/, /speisekarte,
+   * /leistungen, /galerie, /ueber-uns, /kontakt, /news).
+   */
+  navItems: z.array(z.object({
+    label: z.string().default(''),
+    path: z.string().default('/'),
+    visible: z.boolean().default(true),
+  })).optional().default([]),
+
+  /**
+   * Footer column links and tagline overrides.
+   */
+  footer: z.object({
+    tagline: z.string().optional().default(''),
+    columns: z.array(z.object({
+      title: z.string().default(''),
+      links: z.array(z.object({
+        label: z.string().default(''),
+        href: z.string().default(''),
+      })).default([]),
+    })).optional().default([]),
+  }).optional().default({}),
+
+  /**
+   * Hero CTA overrides – primary + secondary button labels and links shown
+   * in the home-page hero. When fields are empty the template uses defaults.
+   */
+  heroCta: z.object({
+    primaryLabel: z.string().optional().default(''),
+    primaryHref: z.string().optional().default(''),
+    secondaryLabel: z.string().optional().default(''),
+    secondaryHref: z.string().optional().default(''),
+  }).optional().default({}),
+
+  /**
+   * Bottom CTA-band overrides shown above footer (lead/sub/button).
+   */
+  ctaBandOverride: z.object({
+    lead: z.string().optional().default(''),
+    sub: z.string().optional().default(''),
+    cta: z.string().optional().default(''),
+    ctaHref: z.string().optional().default(''),
+  }).optional().default({}),
 });
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;

@@ -204,26 +204,30 @@ export function TextReveal({
   );
 }
 
-/* ───────── MarqueeTrack (FM-driven smooth marquee) ───────── */
+/* ───────── MarqueeTrack — pure CSS keyframe (no JS loop = no jank) ───────── */
 export function MarqueeTrack({
   children, speed = 40, direction = 'left', className = '',
 }: {
   children: ReactNode; speed?: number; direction?: 'left' | 'right';
   className?: string;
 }) {
+  const animName = direction === 'left' ? 'mqLeft' : 'mqRight';
   return (
     <div className={'overflow-hidden ' + className}>
-      <motion.div
-        className="inline-flex shrink-0 gap-12 whitespace-nowrap"
-        style={{ minWidth: '200%' }}
-        animate={reduced() ? undefined : {
-          x: direction === 'left' ? ['0%', '-50%'] : ['-50%', '0%'],
+      <div
+        className="inline-flex shrink-0 gap-12 whitespace-nowrap will-change-transform"
+        style={{
+          animation: animName + ' ' + speed + 's linear infinite',
+          animationPlayState: reduced() ? 'paused' : 'running',
         }}
-        transition={{ duration: speed, repeat: Infinity, ease: 'linear' }}
       >
         <span className="inline-flex shrink-0 gap-12">{children}</span>
         <span aria-hidden className="inline-flex shrink-0 gap-12">{children}</span>
-      </motion.div>
+      </div>
+      <style>{
+        '@keyframes mqLeft{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}'
+        + '@keyframes mqRight{from{transform:translate3d(-50%,0,0)}to{transform:translate3d(0,0,0)}}'
+      }</style>
     </div>
   );
 }

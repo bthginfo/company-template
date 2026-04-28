@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import type { SiteContent, TemplateKey, PageId } from '@/lib/types';
 import Seo from '@/components/Seo';
@@ -7,7 +7,7 @@ import {
   type NavItem,
 } from '@/components/site-blocks';
 import {
-  Marquee, Accordion, AnimatedCounter, useReveal, ParallaxImage,
+  Accordion, AnimatedCounter, useReveal, ParallaxImage,
 } from '@/components/fx';
 import {
   Tilt3DCard, HoverGlow, HardShadowCard,
@@ -202,11 +202,17 @@ export default function TemplateApp({
   const announcements = announcementsFor(variant);
   useReveal();
 
+  // Tenant-overridden navigation: only kept items with non-empty label that are visible.
+  const customNav = (content as any).navItems as Array<{ label: string; path: string; visible: boolean }> | undefined;
+  const resolvedNav = (customNav && customNav.length)
+    ? customNav.filter((n) => n.visible !== false && n.label && n.label.trim()).map((n) => ({ to: n.path, label: n.label }))
+    : cfg.nav;
+
   return (
     <BasePathProvider value={basePath}>
       <div className={`min-h-screen flex flex-col tpl-style-${style}`}>
         <ConsentScripts scripts={(content as any).customScripts} />
-        <SiteHeader content={content} nav={cfg.nav} basePath={basePath} announcements={announcements} transparentTextDark={style !== 'classic'} />
+        <SiteHeader content={content} nav={resolvedNav} basePath={basePath} announcements={announcements} transparentTextDark={style !== 'classic'} />
         <main className="flex-1">
           <ScrollToTopOnRoute />
           <Routes>
@@ -221,7 +227,7 @@ export default function TemplateApp({
             <Route path="*" element={<><PageSeo page="home" variant={variant} content={content} /><HomePage variant={variant} content={content} style={style} /></>} />
           </Routes>
         </main>
-        <SiteFooter content={content} basePath={basePath} nav={cfg.nav} />
+        <SiteFooter content={content} basePath={basePath} nav={resolvedNav} />
       </div>
     </BasePathProvider>
   );
@@ -286,94 +292,85 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
   const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = resolveHeroMeta(variant, content);
 
+  // Branch-specific section ordering — each branch tells a different story.
+  const sections: Record<TemplateVariant, string[]> = {
+    restaurant: ['action', 'signature', 'services', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
+    hotel: ['action', 'signature', 'gallery', 'about', 'services', 'testimonials', 'numbers', 'news'],
+    tradesman: ['action', 'services', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
+    salon: ['action', 'services', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
+    tourism: ['action', 'gallery', 'signature', 'services', 'about', 'testimonials', 'numbers', 'news'],
+  };
+  const order = sections[variant];
+
+  const blocks: Record<string, JSX.Element | null> = {
+    action: <BranchActionStrip variant={variant} content={content} />,
+    signature: <BranchSignature variant={variant} style="classic" content={content} />,
+    numbers: <NumbersBand variant={variant} content={content} />,
+    news: <NewsPreview content={content} />,
+    about: content.about?.body ? (
+      <Section
+        eyebrow={variant === 'restaurant' ? 'Unsere Geschichte' : variant === 'salon' ? 'Unser Studio' : variant === 'hotel' ? 'Unser Haus' : variant === 'tourism' ? 'Unsere Region' : 'Unser Betrieb'}
+        title={<>{splitTitle(content.about.title || 'Über uns')}</>}
+        spacing="lg"
+      >
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-5">
+            <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5] reveal" />
+          </div>
+          <div className="lg:col-span-7 lg:pt-12">
+            <div className="prose-lite reveal">
+              {(content.about.body || '').split('\n\n').map((p, i) => (
+                <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
+              ))}
+            </div>
+            <TLink to="/ueber-uns" className="btn-outline mt-6 reveal">Mehr erfahren <span aria-hidden>→</span></TLink>
+          </div>
+        </div>
+      </Section>
+    ) : null,
+    services: featuredServices.length > 0 ? (
+      <Section
+        eyebrow={cfg.servicesEyebrow}
+        title={<>{splitTitle(cfg.servicesHeadline)}</>}
+        subtitle={subtitleFor(variant, content)}
+        className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
+      >
+        <ClassicServicesGrid services={featuredServices} />
+        <div className="mt-12 reveal">
+          <TLink to={cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
+        </div>
+      </Section>
+    ) : null,
+    gallery: featuredGallery.length > 0 ? (
+      <Section eyebrow={variant === 'tradesman' ? 'Referenzen' : variant === 'hotel' ? 'Zimmer & Räume' : variant === 'tourism' ? 'Highlights' : 'Eindrücke'} title={galleryTeaserTitle(variant, content)} spacing="lg">
+        <GalleryShowcase variant={variant} images={featuredGallery} mode="teaser" />
+        <div className="mt-12 reveal">
+          <TLink to={variant === 'tradesman' ? '/referenzen' : variant === 'hotel' ? '/zimmer' : variant === 'tourism' ? '/touren' : '/galerie'} className="btn-outline">{variant === 'tradesman' ? 'Alle Projekte' : variant === 'hotel' ? 'Alle Zimmer' : variant === 'tourism' ? 'Alle Touren' : 'Komplette Galerie'} <span aria-hidden>→</span></TLink>
+        </div>
+      </Section>
+    ) : null,
+    testimonials: content.testimonials.length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
+        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+          {content.testimonials.slice(0, 3).map((t, i) => (
+            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+              <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+              <p className="text-lg leading-relaxed">{t.text}</p>
+              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </Section>
+    ) : null,
+  };
+
   return (
     <>
       <Hero content={content} meta={heroMeta} />
-
-      {/* Marquee word strip */}
-      <div className="bg-brand text-white py-6 border-y border-white/10">
-        <Marquee speed="slow">
-          {marqueeWordsFor(variant, content).concat(marqueeWordsFor(variant, content)).map((w, i) => (
-            <span key={i} className="inline-flex items-center gap-6 font-display text-3xl md:text-4xl whitespace-nowrap">
-              <span>{w}</span><span className="text-[var(--accent-color)]">✦</span>
-            </span>
-          ))}
-        </Marquee>
-      </div>
-
-      {/* About teaser */}
-      {content.about?.body && (
-        <Section
-          eyebrow={variant === 'restaurant' ? 'Unsere Geschichte' : variant === 'salon' ? 'Unser Studio' : 'Unser Betrieb'}
-          title={<>{splitTitle(content.about.title || 'Über uns')}</>}
-          spacing="lg"
-        >
-          <div className="grid lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-5">
-              <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5] reveal" />
-            </div>
-            <div className="lg:col-span-7 lg:pt-12">
-              <div className="prose-lite reveal">
-                {(content.about.body || '').split('\n\n').map((p, i) => (
-                  <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
-                ))}
-              </div>
-              <TLink to="/ueber-uns" className="btn-outline mt-6 reveal">Mehr erfahren <span aria-hidden>→</span></TLink>
-            </div>
-          </div>
-        </Section>
-      )}
-
-      {/* Featured services */}
-      {featuredServices.length > 0 && (
-        <Section
-          eyebrow={cfg.servicesEyebrow}
-          title={<>{splitTitle(cfg.servicesHeadline)}</>}
-          subtitle={subtitleFor(variant, content)}
-          className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
-        >
-          <ClassicServicesGrid services={featuredServices} />
-          <div className="mt-12 reveal">
-            <TLink to={cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
-          </div>
-        </Section>
-      )}
-
-      {/* Branch + style signature block */}
-      <BranchSignature variant={variant} style="classic" content={content} />
-
-      {/* Numbers / testimonial line */}
-      <NumbersBand variant={variant} content={content} />
-
-      {/* Gallery teaser - branch-specific */}
-      {featuredGallery.length > 0 && (
-        <Section eyebrow={variant === 'tradesman' ? 'Referenzen' : 'Eindrücke'} title={galleryTeaserTitle(variant, content)} spacing="lg">
-          <GalleryShowcase variant={variant} images={featuredGallery} mode="teaser" />
-          <div className="mt-12 reveal">
-            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">{variant === 'tradesman' ? 'Alle Projekte' : 'Komplette Galerie'} <span aria-hidden>→</span></TLink>
-          </div>
-        </Section>
-      )}
-
-      {/* Testimonials */}
-      {content.testimonials.length > 0 && (
-        <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
-          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-            {content.testimonials.slice(0, 3).map((t, i) => (
-              <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
-                <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
-                <p className="text-lg leading-relaxed">{t.text}</p>
-                <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
-              </blockquote>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      <NewsPreview content={content} />
-
-      {/* CTA */}
-      <CtaBand variant={variant} />
+      {order.map((key) => (
+        <React.Fragment key={key}>{blocks[key]}</React.Fragment>
+      ))}
+      <CtaBand variant={variant} content={content} />
     </>
   );
 }
@@ -432,6 +429,8 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           </div>
         </div>
       </section>
+
+      <BranchActionStrip variant={variant} content={content} />
 
       {/* Feature grid wrapped with cursor-following spotlight */}
       <SpotlightSection
@@ -576,6 +575,8 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           </div>
         )}
       </section>
+
+      <BranchActionStrip variant={variant} content={content} />
 
       {/* Asymmetric statement split */}
       <section className="py-24 md:py-36">
@@ -806,6 +807,111 @@ function MasonryGrid({ images }: { images: string[] }) {
   );
 }
 
+/* Branch-specific action strip — sits right under Hero to make each branch feel different. */
+function BranchActionStrip({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  const phone = content.contact.phone || '';
+  const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
+
+  if (variant === 'restaurant') {
+    const today = new Date().toLocaleDateString('de-DE', { weekday: 'long' });
+    const todayRow = (content.contact.hours || []).find((h) => h.day.toLowerCase().includes(today.toLowerCase().slice(0, 2)));
+    return (
+      <section className="bg-white border-y border-line">
+        <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
+          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs text-brand">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Heute geöffnet
+          </span>
+          {todayRow && <span className="text-muted">{todayRow.day} · <span className="font-medium text-brand">{todayRow.time}</span></span>}
+          <span className="ml-auto flex flex-wrap gap-3">
+            {phone && <a href={phoneHref} className="btn-outline !py-2 !px-4 !text-xs">Tisch reservieren {phone}</a>}
+            <TLink to="/speisekarte" className="btn-primary !py-2 !px-4 !text-xs">Speisekarte ansehen</TLink>
+          </span>
+        </div>
+      </section>
+    );
+  }
+
+  if (variant === 'hotel') {
+    return (
+      <section className="bg-white border-y border-line">
+        <div className="container-x py-6 grid md:grid-cols-[1fr_auto_auto_auto] gap-3 items-end">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-muted">Verfügbarkeit prüfen</p>
+            <p className="font-display text-xl mt-1">Ihr Aufenthalt bei {content.brand.name}</p>
+          </div>
+          <label className="text-xs">
+            <span className="block text-muted uppercase tracking-widest text-[10px] mb-1">Anreise</span>
+            <input type="date" className="border border-line rounded-lg px-3 py-2 text-sm" />
+          </label>
+          <label className="text-xs">
+            <span className="block text-muted uppercase tracking-widest text-[10px] mb-1">Abreise</span>
+            <input type="date" className="border border-line rounded-lg px-3 py-2 text-sm" />
+          </label>
+          <TLink to="/buchen" className="btn-primary !py-2 !px-5 !text-xs h-fit">Verfügbarkeit prüfen →</TLink>
+        </div>
+      </section>
+    );
+  }
+
+  if (variant === 'tradesman') {
+    return (
+      <section className="bg-brand text-white border-y border-white/10">
+        <div className="container-x py-4 flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
+          <span className="inline-flex items-center gap-3 font-mono uppercase tracking-widest text-xs">
+            <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent-color)] animate-pulse" />
+            24/7 Notdienst verfügbar
+          </span>
+          <span className="text-white/70 hidden md:inline">Wir kommen schnell — versprochen.</span>
+          <span className="ml-auto flex flex-wrap gap-3 items-center">
+            {phone && (
+              <a href={phoneHref} className="font-display text-2xl md:text-3xl tracking-tight hover:text-[var(--accent-color)] transition-colors">
+                {phone}
+              </a>
+            )}
+            <TLink to="/kontakt" className="btn-accent !py-2 !px-4 !text-xs">Anfrage senden</TLink>
+          </span>
+        </div>
+      </section>
+    );
+  }
+
+  if (variant === 'salon') {
+    return (
+      <section className="bg-white border-y border-line">
+        <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
+          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs text-brand">
+            <span className="h-2 w-2 rounded-full bg-[var(--accent-color)]" /> Termine online
+          </span>
+          <span className="text-muted hidden md:inline">Frei wählbar · Stornierung kostenlos bis 24 h vorher</span>
+          <span className="ml-auto flex flex-wrap gap-3">
+            {phone && <a href={phoneHref} className="btn-outline !py-2 !px-4 !text-xs">{phone}</a>}
+            <TLink to="/buchen" className="btn-primary !py-2 !px-4 !text-xs">Termin buchen →</TLink>
+          </span>
+        </div>
+      </section>
+    );
+  }
+
+  if (variant === 'tourism') {
+    return (
+      <section className="bg-brand text-white border-y border-white/10">
+        <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
+          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs">
+            <span>★</span> Nächste Tour
+          </span>
+          <span className="text-white/80">{content.services?.[0]?.title || 'Tour ansehen'} · ab {content.services?.[0]?.price || 'auf Anfrage'}</span>
+          <span className="ml-auto flex flex-wrap gap-3">
+            {phone && <a href={phoneHref} className="text-white/90 hover:text-[var(--accent-color)] text-xs">{phone}</a>}
+            <TLink to="/touren" className="btn-accent !py-2 !px-4 !text-xs">Tour buchen →</TLink>
+          </span>
+        </div>
+      </section>
+    );
+  }
+
+  return null;
+}
+
 function NumbersBand({ variant, content }: { variant: TemplateVariant; content?: SiteContent }) {
   const defaults: Record<TemplateVariant, { v: number; s?: string; l: string }[]> = {
     restaurant: [
@@ -866,7 +972,7 @@ function NumbersBand({ variant, content }: { variant: TemplateVariant; content?:
   );
 }
 
-function CtaBand({ variant }: { variant: TemplateVariant }) {
+function CtaBand({ variant, content }: { variant: TemplateVariant; content?: SiteContent }) {
   const text: Record<TemplateVariant, { lead: string; cta: string; sub: string }> = {
     restaurant: { lead: 'Hunger?', cta: 'Tisch reservieren', sub: 'Wir freuen uns, Sie an unserem Tisch begrüßen zu dürfen.' },
     salon: { lead: 'Bereit für etwas Neues?', cta: 'Termin buchen', sub: 'Wir nehmen uns die Zeit – für Sie, für Ihren Look.' },
@@ -874,7 +980,14 @@ function CtaBand({ variant }: { variant: TemplateVariant }) {
     hotel: { lead: 'Pause buchen?', cta: 'Zimmer anfragen', sub: 'Wir antworten persönlich – ohne Formularkette, mit allen Optionen für Ihren Aufenthalt.' },
     tourism: { lead: 'Auf in die Berge?', cta: 'Tour buchen', sub: 'Wir beraten ehrlich, welche Tour zu Ihrer Gruppe und Saison passt.' },
   };
-  const t = text[variant];
+  const def = text[variant];
+  const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string } | undefined;
+  const t = {
+    lead: (ov?.lead && ov.lead.trim()) || def.lead,
+    sub: (ov?.sub && ov.sub.trim()) || def.sub,
+    cta: (ov?.cta && ov.cta.trim()) || def.cta,
+    ctaHref: (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt',
+  };
   return (
     <section className="py-32 md:py-44 surface relative overflow-hidden">
       <div className="container-x text-center max-w-3xl mx-auto reveal">
@@ -885,7 +998,7 @@ function CtaBand({ variant }: { variant: TemplateVariant }) {
         </h2>
         <p className="mt-8 text-lg md:text-xl text-muted">{t.sub}</p>
         <div className="mt-12">
-          <TLink to="/kontakt" className="btn-primary">{t.cta} <span aria-hidden>→</span></TLink>
+          <TLink to={t.ctaHref} className="btn-primary">{t.cta} <span aria-hidden>→</span></TLink>
         </div>
       </div>
     </section>
@@ -926,7 +1039,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
 
-      <CtaBand variant={variant} />
+      <CtaBand variant={variant} content={content} />
     </>
   );
 }
@@ -1056,7 +1169,7 @@ function GalleryPage({
         )}
       </Section>
 
-      <CtaBand variant={variant} />
+      <CtaBand variant={variant} content={content} />
     </>
   );
 }
@@ -1144,7 +1257,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         </Section>
       )}
 
-      <CtaBand variant={variant} />
+      <CtaBand variant={variant} content={content} />
     </>
   );
 }
