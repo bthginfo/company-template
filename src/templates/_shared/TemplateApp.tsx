@@ -10,6 +10,7 @@ import {
   Marquee, Accordion, AnimatedCounter, useReveal, ParallaxImage,
 } from '@/components/fx';
 import { TLink } from '@/components/site-blocks';
+import { ConsentScripts } from '@/components/ConsentScripts';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -142,6 +143,7 @@ export default function TemplateApp({
   return (
     <BasePathProvider value={basePath}>
       <div className={`min-h-screen flex flex-col tpl-style-${style}`}>
+        <ConsentScripts scripts={(content as any).customScripts} />
         <SiteHeader content={content} nav={cfg.nav} basePath={basePath} announcements={announcements} />
         <main className="flex-1">
           <ScrollToTopOnRoute />
@@ -981,8 +983,8 @@ function ValuesSection({ variant }: { variant: TemplateVariant }) {
 function TeamSection({ variant }: { variant: TemplateVariant }) {
   const team: Record<TemplateVariant, { n: string; r: string; img: string; bio: string }[]> = {
     restaurant: [
-      { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=900&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien, kam 2018 zurück in den Familienbetrieb.' },
-      { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=900&q=80', bio: 'Steht seit zwölf Jahren am Steinofen. Zaubert die Margherita DOP, auf die wir stolz sind.' },
+      { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien, kam 2018 zurück in den Familienbetrieb.' },
+      { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80', bio: 'Steht seit zwölf Jahren am Steinofen. Zaubert die Margherita DOP, auf die wir stolz sind.' },
       { n: 'Sofia Bianchi', r: 'Sommelière', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Berät Sie zu unseren Naturweinen und kennt jeden unserer Winzer persönlich.' },
     ],
     salon: [
@@ -994,7 +996,7 @@ function TeamSection({ variant }: { variant: TemplateVariant }) {
     tradesman: [
       { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80', bio: 'Übernahm den Familienbetrieb 2008. Spezialgebiet: Heizungsmodernisierung und Förderberatung.' },
       { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80', bio: 'Verantwortet Großprojekte von Badsanierung bis Mehrfamilienhaus. Über 200 Projekte begleitet.' },
-      { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80', bio: 'Steht 24/7 für Notfälle bereit. Kennt jede Heizungsanlage in Ingolstadt – und wenn nicht, kennt er jemanden, der sie kennt.' },
+      { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80', bio: 'Steht 24/7 für Notfälle bereit. Kennt jede Heizungsanlage in Ingolstadt – und wenn nicht, kennt er jemanden, der sie kennt.' },
     ],
   };
   return (

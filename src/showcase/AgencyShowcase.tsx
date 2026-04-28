@@ -16,6 +16,8 @@ import ExtraBranchTemplate from '@/templates/extra';
 import {
   Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, SplitText, useReveal,
 } from '@/components/fx';
+import { ConsentProvider } from '@/lib/consent';
+import { CookieBanner } from '@/components/CookieBanner';
 
 /* ─── Brand ─────────────────────────────────────────────────────────── */
 const AGENCY = {
@@ -173,26 +175,29 @@ export default function AgencyShowcase() {
   }, []);
 
   return (
-    <Routes>
-      <Route path="/" element={<ShowcaseShell />}>
-        <Route index element={<Landing />} />
-        <Route path="templates" element={<TemplatesGallery />} />
-        <Route path="prozess" element={<ProcessPage />} />
-        <Route path="preise" element={<Pricing />} />
-        <Route path="ueber-uns" element={<AboutPage />} />
-        <Route path="kontakt" element={<Contact />} />
-        <Route path="impressum" element={<Imprint />} />
-        <Route path="datenschutz" element={<Privacy />} />
-        <Route path="studio/cases" element={<CasesIndex />} />
-        <Route path="studio/case/:slug" element={<CaseStudy />} />
-        <Route path="studio/notizen" element={<BlogIndex />} />
-        <Route path="studio/notiz/:slug" element={<BlogPost />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-      <Route path="/preview/:key/*" element={<TemplatePreview />} />
-      <Route path="/preview/:key/style/:style/*" element={<TemplatePreview />} />
-      <Route path="/admin-demo" element={<AdminDemo />} />
-    </Routes>
+    <ConsentProvider>
+      <Routes>
+        <Route path="/" element={<ShowcaseShell />}>
+          <Route index element={<Landing />} />
+          <Route path="templates" element={<TemplatesGallery />} />
+          <Route path="prozess" element={<ProcessPage />} />
+          <Route path="preise" element={<Pricing />} />
+          <Route path="ueber-uns" element={<AboutPage />} />
+          <Route path="kontakt" element={<Contact />} />
+          <Route path="impressum" element={<Imprint />} />
+          <Route path="datenschutz" element={<Privacy />} />
+          <Route path="studio/cases" element={<CasesIndex />} />
+          <Route path="studio/case/:slug" element={<CaseStudy />} />
+          <Route path="studio/notizen" element={<BlogIndex />} />
+          <Route path="studio/notiz/:slug" element={<BlogPost />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+        <Route path="/preview/:key/*" element={<TemplatePreview />} />
+        <Route path="/preview/:key/style/:style/*" element={<TemplatePreview />} />
+        <Route path="/admin-demo" element={<AdminDemo />} />
+      </Routes>
+      <CookieBanner />
+    </ConsentProvider>
   );
 }
 

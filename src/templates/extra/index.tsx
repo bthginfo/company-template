@@ -4,6 +4,7 @@ import type { SiteContent, PageId } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/components/fx';
 import Seo from '@/components/Seo';
 import { BasePathProvider, useBasePath, withBase } from '@/components/site-blocks';
+import { ConsentScripts } from '@/components/ConsentScripts';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -66,6 +67,7 @@ export default function ExtraBranchTemplate({
   return (
     <BasePathProvider value={basePath}>
       <div className={`min-h-screen flex flex-col tpl-style-${style} tpl-branch-${branch} bg-[var(--bg-color)] text-[var(--text-color)]`}>
+        <ConsentScripts scripts={(content as any).customScripts} />
         <ExtraHeader content={content} style={style} branch={branch} />
         <main className="flex-1">
           <ScrollToTopOnRoute />
@@ -888,7 +890,7 @@ const BRANCH_TEAM_DEFAULT: Record<ExtraBranchKey, TeamMember[]> = {
   ],
   fitness: [
     { n: 'Sarah Berg',  r: 'Studio-Leitung · Vinyasa',   img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
-    { n: 'Mira Klein',  r: 'Yin & Mindful Movement',     img: 'https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
+    { n: 'Mira Klein',  r: 'Yin & Mindful Movement',     img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
     { n: 'Jonas Renz',  r: 'Reformer Pilates',           img: 'https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?auto=format&fit=crop&w=600&q=80', bio: 'Physiotherapeut mit Pilates-Spezialisierung. Trainiert Sportler:innen und Reha-Klient:innen.' },
   ],
   medical: [],

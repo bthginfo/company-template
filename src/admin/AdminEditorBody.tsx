@@ -51,7 +51,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
   // when template changes externally, snap back to home
   useEffect(() => { setPageId('home'); }, [tplKey]);
 
-  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo';
+  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts';
 
   return (
     <div className="min-h-screen bg-[#f6f6f3]">
@@ -102,6 +102,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             <SidebarItem active={pageId === 'contact'} onClick={() => setPageId('contact')} icon="✉">Kontaktdaten</SidebarItem>
             <SidebarItem active={pageId === 'social'} onClick={() => setPageId('social')} icon="@">Social Media</SidebarItem>
             <SidebarItem active={pageId === 'seo'} onClick={() => setPageId('seo')} icon="◎">SEO & Sichtbarkeit</SidebarItem>
+            <SidebarItem active={pageId === 'scripts'} onClick={() => setPageId('scripts')} icon="〈">Skripte & Tracking</SidebarItem>
           </SidebarGroup>
         </aside>
 
@@ -127,6 +128,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'contact' && <ContactGlobal data={data} setData={setData} />}
             {pageId === 'social' && <SocialPage data={data} setData={setData} />}
             {pageId === 'seo' && <SeoPage data={data} setData={setData} />}
+            {pageId === 'scripts' && <ScriptsPage data={data} setData={setData} />}
             {pageId === 'home' && <HomePageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'services' && <ServicesPageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'gallery' && <GalleryPageEditor data={data} setData={setData} tpl={tplKey} />}
@@ -154,7 +156,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 }
 
 /* ───────────── Pages config per template ───────────── */
-type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo';
+type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts';
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
@@ -193,6 +195,7 @@ function labelForGlobal(p: PageId) {
   if (p === 'contact') return 'Kontaktdaten';
   if (p === 'social') return 'Social Media';
   if (p === 'seo') return 'SEO & Sichtbarkeit';
+  if (p === 'scripts') return 'Skripte & Tracking';
   return '';
 }
 
@@ -760,6 +763,89 @@ function SeoPage({ data, setData }: SetterProps) {
   );
 }
 
+function ScriptsPage({ data, setData }: SetterProps) {
+  const list = (data as any).customScripts ?? [];
+  const setList = (next: any[]) => setData({ ...(data as any), customScripts: next } as SiteContent);
+  const update = (i: number, patch: any) => setList(list.map((s: any, j: number) => j === i ? { ...s, ...patch } : s));
+  const remove = (i: number) => setList(list.filter((_: any, j: number) => j !== i));
+  const add = () => setList([
+    ...list,
+    {
+      id: 'sc_' + Math.random().toString(36).slice(2, 9),
+      name: 'Neues Skript',
+      category: 'analytics',
+      code: '',
+      enabled: true,
+      placement: 'head',
+    },
+  ]);
+  return (
+    <>
+      <SectionCard title="So funktioniert's" description="DSGVO-konformes Tracking. Skripte werden erst geladen, wenn der Nutzer der jeweiligen Cookie-Kategorie zustimmt." badge="Info">
+        <ul className="text-sm text-slate-700 space-y-2 list-disc pl-5">
+          <li><strong>Notwendig:</strong> immer aktiv (z. B. Hosting-eigene Tools).</li>
+          <li><strong>Funktional:</strong> Komfort wie eingebettete Karten oder Videos.</li>
+          <li><strong>Analyse:</strong> z. B. Google Analytics, Plausible, Matomo.</li>
+          <li><strong>Marketing:</strong> z. B. Meta Pixel, Google Ads, TikTok Pixel.</li>
+        </ul>
+        <p className="text-xs text-muted">
+          Sie können entweder einen JS-Schnipsel einfügen <em>oder</em> eine vollständige URL (https://…/script.js) — externe Skripte werden dann als <code>&lt;script src="…"&gt;</code> eingebunden.
+        </p>
+      </SectionCard>
+
+      <SectionCard title="Skripte" description="Liste aller eingebundenen Skripte. Reihenfolge entspricht der Einbindung." badge={`${list.length} aktiv`}>
+        {list.length === 0 && (
+          <p className="text-sm text-muted">Noch keine Skripte eingerichtet. Fügen Sie z. B. Ihren Plausible-Snippet ein.</p>
+        )}
+        <div className="space-y-4">
+          {list.map((s: any, i: number) => (
+            <div key={s.id} className="border border-line rounded-2xl p-4 space-y-3 bg-white">
+              <div className="flex items-center gap-3 flex-wrap">
+                <input
+                  className={inputCls + ' flex-1 min-w-[12rem]'}
+                  value={s.name}
+                  onChange={(e) => update(i, { name: e.target.value })}
+                  placeholder="z. B. Plausible Analytics"
+                />
+                <select
+                  className={inputCls + ' max-w-[10rem]'}
+                  value={s.category}
+                  onChange={(e) => update(i, { category: e.target.value })}
+                >
+                  <option value="necessary">Notwendig</option>
+                  <option value="functional">Funktional</option>
+                  <option value="analytics">Analyse</option>
+                  <option value="marketing">Marketing</option>
+                </select>
+                <select
+                  className={inputCls + ' max-w-[8rem]'}
+                  value={s.placement}
+                  onChange={(e) => update(i, { placement: e.target.value })}
+                >
+                  <option value="head">&lt;head&gt;</option>
+                  <option value="body">Ende &lt;body&gt;</option>
+                </select>
+                <Toggle value={s.enabled} onChange={(v) => update(i, { enabled: v })} label="Aktiv" />
+                <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline ml-auto">Entfernen</button>
+              </div>
+              <Field label="Code oder URL" hint="Inline-JS-Code ODER vollständige URL (https://…). Ein leerer Wert wird ignoriert.">
+                <textarea
+                  className={inputCls + ' font-mono text-xs'}
+                  rows={5}
+                  value={s.code}
+                  onChange={(e) => update(i, { code: e.target.value })}
+                  placeholder='z. B. https://plausible.io/js/script.js  oder  window.dataLayer = window.dataLayer || []; …'
+                />
+              </Field>
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={add} className="btn-outline !py-2 !px-4 text-sm">+ Skript hinzufügen</button>
+      </SectionCard>
+    </>
+  );
+}
+
 /* ───────────── Reusable editors ───────────── */
 function ContactFields({ data, setData }: SetterProps) {
   const c = data.contact;
@@ -1287,8 +1373,8 @@ function defaultValues(t: TemplateKey) {
 }
 function defaultTeam(t: TemplateKey) {
   if (t === 'restaurant') return [
-    { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=600&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien.' },
-    { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=600&q=80', bio: 'Steht seit zwölf Jahren am Steinofen.' },
+    { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien.' },
+    { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: 'Steht seit zwölf Jahren am Steinofen.' },
     { n: 'Sofia Bianchi', r: 'Sommelière', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', bio: 'Berät zu Naturweinen.' },
   ];
   if (t === 'salon') return [

@@ -76,6 +76,21 @@ export const SiteContentSchema = z.object({
     ogImage: z.string().optional().default(''),
     noindex: z.boolean().optional().default(false),
   })).optional(),
+
+  /**
+   * Custom scripts (analytics, pixels, chat widgets) — gated by cookie consent.
+   * Each script is only injected after the visitor consents to its category.
+   * `code` may be either an inline snippet ("console.log('hi')") or an external URL.
+   */
+  customScripts: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    category: z.enum(['necessary', 'analytics', 'marketing', 'functional']).default('analytics'),
+    /** Inline JS code OR full external URL (https://…/script.js). */
+    code: z.string().default(''),
+    enabled: z.boolean().default(true),
+    placement: z.enum(['head', 'body']).default('head'),
+  })).optional().default([]),
 });
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;

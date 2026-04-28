@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useReveal } from '@/components/fx';
 import Seo from '@/components/Seo';
+import { CookieSettingsButton } from '@/components/CookieBanner';
 
 const STUDIO = {
   name: 'Wyldworks',
@@ -118,8 +119,12 @@ export function Privacy() {
 
         <h2>4. Cookies & Tracking</h2>
         <p>
-          Wir setzen ausschließlich technisch notwendige Cookies. Falls wir später analytische Tools einsetzen
-          (z. B. eine cookielose Reichweitenmessung), werden Sie an dieser Stelle transparent informiert.
+          Wir setzen ausschließlich technisch notwendige Cookies. Optionale Cookies (Analyse, Marketing,
+          Funktional) werden ausschließlich nach Ihrer Einwilligung gesetzt — erteilt über den Cookie-Banner
+          beim ersten Besuch. Sie können Ihre Auswahl jederzeit ändern oder widerrufen:
+        </p>
+        <p>
+          <CookieSettingsButton className="link-underline" />
         </p>
 
         <h2>5. Schriften & externe Inhalte</h2>

@@ -5,6 +5,8 @@ import { AdminLogin } from './admin/Login';
 import { AdminApp } from './admin/AdminApp';
 import { isShowcaseMode } from './lib/tenant';
 import AgencyShowcase from './showcase/AgencyShowcase';
+import { ConsentProvider } from './lib/consent';
+import { CookieBanner } from './components/CookieBanner';
 
 export default function App() {
   if (isShowcaseMode()) {
@@ -12,12 +14,15 @@ export default function App() {
   }
 
   return (
-    <ContentProvider>
-      <Routes>
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/*" element={<AdminApp />} />
-        <Route path="/*" element={<SiteRouter />} />
-      </Routes>
-    </ContentProvider>
+    <ConsentProvider>
+      <ContentProvider>
+        <Routes>
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/*" element={<AdminApp />} />
+          <Route path="/*" element={<SiteRouter />} />
+        </Routes>
+        <CookieBanner />
+      </ContentProvider>
+    </ConsentProvider>
   );
 }
