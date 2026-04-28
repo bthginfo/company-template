@@ -80,7 +80,12 @@ export function SiteHeader({
   }, []);
   useEffect(() => setMobile(false), [loc.pathname]);
 
-  const isLight = !scrolled && !transparentTextDark;
+  // The light/transparent nav (white text on dark hero) is only safe on the
+  // home page – subpages render PageHero on a light/cream background, where
+  // white nav text disappears. Force dark text whenever we're off the
+  // landing route.
+  const isHome = loc.pathname === basePath || loc.pathname === `${basePath}/` || (!basePath && (loc.pathname === '/' || loc.pathname === ''));
+  const isLight = !scrolled && !transparentTextDark && isHome;
   const txt = isLight ? 'text-white' : 'text-slate-900';
   const sub = isLight ? 'text-white/85 hover:text-white' : 'text-slate-700 hover:text-slate-900';
 

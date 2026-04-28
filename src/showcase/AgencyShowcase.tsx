@@ -876,20 +876,20 @@ type DeviceItem = {
 const DEVICE_ITEMS: DeviceItem[] = [
   {
     kind: 'laptop',
-    src: '/preview/restaurant/style/classic',
+    src: '/preview/restaurant/style/classic?embed=1',
     label: 'Restaurant · Klassisch',
     caption: 'Restaurant-Template auf dem Desktop',
   },
   {
     kind: 'tablet',
-    src: '/admin-demo',
+    src: '/admin-demo?embed=1',
     label: 'Admin-Bereich',
     caption: 'Inhalte pflegen, ohne Code',
   },
   {
     kind: 'phone',
-    src: '/preview/hotel/style/modern',
-    label: 'Hotel · Modern',
+    src: '/preview/salon/style/bold?embed=1',
+    label: 'Salon · Bold',
     caption: 'Mobile zuerst gedacht',
   },
 ];
@@ -2405,6 +2405,7 @@ function TemplatePreview() {
         onReset={onReset}
         hasOverride={hasOverride}
         onBack={() => navigate('/templates')}
+        embedded={typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('embed') === '1'}
       />
     </div>
   );
@@ -2412,7 +2413,7 @@ function TemplatePreview() {
 
 function PreviewControls({
   tplKey, style, presets, presetIdx, setPresetIdx,
-  onSwitchBranche, onSwitchStyle, onReset, hasOverride, onBack,
+  onSwitchBranche, onSwitchStyle, onReset, hasOverride, onBack, embedded,
 }: {
   tplKey: BranchKey;
   style: 'classic' | 'modern' | 'bold';
@@ -2424,7 +2425,12 @@ function PreviewControls({
   onReset: () => void;
   hasOverride: boolean;
   onBack: () => void;
+  embedded?: boolean;
 }) {
+  // When the preview is rendered inside the landing-page mockup iframe
+  // (`?embed=1`), suppress the floating panel/back button so the device looks
+  // like a real visitor's browser. Real preview routes still see all controls.
+  if (embedded) return null;
   // Desktop (md+): always-visible side panel.
   // Mobile (<md): collapsed by default; toggled via a floating "Live anpassen" FAB.
   const [open, setOpen] = useState(false);

@@ -42,6 +42,11 @@ export default function AdminDemo() {
   };
   const exportJson = () => downloadJson(`${tplKey}-content.json`, data);
 
+  // When the admin demo is embedded inside the landing-page tablet mockup
+  // (`?embed=1`), drop the top "Zurück" bar so the iframe looks like a real
+  // logged-in admin session instead of a nested showcase.
+  const embedded = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('embed') === '1';
+
   useEffect(() => {
     const onOverride = (e: Event) => {
       const detail = (e as CustomEvent<{ key: DemoKey }>).detail;
@@ -60,12 +65,12 @@ export default function AdminDemo() {
       onSave={fakeSave}
       savedAt={savedAt}
       previewUrlBase={`/preview/${tplKey}`}
-      topBar={
+      topBar={embedded ? undefined : (
         <div className="bg-[var(--accent-color)] text-brand text-sm py-2.5 text-center font-medium">
           <span>Live-Demo des Admin-Bereichs · Ihre Änderungen werden hier nicht gespeichert · </span>
           <Link to="/" className="underline underline-offset-2">Zurück</Link>
         </div>
-      }
+      )}
       headerStatus={
         <span className="hidden md:inline text-xs uppercase tracking-widest text-muted bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">
           Online
