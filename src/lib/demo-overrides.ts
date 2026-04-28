@@ -1,9 +1,12 @@
 import type { SiteContent, TemplateKey } from './types';
-import { DEMO_CONTENT } from './demo-content';
-
-type RealKey = keyof typeof DEMO_CONTENT;
+import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content';
 
 const KEY = (k: TemplateKey) => `bth.demo.override.${k}`;
+
+function baseFor(k: TemplateKey): SiteContent {
+  if (k === 'restaurant' || k === 'salon' || k === 'tradesman') return DEMO_CONTENT[k];
+  return EXTRA_DEMO_CONTENT[k];
+}
 
 export function readOverride(k: TemplateKey): SiteContent | null {
   try {
@@ -33,8 +36,8 @@ export function clearOverride(k: TemplateKey): void {
   }
 }
 
-export function loadFor(k: RealKey): SiteContent {
-  return readOverride(k) ?? DEMO_CONTENT[k];
+export function loadFor(k: TemplateKey): SiteContent {
+  return readOverride(k) ?? baseFor(k);
 }
 
 export function downloadJson(filename: string, payload: unknown): void {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate } from 'react-router-dom';
-import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '@/lib/demo-content';
+import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { clearOverride, loadFor, readOverride } from '@/lib/demo-overrides';
@@ -50,6 +50,9 @@ const SHOWCASE_PALETTE = {
   '--brand-fg': '#ffffff',
   '--accent-color': '#c4ff3a',
   '--accent-color-2': '#ff5b3a',
+  // Yellow/green accents need dark text for contrast — explicit override here
+  // so btn-accent doesn't inherit the white --brand-fg fallback.
+  '--accent-fg': '#0b0b10',
   '--surface-color': '#f4f3ee',
   '--bg-color': '#fafaf7',
   '--text-color': '#0b0b10',
@@ -140,7 +143,7 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
     description: 'Seriöser Auftritt mit klarer Hierarchie, Team-Profilen und durchgängigem Stil.',
     image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80',
     accent: '#1e3a8a',
-    bullets: ['Team- & Expertise-Seiten', 'Mandanten-Bereich (optional)', 'Termin-Anfrage mit Vorab-Briefing', 'Whitepaper & Case-Studies'],
+    bullets: ['Team- & Expertise-Profile', 'Beratungs-Prozess in Schritten', 'Termin-Anfrage mit Vorab-Briefing', 'Stimmen, Cases & Vertrauen'],
   },
   medical: {
     label: 'Praxen & Ärzte',
@@ -148,7 +151,7 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
     description: 'Ruhige, vertrauenswürdige Ästhetik mit Online-Termin-Anbindung und barrierearmer Navigation.',
     image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1400&q=80',
     accent: '#0e7490',
-    bullets: ['Leistungs- & Therapie-Übersicht', 'Doctolib / jameda-Integration', 'Notfall-Hinweise & Sprechzeiten', 'Mehrsprachig & barrierearm'],
+    bullets: ['Leistungs- & Therapie-Übersicht', 'Online-Termin (Doctolib / jameda)', 'Notfall-Hinweise & Sprechzeiten', 'Praxis-Galerie & Eindrücke'],
   },
   fitness: {
     label: 'Studios & Coaching',
@@ -156,7 +159,7 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
     description: 'Energiegeladenes Editorial mit Kurs-Plan, Trainer-Bios und Probetraining-Funnel.',
     image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=80',
     accent: '#9333ea',
-    bullets: ['Kursplan mit Filter', 'Trainer-Profile & Stories', 'Probetraining-Anmeldung', 'Klare Preisliste'],
+    bullets: ['Programme & Kursformat', 'Trainer:innen mit Stories', 'Probetraining-CTA im Hero', 'Preise pro Kurs / Paket'],
   },
 };
 
@@ -191,9 +194,26 @@ export default function AgencyShowcase() {
 }
 
 /* ─── Shell with header / footer ───────────────────────────────────── */
+function ScrollToTop() {
+  // Reset scroll position on every route change. Without this, navigating to a
+  // new page keeps the user's previous scroll offset, which is confusing.
+  const { pathname } = useLocation();
+  useEffect(() => {
+    // Use 'auto' (instant) — smooth scroll on route change feels slow.
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pathname]);
+  return null;
+}
+
 function ShowcaseShell() {
   const [scrolled, setScrolled] = useState(false);
   const [mobile, setMobile] = useState(false);
+  const { pathname } = useLocation();
+  // Subpages have light backgrounds; force the scrolled (light-bg) header
+  // style so nav links remain readable. Only the landing page ("/") has a
+  // dark hero where white nav text is appropriate.
+  const isLanding = pathname === '/';
+  const headerLight = scrolled || !isLanding;
   // Restore showcase palette on every shell mount so demo theme overrides
   // applied inside /preview/* never persist into the marketing pages.
   useEffect(() => {
@@ -219,6 +239,7 @@ function ShowcaseShell() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-md focus:bg-brand focus:text-white focus:outline-none focus:ring-2 focus:ring-white"
@@ -231,13 +252,13 @@ function ShowcaseShell() {
       <div className="fixed top-0 left-0 right-0 z-50 bg-brand text-white text-xs uppercase tracking-[0.18em] py-2.5">
         <Marquee speed="slow">
           {[
-            'Aktuell freie Kapazitäten · Mai/Juni 2026',
+            'Passend für jede Branche',
             'Foto- & Videoshooting optional als Add-on',
             'In 2–3 Wochen live',
             'Innsbruck · München · Ingolstadt · DACH',
             'Hosting & kleine Pflege inklusive',
           ].concat([
-            'Aktuell freie Kapazitäten · Mai/Juni 2026',
+            'Passend für jede Branche',
             'Foto- & Videoshooting optional als Add-on',
             'In 2–3 Wochen live',
             'Innsbruck · München · Ingolstadt · DACH',
@@ -253,7 +274,7 @@ function ShowcaseShell() {
 
       <header
         className={`fixed top-[36px] left-0 right-0 z-40 transition-all duration-300 ${
-          scrolled
+          headerLight
             ? 'bg-white/90 backdrop-blur-xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border-b border-line'
             : 'bg-transparent'
         }`}
@@ -264,7 +285,7 @@ function ShowcaseShell() {
               className="h-9 w-9 rounded-full transition-transform duration-700 group-hover:rotate-180"
               style={{ background: 'conic-gradient(from 90deg, var(--accent-color), var(--accent-color-2), var(--brand-color), var(--accent-color))' }}
             />
-            <span className={`font-display text-2xl ${scrolled ? 'text-brand' : 'text-white'}`}>
+            <span className={`font-display text-2xl ${headerLight ? 'text-brand' : 'text-white'}`}>
               {AGENCY.name}
             </span>
           </Link>
@@ -275,7 +296,7 @@ function ShowcaseShell() {
                 to={n.to}
                 className={({ isActive }) =>
                   `link-underline px-4 py-2 text-sm font-medium transition-colors ${
-                    scrolled ? 'text-slate-700 hover:text-slate-900' : 'text-white/85 hover:text-white'
+                    headerLight ? 'text-slate-700 hover:text-slate-900' : 'text-white/85 hover:text-white'
                   } ${isActive ? 'is-active' : ''}`
                 }
               >
@@ -288,7 +309,7 @@ function ShowcaseShell() {
           </nav>
           <button
             onClick={() => setMobile(true)}
-            className={`md:hidden p-2 rounded-full border ${scrolled ? 'text-slate-800 border-line' : 'text-white border-white/30'}`}
+            className={`md:hidden p-2 rounded-full border ${headerLight ? 'text-slate-800 border-line' : 'text-white border-white/30'}`}
             aria-label="Menü öffnen"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -733,6 +754,7 @@ function AdminPreviewSection() {
               'Bilder per Drag & Drop hochladen.',
               'Änderungen erscheinen direkt auf der Seite.',
               'Ältere Stände lassen sich wiederherstellen.',
+              'Ohne extra App, ohne Plugin-Wirrwarr.',
             ].map((t, i) => (
               <li key={i} className="flex gap-3 items-start">
                 <span className="mt-1 inline-flex h-6 w-6 rounded-full bg-[var(--accent-color)] items-center justify-center">
@@ -1503,9 +1525,9 @@ function Contact() {
                 <p className="mt-1 font-display text-3xl group-hover:translate-x-1 transition-transform">{AGENCY.phone}</p>
               </a>
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted">Studio</p>
-                <p className="mt-1 text-xl">Saggen 12 · 6020 Innsbruck</p>
-                <p className="text-sm text-muted mt-1">Mo–Fr · 09:00 – 18:00 · Termin auf Anfrage</p>
+                <p className="text-xs uppercase tracking-widest text-muted">Erreichbarkeit</p>
+                <p className="mt-1 text-xl">Mo–Fr · 09:00 – 18:00</p>
+                <p className="text-sm text-muted mt-1">DACH-weit remote · Termine vor Ort nach Absprache.</p>
               </div>
             </div>
           </div>
@@ -1567,19 +1589,36 @@ function Contact() {
       </section>
 
       <section className="py-16 surface">
-        <div className="container-x grid md:grid-cols-3 gap-6">
-          {[
-            { t: 'Innsbruck', a: 'Saggen 12, 6020 Innsbruck', tel: '+43 660 0000 000' },
-            { t: 'München', a: 'Termine auf Anfrage', tel: '+49 89 1234 5678' },
-            { t: 'Ingolstadt', a: 'Termine auf Anfrage', tel: '+49 841 9876 543' },
-          ].map((c, i) => (
-            <div key={i} className="bg-white border border-line rounded-3xl p-7 reveal">
-              <p className="font-mono text-xs text-muted">/ Standort</p>
-              <h3 className="font-display text-3xl mt-2">{c.t}</h3>
-              <p className="mt-3 text-muted">{c.a}</p>
-              <p className="mt-1 text-sm font-mono">{c.tel}</p>
+        <div className="container-x">
+          <div className="grid md:grid-cols-12 gap-8 mb-10 items-end">
+            <div className="md:col-span-7 reveal">
+              <p className="eyebrow mb-5">Wo wir arbeiten</p>
+              <h2 className="headline-md">
+                DACH-Region.<br />
+                <em className="italic-pop">Mit Fokus auf drei Städte.</em>
+              </h2>
             </div>
-          ))}
+            <p className="md:col-span-5 text-base text-muted leading-relaxed reveal">
+              Wir arbeiten remote-first für inhabergeführte Betriebe in Deutschland, Österreich und der Schweiz.
+              Persönliche Termine vor Ort vereinbaren wir gerne nach Absprache.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { t: 'Innsbruck & Tirol', d: 'Erstgespräch & Shooting persönlich vor Ort möglich.' },
+              { t: 'München & Oberbayern', d: 'Regelmäßige Termine — Anfahrt nach Absprache.' },
+              { t: 'Ingolstadt & Region', d: 'Bekannt mit dem Standort, Termine flexibel.' },
+            ].map((c, i) => (
+              <div key={i} className="bg-white border border-line rounded-3xl p-7 reveal">
+                <p className="font-mono text-xs text-muted">/ Schwerpunkt-Region</p>
+                <h3 className="font-display text-3xl mt-2">{c.t}</h3>
+                <p className="mt-3 text-muted leading-relaxed">{c.d}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-8 text-sm text-muted reveal">
+            Sie sitzen woanders? Schreiben Sie uns trotzdem – wir arbeiten DACH-weit remote.
+          </p>
         </div>
       </section>
     </>
@@ -1606,21 +1645,19 @@ function TemplatePreview() {
   const [presetIdx, setPresetIdx] = useState(0);
   const preset = presets[presetIdx];
 
-  // Live-read content (override from AdminDemo wins over DEMO_CONTENT) — only for real templates.
-  const [content, setContent] = useState<SiteContent>(() =>
-    isExtra ? EXTRA_DEMO_CONTENT[tplKey as ExtraBranchKey] : loadFor(tplKey as 'restaurant' | 'salon' | 'tradesman')
-  );
+  // Live-read content. Admin overrides win for ALL branches (including extras),
+  // so editing /admin-demo for consulting/medical/fitness now flows through here.
+  const [content, setContent] = useState<SiteContent>(() => loadFor(tplKey as TemplateKey));
   useEffect(() => {
-    setContent(isExtra ? EXTRA_DEMO_CONTENT[tplKey as ExtraBranchKey] : loadFor(tplKey as 'restaurant' | 'salon' | 'tradesman'));
-  }, [tplKey, isExtra]);
+    setContent(loadFor(tplKey as TemplateKey));
+  }, [tplKey]);
   useEffect(() => {
-    if (isExtra) return; // extras have no admin override
     const onOverride = (e: Event) => {
       const detail = (e as CustomEvent<{ key: TemplateKey }>).detail;
-      if (detail?.key === tplKey) setContent(loadFor(tplKey as 'restaurant' | 'salon' | 'tradesman'));
+      if (detail?.key === tplKey) setContent(loadFor(tplKey as TemplateKey));
     };
     const onStorage = (e: StorageEvent) => {
-      if (e.key && e.key.includes(String(tplKey))) setContent(loadFor(tplKey as 'restaurant' | 'salon' | 'tradesman'));
+      if (e.key && e.key.includes(String(tplKey))) setContent(loadFor(tplKey as TemplateKey));
     };
     window.addEventListener('bth:override', onOverride);
     window.addEventListener('storage', onStorage);
@@ -1628,8 +1665,8 @@ function TemplatePreview() {
       window.removeEventListener('bth:override', onOverride);
       window.removeEventListener('storage', onStorage);
     };
-  }, [tplKey, isExtra]);
-  const hasOverride = !isExtra && !!readOverride(tplKey as TemplateKey);
+  }, [tplKey]);
+  const hasOverride = !!readOverride(tplKey as TemplateKey);
 
   const themedContent = useMemo(() => ({
     ...content,
@@ -1647,7 +1684,7 @@ function TemplatePreview() {
   const switchStyle = (s: 'classic' | 'modern' | 'bold') => {
     navigate(s === 'classic' ? `/preview/${tplKey}` : `/preview/${tplKey}/style/${s}`);
   };
-  const onReset = () => { if (!isExtra) clearOverride(tplKey as TemplateKey); };
+  const onReset = () => { clearOverride(tplKey as TemplateKey); };
 
   return (
     <div>

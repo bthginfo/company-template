@@ -116,6 +116,7 @@ function ClassicLayout({ content, eyebrow, branch }: { content: SiteContent; eye
       )}
 
       <BranchSpotlight branch={branch} style="classic" content={content} />
+      <BranchTeam branch={branch} style="classic" content={content} />
 
       {content.gallery.length > 0 && (
         <section id="galerie" className="py-24 md:py-32 surface">
@@ -274,6 +275,7 @@ function ModernLayout({ content, eyebrow, branch }: { content: SiteContent; eyeb
       )}
 
       <BranchSpotlight branch={branch} style="modern" content={content} />
+      <BranchTeam branch={branch} style="modern" content={content} />
 
       {/* Gallery — uniform 3-col grid with caption labels */}
       {content.gallery.length > 0 && (
@@ -413,6 +415,7 @@ function BoldLayout({ content, eyebrow, branch }: { content: SiteContent; eyebro
       )}
 
       <BranchSpotlight branch={branch} style="bold" content={content} />
+      <BranchTeam branch={branch} style="bold" content={content} />
 
       {/* Gallery — true masonry */}
       {content.gallery.length > 0 && (
@@ -662,6 +665,130 @@ function BranchSpotlight({
   if (branch === 'consulting') return <ConsultingProcess style={style} content={content} />;
   if (branch === 'medical') return <MedicalServiceInfo style={style} content={content} />;
   return <FitnessPrograms style={style} content={content} />;
+}
+
+/* ─── Branch team / trainers ─────────────────────────────────────────
+ *  Renders a people grid for consulting (label "Team") and fitness
+ *  (label "Trainer:innen"). Reads the `team` overlay if present —
+ *  same shape as the admin TeamEditor produces. Hidden for medical
+ *  (which uses MedicalServiceInfo as its dedicated block instead).
+ * ──────────────────────────────────────────────────────────────────── */
+type TeamMember = { n: string; r: string; img: string; bio: string };
+const BRANCH_TEAM_DEFAULT: Record<ExtraBranchKey, TeamMember[]> = {
+  consulting: [
+    { n: 'Dr. Klaus Hofer',  r: 'Senior Partner · Strategie',  img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Über 25 Jahre Beratung im Mittelstand. Schwerpunkt Industrie und Familienunternehmen.' },
+    { n: 'Lena Weiss',       r: 'Partnerin · Steuer & Recht',  img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Steuerberaterin und Anwältin. Zuvor zehn Jahre in einer Big-Four-Kanzlei.' },
+    { n: 'Marcus Berg',      r: 'Senior Manager · M&A',        img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'Begleitet Übernahmen und Nachfolgen. Drei Jahre London, fünf Jahre Wien.' },
+  ],
+  fitness: [
+    { n: 'Sarah Berg',  r: 'Studio-Leitung · Vinyasa',   img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
+    { n: 'Mira Klein',  r: 'Yin & Mindful Movement',     img: 'https://images.unsplash.com/photo-1545389336-cf090694435e?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
+    { n: 'Jonas Renz',  r: 'Reformer Pilates',           img: 'https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?auto=format&fit=crop&w=600&q=80', bio: 'Physiotherapeut mit Pilates-Spezialisierung. Trainiert Sportler:innen und Reha-Klient:innen.' },
+  ],
+  medical: [],
+};
+function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember[] {
+  const overlay = (content as any).team as TeamMember[] | undefined;
+  if (overlay && overlay.length > 0) return overlay.filter((m) => m && (m.n || m.r));
+  return BRANCH_TEAM_DEFAULT[branch];
+}
+function BranchTeam({ branch, style, content }: { branch: ExtraBranchKey; style: ExtraStyle; content: SiteContent }) {
+  if (branch === 'medical') return null; // medical uses MedicalServiceInfo + service grid instead
+  const team = useBranchTeam(content, branch);
+  if (team.length === 0) return null;
+  const heading = branch === 'fitness' ? 'Trainer:innen.' : 'Das Team.';
+  const eyebrow = branch === 'fitness' ? 'Trainer:innen' : 'Team';
+  if (style === 'bold') {
+    return (
+      <section className="py-24 md:py-40 bg-[var(--text-color)] text-[var(--bg-color)]">
+        <div className="container-x">
+          <div className="grid md:grid-cols-12 gap-8 mb-14 reveal">
+            <p className="md:col-span-2 font-mono text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">{eyebrow}</p>
+            <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">{heading}</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-px bg-current/10 reveal-stagger">
+            {team.map((m, i) => (
+              <article key={i} className="bg-[var(--text-color)] p-8 md:p-10">
+                {m.img && (
+                  <div className="aspect-[4/5] overflow-hidden mb-6 rounded-2xl">
+                    <img src={m.img} alt={m.n} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                )}
+                <h3 className="font-display text-3xl">{m.n}</h3>
+                <p className="font-mono text-[11px] uppercase tracking-widest text-[var(--accent-color)] mt-2">{m.r}</p>
+                {m.bio && <p className="mt-5 opacity-80 leading-relaxed">{m.bio}</p>}
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+  if (style === 'modern') {
+    return (
+      <section className="py-24 md:py-32 surface">
+        <div className="container-x">
+          <div className="flex items-end justify-between gap-6 mb-12 reveal">
+            <div>
+              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{eyebrow}</p>
+              <h2 className="font-display text-4xl md:text-5xl">{heading}</h2>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {team.map((m, i) => (
+              <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
+                {m.img && (
+                  <div className="aspect-[4/5] overflow-hidden">
+                    <img src={m.img} alt={m.n} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                )}
+                <div className="p-6">
+                  <h3 className="font-display text-2xl">{m.n}</h3>
+                  <p className="text-xs font-mono uppercase tracking-widest text-muted mt-1">{m.r}</p>
+                  {m.bio && <p className="mt-4 text-sm text-muted leading-relaxed">{m.bio}</p>}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+  // classic
+  return (
+    <section className="py-24 md:py-32">
+      <div className="container-x">
+        <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
+          <div className="md:col-span-7 reveal">
+            <p className="eyebrow mb-5">{eyebrow}</p>
+            <h2 className="headline-lg">{heading.replace('.', '')}<br /><em className="italic-pop">Persönlich erreichbar.</em></h2>
+          </div>
+          <p className="md:col-span-5 text-lg text-muted reveal">
+            {branch === 'fitness'
+              ? 'Fünf Lehrer:innen, jede mit eigener Handschrift. Lernen Sie sie im Probetraining kennen.'
+              : 'Erfahrene Berater:innen mit eigenen Schwerpunkten. Sie erreichen uns direkt – ohne Sekretariat.'}
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+          {team.map((m, i) => (
+            <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
+              {m.img && (
+                <div className="aspect-[4/5] overflow-hidden img-zoom">
+                  <img src={m.img} alt={m.n} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              )}
+              <div className="p-7">
+                <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+                <h3 className="font-display text-3xl mt-2">{m.n}</h3>
+                <p className="text-sm text-muted mt-1">{m.r}</p>
+                {m.bio && <p className="mt-5 text-sm leading-relaxed">{m.bio}</p>}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 /* Branch identity chips — strong visual differentiator just under the hero. */

@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { SiteContent } from '@/lib/types';
-import { DEMO_CONTENT } from '@/lib/demo-content';
+import type { SiteContent, TemplateKey } from '@/lib/types';
+import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '@/lib/demo-content';
 import { clearOverride, downloadJson, loadFor, writeOverride } from '@/lib/demo-overrides';
 import { AdminEditorBody } from '@/admin/AdminEditorBody';
 
-type DemoKey = 'restaurant' | 'salon' | 'tradesman';
+type DemoKey = TemplateKey;
+const ALL_DEMO_KEYS: DemoKey[] = ['restaurant', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const isDemoKey = (k: string): k is DemoKey => (ALL_DEMO_KEYS as string[]).includes(k);
+const baseFor = (k: DemoKey): SiteContent =>
+  k === 'restaurant' || k === 'salon' || k === 'tradesman' ? DEMO_CONTENT[k] : EXTRA_DEMO_CONTENT[k];
 
 /**
  * AdminDemo — showcase wrapper around the shared admin editor body.
@@ -33,7 +37,7 @@ export default function AdminDemo() {
   };
   const resetDemo = () => {
     clearOverride(tplKey);
-    setDataInternal(DEMO_CONTENT[tplKey]);
+    setDataInternal(baseFor(tplKey));
     setSavedAt(null);
   };
   const exportJson = () => downloadJson(`${tplKey}-content.json`, data);
@@ -50,7 +54,7 @@ export default function AdminDemo() {
   return (
     <AdminEditorBody
       tplKey={tplKey}
-      onTplChange={(k) => { if (k === 'restaurant' || k === 'salon' || k === 'tradesman') switchTpl(k); }}
+      onTplChange={(k) => { if (isDemoKey(k)) switchTpl(k); }}
       data={data}
       setData={setData}
       onSave={fakeSave}
