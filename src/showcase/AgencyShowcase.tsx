@@ -124,26 +124,7 @@ const EXTRA_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
 const isExtraKey = (k: string | undefined): k is ExtraBranchKey =>
   !!k && (EXTRA_KEYS as string[]).includes(k);
 
-const EXTRA_PRESETS: Record<ExtraBranchKey, ThemePreset[]> = {
-  consulting: [
-    { id: 'navy',     label: 'Navy',         primary: '#1e3a8a', primaryFg: '#eff6ff', accent: '#60a5fa', surface: '#f1f5f9', bg: '#ffffff', text: '#0f172a' },
-    { id: 'graphite', label: 'Graphite',     primary: '#1f2937', primaryFg: '#f9fafb', accent: '#fbbf24', surface: '#f3f4f6', bg: '#ffffff', text: '#111827' },
-    { id: 'sand',     label: 'Sand',         primary: '#78716c', primaryFg: '#fafaf9', accent: '#d4a373', surface: '#fafaf9', bg: '#ffffff', text: '#1c1917' },
-    { id: 'mid-blue', label: 'Midnight Blue',primary: '#60a5fa', primaryFg: '#0c1322', accent: '#60a5fa', surface: '#1e293b', bg: '#0f172a', text: '#e2e8f0' },
-  ],
-  medical: [
-    { id: 'cyan',     label: 'Cyan Calm',    primary: '#0e7490', primaryFg: '#ecfeff', accent: '#22d3ee', surface: '#f0fdff', bg: '#ffffff', text: '#0c1f24' },
-    { id: 'teal',     label: 'Teal Soft',    primary: '#0f766e', primaryFg: '#f0fdfa', accent: '#5eead4', surface: '#f0fdfa', bg: '#ffffff', text: '#0c1c1a' },
-    { id: 'sage',     label: 'Sage',         primary: '#4d7c0f', primaryFg: '#f7fee7', accent: '#a3e635', surface: '#f7fee7', bg: '#ffffff', text: '#1a2010' },
-    { id: 'cocoon',   label: 'Cocoon',       primary: '#a5f3fc', primaryFg: '#0c1f24', accent: '#a5f3fc', surface: '#0e7490', bg: '#083344', text: '#ecfeff' },
-  ],
-  fitness: [
-    { id: 'violet',   label: 'Violet',       primary: '#9333ea', primaryFg: '#faf5ff', accent: '#c084fc', surface: '#faf5ff', bg: '#ffffff', text: '#1c1126' },
-    { id: 'sunset',   label: 'Sunset',       primary: '#ea580c', primaryFg: '#fff7ed', accent: '#fb923c', surface: '#fff7ed', bg: '#ffffff', text: '#1c0f06' },
-    { id: 'lime',     label: 'Lime Energy',  primary: '#365314', primaryFg: '#f7fee7', accent: '#a3e635', surface: '#f7fee7', bg: '#ffffff', text: '#0f1605' },
-    { id: 'noir-vio', label: 'Noir Violet',  primary: '#c084fc', primaryFg: '#1c1126', accent: '#c084fc', surface: '#27272a', bg: '#18181b', text: '#fafafa' },
-  ],
-};
+// Color presets for extras now come from PRESETS in @/lib/theme (single source of truth).
 
 const EXTRA_BRANCHES: Record<ExtraBranchKey, {
   label: string;
@@ -1621,7 +1602,7 @@ function TemplatePreview() {
   const validReal = key && (key in DEMO_CONTENT);
   const tplKey: BranchKey = isExtra ? key : (validReal ? (key as TemplateKey) : 'restaurant');
   const style = (styleParam === 'modern' || styleParam === 'bold' ? styleParam : 'classic') as 'classic' | 'modern' | 'bold';
-  const presets = isExtra ? EXTRA_PRESETS[tplKey as ExtraBranchKey] : PRESETS[tplKey as TemplateKey];
+  const presets = PRESETS[tplKey as TemplateKey];
   const [presetIdx, setPresetIdx] = useState(0);
   const preset = presets[presetIdx];
 
@@ -1680,54 +1661,57 @@ function TemplatePreview() {
       )}
 
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div className="glass shadow-2xl rounded-2xl p-3 border border-line w-[260px]">
+        <div className="shadow-2xl rounded-2xl p-3 border border-slate-200 w-[260px] bg-white text-slate-900">
           {hasOverride && (
             <div className="flex items-center justify-between gap-2 mb-2 px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 text-[11px]">
               <span>● Live-Daten aus Admin</span>
               <button onClick={onReset} className="underline underline-offset-2 hover:opacity-80">Reset</button>
             </div>
           )}
-          <p className="text-[10px] uppercase tracking-widest text-muted px-2 mb-1">Branche</p>
+          <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Branche</p>
           <div className="grid grid-cols-3 gap-1 mb-2">
             {(['restaurant','salon','tradesman'] as Array<keyof typeof TEMPLATE_META>).map((k) => (
-              <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-brand text-white border-brand' : 'bg-white border-line hover:border-brand/40'}`}>
+              <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
                 {TEMPLATE_META[k].label.split(' ')[0]}
               </button>
             ))}
             {EXTRA_KEYS.map((k) => (
-              <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-brand text-white border-brand' : 'bg-white border-line hover:border-brand/40'}`}>
+              <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
                 {EXTRA_BRANCHES[k].label.split(' ')[0]}
               </button>
             ))}
           </div>
-          <p className="text-[10px] uppercase tracking-widest text-muted px-2 mb-1">Stil</p>
+          <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Stil</p>
           <div className="grid grid-cols-3 gap-1 mb-2">
             {(['classic','modern','bold'] as const).map((s) => (
-              <button key={s} onClick={() => switchStyle(s)} className={`text-[11px] py-1.5 rounded-md border transition capitalize ${s === style ? 'bg-brand text-white border-brand' : 'bg-white border-line hover:border-brand/40'}`}>
+              <button key={s} onClick={() => switchStyle(s)} className={`text-[11px] py-1.5 rounded-md border transition capitalize ${s === style ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>
                 {s}
               </button>
             ))}
           </div>
-          <p className="text-[10px] uppercase tracking-widest text-muted px-2 mb-1">Farbschema</p>
-          <div className="flex gap-2 px-1">
+          <p className="text-[10px] uppercase tracking-widest text-slate-500 px-2 mb-1">Farbschema</p>
+          <div className="flex flex-wrap gap-2 px-1">
             {presets.map((p: ThemePreset, i: number) => (
               <button
                 key={p.id}
                 onClick={() => setPresetIdx(i)}
                 title={p.label}
                 aria-label={p.label}
-                className={`h-8 w-8 rounded-full border-2 transition ${
-                  i === presetIdx ? 'border-brand scale-110' : 'border-white shadow-md hover:scale-105'
+                className={`h-7 w-7 rounded-full border-2 transition ${
+                  i === presetIdx ? 'border-slate-900 scale-110' : 'border-white ring-1 ring-slate-200 hover:scale-105'
                 }`}
                 style={{ background: `linear-gradient(135deg, ${p.primary}, ${p.accent})` }}
               />
             ))}
           </div>
+          <p className="mt-3 px-2 text-[10px] leading-relaxed text-slate-500 italic">
+            Mehr Layouts, Farben &amp; Funktionen auf Anfrage – individuelle Entwicklung jederzeit möglich.
+          </p>
         </div>
 
         <button
           onClick={() => navigate('/templates')}
-          className="bg-brand text-white text-sm font-medium px-4 py-2.5 rounded-full shadow-2xl hover:opacity-90 transition flex items-center gap-2"
+          className="bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-full shadow-2xl hover:bg-slate-700 transition flex items-center gap-2"
         >
           <span aria-hidden>←</span> Zur Übersicht
         </button>
