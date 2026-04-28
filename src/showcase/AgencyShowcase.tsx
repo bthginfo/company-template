@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
@@ -22,13 +21,13 @@ import {
   Tilt3DCard, MagneticButton,
 } from '@/components/motion-fx';
 import {
-  AuroraBackground, SpotlightSection, AnimatedGridPattern,
+  SpotlightSection, AnimatedGridPattern,
   TextReveal, BentoCard,
 } from '@/components/fx-21st';
 import { ConsentProvider } from '@/lib/consent';
 import { ContactForm } from '@/components/ContactForm';
 import { CookieBanner } from '@/components/CookieBanner';
-import { ShaderBackdrop } from '@/components/ShaderBackdrop';
+import { MouseGlow } from '@/components/MouseGlow';
 
 /* ─── Brand ─────────────────────────────────────────────────────────── */
 const AGENCY = {
@@ -508,43 +507,20 @@ function Landing() {
 }
 
 function HeroSection() {
-  const [pos, setPos] = useState({ x: 50, y: 50 });
   return (
-    <section
-      className="relative min-h-[100vh] flex items-end overflow-hidden text-white grain"
-      onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        setPos({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
-      }}
-    >
-      {/* Layered backgrounds */}
-      <div className="absolute inset-0 -z-10 bg-brand" />
-      <ShaderBackdrop
-        colors={['#0b1020', '#7C3AED', '#F24171']}
-        className="!-z-[4] opacity-90"
-      />
-      <AuroraBackground
-        colors={['#F24171', '#FFB347', '#7C3AED', '#22d3ee']}
-        intensity={0.45}
-        className="-z-[3] opacity-90"
+    <section className="relative min-h-[100vh] flex items-end overflow-hidden text-white grain">
+      {/* Layered backgrounds — one solid base, one GPU-only mouse glow, a thin grid for texture. */}
+      <div className="absolute inset-0 -z-10 bg-[#0b1020]" />
+      <MouseGlow
+        className="-z-[5]"
+        colorA="rgba(124,58,237,0.55)"
+        colorB="rgba(242,65,113,0.65)"
       />
       <AnimatedGridPattern
-        className="-z-[2] text-white/[0.06]"
+        className="-z-[2] text-white/[0.05]"
         width={40}
         height={40}
-        dotSize={1.4}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 -z-[1] transition-[background] duration-150 ease-out"
-        style={{
-          background: `radial-gradient(700px circle at ${pos.x}% ${pos.y}%, rgba(242,65,113,0.28), transparent 60%)`,
-        }}
-      />
-      <motion.div
-        className="pointer-events-none absolute -z-[1] h-72 w-72 rounded-full blur-3xl"
-        style={{ background: 'rgba(242,65,113,0.4)', left: `calc(${pos.x}% - 9rem)`, top: `calc(${pos.y}% - 9rem)` }}
-        animate={{ scale: [1, 1.15, 1] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        dotSize={1.2}
       />
 
       <div className="container-x relative z-10 pt-44 pb-24 md:pb-32">
