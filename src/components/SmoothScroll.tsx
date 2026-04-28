@@ -16,6 +16,8 @@ export function SmoothScroll() {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
+    // Expose for programmatic scrollTo helpers (lib/scroll.ts).
+    (window as any).__lenis = lenis;
 
     let rafId = 0;
     const raf = (time: number) => {
@@ -27,6 +29,7 @@ export function SmoothScroll() {
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      if ((window as any).__lenis === lenis) delete (window as any).__lenis;
     };
   }, []);
   return null;

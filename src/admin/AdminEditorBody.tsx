@@ -3,6 +3,7 @@ import type { SiteContent, TemplateKey } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { RichTextEditor } from './RichTextEditor';
 import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
+import { scrollToTop } from '@/lib/scroll';
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -57,7 +58,9 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
   // Scroll the editor area to the top whenever the user switches sections —
   // otherwise long sections leave the new section scrolled to the middle.
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    scrollToTop();
+    const id = requestAnimationFrame(() => scrollToTop());
+    return () => cancelAnimationFrame(id);
   }, [pageId]);
 
   const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news' || pageId === 'navigation' || pageId === 'mail';

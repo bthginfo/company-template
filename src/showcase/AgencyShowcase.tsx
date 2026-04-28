@@ -28,6 +28,7 @@ import { ConsentProvider } from '@/lib/consent';
 import { ContactForm } from '@/components/ContactForm';
 import { CookieBanner } from '@/components/CookieBanner';
 import { MouseGlow } from '@/components/MouseGlow';
+import { scrollToTop } from '@/lib/scroll';
 
 /* ─── Brand ─────────────────────────────────────────────────────────── */
 const AGENCY = {
@@ -243,10 +244,15 @@ export default function AgencyShowcase() {
 function ScrollToTop() {
   // Reset scroll position on every route change. Without this, navigating to a
   // new page keeps the user's previous scroll offset, which is confusing.
+  // Cooperates with Lenis (otherwise window.scrollTo is ignored).
   const { pathname } = useLocation();
   useEffect(() => {
-    // Use 'auto' (instant) — smooth scroll on route change feels slow.
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    // Lenis sometimes hasn't picked up the new layout yet on the same tick;
+    // schedule once after the React commit and once on next frame so we win
+    // against any in-flight smooth-scroll animation.
+    scrollToTop();
+    const id = requestAnimationFrame(() => scrollToTop());
+    return () => cancelAnimationFrame(id);
   }, [pathname]);
   return null;
 }
@@ -1665,102 +1671,122 @@ function TemplatesGallery() {
 }
 
 /* ─── Process page ────────────────────────────────────────────────── */
+const PROCESS_STEPS = [
+  {
+    d: 'Tag 1',
+    t: 'Kennenlernen',
+    icon: '☎',
+    body: '30-Minuten Online-Call oder Telefon. Wir verstehen Deinen Betrieb, Deine Konkurrenz, Deine Ziele. Du bekommst unsere ehrliche Einschätzung.',
+    bullets: ['Branche & Wettbewerb', 'Ziele & Zielgruppe', 'Erste Empfehlung'],
+  },
+  {
+    d: 'Tag 2',
+    t: 'Briefing & Auswahl',
+    icon: '✎',
+    body: 'Du wählst Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.',
+    bullets: ['Template & Stil', 'Module & Features', 'Verbindliches Angebot'],
+  },
+  {
+    d: 'Optional',
+    t: 'Foto- & Videoshooting',
+    icon: '◉',
+    body: 'Add-on, kein Standard. Auf Wunsch kommen wir mit kleinem Team vor Ort und produzieren Bild- und Filmmaterial. Auch nachträglich oder separat buchbar.',
+    bullets: ['Halber oder ganzer Tag', 'Bildauswahl mit Dir', 'Druckreife Lieferung'],
+  },
+  {
+    d: 'Tag 3–7',
+    t: 'Aufbau',
+    icon: '✦',
+    body: 'Wir richten das Template ein, importieren Deine Inhalte, optimieren Bilder, schreiben SEO-Texte vor.',
+    bullets: ['Template-Setup', 'Inhalte & Bilder', 'SEO-Vorlagen'],
+  },
+  {
+    d: 'Tag 8',
+    t: 'Feedback-Schleife',
+    icon: '↻',
+    body: 'Du schaust Dir den Preview-Link an. Eine Korrektur-Runde inkludiert. Du sendest Anmerkungen, wir setzen um.',
+    bullets: ['Privater Preview-Link', '1× Korrektur-Runde inkl.', 'Schnelle Umsetzung'],
+  },
+  {
+    d: 'Tag 9–10',
+    t: 'Live-Schaltung',
+    icon: '⚡',
+    body: 'Wir verbinden Deine Domain und übergeben den Admin-Bereich. Du bist online.',
+    bullets: ['Domain & SSL', 'Admin-Zugang & Schulung', 'Online — fertig'],
+  },
+  {
+    d: 'Laufend',
+    t: 'Pflege & Support',
+    icon: '♥',
+    body: 'Du pflegst Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.',
+    bullets: ['Du pflegst Inhalte selbst', 'Hosting inklusive', 'Kleine Anpassungen on demand'],
+  },
+] as const;
+
 function ProcessPage() {
   useReveal();
-  const steps = [
-    {
-      d: 'Tag 1',
-      t: 'Kennenlernen',
-      icon: '☎',
-      body: '30-Minuten Online-Call oder Telefon. Wir verstehen Deinen Betrieb, Deine Konkurrenz, Deine Ziele. Du bekommst unsere ehrliche Einschätzung.',
-      bullets: ['Branche & Wettbewerb', 'Ziele & Zielgruppe', 'Erste Empfehlung'],
-    },
-    {
-      d: 'Tag 2',
-      t: 'Briefing & Auswahl',
-      icon: '✎',
-      body: 'Du wählst Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.',
-      bullets: ['Template & Stil', 'Module & Features', 'Verbindliches Angebot'],
-    },
-    {
-      d: 'Optional',
-      t: 'Foto- & Videoshooting',
-      icon: '◉',
-      body: 'Add-on, kein Standard. Auf Wunsch kommen wir mit kleinem Team vor Ort und produzieren Bild- und Filmmaterial. Auch nachträglich oder separat buchbar.',
-      bullets: ['Halber oder ganzer Tag', 'Bildauswahl mit Dir', 'Druckreife Lieferung'],
-    },
-    {
-      d: 'Tag 3–7',
-      t: 'Aufbau',
-      icon: '✦',
-      body: 'Wir richten das Template ein, importieren Deine Inhalte, optimieren Bilder, schreiben SEO-Texte vor.',
-      bullets: ['Template-Setup', 'Inhalte & Bilder', 'SEO-Vorlagen'],
-    },
-    {
-      d: 'Tag 8',
-      t: 'Feedback-Schleife',
-      icon: '↻',
-      body: 'Du schaust Dir den Preview-Link an. Eine Korrektur-Runde inkludiert. Du sendest Anmerkungen, wir setzen um.',
-      bullets: ['Privater Preview-Link', '1× Korrektur-Runde inkl.', 'Schnelle Umsetzung'],
-    },
-    {
-      d: 'Tag 9–10',
-      t: 'Live-Schaltung',
-      icon: '⚡',
-      body: 'Wir verbinden Deine Domain und übergeben den Admin-Bereich. Du bist online.',
-      bullets: ['Domain & SSL', 'Admin-Zugang & Schulung', 'Online — fertig'],
-    },
-    {
-      d: 'Laufend',
-      t: 'Pflege & Support',
-      icon: '♥',
-      body: 'Du pflegst Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.',
-      bullets: ['Du pflegst Inhalte selbst', 'Hosting inklusive', 'Kleine Anpassungen on demand'],
-    },
-  ];
+  const steps = PROCESS_STEPS;
 
-  // Track which step is currently in view to drive the side rail + counter.
-  const [activeIdx, setActiveIdx] = useState(0);
-  const stepRefs = useRef<(HTMLLIElement | null)[]>([]);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Pick the entry closest to the top of the viewport.
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (!visible.length) return;
-        visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        const idx = stepRefs.current.findIndex((el) => el === visible[0].target);
-        if (idx >= 0) setActiveIdx(idx);
-      },
-      { rootMargin: '-30% 0px -55% 0px', threshold: 0 },
-    );
-    stepRefs.current.forEach((el) => el && observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
-  // Scroll-driven progress bar (0..1) for the side rail fill.
+  // Refs to each step row + the timeline track wrapper.
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  // 0..1 — how far the user has scrolled through the timeline section.
   const [progress, setProgress] = useState(0);
-  const trackRef = useRef<HTMLOListElement>(null);
+  // Currently highlighted step index (drives top sticky pill + active card).
+  const [activeIdx, setActiveIdx] = useState(0);
+
   useEffect(() => {
-    const onScroll = () => {
-      const el = trackRef.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
+    const compute = () => {
+      const track = timelineRef.current;
+      if (!track) return;
+      const r = track.getBoundingClientRect();
       const winH = window.innerHeight;
-      const total = r.height + winH * 0.5;
-      const passed = Math.min(Math.max(winH * 0.6 - r.top, 0), total);
-      setProgress(passed / total);
+      // Anchor: the line fills as the timeline crosses the viewport center.
+      const anchor = winH * 0.55;
+      const start = r.top - anchor;
+      const total = r.height;
+      const passed = Math.max(0, Math.min(total, -start));
+      const p = total > 0 ? passed / total : 0;
+      setProgress(p);
+
+      // Active step: the one whose center is closest to the anchor.
+      let best = 0;
+      let bestDist = Infinity;
+      stepRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const er = el.getBoundingClientRect();
+        const center = er.top + er.height / 2;
+        const dist = Math.abs(center - anchor);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i;
+        }
+      });
+      setActiveIdx(best);
     };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    compute();
+    window.addEventListener('scroll', compute, { passive: true });
+    window.addEventListener('resize', compute);
+    return () => {
+      window.removeEventListener('scroll', compute);
+      window.removeEventListener('resize', compute);
+    };
   }, []);
+
+  const jumpTo = (i: number) => {
+    const el = stepRefs.current[i];
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 140;
+    const lenis = (window as any).__lenis as { scrollTo?: (t: any, o?: any) => void } | undefined;
+    if (lenis?.scrollTo) lenis.scrollTo(top, { duration: 0.9 });
+    else window.scrollTo({ top, behavior: 'smooth' });
+  };
 
   return (
     <>
       <Seo title="Ablauf · FlamingoMedia" description="Vom ersten Gespräch bis zur Live-Schaltung. Klar geplant, ohne Überraschungen." />
 
-      {/* Hero with day-track preview */}
+      {/* Hero */}
       <section className="relative pt-44 pb-12 overflow-hidden">
         <div
           aria-hidden
@@ -1781,142 +1807,149 @@ function ProcessPage() {
             Klare Stationen, transparente Kosten, kein Agentur-Theater.
             Du weißt jederzeit, wo wir stehen — und was als nächstes kommt.
           </p>
-
-          {/* Horizontal day-track preview */}
-          <div className="mt-14 reveal">
-            <div className="relative">
-              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-line" />
-              <div
-                className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-accent transition-[width] duration-500"
-                style={{ width: `${((activeIdx + 1) / steps.length) * 100}%` }}
-              />
-              <ol className="relative grid grid-cols-7 gap-2">
-                {steps.map((s, i) => (
-                  <li key={s.t} className="flex flex-col items-center text-center">
-                    <button
-                      type="button"
-                      onClick={() => stepRefs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                      className={`relative z-10 grid place-items-center h-10 w-10 rounded-full border-2 transition-all ${
-                        i <= activeIdx
-                          ? 'bg-accent border-accent text-white shadow-[0_0_24px_rgba(242,65,113,0.5)]'
-                          : 'bg-white border-line text-slate-500 hover:border-accent hover:text-accent'
-                      }`}
-                      aria-label={`Springe zu ${s.t}`}
-                    >
-                      <span className="text-sm font-mono">{i + 1}</span>
-                    </button>
-                    <span className={`mt-2 text-[10px] uppercase tracking-widest hidden md:block transition-colors ${i <= activeIdx ? 'text-accent font-semibold' : 'text-muted'}`}>
-                      {s.d}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Stepper with sticky side rail */}
-      <section className="pb-32 relative">
-        <div className="container-tight relative">
-          <div className="grid lg:grid-cols-[120px_1fr] gap-8 lg:gap-12">
-            {/* Sticky side rail with vertical progress + active counter */}
-            <aside className="hidden lg:block">
-              <div className="sticky top-32">
-                <div className="relative h-[60vh] w-full">
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-line" />
-                  <div
-                    className="absolute left-1/2 -translate-x-1/2 top-0 w-[3px] bg-gradient-to-b from-accent via-[#7c3aed] to-accent rounded-full transition-[height] duration-300"
-                    style={{ height: `${Math.max(0, Math.min(100, progress * 100))}%`, boxShadow: '0 0 24px rgba(242,65,113,0.6)' }}
-                  />
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 grid place-items-center h-9 w-9 rounded-full bg-black text-white font-mono text-xs">
-                    {String(activeIdx + 1).padStart(2, '0')}
-                  </div>
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 grid place-items-center h-9 w-9 rounded-full bg-white border-2 border-line text-slate-400 font-mono text-xs">
-                    {String(steps.length).padStart(2, '0')}
-                  </div>
-                </div>
-                <p className="mt-6 text-center text-xs uppercase tracking-widest text-muted">
-                  Schritt
-                  <span className="block mt-1 font-display text-3xl text-slate-900 normal-case tracking-normal">
-                    {String(activeIdx + 1).padStart(2, '0')}
-                    <span className="text-muted">/{String(steps.length).padStart(2, '0')}</span>
-                  </span>
-                </p>
-              </div>
-            </aside>
-
-            {/* Stack of step cards */}
-            <ol ref={trackRef} className="relative space-y-10 lg:space-y-16">
+      {/* Sticky compact stepper bar */}
+      <div
+        className="sticky top-[88px] z-30 backdrop-blur-md bg-white/80 border-y border-line"
+        aria-label="Aktueller Schritt"
+      >
+        <div className="container-x py-3">
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+            <span className="text-[11px] uppercase tracking-widest text-muted hidden md:inline shrink-0 mr-1">
+              Schritt {String(activeIdx + 1).padStart(2, '0')}/{String(steps.length).padStart(2, '0')}
+            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
               {steps.map((s, i) => {
-                const align = i % 2 === 0;
+                const reached = i <= activeIdx;
                 return (
-                  <li
+                  <button
                     key={s.t}
-                    ref={(el) => { stepRefs.current[i] = el; }}
-                    className="reveal scroll-mt-32"
+                    type="button"
+                    onClick={() => jumpTo(i)}
+                    title={`${s.d} – ${s.t}`}
+                    className={`group relative shrink-0 h-8 px-3 rounded-full text-xs font-medium transition-all border ${
+                      i === activeIdx
+                        ? 'bg-accent text-white border-accent shadow-[0_4px_14px_rgba(242,65,113,0.45)]'
+                        : reached
+                          ? 'bg-accent/10 text-accent border-accent/30 hover:bg-accent/20'
+                          : 'bg-white text-slate-500 border-line hover:border-accent/40 hover:text-accent'
+                    }`}
                   >
-                    <article
-                      className={`relative bg-white border border-line rounded-3xl p-8 md:p-12 hover-lift transition-all duration-500 ${
-                        i === activeIdx
-                          ? 'shadow-[0_30px_80px_-30px_rgba(242,65,113,0.35)] border-accent/30'
-                          : 'shadow-sm'
+                    <span className="font-mono mr-1.5">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="hidden md:inline">{s.t}</span>
+                    <span className="md:hidden">{s.d}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex-1 min-w-[60px] hidden sm:block">
+              <div className="h-1.5 bg-line rounded-full overflow-hidden ml-3">
+                <div
+                  className="h-full bg-gradient-to-r from-accent to-[#7c3aed] rounded-full transition-[width] duration-300 ease-out"
+                  style={{ width: `${Math.round(progress * 100)}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Timeline */}
+      <section className="py-16 md:py-24">
+        <div className="container-tight">
+          <div ref={timelineRef} className="relative">
+            {/* Vertical track + animated fill (centered on md+, left on mobile) */}
+            <div
+              aria-hidden
+              className="absolute top-0 bottom-0 left-6 md:left-1/2 md:-translate-x-1/2 w-[3px] bg-line rounded-full"
+            />
+            <div
+              aria-hidden
+              className="absolute top-0 left-6 md:left-1/2 md:-translate-x-1/2 w-[3px] rounded-full bg-gradient-to-b from-accent via-[#7c3aed] to-accent transition-[height] duration-200 ease-out"
+              style={{
+                height: `${Math.max(0, Math.min(100, progress * 100))}%`,
+                boxShadow: '0 0 18px rgba(242,65,113,0.45)',
+              }}
+            />
+
+            <ol className="relative space-y-10 md:space-y-20">
+              {steps.map((s, i) => {
+                const left = i % 2 === 0; // alternate sides on md+
+                const isActive = i === activeIdx;
+                const reached = i <= activeIdx;
+                return (
+                  <li key={s.t} className="relative">
+                    {/* Node */}
+                    <div
+                      aria-hidden
+                      className={`absolute left-6 md:left-1/2 md:-translate-x-1/2 -translate-y-0 top-6 z-10 grid place-items-center transition-all duration-500 ${
+                        isActive ? 'scale-110' : ''
                       }`}
                     >
-                      {/* Big translucent step number watermark */}
                       <span
-                        aria-hidden
-                        className={`pointer-events-none absolute ${align ? '-right-2 -top-6' : '-left-2 -top-6'} font-display text-[8rem] md:text-[12rem] leading-none transition-colors ${
-                          i === activeIdx ? 'text-accent/15' : 'text-slate-100'
+                        className={`grid place-items-center h-12 w-12 rounded-full font-mono text-sm border-2 transition-all duration-500 ${
+                          reached
+                            ? 'bg-accent text-white border-accent shadow-[0_0_28px_rgba(242,65,113,0.55)]'
+                            : 'bg-white text-slate-500 border-line'
                         }`}
                       >
                         {String(i + 1).padStart(2, '0')}
                       </span>
+                    </div>
 
-                      <div className="relative grid md:grid-cols-12 gap-6 md:gap-8 items-start">
-                        <div className="md:col-span-4">
-                          <div
-                            className={`grid place-items-center h-14 w-14 rounded-2xl text-2xl mb-4 transition-all ${
-                              i === activeIdx
-                                ? 'bg-accent text-white shadow-[0_8px_24px_rgba(242,65,113,0.4)] scale-105'
-                                : 'bg-slate-100 text-slate-600'
+                    {/* Card */}
+                    <div
+                      ref={(el) => { stepRefs.current[i] = el; }}
+                      className={`scroll-mt-40 reveal grid md:grid-cols-2 ${left ? '' : 'md:[&>*:first-child]:col-start-2'}`}
+                    >
+                      <article
+                        className={`relative ml-20 md:ml-0 ${left ? 'md:mr-12 md:text-right' : 'md:ml-12'} bg-white border rounded-3xl p-7 md:p-9 transition-all duration-500 ${
+                          isActive
+                            ? 'border-accent/40 shadow-[0_30px_60px_-30px_rgba(242,65,113,0.4)]'
+                            : 'border-line shadow-sm'
+                        }`}
+                      >
+                        {/* Connector line from card to center node */}
+                        <span
+                          aria-hidden
+                          className={`hidden md:block absolute top-12 ${left ? '-right-12 w-12 [background:linear-gradient(to_right,rgba(0,0,0,0)_0%,var(--accent-color)_100%)]' : '-left-12 w-12 [background:linear-gradient(to_left,rgba(0,0,0,0)_0%,var(--accent-color)_100%)]'} h-[2px] opacity-${isActive ? '100' : '40'} transition-opacity duration-500`}
+                        />
+
+                        <div className={`flex items-center gap-3 ${left ? 'md:flex-row-reverse' : ''}`}>
+                          <span
+                            className={`grid place-items-center h-11 w-11 rounded-2xl text-xl transition-all duration-500 ${
+                              isActive ? 'bg-accent text-white shadow-[0_8px_20px_rgba(242,65,113,0.35)]' : 'bg-slate-100 text-slate-600'
                             }`}
+                            aria-hidden
                           >
-                            <span aria-hidden>{s.icon}</span>
+                            {s.icon}
+                          </span>
+                          <div className={left ? 'md:text-right' : ''}>
+                            <p className="text-[11px] font-mono uppercase tracking-widest text-muted">
+                              Schritt {String(i + 1).padStart(2, '0')}
+                            </p>
+                            <p className="font-display text-2xl md:text-3xl leading-tight">{s.d}</p>
                           </div>
-                          <p className="font-mono text-xs text-muted uppercase tracking-widest">
-                            Schritt {String(i + 1).padStart(2, '0')}
-                          </p>
-                          <p className="font-display text-4xl md:text-5xl mt-1 leading-tight">{s.d}</p>
                         </div>
-                        <div className="md:col-span-8">
-                          <h3 className="headline-md">{s.t}</h3>
-                          <p className="mt-4 text-lg text-muted leading-relaxed">{s.body}</p>
-                          <ul className="mt-6 grid sm:grid-cols-3 gap-3">
-                            {s.bullets.map((b) => (
-                              <li
-                                key={b}
-                                className="flex items-start gap-2 text-sm bg-slate-50 border border-line rounded-xl px-3 py-2.5"
-                              >
-                                <span aria-hidden className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />
-                                <span className="text-slate-700">{b}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
 
-                      {/* Connector chevron to next step (decorative) */}
-                      {i < steps.length - 1 && (
-                        <div className="absolute left-1/2 -translate-x-1/2 -bottom-7 z-10 hidden md:block">
-                          <div className="grid place-items-center h-12 w-12 rounded-full bg-white border border-line shadow-sm text-accent">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M6 9l6 6 6-6" />
-                            </svg>
-                          </div>
-                        </div>
-                      )}
-                    </article>
+                        <h3 className="headline-md mt-6 text-2xl md:text-3xl">{s.t}</h3>
+                        <p className="mt-3 text-base md:text-lg text-muted leading-relaxed">{s.body}</p>
+
+                        <ul className={`mt-5 flex flex-wrap gap-2 ${left ? 'md:justify-end' : ''}`}>
+                          {s.bullets.map((b) => (
+                            <li
+                              key={b}
+                              className="inline-flex items-center gap-1.5 text-xs bg-slate-50 border border-line rounded-full px-3 py-1.5 text-slate-700"
+                            >
+                              <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+                              {b}
+                            </li>
+                          ))}
+                        </ul>
+                      </article>
+                    </div>
                   </li>
                 );
               })}
@@ -1943,7 +1976,12 @@ function ProcessPage() {
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3 justify-center">
                   <Link to="/kontakt" className="btn-accent">Beratung anfragen</Link>
-                  <Link to="/preise" className="px-5 py-2.5 rounded-full border border-white/30 text-white hover:bg-white/10 transition-colors">Preise ansehen</Link>
+                  <Link
+                    to="/preise"
+                    className="px-5 py-2.5 rounded-full border border-white/30 text-white hover:bg-white/10 transition-colors"
+                  >
+                    Preise ansehen
+                  </Link>
                 </div>
               </div>
             </div>
