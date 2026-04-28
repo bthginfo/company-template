@@ -917,17 +917,32 @@ function LiveDeviceFrame({ item }: { item: DeviceItem }) {
   }, [mount]);
 
   // Each device gets its own logical viewport so the embedded site renders at
-  // a believable resolution and is then scaled to fit the frame.
-  // Each device gets a viewport that matches its actual form-factor so the
-  // embedded site renders the right responsive layout — desktop on the
-  // laptop, tablet layout on the iPad (below `lg:` breakpoint), mobile on the
-  // phone.
+  // a believable resolution and is then scaled to fit the frame. We measure
+  // the wrapper's actual rendered width with a ResizeObserver and set the
+  // scale factor as a CSS variable. Doing the math in JS sidesteps any
+  // container-query/positioning subtleties that previously caused the
+  // scaled iframe to overflow the screen by a few percent.
   const dims =
     item.kind === 'laptop'
-      ? { vw: 1280, vh: 800, frameW: 'w-full', aspect: 'aspect-[16/10]' }
+      ? { vw: 1280, vh: 800 }
       : item.kind === 'tablet'
-        ? { vw: 820, vh: 1180, frameW: 'w-full', aspect: 'aspect-[3/4]' }
-        : { vw: 390, vh: 844, frameW: 'w-full', aspect: 'aspect-[9/19.5]' };
+        ? { vw: 820, vh: 1180 }
+        : { vw: 390, vh: 844 };
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const apply = () => {
+      const w = el.clientWidth;
+      if (!w) return;
+      const scale = w / dims.vw;
+      el.style.setProperty('--device-scale', String(scale));
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [dims.vw]);
 
   const iframe = mount ? (
     <iframe
@@ -1018,7 +1033,11 @@ function DeviceShowcaseSection() {
       </div>
 
       <style>{`
-        /* Shared inner wrapper: fits any iframe and scales it to the frame. */
+        /* Shared inner wrapper: fits any iframe and scales it to the frame.
+           The actual scale factor is set via the --device-scale CSS variable
+           by JS (ResizeObserver) — that is the most reliable way to keep
+           the scaled iframe pixel-perfect inside the device screen, regardless
+           of bezels, borders or scrollbars. */
         .device-frame__inner {
           position: absolute;
           inset: 0;
@@ -1028,6 +1047,7 @@ function DeviceShowcaseSection() {
         .device-frame__inner > iframe,
         .device-frame__inner > div {
           transform-origin: top left;
+          transform: scale(var(--device-scale, 1));
         }
         /* Laptop frame (MacBook-ish). */
         .device-laptop {
@@ -1067,10 +1087,6 @@ function DeviceShowcaseSection() {
           background: linear-gradient(180deg, #1c1922, #0b0810);
           box-shadow: 0 14px 30px -10px rgba(0,0,0,0.6);
         }
-        .device-laptop .device-frame__inner > iframe,
-        .device-laptop .device-frame__inner > div {
-          transform: scale(calc(100cqw / 1280));
-        }
         /* Tablet frame (iPad-ish). */
         .device-tablet {
           position: relative;
@@ -1088,10 +1104,6 @@ function DeviceShowcaseSection() {
           border-radius: 18px;
           overflow: hidden;
           background: #fff;
-        }
-        .device-tablet .device-frame__inner > iframe,
-        .device-tablet .device-frame__inner > div {
-          transform: scale(calc(100cqw / 820));
         }
         /* Phone frame (iPhone-ish with dynamic island). */
         .device-phone {
@@ -1122,15 +1134,6 @@ function DeviceShowcaseSection() {
           background: #0b0810;
           z-index: 2;
         }
-        .device-phone .device-frame__inner > iframe,
-        .device-phone .device-frame__inner > div {
-          transform: scale(calc(100cqw / 390));
-        }
-        /* Use container queries on the inner screen wrapper so the scale
-           factor follows the actual content area (excluding device padding /
-           bezels). Scaling by the outer frame width caused a few px of
-           overflow equal to the device padding. */
-        .device-frame__inner { container-type: inline-size; }
         @media (prefers-reduced-motion: reduce) {
           .device-laptop, .device-tablet, .device-phone { transition: none; }
         }
