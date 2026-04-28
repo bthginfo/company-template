@@ -563,6 +563,63 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           <MedicalNoticeEditor data={data} setData={setData} />
         </SectionCard>
       )}
+
+      {/* ───── Branch-specific modules (Phase 2) ───── */}
+      {tpl === 'restaurant' && (
+        <SectionCard title="Speisekarte (Kategorien & Gerichte)" description="Vollständige Karte mit Kategorien, Allergenen und Tags. Erscheint als Modul-Block auf der Speisekarte-Seite." badge="Modul · Speisekarte">
+          <MenuEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'hotel' && (
+        <SectionCard title="Zimmer-Showcase" description="Detaillierte Zimmer mit Größe, Bett, Preis & Ausstattung. Erscheint als Modul-Block auf der Zimmer-Seite." badge="Modul · Zimmer">
+          <RoomsEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'tourism' && (
+        <SectionCard title="Tour-Karten" description="Touren mit Schwierigkeit, Dauer, Sprachen und Preis. Erscheint als Modul-Block auf der Touren-Seite." badge="Modul · Touren">
+          <ToursEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'salon' && (
+        <SectionCard title="Behandlungen (kategorisiert)" description="Kategorisierte Behandlungsliste mit Dauer & Preis." badge="Modul · Treatments">
+          <TreatmentsEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'fitness' && (
+        <SectionCard title="Kursplan" description="Kursliste mit Zeitplan, Level, Trainer und Preis." badge="Modul · Kursplan">
+          <CoursesEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {(tpl === 'fitness' || tpl === 'consulting') && (
+        <SectionCard title="Preis-Pakete" description="Drei-Stufen-Pakete mit Highlight-Karte." badge="Modul · Pakete">
+          <PackagesEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'consulting' && (
+        <SectionCard title="Prozess-Schritte" description="Horizontale Timeline mit 3–6 Stationen Ihres Vorgehens." badge="Modul · Prozess">
+          <ProcessStepsEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'medical' && (
+        <SectionCard title="Ärzte & Team" description="Profile der behandelnden Ärztinnen und Ärzte." badge="Modul · Doctors">
+          <DoctorsEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'medical' && (
+        <SectionCard title="Online-Terminbuchung" description="Doctolib / jameda / TIMIFY-Anbindung. CTA oder Embed." badge="Modul · Booking">
+          <BookingEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'tradesman' && (
+        <SectionCard title="Förder-Übersicht" description="Liste der Förderprogramme mit Prozent-Quote (für den Förder-Kalkulator)." badge="Modul · Förderung">
+          <FundingEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+      {tpl === 'tradesman' && (
+        <SectionCard title="Notdienst-Banner" description="Sticky-Banner unten rechts mit 24/7-Hotline." badge="Modul · Notdienst">
+          <EmergencyBannerEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
       <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5">
         <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
       </SectionCard>
@@ -2082,4 +2139,369 @@ function defaultCta(t: TemplateKey) {
   if (t === 'medical') return { eyebrow: 'Bereit?', lead: 'Wir sind für Sie da.', sub: 'Online-Termin in unter zwei Minuten gebucht.', cta: 'Termin buchen', ctaHref: '/kontakt' };
   if (t === 'fitness') return { eyebrow: 'Bereit?', lead: 'Starten Sie heute.', sub: 'Probetraining gratis — wir freuen uns auf Sie.', cta: 'Probetraining sichern', ctaHref: '/kontakt' };
   return { eyebrow: 'Bereit?', lead: 'Etwas tropft?', sub: 'Wir melden uns binnen 24 h mit einem Festpreis-Angebot.', cta: 'Jetzt anfragen', ctaHref: '/kontakt' };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Phase 2 — Branch-specific module editors
+   Wired into ServicesPageEditor (conditional by tpl).
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ───── Restaurant: menu (categorised) ───── */
+type MenuItem = { name: string; description?: string; price?: string; allergens?: string; tags?: string[] };
+type MenuCategory = { category: string; description?: string; items: MenuItem[] };
+
+function MenuEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).menu as MenuCategory[] | undefined) ?? [];
+  const setList = (next: MenuCategory[]) => setData({ ...(data as any), menu: next } as SiteContent);
+  const setCat = (i: number, next: MenuCategory) => setList(list.map((x, j) => (j === i ? next : x)));
+  return (
+    <div className="space-y-4">
+      {list.map((cat, i) => (
+        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+          <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
+            <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{cat.category || 'Neue Kategorie'}</p>
+              <p className="text-xs text-muted truncate">{cat.items.length} Gerichte</p>
+            </div>
+            <span className="text-muted text-xs">▾</span>
+          </summary>
+          <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
+            <Field label="Kategorie">
+              <input className={inputCls} value={cat.category} onChange={(e) => setCat(i, { ...cat, category: e.target.value })} />
+            </Field>
+            <Field label="Kategorie-Beschreibung (optional)">
+              <input className={inputCls} value={cat.description || ''} onChange={(e) => setCat(i, { ...cat, description: e.target.value })} />
+            </Field>
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted mb-2">Gerichte</p>
+              <div className="space-y-2">
+                {cat.items.map((it, k) => (
+                  <div key={k} className="border border-line rounded-xl p-3 bg-white space-y-2">
+                    <div className="grid sm:grid-cols-[1fr_120px] gap-2">
+                      <input className={inputCls} placeholder="Name" value={it.name} onChange={(e) => setCat(i, { ...cat, items: cat.items.map((x, m) => m === k ? { ...x, name: e.target.value } : x) })} />
+                      <input className={inputCls} placeholder="Preis" value={it.price || ''} onChange={(e) => setCat(i, { ...cat, items: cat.items.map((x, m) => m === k ? { ...x, price: e.target.value } : x) })} />
+                    </div>
+                    <textarea className={inputCls} rows={2} placeholder="Beschreibung" value={it.description || ''} onChange={(e) => setCat(i, { ...cat, items: cat.items.map((x, m) => m === k ? { ...x, description: e.target.value } : x) })} />
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      <input className={inputCls} placeholder="Allergene (z. B. A, G, L)" value={it.allergens || ''} onChange={(e) => setCat(i, { ...cat, items: cat.items.map((x, m) => m === k ? { ...x, allergens: e.target.value } : x) })} />
+                      <input className={inputCls} placeholder="Tags (kommasepariert)" value={(it.tags || []).join(', ')} onChange={(e) => setCat(i, { ...cat, items: cat.items.map((x, m) => m === k ? { ...x, tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) } : x) })} />
+                    </div>
+                    <div className="flex justify-end">
+                      <button onClick={() => setCat(i, { ...cat, items: cat.items.filter((_, m) => m !== k) })} className="text-xs text-rose-600 hover:underline">Gericht entfernen</button>
+                    </div>
+                  </div>
+                ))}
+                <button onClick={() => setCat(i, { ...cat, items: [...cat.items, { name: '', description: '', price: '', allergens: '', tags: [] }] })} className="btn-outline !px-4 !py-2 text-sm">+ Gericht hinzufügen</button>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <button onClick={() => setList(list.filter((_, j) => j !== i))} className="text-xs text-rose-600 hover:underline">Kategorie entfernen</button>
+            </div>
+          </div>
+        </details>
+      ))}
+      <button onClick={() => setList([...list, { category: '', description: '', items: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Kategorie hinzufügen</button>
+    </div>
+  );
+}
+
+/* ───── Hotel: rooms ───── */
+type Room = { name: string; description?: string; size?: string; beds?: string; price?: string; imageUrl?: string; features?: string[] };
+
+function RoomsEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).rooms as Room[] | undefined) ?? [];
+  const setList = (next: Room[]) => setData({ ...(data as any), rooms: next } as SiteContent);
+  const update = (i: number, next: Room) => setList(list.map((x, j) => j === i ? next : x));
+  return (
+    <div className="space-y-3">
+      {list.map((r, i) => (
+        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+          <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
+            {r.imageUrl ? <img src={r.imageUrl} alt="" className="h-9 w-12 rounded object-cover" /> : <div className="h-9 w-12 rounded bg-[#eaeae3]" />}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{r.name || 'Neues Zimmer'}</p>
+              <p className="text-xs text-muted truncate">{[r.size, r.beds, r.price].filter(Boolean).join(' · ')}</p>
+            </div>
+            <span className="text-muted text-xs">▾</span>
+          </summary>
+          <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
+            <Field label="Name"><input className={inputCls} value={r.name} onChange={(e) => update(i, { ...r, name: e.target.value })} /></Field>
+            <Field label="Beschreibung"><textarea className={inputCls} rows={2} value={r.description || ''} onChange={(e) => update(i, { ...r, description: e.target.value })} /></Field>
+            <div className="grid sm:grid-cols-3 gap-2">
+              <input className={inputCls} placeholder="Größe (z. B. 32 m²)" value={r.size || ''} onChange={(e) => update(i, { ...r, size: e.target.value })} />
+              <input className={inputCls} placeholder="Betten (z. B. King)" value={r.beds || ''} onChange={(e) => update(i, { ...r, beds: e.target.value })} />
+              <input className={inputCls} placeholder="Preis (z. B. ab 180 €)" value={r.price || ''} onChange={(e) => update(i, { ...r, price: e.target.value })} />
+            </div>
+            <Field label="Ausstattung (kommasepariert)">
+              <input className={inputCls} value={(r.features || []).join(', ')} onChange={(e) => update(i, { ...r, features: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} />
+            </Field>
+            <ImagePickerField label="Bild" value={r.imageUrl || ''} onChange={(v) => update(i, { ...r, imageUrl: v })} />
+            <div className="flex justify-end"><button onClick={() => setList(list.filter((_, j) => j !== i))} className="text-xs text-rose-600 hover:underline">Zimmer entfernen</button></div>
+          </div>
+        </details>
+      ))}
+      <button onClick={() => setList([...list, { name: '', description: '', size: '', beds: '', price: '', imageUrl: '', features: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Zimmer hinzufügen</button>
+    </div>
+  );
+}
+
+/* ───── Tourism: tours ───── */
+type Tour = { name: string; description?: string; duration?: string; level?: string; groupSize?: string; price?: string; imageUrl?: string; languages?: string[] };
+
+function ToursEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).tours as Tour[] | undefined) ?? [];
+  const setList = (next: Tour[]) => setData({ ...(data as any), tours: next } as SiteContent);
+  const update = (i: number, next: Tour) => setList(list.map((x, j) => j === i ? next : x));
+  return (
+    <div className="space-y-3">
+      {list.map((t, i) => (
+        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+          <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
+            {t.imageUrl ? <img src={t.imageUrl} alt="" className="h-9 w-12 rounded object-cover" /> : <div className="h-9 w-12 rounded bg-[#eaeae3]" />}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{t.name || 'Neue Tour'}</p>
+              <p className="text-xs text-muted truncate">{[t.duration, t.level, t.price].filter(Boolean).join(' · ')}</p>
+            </div>
+            <span className="text-muted text-xs">▾</span>
+          </summary>
+          <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
+            <Field label="Name"><input className={inputCls} value={t.name} onChange={(e) => update(i, { ...t, name: e.target.value })} /></Field>
+            <Field label="Beschreibung"><textarea className={inputCls} rows={2} value={t.description || ''} onChange={(e) => update(i, { ...t, description: e.target.value })} /></Field>
+            <div className="grid sm:grid-cols-2 gap-2">
+              <input className={inputCls} placeholder="Dauer (z. B. 4 Std.)" value={t.duration || ''} onChange={(e) => update(i, { ...t, duration: e.target.value })} />
+              <input className={inputCls} placeholder='Level (z. B. "2/4 mittel")' value={t.level || ''} onChange={(e) => update(i, { ...t, level: e.target.value })} />
+              <input className={inputCls} placeholder="Gruppengröße" value={t.groupSize || ''} onChange={(e) => update(i, { ...t, groupSize: e.target.value })} />
+              <input className={inputCls} placeholder="Preis" value={t.price || ''} onChange={(e) => update(i, { ...t, price: e.target.value })} />
+            </div>
+            <Field label="Sprachen (kommasepariert)">
+              <input className={inputCls} value={(t.languages || []).join(', ')} onChange={(e) => update(i, { ...t, languages: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} />
+            </Field>
+            <ImagePickerField label="Bild" value={t.imageUrl || ''} onChange={(v) => update(i, { ...t, imageUrl: v })} />
+            <div className="flex justify-end"><button onClick={() => setList(list.filter((_, j) => j !== i))} className="text-xs text-rose-600 hover:underline">Tour entfernen</button></div>
+          </div>
+        </details>
+      ))}
+      <button onClick={() => setList([...list, { name: '', description: '', duration: '', level: '', groupSize: '', price: '', imageUrl: '', languages: [] }])} className="btn-outline !px-4 !py-2 text-sm">+ Tour hinzufügen</button>
+    </div>
+  );
+}
+
+/* ───── Salon: treatments ───── */
+type Treatment = { name: string; description?: string; duration?: string; price?: string; category?: string };
+
+function TreatmentsEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).treatments as Treatment[] | undefined) ?? [];
+  const setList = (next: Treatment[]) => setData({ ...(data as any), treatments: next } as SiteContent);
+  return (
+    <RepeatableList items={list} onChange={setList} addLabel="+ Behandlung hinzufügen"
+      newItem={() => ({ name: '', description: '', duration: '', price: '', category: '' })}
+      render={(v, _i, set) => (
+        <div className="grid sm:grid-cols-2 gap-2 flex-1">
+          <input className={inputCls} placeholder="Kategorie (z. B. Hair – Color)" value={v.category || ''} onChange={(e) => set({ ...v, category: e.target.value })} />
+          <input className={inputCls} placeholder="Name" value={v.name} onChange={(e) => set({ ...v, name: e.target.value })} />
+          <input className={inputCls} placeholder="Dauer (z. B. 60 min)" value={v.duration || ''} onChange={(e) => set({ ...v, duration: e.target.value })} />
+          <input className={inputCls} placeholder="Preis (z. B. ab 75 €)" value={v.price || ''} onChange={(e) => set({ ...v, price: e.target.value })} />
+          <input className={inputCls + ' sm:col-span-2'} placeholder="Beschreibung (optional)" value={v.description || ''} onChange={(e) => set({ ...v, description: e.target.value })} />
+        </div>
+      )}
+    />
+  );
+}
+
+/* ───── Fitness: courses ───── */
+type Course = { name: string; description?: string; schedule?: string; level?: string; duration?: string; trainer?: string; price?: string };
+
+function CoursesEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).courses as Course[] | undefined) ?? [];
+  const setList = (next: Course[]) => setData({ ...(data as any), courses: next } as SiteContent);
+  return (
+    <RepeatableList items={list} onChange={setList} addLabel="+ Kurs hinzufügen"
+      newItem={() => ({ name: '', description: '', schedule: '', level: '', duration: '', trainer: '', price: '' })}
+      render={(v, _i, set) => (
+        <div className="grid sm:grid-cols-2 gap-2 flex-1">
+          <input className={inputCls} placeholder="Name" value={v.name} onChange={(e) => set({ ...v, name: e.target.value })} />
+          <input className={inputCls} placeholder="Zeitplan (Mo 18:00 · Mi 19:30)" value={v.schedule || ''} onChange={(e) => set({ ...v, schedule: e.target.value })} />
+          <input className={inputCls} placeholder="Level" value={v.level || ''} onChange={(e) => set({ ...v, level: e.target.value })} />
+          <input className={inputCls} placeholder="Dauer (60 min)" value={v.duration || ''} onChange={(e) => set({ ...v, duration: e.target.value })} />
+          <input className={inputCls} placeholder="Trainer:in" value={v.trainer || ''} onChange={(e) => set({ ...v, trainer: e.target.value })} />
+          <input className={inputCls} placeholder="Preis" value={v.price || ''} onChange={(e) => set({ ...v, price: e.target.value })} />
+          <input className={inputCls + ' sm:col-span-2'} placeholder="Beschreibung (optional)" value={v.description || ''} onChange={(e) => set({ ...v, description: e.target.value })} />
+        </div>
+      )}
+    />
+  );
+}
+
+/* ───── Fitness/Consulting: packages ───── */
+type Pkg = { name: string; price: string; period?: string; description?: string; features?: string[]; highlight?: boolean; ctaLabel?: string; ctaHref?: string };
+
+function PackagesEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).packages as Pkg[] | undefined) ?? [];
+  const setList = (next: Pkg[]) => setData({ ...(data as any), packages: next } as SiteContent);
+  const update = (i: number, next: Pkg) => setList(list.map((x, j) => j === i ? next : x));
+  return (
+    <div className="space-y-3">
+      {list.map((p, i) => (
+        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+          <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
+            <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{p.name || 'Neues Paket'}{p.highlight && <span className="ml-2 text-[10px] uppercase bg-brand text-white rounded-full px-2 py-0.5">Highlight</span>}</p>
+              <p className="text-xs text-muted truncate">{[p.price, p.period].filter(Boolean).join(' ')}</p>
+            </div>
+            <span className="text-muted text-xs">▾</span>
+          </summary>
+          <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
+            <div className="grid sm:grid-cols-2 gap-2">
+              <input className={inputCls} placeholder="Paket-Name" value={p.name} onChange={(e) => update(i, { ...p, name: e.target.value })} />
+              <input className={inputCls} placeholder="Preis (z. B. 89 €)" value={p.price} onChange={(e) => update(i, { ...p, price: e.target.value })} />
+              <input className={inputCls} placeholder="Periode (z. B. / Monat)" value={p.period || ''} onChange={(e) => update(i, { ...p, period: e.target.value })} />
+              <input className={inputCls} placeholder="Kurzbeschreibung" value={p.description || ''} onChange={(e) => update(i, { ...p, description: e.target.value })} />
+            </div>
+            <Field label="Features (eine pro Zeile)">
+              <textarea className={inputCls} rows={4} value={(p.features || []).join('\n')} onChange={(e) => update(i, { ...p, features: e.target.value.split('\n').map((s) => s.trim()).filter(Boolean) })} />
+            </Field>
+            <div className="grid sm:grid-cols-2 gap-2">
+              <input className={inputCls} placeholder="CTA-Label (z. B. Jetzt buchen)" value={p.ctaLabel || ''} onChange={(e) => update(i, { ...p, ctaLabel: e.target.value })} />
+              <input className={inputCls} placeholder="CTA-Ziel (z. B. /kontakt)" value={p.ctaHref || ''} onChange={(e) => update(i, { ...p, ctaHref: e.target.value })} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Toggle value={!!p.highlight} onChange={(v) => update(i, { ...p, highlight: v })} label="Als Highlight markieren" />
+              <button onClick={() => setList(list.filter((_, j) => j !== i))} className="text-xs text-rose-600 hover:underline">Paket entfernen</button>
+            </div>
+          </div>
+        </details>
+      ))}
+      <button onClick={() => setList([...list, { name: '', price: '', period: '', description: '', features: [], highlight: false, ctaLabel: '', ctaHref: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Paket hinzufügen</button>
+    </div>
+  );
+}
+
+/* ───── Consulting: process steps ───── */
+type Step = { title: string; description?: string; duration?: string };
+
+function ProcessStepsEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).processSteps as Step[] | undefined) ?? [];
+  const setList = (next: Step[]) => setData({ ...(data as any), processSteps: next } as SiteContent);
+  return (
+    <RepeatableList items={list} onChange={setList} addLabel="+ Schritt hinzufügen"
+      newItem={() => ({ title: '', description: '', duration: '' })}
+      render={(v, i, set) => (
+        <div className="grid sm:grid-cols-[80px_1fr_120px] gap-2 flex-1 items-start">
+          <span className="font-mono text-xs text-muted self-center">Schritt {i + 1}</span>
+          <input className={inputCls} placeholder="Titel" value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} />
+          <input className={inputCls} placeholder="Dauer (z. B. 1 Wo.)" value={v.duration || ''} onChange={(e) => set({ ...v, duration: e.target.value })} />
+          <textarea className={inputCls + ' sm:col-span-3'} rows={2} placeholder="Beschreibung" value={v.description || ''} onChange={(e) => set({ ...v, description: e.target.value })} />
+        </div>
+      )}
+    />
+  );
+}
+
+/* ───── Medical: doctors ───── */
+type Doctor = { name: string; role?: string; specialty?: string; imageUrl?: string; bio?: string };
+
+function DoctorsEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).doctors as Doctor[] | undefined) ?? [];
+  const setList = (next: Doctor[]) => setData({ ...(data as any), doctors: next } as SiteContent);
+  const update = (i: number, next: Doctor) => setList(list.map((x, j) => j === i ? next : x));
+  return (
+    <div className="space-y-3">
+      {list.map((d, i) => (
+        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+          <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
+            {d.imageUrl ? <img src={d.imageUrl} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-[#eaeae3]" />}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{d.name || 'Neuer Eintrag'}</p>
+              <p className="text-xs text-muted truncate">{[d.role, d.specialty].filter(Boolean).join(' · ')}</p>
+            </div>
+            <span className="text-muted text-xs">▾</span>
+          </summary>
+          <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
+            <div className="grid sm:grid-cols-2 gap-2">
+              <input className={inputCls} placeholder="Name (z. B. Dr. med. …)" value={d.name} onChange={(e) => update(i, { ...d, name: e.target.value })} />
+              <input className={inputCls} placeholder="Rolle (z. B. Praxisinhaberin)" value={d.role || ''} onChange={(e) => update(i, { ...d, role: e.target.value })} />
+            </div>
+            <Field label="Fachgebiet"><input className={inputCls} value={d.specialty || ''} onChange={(e) => update(i, { ...d, specialty: e.target.value })} /></Field>
+            <Field label="Kurzbio"><textarea className={inputCls} rows={2} value={d.bio || ''} onChange={(e) => update(i, { ...d, bio: e.target.value })} /></Field>
+            <ImagePickerField label="Foto" value={d.imageUrl || ''} onChange={(v) => update(i, { ...d, imageUrl: v })} />
+            <div className="flex justify-end"><button onClick={() => setList(list.filter((_, j) => j !== i))} className="text-xs text-rose-600 hover:underline">Eintrag entfernen</button></div>
+          </div>
+        </details>
+      ))}
+      <button onClick={() => setList([...list, { name: '', role: '', specialty: '', imageUrl: '', bio: '' }])} className="btn-outline !px-4 !py-2 text-sm">+ Person hinzufügen</button>
+    </div>
+  );
+}
+
+/* ───── Medical: booking config ───── */
+type Booking = { enabled?: boolean; provider?: string; url?: string; embedUrl?: string; note?: string };
+
+function BookingEditor({ data, setData }: SetterProps) {
+  const v: Booking = ((data as any).booking as Booking | undefined) ?? {};
+  const set = (next: Booking) => setData({ ...(data as any), booking: next } as SiteContent);
+  return (
+    <div className="space-y-3">
+      <Toggle value={!!v.enabled} onChange={(b) => set({ ...v, enabled: b })} label="Online-Termin-Modul aktiv" />
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field label="Anbieter">
+          <select className={inputCls} value={v.provider || ''} onChange={(e) => set({ ...v, provider: e.target.value })}>
+            <option value="">— wählen —</option>
+            <option value="Doctolib">Doctolib</option>
+            <option value="jameda">jameda</option>
+            <option value="TIMIFY">TIMIFY</option>
+            <option value="Calendly">Calendly</option>
+            <option value="Custom">Andere</option>
+          </select>
+        </Field>
+        <Field label="Profil-URL (für CTA)"><input className={inputCls} placeholder="https://www.doctolib.de/…" value={v.url || ''} onChange={(e) => set({ ...v, url: e.target.value })} /></Field>
+      </div>
+      <Field label="Embed-URL (optional)" hint="Wenn gesetzt wird ein Iframe eingebettet statt eines CTA-Buttons.">
+        <input className={inputCls} value={v.embedUrl || ''} onChange={(e) => set({ ...v, embedUrl: e.target.value })} />
+      </Field>
+      <Field label="Hinweistext (optional)"><textarea className={inputCls} rows={2} value={v.note || ''} onChange={(e) => set({ ...v, note: e.target.value })} /></Field>
+    </div>
+  );
+}
+
+/* ───── Tradesman: funding items ───── */
+type FundingItem = { title: string; description?: string; percent?: string; program?: string };
+
+function FundingEditor({ data, setData }: SetterProps) {
+  const list = ((data as any).fundingItems as FundingItem[] | undefined) ?? [];
+  const setList = (next: FundingItem[]) => setData({ ...(data as any), fundingItems: next } as SiteContent);
+  return (
+    <RepeatableList items={list} onChange={setList} addLabel="+ Förderung hinzufügen"
+      newItem={() => ({ title: '', description: '', percent: '', program: '' })}
+      render={(v, _i, set) => (
+        <div className="grid sm:grid-cols-2 gap-2 flex-1">
+          <input className={inputCls} placeholder="Titel (z. B. Heizungstausch)" value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} />
+          <input className={inputCls} placeholder="Programm (z. B. KfW 458)" value={v.program || ''} onChange={(e) => set({ ...v, program: e.target.value })} />
+          <input className={inputCls} placeholder="Prozent (z. B. 35 %)" value={v.percent || ''} onChange={(e) => set({ ...v, percent: e.target.value })} />
+          <input className={inputCls} placeholder="Beschreibung" value={v.description || ''} onChange={(e) => set({ ...v, description: e.target.value })} />
+        </div>
+      )}
+    />
+  );
+}
+
+/* ───── Tradesman: emergency banner ───── */
+type EmergencyBanner = { enabled?: boolean; text?: string; phone?: string; sticky?: boolean };
+
+function EmergencyBannerEditor({ data, setData }: SetterProps) {
+  const v: EmergencyBanner = ((data as any).emergencyBanner as EmergencyBanner | undefined) ?? {};
+  const set = (next: EmergencyBanner) => setData({ ...(data as any), emergencyBanner: next } as SiteContent);
+  return (
+    <div className="space-y-3">
+      <Toggle value={!!v.enabled} onChange={(b) => set({ ...v, enabled: b })} label="Notdienst-Banner anzeigen" />
+      <Field label="Text" hint="Erscheint im Banner neben der Telefonnummer.">
+        <input className={inputCls} placeholder="24 h Notdienst" value={v.text || ''} onChange={(e) => set({ ...v, text: e.target.value })} />
+      </Field>
+      <Field label="Telefonnummer">
+        <input className={inputCls} placeholder="+49 …" value={v.phone || ''} onChange={(e) => set({ ...v, phone: e.target.value })} />
+      </Field>
+      <Toggle value={v.sticky !== false} onChange={(b) => set({ ...v, sticky: b })} label="Sticky (unten rechts beim Scrollen einblenden)" />
+    </div>
+  );
 }
