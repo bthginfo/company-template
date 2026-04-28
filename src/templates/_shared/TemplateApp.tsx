@@ -285,7 +285,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
       {/* Marquee word strip */}
       <div className="bg-brand text-white py-6 border-y border-white/10">
         <Marquee speed="slow">
-          {marqueeWordsFor(variant).concat(marqueeWordsFor(variant)).map((w, i) => (
+          {marqueeWordsFor(variant, content).concat(marqueeWordsFor(variant, content)).map((w, i) => (
             <span key={i} className="inline-flex items-center gap-6 font-display text-3xl md:text-4xl whitespace-nowrap">
               <span>{w}</span><span className="text-[var(--accent-color)]">✦</span>
             </span>
@@ -336,7 +336,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
 
       {/* Gallery teaser - branch-specific */}
       {featuredGallery.length > 0 && (
-        <Section eyebrow={variant === 'tradesman' ? 'Referenzen' : 'Eindrücke'} title={galleryTeaserTitle(variant)} spacing="lg">
+        <Section eyebrow={variant === 'tradesman' ? 'Referenzen' : 'Eindrücke'} title={galleryTeaserTitle(variant, content)} spacing="lg">
           <GalleryShowcase variant={variant} images={featuredGallery} mode="teaser" />
           <div className="mt-12 reveal">
             <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">{variant === 'tradesman' ? 'Alle Projekte' : 'Komplette Galerie'} <span aria-hidden>→</span></TLink>
@@ -346,7 +346,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
 
       {/* Testimonials */}
       {content.testimonials.length > 0 && (
-        <Section eyebrow="Stimmen" title={<>Was unsere Kund<em className="italic-pop">:innen sagen.</em></>} className="surface">
+        <Section eyebrow={(content as any).branchText?.testimonialsEyebrow || 'Stimmen'} title={(content as any).branchText?.testimonialsTitle ? splitTitle((content as any).branchText.testimonialsTitle) : <>Was unsere Kund<em className="italic-pop">:innen sagen.</em></>} className="surface">
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
             {content.testimonials.slice(0, 3).map((t, i) => (
               <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
@@ -358,6 +358,8 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
           </div>
         </Section>
       )}
+
+      <NewsPreview content={content} />
 
       {/* CTA */}
       <CtaBand variant={variant} />
@@ -468,7 +470,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
 
       {/* Gallery teaser – clean grid */}
       {featuredGallery.length > 0 && (
-        <Section eyebrow="Galerie" title={galleryTeaserTitle(variant)} className="surface">
+        <Section eyebrow="Galerie" title={galleryTeaserTitle(variant, content)} className="surface">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
             {featuredGallery.map((src, i) => (
               <div key={i} className="aspect-square overflow-hidden rounded-xl img-zoom">
@@ -493,10 +495,10 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       <section className="py-24 surface">
         <div className="container-x">
           <div className="rounded-3xl bg-white border border-line p-10 md:p-14 text-center reveal">
-            <p className="eyebrow justify-center mb-4">Bereit?</p>
-            <h2 className="headline-lg">Lassen Sie uns sprechen.</h2>
-            <p className="mt-5 text-muted max-w-xl mx-auto">Kostenloses Erstgespräch – unverbindlich, persönlich.</p>
-            <TLink to="/kontakt" className="btn-primary mt-8">Termin vereinbaren <span aria-hidden>→</span></TLink>
+            <p className="eyebrow justify-center mb-4">{(content as any).branchText?.softCtaEyebrow || 'Bereit?'}</p>
+            <h2 className="headline-lg">{(content as any).branchText?.softCtaTitle || 'Lassen Sie uns sprechen.'}</h2>
+            <p className="mt-5 text-muted max-w-xl mx-auto">{(content as any).branchText?.softCtaText || 'Kostenloses Erstgespräch – unverbindlich, persönlich.'}</p>
+            <TLink to="/kontakt" className="btn-primary mt-8">{(content as any).branchText?.softCtaButton || 'Termin vereinbaren'} <span aria-hidden>→</span></TLink>
           </div>
         </div>
       </section>
@@ -523,7 +525,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         </div>
         <div className="mt-6">
           <Marquee speed="fast">
-            {marqueeWordsFor(variant).concat(marqueeWordsFor(variant)).map((w, i) => (
+            {marqueeWordsFor(variant, content).concat(marqueeWordsFor(variant, content)).map((w, i) => (
               <span key={i} className="inline-flex items-center gap-8 font-display text-5xl md:text-7xl whitespace-nowrap">
                 <span className="text-brand">{w}</span><span className="text-[var(--accent-color)]">●</span>
               </span>
@@ -543,11 +545,12 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
       <section className="py-24 md:py-36">
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-5 md:col-start-2">
-            <p className="eyebrow mb-5 reveal">Manifest</p>
+            <p className="eyebrow mb-5 reveal">{(content as any).branchText?.manifestEyebrow || 'Manifest'}</p>
             <h2 className="font-display text-5xl md:text-6xl leading-[0.95] reveal">
-              {variant === 'restaurant' ? <>Italianità.<br /><em className="italic-pop">Ohne Kompromisse.</em></>
-                : variant === 'salon' ? <>Schönheit ist<br /><em className="italic-pop">Handwerk.</em></>
-                  : <>Handwerk ist<br /><em className="italic-pop">Vertrauen.</em></>}
+              {(content as any).branchText?.manifestTitle ? splitTitle((content as any).branchText.manifestTitle)
+                : variant === 'restaurant' ? <>Italianità.<br /><em className="italic-pop">Ohne Kompromisse.</em></>
+                  : variant === 'salon' ? <>Schönheit ist<br /><em className="italic-pop">Handwerk.</em></>
+                    : <>Handwerk ist<br /><em className="italic-pop">Vertrauen.</em></>}
             </h2>
           </div>
           <div className="md:col-span-5 md:pt-14 reveal">
@@ -592,7 +595,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
             <div className="flex items-end justify-between gap-6 mb-12">
               <div>
                 <p className="eyebrow mb-4">Galerie</p>
-                <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant)}</h2>
+                <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, content)}</h2>
               </div>
               <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="link-underline hidden md:inline-flex">Alle Bilder <span aria-hidden>→</span></TLink>
             </div>
@@ -1036,7 +1039,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
       {variant === 'restaurant' && <PressSection />}
 
       {content.testimonials.length > 0 && (
-        <Section eyebrow="Stimmen" title={<>Was unsere Kund<em className="italic-pop">:innen sagen.</em></>} className="surface">
+        <Section eyebrow={(content as any).branchText?.testimonialsEyebrow || 'Stimmen'} title={(content as any).branchText?.testimonialsTitle ? splitTitle((content as any).branchText.testimonialsTitle) : <>Was unsere Kund<em className="italic-pop">:innen sagen.</em></>} className="surface">
           <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
             {content.testimonials.map((t, i) => (
               <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
@@ -1360,7 +1363,9 @@ function splitTitle(t: string): React.ReactNode {
   );
 }
 
-function teaserSubtitleFor(v: TemplateVariant) {
+function teaserSubtitleFor(v: TemplateVariant, content?: SiteContent) {
+  const override = (content as any)?.branchText?.teaserSubtitle as string | undefined;
+  if (override && override.trim()) return override;
   if (v === 'restaurant') return 'Hausgemachte Pasta, Holzofen-Pizza und ein wechselndes Tagesgericht. Saisonal, ehrlich, ohne Kompromisse.';
   if (v === 'salon') return 'Schnitt, Farbe, Pflege und Beauty – mit ehrlicher Beratung und hochwertigen Produkten.';
   if (v === 'hotel') return 'Zimmer mit Bergblick, ein Spa zum Abschalten und ein Restaurant, in das wir selbst gerne gehen würden.';
@@ -1369,16 +1374,18 @@ function teaserSubtitleFor(v: TemplateVariant) {
 }
 
 function subtitleFor(v: TemplateVariant, content: SiteContent): string {
-  return (content.hero?.subtitle && content.hero.subtitle.trim()) || teaserSubtitleFor(v);
+  return (content.hero?.subtitle && content.hero.subtitle.trim()) || teaserSubtitleFor(v, content);
 }
 
 function heroBodyFor(v: TemplateVariant, content: SiteContent): string {
   const body = (content.hero as any)?.body as string | undefined;
   if (body && body.trim()) return body;
-  return teaserSubtitleFor(v);
+  return teaserSubtitleFor(v, content);
 }
 
-function marqueeWordsFor(v: TemplateVariant): string[] {
+function marqueeWordsFor(v: TemplateVariant, content?: SiteContent): string[] {
+  const override = (content as any)?.branchText?.marqueeWords as string[] | undefined;
+  if (override && override.filter(Boolean).length > 0) return override.filter(Boolean);
   if (v === 'restaurant') return ['Pasta fresca', 'Holzofen-Pizza', 'Naturweine', 'Antipasti', 'Tiramisu della Nonna', 'Tartufo nero'];
   if (v === 'salon') return ['Hair', 'Skin', 'Soul', 'Balayage', 'Bridal', 'Spa', 'Treatment'];
   if (v === 'hotel') return ['Bergblick', 'Spa & Sauna', 'Frühstück', 'Bibliothek', 'Wandern', 'Lounge', 'Sonnenterrasse'];
@@ -1386,7 +1393,9 @@ function marqueeWordsFor(v: TemplateVariant): string[] {
   return ['Notdienst 24/7', 'Festpreis-Garantie', 'Meisterbetrieb', 'KfW-Förderung', 'Smart Home', 'Wärmepumpe'];
 }
 
-function galleryTeaserTitle(v: TemplateVariant): React.ReactNode {
+function galleryTeaserTitle(v: TemplateVariant, content?: SiteContent): React.ReactNode {
+  const override = (content as any)?.branchText?.galleryTeaserTitle as string | undefined;
+  if (override && override.trim()) return splitTitle(override);
   if (v === 'restaurant') return <>Bilder, die <em className="italic-pop">erzählen.</em></>;
   if (v === 'salon') return <>Looks aus dem <em className="italic-pop">Studio.</em></>;
   if (v === 'hotel') return <>Eindrücke aus dem <em className="italic-pop">Haus.</em></>;

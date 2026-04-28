@@ -483,7 +483,18 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <TestimonialsEditor data={data} setData={setData} max={3} />
       </SectionCard>
 
-      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der Aufruf am Seitenende." badge="Sektion 8">
+      <SectionCard title="News-Teaser" description="Die 3 neuesten veröffentlichten Beiträge erscheinen auf der Startseite." badge="Sektion 8">
+        <p className="text-xs text-muted">
+          Beiträge anlegen und bearbeiten Sie unter <strong>News &amp; Blog</strong> in der Seitenleiste. Hier sehen Sie nur, welche aktuell auf der Startseite landen.
+        </p>
+        <NewsHomePreview data={data} />
+      </SectionCard>
+
+      <SectionCard title="Branchen-Texte" description="Überschreiben Sie die mitgelieferten Standard-Texte (Marquee, Manifest, Galerie-Titel, …). Leer lassen = Standardtext der Branche/Stilkombination wird verwendet." badge="Sektion 9">
+        <BranchTextEditor data={data} setData={setData} tpl={tpl} />
+      </SectionCard>
+
+      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der Aufruf am Seitenende." badge="Sektion 10">
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
     </>
@@ -872,7 +883,142 @@ function ScriptsPage({ data, setData }: SetterProps) {
   );
 }
 
+/* ─── Branchen-Texte editor (variant copy overrides) ──────────── */
+
+function branchTextDefaults(tpl: TemplateKey) {
+  const v = tpl;
+  const teaserSubtitle =
+    v === 'restaurant' ? 'Hausgemachte Pasta, Holzofen-Pizza und ein wechselndes Tagesgericht. Saisonal, ehrlich, ohne Kompromisse.'
+    : v === 'salon' ? 'Schnitt, Farbe, Pflege und Beauty – mit ehrlicher Beratung und hochwertigen Produkten.'
+    : v === 'hotel' ? 'Zimmer mit Bergblick, ein Spa zum Abschalten und ein Restaurant, in das wir selbst gerne gehen würden.'
+    : v === 'tourism' ? 'Geführte Touren für alle, die Tirol mehr als nur sehen wollen – klein, persönlich, authentisch.'
+    : 'Vom kleinen Notfall bis zur Großsanierung. Festpreis, Meisterprüfung, transparente Kommunikation.';
+  const marqueeWords =
+    v === 'restaurant' ? ['Pasta fresca', 'Holzofen-Pizza', 'Naturweine', 'Antipasti', 'Tiramisu della Nonna', 'Tartufo nero']
+    : v === 'salon' ? ['Hair', 'Skin', 'Soul', 'Balayage', 'Bridal', 'Spa', 'Treatment']
+    : v === 'hotel' ? ['Bergblick', 'Spa & Sauna', 'Frühstück', 'Bibliothek', 'Wandern', 'Lounge', 'Sonnenterrasse']
+    : v === 'tourism' ? ['Berg', 'Tal', 'Wein', 'Geschichte', 'Foto', 'Hütte', 'Sonnenaufgang', 'Sterne']
+    : ['Notdienst 24/7', 'Festpreis-Garantie', 'Meisterbetrieb', 'KfW-Förderung', 'Smart Home', 'Wärmepumpe'];
+  const galleryTeaserTitle =
+    v === 'restaurant' ? 'Bilder, die erzählen.'
+    : v === 'salon' ? 'Looks aus dem Studio.'
+    : v === 'hotel' ? 'Eindrücke aus dem Haus.'
+    : v === 'tourism' ? 'Momente aus den Bergen.'
+    : 'Projekte aus der Werkstatt.';
+  return {
+    teaserSubtitle,
+    marqueeWords,
+    galleryTeaserTitle,
+    testimonialsEyebrow: 'Stimmen',
+    testimonialsTitle: 'Was unsere Kund:innen sagen.',
+    manifestEyebrow: 'Manifest',
+    manifestTitle:
+      v === 'restaurant' ? 'Italianità, ehrlich gelebt.'
+      : v === 'salon' ? 'Schönheit, ehrlich gemeint.'
+      : 'Handwerk, ehrlich geliefert.',
+    softCtaEyebrow: 'Bereit?',
+    softCtaTitle: 'Lassen Sie uns sprechen.',
+    softCtaText: 'Kostenloses Erstgespräch – unverbindlich, persönlich.',
+    softCtaButton: 'Termin vereinbaren',
+  };
+}
+
+function BranchTextEditor({ data, setData, tpl }: SectionProps) {
+  const bt = ((data as any).branchText ?? {}) as Record<string, any>;
+  const def = branchTextDefaults(tpl);
+  const update = (patch: Record<string, any>) => {
+    setData({ ...(data as any), branchText: { ...bt, ...patch } } as SiteContent);
+  };
+  const marqueeStr = Array.isArray(bt.marqueeWords) ? bt.marqueeWords.join(', ') : '';
+  return (
+    <div className="grid gap-4">
+      <Field label="Hero-Untertitel (Branchen-Standard)" hint={`Standard: ${def.teaserSubtitle}`}>
+        <textarea
+          className={inputCls}
+          rows={2}
+          value={bt.teaserSubtitle ?? ''}
+          onChange={(e) => update({ teaserSubtitle: e.target.value })}
+          placeholder={def.teaserSubtitle}
+        />
+      </Field>
+      <Field label="Marquee / Laufband-Wörter (kommagetrennt)" hint={`Standard: ${def.marqueeWords.join(', ')}`}>
+        <input
+          className={inputCls}
+          value={marqueeStr}
+          onChange={(e) => {
+            const arr = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
+            update({ marqueeWords: arr });
+          }}
+          placeholder={def.marqueeWords.join(', ')}
+        />
+      </Field>
+      <Field label="Galerie-Teaser-Titel" hint={`Standard: ${def.galleryTeaserTitle} – die zweite Hälfte wird automatisch kursiv.`}>
+        <input
+          className={inputCls}
+          value={bt.galleryTeaserTitle ?? ''}
+          onChange={(e) => update({ galleryTeaserTitle: e.target.value })}
+          placeholder={def.galleryTeaserTitle}
+        />
+      </Field>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Testimonials Eyebrow" hint={`Standard: ${def.testimonialsEyebrow}`}>
+          <input className={inputCls} value={bt.testimonialsEyebrow ?? ''} onChange={(e) => update({ testimonialsEyebrow: e.target.value })} placeholder={def.testimonialsEyebrow} />
+        </Field>
+        <Field label="Testimonials Titel" hint={`Standard: ${def.testimonialsTitle}`}>
+          <input className={inputCls} value={bt.testimonialsTitle ?? ''} onChange={(e) => update({ testimonialsTitle: e.target.value })} placeholder={def.testimonialsTitle} />
+        </Field>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Manifest Eyebrow" hint={`Standard: ${def.manifestEyebrow}`}>
+          <input className={inputCls} value={bt.manifestEyebrow ?? ''} onChange={(e) => update({ manifestEyebrow: e.target.value })} placeholder={def.manifestEyebrow} />
+        </Field>
+        <Field label="Manifest Titel" hint={`Standard: ${def.manifestTitle}`}>
+          <input className={inputCls} value={bt.manifestTitle ?? ''} onChange={(e) => update({ manifestTitle: e.target.value })} placeholder={def.manifestTitle} />
+        </Field>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Soft-CTA Eyebrow" hint={`Standard: ${def.softCtaEyebrow}`}>
+          <input className={inputCls} value={bt.softCtaEyebrow ?? ''} onChange={(e) => update({ softCtaEyebrow: e.target.value })} placeholder={def.softCtaEyebrow} />
+        </Field>
+        <Field label="Soft-CTA Titel" hint={`Standard: ${def.softCtaTitle}`}>
+          <input className={inputCls} value={bt.softCtaTitle ?? ''} onChange={(e) => update({ softCtaTitle: e.target.value })} placeholder={def.softCtaTitle} />
+        </Field>
+      </div>
+      <Field label="Soft-CTA Text" hint={`Standard: ${def.softCtaText}`}>
+        <input className={inputCls} value={bt.softCtaText ?? ''} onChange={(e) => update({ softCtaText: e.target.value })} placeholder={def.softCtaText} />
+      </Field>
+      <Field label="Soft-CTA Button-Beschriftung" hint={`Standard: ${def.softCtaButton}`}>
+        <input className={inputCls} value={bt.softCtaButton ?? ''} onChange={(e) => update({ softCtaButton: e.target.value })} placeholder={def.softCtaButton} />
+      </Field>
+    </div>
+  );
+}
+
 /* ─── News / Blog editor (CRUD) ─────────────────────────────── */
+
+function NewsHomePreview({ data }: { data: SiteContent }) {
+  const list = (((data as any).posts as any[] | undefined) ?? [])
+    .filter((p) => p && p.published !== false && (p.title || p.body || p.bodyHtml))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .slice(0, 3);
+  if (list.length === 0) {
+    return <p className="text-xs text-muted">Aktuell keine veröffentlichten Beiträge – die Sektion bleibt auf der Website ausgeblendet.</p>;
+  }
+  return (
+    <ul className="grid sm:grid-cols-3 gap-3">
+      {list.map((p) => (
+        <li key={p.id} className="border border-line rounded-xl overflow-hidden bg-white">
+          {p.imageUrl && <img src={p.imageUrl} alt="" className="aspect-[16/10] w-full object-cover" />}
+          <div className="p-3">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted">{p.date}</p>
+            <p className="text-sm font-medium line-clamp-2 mt-1">{p.title}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function slugify(s: string): string {
   return s
     .toLowerCase()
@@ -893,16 +1039,23 @@ function NewsPage({ data, setData }: SetterProps) {
   };
   const add = () => {
     const today = new Date().toISOString().slice(0, 10);
+    const initialTitle = 'Neuer Beitrag';
+    const baseSlug = slugify(initialTitle);
+    const existing = new Set(list.map((p) => p.slug));
+    let slug = baseSlug;
+    let n = 2;
+    while (existing.has(slug)) { slug = `${baseSlug}-${n++}`; }
     setList([
       {
         id: 'p_' + Math.random().toString(36).slice(2, 9),
-        title: 'Neuer Beitrag',
-        slug: 'neuer-beitrag-' + Date.now(),
+        title: initialTitle,
+        slug,
         date: today,
         excerpt: '',
         body: '',
+        bodyHtml: '',
         imageUrl: '',
-        published: false,
+        published: true,
       },
       ...list,
     ]);

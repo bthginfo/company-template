@@ -51,10 +51,10 @@
   font-weight: 700;
 }
 .showcase-root .italic-pop {
-  font-family: 'Fraunces', 'Instrument Serif', serif;
+  font-family: 'Newsreader', 'Instrument Serif', serif;
   font-style: italic;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-weight: 400;
+  letter-spacing: -0.005em;
 }
 .showcase-root .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 

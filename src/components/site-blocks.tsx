@@ -121,7 +121,7 @@ export function SiteHeader({
                 {n.label}
               </NavLink>
             ))}
-            <Link to={`${basePath}/kontakt`} className="ml-4 btn-accent !py-2.5 !px-5 text-sm">
+            <Link to={`${basePath}/kontakt`} className="ml-4 btn-primary !py-2.5 !px-5 text-sm">
               Termin <span aria-hidden>→</span>
             </Link>
           </nav>
@@ -162,7 +162,7 @@ export function SiteHeader({
                   {n.label}
                 </NavLink>
               ))}
-              <Link to={`${basePath}/kontakt`} className="btn-accent mt-10 self-start">
+              <Link to={`${basePath}/kontakt`} className="btn-primary mt-10 self-start">
                 Termin anfragen <span aria-hidden>→</span>
               </Link>
             </nav>

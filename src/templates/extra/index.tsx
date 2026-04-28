@@ -778,7 +778,7 @@ function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraSty
               </NavLink>
             ))}
           </nav>
-          <NavLink to={withBase(basePath, '/kontakt')} className="hidden md:inline-flex btn-accent !py-2.5 !px-5 text-sm">
+          <NavLink to={withBase(basePath, '/kontakt')} className="hidden md:inline-flex btn-primary !py-2.5 !px-5 text-sm">
             {content.hero.ctaLabel || 'Termin'} <span aria-hidden>→</span>
           </NavLink>
           <button

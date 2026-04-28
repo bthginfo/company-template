@@ -26,7 +26,7 @@ type Cmd =
 const COMMANDS: Cmd[] = [
   { type: 'block', tag: 'h2', label: 'H2', title: 'Überschrift' },
   { type: 'block', tag: 'h3', label: 'H3', title: 'Zwischenüberschrift' },
-  { type: 'block', tag: 'p', label: '¶', title: 'Absatz' },
+  { type: 'block', tag: 'p', label: 'Absatz', title: 'Normaler Fließtext-Absatz' },
   { type: 'exec', cmd: 'bold', label: 'B', title: 'Fett (Ctrl+B)' },
   { type: 'exec', cmd: 'italic', label: 'I', title: 'Kursiv (Ctrl+I)' },
   { type: 'exec', cmd: 'underline', label: 'U', title: 'Unterstrichen' },

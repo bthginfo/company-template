@@ -117,6 +117,31 @@ export const SiteContentSchema = z.object({
     imageUrl: z.string().optional().default(''),
     published: z.boolean().default(true),
   })).optional().default([]),
+
+  /**
+   * Branch-text overrides – override hardcoded copy that previously lived inside the
+   * template. Each field is optional; if missing or empty the template falls back
+   * to the shipped default for that variant/style combination.
+   */
+  branchText: z.object({
+    /** Words shown in the home-page marquee strip. */
+    marqueeWords: z.array(z.string()).optional().default([]),
+    /** Title of the gallery teaser section on the home page. Plain string – the template wraps the last word in italic-pop. */
+    galleryTeaserTitle: z.string().optional().default(''),
+    /** Subtitle / description text used as fallback below hero + above services. */
+    teaserSubtitle: z.string().optional().default(''),
+    /** Eyebrow + headline of the testimonials block. */
+    testimonialsEyebrow: z.string().optional().default(''),
+    testimonialsTitle: z.string().optional().default(''),
+    /** "Manifest" block (Bold style only). */
+    manifestEyebrow: z.string().optional().default(''),
+    manifestTitle: z.string().optional().default(''),
+    /** Eyebrow + lead used by the soft CTA at the bottom of the modern home. */
+    softCtaEyebrow: z.string().optional().default(''),
+    softCtaTitle: z.string().optional().default(''),
+    softCtaText: z.string().optional().default(''),
+    softCtaButton: z.string().optional().default(''),
+  }).optional().default({}),
 });
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;
