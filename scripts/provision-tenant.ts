@@ -30,6 +30,7 @@ import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
 import { BRANCH_TEXT_DEFAULTS } from '../src/lib/branch-text-defaults';
+import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '../src/lib/section-defaults';
 
 const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
 type AnyTemplate = typeof VALID_TEMPLATES[number];
@@ -121,6 +122,13 @@ function fullDefaults(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tou
     brand: { ...base.brand, name },
     hero: { ...base.hero, title: name },
     branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[key] },
+    // Seed the new admin overlay sections so a fresh tenant DB row already
+    // contains them. Templates also fall back to identical defaults at render
+    // time, but persisting them means the admin editor opens with non-empty
+    // fields and exports stay stable across schema additions.
+    galleryStory: defaultGalleryStory(key),
+    galleryCategories: defaultGalleryCategories(key),
+    arrival: defaultArrival(key),
     contact: {
       ...base.contact,
       // Strip showcase phone/email/address so the tenant fills their own – avoids

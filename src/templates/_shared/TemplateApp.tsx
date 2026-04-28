@@ -1104,7 +1104,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
 }
 
 function ServiceHighlights({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
-  const overlay = (content as any).highlights as { t: string; d: string }[] | undefined;
+  const overlay = (content as any).serviceHighlights as { t: string; d: string }[] | undefined;
   const fallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Saisonale Karte', d: 'Wechselt mit den Jahreszeiten – schauen Sie immer wieder rein.' },
@@ -1154,7 +1154,7 @@ function ServiceHighlights({ variant, content }: { variant: TemplateVariant; con
 }
 
 function ServiceProcess({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
-  const overlay = (content as any).process as { t: string; d: string }[] | undefined;
+  const overlay = (content as any).serviceProcess as { t: string; d: string }[] | undefined;
   const fallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Reservieren', d: 'Online oder per Telefon – wir bestätigen sofort.' },
@@ -1231,6 +1231,8 @@ function GalleryPage({
         style={style}
       />
 
+      <GalleryStorySection variant={variant} content={content} />
+
       <Section spacing="lg">
         {style === 'bold' ? (
           <MasonryGrid images={content.gallery} />
@@ -1241,8 +1243,136 @@ function GalleryPage({
         )}
       </Section>
 
+      <GalleryCategoriesSection variant={variant} content={content} />
+
       <CtaBand variant={variant} content={content} />
     </>
+  );
+}
+
+function GalleryStorySection({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  type Story = { eyebrow: string; title: string; body: string; captions: { t: string; d: string }[] };
+  const fallbacks: Record<TemplateVariant, Story> = {
+    restaurant: {
+      eyebrow: 'Hinter den Tellern',
+      title: 'Was Sie hier sehen.',
+      body: 'Diese Bilder entstehen nicht im Studio. Sie zeigen unseren echten Service – die Hand am Stiel, das Brot vor dem Schneiden, den Tisch zwei Minuten vor den ersten Gästen. Wir fotografieren beim Kochen, nicht für die Karte.',
+      captions: [
+        { t: 'Im Service', d: 'Momente, wenn das Lokal lebt – nicht inszenierte Stilllebenkomposition.' },
+        { t: 'Aus der Küche', d: 'Wie ein Gericht entsteht, vom Mise en Place bis zum letzten Schwung Olivenöl.' },
+        { t: 'Familie & Gäste', d: 'Mit Erlaubnis aufgenommen – die Menschen, die unser Lokal jeden Abend tragen.' },
+      ],
+    },
+    salon: {
+      eyebrow: 'Was wir zeigen',
+      title: 'Looks aus echten Terminen.',
+      body: 'Jedes Foto ist nach einem realen Termin entstanden – mit Erlaubnis unserer Kund:innen, ohne Filter, ohne Studio-Licht. Sie sehen den Look, den Sie auch bekämen, nicht eine Inszenierung für Social Media.',
+      captions: [
+        { t: 'Schnitt', d: 'Vom klassischen Bob bis zur freien Layered-Cut.' },
+        { t: 'Farbe', d: 'Balayage, Gloss, Naturtöne – immer auf das Tageslicht abgestimmt.' },
+        { t: 'Bridal & Events', d: 'Hochsteckfrisuren, Probestyling, Tag der Hochzeit – auf Wunsch mit Make-up.' },
+      ],
+    },
+    tradesman: {
+      eyebrow: 'Vorher / Nachher',
+      title: 'Projekte ohne Schönfärberei.',
+      body: 'Wir dokumentieren Baustellen so, wie sie sind: dreckig in der Mitte, sauber am Ende. Jede Galerie zeigt mindestens ein Foto vor dem ersten Werkzeug – und eines nach der Endreinigung. Damit Sie sehen, was wir wirklich verändert haben.',
+      captions: [
+        { t: 'Vorher', d: 'Der Zustand, der uns zur Tür bringt – ungeschönt und mit Datum.' },
+        { t: 'Im Bau', d: 'Schutzfolie, Werkzeug, Material. Der Alltag, den wir sauber halten.' },
+        { t: 'Nachher', d: 'Endreinigung, Übergabe, fertige Räume – Lichtsetzung wie vor Ort.' },
+      ],
+    },
+    hotel: {
+      eyebrow: 'Haus, Spa & Umgebung',
+      title: 'So sieht Ihr Aufenthalt aus.',
+      body: 'Wir zeigen das Haus, wie Sie es vorfinden – nicht hochgerechnet, nicht aufgehübscht. Die Bilder entstehen über das Jahr verteilt, im echten Licht, mit dem echten Frühstück und der echten Sauna an einem Mittwoch um halb elf.',
+      captions: [
+        { t: 'Zimmer & Suiten', d: 'Wie Sie das Zimmer vorfinden – Tagesdecke, Tee, ohne Werbestyling.' },
+        { t: 'Spa & Sauna', d: 'Außenpool, Dampfbad, Ruheräume. In Tageslicht statt Marketingfilter.' },
+        { t: 'Restaurant & Lounge', d: 'Frühstück, Halbpension, Aperitif vor dem Kamin.' },
+      ],
+    },
+    tourism: {
+      eyebrow: 'Unterwegs',
+      title: 'Was eine Tour wirklich bedeutet.',
+      body: 'Diese Bilder sind auf echten Touren entstanden – kein Modell, kein Studio. Sie sehen die Pausen, die Aussichten, die kleinen Gruppen. Wir zeigen, wie der Tag wirklich aussieht, nicht wie der schönste Postkartenmoment.',
+      captions: [
+        { t: 'Auf dem Weg', d: 'Wanderungen, Aussichten, der Moment vor dem letzten Anstieg.' },
+        { t: 'Pausen', d: 'Brotzeit auf einer Bank, Gespräch mit dem Guide, ein Schluck Wasser.' },
+        { t: 'Begegnungen', d: 'Menschen, Hütten, Tiere – die Gegend, in der wir zuhause sind.' },
+      ],
+    },
+  };
+  const overlay = (content as any).galleryStory as Story | undefined;
+  const story: Story = overlay && (overlay.title || overlay.body) ? { ...fallbacks[variant], ...overlay } : fallbacks[variant];
+  if (!story.title && !story.body && !(story.captions && story.captions.length)) return null;
+  return (
+    <Section eyebrow={story.eyebrow} title={splitTitle(story.title)} className="surface">
+      <div className="grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-5 reveal">
+          {story.body.split('\n\n').map((p, i) => (
+            <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
+          ))}
+        </div>
+        <div className="lg:col-span-7 grid sm:grid-cols-3 gap-5 reveal-stagger">
+          {(story.captions || []).filter((c) => c.t || c.d).map((c, i) => (
+            <article key={i} className="bg-white border border-line rounded-2xl p-6 hover-lift">
+              <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+              <h3 className="font-display text-xl mt-3">{c.t}</h3>
+              <p className="mt-2 text-sm text-muted leading-relaxed">{c.d}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function GalleryCategoriesSection({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  type Cat = { t: string; d: string };
+  const fallbacks: Record<TemplateVariant, Cat[]> = {
+    restaurant: [
+      { t: 'Vorspeisen & Beilagen', d: 'Antipasti, hausgemachtes Brot, Aufstriche und kleine Klassiker zum Teilen.' },
+      { t: 'Hauptgerichte', d: 'Pasta, Fisch, Fleisch und vegetarische Tellergerichte – saisonal kuratiert.' },
+      { t: 'Dessert & Digestif', d: 'Tiramisu, Panna Cotta, hausgemachte Liköre – das süße Finale am Tisch.' },
+    ],
+    salon: [
+      { t: 'Schnitt', d: 'Klassische Cuts, Layered Long Bob, präzise Männer-Cuts mit Bartpflege.' },
+      { t: 'Farbe', d: 'Balayage, Highlights, Gloss-Behandlung und natürliche Naturtöne.' },
+      { t: 'Bridal & Events', d: 'Hochsteckfrisuren, Probestyling und der Tag der Hochzeit – aus einer Hand.' },
+    ],
+    tradesman: [
+      { t: 'Bad & Sanitär', d: 'Komplett-Sanierungen, barrierearme Lösungen, schnelle Notfall-Reparaturen.' },
+      { t: 'Heizung & Energie', d: 'Wärmepumpen, Heizungstausch, Förderprogramm-Beratung inklusive.' },
+      { t: 'Reparaturen & Wartung', d: 'Wasserrohrbruch, verstopfte Abflüsse, Jahresservice – schnell und sauber.' },
+    ],
+    hotel: [
+      { t: 'Zimmer & Suiten', d: 'Doppelzimmer, Familiensuite und unsere Panorama-Suite mit Bergblick.' },
+      { t: 'Spa & Wellness', d: 'Sauna-Landschaft, Dampfbad, Ruheräume und der beheizte Außenpool.' },
+      { t: 'Außenanlage', d: 'Garten, Liegewiese, Sonnenterrasse und unsere Wanderwege direkt vor der Tür.' },
+    ],
+    tourism: [
+      { t: 'Tagestouren', d: 'Halbtägige Wanderungen, kulinarische Stadt-Touren, Sonnenaufgangs-Programme.' },
+      { t: 'Mehrtägige Touren', d: 'Hütten-zu-Hütten-Wanderungen, Wein-Routen und Natur-Retreats.' },
+      { t: 'Privat & Maßgeschneidert', d: 'Eigene Gruppen, Firmen-Events und individuelle Tour-Konzepte.' },
+    ],
+  };
+  const overlay = (content as any).galleryCategories as Cat[] | undefined;
+  const list = overlay && overlay.length ? overlay.filter((c) => c.t || c.d) : fallbacks[variant];
+  if (!list.length) return null;
+  return (
+    <Section eyebrow="Kategorien" title={<>Was Sie bei uns <em className="italic-pop">erwartet.</em></>}>
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {list.map((c, i) => (
+          <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
+            <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+            <h3 className="font-display text-2xl mt-3">{c.t}</h3>
+            <p className="mt-3 text-muted leading-relaxed">{c.d}</p>
+          </article>
+        ))}
+      </div>
+    </Section>
   );
 }
 
@@ -1483,7 +1613,7 @@ function PressSection() {
 
 /* ─── Contact ────────────────────────────────────────────────────── */
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
-  const arrival: Record<TemplateVariant, { t: string; d: string }[]> = {
+  const arrivalFallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Mit dem Auto', d: 'Tiefgarage Maria-Theresien direkt nebenan. Erste Stunde gratis bei Reservierung.' },
       { t: 'Mit der Bahn', d: '5 Minuten Fußweg vom Hauptbahnhof. Ein Spaziergang durch die Altstadt.' },
@@ -1510,6 +1640,8 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
       { t: 'Beratung', d: 'Sie wissen nicht, welche Tour passt? Wir telefonieren gerne 15 Minuten unverbindlich.' },
     ],
   };
+  const overlay = (content as any).arrival as { t: string; d: string }[] | undefined;
+  const arrival = overlay && overlay.length ? overlay.filter((a) => a.t || a.d) : arrivalFallbacks[variant];
   return (
     <>
       <PageHero
@@ -1527,7 +1659,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
 
       <Section eyebrow="Wegbeschreibung" title={<>So <em className="italic-pop">finden Sie uns.</em></>} className="surface">
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {arrival[variant].map((a, i) => (
+          {arrival.map((a, i) => (
             <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
               <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
               <h3 className="font-display text-2xl mt-3">{a.t}</h3>

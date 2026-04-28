@@ -57,7 +57,7 @@ const AGENCY = {
 const ROTATING_WORDS = [
   'Restaurants.',
   'Salons.',
-  'Handwerker:innen.',
+  'Handwerk.',
   'Cafés.',
   'Praxen.',
   'Beratungen.',

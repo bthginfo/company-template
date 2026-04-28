@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
+import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
 import { RichTextEditor } from './RichTextEditor';
 import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
 import { scrollToTop } from '@/lib/scroll';
@@ -688,7 +689,11 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
         }} />
       </SectionCard>
 
-      <SectionCard title="Bilder hochladen" description="Vom Computer wählen oder per URL." badge="Sektion 2">
+      <SectionCard title="Galerie-Einleitung" description="Kurzer Text mit drei Captions über den Bildern – was schauen Besucher hier?" badge="Sektion 2">
+        <GalleryStoryEditor data={data} setData={setData} defaults={defaultGalleryStory(tpl)} />
+      </SectionCard>
+
+      <SectionCard title="Bilder hochladen" description="Vom Computer wählen oder per URL." badge="Sektion 3">
         <div className="border-2 border-dashed border-line rounded-2xl p-7 text-center bg-[#fafaf7]">
           <p className="text-2xl mb-2" aria-hidden>↥</p>
           <p className="font-medium text-sm">Bilder auswählen</p>
@@ -704,7 +709,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
-      <SectionCard title={`Alle Bilder (${data.gallery.length})`} description="Reihenfolge per ↑/↓, Bild entfernen mit ×." badge="Sektion 3">
+      <SectionCard title={`Alle Bilder (${data.gallery.length})`} description="Reihenfolge per ↑/↓, Bild entfernen mit ×." badge="Sektion 4">
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {data.gallery.map((src, i) => (
             <div key={i} className="relative group aspect-square overflow-hidden rounded-xl border border-line">
@@ -722,7 +727,11 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 4">
+      <SectionCard title="Kategorien-Übersicht" description="Drei Kategorien-Karten unter der Galerie – was bieten Sie inhaltlich?" badge="Sektion 5">
+        <GalleryCategoriesEditor data={data} setData={setData} defaults={defaultGalleryCategories(tpl)} />
+      </SectionCard>
+
+      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6">
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
     </>
@@ -1949,6 +1958,43 @@ function ArrivalEditor({ data, setData, defaults }: SetterProps & { defaults: { 
       )} />
   );
 }
+
+type GalleryStory = { eyebrow: string; title: string; body: string; captions: { t: string; d: string }[] };
+function GalleryStoryEditor({ data, setData, defaults }: SetterProps & { defaults: GalleryStory }) {
+  const [v, set] = useExtra<GalleryStory>(data, setData, 'galleryStory', defaults);
+  const setCaption = (i: number, next: { t: string; d: string }) => set({ ...v, captions: v.captions.map((c, j) => j === i ? next : c) });
+  return (
+    <div className="space-y-3">
+      <Field label="Eyebrow"><input className={inputCls} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} /></Field>
+      <Field label="Überschrift"><input className={inputCls} value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} /></Field>
+      <Field label="Einleitungstext" hint="Leerzeile = neuer Absatz."><textarea className={inputCls} rows={4} value={v.body} onChange={(e) => set({ ...v, body: e.target.value })} /></Field>
+      <div>
+        <label className="text-xs text-muted block mb-2">Drei Captions (was schauen Besucher in der Galerie an?)</label>
+        <div className="space-y-2">
+          {v.captions.map((c, i) => (
+            <div key={i} className="grid sm:grid-cols-[1fr_2fr] gap-2">
+              <input className={inputCls} placeholder={`Caption ${i + 1} – Titel`} value={c.t} onChange={(e) => setCaption(i, { ...c, t: e.target.value })} />
+              <input className={inputCls} placeholder="Kurzbeschreibung" value={c.d} onChange={(e) => setCaption(i, { ...c, d: e.target.value })} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GalleryCategoriesEditor({ data, setData, defaults }: SetterProps & { defaults: { t: string; d: string }[] }) {
+  const [list, set] = useExtra<{ t: string; d: string }[]>(data, setData, 'galleryCategories', defaults);
+  return (
+    <RepeatableList items={list} onChange={set} newItem={() => ({ t: '', d: '' })} addLabel="+ Kategorie hinzufügen"
+      render={(v, _i, setItem) => (
+        <div className="grid sm:grid-cols-[1fr_2fr] gap-2 flex-1">
+          <input className={inputCls} placeholder="Kategorie-Titel" value={v.t} onChange={(e) => setItem({ ...v, t: e.target.value })} />
+          <input className={inputCls} placeholder="Kurzbeschreibung" value={v.d} onChange={(e) => setItem({ ...v, d: e.target.value })} />
+        </div>
+      )} />
+  );
+}
 function FormFieldsEditor({ data, setData }: SetterProps) {
   const [list, set] = useExtra<{ key: string; label: string; required: boolean; type: 'text' | 'email' | 'tel' | 'textarea' | 'date' }[]>(data, setData, 'formFields', [
     { key: 'name', label: 'Name', required: true, type: 'text' },
@@ -2155,23 +2201,6 @@ function defaultTeam(t: TemplateKey) {
     { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Übernahm den Familienbetrieb 2008.' },
     { n: 'Andreas Mayer', r: 'Bauleiter · Meister', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80', bio: 'Über 200 Projekte begleitet.' },
     { n: 'Daniel Mayer', r: 'Notdienst & Service', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: '24/7 für Notfälle bereit.' },
-  ];
-}
-function defaultArrival(t: TemplateKey) {
-  if (t === 'restaurant') return [
-    { t: 'Mit dem Auto', d: 'Tiefgarage Maria-Theresien direkt nebenan.' },
-    { t: 'Mit der Bahn', d: '5 Minuten Fußweg vom Hauptbahnhof.' },
-    { t: 'Barrierefrei', d: 'Hauptraum ebenerdig.' },
-  ];
-  if (t === 'salon') return [
-    { t: 'Anfahrt', d: 'U3/U6 Münchner Freiheit, 3 Min zu Fuß.' },
-    { t: 'Parken', d: 'Tiefgarage Leopoldpark vor der Tür.' },
-    { t: 'Termin verlegen', d: 'Bis 24 h vorher gerne kostenlos.' },
-  ];
-  return [
-    { t: 'Notdienst', d: 'Rund um die Uhr erreichbar.' },
-    { t: 'Anfahrtsgebiet', d: 'Ingolstadt und 30 km Umkreis.' },
-    { t: 'Beratung vor Ort', d: 'Erstgespräch kostenlos.' },
   ];
 }
 function defaultNumbers(t: TemplateKey) {

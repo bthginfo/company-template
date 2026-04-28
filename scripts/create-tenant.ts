@@ -8,6 +8,7 @@ import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
 import { BRANCH_TEXT_DEFAULTS } from '../src/lib/branch-text-defaults';
+import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '../src/lib/section-defaults';
 
 const [, , slug, name, template] = process.argv;
 
@@ -42,6 +43,10 @@ function defaultsFor(t: AnyTemplate): SiteContent {
     brand: { ...base.brand, name },
     hero: { ...base.hero, title: name },
     branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[t] },
+    // Seed the new admin overlay sections so the DB row already contains them.
+    galleryStory: defaultGalleryStory(t),
+    galleryCategories: defaultGalleryCategories(t),
+    arrival: defaultArrival(t),
     contact: {
       ...base.contact,
       // Strip showcase phone/email/address so the tenant fills their own.
