@@ -288,15 +288,15 @@ function ShowcaseShell() {
         }`}
       >
         <div className="container-x flex items-center justify-between py-4">
-          <Link to="/" className="flex items-center gap-2 group" aria-label={AGENCY.fullName}>
+          <Link to="/" className="flex flex-col items-start leading-none group" aria-label={AGENCY.fullName}>
             <img
               src={AGENCY.logoSrc}
               alt={AGENCY.name}
-              className="h-5 md:h-[22px] w-auto transition-opacity"
+              className="h-3.5 md:h-4 w-auto transition-opacity"
               style={{ filter: headerLight ? 'none' : 'brightness(0) invert(1)' }}
             />
             <span
-              className={`font-display italic text-base md:text-lg leading-none tracking-tight ${headerLight ? 'text-slate-900' : 'text-white'}`}
+              className={`font-display italic text-[11px] md:text-xs leading-none tracking-tight mt-1 ${headerLight ? 'text-slate-600' : 'text-white/80'}`}
               aria-hidden
             >
               websites
@@ -335,8 +335,10 @@ function ShowcaseShell() {
       {mobile && (
         <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
           <div className="container-x py-5 flex justify-between items-center">
-            <img src={AGENCY.logoSrc} alt={AGENCY.name} className="h-5 w-auto" />
-            <span className="font-display italic text-base text-slate-900 leading-none ml-2" aria-hidden>websites</span>
+            <div className="flex flex-col items-start leading-none">
+              <img src={AGENCY.logoSrc} alt={AGENCY.name} className="h-4 w-auto" />
+              <span className="font-display italic text-[11px] text-slate-600 leading-none mt-1" aria-hidden>websites</span>
+            </div>
             <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
@@ -376,13 +378,15 @@ function ShowcaseFooter() {
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
           <div className="md:col-span-5">
-            <img
-              src={AGENCY.logoSrc}
-              alt={AGENCY.name}
-              className="h-7 w-auto inline-block align-middle"
-              style={{ filter: 'brightness(0) invert(1)' }}
-            />
-            <span className="font-display italic text-xl text-white leading-none ml-2 align-middle" aria-hidden>websites</span>
+            <div className="flex flex-col items-start leading-none">
+              <img
+                src={AGENCY.logoSrc}
+                alt={AGENCY.name}
+                className="h-5 w-auto"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+              <span className="font-display italic text-sm text-white/80 leading-none mt-1.5" aria-hidden>websites</span>
+            </div>
             <p className="text-sm text-white/70 mt-4 max-w-sm">{AGENCY.tagline}</p>
             <div className="mt-6 flex flex-col gap-1.5 text-sm">
               <a href={`mailto:${AGENCY.email}`} className="hover:text-accent">{AGENCY.email}</a>
