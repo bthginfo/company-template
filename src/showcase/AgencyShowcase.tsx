@@ -254,13 +254,13 @@ function ShowcaseShell() {
           {[
             'Passend für jede Branche',
             'Foto- & Videoshooting optional als Add-on',
-            'In 2–3 Wochen live',
+            'Online in wenigen Tagen',
             'Innsbruck · München · Ingolstadt · DACH',
             'Hosting & kleine Pflege inklusive',
           ].concat([
             'Passend für jede Branche',
             'Foto- & Videoshooting optional als Add-on',
-            'In 2–3 Wochen live',
+            'Online in wenigen Tagen',
             'Innsbruck · München · Ingolstadt · DACH',
             'Hosting & kleine Pflege inklusive',
           ]).map((m, i) => (
@@ -497,7 +497,7 @@ function HeroSection() {
             Foto und Video von unserem eigenen Team.
           </p>
           <div className="md:col-span-5 md:pl-8 md:border-l border-white/15 self-end reveal-fast is-visible">
-            <p className="font-mono text-xs text-white/60 uppercase tracking-widest mb-4">/ verfügbar Q2/2026</p>
+            <p className="font-mono text-xs text-white/60 uppercase tracking-widest mb-4">/ Website live in wenigen Tagen</p>
             <div className="flex flex-wrap gap-3">
               <Link to="/templates" className="btn-accent">Templates ansehen <span aria-hidden>→</span></Link>
               <Link to="/preise" className="btn-outline !border-white/60 !text-white hover:!bg-white hover:!text-slate-900">
@@ -857,11 +857,12 @@ function ProcessTimelineSection() {
         <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
           <div className="md:col-span-7 reveal">
             <p className="eyebrow mb-5">Ablauf</p>
-            <h2 className="headline-lg">In <em className="italic-pop">2–3 Wochen</em> online.</h2>
+            <h2 className="headline-lg">Online in <em className="italic-pop">wenigen Tagen</em>.</h2>
           </div>
           <p className="md:col-span-5 text-lg text-muted reveal">
             Vom ersten Anruf bis zur Live-Schaltung – ein klarer Ablauf ohne Überraschungen.
-            Sie wissen jederzeit, wo wir gerade stehen.
+            Wie schnell es geht, hängt vor allem davon ab, wie zügig Inhalte (Texte, Fotos)
+            von Ihrer Seite kommen. Sie wissen jederzeit, wo wir gerade stehen.
           </p>
         </div>
 
@@ -1346,12 +1347,12 @@ function Pricing() {
       sub: 'einmalig',
       monthly: '+ 29 € / Monat Hosting & Pflege',
       features: [
-        'Eines unserer 3 Branchen-Templates',
-        '5 Unterseiten, mehrsprachig optional',
+        'Eines unserer Branchen-Templates (6 Branchen, 3 Stile)',
+        '5 Seiten (Start, Leistungen, Galerie, Über uns, Kontakt) – mehrsprachig optional',
         'Admin-Bereich zum selbst pflegen',
         'Hosting & Pflege inklusive',
         '1 Stunde Einrichtungs-Support',
-        'In 2–3 Wochen online',
+        'Online in wenigen Tagen – je nach Verfügbarkeit Ihrer Inhalte',
       ],
     },
     {
@@ -1480,7 +1481,7 @@ function Pricing() {
           </h2>
           <Accordion
             items={[
-              { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise 2–3 Wochen nach Inhalts-Übergabe. Mit Foto-Add-on planen wir zusätzlich Zeit für Shooting und Schnitt ein.' },
+              { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise wenige Tage nach Inhalts-Übergabe. Wie schnell es real geht, hängt vor allem davon ab, wie zügig Texte und Fotos von Ihrer Seite kommen. Mit Foto-Add-on planen wir zusätzlich Zeit für Shooting und Schnitt ein.' },
               { q: 'Kann ich Inhalte selbst pflegen?', a: 'Ja. Sie erhalten einen einfachen Admin-Bereich. Texte, Bilder, Speisekarte und Öffnungszeiten ändern Sie ohne Vorkenntnisse direkt im Browser. Sie sehen den Effekt sofort.' },
               { q: 'Was passiert, wenn etwas kaputt ist?', a: 'Im Pflegepaket überwachen wir Ihre Seite automatisch – wir bekommen Probleme oft mit, bevor Sie es tun. Wir reagieren innerhalb der Geschäftszeiten in der Regel binnen weniger Stunden.' },
               { q: 'Wem gehört die Website?', a: 'Ihnen. Sie können den Quellcode jederzeit anfordern, das Hosting wechseln und mit anderen Agenturen weiterarbeiten. Wir liefern keine Verträge mit Lock-in-Klauseln.' },
