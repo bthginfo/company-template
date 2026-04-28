@@ -14,6 +14,8 @@ export default {
         sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
         display: ['"Instrument Serif"', '"Playfair Display"', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        jakarta: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        fraunces: ['Fraunces', '"Instrument Serif"', 'serif'],
       },
       animation: {
         'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',

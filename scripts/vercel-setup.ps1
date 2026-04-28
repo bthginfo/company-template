@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    One-command Vercel setup for the BTH Studio multi-tenant template platform.
+    One-command Vercel setup for the FlamingoMedia multi-tenant template platform.
 
 .DESCRIPTION
     Provisions everything you need on Vercel:
@@ -27,10 +27,10 @@
 
 [CmdletBinding()]
 param(
-    [string]$ProjectName = 'bth-studio-showcase',
+    [string]$ProjectName = 'flamingomedia',
     [string]$Region      = 'fra1',
-    [string]$DbName      = 'bth-studio-db',
-    [string]$BlobName    = 'bth-studio-blob',
+    [string]$DbName      = 'flamingomedia-db',
+    [string]$BlobName    = 'flamingomedia-blob',
     [switch]$SkipDeploy
 )
 
@@ -180,7 +180,7 @@ if ($envOutput -notmatch 'AUTH_RESEND_KEY') {
 }
 
 if ($envOutput -notmatch 'EMAIL_FROM') {
-    'BTH Studio <noreply@example.com>' | & $vercelCmd env add EMAIL_FROM production
+    'FlamingoMedia <noreply@example.com>' | & $vercelCmd env add EMAIL_FROM production
     Write-Warn2 'EMAIL_FROM = Platzhalter. Bitte spaeter auf eine bei Resend verifizierte Domain aendern.'
 }
 

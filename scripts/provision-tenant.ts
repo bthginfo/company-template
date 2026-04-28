@@ -150,7 +150,7 @@ const SHARED_KEYS = [
 ];
 
 async function main() {
-  const projectName = `wyldworks-${slug}`;
+  const projectName = `flamingomedia-${slug}`;
   console.log(`\n→ Provisioning tenant '${slug}' as Vercel project '${projectName}'\n`);
 
   // 1. DB tenant + password

@@ -40,8 +40,8 @@ export function useSeo({
     const effectiveImage = override?.ogImage || image || globalSeo?.ogImage || DEFAULT_OG;
     const effectiveNoindex = !!override?.noindex || noindex;
 
-    const brandName = content?.brand?.name || 'Wyldworks';
-    const fullTitle = effectiveTitle.includes(brandName) || effectiveTitle.includes('BTH')
+    const brandName = content?.brand?.name || 'FlamingoMedia';
+    const fullTitle = effectiveTitle.includes(brandName) || effectiveTitle.includes('FlamingoMedia')
       ? effectiveTitle
       : `${effectiveTitle} · ${brandName}`;
     document.title = fullTitle;

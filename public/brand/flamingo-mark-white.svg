@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" role="img" aria-label="Flamingo mark">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#fde7ee"/>
+      <stop offset="100%" stop-color="#F24171"/>
+    </linearGradient>
+  </defs>
+  <path d="M55 130 Q40 100 60 80 Q90 55 130 65 Q160 75 165 105 Q170 135 145 155 Q120 175 90 170 Q65 165 55 130 Z" fill="url(#body)"/>
+  <path d="M125 78 Q128 50 138 30 Q145 18 155 16 Q162 16 162 22 Q160 30 152 36 Q146 42 144 52 Q142 64 140 76 Z" fill="url(#body)"/>
+  <ellipse cx="158" cy="20" rx="13" ry="10" fill="url(#body)"/>
+  <path d="M168 20 L188 26 L168 28 Z" fill="#fff8fa"/>
+  <circle cx="160" cy="18" r="1.6" fill="#14111a"/>
+  <path d="M100 168 Q100 195 95 215" stroke="#fff8fa" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <path d="M115 168 Q120 188 108 200 Q112 210 118 215" stroke="#fff8fa" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

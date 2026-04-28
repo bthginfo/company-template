@@ -2,7 +2,7 @@
 /**
  * postbuild-prerender.mjs
  *
- * Lightweight SEO prerender for the Wyldworks SPA.
+ * Lightweight SEO prerender for the FlamingoMedia SPA.
  *
  * For each known public route we emit a static `<route>/index.html` that is a
  * copy of the built `dist/index.html` with route-specific <title>,
@@ -25,43 +25,43 @@ if (!existsSync(indexPath)) {
   process.exit(0);
 }
 
-const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://websites.wyldworks.de';
+const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://flamingomedia.vercel.app';
 
 /** @type {Array<{path: string; title: string; description: string; jsonLd?: object}>} */
 const routes = [
   {
     path: '/',
-    title: 'Wyldworks · Websites für lokale Marken in der DACH-Region',
+    title: 'FlamingoMedia · Websites für lokale Marken in der DACH-Region',
     description:
-      'Wyldworks gestaltet und betreut Websites für Restaurants, Salons, Handwerk, Praxen, Beratung und Studios in Österreich, Deutschland und der Schweiz. Editorial-Design, das mitwächst.',
+      'FlamingoMedia gestaltet und betreut Websites für Restaurants, Hotels, Tourismus, Salons, Handwerk, Praxen, Beratung und Studios in Österreich, Deutschland und der Schweiz. Editorial-Design mit Pop.',
   },
   {
     path: '/templates',
-    title: 'Templates · Wyldworks',
+    title: 'Templates · FlamingoMedia',
     description:
       'Sechs Branchen, drei Stile (Klassisch, Modern, Bold) – alle Templates live ansehen, vergleichen, anpassen.',
   },
   {
     path: '/preise',
-    title: 'Preise · Wyldworks',
+    title: 'Preise · FlamingoMedia',
     description:
       'Transparente Pakete: Setup, monatliche Pflege und individuelle Erweiterungen. Festpreise statt Stundensätze.',
   },
   {
     path: '/prozess',
-    title: 'Ablauf · Wyldworks',
+    title: 'Ablauf · FlamingoMedia',
     description:
       'Von der ersten Idee bis zur Live-Schaltung. Jeder Schritt klar geplant – ohne Überraschungen.',
   },
   {
     path: '/ueber-uns',
-    title: 'Über uns · Wyldworks',
+    title: 'Über uns · FlamingoMedia',
     description:
       'Studio für lokale Marken in Österreich, Deutschland und der Schweiz. Wer wir sind und wie wir arbeiten.',
   },
   {
     path: '/kontakt',
-    title: 'Kontakt · Wyldworks',
+    title: 'Kontakt · FlamingoMedia',
     description:
       'Erstgespräch, Angebot oder einfach Hallo sagen – wir antworten binnen 24 Stunden, deutschlandweit, österreichweit, schweizweit.',
   },

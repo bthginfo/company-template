@@ -23,13 +23,20 @@ import { CookieBanner } from '@/components/CookieBanner';
 
 /* ─── Brand ─────────────────────────────────────────────────────────── */
 const AGENCY = {
-  name: 'Wyldworks',
-  fullName: 'Wyldworks Websites',
-  tagline: 'Websites für lokale Marken · Innsbruck · DACH',
-  email: 'hey@wyldworks.de',
+  name: 'FlamingoMedia',
+  fullName: 'FlamingoMedia · Websites für lokale Marken',
+  tagline: 'Websites mit Pop für lokale Marken · Innsbruck · DACH',
+  email: 'hello@flamingomedia.de',
   phone: '+49 1515 5338029',
   phoneAt: '+43 677 6368 1543',
-  logoSrc: '/wyldworks-logo.svg',
+  /** Wordmark (text-only). Use in nav and inline contexts. */
+  logoTextSrc: '/brand/flamingo-text.svg',
+  logoTextWhiteSrc: '/brand/flamingo-text-white.svg',
+  /** Flamingo mark (icon-only). Use as standalone mark / favicon-style spots. */
+  logoMarkSrc: '/brand/flamingo-mark.svg',
+  logoMarkWhiteSrc: '/brand/flamingo-mark-white.svg',
+  /** Backwards-compat alias used by some legacy spots. Defaults to wordmark. */
+  logoSrc: '/brand/flamingo-text.svg',
 };
 
 const ROTATING_WORDS = [
@@ -53,16 +60,17 @@ const ROTATING_WORDS = [
  * inside /preview/* routes) cannot bleed into the landing/marketing pages.
  */
 const SHOWCASE_PALETTE = {
-  '--brand-color': '#0b0b10',
+  '--brand-color': '#14111a',
   '--brand-fg': '#ffffff',
-  '--accent-color': '#c4ff3a',
-  '--accent-color-2': '#ff5b3a',
-  // Yellow/green accents need dark text for contrast — explicit override here
-  // so btn-accent doesn't inherit the white --brand-fg fallback.
-  '--accent-fg': '#0b0b10',
-  '--surface-color': '#f4f3ee',
-  '--bg-color': '#fafaf7',
-  '--text-color': '#0b0b10',
+  // FlamingoMedia signature pink — taken from the logo (#F24171).
+  '--accent-color': '#F24171',
+  // Warm coral complement for highlights / second-accent CTAs.
+  '--accent-color-2': '#FFB347',
+  // Pink CTAs need white text for AA contrast.
+  '--accent-fg': '#ffffff',
+  '--surface-color': '#fce7ef',
+  '--bg-color': '#fff8fa',
+  '--text-color': '#14111a',
 } as const;
 
 function applyShowcasePalette() {
@@ -264,7 +272,7 @@ function ShowcaseShell() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="showcase-root min-h-screen flex flex-col">
       <ScrollToTop />
       <a
         href="#main"
@@ -306,20 +314,18 @@ function ShowcaseShell() {
         }`}
       >
         <div className="container-x flex items-center justify-between py-4">
-          <Link to="/" className="flex flex-col items-start leading-none group" aria-label={AGENCY.fullName}>
+          <Link to="/" className="flex items-center gap-2.5 leading-none group" aria-label={AGENCY.fullName}>
             <img
-              src={AGENCY.logoSrc}
+              src={AGENCY.logoMarkSrc}
+              alt=""
+              aria-hidden
+              className="h-7 md:h-8 w-auto transition-transform group-hover:rotate-[-4deg]"
+            />
+            <img
+              src={headerLight ? AGENCY.logoTextSrc : AGENCY.logoTextWhiteSrc}
               alt={AGENCY.name}
               className="h-4 md:h-5 w-auto transition-opacity"
-              style={{ filter: headerLight ? 'none' : 'brightness(0) invert(1)' }}
             />
-            <span
-              className={`font-mono uppercase text-[10px] md:text-[11px] leading-none mt-1.5 ${headerLight ? 'text-slate-700' : 'text-white/85'}`}
-              style={{ letterSpacing: '0.42em' }}
-              aria-hidden
-            >
-              websites
-            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {NAV.map((n) => (
@@ -354,9 +360,9 @@ function ShowcaseShell() {
       {mobile && (
         <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
           <div className="container-x py-5 flex justify-between items-center">
-            <div className="flex flex-col items-start leading-none">
-              <img src={AGENCY.logoSrc} alt={AGENCY.name} className="h-5 w-auto" />
-              <span className="font-mono uppercase text-[10px] text-slate-700 leading-none mt-1.5" style={{ letterSpacing: '0.42em' }} aria-hidden>websites</span>
+            <div className="flex items-center gap-2.5 leading-none">
+              <img src={AGENCY.logoMarkSrc} alt="" aria-hidden className="h-8 w-auto" />
+              <img src={AGENCY.logoTextSrc} alt={AGENCY.name} className="h-5 w-auto" />
             </div>
             <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -397,14 +403,18 @@ function ShowcaseFooter() {
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-10 pt-4 pb-14 border-b border-white/10">
           <div className="md:col-span-5">
-            <div className="flex flex-col items-start leading-none">
+            <div className="flex items-center gap-3 leading-none">
               <img
-                src={AGENCY.logoSrc}
+                src={AGENCY.logoMarkWhiteSrc}
+                alt=""
+                aria-hidden
+                className="h-9 w-auto"
+              />
+              <img
+                src={AGENCY.logoTextWhiteSrc}
                 alt={AGENCY.name}
                 className="h-6 w-auto"
-                style={{ filter: 'brightness(0) invert(1)' }}
               />
-              <span className="font-mono uppercase text-[11px] text-white/85 leading-none mt-2" style={{ letterSpacing: '0.42em' }} aria-hidden>websites</span>
             </div>
             <p className="text-sm text-white/70 mt-4 max-w-sm">{AGENCY.tagline}</p>
             <div className="mt-6 flex flex-col gap-1.5 text-sm">
@@ -459,7 +469,7 @@ function ShowcaseFooter() {
             className="font-display leading-none whitespace-nowrap"
             style={{ fontSize: 'clamp(4rem,12vw,12rem)', color: 'rgba(255,255,255,0.08)' }}
           >
-            WYLDWORKS · WYLDWORKS · WYLDWORKS ·
+            FLAMINGOMEDIA · FLAMINGOMEDIA · FLAMINGOMEDIA ·
           </span>
         </Marquee>
 
@@ -476,7 +486,7 @@ function ShowcaseFooter() {
 function Landing() {
   return (
     <>
-      <Seo title="Wyldworks · Websites für lokale Marken" description="Editorial-Design für Restaurants, Salons, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Sie selbst pflegen." />
+      <Seo title="FlamingoMedia · Websites für lokale Marken" description="Editorial-Design mit Pop für Restaurants, Hotels, Tourismus, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Sie selbst pflegen." />
       <HeroSection />
       <ClientLogosSection />
       <ServicesSection />
@@ -1039,7 +1049,7 @@ function NumbersSection() {
 function TestimonialsSection() {
   const quotes = [
     {
-      t: 'Wyldworks hat unsere Brautstyling-Welt online genauso gefühlvoll gezeigt, wie wir sie morgens im Studio leben. Anfragen kommen jetzt vorab gebrieft – kein leeres Postfach mehr, sondern echte Termine.',
+      t: 'FlamingoMedia hat unsere Brautstyling-Welt online genauso gefühlvoll gezeigt, wie wir sie morgens im Studio leben. Anfragen kommen jetzt vorab gebrieft – kein leeres Postfach mehr, sondern echte Termine.',
       a: 'Magdalena Johanna',
       r: 'Brautstylistin · Ingolstadt',
     },
@@ -1049,7 +1059,7 @@ function TestimonialsSection() {
       r: 'Kieferorthopäde · München',
     },
     {
-      t: 'Wir verkaufen Olivenöl auf Geschichte und Vertrauen – das Wyldworks-Team hat das verstanden und in einen Auftritt verwandelt, der unsere Hände, unsere Bäume und unsere Werte zeigt. Direktverkauf hat sich verdoppelt.',
+      t: 'Wir verkaufen Olivenöl auf Geschichte und Vertrauen – das FlamingoMedia-Team hat das verstanden und in einen Auftritt verwandelt, der unsere Hände, unsere Bäume und unsere Werte zeigt. Direktverkauf hat sich verdoppelt.',
       a: 'Monika Girardi',
       r: 'The Girardi Oil · Innsbruck',
     },
@@ -1112,7 +1122,7 @@ function TemplatesGallery() {
   useReveal();
   return (
     <>
-      <Seo title="Templates · Wyldworks" description="Sechs Branchen, drei Stile, viele weitere auf Anfrage: wählen Sie Ihr Template als Klassisch, Modern oder Bold." />
+      <Seo title="Templates · FlamingoMedia" description="Acht Branchen, drei Stile, viele weitere auf Anfrage: wählen Sie Ihr Template als Klassisch, Modern oder Bold." />
       <section className="pt-44 pb-20 md:pb-28">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Galerie · Templates</p>
@@ -1247,7 +1257,7 @@ function ProcessPage() {
   ];
   return (
     <>
-      <Seo title="Ablauf · Wyldworks" description="Vom ersten Gespräch bis zur Live-Schaltung. Klar geplant, ohne Überraschungen." />
+      <Seo title="Ablauf · FlamingoMedia" description="Vom ersten Gespräch bis zur Live-Schaltung. Klar geplant, ohne Überraschungen." />
       <section className="pt-44 pb-16">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Ablauf</p>
@@ -1289,7 +1299,7 @@ function AboutPage() {
   useReveal();
   return (
     <>
-      <Seo title="Über uns · Wyldworks" description="Studio für lokale Marken in der DACH-Region. Wer wir sind, wie wir arbeiten." />
+      <Seo title="Über uns · FlamingoMedia" description="Studio für lokale Marken in der DACH-Region. Wer wir sind, wie wir arbeiten." />
       <section className="pt-44 pb-16">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Über uns</p>
@@ -1298,7 +1308,7 @@ function AboutPage() {
             <em className="italic-pop">Ein klarer Anspruch.</em>
           </h1>
           <p className="mt-8 max-w-2xl text-lg md:text-xl text-muted reveal">
-            Wyldworks ist eine Werkstatt für Websites, Foto und Video.
+            FlamingoMedia ist eine Werkstatt für Websites, Foto und Video.
             Drei Menschen, ein Hund, viel Kaffee. Wir glauben an Handwerk vor Marketing-Sprech.
           </p>
         </div>
@@ -1309,7 +1319,7 @@ function AboutPage() {
           <div className="md:col-span-6 reveal">
             <img
               src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=80"
-              alt="Team Wyldworks"
+              alt="Team FlamingoMedia"
               className="rounded-3xl w-full aspect-[4/5] object-cover"
               loading="lazy"
             />
@@ -1546,7 +1556,7 @@ function Contact() {
   const [sent, setSent] = useState(false);
   return (
     <>
-      <Seo title="Kontakt · Wyldworks" description="Erstgespräch, Angebot oder einfach mal Hallo. Wir antworten innerhalb von 24 Stunden." />
+      <Seo title="Kontakt · FlamingoMedia" description="Erstgespräch, Angebot oder einfach mal Hallo. Wir antworten innerhalb von 24 Stunden." />
       <section className="pt-44 pb-12">
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-6 reveal">

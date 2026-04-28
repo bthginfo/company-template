@@ -4,12 +4,12 @@ import Seo from '@/components/Seo';
 import { CookieSettingsButton } from '@/components/CookieBanner';
 
 const STUDIO = {
-  name: 'Wyldworks',
+  name: 'FlamingoMedia',
   legalOwner: 'Mario Schubert Fotografie',
   street: 'Bäckerbühelgasse 14',
   city: '6020 Innsbruck',
   country: 'Österreich',
-  email: 'hey@wyldworks.de',
+  email: 'hello@flamingomedia.de',
   phone: '+49 1515 5338029',
   phoneAt: '+43 677 6368 1543',
   uid: 'ATU00000000',

@@ -81,7 +81,7 @@ export function BlogIndex() {
   return (
     <>
       <Seo
-        title="Studio-Notizen · Wyldworks"
+        title="Studio-Notizen · FlamingoMedia"
         description="Notizen aus dem Studio – über Templates, Tempo und Web-Handwerk."
       />
       <section className="pt-44 pb-16 container-x">

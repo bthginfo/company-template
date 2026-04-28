@@ -33,6 +33,31 @@
   .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 }
 
+/* ─── FlamingoMedia showcase typography ────────────────────────────
+ * Scoped to the marketing/landing routes only via .showcase-root so
+ * tenant templates keep their own fonts.
+ */
+.showcase-root {
+  font-family: 'Plus Jakarta Sans', 'Geist', system-ui, sans-serif;
+  font-feature-settings: 'ss01', 'ss02', 'cv11';
+  letter-spacing: -0.005em;
+}
+.showcase-root h1,
+.showcase-root h2,
+.showcase-root h3,
+.showcase-root .font-display {
+  font-family: 'Plus Jakarta Sans', 'Geist', system-ui, sans-serif;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+.showcase-root .italic-pop {
+  font-family: 'Fraunces', 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.showcase-root .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
 /* ─── Per-style font swaps ─────────────────────────────────────────
  * Each template root carries .tpl-style-<style>; we scope font-family
  * so switching style also visibly changes typography.
