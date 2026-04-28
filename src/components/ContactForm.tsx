@@ -106,7 +106,7 @@ export function ContactForm({
   return (
     <form
       onSubmit={onSubmit}
-      className={`bg-white border border-line rounded-3xl p-8 md:p-10 space-y-5 ${className}`}
+      className={`bg-white border border-line rounded-3xl p-5 sm:p-8 md:p-10 space-y-5 ${className}`}
     >
       {/* Honeypot — keep visually hidden but not display:none, so bots fill it. */}
       <div aria-hidden style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>

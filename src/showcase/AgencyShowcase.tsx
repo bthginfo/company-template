@@ -591,10 +591,10 @@ function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator – hidden on mobile so it doesn't overlap the price/package CTA. */}
       <a
         href="#mehr"
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/90 hover:text-white flex flex-col items-center gap-2 z-20"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/90 hover:text-white hidden md:flex flex-col items-center gap-2 z-20"
         aria-label="Weiter scrollen"
       >
         <span className="text-[10px] uppercase tracking-[0.3em] opacity-80">Scroll</span>
@@ -998,7 +998,7 @@ function DeviceShowcaseSection() {
             <em className="italic-pop">Echter Admin.</em>
           </h2>
           <p className="mt-6 text-white/75 max-w-xl">
-            Keine Photoshop-Mockups — Du siehst die echten Seiten und den echten Editor live.
+            Einblicke in Templates und Admin-Bereich – live, auf Laptop, Tablet und Phone.
             Auf jedem Gerät, in jeder Größe.
           </p>
         </div>
@@ -1980,7 +1980,7 @@ function AboutPage() {
           </h1>
           <p className="mt-8 max-w-2xl text-lg md:text-xl text-muted reveal">
             FlamingoMedia ist eine Werkstatt für Websites, Foto und Video.
-            Drei Menschen, ein Hund, viel Kaffee. Wir glauben an Handwerk vor Marketing-Sprech.
+            Zwei Menschen, ein Hund, viel Kaffee. Wir glauben an Handwerk vor Marketing-Sprech.
           </p>
         </div>
       </section>
@@ -2029,7 +2029,7 @@ function AboutPage() {
                 n: 'Julius von Ingelheim',
                 r: 'CTO · Web · UX',
                 img: '/team/julius.jpg',
-                bio: 'Gelernter UX-Designer und Tech-Nerd. Liebt saubere Design-Systeme, schnelle Ladezeiten und Espresso – in dieser Reihenfolge.',
+                bio: 'Gelernter UX-Designer und Tech-Nerd. Liebt saubere Design-Systeme, schnelle Ladezeiten und guter Wein – in dieser Reihenfolge.',
               },
               {
                 n: 'Nikey',
@@ -2241,7 +2241,7 @@ function Contact() {
             <div className="mt-12 space-y-6">
               <a href={`mailto:${AGENCY.email}`} className="block group">
                 <p className="text-xs uppercase tracking-widest text-muted">E-Mail</p>
-                <p className="mt-1 font-display text-3xl group-hover:translate-x-1 transition-transform">{AGENCY.email}</p>
+                <p className="mt-1 font-display text-xl sm:text-2xl md:text-3xl break-all group-hover:translate-x-1 transition-transform">{AGENCY.email}</p>
               </a>
               <a href={`tel:${AGENCY.phone}`} className="block group">
                 <p className="text-xs uppercase tracking-widest text-muted">Telefon</p>
@@ -2255,7 +2255,7 @@ function Contact() {
             </div>
           </div>
 
-          <div className="md:col-span-6 reveal">
+          <div className="md:col-span-6 reveal min-w-0">
             <ContactForm
               source="agency-landing"
               tenant="FlamingoMedia"
@@ -2299,14 +2299,13 @@ function Contact() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { t: 'Innsbruck & Tirol', d: 'Erstgespräch & Shooting persönlich vor Ort möglich.' },
-              { t: 'München & Oberbayern', d: 'Regelmäßige Termine — Anfahrt nach Absprache.' },
-              { t: 'Ingolstadt & Region', d: 'Bekannt mit dem Standort, Termine flexibel.' },
+              { t: 'Innsbruck & Tirol' },
+              { t: 'München & Oberbayern' },
+              { t: 'Ingolstadt & Region' },
             ].map((c, i) => (
               <div key={i} className="bg-white border border-line rounded-3xl p-7 reveal">
                 <p className="font-mono text-xs text-muted">/ Schwerpunkt-Region</p>
                 <h3 className="font-display text-3xl mt-2">{c.t}</h3>
-                <p className="mt-3 text-muted leading-relaxed">{c.d}</p>
               </div>
             ))}
           </div>
