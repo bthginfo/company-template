@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { upload } from '@vercel/blob/client';
 import { useContent } from '@/lib/content-context';
 import { AdminEditorBody, type UploadImageFn } from './AdminEditorBody';
 import type { SiteContent, TemplateKey } from '@/lib/types';
@@ -13,21 +14,19 @@ function asTemplateKey(v: string | undefined): TemplateKey {
 }
 
 const uploadImage: UploadImageFn = async (file) => {
-  const r = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
-    method: 'POST',
-    headers: { 'content-type': file.type || 'application/octet-stream' },
-    body: file,
-  });
-  if (!r.ok) {
-    let msg = `Upload fehlgeschlagen (${r.status})`;
-    try {
-      const j = await r.json();
-      if (j?.error) msg = j.error;
-    } catch { /* not JSON */ }
-    throw new Error(msg);
+  // Direct client-upload — bypasses the 4.5 MB serverless body limit.
+  const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const pathname = `tenants/${Date.now()}-${safe}`;
+  try {
+    const blob = await upload(pathname, file, {
+      access: 'public',
+      handleUploadUrl: '/api/upload',
+      contentType: file.type || 'application/octet-stream',
+    });
+    return blob.url;
+  } catch (e: any) {
+    throw new Error(e?.message || 'Upload fehlgeschlagen');
   }
-  const j = await r.json();
-  return j.url as string;
 };
 
 export function AdminApp() {

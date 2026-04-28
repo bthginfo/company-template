@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { upload } from '@vercel/blob/client';
 
 export function ImageField({
   url,
@@ -13,27 +14,20 @@ export function ImageField({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const upload = async (file: File) => {
+  const doUpload = async (file: File) => {
     setBusy(true);
     setErr(null);
     try {
-      const r = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
-        method: 'POST',
-        headers: { 'content-type': file.type || 'application/octet-stream' },
-        body: file,
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const pathname = `tenants/${Date.now()}-${safe}`;
+      const blob = await upload(pathname, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        contentType: file.type || 'application/octet-stream',
       });
-      if (!r.ok) {
-        let msg = `Upload fehlgeschlagen (${r.status})`;
-        try {
-          const j = await r.json();
-          if (j?.error) msg = j.error;
-        } catch { /* not JSON */ }
-        throw new Error(msg);
-      }
-      const json = await r.json();
-      onChange(json.url);
+      onChange(blob.url);
     } catch (e: any) {
-      setErr(e.message);
+      setErr(e?.message || 'Upload fehlgeschlagen');
     } finally {
       setBusy(false);
     }
@@ -54,7 +48,7 @@ export function ImageField({
           className="hidden"
           onChange={(e) => {
             const f = e.target.files?.[0];
-            if (f) upload(f);
+            if (f) doUpload(f);
           }}
         />
         <div className="flex gap-2">

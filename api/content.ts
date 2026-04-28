@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
 import { SiteContentSchema } from '../src/lib/types.js';
-import { getSession, unauthorized, forbidden } from './_lib/auth.js';
+import { getSession, unauthorized } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') return handleGet(req, res);
@@ -43,7 +43,12 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
   if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
 
   // Tenant role can only edit own tenant. Super can edit any.
-  if (session.role === 'tenant' && session.tenantId !== tenant.id) return forbidden(res);
+  if (session.role === 'tenant' && session.tenantId !== tenant.id) {
+    console.warn('[api/content] tenant mismatch', { sessionTenantId: session.tenantId, slug, tenantId: tenant.id });
+    return res.status(403).json({
+      error: 'Diese Sitzung gehört zu einem anderen Mandanten. Bitte abmelden und neu anmelden.',
+    });
+  }
 
   const parse = SiteContentSchema.safeParse(req.body);
   if (!parse.success) {

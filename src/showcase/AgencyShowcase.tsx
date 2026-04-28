@@ -1115,16 +1115,16 @@ function NumbersSection() {
             In <em className="italic-pop">Zahlen.</em>
           </h2>
           <p className="md:col-span-5 text-lg text-muted reveal">
-            Schnelle Websites, klare Prozesse, messbare Ergebnisse. Jedes Projekt ist auf Performance, SEO und Conversion ausgelegt — ohne Bloat, ohne Bullshit.
+            Acht Branchen, jeweils drei Stilrichtungen, ein Admin, mit dem Du Inhalte selbst pflegst – ohne Agentur-Ticket. Jede Seite ist individuell anpassbar, von der Marke bis zum Modul.
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 md:gap-y-0 reveal-stagger">
           {[
-            { v: 6, s: '', l: 'Branchen-Templates' },
-            { v: 3, s: '', l: 'Stilrichtungen je Template' },
+            { v: 8, s: '', l: 'Branchen-Templates' },
+            { v: 3, s: '', l: 'Stilrichtungen je Branche' },
+            { v: 24, s: '+', l: 'Bausteine kombinierbar' },
             { v: 7, s: ' Tage', l: 'Bis online (Ø)' },
-            { v: 100, s: '/100', l: 'PageSpeed Score' },
           ].map((m, i) => (
             <div key={i} className="md:border-l border-line md:pl-8">
               <p className="num-display text-6xl md:text-8xl leading-none">
