@@ -9,7 +9,7 @@ const STUDIO = {
   street: 'Bäckerbühelgasse 14',
   city: '6020 Innsbruck',
   country: 'Österreich',
-  email: 'hello@flamingomedia.de',
+  email: 'hello@flamingomedia.online',
   phone: '+49 1515 5338029',
   phoneAt: '+43 677 6368 1543',
   uid: 'ATU00000000',

@@ -35,7 +35,7 @@ const AGENCY = {
   name: 'FlamingoMedia',
   fullName: 'FlamingoMedia · Websites für lokale Marken',
   tagline: 'Websites mit Pop für lokale Marken · Innsbruck · DACH',
-  email: 'hello@flamingomedia.de',
+  email: 'hello@flamingomedia.online',
   phone: '+49 1515 5338029',
   phoneAt: '+43 677 6368 1543',
   /** Wordmark variants (text only). */
