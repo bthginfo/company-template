@@ -333,7 +333,11 @@ export const SiteContentSchema = z.object({
    * Setting a key to `false` hides that section on the rendered home page.
    */
   sectionVisibility: z.record(z.boolean()).optional().default({}),
-});
+}).passthrough();
+// `.passthrough()` keeps any extra admin-saved fields (announcements, values,
+// team, faq, highlights, process, certifications, press, etc.) intact — the
+// admin editor already persists them, and templates read them via
+// `(content as any).field ?? hardcodedDefault`.
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;
 

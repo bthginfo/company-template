@@ -21,6 +21,7 @@ import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
+import { getOpenStatus } from '@/lib/open-hours';
 import { BranchSignature } from './BranchSignature';
 import {
   MenuCategoriesModule,
@@ -209,7 +210,7 @@ export default function TemplateApp({
   style?: TemplateStyle;
 }) {
   const cfg = NAV_BY_VARIANT[variant];
-  const announcements = announcementsFor(variant);
+  const announcements = announcementsFor(variant, content);
   useReveal();
 
   // Tenant-overridden navigation: only kept items with non-empty label that are visible.
@@ -286,12 +287,34 @@ function PageSeo({ page, variant, content }: { page: PageId; variant: TemplateVa
   return <Seo title={l.title} description={l.description} content={content} template={tplKey} page={page} />;
 }
 
-function announcementsFor(v: TemplateVariant) {
-  if (v === 'restaurant') return ['Heute geöffnet · 17:30 – 22:00', 'Tisch online reservieren', 'Trüffel-Saison läuft', 'Innsbruck · Maria-Theresien-Straße'];
-  if (v === 'salon') return ['Aktuell freie Termine · Diese Woche', 'Bridal-Beratung kostenlos', 'Kérastase Education-Partner', 'München-Schwabing'];
-  if (v === 'hotel') return ['Zimmer verfügbar · Wochenende', 'Spa & Sauna inklusive', 'Familienbetrieb seit 1958', 'Igls bei Innsbruck'];
-  if (v === 'tourism') return ['Täglich geführte Touren', 'Kleine Gruppen · max. 12', '14 lizenzierte Guides', 'Innsbruck · Tirol'];
-  return ['24/7 Notdienst · 60 Minuten Anfahrt', 'KfW-Förderung bis 35 %', 'Festpreis-Garantie', 'Ingolstadt & Umgebung'];
+function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
+  // 1. Tenant override (admin-saved) wins.
+  const overlay = (content as any).announcements as string[] | undefined;
+  let base: string[];
+  if (overlay && overlay.length) {
+    base = overlay.filter((s) => s && s.trim());
+  } else if (v === 'restaurant') base = ['Heute geöffnet', 'Tisch online reservieren', 'Trueffel-Saison läuft', 'Innsbruck · Maria-Theresien-Straße'];
+  else if (v === 'salon') base = ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Kérastase Education-Partner', 'München-Schwabing'];
+  else if (v === 'hotel') base = ['Zimmer verfügbar', 'Spa & Sauna inklusive', 'Familienbetrieb seit 1958', 'Igls bei Innsbruck'];
+  else if (v === 'tourism') base = ['Täglich geführte Touren', 'Kleine Gruppen', 'Lizenzierte Guides', 'Innsbruck · Tirol'];
+  else base = ['24/7 Notdienst', 'KfW-Förderung bis 35 %', 'Festpreis-Garantie', 'Ingolstadt & Umgebung'];
+
+  // 2. Auto-prepend a real "Heute geöffnet · HH:MM – HH:MM" indicator when
+  //    the tenant has structured opening hours we can parse.
+  try {
+    const status = getOpenStatus(content.contact?.hours);
+    if (status.todayLabel) {
+      const live = status.isOpen
+        ? `Heute geöffnet · ${status.todayFull ?? status.todayLabel}`
+        : `Heute · ${status.todayFull ?? status.todayLabel}`;
+      // De-duplicate against any tenant string that already mentions "heute"/"geöffnet".
+      const filtered = base.filter((s) => !/heute|geöffnet|aktuell offen|jetzt offen/i.test(s));
+      return [live, ...filtered];
+    }
+  } catch {
+    /* parse failed — fall through to plain announcements */
+  }
+  return base;
 }
 
 /* ─── Home ─────────────────────────────────────────────────────────── */
@@ -1052,7 +1075,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
       />
 
       {/* Highlights ribbon */}
-      <ServiceHighlights variant={variant} />
+      <ServiceHighlights variant={variant} content={content} />
 
       <Section spacing="lg" className={style === 'modern' ? 'surface' : ''}>
         {style === 'bold' ? (
@@ -1068,7 +1091,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
       <BranchModulesInline variant={variant} content={content} />
 
       {/* How it works strip */}
-      <ServiceProcess variant={variant} />
+      <ServiceProcess variant={variant} content={content} />
 
       {/* FAQ */}
       <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>} className="surface">
@@ -1080,16 +1103,17 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
   );
 }
 
-function ServiceHighlights({ variant }: { variant: TemplateVariant }) {
-  const items: Record<TemplateVariant, { t: string; d: string }[]> = {
+function ServiceHighlights({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  const overlay = (content as any).highlights as { t: string; d: string }[] | undefined;
+  const fallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Saisonale Karte', d: 'Wechselt mit den Jahreszeiten – schauen Sie immer wieder rein.' },
       { t: 'Hausgemachte Pasta', d: 'Täglich frisch gezogen, nach traditioneller Rezeptur.' },
-      { t: 'Wein vom Winzer', d: 'Über 50 Positionen, 28 davon offen.' },
+      { t: 'Wein vom Winzer', d: 'Sorgfältig kuratierte Auswahl, gerne mit Beratung.' },
       { t: 'Allergene gekennzeichnet', d: 'Klar markiert in der Karte. Auf Wunsch passen wir Gerichte an.' },
     ],
     salon: [
-      { t: 'Kostenlose Beratung', d: '15 Minuten Gespräch vor Ihrem ersten Termin.' },
+      { t: 'Kostenlose Beratung', d: 'Kurzes Gespräch vor Ihrem ersten Termin – in Ruhe und ehrlich.' },
       { t: 'Terminerinnerung per SMS', d: 'Damit Sie nichts vergessen – einen Tag vorher und am Tag selbst.' },
       { t: 'Geschenkgutscheine', d: 'Auch online erhältlich, in jeder Höhe und ohne Verfallsdatum.' },
       { t: 'Bridal-Beratung', d: 'Probestyling, Tag der Hochzeit, optional Make-up – alles aus einer Hand.' },
@@ -1101,7 +1125,7 @@ function ServiceHighlights({ variant }: { variant: TemplateVariant }) {
       { t: 'Garantie über Gesetz hinaus', d: 'Auf unsere Arbeit fünf Jahre Gewährleistung – freiwillig.' },
     ],
     hotel: [
-      { t: 'Spa inklusive', d: 'Sauna, Dampfbad und Außenpool stehen Hausgästen täglich offen.' },
+      { t: 'Spa inklusive', d: 'Sauna, Dampfbad und Außenpool stehen Hausgästen zur Verfügung.' },
       { t: 'Genuss aus der Küche', d: 'Halbpension, regionale Produkte, hausgemachte Mehlspeisen.' },
       { t: 'Kostenfreie Stornierung', d: 'Bis 7 Tage vor Anreise – weil Pläne sich ändern dürfen.' },
       { t: 'Hund willkommen', d: 'Mit Decke, Napf und festen Auslaufzeiten in der Anlage.' },
@@ -1113,10 +1137,12 @@ function ServiceHighlights({ variant }: { variant: TemplateVariant }) {
       { t: 'Wetterbedingt flexibel', d: 'Bei Tour-Absage durch uns volle Erstattung oder Verschiebung.' },
     ],
   };
+  const list = overlay && overlay.length ? overlay.filter((it) => it.t || it.d) : fallbacks[variant];
+  if (!list.length) return null;
   return (
     <section className="py-10 surface border-y border-line">
       <div className="container-x grid grid-cols-2 md:grid-cols-4 gap-5">
-        {items[variant].map((it, i) => (
+        {list.map((it, i) => (
           <div key={i} className="reveal">
             <p className="font-display text-xl">{it.t}</p>
             <p className="mt-1 text-sm text-muted leading-relaxed">{it.d}</p>
@@ -1127,8 +1153,9 @@ function ServiceHighlights({ variant }: { variant: TemplateVariant }) {
   );
 }
 
-function ServiceProcess({ variant }: { variant: TemplateVariant }) {
-  const steps: Record<TemplateVariant, { t: string; d: string }[]> = {
+function ServiceProcess({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  const overlay = (content as any).process as { t: string; d: string }[] | undefined;
+  const fallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Reservieren', d: 'Online oder per Telefon – wir bestätigen sofort.' },
       { t: 'Ankommen', d: 'Wir empfangen Sie persönlich und begleiten Sie an Ihren Tisch.' },
@@ -1160,10 +1187,12 @@ function ServiceProcess({ variant }: { variant: TemplateVariant }) {
       { t: 'Erinnerung', d: 'Fotos und Tour-Rückblick per Mail im Nachgang.' },
     ],
   };
+  const list = overlay && overlay.length ? overlay.filter((s) => s.t || s.d) : fallbacks[variant];
+  if (!list.length) return null;
   return (
     <Section eyebrow="So läuft es ab" title={<>In <em className="italic-pop">vier Schritten.</em></>}>
       <ol className="grid md:grid-cols-4 gap-0 md:gap-0 reveal-stagger">
-        {steps[variant].map((s, i) => (
+        {list.map((s, i) => (
           <li key={i} className="relative md:border-l border-t md:border-t-0 border-line p-6 md:p-7">
             <span className="absolute -left-1.5 -top-1.5 md:left-[-7px] md:top-7 h-3 w-3 rounded-full bg-brand" style={{ boxShadow: '0 0 0 6px var(--bg-color)' }} />
             <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
@@ -1184,7 +1213,14 @@ function GalleryPage({
     <>
       <PageHero
         eyebrow={eyebrow ?? (variant === 'tradesman' ? 'Projekte' : 'Galerie')}
-        title={title ?? (variant === 'tradesman' ? 'Referenzen aus der Werkstatt.' : variant === 'salon' ? 'Looks & Momente.' : 'Bilder & Eindrücke.')}
+        title={title ?? (
+          variant === 'tradesman' ? 'Referenzen aus der Werkstatt.' :
+          variant === 'salon' ? 'Looks & Momente.' :
+          variant === 'hotel' ? 'Haus & Spa.' :
+          variant === 'tourism' ? 'Unterwegs in den Bergen.' :
+          variant === 'restaurant' ? 'Aus Küche & Saal.' :
+          'Bilder & Eindrücke.'
+        )}
         subtitle={
           variant === 'restaurant'
             ? 'Eindrücke aus dem Lokal, von Tellern, Saucen und Familie. Aufgenommen in echtem Kerzenlicht.'
@@ -1268,11 +1304,11 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         </Section>
       )}
 
-      <ValuesSection variant={variant} />
+      <ValuesSection variant={variant} content={content} />
 
       <Timeline content={content} />
 
-      <TeamSection variant={variant} />
+      <TeamSection variant={variant} content={content} />
 
       <NumbersBand variant={variant} content={content} />
 
@@ -1298,8 +1334,9 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
   );
 }
 
-function ValuesSection({ variant }: { variant: TemplateVariant }) {
-  const values: Record<TemplateVariant, { t: string; d: string }[]> = {
+function ValuesSection({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  const overlay = (content as any).values as { t: string; d: string }[] | undefined;
+  const fallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Saisonal & ehrlich.', d: 'Wir kaufen, was gerade Saison hat. Lieber weniger Karte, dafür perfekt – als Nudeln aus der Tüte das ganze Jahr.' },
       { t: 'Familie kocht.', d: 'In unserer Küche steht Familie. Drei Generationen geben weiter, was sie gelernt haben – und wir verändern es behutsam.' },
@@ -1326,10 +1363,12 @@ function ValuesSection({ variant }: { variant: TemplateVariant }) {
       { t: 'Lokal verwurzelt.', d: 'Wir leben hier. Sie bekommen die Tour, die wir Freund:innen empfehlen würden.' },
     ],
   };
+  const list = overlay && overlay.length ? overlay.filter((v) => v.t || v.d) : fallbacks[variant];
+  if (!list?.length) return null;
   return (
     <Section eyebrow="Was uns wichtig ist" title={<>Drei <em className="italic-pop">Grundsätze.</em></>} className="surface">
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-        {values[variant].map((v, i) => (
+        {list.map((v, i) => (
           <article key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
             <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
             <h3 className="font-display text-2xl mt-4">{v.t}</h3>
@@ -1341,8 +1380,9 @@ function ValuesSection({ variant }: { variant: TemplateVariant }) {
   );
 }
 
-function TeamSection({ variant }: { variant: TemplateVariant }) {
-  const team: Record<TemplateVariant, { n: string; r: string; img: string; bio: string }[]> = {
+function TeamSection({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+  const overlay = (content as any).team as { n: string; r: string; img: string; bio: string }[] | undefined;
+  const fallbacks: Record<TemplateVariant, { n: string; r: string; img: string; bio: string }[]> = {
     restaurant: [
       { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&w=900&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien, kam 2018 zurück in den Familienbetrieb.' },
       { n: 'Marco Riva', r: 'Pizzaiolo', img: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=900&q=80', bio: 'Steht seit zwölf Jahren am Steinofen. Zaubert die Margherita DOP, auf die wir stolz sind.' },
@@ -1370,13 +1410,15 @@ function TeamSection({ variant }: { variant: TemplateVariant }) {
       { n: 'Jakob Pichler', r: 'Foto & Outdoor', img: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=900&q=80', bio: 'Outdoor-Fotograf und Wanderführer. Spezialist für Sonnenaufgangs- und Sterne-Touren.' },
     ],
   };
+  const list = overlay && overlay.length ? overlay.filter((m) => m.n || m.r) : fallbacks[variant];
+  if (!list?.length) return null;
   return (
     <Section eyebrow="Team" title={<>Menschen <em className="italic-pop">hinter dem Betrieb.</em></>}>
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-        {team[variant].slice(0, 3).map((m, i) => (
+        {list.slice(0, 3).map((m, i) => (
           <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
             <div className="aspect-[4/5] img-zoom">
-              <img src={m.img} alt={m.n} className="w-full h-full object-cover" loading="lazy" />
+              {m.img ? <img src={m.img} alt={m.n} className="w-full h-full object-cover" loading="lazy" /> : <div className="w-full h-full bg-[var(--surface-color)]" />}
             </div>
             <div className="p-7">
               <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>

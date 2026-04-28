@@ -239,7 +239,7 @@ function TradesmanSignature({ style, content }: { style: TemplateStyle; content:
             <div className="mt-8 bg-white border border-line rounded-2xl p-6">
               <p className="text-xs font-mono uppercase tracking-widest text-muted">Direktwahl</p>
               {phone && <a href={'tel:' + phone.replace(/\s/g, '')} className="block mt-2 font-display text-3xl text-brand">{phone}</a>}
-              <p className="mt-4 text-sm text-muted">Innerhalb von 60 Minuten vor Ort im Großraum. Keine Bandansage, kein Dispatch — Sie sprechen direkt mit uns.</p>
+              <p className="mt-4 text-sm text-muted">Schnell vor Ort, keine Bandansage, kein Dispatch — Sie sprechen direkt mit uns.</p>
             </div>
           </div>
           <div className="md:col-span-7 grid sm:grid-cols-2 gap-3">
@@ -381,12 +381,13 @@ function TourismSignature({ style, content }: { style: TemplateStyle; content: S
   const tours = content.services.slice(0, 4);
   if (!tours.length) return null;
 
-  // Build a fake calendar of upcoming Saturdays (deterministic from today).
-  const upcoming = Array.from({ length: tours.length }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + (6 - d.getDay() + 7) % 7 + i * 7);
-    return d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short', weekday: 'short' });
-  });
+  // Use the optional duration field on each service as the leading label.
+  // No fake dates: only show what tenants can actually edit.
+  const upcoming = tours.map((t: any) =>
+    (t.duration && String(t.duration).trim()) ||
+    (t.date && String(t.date).trim()) ||
+    `Tour 0${(tours.indexOf(t) + 1)}`
+  );
 
   if (style === 'bold') {
     return (
