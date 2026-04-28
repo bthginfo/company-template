@@ -3,6 +3,7 @@ import { getTemplateKey, getTemplateStyle, type TemplateStyle } from './lib/tena
 import RestaurantTemplate from './templates/restaurant';
 import SalonTemplate from './templates/salon';
 import TradesmanTemplate from './templates/tradesman';
+import ExtraBranchTemplate from './templates/extra';
 import type { SiteContent } from './lib/types';
 
 type TplProps = { content: SiteContent; style?: TemplateStyle };
@@ -11,6 +12,9 @@ const TEMPLATES: Record<string, (props: TplProps) => JSX.Element> = {
   restaurant: RestaurantTemplate,
   salon: SalonTemplate,
   tradesman: TradesmanTemplate,
+  consulting: ExtraBranchTemplate,
+  medical: ExtraBranchTemplate,
+  fitness: ExtraBranchTemplate,
 };
 
 export function SiteRouter() {

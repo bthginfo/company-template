@@ -28,16 +28,20 @@ import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema, type SiteContent, type TemplateKey } from '../src/lib/types';
+import { EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
+
+const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'] as const;
+type AnyTemplate = typeof VALID_TEMPLATES[number];
 
 const [, , slug, name, template, styleArg] = process.argv;
 
-const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <restaurant|salon|tradesman> [classic|modern|bold]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n`;
+const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <restaurant|salon|tradesman|consulting|medical|fitness> [classic|modern|bold]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n`;
 
 if (slug === '--help' || slug === '-h') {
   console.log(HELP);
   process.exit(0);
 }
-if (!slug || !name || !template || !['restaurant', 'salon', 'tradesman'].includes(template)) {
+if (!slug || !name || !template || !VALID_TEMPLATES.includes(template as AnyTemplate)) {
   console.error(HELP);
   process.exit(1);
 }
@@ -120,6 +124,23 @@ const DEFAULT_CONTENT: Record<TemplateKey, SiteContent> = {
   }),
 };
 
+/** Defaults for branches that share the single-page ExtraBranchTemplate.
+ *  We seed from the showcase demo content so the freshly provisioned site
+ *  already looks complete; the admin can then customize via the editor. */
+function extraDefaults(key: 'consulting' | 'medical' | 'fitness'): SiteContent {
+  const base = EXTRA_DEMO_CONTENT[key];
+  return SiteContentSchema.parse({
+    ...base,
+    brand: { ...base.brand, name },
+    hero: { ...base.hero, title: name },
+  });
+}
+
+function defaultsFor(t: AnyTemplate): SiteContent {
+  if (t === 'consulting' || t === 'medical' || t === 'fitness') return extraDefaults(t);
+  return DEFAULT_CONTENT[t as TemplateKey];
+}
+
 const SHARED_KEYS = [
   'AUTH_SECRET',
   'ADMIN_PASSWORD_HASH',
@@ -150,7 +171,7 @@ async function main() {
   } else {
     const [row] = await db.insert(schema.tenants).values({ slug, name, template, style, passwordHash }).returning();
     tenantId = row.id;
-    await db.insert(schema.siteContent).values({ tenantId, data: DEFAULT_CONTENT[template as TemplateKey] }).onConflictDoNothing();
+    await db.insert(schema.siteContent).values({ tenantId, data: defaultsFor(template as AnyTemplate) }).onConflictDoNothing();
     console.log(`  ✓ Tenant row + default content created`);
   }
 
