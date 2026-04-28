@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { upload } from '@vercel/blob/client';
+import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
 
 export function ImageField({
   url,
@@ -15,8 +16,14 @@ export function ImageField({
   const [err, setErr] = useState<string | null>(null);
 
   const doUpload = async (file: File) => {
-    setBusy(true);
     setErr(null);
+    try {
+      assertValidUpload(file);
+    } catch (e: any) {
+      setErr(e?.message || 'Datei nicht erlaubt');
+      return;
+    }
+    setBusy(true);
     try {
       const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       const pathname = `tenants/${Date.now()}-${safe}`;
@@ -27,7 +34,7 @@ export function ImageField({
       });
       onChange(blob.url);
     } catch (e: any) {
-      setErr(e?.message || 'Upload fehlgeschlagen');
+      setErr(humanizeUploadError(e));
     } finally {
       setBusy(false);
     }
@@ -71,6 +78,7 @@ export function ImageField({
           ) : null}
         </div>
         {err ? <p className="text-xs text-rose-600 mt-1">{err}</p> : null}
+        <p className="text-[11px] text-slate-500 mt-1 leading-snug">{UPLOAD_HINT}</p>
       </div>
     </div>
   );

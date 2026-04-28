@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const safeName = pathname.replace(/[^a-zA-Z0-9._/-]/g, '_');
         return {
           allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'],
-          maximumSizeInBytes: 25 * 1024 * 1024, // 25 MB hard cap
+          maximumSizeInBytes: 1.5 * 1024 * 1024, // 1.5 MB hard cap (performance budget)
           tokenPayload: JSON.stringify({ tenantId: scope, name: safeName }),
         };
       },

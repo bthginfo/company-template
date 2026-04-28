@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { RichTextEditor } from './RichTextEditor';
+import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -328,6 +329,12 @@ function ImagePickerField({ label, value, onChange, ratio = 'aspect-[4/3]' }: { 
 
   const onPick = async (file: File) => {
     setError(null);
+    try {
+      assertValidUpload(file);
+    } catch (e: any) {
+      setError(e?.message || 'Datei nicht erlaubt');
+      return;
+    }
     if (!_ctx.uploadImage) {
       // demo mode: read as data url so the preview reflects the choice
       const reader = new FileReader();
@@ -340,14 +347,14 @@ function ImagePickerField({ label, value, onChange, ratio = 'aspect-[4/3]' }: { 
       const url = await _ctx.uploadImage(file);
       onChange(url);
     } catch (e: any) {
-      setError(e?.message || 'Upload fehlgeschlagen');
+      setError(humanizeUploadError(e));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <Field label={label} hint={_ctx.uploadImage ? 'Bild hochladen oder URL einfügen.' : 'In der Demo wird das Bild nur lokal angezeigt.'}>
+    <Field label={label} hint={_ctx.uploadImage ? UPLOAD_HINT : 'In der Demo wird das Bild nur lokal angezeigt.'}>
       <div className="grid sm:grid-cols-[180px_1fr] gap-3 items-start">
         <div className={`${ratio} rounded-xl overflow-hidden bg-[#f6f6f3] border border-line grid place-items-center`}>
           {value ? <img src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Kein Bild</span>}

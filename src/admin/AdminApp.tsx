@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { upload } from '@vercel/blob/client';
 import { useContent } from '@/lib/content-context';
 import { AdminEditorBody, type UploadImageFn } from './AdminEditorBody';
+import { assertValidUpload, humanizeUploadError } from './upload-limits';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 
 type Session = { role: 'super' | 'tenant'; tenantId: string | null; slug: string | null } | null;
@@ -15,6 +16,7 @@ function asTemplateKey(v: string | undefined): TemplateKey {
 
 const uploadImage: UploadImageFn = async (file) => {
   // Direct client-upload — bypasses the 4.5 MB serverless body limit.
+  assertValidUpload(file);
   const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const pathname = `tenants/${Date.now()}-${safe}`;
   try {
@@ -25,7 +27,7 @@ const uploadImage: UploadImageFn = async (file) => {
     });
     return blob.url;
   } catch (e: any) {
-    throw new Error(e?.message || 'Upload fehlgeschlagen');
+    throw new Error(humanizeUploadError(e));
   }
 };
 
