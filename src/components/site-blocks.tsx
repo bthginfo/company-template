@@ -104,9 +104,11 @@ export function SiteHeader({
                 style={{ background: `conic-gradient(from 90deg, var(--accent-color), var(--accent-color-2), var(--brand-color), var(--accent-color))` }}
               />
             )}
-            <span className={`font-display text-2xl tracking-tight transition-colors ${txt}`}>
-              {content.brand.name}
-            </span>
+            {!(content.brand.logoUrl && content.brand.hideName) && (
+              <span className={`font-display text-2xl tracking-tight transition-colors ${txt}`}>
+                {content.brand.name}
+              </span>
+            )}
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
@@ -145,8 +147,7 @@ export function SiteHeader({
                 <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto max-w-[180px] object-contain" />
               ) : (
                 <span className="font-display text-2xl text-slate-900">{content.brand.name}</span>
-              )}
-              <button onClick={() => setMobile(false)} className="p-2 text-slate-700" aria-label="Schließen">
+              )}              <button onClick={() => setMobile(false)} className="p-2 text-slate-700" aria-label="Schließen">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
                 </svg>
@@ -405,11 +406,11 @@ export function ContactBlock({ content, showForm = true, formTenant }: { content
             {c.hours.length ? (
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted">Öffnungszeiten</p>
-                <ul className="mt-2 space-y-1.5">
+                <ul className="mt-2 max-w-md grid grid-cols-[auto,1fr] gap-x-6 gap-y-1.5">
                   {c.hours.map((h, i) => (
-                    <li key={i} className="flex justify-between max-w-xs">
+                    <li key={i} className="contents">
                       <span className="font-medium">{h.day}</span>
-                      <span className="text-muted font-mono text-sm">{h.time}</span>
+                      <span className="text-muted font-mono text-sm whitespace-nowrap">{h.time}</span>
                     </li>
                   ))}
                 </ul>

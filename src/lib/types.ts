@@ -10,6 +10,8 @@ export const SiteContentSchema = z.object({
     tagline: z.string().optional().default(''),
     logoUrl: z.string().url().optional().or(z.literal('')).default(''),
     primaryColor: z.string().default('#0f172a'),
+    /** When true and a logo is uploaded, hides the brand name text next to the logo (logo only). */
+    hideName: z.boolean().optional().default(false),
   }),
   hero: z.object({
     title: z.string(),
@@ -141,6 +143,9 @@ export const SiteContentSchema = z.object({
     softCtaTitle: z.string().optional().default(''),
     softCtaText: z.string().optional().default(''),
     softCtaButton: z.string().optional().default(''),
+    /** Eyebrow + title for the news/blog teaser block on the home page. */
+    newsEyebrow: z.string().optional().default(''),
+    newsTitle: z.string().optional().default(''),
   }).optional().default({}),
 
   /**

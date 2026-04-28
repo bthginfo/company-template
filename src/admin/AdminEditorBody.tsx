@@ -986,6 +986,17 @@ function BrandPage({ data, setData }: SetterProps) {
           </div>
         </Field>
         <ImagePickerField label="Logo (optional)" value={data.brand.logoUrl || ''} onChange={(v) => setData({ ...data, brand: { ...data.brand, logoUrl: v } })} ratio="aspect-[3/1]" />
+        <Field label="Markenname neben Logo ausblenden" hint="Wenn aktiviert und ein Logo hochgeladen ist, wird der Markenname-Text neben dem Logo ausgeblendet (nur Logo).">
+          <label className="inline-flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={!!data.brand.hideName}
+              onChange={(e) => setData({ ...data, brand: { ...data.brand, hideName: e.target.checked } })}
+              className="h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">Nur Logo anzeigen, Markenname-Text ausblenden</span>
+          </label>
+        </Field>
       </SectionCard>
     </>
   );
@@ -1383,6 +1394,14 @@ function BranchTextEditor({ data, setData, tpl }: SectionProps) {
       <Field label="Soft-CTA Button-Beschriftung" hint={`Standard: ${def.softCtaButton}`}>
         <input className={inputCls} value={bt.softCtaButton ?? ''} onChange={(e) => update({ softCtaButton: e.target.value })} placeholder={def.softCtaButton} />
       </Field>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="News-Teaser Eyebrow" hint="Kleine Beschriftung über der Überschrift. Standard: Aktuelles">
+          <input className={inputCls} value={bt.newsEyebrow ?? ''} onChange={(e) => update({ newsEyebrow: e.target.value })} placeholder="Aktuelles" />
+        </Field>
+        <Field label="News-Teaser Überschrift" hint="Standard: Notizen.">
+          <input className={inputCls} value={bt.newsTitle ?? ''} onChange={(e) => update({ newsTitle: e.target.value })} placeholder="Notizen." />
+        </Field>
+      </div>
     </div>
   );
 }

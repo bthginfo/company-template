@@ -41,24 +41,46 @@ export function RichTextEditor({ value, onChange, placeholder, className, rows =
   const ref = useRef<HTMLDivElement>(null);
   const lastValue = useRef<string>('');
 
+  // Always keep at least one block-level paragraph inside the editor so the
+  // caret has a place to land — without this, clicking into an empty editor
+  // can leave the caret in a non-block context where typing is ignored
+  // until the user manually picks "Absatz" from the toolbar.
+  const ensureBlock = () => {
+    if (!ref.current) return;
+    const html = ref.current.innerHTML.trim();
+    if (html === '' || html === '<br>') {
+      ref.current.innerHTML = '<p><br></p>';
+    }
+  };
+
   // Initial fill + external value changes.
   useEffect(() => {
     if (!ref.current) return;
-    if (ref.current.innerHTML !== value && value !== lastValue.current) {
-      ref.current.innerHTML = value || '';
-      lastValue.current = value || '';
+    const incoming = value || '';
+    if (ref.current.innerHTML !== incoming && incoming !== lastValue.current) {
+      ref.current.innerHTML = incoming || '<p><br></p>';
+      lastValue.current = incoming;
+    } else if (ref.current.innerHTML.trim() === '') {
+      ref.current.innerHTML = '<p><br></p>';
     }
   }, [value]);
 
+  const isEmpty = () => {
+    if (!ref.current) return true;
+    const html = ref.current.innerHTML.trim();
+    return html === '' || html === '<br>' || html === '<p></p>' || html === '<p><br></p>';
+  };
+
   const emit = () => {
     if (!ref.current) return;
-    const html = ref.current.innerHTML;
+    const html = isEmpty() ? '' : ref.current.innerHTML;
     lastValue.current = html;
     onChange(html);
   };
 
   const handle = (c: Cmd) => {
     if (!ref.current) return;
+    ensureBlock();
     ref.current.focus();
     if (c.type === 'exec') {
       document.execCommand(c.cmd, false, c.value);
@@ -90,6 +112,8 @@ export function RichTextEditor({ value, onChange, placeholder, className, rows =
     document.execCommand('insertText', false, text);
   };
 
+  const onFocus = () => { ensureBlock(); };
+
   return (
     <div className={['rounded-2xl border border-line bg-white overflow-hidden', className || ''].join(' ')}>
       <div className="flex flex-wrap gap-1 border-b border-line px-2 py-2 bg-[#fafaf7]">
@@ -105,23 +129,25 @@ export function RichTextEditor({ value, onChange, placeholder, className, rows =
           </button>
         ))}
       </div>
-      <div
-        ref={ref}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={emit}
-        onBlur={emit}
-        onPaste={onPaste}
-        data-placeholder={placeholder || 'Beitrag schreiben …'}
-        className="rte-content prose prose-slate max-w-none px-4 py-3 outline-none focus:ring-0"
-        style={{ minHeight: `${rows * 1.5}rem` }}
-      />
+      <div className="relative">
+        <div
+          ref={ref}
+          contentEditable
+          suppressContentEditableWarning
+          onInput={emit}
+          onBlur={emit}
+          onFocus={onFocus}
+          onPaste={onPaste}
+          className="rte-content prose prose-slate max-w-none px-4 py-3 outline-none focus:ring-0"
+          style={{ minHeight: `${rows * 1.5}rem` }}
+        />
+        {!value && (
+          <span className="pointer-events-none absolute top-3 left-4 text-slate-400 select-none">
+            {placeholder || 'Beitrag schreiben …'}
+          </span>
+        )}
+      </div>
       <style>{`
-        .rte-content:empty::before {
-          content: attr(data-placeholder);
-          color: #94a3b8;
-          pointer-events: none;
-        }
         .rte-content h2 { font-size: 1.5rem; font-weight: 600; margin: 1.2em 0 0.4em; }
         .rte-content h3 { font-size: 1.2rem; font-weight: 600; margin: 1em 0 0.3em; }
         .rte-content p { margin: 0.6em 0; }

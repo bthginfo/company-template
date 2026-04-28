@@ -490,7 +490,7 @@ function ShowcaseFooter() {
 function Landing() {
   return (
     <>
-      <Seo title="FlamingoMedia · Websites für lokale Marken" description="Editorial-Design mit Pop für Restaurants, Hotels, Tourismus, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Sie selbst pflegen." />
+      <Seo title="FlamingoMedia · Websites für lokale Marken" description="Editorial-Design mit Pop für Restaurants, Hotels, Tourismus, Handwerk, Praxen, Beratung, Studios und viele mehr in der DACH-Region. Inhalte, die Du selbst pflegst." />
       <HeroSection />
       <ClientLogosSection />
       <ServicesSection />
@@ -540,7 +540,7 @@ function HeroSection() {
         <div className="grid md:grid-cols-12 gap-8 mt-14">
           <p className="md:col-span-7 text-lg md:text-2xl text-white/85 leading-relaxed reveal-fast is-visible">
             Wir gestalten und betreuen Websites für inhabergeführte Betriebe in der DACH-Region.
-            Editorial-Design, das mit dem Tempo Ihrer Marke gehen kann. Inhalte, die Sie selbst pflegen.
+            Editorial-Design, das mit dem Tempo Deiner Marke gehen kann. Inhalte, die Du selbst pflegst.
             Foto und Video von unserem eigenen Team.
           </p>
           <div className="md:col-span-5 md:pl-8 md:border-l border-white/15 self-end reveal-fast is-visible">
@@ -627,7 +627,7 @@ function ServicesSection() {
           </div>
           <p className="md:col-span-5 text-lg text-white/75 leading-relaxed reveal">
             Vier Leistungen. Ein Team. Wir bauen, fotografieren, hosten und kümmern uns –
-            damit Sie sich um Ihren Betrieb kümmern können.
+            damit Du Dich um Deinen Betrieb kümmern kannst.
           </p>
         </div>
 
@@ -678,8 +678,8 @@ function ServicesSection() {
             </div>
             <h3 className="mt-10 font-display text-3xl md:text-4xl leading-[1.05] tracking-tight">Foto &amp; Video</h3>
             <p className="mt-5 text-sm text-white/75 leading-relaxed max-w-md">
-              Eigenes Team kommt zu Ihnen ins Lokal, in die Praxis, in den Salon oder auf die
-              Baustelle. Bilder, die nach Ihnen aussehen – nicht nach Stockfotos.
+              Eigenes Team kommt zu Dir ins Lokal, in die Praxis, in den Salon oder auf die
+              Baustelle. Bilder, die nach Dir aussehen – nicht nach Stockfotos.
             </p>
           </BentoCard>
 
@@ -694,7 +694,7 @@ function ServicesSection() {
             <h3 className="mt-10 font-display text-3xl md:text-4xl leading-[1.05] tracking-tight">Hosting &amp; Pflege</h3>
             <p className="mt-5 text-sm text-muted leading-relaxed">
               Unkompliziertes Hosting und kleine Anpassungen zum Pauschalpreis. 29 €/Monat –
-              wir sind ansprechbar, wenn Sie uns brauchen.
+              wir sind ansprechbar, wenn Du uns brauchst.
             </p>
             <p className="mt-6 font-display text-3xl tabular-nums">
               29<span className="text-base text-muted ml-1">€/Monat</span>
@@ -803,22 +803,22 @@ function ManifestoSection() {
           <span style={{ background: 'rgba(255,255,255,0.4)' }} />Was uns wichtig ist
         </p>
         <h2 className="headline-lg max-w-5xl">
-          <span className="text-white/40">Wir bauen keine Templates.</span> Wir bauen <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>Werkzeuge</em>, mit denen Sie weiterarbeiten können – auch wenn wir nicht da sind.
+          <span className="text-white/40">Wir bauen keine Templates.</span> Wir bauen <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>Werkzeuge</em>, mit denen Du weiterarbeiten kannst – auch wenn wir nicht da sind.
         </h2>
 
         <div className="grid md:grid-cols-3 gap-12 mt-20 reveal-stagger">
           {[
             {
               t: 'Inhalt vor Effekt.',
-              d: 'Eine Website soll zeigen, was Sie wirklich machen. Animationen sind die Würze, nicht das Hauptgericht.',
+              d: 'Eine Website soll zeigen, was Du wirklich machst. Animationen sind die Würze, nicht das Hauptgericht.',
             },
             {
               t: 'Eigentum, nicht Miete.',
-              d: 'Sie haben jederzeit Zugriff auf Ihren Code, Ihre Inhalte und Ihre Bilder. Keine Geiselhaft, kein Lock-in.',
+              d: 'Du hast jederzeit Zugriff auf Deinen Code, Deine Inhalte und Deine Bilder. Keine Geiselhaft, kein Lock-in.',
             },
             {
               t: 'Geschwindigkeit ist Respekt.',
-              d: 'Schnelle Ladezeiten, sauberes Mobile-Design, gute Auffindbarkeit bei Google. Damit Ihre Gäste finden, was sie suchen – und bleiben.',
+              d: 'Schnelle Ladezeiten, sauberes Mobile-Design, gute Auffindbarkeit bei Google. Damit Deine Gäste finden, was sie suchen – und bleiben.',
             },
           ].map((b, i) => (
             <div key={i} className="border-t border-white/15 pt-8">
@@ -841,8 +841,8 @@ function AdminPreviewSection() {
           <p className="eyebrow mb-5">Admin-Bereich</p>
           <h2 className="headline-md">Inhalte pflegen<br /><em className="italic-pop">in einer Minute.</em></h2>
           <p className="mt-6 text-lg text-muted leading-relaxed">
-            Sie loggen sich ein, ändern Texte, Bilder, Speisekarte oder Öffnungszeiten – und drücken Speichern.
-            Keine Plugins, keine Cloud-Dashboards mit 200 Menüs. Nur das, was Sie brauchen.
+            Du loggst Dich ein, änderst Texte, Bilder, Speisekarte oder Öffnungszeiten – und drückst Speichern.
+            Keine Plugins, keine Cloud-Dashboards mit 200 Menüs. Nur das, was Du brauchst.
           </p>
           <ul className="mt-10 space-y-4">
             {[
@@ -925,7 +925,7 @@ function ProcessTimelineSection() {
     {
       n: '01',
       t: 'Kennenlernen',
-      d: 'Wir sprechen 30 Minuten über Ihren Betrieb, Ihr Ziel und Ihren Stil. Kostenlos, unverbindlich, ohne Sales-Gedöns.',
+      d: 'Wir sprechen 30 Minuten über Deinen Betrieb, Dein Ziel und Deinen Stil. Kostenlos, unverbindlich, ohne Sales-Gedöns.',
       meta: 'Tag 1',
     },
     {
@@ -937,13 +937,13 @@ function ProcessTimelineSection() {
     {
       n: '03',
       t: 'Aufbau & Befüllung',
-      d: 'Sie wählen Template und Farbschema. Wir bauen auf, befüllen mit Ihren Inhalten und schicken Ihnen einen Preview-Link.',
+      d: 'Du wählst Template und Farbschema. Wir bauen auf, befüllen mit Deinen Inhalten und schicken Dir einen Preview-Link.',
       meta: 'Tag 2–7',
     },
     {
       n: '04',
       t: 'Live-Schaltung',
-      d: 'Sie geben grünes Licht. Wir schalten live, übergeben den Admin-Bereich und sind ab da Ihr direkter Ansprechpartner.',
+      d: 'Du gibst grünes Licht. Wir schalten live, übergeben den Admin-Bereich und sind ab da Dein direkter Ansprechpartner.',
       meta: 'Tag 8–10',
     },
   ];
@@ -958,7 +958,7 @@ function ProcessTimelineSection() {
           <p className="md:col-span-5 text-lg text-muted reveal">
             Vom ersten Anruf bis zur Live-Schaltung – ein klarer Ablauf ohne Überraschungen.
             Wie schnell es geht, hängt vor allem davon ab, wie zügig Inhalte (Texte, Fotos)
-            von Ihrer Seite kommen. Sie wissen jederzeit, wo wir gerade stehen.
+            von Deiner Seite kommen. Du weißt jederzeit, wo wir gerade stehen.
           </p>
         </div>
 
@@ -1024,7 +1024,7 @@ function ProductionSection() {
             </h2>
           </div>
           <p className="md:col-span-5 text-lg text-white/80 reveal">
-            Buchbar als Add-on. Wir kommen ins Lokal, in die Praxis, in den Salon, ins Studio oder auf die Baustelle und produzieren Inhalte, die zu Ihrer Marke passen – nur wenn Sie es wünschen.
+            Buchbar als Add-on. Wir kommen ins Lokal, in die Praxis, in den Salon, ins Studio oder auf die Baustelle und produzieren Inhalte, die zu Deiner Marke passen – nur wenn Du es wünschst.
           </p>
         </div>
 
@@ -1145,10 +1145,10 @@ function CalloutFooter() {
         </p>
         <h2 className="headline-xl">
           Bauen wir<br />
-          <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>Ihre Website.</em>
+          <em className="italic-pop" style={{ color: 'var(--accent-color)' }}>Deine Website.</em>
         </h2>
         <p className="mt-8 text-lg text-white/80 max-w-xl mx-auto">
-          Schreiben Sie uns – wir antworten innerhalb von 24 Stunden mit einer ehrlichen Einschätzung.
+          Schreib uns – wir antworten innerhalb von 24 Stunden mit einer ehrlichen Einschätzung.
         </p>
         <div className="mt-12 flex flex-wrap gap-4 justify-center">
           <Link to="/kontakt" className="btn-accent">Beratung anfragen <span aria-hidden>→</span></Link>
@@ -1166,17 +1166,17 @@ function TemplatesGallery() {
   useReveal();
   return (
     <>
-      <Seo title="Templates · FlamingoMedia" description="Acht Branchen, drei Stile, viele weitere auf Anfrage: wählen Sie Ihr Template als Klassisch, Modern oder Bold." />
+      <Seo title="Templates · FlamingoMedia" description="Acht Branchen, drei Stile, viele weitere auf Anfrage: wähle Dein Template als Klassisch, Modern oder Bold." />
       <section className="pt-44 pb-20 md:pb-28">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">Galerie · Templates</p>
           <h1 className="headline-xl max-w-5xl reveal">
-            Wählen Sie Ihren Stil.<br />
+            Wähle Deinen Stil.<br />
             <em className="italic-pop">Wir machen den Rest.</em>
           </h1>
           <p className="mt-8 text-lg md:text-xl text-muted max-w-2xl reveal">
             Jedes Template ist multi-page, animiert und mit Live-Farbschema-Wechsel ausgestattet.
-            Klicken Sie auf eine Vorschau, um das Template zu erleben.
+            Klick auf eine Vorschau, um das Template zu erleben.
           </p>
         </div>
       </section>
@@ -1291,13 +1291,13 @@ function TemplatesGallery() {
 function ProcessPage() {
   useReveal();
   const steps = [
-    { d: 'Tag 1', t: 'Kennenlernen', body: '30-Minuten Online-Call oder Telefon. Wir verstehen Ihren Betrieb, Ihre Konkurrenz, Ihre Ziele. Sie bekommen unsere ehrliche Einschätzung.' },
-    { d: 'Tag 2', t: 'Briefing & Auswahl', body: 'Sie wählen Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.' },
+    { d: 'Tag 1', t: 'Kennenlernen', body: '30-Minuten Online-Call oder Telefon. Wir verstehen Deinen Betrieb, Deine Konkurrenz, Deine Ziele. Du bekommst unsere ehrliche Einschätzung.' },
+    { d: 'Tag 2', t: 'Briefing & Auswahl', body: 'Du wählst Template und Paket. Wir senden ein verbindliches Angebot. Anzahlung 50 %.' },
     { d: 'Optional', t: 'Foto- & Videoshooting', body: 'Add-on, kein Standard. Auf Wunsch kommen wir mit kleinem Team vor Ort und produzieren Bild- und Filmmaterial. Auch nachträglich oder separat buchbar.' },
-    { d: 'Tag 3–7', t: 'Aufbau', body: 'Wir richten das Template ein, importieren Ihre Inhalte, optimieren Bilder, schreiben SEO-Texte vor.' },
-    { d: 'Tag 8', t: 'Feedback-Schleife', body: 'Sie schauen sich den Preview-Link an. Eine Korrektur-Runde inkludiert. Sie senden Anmerkungen, wir setzen um.' },
-    { d: 'Tag 9–10', t: 'Live-Schaltung', body: 'Wir verbinden Ihre Domain und übergeben den Admin-Bereich. Sie sind online.' },
-    { d: 'Laufend', t: 'Pflege & Support', body: 'Sie pflegen Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.' },
+    { d: 'Tag 3–7', t: 'Aufbau', body: 'Wir richten das Template ein, importieren Deine Inhalte, optimieren Bilder, schreiben SEO-Texte vor.' },
+    { d: 'Tag 8', t: 'Feedback-Schleife', body: 'Du schaust Dir den Preview-Link an. Eine Korrektur-Runde inkludiert. Du sendest Anmerkungen, wir setzen um.' },
+    { d: 'Tag 9–10', t: 'Live-Schaltung', body: 'Wir verbinden Deine Domain und übergeben den Admin-Bereich. Du bist online.' },
+    { d: 'Laufend', t: 'Pflege & Support', body: 'Du pflegst Inhalte selbst. Wir kümmern uns um den Hosting-Teil und kleine Anpassungen. 29 €/Monat.' },
   ];
   return (
     <>
@@ -1396,7 +1396,7 @@ function AboutPage() {
                 n: 'Mario Schubert',
                 r: 'CEO · Foto & Video',
                 img: '/team/mario.webp',
-                bio: 'Der Mann für alles Visuelle. Packt die Kamera aus, denkt in Bildausschnitten und liefert Material, das nach Ihnen aussieht – nicht nach Stockfoto.',
+                bio: 'Der Mann für alles Visuelle. Packt die Kamera aus, denkt in Bildausschnitten und liefert Material, das nach Dir aussieht – nicht nach Stockfoto.',
               },
               {
                 n: 'Julius von Ingelheim',
@@ -1448,7 +1448,7 @@ function Pricing() {
         'Admin-Bereich zum selbst pflegen',
         'Hosting & Pflege inklusive',
         '1 Stunde Einrichtungs-Support',
-        'Online in wenigen Tagen – je nach Verfügbarkeit Ihrer Inhalte',
+        'Online in wenigen Tagen – je nach Verfügbarkeit Deiner Inhalte',
       ],
     },
     {
@@ -1460,7 +1460,7 @@ function Pricing() {
       badge: 'Mit Bild & Film',
       features: [
         'Alles aus „Template"',
-        'Foto-Shooting bei Ihnen vor Ort (halber–ganzer Tag)',
+        'Foto-Shooting bei Dir vor Ort (halber–ganzer Tag)',
         '20–40 bearbeitete Fotos',
         '30–60 Sekunden kurzer Imagefilm',
         'Beratung zu Bildsprache und Look',
@@ -1489,7 +1489,7 @@ function Pricing() {
     { t: 'Foto-Nachshooting', p: '690 €', d: 'Halber Tag. Für saisonale Updates oder neue Produkte.' },
     { t: 'Newsletter-Setup', p: '290 €', d: 'Anbindung an Mailerlite, Brevo oder Mailchimp.' },
     { t: 'Texte & SEO', p: 'ab 490 €', d: 'Schreiben aller Inhalte durch unsere Copywriter:innen, inkl. SEO-Recherche.' },
-    { t: 'Logo-Refresh', p: 'ab 590 €', d: 'Modernisierung Ihres bestehenden Logos. Drei Iterationen.' },
+    { t: 'Logo-Refresh', p: 'ab 590 €', d: 'Modernisierung Deines bestehenden Logos. Drei Iterationen.' },
   ];
 
   return (
@@ -1577,13 +1577,13 @@ function Pricing() {
           </h2>
           <Accordion
             items={[
-              { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise wenige Tage nach Inhalts-Übergabe. Wie schnell es real geht, hängt vor allem davon ab, wie zügig Texte und Fotos von Ihrer Seite kommen. Mit Foto-Add-on planen wir zusätzlich Zeit für Shooting und Schnitt ein.' },
-              { q: 'Kann ich Inhalte selbst pflegen?', a: 'Ja. Sie erhalten einen einfachen Admin-Bereich. Texte, Bilder, Speisekarte und Öffnungszeiten ändern Sie ohne Vorkenntnisse direkt im Browser. Sie sehen den Effekt sofort.' },
-              { q: 'Was passiert, wenn etwas kaputt ist?', a: 'Im Pflegepaket überwachen wir Ihre Seite automatisch – wir bekommen Probleme oft mit, bevor Sie es tun. Wir reagieren innerhalb der Geschäftszeiten in der Regel binnen weniger Stunden.' },
-              { q: 'Wem gehört die Website?', a: 'Ihnen. Sie können den Quellcode jederzeit anfordern, das Hosting wechseln und mit anderen Agenturen weiterarbeiten. Wir liefern keine Verträge mit Lock-in-Klauseln.' },
+              { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise wenige Tage nach Inhalts-Übergabe. Wie schnell es real geht, hängt vor allem davon ab, wie zügig Texte und Fotos von Deiner Seite kommen. Mit Foto-Add-on planen wir zusätzlich Zeit für Shooting und Schnitt ein.' },
+              { q: 'Kann ich Inhalte selbst pflegen?', a: 'Ja. Du bekommst einen einfachen Admin-Bereich. Texte, Bilder, Speisekarte und Öffnungszeiten änderst Du ohne Vorkenntnisse direkt im Browser. Du siehst den Effekt sofort.' },
+              { q: 'Was passiert, wenn etwas kaputt ist?', a: 'Im Pflegepaket überwachen wir Deine Seite automatisch – wir bekommen Probleme oft mit, bevor Du es tust. Wir reagieren innerhalb der Geschäftszeiten in der Regel binnen weniger Stunden.' },
+              { q: 'Wem gehört die Website?', a: 'Dir. Du kannst den Quellcode jederzeit anfordern, das Hosting wechseln und mit anderen Agenturen weiterarbeiten. Wir liefern keine Verträge mit Lock-in-Klauseln.' },
               { q: 'Was kostet eine zusätzliche Sprache?', a: 'Mehrsprachigkeit (DE + EN) kostet einmalig ab 290 €. Weitere Sprachen je nach Umfang. Inhalte können von uns übersetzt oder bereitgestellt werden.' },
               { q: 'Welche Zahlungsweise?', a: '50 % Anzahlung bei Auftrag, 50 % bei Live-Schaltung. Beide Rechnungen mit MwSt. Hosting wird monatlich abgebucht (kündbar zum Monatsende).' },
-              { q: 'Arbeiten Sie auch außerhalb der DACH-Region?', a: 'Ja, auf Anfrage. Allerdings nur dort, wo wir mit Tageslicht und einem Direktflug hinreisen können – sonst leidet die Qualität des Shootings.' },
+              { q: 'Arbeitet ihr auch außerhalb der DACH-Region?', a: 'Ja, auf Anfrage. Allerdings nur dort, wo wir mit Tageslicht und einem Direktflug hinreisen können – sonst leidet die Qualität des Shootings.' },
             ]}
           />
         </div>
@@ -1605,11 +1605,11 @@ function Contact() {
           <div className="md:col-span-6 reveal">
             <p className="eyebrow mb-5">Kontakt</p>
             <h1 className="headline-xl">
-              Lassen Sie<br />
+              Lass<br />
               <em className="italic-pop">uns reden.</em>
             </h1>
             <p className="mt-8 text-lg md:text-xl text-muted max-w-md">
-              Schreiben Sie uns Ihre Idee. Wir antworten innerhalb von 24 Stunden mit einer ehrlichen Einschätzung – auch wenn wir nicht der richtige Partner sind.
+              Schreib uns Deine Idee. Wir antworten innerhalb von 24 Stunden mit einer ehrlichen Einschätzung – auch wenn wir nicht der richtige Partner sind.
             </p>
             <div className="mt-12 space-y-6">
               <a href={`mailto:${AGENCY.email}`} className="block group">
@@ -1684,7 +1684,7 @@ function Contact() {
             ))}
           </div>
           <p className="mt-8 text-sm text-muted reveal">
-            Sie sitzen woanders? Schreiben Sie uns trotzdem – wir arbeiten DACH-weit remote.
+            Du sitzt woanders? Schreib uns trotzdem – wir arbeiten DACH-weit remote.
           </p>
         </div>
       </section>

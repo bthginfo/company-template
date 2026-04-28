@@ -19,6 +19,7 @@ import { TLink } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
+import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { BranchSignature } from './BranchSignature';
 import {
@@ -736,7 +737,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         </>
       )}
 
-      {isSectionVisible(content, 'news') && <NewsPreview content={content} eyebrow="Aktuelles" title="Notizen." />}
+      {isSectionVisible(content, 'news') && <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'Notizen.'} />}
 
       {/* Bold CTA */}
       {isSectionVisible(content, 'softCta') && (
@@ -833,42 +834,11 @@ export function ClassicServicesGrid({ services }: { services: SiteContent['servi
 
 /* ─── Reusable gallery grids ─────────────────────────────────────── */
 function ModernGalleryGrid({ images }: { images: string[] }) {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 reveal-stagger">
-      {images.map((src, i) => (
-        <figure key={i} className="group relative aspect-[4/3] overflow-hidden rounded-2xl border border-line">
-          <img src={src} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" loading="lazy" />
-          <figcaption className="absolute inset-x-0 bottom-0 px-4 py-3 text-xs font-mono uppercase tracking-widest text-white bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition">
-            / {String(i + 1).padStart(2, '0')}
-          </figcaption>
-        </figure>
-      ))}
-    </div>
-  );
+  return <MasonryLightbox images={images} />;
 }
 
 function MasonryGrid({ images }: { images: string[] }) {
-  return (
-    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:_balance] reveal-stagger">
-      {images.map((src, i) => (
-        <figure
-          key={i}
-          className="mb-4 break-inside-avoid overflow-hidden rounded-2xl img-zoom group relative"
-        >
-          <img
-            src={src}
-            alt=""
-            className="block w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-            loading="lazy"
-          />
-          <figcaption className="absolute bottom-3 left-3 right-3 text-[10px] font-mono uppercase tracking-[0.25em] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity">
-            / {String(i + 1).padStart(2, '0')}
-          </figcaption>
-          <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-        </figure>
-      ))}
-    </div>
-  );
+  return <MasonryLightbox images={images} />;
 }
 
 /* Branch-specific action strip — sits right under Hero to make each branch feel different. */
@@ -1758,114 +1728,15 @@ function TradesmanServiceTiles({ services, compact }: { services: SiteContent['s
 
 /* ─── Branch-specific gallery layouts ─────────────────────────────── */
 function GalleryShowcase({
-  variant, images, mode,
+  images, mode,
 }: {
   variant: TemplateVariant;
   images: string[];
   mode: 'teaser' | 'full';
 }) {
   if (images.length === 0) return null;
-  if (variant === 'restaurant') return <RestaurantGallery images={images} mode={mode} />;
-  if (variant === 'salon') return <SalonGallery images={images} mode={mode} />;
-  if (variant === 'hotel') return <HotelGallery images={images} mode={mode} />;
-  if (variant === 'tourism') return <TourismGallery images={images} mode={mode} />;
-  return <TradesmanGallery images={images} mode={mode} />;
-}
-
-function RestaurantGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
-  // Editorial: alternating big landscape with caption + 3-up thumbnail strips.
-  // Always render *complete* blocks of 4 (1 hero + 3 thumbs) to avoid dangling cells.
-  const captions = ['Cucina', 'Sala', 'Pasta', 'Vino', 'Famiglia', 'Tartufo', 'Piazza', 'Dolce', 'Forno'];
-  const cap = mode === 'teaser' ? 8 : Math.floor(images.length / 4) * 4;
-  const used = images.slice(0, Math.max(cap, 4));
-  // pad to a multiple of 4 by repeating the last image (defensive – shouldn't normally trigger)
-  while (used.length % 4 !== 0 && used.length > 0) used.push(used[used.length - 1]);
-  const blocks: { hero: string; thumbs: string[]; caption: string }[] = [];
-  for (let i = 0; i < used.length; i += 4) {
-    blocks.push({ hero: used[i], thumbs: used.slice(i + 1, i + 4), caption: captions[blocks.length % captions.length] });
-  }
-  return (
-    <div className="space-y-12 reveal-stagger">
-      {blocks.map((b, i) => (
-        <div key={i} className={`grid md:grid-cols-12 gap-4 md:gap-6 items-center ${i % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
-          <figure className="md:col-span-8 md:[direction:ltr]">
-            <div className="aspect-[16/10] overflow-hidden rounded-3xl img-zoom">
-              <img src={b.hero} alt="" className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <figcaption className="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-muted">
-              ※ {b.caption} · {String(i + 1).padStart(2, '0')}
-            </figcaption>
-          </figure>
-          <div className="md:col-span-4 md:[direction:ltr] grid grid-cols-3 md:grid-cols-1 gap-3">
-            {b.thumbs.map((src, j) => (
-              <div key={j} className="aspect-[4/3] md:aspect-[5/4] overflow-hidden rounded-2xl img-zoom">
-                <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function SalonGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
-  // Soft three-column grid with varied aspect ratios, hover label "Look · 01"
-  const used = mode === 'teaser' ? images.slice(0, 6) : images;
-  // alternating aspect ratios for visual rhythm
-  const aspects = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[4/5]', 'aspect-[3/4]', 'aspect-[1/1]'];
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 reveal-stagger">
-      {used.map((src, i) => (
-        <figure key={i} className={`relative group overflow-hidden rounded-3xl ${aspects[i % aspects.length]}`}>
-          <img src={src} alt="" className="w-full h-full object-cover img-zoom" loading="lazy" />
-          <figcaption className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
-            <span>Look · {String(i + 1).padStart(2, '0')}</span>
-            <span aria-hidden>↗</span>
-          </figcaption>
-          <span className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-        </figure>
-      ))}
-    </div>
-  );
-}
-
-function TradesmanGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
-  // Project-style cards with category labels, year, location
-  const projects = [
-    { cat: 'Bad', loc: 'Ingolstadt-Mitte', year: '2025' },
-    { cat: 'Heizung', loc: 'Manching', year: '2025' },
-    { cat: 'Sanierung', loc: 'Eichstätt', year: '2024' },
-    { cat: 'Wärmepumpe', loc: 'Pfaffenhofen', year: '2024' },
-    { cat: 'Bad', loc: 'Neuburg', year: '2024' },
-    { cat: 'Heizung', loc: 'Schrobenhausen', year: '2024' },
-    { cat: 'Sanitär', loc: 'Beilngries', year: '2024' },
-    { cat: 'Photovoltaik', loc: 'Kösching', year: '2023' },
-    { cat: 'Bad', loc: 'Ingolstadt-Süd', year: '2023' },
-  ];
-  const used = mode === 'teaser' ? images.slice(0, 6) : images;
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-      {used.map((src, i) => {
-        const p = projects[i % projects.length];
-        return (
-          <article key={i} className="group bg-white border border-line rounded-2xl overflow-hidden hover-lift">
-            <div className="aspect-[4/3] overflow-hidden img-zoom">
-              <img src={src} alt={`${p.cat} – ${p.loc}`} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div className="p-5">
-              <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-widest">
-                <span className="font-mono text-brand bg-[var(--accent-color)] px-2 py-1 rounded">{p.cat}</span>
-                <span className="font-mono text-muted">{p.year}</span>
-              </div>
-              <p className="mt-3 font-display text-xl">{p.loc}</p>
-              <p className="text-sm text-muted mt-1">Projekt #{String(i + 1).padStart(3, '0')}</p>
-            </div>
-          </article>
-        );
-      })}
-    </div>
-  );
+  const used = mode === 'teaser' ? images.slice(0, 8) : images;
+  return <MasonryLightbox images={used} />;
 }
 
 
@@ -1956,61 +1827,3 @@ function TourismTourCards({ services, compact }: { services: SiteContent['servic
   );
 }
 
-function HotelGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
-  // Editorial vertical-emphasis stagger with floor labels
-  const used = mode === 'teaser' ? images.slice(0, 6) : images;
-  const labels = ['Zimmer', 'Spa', 'Frühstück', 'Lobby', 'Suite', 'Garten', 'Bibliothek', 'Terrasse'];
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5 reveal-stagger">
-      {used.map((src, i) => {
-        const tall = i % 5 === 0 || i % 5 === 3;
-        const cls = 'relative group overflow-hidden rounded-3xl ' + (tall ? 'row-span-2 aspect-[3/5]' : 'aspect-[4/5]');
-        return (
-          <figure key={i} className={cls}>
-            <img src={src} alt={labels[i % labels.length]} className="w-full h-full object-cover img-zoom" loading="lazy" />
-            <figcaption className="absolute inset-x-4 bottom-4 flex items-center justify-between text-white text-xs uppercase tracking-[0.2em]">
-              <span className="font-mono opacity-90 bg-black/30 backdrop-blur px-2.5 py-1 rounded">{labels[i % labels.length]}</span>
-              <span aria-hidden className="opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
-            </figcaption>
-            <span className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-          </figure>
-        );
-      })}
-    </div>
-  );
-}
-
-function TourismGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
-  // Full-bleed landscape stack with location coordinates
-  const used = mode === 'teaser' ? images.slice(0, 5) : images;
-  const places = [
-    { name: 'Karwendel', coord: '47°22′N · 11°27′E' },
-    { name: 'Stubaier Alpen', coord: '47°08′N · 11°20′E' },
-    { name: 'Achensee', coord: '47°27′N · 11°43′E' },
-    { name: 'Zillertal', coord: '47°10′N · 11°52′E' },
-    { name: 'Ötztal', coord: '46°59′N · 11°02′E' },
-    { name: 'Wipptal', coord: '47°02′N · 11°31′E' },
-  ];
-  return (
-    <div className="space-y-6 md:space-y-10 reveal-stagger">
-      {used.map((src, i) => {
-        const p = places[i % places.length];
-        const flip = i % 2 === 1;
-        const wrapCls = 'grid md:grid-cols-12 gap-5 items-center ' + (flip ? 'md:[&>figure]:col-start-6' : '');
-        const textCls = 'md:col-span-5 ' + (flip ? 'md:col-start-1 md:row-start-1' : '');
-        return (
-          <article key={i} className={wrapCls}>
-            <figure className="md:col-span-7 relative overflow-hidden rounded-3xl aspect-[16/9]">
-              <img src={src} alt={p.name} className="w-full h-full object-cover img-zoom" loading="lazy" />
-            </figure>
-            <div className={textCls}>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-muted">{String(i + 1).padStart(2, '0')} · {p.coord}</p>
-              <h3 className="font-display text-3xl md:text-4xl mt-2"><em className="italic-pop">{p.name}</em></h3>
-              <p className="mt-3 text-sm text-muted leading-relaxed max-w-md">Eindrücke aus dem Gelände, gewachsen aus echten Touren.</p>
-            </div>
-          </article>
-        );
-      })}
-    </div>
-  );
-}

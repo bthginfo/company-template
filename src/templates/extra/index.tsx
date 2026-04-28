@@ -7,6 +7,7 @@ import { BasePathProvider, useBasePath, withBase } from '@/components/site-block
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
+import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline } from '@/components/branch-modules';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
@@ -614,7 +615,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         </section>
       )}
 
-      <NewsPreview content={content} eyebrow="Aktuelles" title="Notizen." />
+      <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'Notizen.'} />
       <ContactSection content={content} variant="bold" />
     </>
   );
@@ -770,7 +771,14 @@ function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraSty
         }`}
       >
         <div className={`container-x flex items-center justify-between ${isBold ? 'py-6 border-b border-line' : 'py-5'}`}>
-          <NavLink to={withBase(basePath, '/')} className={`font-display ${isBold ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>{content.brand.name}</NavLink>
+          <NavLink to={withBase(basePath, '/')} className="flex items-center gap-3">
+            {content.brand.logoUrl ? (
+              <img src={content.brand.logoUrl} alt={content.brand.name} className={`${isBold ? 'h-10 md:h-12' : 'h-9'} w-auto max-w-[180px] object-contain`} />
+            ) : null}
+            {!(content.brand.logoUrl && content.brand.hideName) && (
+              <span className={`font-display ${isBold ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>{content.brand.name}</span>
+            )}
+          </NavLink>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             {NAV.map((n) => (
               <NavLink
@@ -858,15 +866,7 @@ function ExtraFooter({ content, style }: { content: SiteContent; style: ExtraSty
 }
 
 function ExtraMasonry({ images }: { images: string[] }) {
-  return (
-    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:_balance] reveal-stagger">
-      {images.map((src, i) => (
-        <figure key={i} className="mb-4 break-inside-avoid overflow-hidden rounded-2xl img-zoom group relative">
-          <img src={src} alt="" className="block w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" />
-        </figure>
-      ))}
-    </div>
-  );
+  return <MasonryLightbox images={images} />;
 }
 
 /* ─── Branch-specific spotlight section ──────────────────────────────
