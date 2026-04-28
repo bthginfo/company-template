@@ -65,7 +65,7 @@ function applyShowcasePalette() {
 }
 
 /* ─── Template metadata ────────────────────────────────────────────── */
-const TEMPLATE_META: Record<TemplateKey, {
+const TEMPLATE_META: Record<'restaurant' | 'salon' | 'tradesman', {
   label: string;
   tagline: string;
   description: string;
@@ -99,7 +99,7 @@ const TEMPLATE_META: Record<TemplateKey, {
   },
 };
 
-const STYLE_PREVIEW: Record<TemplateKey, { classic: string; modern: string; bold: string }> = {
+const STYLE_PREVIEW: Record<'restaurant' | 'salon' | 'tradesman', { classic: string; modern: string; bold: string }> = {
   restaurant: {
     classic: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80',
     modern: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80',
@@ -629,7 +629,7 @@ function TemplatesPreviewSection() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {(Object.keys(TEMPLATE_META) as TemplateKey[]).map((k) => {
+          {(Object.keys(TEMPLATE_META) as Array<keyof typeof TEMPLATE_META>).map((k) => {
             const m = TEMPLATE_META[k];
             return (
               <Link
@@ -1083,7 +1083,7 @@ function TemplatesGallery() {
 
       <section className="pb-32">
         <div className="container-x flex flex-col gap-16">
-          {(Object.keys(TEMPLATE_META) as TemplateKey[]).map((k, i) => {
+          {(Object.keys(TEMPLATE_META) as Array<keyof typeof TEMPLATE_META>).map((k, i) => {
             const m = TEMPLATE_META[k];
             const styles: { id: 'classic' | 'modern' | 'bold'; label: string; tag: string; img: string }[] = [
               { id: 'classic', label: 'Klassisch', tag: 'Editorial · warm · italic-pop', img: STYLE_PREVIEW[k].classic },
@@ -1627,19 +1627,19 @@ function TemplatePreview() {
 
   // Live-read content (override from AdminDemo wins over DEMO_CONTENT) — only for real templates.
   const [content, setContent] = useState<SiteContent>(() =>
-    isExtra ? EXTRA_DEMO_CONTENT[tplKey as ExtraBranchKey] : loadFor(tplKey as TemplateKey)
+    isExtra ? EXTRA_DEMO_CONTENT[tplKey as ExtraBranchKey] : loadFor(tplKey as 'restaurant' | 'salon' | 'tradesman')
   );
   useEffect(() => {
-    setContent(isExtra ? EXTRA_DEMO_CONTENT[tplKey as ExtraBranchKey] : loadFor(tplKey as TemplateKey));
+    setContent(isExtra ? EXTRA_DEMO_CONTENT[tplKey as ExtraBranchKey] : loadFor(tplKey as 'restaurant' | 'salon' | 'tradesman'));
   }, [tplKey, isExtra]);
   useEffect(() => {
     if (isExtra) return; // extras have no admin override
     const onOverride = (e: Event) => {
       const detail = (e as CustomEvent<{ key: TemplateKey }>).detail;
-      if (detail?.key === tplKey) setContent(loadFor(tplKey as TemplateKey));
+      if (detail?.key === tplKey) setContent(loadFor(tplKey as 'restaurant' | 'salon' | 'tradesman'));
     };
     const onStorage = (e: StorageEvent) => {
-      if (e.key && e.key.includes(String(tplKey))) setContent(loadFor(tplKey as TemplateKey));
+      if (e.key && e.key.includes(String(tplKey))) setContent(loadFor(tplKey as 'restaurant' | 'salon' | 'tradesman'));
     };
     window.addEventListener('bth:override', onOverride);
     window.addEventListener('storage', onStorage);
@@ -1689,7 +1689,7 @@ function TemplatePreview() {
           )}
           <p className="text-[10px] uppercase tracking-widest text-muted px-2 mb-1">Branche</p>
           <div className="grid grid-cols-3 gap-1 mb-2">
-            {(['restaurant','salon','tradesman'] as TemplateKey[]).map((k) => (
+            {(['restaurant','salon','tradesman'] as Array<keyof typeof TEMPLATE_META>).map((k) => (
               <button key={k} onClick={() => switchBranche(k)} className={`text-[11px] py-1.5 rounded-md border transition ${k === tplKey ? 'bg-brand text-white border-brand' : 'bg-white border-line hover:border-brand/40'}`}>
                 {TEMPLATE_META[k].label.split(' ')[0]}
               </button>

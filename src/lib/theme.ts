@@ -32,6 +32,24 @@ export const PRESETS: Record<TemplateKey, ThemePreset[]> = {
     { id: 'industrial', label: 'Industrial',     primary: '#ea580c', primaryFg: '#fff7ed', accent: '#facc15', surface: '#f5f5f4', bg: '#ffffff', text: '#1c1917' },
     { id: 'slate',      label: 'Slate Pro',      primary: '#0ea5e9', primaryFg: '#f0f9ff', accent: '#0ea5e9', surface: '#1e293b', bg: '#0f172a', text: '#f1f5f9' },
   ],
+  consulting: [
+    { id: 'navy',       label: 'Navy',           primary: '#1e3a8a', primaryFg: '#eff6ff', accent: '#60a5fa', surface: '#f1f5f9', bg: '#ffffff', text: '#0f172a' },
+    { id: 'graphite',   label: 'Graphite',       primary: '#1f2937', primaryFg: '#f9fafb', accent: '#fbbf24', surface: '#f3f4f6', bg: '#ffffff', text: '#111827' },
+    { id: 'sand',       label: 'Sand',           primary: '#78716c', primaryFg: '#fafaf9', accent: '#d4a373', surface: '#fafaf9', bg: '#ffffff', text: '#1c1917' },
+    { id: 'mid-blue',   label: 'Midnight Blue',  primary: '#60a5fa', primaryFg: '#0c1322', accent: '#60a5fa', surface: '#1e293b', bg: '#0f172a', text: '#e2e8f0' },
+  ],
+  medical: [
+    { id: 'cyan',       label: 'Cyan Calm',      primary: '#0e7490', primaryFg: '#ecfeff', accent: '#22d3ee', surface: '#f0fdff', bg: '#ffffff', text: '#0c1f24' },
+    { id: 'teal',       label: 'Teal Soft',      primary: '#0f766e', primaryFg: '#f0fdfa', accent: '#5eead4', surface: '#f0fdfa', bg: '#ffffff', text: '#0c1c1a' },
+    { id: 'sage',       label: 'Sage',           primary: '#4d7c0f', primaryFg: '#f7fee7', accent: '#a3e635', surface: '#f7fee7', bg: '#ffffff', text: '#1a2010' },
+    { id: 'cocoon',     label: 'Cocoon',         primary: '#a5f3fc', primaryFg: '#0c1f24', accent: '#a5f3fc', surface: '#0e7490', bg: '#083344', text: '#ecfeff' },
+  ],
+  fitness: [
+    { id: 'violet',     label: 'Violet',         primary: '#9333ea', primaryFg: '#faf5ff', accent: '#c084fc', surface: '#faf5ff', bg: '#ffffff', text: '#1c1126' },
+    { id: 'sunset',     label: 'Sunset',         primary: '#ea580c', primaryFg: '#fff7ed', accent: '#fb923c', surface: '#fff7ed', bg: '#ffffff', text: '#1c0f06' },
+    { id: 'lime',       label: 'Lime Energy',    primary: '#365314', primaryFg: '#f7fee7', accent: '#a3e635', surface: '#f7fee7', bg: '#ffffff', text: '#0f1605' },
+    { id: 'noir-vio',   label: 'Noir Violet',    primary: '#c084fc', primaryFg: '#1c1126', accent: '#c084fc', surface: '#27272a', bg: '#18181b', text: '#fafafa' },
+  ],
 };
 
 export function applyTheme(p: ThemePreset) {

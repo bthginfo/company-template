@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import type { SiteContent, TemplateKey } from '@/lib/types';
+import type { SiteContent } from '@/lib/types';
 import {
   SiteHeader, Hero, Section, ContactBlock, SiteFooter, BasePathProvider,
   type NavItem,
@@ -10,7 +10,7 @@ import {
 } from '@/components/fx';
 import { TLink } from '@/components/site-blocks';
 
-export type TemplateVariant = TemplateKey;
+export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
 
 const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLabel: string; nav: NavItem[]; servicesEyebrow: string; servicesHeadline: string }> = {

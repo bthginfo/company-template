@@ -1,9 +1,9 @@
-import { SiteContentSchema, type SiteContent, type TemplateKey } from './types';
+import { SiteContentSchema, type SiteContent } from './types';
 
 /**
  * Demo content for the showcase preview pages.
  */
-export const DEMO_CONTENT: Record<TemplateKey, SiteContent> = {
+export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteContent> = {
   restaurant: SiteContentSchema.parse({
     brand: {
       name: 'Trattoria Innsbruck',

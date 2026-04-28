@@ -1,6 +1,8 @@
 import type { SiteContent, TemplateKey } from './types';
 import { DEMO_CONTENT } from './demo-content';
 
+type RealKey = keyof typeof DEMO_CONTENT;
+
 const KEY = (k: TemplateKey) => `bth.demo.override.${k}`;
 
 export function readOverride(k: TemplateKey): SiteContent | null {
@@ -31,7 +33,7 @@ export function clearOverride(k: TemplateKey): void {
   }
 }
 
-export function loadFor(k: TemplateKey): SiteContent {
+export function loadFor(k: RealKey): SiteContent {
   return readOverride(k) ?? DEMO_CONTENT[k];
 }
 

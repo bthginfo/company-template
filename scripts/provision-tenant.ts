@@ -27,7 +27,7 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db, schema } from '../src/lib/db/client';
-import { SiteContentSchema, type SiteContent, type TemplateKey } from '../src/lib/types';
+import { SiteContentSchema, type SiteContent } from '../src/lib/types';
 import { EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
 
 const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'] as const;
@@ -85,7 +85,7 @@ async function vercel(path: string, init: RequestInit = {}): Promise<any> {
   return json;
 }
 
-const DEFAULT_CONTENT: Record<TemplateKey, SiteContent> = {
+const DEFAULT_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteContent> = {
   restaurant: SiteContentSchema.parse({
     brand: { name, tagline: 'Authentische Küche aus der Region', primaryColor: '#9a3412' },
     hero: { title: `Willkommen bei ${name}`, subtitle: 'Frische, regionale Zutaten – mit Liebe zubereitet.', ctaLabel: 'Tisch reservieren', ctaHref: '#kontakt' },
@@ -138,7 +138,7 @@ function extraDefaults(key: 'consulting' | 'medical' | 'fitness'): SiteContent {
 
 function defaultsFor(t: AnyTemplate): SiteContent {
   if (t === 'consulting' || t === 'medical' || t === 'fitness') return extraDefaults(t);
-  return DEFAULT_CONTENT[t as TemplateKey];
+  return DEFAULT_CONTENT[t as 'restaurant' | 'salon' | 'tradesman'];
 }
 
 const SHARED_KEYS = [

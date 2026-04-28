@@ -57,4 +57,4 @@ export const SiteContentSchema = z.object({
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;
 
-export type TemplateKey = 'restaurant' | 'salon' | 'tradesman';
+export type TemplateKey = 'restaurant' | 'salon' | 'tradesman' | 'consulting' | 'medical' | 'fitness';

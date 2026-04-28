@@ -73,6 +73,9 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
                 <option value="restaurant">Demo-Daten: Restaurant</option>
                 <option value="salon">Demo-Daten: Salon</option>
                 <option value="tradesman">Demo-Daten: Handwerk</option>
+                <option value="consulting">Demo-Daten: Beratung</option>
+                <option value="medical">Demo-Daten: Praxis</option>
+                <option value="fitness">Demo-Daten: Studio</option>
               </select>
             )}
             {previewUrlBase !== undefined && (
@@ -155,6 +158,13 @@ type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
+  if (t === 'consulting' || t === 'medical' || t === 'fitness') return [
+    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
+    { id: 'services', label: 'Leistungen', icon: '☰', previewPath: '#leistungen' },
+    { id: 'gallery', label: 'Galerie', icon: '▦', previewPath: '#leistungen' },
+    { id: 'about', label: 'Über uns', icon: '☉', previewPath: '#leistungen' },
+    { id: 'contactPage', label: 'Kontakt', icon: '✉', previewPath: '#kontakt' },
+  ];
   if (t === 'restaurant') return [
     { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
     { id: 'services', label: 'Speisekarte', icon: '☰', previewPath: '/speisekarte' },

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { SiteContent, TemplateKey } from '@/lib/types';
+import type { SiteContent } from '@/lib/types';
 import { DEMO_CONTENT } from '@/lib/demo-content';
 import { clearOverride, downloadJson, loadFor, writeOverride } from '@/lib/demo-overrides';
 import { AdminEditorBody } from '@/admin/AdminEditorBody';
+
+type DemoKey = 'restaurant' | 'salon' | 'tradesman';
 
 /**
  * AdminDemo — showcase wrapper around the shared admin editor body.
@@ -11,7 +13,7 @@ import { AdminEditorBody } from '@/admin/AdminEditorBody';
  * read the changes. No real save (purely visual demo).
  */
 export default function AdminDemo() {
-  const [tplKey, setTplKey] = useState<TemplateKey>('restaurant');
+  const [tplKey, setTplKey] = useState<DemoKey>('restaurant');
   const [data, setDataInternal] = useState<SiteContent>(() => loadFor('restaurant'));
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
@@ -20,7 +22,7 @@ export default function AdminDemo() {
     writeOverride(tplKey, next);
   };
 
-  const switchTpl = (k: TemplateKey) => {
+  const switchTpl = (k: DemoKey) => {
     setTplKey(k);
     setDataInternal(loadFor(k));
     setSavedAt(null);
@@ -38,7 +40,7 @@ export default function AdminDemo() {
 
   useEffect(() => {
     const onOverride = (e: Event) => {
-      const detail = (e as CustomEvent<{ key: TemplateKey }>).detail;
+      const detail = (e as CustomEvent<{ key: DemoKey }>).detail;
       if (detail?.key === tplKey) setDataInternal(loadFor(tplKey));
     };
     window.addEventListener('bth:override', onOverride);
@@ -48,7 +50,7 @@ export default function AdminDemo() {
   return (
     <AdminEditorBody
       tplKey={tplKey}
-      onTplChange={switchTpl}
+      onTplChange={(k) => { if (k === 'restaurant' || k === 'salon' || k === 'tradesman') switchTpl(k); }}
       data={data}
       setData={setData}
       onSave={fakeSave}

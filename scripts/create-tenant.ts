@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db, schema } from '../src/lib/db/client';
-import { SiteContentSchema, type SiteContent, type TemplateKey } from '../src/lib/types';
+import { SiteContentSchema, type SiteContent } from '../src/lib/types';
 
 const [, , slug, name, template] = process.argv;
 
@@ -19,7 +19,7 @@ if (!['restaurant', 'salon', 'tradesman'].includes(template)) {
   process.exit(1);
 }
 
-const DEFAULT_CONTENT: Record<TemplateKey, SiteContent> = {
+const DEFAULT_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteContent> = {
   restaurant: SiteContentSchema.parse({
     brand: { name, tagline: 'Authentische Küche aus der Region', primaryColor: '#9a3412' },
     hero: { title: `Willkommen bei ${name}`, subtitle: 'Frische, regionale Zutaten – mit Liebe zubereitet.', ctaLabel: 'Tisch reservieren', ctaHref: '#kontakt' },
@@ -75,7 +75,7 @@ async function main() {
       .values({ slug, name, template, passwordHash })
       .returning();
     tenantId = row.id;
-    const content = DEFAULT_CONTENT[template as TemplateKey];
+    const content = DEFAULT_CONTENT[template as 'restaurant' | 'salon' | 'tradesman'];
     await db.insert(schema.siteContent).values({ tenantId, data: content }).onConflictDoNothing();
     console.log(`Tenant '${slug}' created with default content.`);
   }
