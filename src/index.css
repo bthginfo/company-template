@@ -79,7 +79,7 @@
     @apply relative inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 font-medium
            transition-all duration-300 will-change-transform;
     background: var(--accent-color);
-    color: var(--brand-color);
+    color: var(--accent-fg, var(--brand-fg));
   }
   .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 14px 32px -10px color-mix(in oklab, var(--accent-color), black 40%); }
 
@@ -93,7 +93,8 @@
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium border transition;
     border-color: var(--line-color);
-    background: rgba(255,255,255,0.5);
+    background: color-mix(in oklab, var(--bg-color), transparent 50%);
+    color: var(--text-color);
     backdrop-filter: blur(10px);
   }
   .btn-ghost:hover { background: var(--brand-color); color: var(--brand-fg); border-color: var(--brand-color); }

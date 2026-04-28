@@ -83,7 +83,7 @@ const VARIANT_HERO_META: Record<TemplateVariant, { label: string; value: string 
   restaurant: [
     { label: 'Familie seit', value: '1998' },
     { label: 'Plätze drinnen', value: '64' },
-    { label: 'Pasta täglich', value: 'frisch' },
+    { label: 'Pasta', value: 'täglich frisch' },
     { label: 'Bewertung', value: '4,9 ★' },
   ],
   salon: [

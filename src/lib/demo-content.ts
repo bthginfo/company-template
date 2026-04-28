@@ -46,7 +46,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman', SiteCont
     ],
     testimonials: [
       { author: 'Sabine M., Innsbruck', text: 'Die beste Pasta außerhalb Italiens. Atmosphäre wie bei der eigenen Familie – wir kommen jede Woche.' },
-      { author: 'Markus W., München', text: 'Ein Geheimtipp. Wir machen extra einen Umweg, wenn wir in Tirol sind. Pizza der Stadt.' },
+      { author: 'Markus W., München', text: 'Ein Geheimtipp. Wir machen extra einen Umweg, wenn wir in Tirol sind. Beste Pizza der Stadt.' },
       { author: 'Familie Berger', text: 'Tolles Essen, herzliche Bedienung, fairer Preis. Unsere Kinder lieben Giulia.' },
       { author: 'Andrea L., Bozen', text: 'Authentisch wie selten in Österreich. Der Trüffel-Tagliatelle ist legendär.' },
     ],

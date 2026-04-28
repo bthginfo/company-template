@@ -6,6 +6,8 @@ export type ThemePreset = {
   primary: string;
   primaryFg: string;
   accent: string;
+  /** Foreground color used on accent-colored buttons. Falls back to primaryFg. */
+  accentFg?: string;
   surface: string;
   /** body background */
   bg: string;
@@ -69,10 +71,29 @@ export function applyTheme(p: ThemePreset) {
   r.setProperty('--brand-color', p.primary);
   r.setProperty('--brand-fg', p.primaryFg);
   r.setProperty('--accent-color', p.accent);
+  // accent-fg: explicit override, else auto-pick contrasting color from accent luminance
+  const accentFg = p.accentFg ?? autoContrastFg(p.accent);
+  r.setProperty('--accent-fg', accentFg);
   r.setProperty('--surface-color', p.surface);
   r.setProperty('--bg-color', p.bg);
   r.setProperty('--text-color', p.text);
   // body color sync (Tailwind uses utility classes; we set CSS vars and consume them via body)
   document.body.style.backgroundColor = p.bg;
   document.body.style.color = p.text;
+}
+
+/** Pick black or white as foreground based on hex color luminance. */
+function autoContrastFg(hex: string): string {
+  const m = hex.replace('#', '');
+  const v = m.length === 3 ? m.split('').map((c) => c + c).join('') : m;
+  const r = parseInt(v.slice(0, 2), 16);
+  const g = parseInt(v.slice(2, 4), 16);
+  const b = parseInt(v.slice(4, 6), 16);
+  // relative luminance approximation (sRGB)
+  const lin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  return L > 0.5 ? '#0a0a0a' : '#ffffff';
 }
