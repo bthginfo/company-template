@@ -59,12 +59,12 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
       {topBar}
 
       <header className="bg-white border-b border-line sticky top-0 z-30">
-        <div className="container-x flex items-center justify-between py-4 gap-4">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-xl">Admin · {brandTitle ?? data.brand.name}</span>
+        <div className="container-x flex items-center justify-between py-3 md:py-4 gap-3 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0">
+            <span className="font-display text-base md:text-xl truncate">Admin · {brandTitle ?? data.brand.name}</span>
             {headerStatus}
           </div>
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex items-center gap-2 md:gap-3 text-sm shrink-0">
             {onTplChange && (
               <select
                 value={tplKey}
@@ -88,9 +88,35 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
         </div>
       </header>
 
-      <div className="container-x py-8 grid md:grid-cols-[240px_1fr] gap-6">
-        {/* LEFT: pages + global */}
-        <aside className="space-y-6 md:sticky md:top-24 h-fit">
+      <div className="container-x py-4 md:py-8 grid md:grid-cols-[240px_1fr] gap-4 md:gap-6">
+        {/* MOBILE: section dropdown (replaces sidebar on small screens) */}
+        <div className="md:hidden -mx-4 px-4 sticky top-[64px] z-20 bg-[#f6f6f3]/95 backdrop-blur py-3 border-b border-line">
+          <label className="block text-[10px] uppercase tracking-widest text-muted mb-1.5">Bereich</label>
+          <select
+            value={pageId}
+            onChange={(e) => setPageId(e.target.value as PageId)}
+            className="w-full bg-white border border-line rounded-xl px-4 py-3 text-sm font-medium"
+          >
+            <optgroup label="Seiten">
+              {pages.map((p) => (
+                <option key={p.id} value={p.id}>{p.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="Inhalte">
+              <option value="news">News & Blog</option>
+            </optgroup>
+            <optgroup label="Global">
+              <option value="brand">Marke & Design</option>
+              <option value="contact">Kontaktdaten</option>
+              <option value="social">Social Media</option>
+              <option value="seo">SEO & Sichtbarkeit</option>
+              <option value="scripts">Skripte & Tracking</option>
+            </optgroup>
+          </select>
+        </div>
+
+        {/* DESKTOP: pages + global sidebar */}
+        <aside className="hidden md:block space-y-6 md:sticky md:top-24 h-fit">
           <SidebarGroup label="Seiten">
             {pages.map((p) => (
               <SidebarItem key={p.id} active={p.id === pageId} onClick={() => setPageId(p.id)} icon={p.icon}>

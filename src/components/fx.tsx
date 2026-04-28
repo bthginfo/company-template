@@ -193,7 +193,7 @@ export function ParallaxImage({
  * Mouse-tracked radial gradient inside a container.
  */
 export function CursorSpotlight({
-  color = 'rgba(196,255,58,0.18)',
+  color = 'rgba(242,65,113,0.22)',
   size = 600,
   className = '',
 }: { color?: string; size?: number; className?: string }) {

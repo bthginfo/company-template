@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
@@ -6,7 +7,6 @@ import type { SiteContent, TemplateKey } from '@/lib/types';
 import { clearOverride, loadFor, readOverride } from '@/lib/demo-overrides';
 import AdminDemo from './AdminDemo';
 import { Imprint, Privacy } from './Legal';
-import { CaseStudy, CasesIndex } from './Cases';
 import { BlogIndex, BlogPost, NotFound } from './Blog';
 import Seo from '@/components/Seo';
 import RestaurantTemplate from '@/templates/restaurant';
@@ -174,7 +174,7 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
     description: 'Seriöser Auftritt mit klarer Hierarchie, Team-Profilen und durchgängigem Stil.',
     image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80',
     accent: '#1e3a8a',
-    bullets: ['Team- & Expertise-Profile', 'Beratungs-Prozess in Schritten', 'Termin-Anfrage mit Vorab-Briefing', 'Stimmen, Cases & Vertrauen'],
+    bullets: ['Team- & Expertise-Profile', 'Beratungs-Prozess in Schritten', 'Termin-Anfrage mit Vorab-Briefing', 'Stimmen, Referenzen & Vertrauen'],
   },
   medical: {
     label: 'Praxen & Ärzte',
@@ -212,8 +212,6 @@ export default function AgencyShowcase() {
           <Route path="kontakt" element={<Contact />} />
           <Route path="impressum" element={<Imprint />} />
           <Route path="datenschutz" element={<Privacy />} />
-          <Route path="studio/cases" element={<CasesIndex />} />
-          <Route path="studio/case/:slug" element={<CaseStudy />} />
           <Route path="studio/notizen" element={<BlogIndex />} />
           <Route path="studio/notiz/:slug" element={<BlogPost />} />
           <Route path="*" element={<NotFound />} />
@@ -265,7 +263,6 @@ function ShowcaseShell() {
     { to: '/templates', label: 'Templates' },
     { to: '/prozess', label: 'Ablauf' },
     { to: '/preise', label: 'Preise' },
-    { to: '/studio/cases', label: 'Cases' },
     { to: '/ueber-uns', label: 'Über uns' },
     { to: '/admin-demo', label: 'Admin-Demo' },
     { to: '/kontakt', label: 'Kontakt' },
@@ -433,7 +430,6 @@ function ShowcaseFooter() {
               <li><Link to="/templates" className="hover:text-accent">Templates</Link></li>
               <li><Link to="/prozess" className="hover:text-accent">Ablauf</Link></li>
               <li><Link to="/preise" className="hover:text-accent">Preise</Link></li>
-              <li><Link to="/studio/cases" className="hover:text-accent">Cases</Link></li>
               <li><Link to="/studio/notizen" className="hover:text-accent">Studio-Notizen</Link></li>
               <li><Link to="/ueber-uns" className="hover:text-accent">Über uns</Link></li>
             </ul>
@@ -517,17 +513,23 @@ function HeroSection() {
       <div
         className="absolute inset-0 -z-[2]"
         style={{
-          background: 'radial-gradient(circle at 30% 30%, rgba(196,255,58,0.20), transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,91,58,0.18), transparent 55%)',
+          background: 'radial-gradient(circle at 30% 30%, rgba(242,65,113,0.30), transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,179,71,0.22), transparent 55%)',
         }}
       />
       <div
-        className="pointer-events-none absolute inset-0 -z-[1]"
+        className="pointer-events-none absolute inset-0 -z-[1] transition-[background] duration-150 ease-out"
         style={{
-          background: `radial-gradient(700px circle at ${pos.x}% ${pos.y}%, rgba(196,255,58,0.18), transparent 60%)`,
+          background: `radial-gradient(700px circle at ${pos.x}% ${pos.y}%, rgba(242,65,113,0.28), transparent 60%)`,
         }}
       />
-      <div className="blob top-1/3 -left-40 w-[480px] h-[480px]" style={{ background: '#c4ff3a' }} />
-      <div className="blob bottom-0 right-0 w-[420px] h-[420px]" style={{ background: '#ff5b3a' }} />
+      <div className="blob top-1/3 -left-40 w-[480px] h-[480px]" style={{ background: '#F24171' }} />
+      <div className="blob bottom-0 right-0 w-[420px] h-[420px]" style={{ background: '#FFB347' }} />
+      <motion.div
+        className="pointer-events-none absolute -z-[1] h-72 w-72 rounded-full blur-3xl"
+        style={{ background: 'rgba(242,65,113,0.4)', left: `calc(${pos.x}% - 9rem)`, top: `calc(${pos.y}% - 9rem)` }}
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      />
 
       <div className="container-x relative z-10 pt-44 pb-24 md:pb-32">
         <p className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-white/80 mb-8">
@@ -701,7 +703,7 @@ function TemplatesPreviewSection() {
                   />
                 </div>
                 <div className="relative p-8 h-full flex flex-col justify-end text-white">
-                  <p className="text-xs uppercase tracking-widest text-[var(--accent-color)] mb-2">{m.tagline}</p>
+                  <p className="text-xs uppercase tracking-widest text-white/90 mb-2">{m.tagline}</p>
                   <h3 className="font-display text-4xl md:text-5xl">{m.label}</h3>
                   <p className="mt-3 text-sm text-white/80 leading-relaxed max-w-xs">{m.description}</p>
                   <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium border-t border-white/20 pt-4">
@@ -729,7 +731,7 @@ function TemplatesPreviewSection() {
                   </span>
                 </div>
                 <div className="relative p-8 h-full flex flex-col justify-end text-white">
-                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: m.accent }}>{m.tagline}</p>
+                  <p className="text-xs uppercase tracking-widest text-white/90 mb-2">{m.tagline}</p>
                   <h3 className="font-display text-4xl md:text-5xl">{m.label}</h3>
                   <p className="mt-3 text-sm text-white/80 leading-relaxed max-w-xs">{m.description}</p>
                   <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium border-t border-white/20 pt-4">
@@ -824,7 +826,7 @@ function AdminPreviewSection() {
           <div className="rounded-3xl overflow-hidden border border-line shadow-2xl bg-white">
             <div className="bg-[var(--surface-color)] px-5 py-3 flex items-center gap-2 border-b border-line">
               <span className="h-3 w-3 rounded-full bg-rose-400" />
-              <span className="h-3 w-3 rounded-full bg-amber-400" />
+              <span className="h-3 w-3 rounded-full bg-accent" />
               <span className="h-3 w-3 rounded-full bg-emerald-400" />
               <span className="ml-3 text-xs text-muted font-mono">trattoria-innsbruck.at/admin</span>
             </div>
@@ -1330,12 +1332,12 @@ function AboutPage() {
               <em className="italic-pop">Kunden in der DACH-Region.</em>
             </h2>
             <p className="mt-6 text-lg text-muted leading-relaxed">
-              Wir sitzen in einem alten Werkstatt-Loft im Innsbrucker Saggen, fünf Minuten vom Hauptbahnhof.
-              Sie sind herzlich willkommen vorbeizukommen – wir machen besseren Kaffee als die meisten.
+              Wir sind ein kleines, unkompliziertes Team aus Tech-Enthusiast:innen und Gestalter:innen.
+              Lieber kurze Wege als lange Briefings. Lieber direkt sprechen als zehnseitige Konzepte schicken.
             </p>
             <p className="mt-4 text-lg text-muted leading-relaxed">
-              Unsere Kunden sind Restaurants, Salons, Handwerksbetriebe, Praxen, Kanzleien, Studios und viele mehr in Innsbruck,
-              München, Ingolstadt und gelegentlich darüber hinaus. Über 65 % der Aufträge kommen von Empfehlungen.
+              Unsere Kunden sind Restaurants, Salons, Handwerksbetriebe, Praxen, Kanzleien, Studios und viele mehr –
+              in Innsbruck, München, Ingolstadt und überall dort, wo gute Arbeit zählt. Über 65 % der Aufträge kommen von Empfehlungen.
             </p>
           </div>
         </div>
@@ -1349,22 +1351,22 @@ function AboutPage() {
           <div className="grid md:grid-cols-3 gap-6 reveal-stagger">
             {[
               {
-                n: 'Julius V.',
-                r: 'Studio Lead · Web',
-                img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80',
-                bio: 'Programmiert seit zwölf Jahren. Liebt Design-Systeme und Espresso. Spricht Deutsch, Englisch, Italienisch.',
+                n: 'Mario Schubert',
+                r: 'CEO · Foto & Video',
+                img: '/team/mario.webp',
+                bio: 'Der Mann für alles Visuelle. Packt die Kamera aus, denkt in Bildausschnitten und liefert Material, das nach Ihnen aussieht – nicht nach Stockfoto.',
               },
               {
-                n: 'Lena B.',
-                r: 'Foto & Visual',
-                img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&q=80',
-                bio: 'Foto-Studium in Wien, fünf Jahre für österreichische Magazine und lokale Marken. Schwerpunkt: Foto und kurzes Bewegtbild.',
+                n: 'Julius von Ingelheim',
+                r: 'CTO · Web · UX',
+                img: '/team/julius.jpg',
+                bio: 'Gelernter UX-Designer und Tech-Nerd. Liebt saubere Design-Systeme, schnelle Ladezeiten und Espresso – in dieser Reihenfolge.',
               },
               {
-                n: 'Tom H.',
-                r: 'Video & Schnitt',
-                img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80',
-                bio: 'Filmemacher mit Werbefilm-Hintergrund. Verantwortet alle Imagefilme – vom Storyboard bis zum Final-Cut.',
+                n: 'Nikey',
+                r: 'Chief Happiness Officer',
+                img: '/team/nikey.jpg',
+                bio: 'Unser Hund. Begrüßt Besucher:innen, testet Sofakomfort und sorgt dafür, dass keiner zu lange am Schreibtisch sitzt.',
               },
             ].map((m, i) => (
               <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
@@ -1506,7 +1508,7 @@ function Pricing() {
           <div className="grid md:grid-cols-12 gap-8 mb-12 items-end">
             <h2 className="md:col-span-7 headline-lg reveal">
               Add-ons.<br />
-              <em className="italic-pop">Wenn mehr braucht, mehr bekommt.</em>
+              <em className="italic-pop">Wer mehr braucht, bekommt mehr.</em>
             </h2>
             <p className="md:col-span-5 text-lg text-muted reveal">
               Buchbar einzeln oder als Paket. Auf Wunsch zu jedem Zeitpunkt nachrüstbar.

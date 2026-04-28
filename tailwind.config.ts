@@ -9,6 +9,13 @@ export default {
           DEFAULT: 'var(--brand-color, #0f172a)',
           fg: 'var(--brand-fg, #ffffff)',
         },
+        accent: {
+          DEFAULT: 'var(--accent-color, #F24171)',
+          fg: 'var(--accent-fg, #ffffff)',
+          2: 'var(--accent-color-2, #FFB347)',
+        },
+        ink: 'var(--text-color, #14111a)',
+        surface: 'var(--surface-color, #fce7ef)',
       },
       fontFamily: {
         sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],

@@ -1413,6 +1413,8 @@ function ServicesShowcase({
 }) {
   if (variant === 'restaurant') return <RestaurantMenu services={services} compact={compact} />;
   if (variant === 'salon') return <SalonPriceList services={services} compact={compact} />;
+  if (variant === 'hotel') return <HotelRoomCards services={services} compact={compact} />;
+  if (variant === 'tourism') return <TourismTourCards services={services} compact={compact} />;
   return <TradesmanServiceTiles services={services} compact={compact} />;
 }
 
@@ -1500,6 +1502,8 @@ function GalleryShowcase({
   if (images.length === 0) return null;
   if (variant === 'restaurant') return <RestaurantGallery images={images} mode={mode} />;
   if (variant === 'salon') return <SalonGallery images={images} mode={mode} />;
+  if (variant === 'hotel') return <HotelGallery images={images} mode={mode} />;
+  if (variant === 'tourism') return <TourismGallery images={images} mode={mode} />;
   return <TradesmanGallery images={images} mode={mode} />;
 }
 
@@ -1592,6 +1596,153 @@ function TradesmanGallery({ images, mode }: { images: string[]; mode: 'teaser' |
               </div>
               <p className="mt-3 font-display text-xl">{p.loc}</p>
               <p className="text-sm text-muted mt-1">Projekt #{String(i + 1).padStart(3, '0')}</p>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+
+
+/* --- Hotel-specific service & gallery layouts ------------------------ */
+function HotelRoomCards({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+  // Hotel rooms: large hero photo, rate badge top-right, perk-tags
+  const items = compact ? services.slice(0, 3) : services;
+  return (
+    <div className="grid md:grid-cols-2 gap-6 reveal-stagger">
+      {items.map((s, i) => (
+        <article key={i} className="group bg-white border border-line rounded-3xl overflow-hidden hover-lift flex flex-col">
+          <div className="relative aspect-[4/3] overflow-hidden">
+            {s.imageUrl ? (
+              <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover img-zoom" loading="lazy" />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-[var(--surface-color,#fce7ef)] to-[var(--accent-color,#F24171)]/30" />
+            )}
+            {s.price && (
+              <span className="absolute top-4 right-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-widest shadow">
+                ab {s.price}
+              </span>
+            )}
+            <span className="absolute top-4 left-4 text-[10px] font-mono uppercase tracking-[0.2em] text-white/95 bg-black/30 backdrop-blur px-2.5 py-1 rounded">
+              Zimmer {String(i + 1).padStart(2, '0')}
+            </span>
+          </div>
+          <div className="p-7 flex flex-col gap-4 flex-1">
+            <h3 className="font-display text-3xl">{s.title}</h3>
+            {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
+            <div className="mt-auto pt-4 border-t border-line flex items-center justify-between text-xs uppercase tracking-widest text-muted">
+              <span className="font-mono">Bergblick · Eigenes Bad · WLAN</span>
+              <span className="text-brand">Verfügbarkeit →</span>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function TourismTourCards({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+  // Tour cards: vertical photo, route ribbon, duration / difficulty / group meta
+  const items = compact ? services.slice(0, 3) : services;
+  const meta = [
+    { d: '4 Std', diff: 'Mittel', size: '6–10 Personen' },
+    { d: 'Halbtag', diff: 'Leicht', size: '4–8 Personen' },
+    { d: 'Ganztag', diff: 'Anspruchsvoll', size: '6 Personen' },
+    { d: '2 Std', diff: 'Leicht', size: '8–12 Personen' },
+    { d: '6 Std', diff: 'Mittel', size: '4–6 Personen' },
+    { d: 'Tag', diff: 'Mittel', size: 'max. 8' },
+  ];
+  return (
+    <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+      {items.map((s, i) => {
+        const m = meta[i % meta.length];
+        return (
+          <article key={i} className="group bg-white border border-line rounded-2xl overflow-hidden hover-lift">
+            <div className="relative aspect-[3/4] overflow-hidden">
+              {s.imageUrl ? (
+                <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover img-zoom" loading="lazy" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-b from-sky-300/40 via-emerald-200/30 to-stone-100" />
+              )}
+              <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/80 to-transparent text-white">
+                <p className="text-[10px] font-mono uppercase tracking-[0.25em] opacity-80">Tour · {String(i + 1).padStart(2, '0')}</p>
+                <h3 className="font-display text-2xl mt-1 leading-tight">{s.title}</h3>
+              </div>
+            </div>
+            <div className="p-5">
+              {s.description && <p className="text-sm text-muted leading-relaxed line-clamp-3">{s.description}</p>}
+              <dl className="mt-4 grid grid-cols-3 gap-2 text-[11px] uppercase tracking-widest font-mono">
+                <div className="border border-line rounded-lg p-2 text-center"><dt className="text-muted text-[9px]">Dauer</dt><dd>{m.d}</dd></div>
+                <div className="border border-line rounded-lg p-2 text-center"><dt className="text-muted text-[9px]">Stufe</dt><dd>{m.diff}</dd></div>
+                <div className="border border-line rounded-lg p-2 text-center"><dt className="text-muted text-[9px]">Gruppe</dt><dd className="text-[9px]">{m.size}</dd></div>
+              </dl>
+              {s.price && (
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="font-mono text-base text-brand">{s.price}</span>
+                  <span className="text-xs uppercase tracking-widest text-muted">Buchen →</span>
+                </div>
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function HotelGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
+  // Editorial vertical-emphasis stagger with floor labels
+  const used = mode === 'teaser' ? images.slice(0, 6) : images;
+  const labels = ['Zimmer', 'Spa', 'Frühstück', 'Lobby', 'Suite', 'Garten', 'Bibliothek', 'Terrasse'];
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5 reveal-stagger">
+      {used.map((src, i) => {
+        const tall = i % 5 === 0 || i % 5 === 3;
+        const cls = 'relative group overflow-hidden rounded-3xl ' + (tall ? 'row-span-2 aspect-[3/5]' : 'aspect-[4/5]');
+        return (
+          <figure key={i} className={cls}>
+            <img src={src} alt={labels[i % labels.length]} className="w-full h-full object-cover img-zoom" loading="lazy" />
+            <figcaption className="absolute inset-x-4 bottom-4 flex items-center justify-between text-white text-xs uppercase tracking-[0.2em]">
+              <span className="font-mono opacity-90 bg-black/30 backdrop-blur px-2.5 py-1 rounded">{labels[i % labels.length]}</span>
+              <span aria-hidden className="opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
+            </figcaption>
+            <span className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+          </figure>
+        );
+      })}
+    </div>
+  );
+}
+
+function TourismGallery({ images, mode }: { images: string[]; mode: 'teaser' | 'full' }) {
+  // Full-bleed landscape stack with location coordinates
+  const used = mode === 'teaser' ? images.slice(0, 5) : images;
+  const places = [
+    { name: 'Karwendel', coord: '47°22′N · 11°27′E' },
+    { name: 'Stubaier Alpen', coord: '47°08′N · 11°20′E' },
+    { name: 'Achensee', coord: '47°27′N · 11°43′E' },
+    { name: 'Zillertal', coord: '47°10′N · 11°52′E' },
+    { name: 'Ötztal', coord: '46°59′N · 11°02′E' },
+    { name: 'Wipptal', coord: '47°02′N · 11°31′E' },
+  ];
+  return (
+    <div className="space-y-6 md:space-y-10 reveal-stagger">
+      {used.map((src, i) => {
+        const p = places[i % places.length];
+        const flip = i % 2 === 1;
+        const wrapCls = 'grid md:grid-cols-12 gap-5 items-center ' + (flip ? 'md:[&>figure]:col-start-6' : '');
+        const textCls = 'md:col-span-5 ' + (flip ? 'md:col-start-1 md:row-start-1' : '');
+        return (
+          <article key={i} className={wrapCls}>
+            <figure className="md:col-span-7 relative overflow-hidden rounded-3xl aspect-[16/9]">
+              <img src={src} alt={p.name} className="w-full h-full object-cover img-zoom" loading="lazy" />
+            </figure>
+            <div className={textCls}>
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-muted">{String(i + 1).padStart(2, '0')} · {p.coord}</p>
+              <h3 className="font-display text-3xl md:text-4xl mt-2"><em className="italic-pop">{p.name}</em></h3>
+              <p className="mt-3 text-sm text-muted leading-relaxed max-w-md">Eindrücke aus dem Gelände, gewachsen aus echten Touren.</p>
             </div>
           </article>
         );
