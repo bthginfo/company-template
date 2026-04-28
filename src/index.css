@@ -162,6 +162,28 @@
   .text-muted { color: var(--muted-color); }
   .border-brand { border-color: var(--brand-color); }
   .border-line { border-color: var(--line-color); }
+  .divide-line > :not([hidden]) ~ :not([hidden]) { border-color: var(--line-color); }
+
+  /* ─── Dark-section readability overrides ───────────────────────────
+   * When a section uses .bg-brand (and therefore typically text-white),
+   * the global slate `--muted-color` becomes unreadable. Re-bind the
+   * tokens so .text-muted / .border-line / .eyebrow / .divide-line
+   * inside dark sections use translucent white instead. Light cards
+   * nested inside (`.bg-white`, `.surface`, `.card`, `.glass`) reset
+   * back to the document defaults so text inside them stays readable.
+   */
+  .bg-brand {
+    --muted-color: rgba(255, 255, 255, 0.72);
+    --line-color: rgba(255, 255, 255, 0.18);
+  }
+  .bg-brand .bg-white,
+  .bg-brand .surface,
+  .bg-brand .card,
+  .bg-brand .glass,
+  .bg-brand .glass-dark {
+    --muted-color: #6b6b76;
+    --line-color: rgba(11, 11, 16, 0.10);
+  }
 
   .eyebrow {
     @apply inline-flex items-center gap-2 text-xs font-medium uppercase;

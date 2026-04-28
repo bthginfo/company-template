@@ -181,7 +181,7 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
     description: 'Lead-Generierung, Notdienst-Banner, Referenzen und Vertrauen auf den ersten Blick.',
     image: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1400&q=80',
     accent: '#1d4ed8',
-    bullets: ['Notdienst-Sticky-Banner', 'Anfrage-Formular mit Versand', 'Referenz-Galerie', 'Förder-Kalkulator-Modul'],
+    bullets: ['Notdienst-Sticky-Banner', 'Anfrage-Formular mit Versand', 'Referenz-Galerie', 'Förder-Übersicht mit Quote'],
   },
   consulting: {
     label: 'Beratung & Kanzlei',
@@ -2071,7 +2071,7 @@ function Pricing() {
       monthly: '+ 29 € / Monat Hosting & Pflege',
       features: [
         'Eines unserer Branchen-Templates (6 Branchen, 3 Stile)',
-        '5 Seiten (Start, Leistungen, Galerie, Über uns, Kontakt) – mehrsprachig optional',
+        '6 Farbschemas pro Branche – jederzeit per Klick umstellbar',
         'Admin-Bereich zum selbst pflegen',
         'Hosting & Pflege inklusive',
         '1 Stunde Einrichtungs-Support',
