@@ -28,6 +28,7 @@ import {
 import { ConsentProvider } from '@/lib/consent';
 import { ContactForm } from '@/components/ContactForm';
 import { CookieBanner } from '@/components/CookieBanner';
+import { ShaderBackdrop } from '@/components/ShaderBackdrop';
 
 /* ─── Brand ─────────────────────────────────────────────────────────── */
 const AGENCY = {
@@ -518,6 +519,10 @@ function HeroSection() {
     >
       {/* Layered backgrounds */}
       <div className="absolute inset-0 -z-10 bg-brand" />
+      <ShaderBackdrop
+        colors={['#0b1020', '#7C3AED', '#F24171']}
+        className="!-z-[4] opacity-90"
+      />
       <AuroraBackground
         colors={['#F24171', '#FFB347', '#7C3AED', '#22d3ee']}
         intensity={0.45}

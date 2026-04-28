@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 export type ContactFormField = 'name' | 'email' | 'phone' | 'branche' | 'paket' | 'subject' | 'message';
 
@@ -69,13 +71,35 @@ export function ContactForm({
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j?.ok) {
         setState('error');
-        setErrorMsg(j?.error || 'Senden fehlgeschlagen. Bitte später erneut versuchen.');
+        const msg = j?.error || 'Senden fehlgeschlagen. Bitte später erneut versuchen.';
+        setErrorMsg(msg);
+        toast.error('Senden fehlgeschlagen', { description: msg });
         return;
       }
       setState('sent');
+      toast.success('Nachricht gesendet', { description: successText });
+      try {
+        const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        if (!reduce) {
+          const fire = (origin: { x: number; y: number }) =>
+            confetti({
+              particleCount: 70,
+              spread: 70,
+              startVelocity: 38,
+              origin,
+              colors: ['#F24171', '#FFB347', '#7C3AED', '#22d3ee'],
+              disableForReducedMotion: true,
+            });
+          fire({ x: 0.2, y: 0.7 });
+          setTimeout(() => fire({ x: 0.8, y: 0.7 }), 180);
+          setTimeout(() => fire({ x: 0.5, y: 0.6 }), 340);
+        }
+      } catch { /* noop */ }
     } catch {
       setState('error');
-      setErrorMsg('Netzwerkfehler. Bitte später erneut versuchen.');
+      const msg = 'Netzwerkfehler. Bitte später erneut versuchen.';
+      setErrorMsg(msg);
+      toast.error('Netzwerkfehler', { description: msg });
     }
   }
 
