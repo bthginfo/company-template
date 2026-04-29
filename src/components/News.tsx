@@ -78,11 +78,13 @@ export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', tit
 /** Full archive listing page. */
 export function NewsIndexPage({ content, basePath = '' }: { content: SiteContent; basePath?: string }) {
   const posts = usePublishedPosts(content);
+  const header = (content as any).newsHeader as { eyebrow?: string; title?: string; subtitle?: string } | undefined;
   return (
     <section className="pt-32 md:pt-40 pb-24">
       <div className="container-x">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted">News</p>
-        <h1 className="font-display text-5xl md:text-7xl mt-3">Notizen & Neuigkeiten.</h1>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted">{header?.eyebrow || 'News'}</p>
+        <h1 className="font-display text-5xl md:text-7xl mt-3">{header?.title || 'Notizen & Neuigkeiten.'}</h1>
+        {header?.subtitle && <p className="mt-4 text-lg text-muted max-w-2xl">{header.subtitle}</p>}
         {posts.length === 0 ? (
           <p className="mt-12 text-muted">Aktuell sind keine Beiträge veröffentlicht.</p>
         ) : (

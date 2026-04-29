@@ -341,7 +341,7 @@ function branchModuleKey(variant: TemplateVariant): string | null {
 }
 
 /** Pull a per-page header override from `content` extras (set by admin's PageHeaderEditor). */
-function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader'): { eyebrow: string; title: string; subtitle: string } | null {
+function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' | 'newsHeader'): { eyebrow: string; title: string; subtitle: string } | null {
   const v = (content as any)[key];
   if (!v || typeof v !== 'object') return null;
   return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || '') };

@@ -1668,6 +1668,9 @@ function NewsPage({ data, setData }: SetterProps) {
   };
   return (
     <>
+      <SectionCard title="Seiten-Header" description="Überschrift oben auf der News-Seite (/news)." badge="Header">
+        <PageHeaderEditor data={data} setData={setData} field="news" defaults={{ eyebrow: 'News', title: 'Notizen & Neuigkeiten.', subtitle: '' }} />
+      </SectionCard>
       <SectionCard title="So funktioniert's" description="Beiträge erscheinen auf der Startseite (die 3 neuesten) und unter /news. Reihenfolge: nach Datum, neueste oben." badge="Info">
         <ul className="text-sm text-slate-700 space-y-2 list-disc pl-5">
           <li><strong>Veröffentlicht:</strong> sichtbar auf der Website. Deaktivieren = Entwurf.</li>
