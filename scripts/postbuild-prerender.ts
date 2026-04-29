@@ -159,7 +159,11 @@ function writeRoutes(routes: RouteSpec[], origin: string, brandName: string) {
 }
 
 // ─── Tenant prerender ───────────────────────────────────────────────────────
-function navByVariant(variant: TemplateVariant): Array<{ path: string; pageId: 'home' | 'services' | 'gallery' | 'about' | 'contactPage'; label: string }> {
+function navByVariant(variant: TemplateVariant): Array<{ path: string; pageId: 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'legal'; label: string }> {
+  const legal = [
+    { path: '/impressum', pageId: 'legal' as const, label: 'Impressum' },
+    { path: '/datenschutz', pageId: 'legal' as const, label: 'Datenschutz' },
+  ];
   switch (variant) {
     case 'restaurant':
       return [
@@ -168,6 +172,7 @@ function navByVariant(variant: TemplateVariant): Array<{ path: string; pageId: '
         { path: '/galerie', pageId: 'gallery', label: 'Galerie' },
         { path: '/ueber-uns', pageId: 'about', label: 'Über uns' },
         { path: '/kontakt', pageId: 'contactPage', label: 'Kontakt' },
+        ...legal,
       ];
     case 'salon':
       return [
@@ -176,6 +181,7 @@ function navByVariant(variant: TemplateVariant): Array<{ path: string; pageId: '
         { path: '/galerie', pageId: 'gallery', label: 'Looks' },
         { path: '/ueber-uns', pageId: 'about', label: 'Studio' },
         { path: '/kontakt', pageId: 'contactPage', label: 'Termin' },
+        ...legal,
       ];
     case 'tradesman':
       return [
@@ -184,6 +190,7 @@ function navByVariant(variant: TemplateVariant): Array<{ path: string; pageId: '
         { path: '/referenzen', pageId: 'gallery', label: 'Referenzen' },
         { path: '/ueber-uns', pageId: 'about', label: 'Betrieb' },
         { path: '/kontakt', pageId: 'contactPage', label: 'Anfrage' },
+        ...legal,
       ];
     case 'hotel':
       return [
@@ -192,6 +199,7 @@ function navByVariant(variant: TemplateVariant): Array<{ path: string; pageId: '
         { path: '/galerie', pageId: 'gallery', label: 'Haus & Spa' },
         { path: '/ueber-uns', pageId: 'about', label: 'Geschichte' },
         { path: '/kontakt', pageId: 'contactPage', label: 'Reservieren' },
+        ...legal,
       ];
     case 'tourism':
       return [
@@ -200,6 +208,7 @@ function navByVariant(variant: TemplateVariant): Array<{ path: string; pageId: '
         { path: '/galerie', pageId: 'gallery', label: 'Eindrücke' },
         { path: '/ueber-uns', pageId: 'about', label: 'Guides' },
         { path: '/kontakt', pageId: 'contactPage', label: 'Buchen' },
+        ...legal,
       ];
     default:
       return [
@@ -208,6 +217,7 @@ function navByVariant(variant: TemplateVariant): Array<{ path: string; pageId: '
         { path: '/galerie', pageId: 'gallery', label: 'Galerie' },
         { path: '/ueber-uns', pageId: 'about', label: 'Über uns' },
         { path: '/kontakt', pageId: 'contactPage', label: 'Kontakt' },
+        ...legal,
       ];
   }
 }
@@ -264,7 +274,6 @@ async function prerenderTenant(slug: string) {
       keywords,
     };
   });
-
   // Replace the hardcoded FlamingoMedia JSON-LD Organization block in index.html
   // with a tenant-specific one so crawlers don't see "FlamingoMedia" as the org.
   const tenantOrg = {

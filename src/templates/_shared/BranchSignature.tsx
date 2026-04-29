@@ -180,13 +180,14 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
 function SalonSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
   const looks = content.gallery.slice(0, 4);
   if (!looks.length) return null;
+  const t = resolveSignature('salon', style, content);
 
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-32 bg-[var(--accent-color)] text-[var(--accent-fg)]">
         <div className="container-x">
-          <Eyebrow style={style}>Inspiration</Eyebrow>
-          <Title style={style}>Looks<br/>der Woche.</Title>
+          {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+          <Title style={style}>{t.titleA}<br/>{t.titleB}</Title>
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-2">
             {looks.map((src, i) => (
               <figure key={i} className="aspect-[3/4] overflow-hidden border-4 border-brand">
@@ -203,8 +204,8 @@ function SalonSignature({ style, content }: { style: TemplateStyle; content: Sit
     return (
       <section className="py-24 md:py-32 surface">
         <div className="container-x">
-          <Eyebrow style={style}>Inspiration</Eyebrow>
-          <Title style={style}>Looks <em className="italic-pop">der Woche.</em></Title>
+          {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+          <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
           <div className="mt-12 grid md:grid-cols-4 gap-4 reveal-stagger">
             {looks.map((src, i) => (
               <figure key={i} className="bg-white rounded-2xl overflow-hidden border border-line p-3 shadow-sm hover-lift">
@@ -226,10 +227,10 @@ function SalonSignature({ style, content }: { style: TemplateStyle; content: Sit
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-8 mb-10 items-end">
           <div className="md:col-span-6">
-            <Eyebrow style={style}>Inspiration</Eyebrow>
-            <Title style={style}>Looks <em className="italic-pop">der Woche.</em></Title>
+            {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+            <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
           </div>
-          <p className="md:col-span-6 text-muted">Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.</p>
+          {t.intro && <p className="md:col-span-6 text-muted">{t.intro}</p>}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {looks.map((src, i) => (
@@ -253,15 +254,16 @@ function TradesmanSignature({ style, content }: { style: TemplateStyle; content:
   const phone = content.contact?.phone || '';
   const recent = content.gallery.slice(0, 1)[0];
   const services = content.services.slice(0, 4);
+  const t = resolveSignature('tradesman', style, content);
 
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-32 bg-[var(--accent-color)] text-[var(--accent-fg)] relative">
         <div className="container-x grid md:grid-cols-12 gap-10 items-center">
           <div className="md:col-span-7">
-            <Eyebrow style={style}>24/7 Notdienst</Eyebrow>
+            {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
             <h2 className="font-display text-7xl md:text-[10rem] leading-[0.85] uppercase tracking-tighter">
-              Akut?<br/>Anrufen.
+              {t.titleA}<br/>{t.titleB}
             </h2>
             {phone && <a href={'tel:' + phone.replace(/\s/g, '')} className="mt-8 inline-block font-mono text-2xl md:text-4xl underline underline-offset-4">{phone}</a>}
           </div>
@@ -283,8 +285,8 @@ function TradesmanSignature({ style, content }: { style: TemplateStyle; content:
       <section className="py-24 md:py-32 surface">
         <div className="container-x grid md:grid-cols-12 gap-8">
           <div className="md:col-span-5">
-            <Eyebrow style={style}>Notdienst &amp; Erreichbarkeit</Eyebrow>
-            <Title style={style}>Wenn&apos;s <em className="italic-pop">drauf ankommt.</em></Title>
+            {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+            <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
             <div className="mt-8 bg-white border border-line rounded-2xl p-6">
               <p className="text-xs font-mono uppercase tracking-widest text-muted">Direktwahl</p>
               {phone && <a href={'tel:' + phone.replace(/\s/g, '')} className="block mt-2 font-display text-3xl text-brand">{phone}</a>}
@@ -313,8 +315,8 @@ function TradesmanSignature({ style, content }: { style: TemplateStyle; content:
           {recent && <div className="aspect-[4/5] overflow-hidden border-2 border-white/15"><img src={recent} alt="" className="w-full h-full object-cover" /></div>}
         </div>
         <div className="md:col-span-7 md:pl-6">
-          <Eyebrow style={style}>Aktuelle Baustelle</Eyebrow>
-          <Title style={style}><span className="!text-white">Saubere Arbeit,<br/><em className="italic-pop !text-[var(--accent-color)]">faire Preise.</em></span></Title>
+          {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+          <Title style={style}><span className="!text-white">{t.titleA}<br/><em className="italic-pop !text-[var(--accent-color)]">{t.titleB}</em></span></Title>
           <ul className="mt-10 divide-y divide-white/15">
             {services.map((s, i) => (
               <li key={i} className="py-4 grid grid-cols-[3rem_1fr_auto] gap-4 items-baseline">
@@ -338,13 +340,14 @@ function HotelSignature({ style, content }: { style: TemplateStyle; content: Sit
   const rooms = content.services.slice(0, 3);
   const photos = content.gallery.slice(0, 3);
   if (!rooms.length) return null;
+  const t = resolveSignature('hotel', style, content);
 
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-32 bg-brand text-white">
         <div className="container-x">
-          <Eyebrow style={style}>Aufenthalt</Eyebrow>
-          <Title style={style}>Suite.<br/>Zimmer.<br/>Stille.</Title>
+          {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+          <Title style={style}>{t.titleA}<br/>{t.titleB}</Title>
           <div className="mt-12 grid md:grid-cols-3 gap-2">
             {rooms.map((r, i) => (
               <article key={i} className="relative aspect-[4/5] overflow-hidden">
@@ -369,8 +372,8 @@ function HotelSignature({ style, content }: { style: TemplateStyle; content: Sit
         <div className="container-x">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
-              <Eyebrow style={style}>Aufenthalt anfragen</Eyebrow>
-              <Title style={style}>Zimmer &amp; <em className="italic-pop">Suiten.</em></Title>
+              {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+              <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
             </div>
             <TLink to="/kontakt" className="btn-primary">Verfügbarkeit prüfen <span aria-hidden>→</span></TLink>
           </div>
@@ -401,9 +404,9 @@ function HotelSignature({ style, content }: { style: TemplateStyle; content: Sit
     <section className="py-24 md:py-32">
       <div className="container-x grid md:grid-cols-12 gap-10">
         <div className="md:col-span-4">
-          <Eyebrow style={style}>Zimmer &amp; Suiten</Eyebrow>
-          <Title style={style}>Bleiben Sie<br/><em className="italic-pop">eine Nacht länger.</em></Title>
-          <p className="mt-6 text-muted">Persönlich eingerichtet, mit Aussicht und Stille.</p>
+          {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+          <Title style={style}>{t.titleA}<br/><em className="italic-pop">{t.titleB}</em></Title>
+          {t.intro && <p className="mt-6 text-muted">{t.intro}</p>}
         </div>
         <div className="md:col-span-8 space-y-8">
           {rooms.map((r, i) => (
@@ -429,6 +432,7 @@ function HotelSignature({ style, content }: { style: TemplateStyle; content: Sit
 function TourismSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
   const tours = content.services.slice(0, 4);
   if (!tours.length) return null;
+  const sig = resolveSignature('tourism', style, content);
 
   // Use the optional duration field on each service as the leading label.
   // No fake dates: only show what tenants can actually edit.
@@ -442,8 +446,8 @@ function TourismSignature({ style, content }: { style: TemplateStyle; content: S
     return (
       <section className="py-24 md:py-32 bg-brand text-white">
         <div className="container-x">
-          <Eyebrow style={style}>Nächste Termine</Eyebrow>
-          <Title style={style}>Berge.<br/>Pfade.<br/>Ausblick.</Title>
+          {sig.eyebrow && <Eyebrow style={style}>{sig.eyebrow}</Eyebrow>}
+          <Title style={style}>{sig.titleA}<br/>{sig.titleB}</Title>
           <ol className="mt-14 divide-y divide-white/15">
             {tours.map((t, i) => (
               <li key={i} className="grid md:grid-cols-12 gap-4 py-6 items-baseline">
@@ -465,8 +469,8 @@ function TourismSignature({ style, content }: { style: TemplateStyle; content: S
         <div className="container-x">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
-              <Eyebrow style={style}>Nächste Touren</Eyebrow>
-              <Title style={style}>Wann <em className="italic-pop">geht&apos;s los?</em></Title>
+              {sig.eyebrow && <Eyebrow style={style}>{sig.eyebrow}</Eyebrow>}
+              <Title style={style}>{sig.titleA} <em className="italic-pop">{sig.titleB}</em></Title>
             </div>
             <span className="text-xs font-mono uppercase tracking-widest text-muted">Auswahl · {new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}</span>
           </div>
@@ -492,9 +496,9 @@ function TourismSignature({ style, content }: { style: TemplateStyle; content: S
     <section className="py-24 md:py-32">
       <div className="container-x grid md:grid-cols-12 gap-10">
         <div className="md:col-span-4">
-          <Eyebrow style={style}>Logbuch</Eyebrow>
-          <Title style={style}>Touren<br/><em className="italic-pop">der Saison.</em></Title>
-          <p className="mt-6 text-muted">Jede Tour wird persönlich vorbereitet, von einem unserer lizenzierten Guides begleitet.</p>
+          {sig.eyebrow && <Eyebrow style={style}>{sig.eyebrow}</Eyebrow>}
+          <Title style={style}>{sig.titleA}<br/><em className="italic-pop">{sig.titleB}</em></Title>
+          {sig.intro && <p className="mt-6 text-muted">{sig.intro}</p>}
         </div>
         <div className="md:col-span-8 space-y-1">
           <div className="grid grid-cols-12 gap-4 text-xs font-mono uppercase tracking-widest text-muted border-b border-line pb-3">
