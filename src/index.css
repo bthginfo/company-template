@@ -18,14 +18,22 @@
   }
 
   html { scroll-behavior: smooth; }
-  html, body, #root { height: 100%; }
+  /* Don't set `height: 100%` on html/body together with `overflow-x: hidden`
+     on body — that combination promotes <body> to the scroll-container
+     instead of the viewport, which causes occasional dropped wheel events
+     ("scroll just stops, only the scrollbar handle still works"). Letting
+     the document scroll naturally fixes that. */
   body {
     background-color: var(--bg-color);
     color: var(--text-color);
     @apply antialiased;
     font-family: 'Geist', system-ui, sans-serif;
     font-feature-settings: 'ss01', 'ss02', 'cv11';
-    overflow-x: hidden;
+    overflow-x: clip; /* clip = no horizontal overflow without becoming a scroll-container; falls back to hidden below for older browsers */
+  }
+  /* Older Safari (<16) ignores `overflow-x: clip` — provide a fallback. */
+  @supports not (overflow-x: clip) {
+    body { overflow-x: hidden; }
   }
   ::selection { background: var(--accent-color); color: var(--text-color); }
 
