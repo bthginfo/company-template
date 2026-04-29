@@ -101,9 +101,14 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
           <Title style={style}>{t.titleA}<br />{t.titleB}</Title>
           <ol className="mt-16 space-y-8">
             {dishes.map((d, i) => (
-              <li key={i} className="grid md:grid-cols-12 gap-6 items-baseline border-b border-white/15 pb-6">
+              <li key={i} className="grid md:grid-cols-12 gap-6 items-center border-b border-white/15 pb-6">
                 <span className="md:col-span-1 font-mono text-sm text-white/50">/{String(i + 1).padStart(2, '0')}</span>
-                <h3 className="md:col-span-7 font-display text-4xl md:text-6xl leading-[0.95] uppercase tracking-tight">{d.title}</h3>
+                {d.imageUrl ? (
+                  <div className="md:col-span-2 aspect-[4/3] overflow-hidden rounded-xl">
+                    <img src={d.imageUrl} alt={d.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                ) : <span className="hidden md:block md:col-span-2" aria-hidden />}
+                <h3 className="md:col-span-5 font-display text-4xl md:text-6xl leading-[0.95] uppercase tracking-tight">{d.title}</h3>
                 <p className="md:col-span-3 text-white/70 text-base">{d.description}</p>
                 {d.price && <span className="md:col-span-1 md:text-right font-mono text-xl text-[var(--accent-color)]">{d.price}</span>}
               </li>
@@ -128,9 +133,11 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
             )}
           </div>
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-            {dishes.map((d, i) => (
+            {dishes.map((d, i) => {
+              const img = d.imageUrl || photos[i];
+              return (
               <article key={i} className="bg-white border border-line rounded-2xl overflow-hidden hover-lift">
-                {photos[i] && <div className="aspect-[4/3] overflow-hidden"><img src={photos[i]} alt="" className="w-full h-full object-cover" /></div>}
+                {img && <div className="aspect-[4/3] overflow-hidden"><img src={img} alt={d.title} className="w-full h-full object-cover" loading="lazy" /></div>}
                 <div className="p-6">
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="font-display text-xl">{d.title}</h3>
@@ -139,7 +146,8 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
                   {d.description && <p className="mt-3 text-sm text-muted leading-relaxed">{d.description}</p>}
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -158,8 +166,13 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
         <div className="md:col-span-8 border-t-2 border-b-2 border-brand py-8 reveal">
           <ul className="divide-y divide-line">
             {dishes.map((d, i) => (
-              <li key={i} className="py-5 grid grid-cols-[auto_1fr_auto] items-baseline gap-5">
+              <li key={i} className="py-5 grid grid-cols-[auto_auto_1fr_auto] items-center gap-5">
                 <span className="font-display italic text-3xl text-[var(--accent-color)]">{['I','II','III'][i]}</span>
+                {d.imageUrl ? (
+                  <div className="w-20 h-20 md:w-24 md:h-24 overflow-hidden rounded-xl shrink-0">
+                    <img src={d.imageUrl} alt={d.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                ) : <span aria-hidden />}
                 <div>
                   <h3 className="font-display text-2xl md:text-3xl">{d.title}</h3>
                   {d.description && <p className="mt-1 text-sm text-muted italic">{d.description}</p>}

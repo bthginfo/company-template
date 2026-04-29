@@ -163,6 +163,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             <SidebarItem active={pageId === 'seo'} onClick={() => setPageId('seo')} icon="◎">SEO & Sichtbarkeit</SidebarItem>
             <SidebarItem active={pageId === 'scripts'} onClick={() => setPageId('scripts')} icon="〈">Skripte & Tracking</SidebarItem>
             <SidebarItem active={pageId === 'mail'} onClick={() => setPageId('mail')} icon="M">Mail-Server</SidebarItem>
+            <SidebarItem active={pageId === 'legal'} onClick={() => setPageId('legal')} icon="§">Impressum & Datenschutz</SidebarItem>
             <SidebarItem active={pageId === 'security'} onClick={() => setPageId('security')} icon="⚿">Passwort & Zugang</SidebarItem>
           </SidebarGroup>
         </aside>
