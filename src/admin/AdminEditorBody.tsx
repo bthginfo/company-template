@@ -664,7 +664,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           newItem={() => ''}
           addLabel="+ Hinweis hinzufügen"
         />
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
       </SectionCard>
 
       <SectionCard title="Aktionsleiste" description="Schmaler Streifen direkt unter dem Lauftext (z. B. „Heute geöffnet · Tisch reservieren · Speisekarte ansehen“)." badge="Sektion 1b">
@@ -696,6 +695,10 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
         </SectionCard>
       )}
+
+      <SectionCard title="Schlagwort-Band" description="Großes Wortband direkt unter dem Hero (nur im Bold-Style sichtbar) – setzt das Profil mit kurzen Begriffen." badge="Sektion 2c">
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
+      </SectionCard>
 
       <SectionCard title="Zahlen-Band" description={'Vier Eckdaten – meist direkt unter dem Hero (auch in „Über uns").'} badge="Sektion 3" pageKey="home" sectionKey="numbers" data={data} setData={setData}>
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
