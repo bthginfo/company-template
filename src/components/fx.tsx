@@ -452,7 +452,9 @@ export function CustomCursor() {
     };
     const enterLink = () => ring.classList.add('cursor-hover');
     const leaveLink = () => ring.classList.remove('cursor-hover');
+    const linkEls: Element[] = [];
     document.querySelectorAll('a, button, [role=button]').forEach((el) => {
+      linkEls.push(el);
       el.addEventListener('mouseenter', enterLink);
       el.addEventListener('mouseleave', leaveLink);
     });
@@ -461,6 +463,10 @@ export function CustomCursor() {
     return () => {
       window.removeEventListener('mousemove', move);
       cancelAnimationFrame(raf);
+      linkEls.forEach((el) => {
+        el.removeEventListener('mouseenter', enterLink);
+        el.removeEventListener('mouseleave', leaveLink);
+      });
     };
   }, []);
   return (

@@ -4,8 +4,28 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '../../src/lib/db/client.js';
 import { createSessionCookie } from '../_lib/auth.js';
 
+/* ─── In-memory rate limit (per IP, best-effort) ─────────────────── */
+const HITS = new Map<string, number[]>();
+const WINDOW_MS = 60_000;
+const MAX_PER_WINDOW = 8;
+function rateLimited(ip: string) {
+  const now = Date.now();
+  const list = (HITS.get(ip) || []).filter((t) => now - t < WINDOW_MS);
+  list.push(now);
+  HITS.set(ip, list);
+  return list.length > MAX_PER_WINDOW;
+}
+function ipFromReq(req: VercelRequest) {
+  const xf = (req.headers['x-forwarded-for'] || '') as string;
+  return xf.split(',')[0].trim() || (req.socket?.remoteAddress ?? 'unknown');
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (rateLimited(ipFromReq(req))) {
+    return res.status(429).json({ error: 'Zu viele Versuche. Bitte in einer Minute erneut versuchen.' });
+  }
 
   const body = typeof req.body === 'string' ? safeParse(req.body) : req.body || {};
   const password = String(body.password || '');
