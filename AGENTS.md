@@ -4,6 +4,47 @@ This repository hosts a multi-tenant Vite/React/TypeScript template that is
 deployed per-tenant on Vercel. If you are an automated agent, **read this file
 first** before running any tooling.
 
+For human-oriented architecture and conventions, see [README.md](README.md).
+For ops procedures (rollback, key rotation, incident response), see
+[RUNBOOK.md](RUNBOOK.md).
+
+---
+
+## TL;DR for agents
+
+| Task                          | Single command (no thinking required)                                |
+| ----------------------------- | -------------------------------------------------------------------- |
+| Add a new tenant              | `npm run tenant:new -- -Slug <s> -Name "<n>" -Template <t> -Style <st> -NonInteractive` |
+| Re-seed an existing tenant    | Same as above, plus `-Reseed`                                        |
+| Type-check the codebase       | `npm run lint`                                                       |
+| Build (must pass before push) | `npm run build`                                                      |
+| Run the dev server            | `npm run dev`                                                        |
+| Hash a password               | `npm run hash` then enter password                                   |
+
+If a command fails, read the error output **literally**. The script tells
+you exactly what to fix. Do **not** improvise.
+
+---
+
+## Repository invariants (do not break)
+
+1. **`main` is the only deploy branch.** Every push to `main` deploys
+   `bth-studio-showcase.vercel.app` and is the default branch for new
+   tenant projects.
+2. **`tsc --noEmit` must pass** before every commit. The build runs it
+   first; if it fails, the deployment fails.
+3. **No `any` types** in new code. If unavoidable, leave a TODO and reason.
+4. **Per-tenant content lives in one row** (`siteContent.data` jsonb).
+   Schema changes must keep the existing rows readable (additive only).
+5. **Admin endpoints require a valid session cookie.** Never bypass
+   `requireSession()` checks.
+6. **All eight templates × three styles must keep building.** When you
+   change shared code, sanity-check at least one variant per family
+   (one core, one extra) builds.
+7. **Never commit `.env.local`, `.tenant-credentials.txt`, or
+   `.tenant-provision-*.log`.** They are gitignored; verify with
+   `git status` before committing.
+
 ---
 
 ## How to provision a new tenant (foolproof)
@@ -118,3 +159,75 @@ After the script reports success, the tenant is reachable at:
 
 The first deploy takes 1–2 minutes; check the Vercel dashboard if the URL
 returns 404 immediately after provisioning.
+
+---
+
+## How to make safe code changes (for agents)
+
+When asked to fix a bug or add a feature:
+
+1. **Read before editing.** Use file-read tools to load the actual file
+   before any edit. Never assume contents from filename alone.
+2. **Reproduce or locate first.** For bugs, find the exact line that
+   produces the wrong behaviour (search for the error string, the visible
+   UI text, or the affected component name).
+3. **Match the existing style.** No new dependencies, no new state
+   libraries, no new build tools without explicit permission.
+4. **One commit per logical change.** Keep diffs reviewable. Do not
+   refactor unrelated code in the same commit.
+5. **Run `npm run lint` before committing.** It catches the same errors
+   the deploy will.
+6. **If a change touches `src/templates/_shared/`, manually verify** that
+   at least one core template (`restaurant`) and one extra template
+   (`consulting`) still render correctly in dev.
+7. **If a change touches `api/`, run the API locally** (`npm run dev`,
+   not `npm run dev:vite`) and exercise the affected endpoint.
+
+### What requires human approval first
+
+- Adding a runtime dependency (`npm install <pkg>`).
+- Changing the DB schema (anything in `src/lib/db/schema.ts`).
+- Modifying authentication flow (`api/_lib/auth.ts`, `api/admin/*`).
+- Changing rate-limit thresholds or removing them entirely.
+- Force-pushing or rewriting git history.
+- Anything that costs money (new Vercel projects beyond tenant onboarding,
+  new external services).
+
+### Patterns that are SAFE to do autonomously
+
+- Adding a new template variant (follow [README.md](README.md) #adding-a-new-template-variant).
+- Fixing a TypeScript error reported by `npm run lint`.
+- Adding alt text, aria labels, or other a11y attributes.
+- Wiring an existing demo-content field into a renderer.
+- Adding a new section to an existing template's editor.
+- Updating copy, translations, or visual constants.
+
+### Output expectations
+
+After completing a task, report:
+- Files changed (with line counts if non-trivial)
+- The git commit hash you produced (if you committed)
+- The result of `npm run lint` (must be clean)
+- Any TODOs you left and why
+
+Do not produce a separate markdown summary file unless explicitly asked.
+
+---
+
+## Common file reference
+
+| What you are looking for                          | File                                                              |
+| ------------------------------------------------- | ----------------------------------------------------------------- |
+| Slug → template/style routing                     | [src/SiteRouter.tsx](src/SiteRouter.tsx)                          |
+| Top-level routes (/admin etc.)                    | [src/App.tsx](src/App.tsx)                                        |
+| Default content per template                      | [src/lib/demo-content.ts](src/lib/demo-content.ts)                |
+| Default content for consulting/medical/fitness    | [src/lib/extra-demo-content.ts](src/lib/extra-demo-content.ts)    |
+| HTML sanitizer (allowlist)                        | [src/lib/sanitize-html.ts](src/lib/sanitize-html.ts)              |
+| JWT cookie helpers                                | [api/_lib/auth.ts](api/_lib/auth.ts)                              |
+| Login endpoint (rate-limited)                     | [api/admin/login.ts](api/admin/login.ts)                          |
+| Tenant content read/write                         | [api/content.ts](api/content.ts)                                  |
+| File uploads (MIME whitelist + size cap)          | [api/upload.ts](api/upload.ts)                                    |
+| DB schema                                         | [src/lib/db/schema.ts](src/lib/db/schema.ts)                      |
+| Tenant onboarding wrapper                         | [scripts/new-tenant.ps1](scripts/new-tenant.ps1)                  |
+| Tenant onboarding internals                       | [scripts/provision-tenant.ts](scripts/provision-tenant.ts)        |
+| Operational procedures                            | [RUNBOOK.md](RUNBOOK.md)                                          |
