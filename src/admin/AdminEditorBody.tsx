@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
+import { SECTION_CATALOG, getEffectivePageOrder, getRemainingSections, isSectionEnabled, type PageId as LayoutPageId } from '@/lib/page-layout';
 import { RichTextEditor } from './RichTextEditor';
 import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
 import { scrollToTop } from '@/lib/scroll';
@@ -451,7 +452,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
   const announcements = (data as any).announcements as string[] | undefined;
   return (
     <>
-      <SectionCard title="Sichtbarkeit der Sektionen" description="Schalten Sie ganze Sektionen auf der Startseite sichtbar oder unsichtbar." badge="Layout">
+      <SectionCard title="Layout & Sichtbarkeit (alle Seiten)" description="Sektionen pro Seite ein-/ausblenden, neu sortieren und bestehende Sektionen hinzufügen." badge="Layout">
         <SectionVisibilityEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
@@ -1388,41 +1389,187 @@ function ScriptsPage({ data, setData }: SetterProps) {
   );
 }
 
-/* ─── Section visibility (per-tenant per-section show/hide) ──────── */
+/* ─── Layout-Manager (Sichtbarkeit + Reihenfolge + Hinzufügen pro Seite) ─── */
 
-const SECTION_FLAGS: { key: string; label: string; description: string }[] = [
-  { key: 'action', label: 'Aktions-Leiste', description: 'Branchenspezifische Info-Leiste direkt unter dem Hero.' },
-  { key: 'signature', label: 'Branchen-Signatur', description: 'Variantenspezifischer Akzent-Block (z. B. Manifest).' },
-  { key: 'services', label: 'Leistungen / Speisekarte', description: 'Highlight-Liste der Hauptleistungen.' },
-  { key: 'branchModule', label: 'Branchen-Modul', description: 'Modul für Branche (Menu, Zimmer, Touren, Treatments, Förderung …).' },
-  { key: 'about', label: 'Über uns', description: 'Über-uns-Teaser auf der Startseite.' },
-  { key: 'gallery', label: 'Galerie', description: 'Galerie-Vorschau auf der Startseite.' },
-  { key: 'numbers', label: 'Zahlen-Band', description: 'Vier Eckdaten als Stat-Strip.' },
-  { key: 'testimonials', label: 'Bewertungen', description: 'Kundenstimmen-Block.' },
-  { key: 'logos', label: 'Logo-Strip', description: 'Partner / Presse Logos (nur Modern).' },
-  { key: 'faq', label: 'FAQ', description: 'Häufige Fragen mit Akkordeon (nur Modern).' },
-  { key: 'news', label: 'News-Teaser', description: 'Neueste Beiträge.' },
-  { key: 'softCta', label: 'Abschluss-Aufruf', description: 'CTA-Block am Seitenende.' },
-];
+const PAGE_LABELS: Record<LayoutPageId, string> = {
+  home: 'Startseite',
+  services: 'Leistungen',
+  gallery: 'Galerie',
+  about: 'Über uns',
+  contact: 'Kontakt',
+};
 
-function SectionVisibilityEditor({ data, setData }: SectionProps) {
-  const flags = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
-  const isVisible = (key: string) => flags[key] !== false;
-  const setFlag = (key: string, v: boolean) => {
-    const next = { ...flags, [key]: v };
+const PAGES_ORDER: LayoutPageId[] = ['home', 'services', 'gallery', 'about', 'contact'];
+
+function SectionVisibilityEditor({ data, setData, tpl }: SectionProps) {
+  const variant = tpl as any;
+  const visibility = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
+  const order = ((data as any).sectionOrder ?? {}) as Record<string, string[]>;
+
+  const setVisibility = (next: Record<string, boolean>) => {
     setData({ ...(data as any), sectionVisibility: next } as SiteContent);
   };
+  const setOrder = (next: Record<string, string[]>) => {
+    setData({ ...(data as any), sectionOrder: next } as SiteContent);
+  };
+
   return (
-    <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
-      {SECTION_FLAGS.map((s) => (
-        <div key={s.key} className="flex items-start justify-between gap-3 py-2 border-b border-line/60 last:border-b-0">
-          <div className="min-w-0">
-            <p className="text-sm font-medium">{s.label}</p>
-            <p className="text-xs text-muted">{s.description}</p>
-          </div>
-          <Toggle value={isVisible(s.key)} onChange={(v) => setFlag(s.key, v)} label="" />
-        </div>
+    <div className="grid gap-6">
+      <p className="text-xs text-muted">
+        Pro Seite kannst du Sektionen ein- und ausblenden, neu sortieren und ausgeblendete Sektionen wieder hinzufügen.
+        Es lassen sich nur bestehende Sektionstypen einsetzen – neue Layouts werden nicht erfunden.
+      </p>
+      {PAGES_ORDER.map((page) => (
+        <PageLayoutCard
+          key={page}
+          page={page}
+          variant={variant}
+          data={data}
+          visibility={visibility}
+          order={order}
+          setVisibility={setVisibility}
+          setOrder={setOrder}
+        />
       ))}
+    </div>
+  );
+}
+
+function PageLayoutCard({
+  page, variant, data, visibility, order, setVisibility, setOrder,
+}: {
+  page: LayoutPageId;
+  variant: string;
+  data: SiteContent;
+  visibility: Record<string, boolean>;
+  order: Record<string, string[]>;
+  setVisibility: (next: Record<string, boolean>) => void;
+  setOrder: (next: Record<string, string[]>) => void;
+}) {
+  const effective = getEffectivePageOrder(data as any, page, variant as any);
+  const catalog = SECTION_CATALOG[page];
+  const meta = (k: string) => catalog.find((s) => s.key === k);
+  const remaining = getRemainingSections(page, effective, variant as any);
+
+  const visKey = (k: string) => `${page}.${k}`;
+  // Backward-compat: home stored some flags unprefixed historically.
+  const isOn = (k: string) => isSectionEnabled(data as any, page, k);
+  const setOn = (k: string, v: boolean) => {
+    const next = { ...visibility, [visKey(k)]: v };
+    // Keep legacy unprefixed home key in sync so older code paths still react.
+    if (page === 'home' && Object.prototype.hasOwnProperty.call(visibility, k)) {
+      next[k] = v;
+    }
+    setVisibility(next);
+  };
+
+  const writeOrder = (next: string[]) => {
+    setOrder({ ...order, [page]: next });
+  };
+
+  const move = (idx: number, dir: -1 | 1) => {
+    const j = idx + dir;
+    if (j < 0 || j >= effective.length) return;
+    const next = effective.slice();
+    [next[idx], next[j]] = [next[j], next[idx]];
+    writeOrder(next);
+  };
+
+  const remove = (k: string) => {
+    writeOrder(effective.filter((x) => x !== k));
+  };
+
+  const add = (k: string) => {
+    if (effective.includes(k)) return;
+    writeOrder([...effective, k]);
+    // Make sure newly added section is visible.
+    setOn(k, true);
+  };
+
+  const reset = () => {
+    const next = { ...order };
+    delete next[page];
+    setOrder(next);
+  };
+
+  return (
+    <div className="border border-line rounded-2xl bg-white">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-line">
+        <div>
+          <p className="font-display text-lg leading-none">{PAGE_LABELS[page]}</p>
+          <p className="text-xs text-muted mt-1">
+            {effective.length} Sektion{effective.length === 1 ? '' : 'en'}
+            {order[page] ? ' · benutzerdefinierte Reihenfolge' : ' · Standard-Reihenfolge'}
+          </p>
+        </div>
+        {order[page] && (
+          <button type="button" onClick={reset} className="text-xs underline text-muted hover:text-ink">
+            Reihenfolge zurücksetzen
+          </button>
+        )}
+      </div>
+      <ul className="divide-y divide-line/60">
+        {effective.map((k, idx) => {
+          const m = meta(k);
+          return (
+            <li key={k} className="flex items-center gap-3 px-4 py-3">
+              <div className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  aria-label="Nach oben"
+                  onClick={() => move(idx, -1)}
+                  disabled={idx === 0}
+                  className="text-xs px-2 py-0.5 rounded border border-line hover:bg-[var(--surface-color)] disabled:opacity-30"
+                >▲</button>
+                <button
+                  type="button"
+                  aria-label="Nach unten"
+                  onClick={() => move(idx, 1)}
+                  disabled={idx === effective.length - 1}
+                  className="text-xs px-2 py-0.5 rounded border border-line hover:bg-[var(--surface-color)] disabled:opacity-30"
+                >▼</button>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">
+                  {m?.label ?? k}
+                  {m?.variants && !m.variants.includes(variant as any) && (
+                    <span className="ml-2 text-[10px] text-muted">(nur {m.variants.join('/')})</span>
+                  )}
+                </p>
+                {m?.description && <p className="text-xs text-muted">{m.description}</p>}
+              </div>
+              <Toggle value={isOn(k)} onChange={(v) => setOn(k, v)} label="" />
+              <button
+                type="button"
+                onClick={() => remove(k)}
+                aria-label="Entfernen"
+                className="text-muted hover:text-ink text-lg leading-none px-2"
+                title="Sektion entfernen"
+              >×</button>
+            </li>
+          );
+        })}
+      </ul>
+      {remaining.length > 0 && (
+        <div className="px-4 py-3 border-t border-line/60 bg-[var(--surface-color)]/40">
+          <label className="text-xs text-muted block mb-1">Sektion hinzufügen</label>
+          <select
+            className={inputCls + ' !py-2 text-sm'}
+            value=""
+            onChange={(e) => {
+              if (e.target.value) {
+                add(e.target.value);
+                e.target.value = '';
+              }
+            }}
+          >
+            <option value="">+ wähle eine bestehende Sektion …</option>
+            {remaining.map((s) => (
+              <option key={s.key} value={s.key}>{s.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }

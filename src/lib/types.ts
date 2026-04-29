@@ -335,12 +335,25 @@ export const SiteContentSchema = z.object({
   }).optional().default({}),
 
   /**
-   * Per-section visibility on the home page. Each key maps to a section
-   * (action, signature, services, gallery, numbers, about, testimonials,
-   * news, menu, rooms, tours, treatments, funding). Default: visible (true).
-   * Setting a key to `false` hides that section on the rendered home page.
+   * Per-section visibility. Keys are namespaced by page:
+   *   home.<key>      → home page sections (action, signature, services, …)
+   *   services.<key>  → services / Speisekarte page
+   *   gallery.<key>   → gallery page
+   *   about.<key>     → about page
+   *   contact.<key>   → contact page
+   * Legacy unprefixed keys (action, services, …) are still respected on the home
+   * page for backward-compatibility. Default: visible (true).
    */
   sectionVisibility: z.record(z.boolean()).optional().default({}),
+
+  /**
+   * Per-page section ordering. Keys are page ids ('home' | 'services' |
+   * 'gallery' | 'about' | 'contact') and values are arrays of section keys
+   * (without the page prefix) in the desired order. When a page id is
+   * missing the template falls back to the hardcoded default flow for the
+   * (variant, style) combination.
+   */
+  sectionOrder: z.record(z.array(z.string())).optional().default({}),
 }).passthrough();
 // `.passthrough()` keeps any extra admin-saved fields (announcements, values,
 // team, faq, highlights, process, certifications, press, etc.) intact — the

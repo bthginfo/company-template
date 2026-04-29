@@ -22,6 +22,7 @@ import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getOpenStatus } from '@/lib/open-hours';
+import { isSectionEnabled, getEffectivePageOrder } from '@/lib/page-layout';
 import { BranchSignature } from './BranchSignature';
 import {
   MenuCategoriesModule,
@@ -326,8 +327,7 @@ function HomePage({ variant, content, style }: { variant: TemplateVariant; conte
 
 /** Per-tenant visibility check. Defaults to true when no flag is set. */
 function isSectionVisible(content: SiteContent, key: string): boolean {
-  const v = (content as any).sectionVisibility?.[key];
-  return v === undefined ? true : !!v;
+  return isSectionEnabled(content, 'home', key);
 }
 
 /**
@@ -368,7 +368,9 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
   const featuredServices = content.services.slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = resolveHeroMeta(variant, content);
-  const order = BRANCH_STYLE_ORDER[variant].classic.filter((k) => isSectionVisible(content, k));
+  const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
+  const baseOrder = customHomeOrder && customHomeOrder.length ? customHomeOrder : BRANCH_STYLE_ORDER[variant].classic;
+  const order = baseOrder.filter((k) => isSectionVisible(content, k));
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
@@ -1064,19 +1066,10 @@ function CtaBand({ variant, content }: { variant: TemplateVariant; content?: Sit
 /* ─── Services / Speisekarte / Leistungen ────────────────────────── */
 function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const cfg = NAV_BY_VARIANT[variant];
-  return (
-    <>
-      <PageHero
-        eyebrow={cfg.servicesEyebrow}
-        title={cfg.servicesHeadline}
-        subtitle={subtitleFor(variant, content)}
-        style={style}
-        image={style === 'modern' ? content.gallery[2] || content.gallery[0] : undefined}
-      />
-
-      {/* Highlights ribbon */}
-      <ServiceHighlights variant={variant} content={content} />
-
+  const order = getEffectivePageOrder(content, 'services').filter((k) => isSectionEnabled(content, 'services', k));
+  const blocks: Record<string, JSX.Element | null> = {
+    highlights: <ServiceHighlights variant={variant} content={content} />,
+    list: (
       <Section spacing="lg" className={style === 'modern' ? 'surface' : ''}>
         {style === 'bold' ? (
           <BoldServicesList services={content.services} />
@@ -1086,19 +1079,50 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
           <ServicesShowcase variant={variant} services={content.services} />
         )}
       </Section>
-
-      {/* Branch-specific module on the services page (Menu / Rooms / Tours / Treatments / Funding…) */}
-      <BranchModulesInline variant={variant} content={content} />
-
-      {/* How it works strip */}
-      <ServiceProcess variant={variant} content={content} />
-
-      {/* FAQ */}
+    ),
+    module: <BranchModulesInline variant={variant} content={content} />,
+    process: <ServiceProcess variant={variant} content={content} />,
+    testimonials: content.testimonials.length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
+        <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+          {content.testimonials.map((t, i) => (
+            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+              <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+              <p className="text-lg leading-relaxed">{t.text}</p>
+              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </Section>
+    ) : null,
+    gallery: content.gallery.length > 0 ? (
+      <Section eyebrow="Eindrücke" title={<>Aus unserem <em className="italic-pop">Alltag.</em></>}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 reveal-stagger">
+          {content.gallery.slice(0, 8).map((src, i) => (
+            <div key={i} className="aspect-square rounded-2xl overflow-hidden img-zoom">
+              <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </Section>
+    ) : null,
+    faq: (
       <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>} className="surface">
         <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
-
-      <CtaBand variant={variant} content={content} />
+    ),
+    cta: <CtaBand variant={variant} content={content} />,
+  };
+  return (
+    <>
+      <PageHero
+        eyebrow={cfg.servicesEyebrow}
+        title={cfg.servicesHeadline}
+        subtitle={subtitleFor(variant, content)}
+        style={style}
+        image={style === 'modern' ? content.gallery[2] || content.gallery[0] : undefined}
+      />
+      {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
     </>
   );
 }
@@ -1231,21 +1255,38 @@ function GalleryPage({
         style={style}
       />
 
-      <GalleryStorySection variant={variant} content={content} />
-
-      <Section spacing="lg">
-        {style === 'bold' ? (
-          <MasonryGrid images={content.gallery} />
-        ) : style === 'modern' ? (
-          <ModernGalleryGrid images={content.gallery} />
-        ) : (
-          <GalleryShowcase variant={variant} images={content.gallery} mode="full" />
-        )}
-      </Section>
-
-      <GalleryCategoriesSection variant={variant} content={content} />
-
-      <CtaBand variant={variant} content={content} />
+      {(() => {
+        const order = getEffectivePageOrder(content, 'gallery').filter((k) => isSectionEnabled(content, 'gallery', k));
+        const blocks: Record<string, JSX.Element | null> = {
+          story: <GalleryStorySection variant={variant} content={content} />,
+          grid: (
+            <Section spacing="lg">
+              {style === 'bold' ? (
+                <MasonryGrid images={content.gallery} />
+              ) : style === 'modern' ? (
+                <ModernGalleryGrid images={content.gallery} />
+              ) : (
+                <GalleryShowcase variant={variant} images={content.gallery} mode="full" />
+              )}
+            </Section>
+          ),
+          categories: <GalleryCategoriesSection variant={variant} content={content} />,
+          testimonials: content.testimonials.length > 0 ? (
+            <Section eyebrow="Stimmen" title={<>Was unsere <em className="italic-pop">Gäste sagen.</em></>} className="surface">
+              <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+                {content.testimonials.map((t, i) => (
+                  <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+                    <p className="text-lg leading-relaxed">{t.text}</p>
+                    <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+                  </blockquote>
+                ))}
+              </div>
+            </Section>
+          ) : null,
+          cta: <CtaBand variant={variant} content={content} />,
+        };
+        return order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>);
+      })()}
     </>
   );
 }
@@ -1378,6 +1419,78 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
 
 /* ─── About ──────────────────────────────────────────────────────── */
 function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  const order = getEffectivePageOrder(content, 'about').filter((k) => isSectionEnabled(content, 'about', k));
+  const introBlock = style !== 'modern' ? (
+    <Section spacing="lg">
+      <div className={`grid lg:grid-cols-12 gap-10 items-start ${style === 'bold' ? '' : ''}`}>
+        <div className="lg:col-span-5">
+          <ParallaxImage
+            src={content.about?.imageUrl || content.gallery[0]}
+            alt={content.brand.name}
+            className={`${style === 'bold' ? 'rounded-none' : 'rounded-3xl'} aspect-[4/5] reveal`}
+          />
+        </div>
+        <div className="lg:col-span-7 lg:pl-4">
+          <div className="reveal">
+            {(content.about?.body || '').split('\n\n').map((p, i) => (
+              <p key={i} className={`leading-relaxed mb-6 ${style === 'bold' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl text-muted'}`}>{p}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  ) : (
+    <Section spacing="lg">
+      <div className="grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-7 lg:col-start-1 reveal">
+          {(content.about?.body || '').split('\n\n').map((p, i) => (
+            <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
+          ))}
+        </div>
+        <aside className="lg:col-span-4 lg:col-start-9 reveal">
+          <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
+            <p className="eyebrow mb-4">Auf einen Blick</p>
+            <dl className="space-y-3 text-sm">
+              {resolveHeroMeta(variant, content).map((m, i) => (
+                <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
+                  <dt className="text-muted">{m.label}</dt>
+                  <dd className="font-display">{m.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </aside>
+      </div>
+    </Section>
+  );
+  const blocks: Record<string, JSX.Element | null> = {
+    intro: introBlock,
+    values: <ValuesSection variant={variant} content={content} />,
+    timeline: <Timeline content={content} />,
+    team: <TeamSection variant={variant} content={content} />,
+    numbers: <NumbersBand variant={variant} content={content} />,
+    certifications: variant === 'tradesman' ? <CertificationsSection /> : null,
+    press: variant === 'restaurant' ? <PressSection /> : null,
+    testimonials: content.testimonials.length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
+        <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+          {content.testimonials.map((t, i) => (
+            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+              <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+              <p className="text-lg leading-relaxed">{t.text}</p>
+              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </Section>
+    ) : null,
+    faq: (
+      <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>} className="surface">
+        <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      </Section>
+    ),
+    cta: <CtaBand variant={variant} content={content} />,
+  };
   return (
     <>
       <PageHero
@@ -1387,79 +1500,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         style={style}
         image={style === 'modern' ? content.about?.imageUrl || content.gallery[0] : undefined}
       />
-
-      {style !== 'modern' && (
-        <Section spacing="lg">
-          <div className={`grid lg:grid-cols-12 gap-10 items-start ${style === 'bold' ? '' : ''}`}>
-            <div className="lg:col-span-5">
-              <ParallaxImage
-                src={content.about?.imageUrl || content.gallery[0]}
-                alt={content.brand.name}
-                className={`${style === 'bold' ? 'rounded-none' : 'rounded-3xl'} aspect-[4/5] reveal`}
-              />
-            </div>
-            <div className="lg:col-span-7 lg:pl-4">
-              <div className="reveal">
-                {(content.about?.body || '').split('\n\n').map((p, i) => (
-                  <p key={i} className={`leading-relaxed mb-6 ${style === 'bold' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl text-muted'}`}>{p}</p>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Section>
-      )}
-
-      {style === 'modern' && (
-        <Section spacing="lg">
-          <div className="grid lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-7 lg:col-start-1 reveal">
-              {(content.about?.body || '').split('\n\n').map((p, i) => (
-                <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
-              ))}
-            </div>
-            <aside className="lg:col-span-4 lg:col-start-9 reveal">
-              <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
-                <p className="eyebrow mb-4">Auf einen Blick</p>
-                <dl className="space-y-3 text-sm">
-                  {resolveHeroMeta(variant, content).map((m, i) => (
-                    <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
-                      <dt className="text-muted">{m.label}</dt>
-                      <dd className="font-display">{m.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            </aside>
-          </div>
-        </Section>
-      )}
-
-      <ValuesSection variant={variant} content={content} />
-
-      <Timeline content={content} />
-
-      <TeamSection variant={variant} content={content} />
-
-      <NumbersBand variant={variant} content={content} />
-
-      {variant === 'tradesman' && <CertificationsSection />}
-      {variant === 'restaurant' && <PressSection />}
-
-      {content.testimonials.length > 0 && (
-        <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
-          <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-            {content.testimonials.map((t, i) => (
-              <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
-                <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
-                <p className="text-lg leading-relaxed">{t.text}</p>
-                <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
-              </blockquote>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      <CtaBand variant={variant} content={content} />
+      {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
     </>
   );
 }
@@ -1642,6 +1683,32 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   };
   const overlay = (content as any).arrival as { t: string; d: string }[] | undefined;
   const arrival = overlay && overlay.length ? overlay.filter((a) => a.t || a.d) : arrivalFallbacks[variant];
+  const order = getEffectivePageOrder(content, 'contact').filter((k) => isSectionEnabled(content, 'contact', k));
+  const blocks: Record<string, JSX.Element | null> = {
+    block: <ContactBlock content={content} />,
+    arrival: (
+      <Section eyebrow="Wegbeschreibung" title={<>So <em className="italic-pop">finden Sie uns.</em></>} className="surface">
+        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+          {arrival.map((a, i) => (
+            <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
+              <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+              <h3 className="font-display text-2xl mt-3">{a.t}</h3>
+              <p className="mt-3 text-muted leading-relaxed">{a.d}</p>
+            </article>
+          ))}
+        </div>
+        <div className="mt-10 reveal">
+          <ContactMap content={content} />
+        </div>
+      </Section>
+    ),
+    faq: (
+      <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>}>
+        <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      </Section>
+    ),
+    cta: <CtaBand variant={variant} content={content} />,
+  };
   return (
     <>
       <PageHero
@@ -1655,23 +1722,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
         }
         style={style}
       />
-      <ContactBlock content={content} />
-
-      <Section eyebrow="Wegbeschreibung" title={<>So <em className="italic-pop">finden Sie uns.</em></>} className="surface">
-        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {arrival.map((a, i) => (
-            <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
-              <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
-              <h3 className="font-display text-2xl mt-3">{a.t}</h3>
-              <p className="mt-3 text-muted leading-relaxed">{a.d}</p>
-            </article>
-          ))}
-        </div>
-
-        <div className="mt-10 reveal">
-          <ContactMap content={content} />
-        </div>
-      </Section>
+      {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
     </>
   );
 }
