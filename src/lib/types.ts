@@ -160,6 +160,24 @@ export const SiteContentSchema = z.object({
     softCtaTitle: z.string().optional().default(''),
     softCtaText: z.string().optional().default(''),
     softCtaButton: z.string().optional().default(''),
+    /** Services-page process section eyebrow + title. */
+    processEyebrow: z.string().optional().default(''),
+    processTitle: z.string().optional().default(''),
+    /** Gallery-page categories section eyebrow + title. */
+    galleryCategoriesEyebrow: z.string().optional().default(''),
+    galleryCategoriesTitle: z.string().optional().default(''),
+    /** About-page values section eyebrow + title. */
+    valuesEyebrow: z.string().optional().default(''),
+    valuesTitle: z.string().optional().default(''),
+    /** About-page team section eyebrow + title. */
+    teamEyebrow: z.string().optional().default(''),
+    teamTitle: z.string().optional().default(''),
+    /** About-page certifications section eyebrow + title (tradesman). */
+    certsEyebrow: z.string().optional().default(''),
+    certsTitle: z.string().optional().default(''),
+    /** About-page press section eyebrow + title (restaurant). */
+    pressEyebrow: z.string().optional().default(''),
+    pressTitle: z.string().optional().default(''),
     /** Eyebrow + title for the news/blog teaser block on the home page. */
     newsEyebrow: z.string().optional().default(''),
     newsTitle: z.string().optional().default(''),

@@ -482,7 +482,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       </section>
     ),
     about: content.about?.body ? (
-      <Section eyebrow="Über uns" title={<>{splitTitle(content.about.title || 'Über uns')}</>}>
+      <Section eyebrow={effectiveBranchText(variant, content).aboutTeaserEyebrow || 'Über uns'} title={<>{splitTitle(content.about.title || 'Über uns')}</>}>
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <div className="prose-lite reveal">
             {(content.about.body || '').split('\n\n').slice(0, 2).map((p, i) => (
@@ -1176,7 +1176,7 @@ function ServiceProcess({ variant, content }: { variant: TemplateVariant; conten
   const list = overlay && overlay.length ? overlay.filter((s) => s.t || s.d) : fallbacks[variant];
   if (!list.length) return null;
   return (
-    <Section eyebrow="So läuft es ab" title={<>In <em className="italic-pop">vier Schritten.</em></>}>
+    <Section eyebrow={effectiveBranchText(variant, content).processEyebrow || 'So läuft es ab'} title={<>{splitTitle(effectiveBranchText(variant, content).processTitle || 'In vier Schritten.')}</>}>
       <ol className="grid md:grid-cols-4 gap-0 md:gap-0 reveal-stagger">
         {list.map((s, i) => (
           <li key={i} className="relative md:border-l border-t md:border-t-0 border-line p-6 md:p-7">
@@ -1236,7 +1236,7 @@ function GalleryPage({
           ),
           categories: <GalleryCategoriesSection variant={variant} content={content} />,
           testimonials: content.testimonials.length > 0 ? (
-            <Section eyebrow="Stimmen" title={<>Was unsere <em className="italic-pop">Gäste sagen.</em></>} className="surface">
+            <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow || 'Stimmen'} title={<>{splitTitle(effectiveBranchText(variant, content).testimonialsTitle || 'Was unsere Gäste sagen.')}</>} className="surface">
               <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
                 {content.testimonials.map((t, i) => (
                   <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
@@ -1367,7 +1367,7 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
   const list = overlay && overlay.length ? overlay.filter((c) => c.t || c.d) : fallbacks[variant];
   if (!list.length) return null;
   return (
-    <Section eyebrow="Kategorien" title={<>Was Sie bei uns <em className="italic-pop">erwartet.</em></>}>
+    <Section eyebrow={effectiveBranchText(variant, content).galleryCategoriesEyebrow || 'Kategorien'} title={<>{splitTitle(effectiveBranchText(variant, content).galleryCategoriesTitle || 'Was Sie bei uns erwartet.')}</>}>
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
         {list.map((c, i) => (
           <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
@@ -1433,8 +1433,8 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
     timeline: <Timeline content={content} />,
     team: <TeamSection variant={variant} content={content} />,
     numbers: <NumbersBand variant={variant} content={content} />,
-    certifications: variant === 'tradesman' ? <CertificationsSection content={content} /> : null,
-    press: variant === 'restaurant' ? <PressSection content={content} /> : null,
+    certifications: variant === 'tradesman' ? <CertificationsSection variant={variant} content={content} /> : null,
+    press: variant === 'restaurant' ? <PressSection variant={variant} content={content} /> : null,
     testimonials: content.testimonials.length > 0 ? (
       <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
@@ -1501,7 +1501,7 @@ function ValuesSection({ variant, content }: { variant: TemplateVariant; content
   const list = overlay && overlay.length ? overlay.filter((v) => v.t || v.d) : fallbacks[variant];
   if (!list?.length) return null;
   return (
-    <Section eyebrow="Was uns wichtig ist" title={<>Drei <em className="italic-pop">Grundsätze.</em></>} className="surface">
+    <Section eyebrow={effectiveBranchText(variant, content).valuesEyebrow || 'Was uns wichtig ist'} title={<>{splitTitle(effectiveBranchText(variant, content).valuesTitle || 'Drei Grundsätze.')}</>} className="surface">
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
         {list.map((v, i) => (
           <article key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
@@ -1548,7 +1548,7 @@ function TeamSection({ variant, content }: { variant: TemplateVariant; content: 
   const list = overlay && overlay.length ? overlay.filter((m) => m.n || m.r) : fallbacks[variant];
   if (!list?.length) return null;
   return (
-    <Section eyebrow="Team" title={<>Menschen <em className="italic-pop">hinter dem Betrieb.</em></>}>
+    <Section eyebrow={effectiveBranchText(variant, content).teamEyebrow || 'Team'} title={<>{splitTitle(effectiveBranchText(variant, content).teamTitle || 'Menschen hinter dem Betrieb.')}</>}>
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
         {list.slice(0, 3).map((m, i) => (
           <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
@@ -1568,7 +1568,7 @@ function TeamSection({ variant, content }: { variant: TemplateVariant; content: 
   );
 }
 
-function CertificationsSection({ content }: { content?: SiteContent }) {
+function CertificationsSection({ variant, content }: { variant: TemplateVariant; content?: SiteContent }) {
   const fallback = [
     { t: 'Meisterbetrieb HWK', d: 'Eingetragen bei der Handwerkskammer für Mittelfranken seit 1972.' },
     { t: 'Innungsmitglied', d: 'Aktives Mitglied der Innung für Sanitär- und Heizungstechnik.' },
@@ -1580,7 +1580,7 @@ function CertificationsSection({ content }: { content?: SiteContent }) {
   const overlay = content ? ((content as any).certifications as { t: string; d: string }[] | undefined) : undefined;
   const items = overlay && overlay.length ? overlay : fallback;
   return (
-    <Section eyebrow="Qualifikationen" title={<>Geprüft & <em className="italic-pop">zertifiziert.</em></>} className="surface">
+    <Section eyebrow={(content && effectiveBranchText(variant, content).certsEyebrow) || 'Qualifikationen'} title={<>{splitTitle((content && effectiveBranchText(variant, content).certsTitle) || 'Geprüft & zertifiziert.')}</>} className="surface">
       <div className="grid md:grid-cols-3 gap-4 reveal-stagger">
         {items.map((it, i) => (
           <article key={i} className="bg-white border border-line rounded-2xl p-6 hover-lift">
@@ -1598,7 +1598,7 @@ function CertificationsSection({ content }: { content?: SiteContent }) {
   );
 }
 
-function PressSection({ content }: { content?: SiteContent }) {
+function PressSection({ variant, content }: { variant: TemplateVariant; content?: SiteContent }) {
   const fallback = [
     { src: 'Falstaff', q: '„Eine der ehrlichsten Trattorien Tirols."', y: '2024' },
     { src: 'Tiroler Tageszeitung', q: '„Pasta wie in Bologna – nur näher."', y: '2023' },
@@ -1607,7 +1607,7 @@ function PressSection({ content }: { content?: SiteContent }) {
   const overlay = content ? ((content as any).press as { src: string; q: string; y: string }[] | undefined) : undefined;
   const items = overlay && overlay.length ? overlay : fallback;
   return (
-    <Section eyebrow="Presse" title={<>Was die <em className="italic-pop">Presse schreibt.</em></>}>
+    <Section eyebrow={(content && effectiveBranchText(variant, content).pressEyebrow) || 'Presse'} title={<>{splitTitle((content && effectiveBranchText(variant, content).pressTitle) || 'Was die Presse schreibt.')}</>}>
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
         {items.map((p, i) => (
           <article key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">

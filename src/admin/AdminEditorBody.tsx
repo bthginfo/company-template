@@ -847,6 +847,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
         </SectionCard>
       )}
       <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte „So läuft es ab".'} badge="Sektion 4" pageKey="services" sectionKey="process" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['processEyebrow', 'processTitle']} />
         <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
       </SectionCard>
       <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5" pageKey="services" sectionKey="faq" data={data} setData={setData}>
@@ -950,6 +951,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Kategorien-Übersicht" description="Drei Kategorien-Karten unter der Galerie – was bieten Sie inhaltlich?" badge="Sektion 5" pageKey="gallery" sectionKey="categories" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryCategoriesEyebrow', 'galleryCategoriesTitle']} />
         <GalleryCategoriesEditor data={data} setData={setData} defaults={defaultGalleryCategories(tpl)} />
       </SectionCard>
 
@@ -977,12 +979,14 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
       </SectionCard>
       <SectionCard title="Werte / Grundsätze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3" pageKey="about" sectionKey="values" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['valuesEyebrow', 'valuesTitle']} />
         <ValuesEditor data={data} setData={setData} defaults={defaultValues(tpl)} />
       </SectionCard>
       <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, Jubiläen — als vertikale Zeitleiste." badge="Sektion 4" pageKey="about" sectionKey="timeline" data={data} setData={setData}>
         <TimelineEditor data={data} setData={setData} />
       </SectionCard>
       <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 5" pageKey="about" sectionKey="team" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teamEyebrow', 'teamTitle']} />
         <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
       </SectionCard>
       <SectionCard title="Zahlen-Band" badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
@@ -990,11 +994,13 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
       {tpl === 'tradesman' && (
         <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 7" pageKey="about" sectionKey="certifications" data={data} setData={setData}>
+          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['certsEyebrow', 'certsTitle']} />
           <CertificationsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'restaurant' && (
         <SectionCard title="Presse-Stimmen" description="Drei Zitate aus Magazinen / Zeitungen." badge="Sektion 7" pageKey="about" sectionKey="press" data={data} setData={setData}>
+          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['pressEyebrow', 'pressTitle']} />
           <PressEditor data={data} setData={setData} />
         </SectionCard>
       )}
@@ -1625,6 +1631,18 @@ type BranchTextKey =
   | 'softCtaTitle'
   | 'softCtaText'
   | 'softCtaButton'
+  | 'processEyebrow'
+  | 'processTitle'
+  | 'galleryCategoriesEyebrow'
+  | 'galleryCategoriesTitle'
+  | 'valuesEyebrow'
+  | 'valuesTitle'
+  | 'teamEyebrow'
+  | 'teamTitle'
+  | 'certsEyebrow'
+  | 'certsTitle'
+  | 'pressEyebrow'
+  | 'pressTitle'
   | 'newsEyebrow'
   | 'newsTitle';
 
@@ -1646,6 +1664,18 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   softCtaTitle: { label: 'Überschrift' },
   softCtaText: { label: 'Text' },
   softCtaButton: { label: 'Button-Beschriftung' },
+  processEyebrow: { label: 'Prozess – Eyebrow' },
+  processTitle: { label: 'Prozess – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  galleryCategoriesEyebrow: { label: 'Galerie-Kategorien – Eyebrow' },
+  galleryCategoriesTitle: { label: 'Galerie-Kategorien – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  valuesEyebrow: { label: 'Werte – Eyebrow' },
+  valuesTitle: { label: 'Werte – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  teamEyebrow: { label: 'Team – Eyebrow' },
+  teamTitle: { label: 'Team – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  certsEyebrow: { label: 'Qualifikationen – Eyebrow' },
+  certsTitle: { label: 'Qualifikationen – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  pressEyebrow: { label: 'Presse – Eyebrow' },
+  pressTitle: { label: 'Presse – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
   newsEyebrow: { label: 'Eyebrow' },
   newsTitle: { label: 'Überschrift' },
 };

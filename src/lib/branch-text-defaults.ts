@@ -31,6 +31,18 @@ export type BranchTextDefaults = {
   softCtaTitle: string;
   softCtaText: string;
   softCtaButton: string;
+  processEyebrow: string;
+  processTitle: string;
+  galleryCategoriesEyebrow: string;
+  galleryCategoriesTitle: string;
+  valuesEyebrow: string;
+  valuesTitle: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  certsEyebrow: string;
+  certsTitle: string;
+  pressEyebrow: string;
+  pressTitle: string;
 };
 
 export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
@@ -53,6 +65,18 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     softCtaTitle: 'Tisch reservieren oder einfach vorbeikommen.',
     softCtaText: 'Wir freuen uns, Sie an unserem Tisch begrüßen zu dürfen.',
     softCtaButton: 'Tisch reservieren',
+    processEyebrow: 'So läuft es ab',
+    processTitle: 'In vier Schritten.',
+    galleryCategoriesEyebrow: 'Kategorien',
+    galleryCategoriesTitle: 'Was Sie bei uns erwartet.',
+    valuesEyebrow: 'Was uns wichtig ist',
+    valuesTitle: 'Drei Grundsätze.',
+    teamEyebrow: 'Team',
+    teamTitle: 'Menschen hinter dem Betrieb.',
+    certsEyebrow: 'Qualifikationen',
+    certsTitle: 'Geprüft & zertifiziert.',
+    pressEyebrow: 'Presse',
+    pressTitle: 'Was die Presse schreibt.',
   },
 
   salon: {
@@ -74,6 +98,18 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     softCtaTitle: 'Termin vereinbaren oder kurz fragen.',
     softCtaText: 'Wir nehmen uns die Zeit – für Sie, für Ihren Look.',
     softCtaButton: 'Termin buchen',
+    processEyebrow: 'So läuft es ab',
+    processTitle: 'In vier Schritten.',
+    galleryCategoriesEyebrow: 'Kategorien',
+    galleryCategoriesTitle: 'Was Sie bei uns erwartet.',
+    valuesEyebrow: 'Was uns wichtig ist',
+    valuesTitle: 'Drei Grundsätze.',
+    teamEyebrow: 'Team',
+    teamTitle: 'Menschen hinter dem Studio.',
+    certsEyebrow: 'Qualifikationen',
+    certsTitle: 'Geprüft & zertifiziert.',
+    pressEyebrow: 'Presse',
+    pressTitle: 'Was die Presse schreibt.',
   },
 
   tradesman: {
@@ -95,6 +131,18 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     softCtaTitle: 'Anfrage senden oder Notdienst rufen.',
     softCtaText: 'Wir melden uns innerhalb von 24 Stunden mit einem Festpreis-Angebot.',
     softCtaButton: 'Jetzt anfragen',
+    processEyebrow: 'So läuft es ab',
+    processTitle: 'In vier Schritten.',
+    galleryCategoriesEyebrow: 'Kategorien',
+    galleryCategoriesTitle: 'Was wir für Sie tun.',
+    valuesEyebrow: 'Was uns wichtig ist',
+    valuesTitle: 'Drei Grundsätze.',
+    teamEyebrow: 'Team',
+    teamTitle: 'Menschen hinter dem Betrieb.',
+    certsEyebrow: 'Qualifikationen',
+    certsTitle: 'Geprüft & zertifiziert.',
+    pressEyebrow: 'Presse',
+    pressTitle: 'Was die Presse schreibt.',
   },
 
   hotel: {
@@ -116,6 +164,18 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     softCtaTitle: 'Ihr Aufenthalt – wir antworten persönlich.',
     softCtaText: 'Wir antworten persönlich – ohne Formularkette, mit allen Optionen für Ihren Aufenthalt.',
     softCtaButton: 'Zimmer anfragen',
+    processEyebrow: 'So buchen Sie',
+    processTitle: 'In vier Schritten.',
+    galleryCategoriesEyebrow: 'Bereiche',
+    galleryCategoriesTitle: 'Was Sie bei uns erwartet.',
+    valuesEyebrow: 'Haltung',
+    valuesTitle: 'Drei Grundsätze.',
+    teamEyebrow: 'Team',
+    teamTitle: 'Menschen hinter dem Haus.',
+    certsEyebrow: 'Auszeichnungen',
+    certsTitle: 'Ausgezeichnet & geprüft.',
+    pressEyebrow: 'Presse',
+    pressTitle: 'Was die Presse schreibt.',
   },
 
   tourism: {
@@ -137,6 +197,18 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     softCtaTitle: 'Tour buchen oder Beratung anfragen.',
     softCtaText: 'Wir beraten ehrlich, welche Tour zu Ihrer Gruppe und Saison passt.',
     softCtaButton: 'Tour buchen',
+    processEyebrow: 'So funktioniert’s',
+    processTitle: 'In vier Schritten.',
+    galleryCategoriesEyebrow: 'Tour-Arten',
+    galleryCategoriesTitle: 'Was wir anbieten.',
+    valuesEyebrow: 'Haltung',
+    valuesTitle: 'Drei Grundsätze.',
+    teamEyebrow: 'Guides',
+    teamTitle: 'Menschen, die mit Ihnen unterwegs sind.',
+    certsEyebrow: 'Qualifikationen',
+    certsTitle: 'Lizenziert & zertifiziert.',
+    pressEyebrow: 'Presse',
+    pressTitle: 'Was die Presse schreibt.',
   },
 
   consulting: {
@@ -158,6 +230,18 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     softCtaTitle: 'Lassen Sie uns sprechen.',
     softCtaText: 'Kostenloses Erstgespräch – unverbindlich, persönlich.',
     softCtaButton: 'Erstgespräch vereinbaren',
+    processEyebrow: 'Vorgehen',
+    processTitle: 'In vier Schritten.',
+    galleryCategoriesEyebrow: 'Schwerpunkte',
+    galleryCategoriesTitle: 'Wo wir helfen können.',
+    valuesEyebrow: 'Methode',
+    valuesTitle: 'Drei Grundsätze.',
+    teamEyebrow: 'Team',
+    teamTitle: 'Menschen hinter der Beratung.',
+    certsEyebrow: 'Zertifizierungen',
+    certsTitle: 'Geprüft & zertifiziert.',
+    pressEyebrow: 'Presse',
+    pressTitle: 'Was die Presse schreibt.',
   },
 
   medical: {
@@ -179,6 +263,18 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     softCtaTitle: 'Online buchen – schnell und einfach.',
     softCtaText: 'Wir antworten innerhalb eines Werktages.',
     softCtaButton: 'Termin online buchen',
+    processEyebrow: 'Behandlungsablauf',
+    processTitle: 'In vier Schritten.',
+    galleryCategoriesEyebrow: 'Leistungen',
+    galleryCategoriesTitle: 'Was wir für Sie tun.',
+    valuesEyebrow: 'Haltung',
+    valuesTitle: 'Drei Grundsätze.',
+    teamEyebrow: 'Ärzt:innen',
+    teamTitle: 'Menschen hinter der Praxis.',
+    certsEyebrow: 'Qualifikationen',
+    certsTitle: 'Facharzt-anerkannt & zertifiziert.',
+    pressEyebrow: 'Presse',
+    pressTitle: 'Was über uns geschrieben wird.',
   },
 
   fitness: {
@@ -200,6 +296,18 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     softCtaTitle: 'Eine Stunde, kostenlos – schauen Sie vorbei.',
     softCtaText: 'Reservieren Sie Ihren Platz in Ihrer Wunsch-Klasse.',
     softCtaButton: 'Probetraining buchen',
+    processEyebrow: 'So fangen Sie an',
+    processTitle: 'In vier Schritten.',
+    galleryCategoriesEyebrow: 'Programme',
+    galleryCategoriesTitle: 'Was wir anbieten.',
+    valuesEyebrow: 'Haltung',
+    valuesTitle: 'Drei Grundsätze.',
+    teamEyebrow: 'Trainer',
+    teamTitle: 'Menschen hinter dem Studio.',
+    certsEyebrow: 'Qualifikationen',
+    certsTitle: 'Zertifiziert & lizenziert.',
+    pressEyebrow: 'Presse',
+    pressTitle: 'Was über uns geschrieben wird.',
   },
 };
 
