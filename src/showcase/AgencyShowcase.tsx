@@ -1189,9 +1189,10 @@ function AdminPreviewSection() {
           <ul className="mt-10 space-y-4">
             {[
               'Einfacher Admin-Zugang. Direkt im Browser.',
-              'Bilder per Drag & Drop hochladen.',
+              'Bilder direkt hochladen – mit Live-Vorschau.',
               'Änderungen erscheinen direkt auf der Seite.',
-              'Ältere Stände lassen sich wiederherstellen.',
+              'Sektionen pro Seite ein-/ausblenden und neu sortieren.',
+              'News & Blog-Beiträge mit eigenem Editor pflegen.',
               'Ohne extra App, ohne Plugin-Wirrwarr.',
             ].map((t, i) => (
               <li key={i} className="flex gap-3 items-start">
@@ -1244,7 +1245,7 @@ function AdminPreviewSection() {
                   <div>
                     <p className="text-xs uppercase tracking-widest text-muted mb-1">Bild</p>
                     <div className="border border-line border-dashed rounded-xl px-4 py-3 text-sm text-muted text-center">
-                      Drag &amp; Drop
+                      Bild hochladen ↑
                     </div>
                   </div>
                 </div>

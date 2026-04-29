@@ -161,7 +161,7 @@ const SHARED_KEYS = [
 ];
 
 async function main() {
-  const projectName = `flamingomedia-${slug}`;
+  const projectName = slug;
   console.log(`\n→ Provisioning tenant '${slug}' as Vercel project '${projectName}'\n`);
 
   // 1. DB tenant + password
@@ -192,15 +192,27 @@ async function main() {
     console.log(`  ✓ Tenant row + default content created`);
   }
 
-  // 2. Read shared env vars from local .env.local (already pulled via `vercel env pull`)
-  // The Vercel API's decrypt=true returns ciphertext blobs unless called with a higher-scoped
-  // token, so we rely on the local file as the source of truth.
+  // 2. Read shared env vars from local .env.local (already pulled via `vercel env pull`).
+  //    Note: `vercel env pull` writes Vercel-encrypted blobs ("eyJ...") for vars marked
+  //    as `sensitive`. Those are useless to copy. We only forward plaintext values.
   console.log(`\n→ Reading shared env vars from local .env.local`);
   const envMap = new Map<string, string>();
   for (const k of SHARED_KEYS) {
     const v = process.env[k];
-    if (v) envMap.set(k, v);
-    else console.warn(`  ⚠ .env.local missing ${k}`);
+    if (!v) {
+      console.warn(`  ⚠ .env.local missing ${k}`);
+      continue;
+    }
+    if (v.startsWith('eyJ') && v.length > 200) {
+      console.warn(`  ⚠ ${k} in .env.local is a Vercel ciphertext blob — skipping (run \`vercel env pull --environment=development\` with a fresh token)`);
+      continue;
+    }
+    envMap.set(k, v);
+  }
+  // AUTH_SECRET is per-project — generate a fresh one if not available as plaintext.
+  if (!envMap.has('AUTH_SECRET')) {
+    envMap.set('AUTH_SECRET', randomBytes(32).toString('base64url'));
+    console.log('  ✓ AUTH_SECRET auto-generated (was not plaintext in .env.local)');
   }
 
   // 3. Create or fetch project
