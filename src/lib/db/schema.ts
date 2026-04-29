@@ -28,3 +28,31 @@ export const siteContent = pgTable('site_content', {
 
 export type Tenant = typeof tenants.$inferSelect;
 export type SiteContentRow = typeof siteContent.$inferSelect;
+
+/**
+ * Internal CRM — prospects/leads pipeline. Lives on the showcase deployment
+ * only; never exposed via SEO. Used by Mario + the founders to track who
+ * has been pitched, when, with what status.
+ */
+export const prospects = pgTable('prospects', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  company: text('company').notNull().default(''),
+  address: text('address').notNull().default(''),
+  email: text('email').notNull().default(''),
+  websiteOld: text('website_old').notNull().default(''),
+  websiteNew: text('website_new').notNull().default(''),
+  /** 'neu' | 'angefragt' | 'reminder' | 'angenommen' | 'abgelehnt' */
+  status: text('status').notNull().default('neu'),
+  notes: text('notes').notNull().default(''),
+  /** Last subject/body the operator sent — pre-fills the next reminder. */
+  lastEmailSubject: text('last_email_subject').notNull().default(''),
+  lastEmailBody: text('last_email_body').notNull().default(''),
+  lastEmailedAt: timestamp('last_emailed_at'),
+  /** When the prospect was provisioned as a real tenant (FK kept loose to avoid cascade). */
+  provisionedTenantSlug: text('provisioned_tenant_slug'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export type Prospect = typeof prospects.$inferSelect;

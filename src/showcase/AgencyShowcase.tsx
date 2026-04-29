@@ -5,6 +5,7 @@ import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { clearOverride, loadFor, readOverride } from '@/lib/demo-overrides';
 import AdminDemo from './AdminDemo';
+import CrmApp from './CrmApp';
 import { Imprint, Privacy } from './Legal';
 import { BlogIndex, BlogPost, NotFound } from './Blog';
 import Seo from '@/components/Seo';
@@ -234,6 +235,7 @@ export default function AgencyShowcase() {
         <Route path="/preview/:key/*" element={<TemplatePreview />} />
         <Route path="/preview/:key/style/:style/*" element={<TemplatePreview />} />
         <Route path="/admin-demo" element={<AdminDemo />} />
+        <Route path="/flamingo-crm" element={<CrmApp />} />
       </Routes>
       <CookieBanner />
     </ConsentProvider>

@@ -30,6 +30,7 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 Disallow: /admin-demo
+Disallow: /flamingo-crm
 Disallow: /api/
 Disallow: /preview/
 
