@@ -895,22 +895,44 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
     Object.entries(((content as any).homeStrip || {}) as Record<string, unknown>)
       .filter(([, val]) => (typeof val === 'string' ? val.trim() !== '' : val != null))
   );
-  const cfg = { ...def, ...overlay } as ReturnType<typeof defaultHomeStrip>;
+  const cfg = { ...def, ...overlay } as ReturnType<typeof defaultHomeStrip> & { eyebrowAuto?: boolean };
+
+  // Auto-eyebrow: when enabled (default) and we can parse opening hours,
+  // override the eyebrow with a live "Heute geöffnet · HH:MM – HH:MM"
+  // indicator. Falls back silently to the manual eyebrow on parse failure.
+  const auto = (content as any).homeStrip?.eyebrowAuto !== false;
+  let liveEyebrow: string | null = null;
+  let liveIsOpen = false;
+  if (auto) {
+    try {
+      const status = getOpenStatus(content.contact?.hours);
+      if (status.todayFull) {
+        liveEyebrow = status.isOpen
+          ? `Heute geöffnet · ${status.todayFull}`
+          : 'Heute geschlossen';
+        liveIsOpen = status.isOpen;
+      }
+    } catch { /* ignore — fall back to manual eyebrow */ }
+  }
+  const eyebrowText = liveEyebrow ?? cfg.eyebrow;
 
   // Resolve a maybe-empty href; "tel:" placeholder turns into the real phone link.
   const resolveHref = (href: string) => (href === 'tel:' ? phoneHref : href);
 
   // Hide the strip entirely if everything is blanked out.
-  if (!cfg.eyebrow && !cfg.hint && !cfg.primaryLabel && !cfg.secondaryLabel && !phone) return null;
+  if (!eyebrowText && !cfg.hint && !cfg.primaryLabel && !cfg.secondaryLabel && !phone) return null;
 
   const tone = cfg.tone === 'dark' ? 'bg-brand text-white border-white/10' : 'bg-white border-line';
-  const dotColor = cfg.tone === 'dark' ? 'bg-[var(--accent-color)]' : 'bg-emerald-500';
+  const dotColor = cfg.tone === 'dark'
+    ? 'bg-[var(--accent-color)]'
+    : (liveEyebrow && !liveIsOpen ? 'bg-stone-400' : 'bg-emerald-500');
   const hintColor = cfg.tone === 'dark' ? 'text-white/70' : 'text-muted';
   const eyebrowColor = cfg.tone === 'dark' ? 'text-white' : 'text-brand';
 
   // Restaurant special: also surface today's opening hours alongside eyebrow.
+  // Skip when the auto-eyebrow already shows today's hours.
   let todayInfo: React.ReactNode = null;
-  if (variant === 'restaurant') {
+  if (variant === 'restaurant' && !liveEyebrow) {
     const today = new Date().toLocaleDateString('de-DE', { weekday: 'long' });
     const todayRow = (content.contact.hours || []).find((h) => h.day.toLowerCase().includes(today.toLowerCase().slice(0, 2)));
     if (todayRow) todayInfo = <span className="text-muted">{todayRow.day} · <span className="font-medium text-brand">{todayRow.time}</span></span>;
@@ -919,9 +941,9 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
   return (
     <section className={`border-y ${tone}`}>
       <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
-        {cfg.eyebrow && (
+        {eyebrowText && (
           <span className={`inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs ${eyebrowColor}`}>
-            <span className={`h-2 w-2 rounded-full ${dotColor} ${variant === 'restaurant' ? 'animate-pulse' : ''}`} /> {cfg.eyebrow}
+            <span className={`h-2 w-2 rounded-full ${dotColor} ${liveIsOpen || variant === 'restaurant' ? 'animate-pulse' : ''}`} /> {eyebrowText}
           </span>
         )}
         {todayInfo}

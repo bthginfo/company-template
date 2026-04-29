@@ -10,11 +10,27 @@ import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline } from '@/components/branch-modules';
+import { branchTextDefaults } from '@/lib/branch-text-defaults';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
 export const isExtraBranchKey = (k: string | undefined): k is ExtraBranchKey =>
   !!k && (EXTRA_BRANCH_KEYS as string[]).includes(k);
+
+/** Per-tenant overlay over branch-text defaults — same SoT as 5-variant template. */
+function effectiveBranchText(branch: ExtraBranchKey, content?: SiteContent) {
+  const overrides = ((content as any)?.branchText ?? {}) as Record<string, any>;
+  const def = branchTextDefaults(branch);
+  return {
+    ...def,
+    ...Object.fromEntries(
+      Object.entries(overrides).filter(([, val]) => {
+        if (Array.isArray(val)) return val.length > 0;
+        return typeof val === 'string' ? val.trim().length > 0 : val != null;
+      }),
+    ),
+  } as ReturnType<typeof branchTextDefaults>;
+}
 
 export type ExtraStyle = 'classic' | 'modern' | 'bold';
 export type ExtraPage = 'home' | 'services' | 'gallery' | 'about' | 'contact';
@@ -212,6 +228,7 @@ function SubPage({ content, branch, page, style, eyebrow }: {
  *  CLASSIC — editorial, centered, parallax about, varied gallery
  * ──────────────────────────────────────────────────────────────────── */
 function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+  const bt = effectiveBranchText(branch, content);
   return (
     <>
       <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
@@ -240,7 +257,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
               <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5]" />
             </div>
             <div className="md:col-span-7 reveal">
-              <p className="eyebrow mb-5">Über uns</p>
+              <p className="eyebrow mb-5">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
               <h2 className="headline-lg">{content.about.title}</h2>
               <div className="mt-8 text-lg text-muted leading-relaxed space-y-5 max-w-2xl">
                 {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
@@ -255,7 +272,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
           <div className="container-x">
             <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
               <div className="md:col-span-7 reveal">
-                <p className="eyebrow mb-5">Leistungen</p>
+                <p className="eyebrow mb-5">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
                 <h2 className="headline-lg">Was wir<br /><em className="italic-pop">für Sie tun.</em></h2>
               </div>
               <p className="md:col-span-5 text-lg text-muted reveal">
@@ -292,7 +309,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         <section id="galerie" className="py-24 md:py-32 surface">
           <div className="container-x">
             <div className="mb-12 reveal">
-              <p className="eyebrow mb-5">Eindrücke</p>
+              <p className="eyebrow mb-5">{bt.galleryTeaserEyebrow || 'Eindrücke'}</p>
               <h2 className="headline-lg">Bilder aus<br /><em className="italic-pop">unserem Alltag.</em></h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 reveal-stagger">
@@ -337,6 +354,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
  *  uniform gallery grid, two-column contact with form-style sidebar
  * ──────────────────────────────────────────────────────────────────── */
 function ModernLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+  const bt = effectiveBranchText(branch, content);
   const stats = [
     { value: content.testimonials.length, suffix: '+', label: 'Kund:innen' },
     { value: content.services.length, suffix: '', label: 'Leistungen' },
@@ -400,7 +418,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
           <div className="container-x grid lg:grid-cols-12 gap-10">
             <aside className="lg:col-span-4 reveal">
               <div className="lg:sticky lg:top-28">
-                <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">Über uns</p>
+                <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
                 <h2 className="font-display text-4xl md:text-5xl leading-tight">{content.about.title}</h2>
                 {content.about.imageUrl && (
                   <div className="mt-8 aspect-[4/3] rounded-2xl overflow-hidden border border-line">
@@ -421,7 +439,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
         <section id="leistungen" className="py-24 md:py-32">
           <div className="container-x">
             <div className="max-w-2xl reveal mb-16">
-              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">Leistungen</p>
+              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
               <h2 className="font-display text-4xl md:text-5xl">Was Sie bekommen.</h2>
               <p className="mt-4 text-lg text-muted">Klar definierte Pakete – keine versteckten Kosten.</p>
             </div>
@@ -455,7 +473,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
           <div className="container-x">
             <div className="flex items-end justify-between gap-6 mb-12 reveal">
               <div>
-                <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">Galerie</p>
+                <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.galleryTeaserEyebrow || 'Galerie'}</p>
                 <h2 className="font-display text-4xl md:text-5xl">Eindrücke.</h2>
               </div>
               <p className="text-sm text-muted hidden md:block max-w-xs">Aktuelle Aufnahmen aus unserem Alltag.</p>

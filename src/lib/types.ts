@@ -245,6 +245,12 @@ export const SiteContentSchema = z.object({
    */
   homeStrip: z.object({
     tone: z.enum(['light', 'dark']).optional().default('light'),
+    /**
+     * When true (default), the eyebrow auto-renders from `contact.hours`
+     * ("Heute geöffnet · 17:00 – 22:00" / "Heute geschlossen"). When false,
+     * the manual `eyebrow` text wins.
+     */
+    eyebrowAuto: z.boolean().optional().default(true),
     eyebrow: z.string().optional().default(''),
     hint: z.string().optional().default(''),
     primaryLabel: z.string().optional().default(''),

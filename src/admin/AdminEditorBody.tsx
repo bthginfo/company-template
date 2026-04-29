@@ -2244,10 +2244,12 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
     fitness: { tone: 'light', eyebrow: 'Heute geöffnet', hint: '', primaryLabel: '', secondaryLabel: 'Probetraining buchen', secondaryHref: '/kontakt' },
   };
   const def = stripDefaults[tpl] || stripDefaults.consulting;
-  const [v, set] = useExtra<{ tone: 'light' | 'dark' | ''; eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }>(
+  const [v, set] = useExtra<{ tone: 'light' | 'dark' | ''; eyebrowAuto?: boolean; eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }>(
     data, setData, 'homeStrip',
-    { tone: '', eyebrow: '', hint: '', primaryLabel: '', secondaryLabel: '', secondaryHref: '' },
+    { tone: '', eyebrowAuto: true, eyebrow: '', hint: '', primaryLabel: '', secondaryLabel: '', secondaryHref: '' },
   );
+  // Default to auto when the field has never been set.
+  const auto = v.eyebrowAuto !== false;
   return (
     <>
       <p className="text-xs text-muted">
@@ -2260,9 +2262,33 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
           <option value="dark">Dunkel (Brand)</option>
         </select>
       </Field>
+      <div className="border border-line rounded-xl p-3 bg-[#fafaf7] space-y-2">
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={auto}
+            onChange={(e) => set({ ...v, eyebrowAuto: e.target.checked })}
+          />
+          <span>
+            <span className="text-sm font-medium">Eyebrow automatisch aus Öffnungszeiten</span>
+            <span className="block text-xs text-muted mt-0.5">
+              {auto
+                ? 'Aktiv: Zeigt automatisch „Heute geöffnet · 17:00 – 22:00“ bzw. „Heute geschlossen“ basierend auf den Kontaktdaten. Klicken Sie das Häkchen weg, um stattdessen einen festen Text einzutragen.'
+                : 'Manuell: Tragen Sie unten Ihren eigenen Eyebrow-Text ein. Häkchen setzen, um wieder auf Auto-Modus zurückzuschalten.'}
+            </span>
+          </span>
+        </label>
+      </div>
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Eyebrow (kleine Zeile links)" hint={`Standard: ${def.eyebrow}`}>
-          <input className={inputCls} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={def.eyebrow} />
+        <Field label="Eyebrow (kleine Zeile links)" hint={auto ? 'Wird durch Auto-Modus überschrieben (Häkchen oben entfernen, um zu bearbeiten).' : `Standard: ${def.eyebrow}`}>
+          <input
+            className={inputCls + (auto ? ' opacity-50 cursor-not-allowed' : '')}
+            value={v.eyebrow}
+            disabled={auto}
+            onChange={(e) => set({ ...v, eyebrow: e.target.value })}
+            placeholder={def.eyebrow}
+          />
         </Field>
         <Field label="Hinweis (Mitte, optional)" hint={def.hint || 'Wird ausgeblendet, wenn leer.'}>
           <input className={inputCls} value={v.hint} onChange={(e) => set({ ...v, hint: e.target.value })} placeholder={def.hint} />
