@@ -8,6 +8,8 @@ import { RichTextEditor } from './RichTextEditor';
 import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
 import { scrollToTop } from '@/lib/scroll';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
+import { MODULE_DEFAULTS, type ModuleHeadingKey } from '@/components/branch-modules';
+import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -475,6 +477,26 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
     </label>
   );
 }
+
+function ModuleHeadingFields({ data, setData, mKey }: SetterProps & { mKey: ModuleHeadingKey }) {
+  const def = MODULE_DEFAULTS[mKey];
+  const all = ((data as any).moduleHeadings || {}) as Record<string, { eyebrow?: string; titleA?: string; titleB?: string; subtitle?: string }>;
+  const cur = all[mKey] || {};
+  const update = (patch: Partial<{ eyebrow: string; titleA: string; titleB: string; subtitle: string }>) => {
+    setData({ ...(data as any), moduleHeadings: { ...all, [mKey]: { ...cur, ...patch } } } as SiteContent);
+  };
+  return (
+    <div className="rounded-xl border border-line bg-[#fafaf7] p-4 mb-4 space-y-3">
+      <div className="text-[10px] uppercase tracking-widest text-muted">Modul-Überschrift (leer lassen = Default)</div>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field label="Eyebrow"><input className={inputCls} value={cur.eyebrow || ''} placeholder={def.eyebrow} onChange={(e) => update({ eyebrow: e.target.value })} /></Field>
+        <Field label="Untertitel"><input className={inputCls} value={cur.subtitle || ''} placeholder={def.subtitle} onChange={(e) => update({ subtitle: e.target.value })} /></Field>
+        <Field label="Titel – Teil 1"><input className={inputCls} value={cur.titleA || ''} placeholder={def.titleA} onChange={(e) => update({ titleA: e.target.value })} /></Field>
+        <Field label="Titel – Teil 2 (kursiv)"><input className={inputCls} value={cur.titleB || ''} placeholder={def.titleB} onChange={(e) => update({ titleB: e.target.value })} /></Field>
+      </div>
+    </div>
+  );
+}
 function Toggle({ value, onChange, label }: { value: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <label className="flex items-center gap-3 text-sm cursor-pointer select-none">
@@ -680,6 +702,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 4" pageKey="home" sectionKey="about" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['manifestEyebrow', 'manifestTitle']} />
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
@@ -760,51 +783,61 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
       {/* ───── Branch-specific modules (Phase 2) ───── */}
       {tpl === 'restaurant' && (
         <SectionCard title="Speisekarte (Kategorien & Gerichte)" description="Vollständige Karte mit Kategorien, Allergenen und Tags. Erscheint als Modul-Block auf der Speisekarte-Seite." badge="Modul · Speisekarte" pageKey="services" sectionKey="module" data={data} setData={setData}>
+          <ModuleHeadingFields data={data} setData={setData} mKey="menu" />
           <MenuEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'hotel' && (
         <SectionCard title="Zimmer-Showcase" description="Detaillierte Zimmer mit Größe, Bett, Preis & Ausstattung. Erscheint als Modul-Block auf der Zimmer-Seite." badge="Modul · Zimmer" pageKey="services" sectionKey="module" data={data} setData={setData}>
+          <ModuleHeadingFields data={data} setData={setData} mKey="rooms" />
           <RoomsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'tourism' && (
         <SectionCard title="Tour-Karten" description="Touren mit Schwierigkeit, Dauer, Sprachen und Preis. Erscheint als Modul-Block auf der Touren-Seite." badge="Modul · Touren" pageKey="services" sectionKey="module" data={data} setData={setData}>
+          <ModuleHeadingFields data={data} setData={setData} mKey="tours" />
           <ToursEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'salon' && (
         <SectionCard title="Behandlungen (kategorisiert)" description="Kategorisierte Behandlungsliste mit Dauer & Preis." badge="Modul · Treatments" pageKey="services" sectionKey="module" data={data} setData={setData}>
+          <ModuleHeadingFields data={data} setData={setData} mKey="treatments" />
           <TreatmentsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'fitness' && (
         <SectionCard title="Kursplan" description="Kursliste mit Zeitplan, Level, Trainer und Preis." badge="Modul · Kursplan">
+          <ModuleHeadingFields data={data} setData={setData} mKey="courses" />
           <CoursesEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {(tpl === 'fitness' || tpl === 'consulting') && (
         <SectionCard title="Preis-Pakete" description="Drei-Stufen-Pakete mit Highlight-Karte." badge="Modul · Pakete">
+          <ModuleHeadingFields data={data} setData={setData} mKey="packages" />
           <PackagesEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'consulting' && (
         <SectionCard title="Prozess-Schritte" description="Horizontale Timeline mit 3–6 Stationen Ihres Vorgehens." badge="Modul · Prozess">
+          <ModuleHeadingFields data={data} setData={setData} mKey="process" />
           <ProcessStepsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'medical' && (
         <SectionCard title="Ärzte & Team" description="Profile der behandelnden Ärztinnen und Ärzte." badge="Modul · Doctors">
+          <ModuleHeadingFields data={data} setData={setData} mKey="doctors" />
           <DoctorsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'medical' && (
         <SectionCard title="Online-Terminbuchung" description="Doctolib / jameda / TIMIFY-Anbindung. CTA oder Embed." badge="Modul · Booking">
+          <ModuleHeadingFields data={data} setData={setData} mKey="booking" />
           <BookingEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'tradesman' && (
         <SectionCard title="Förder-Übersicht" description="Liste der Förderprogramme mit Prozent-Quote (für den Förder-Kalkulator)." badge="Modul · Förderung">
+          <ModuleHeadingFields data={data} setData={setData} mKey="funding" />
           <FundingEditor data={data} setData={setData} />
         </SectionCard>
       )}
@@ -2609,34 +2642,7 @@ function defaultProcess(t: TemplateKey) {
   ];
 }
 function defaultFaq(t: TemplateKey) {
-  if (t === 'restaurant') return [
-    { q: 'Kann man reservieren?', a: 'Ja, online über das Formular oder telefonisch.' },
-    { q: 'Bieten Sie vegetarische Speisen?', a: 'Ja, drei vegetarische und zwei vegane Hauptgerichte.' },
-    { q: 'Sind Sie barrierefrei?', a: 'Hauptraum ebenerdig, behindertengerechte Toilette vorhanden.' },
-  ];
-  if (t === 'salon') return [
-    { q: 'Wie lange im Voraus muss ich buchen?', a: 'Schnitt 3–7 Tage, Färben 2–3 Wochen.' },
-    { q: 'Welche Produktlinien?', a: 'Kérastase, Olaplex, Davines, Aveda.' },
-  ];
-  if (t === 'consulting') return [
-    { q: 'Wie läuft ein Projekt typischerweise ab?', a: 'Discover → Define → Design → Deliver, in 6–12 Wochen.' },
-    { q: 'Arbeiten Sie remote?', a: 'Ja, hybrid — wichtige Workshops gerne vor Ort.' },
-    { q: 'Was kostet ein Erstgespräch?', a: '45 Minuten kostenlos und unverbindlich.' },
-  ];
-  if (t === 'medical') return [
-    { q: 'Welche Kassen werden akzeptiert?', a: 'Alle gesetzlichen und privaten Kassen.' },
-    { q: 'Wie buche ich einen Termin?', a: 'Über Doctolib, jameda, telefonisch oder direkt online.' },
-    { q: 'Sind Sie barrierefrei?', a: 'Ja — Aufzug und behindertengerechtes WC vorhanden.' },
-  ];
-  if (t === 'fitness') return [
-    { q: 'Gibt es ein Probetraining?', a: 'Ja, die erste Einheit ist gratis.' },
-    { q: 'Wie lange ist die Vertragslaufzeit?', a: 'Monatlich kündbar — keine Knebelverträge.' },
-    { q: 'Welche Kurse werden angeboten?', a: 'HIIT, Yoga, Boxing Cardio und Personal Training.' },
-  ];
-  return [
-    { q: 'Wie schnell ist der Notdienst da?', a: 'In der Regel zügig im Stadtgebiet – wir sagen Ihnen die Anfahrtszeit ehrlich am Telefon.' },
-    { q: 'Was kostet eine Beratung?', a: 'Erstberatung kostenlos.' },
-  ];
+  return FAQ_DEFAULTS[t] ?? [];
 }
 function defaultValues(t: TemplateKey) {
   if (t === 'restaurant') return [

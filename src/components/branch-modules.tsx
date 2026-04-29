@@ -14,6 +14,45 @@ import { Section, TLink } from '@/components/site-blocks';
 type Variant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'consulting' | 'medical' | 'fitness';
 
 /**
+ * Per-module heading override.
+ * Tenants can set `content.moduleHeadings.<key>` = { eyebrow?, titleA?, titleB?, subtitle? }
+ * to override the hardcoded defaults below. `titleB` is rendered italic / accent
+ * so split your headline (e.g. "Aus unserer" / "Küche.").
+ */
+export type ModuleHeadingKey =
+  | 'menu' | 'rooms' | 'tours' | 'treatments' | 'courses'
+  | 'packages' | 'process' | 'doctors' | 'booking' | 'funding';
+
+export type ModuleHeading = { eyebrow?: string; titleA?: string; titleB?: string; subtitle?: string };
+
+export const MODULE_DEFAULTS: Record<ModuleHeadingKey, Required<ModuleHeading>> = {
+  menu:       { eyebrow: 'Speisekarte',         titleA: 'Aus unserer',  titleB: 'Küche.',            subtitle: 'Saisonal, hausgemacht, ehrlich. Allergene auf Anfrage – wir passen Gerichte gerne an.' },
+  rooms:      { eyebrow: 'Zimmer & Suiten',     titleA: 'Ihr Zuhause auf', titleB: 'Zeit.',          subtitle: 'Jedes Zimmer individuell gestaltet, mit echtem Holz, ruhigen Stoffen und Ausblick. Frühstück bei jeder Variante inklusive.' },
+  tours:      { eyebrow: 'Programm',            titleA: 'Touren &',     titleB: 'Erlebnisse.',       subtitle: 'Kleine Gruppen, lokale Guides, ehrliche Pausen. Jede Tour mit klarem Schwierigkeitsgrad.' },
+  treatments: { eyebrow: 'Treatments & Preise', titleA: 'Pflege als',   titleB: 'Handwerk.',         subtitle: 'Alle Preise inkl. Beratung. Für umfangreiche Color-Termine empfehlen wir ein 15-Minuten-Vorgespräch.' },
+  courses:    { eyebrow: 'Kursplan',            titleA: 'Programme &',  titleB: 'Formate.',          subtitle: 'Maximal 8 Personen pro Klasse. Jede Stunde mit klarem Fokus, Korrekturen und Raum für Ihre Praxis.' },
+  packages:   { eyebrow: 'Pakete & Preise',     titleA: 'Klar gerechnet,', titleB: 'fair.',          subtitle: 'Keine versteckten Gebühren. Wechsel oder Pause monatlich möglich.' },
+  process:    { eyebrow: 'Beratungsprozess',    titleA: 'So',           titleB: 'arbeiten wir.',     subtitle: 'Vom ersten Gespräch bis zur Umsetzung – mit klaren Phasen und ehrlichen Erwartungen.' },
+  doctors:    { eyebrow: 'Ärzt:innen & Team',   titleA: 'Menschen, denen Sie', titleB: 'vertrauen.', subtitle: 'Alle Ärzt:innen mit Facharzt-Anerkennung. Termine ausschließlich nach Vereinbarung – wir nehmen uns Zeit.' },
+  booking:    { eyebrow: 'Termin online',       titleA: 'Online-Termin –', titleB: 'in 60 Sekunden.', subtitle: 'Buchen Sie Ihren Wunschtermin direkt – ohne Anruf, ohne Wartezeit. Stornierung bis 24 h vorher kostenfrei.' },
+  funding:    { eyebrow: 'Förder-Kalkulator',   titleA: 'Was kostet Sie das', titleB: 'wirklich?',  subtitle: 'KfW, BAFA, regionale Programme: wir berechnen vor Auftrag, was Ihnen netto bleibt.' },
+};
+
+export function moduleHeading(content: SiteContent, key: ModuleHeadingKey): { eyebrow: string; title: React.ReactNode; subtitle: string } {
+  const overlay = ((content as any).moduleHeadings || {})[key] as ModuleHeading | undefined;
+  const def = MODULE_DEFAULTS[key];
+  const eyebrow = (overlay?.eyebrow ?? '').trim() || def.eyebrow;
+  const titleA  = (overlay?.titleA  ?? '').trim() || def.titleA;
+  const titleB  = (overlay?.titleB  ?? '').trim() || def.titleB;
+  const subtitle = (overlay?.subtitle ?? '').trim() || def.subtitle;
+  return {
+    eyebrow,
+    title: <>{titleA} <em className="italic-pop">{titleB}</em></>,
+    subtitle,
+  };
+}
+
+/**
  * Inline branch module — renders the variant-appropriate module (Menu, Rooms,
  * Tours, Treatments, Funding, …). Used by Modern + Bold home renderers which
  * don't iterate BRANCH_STYLE_ORDER. Returns null when there's no data for the
@@ -40,11 +79,12 @@ export function MenuCategoriesModule({ content }: { content: SiteContent }) {
   if (!menu || !menu.length) return null;
   const safeActive = Math.min(active, menu.length - 1);
   const cat = menu[safeActive];
+  const h = moduleHeading(content, 'menu');
   return (
     <Section
-      eyebrow="Speisekarte"
-      title={<>Aus unserer <em className="italic-pop">Küche.</em></>}
-      subtitle="Saisonal, hausgemacht, ehrlich. Allergene auf Anfrage – wir passen Gerichte gerne an."
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={h.subtitle}
       className="surface"
     >
       {/* Category tabs */}
@@ -111,11 +151,12 @@ export function MenuCategoriesModule({ content }: { content: SiteContent }) {
 export function RoomShowcaseModule({ content }: { content: SiteContent }) {
   const rooms = ((content as any).rooms || []) as NonNullable<SiteContent['rooms']>;
   if (!rooms || !rooms.length) return null;
+  const h = moduleHeading(content, 'rooms');
   return (
     <Section
-      eyebrow="Zimmer & Suiten"
-      title={<>Ihr Zuhause auf <em className="italic-pop">Zeit.</em></>}
-      subtitle="Jedes Zimmer individuell gestaltet, mit echtem Holz, ruhigen Stoffen und Ausblick. Frühstück bei jeder Variante inklusive."
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={h.subtitle}
     >
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
         {rooms.map((room, i) => (
@@ -160,11 +201,12 @@ export function RoomShowcaseModule({ content }: { content: SiteContent }) {
 export function TourCardsModule({ content }: { content: SiteContent }) {
   const tours = ((content as any).tours || []) as NonNullable<SiteContent['tours']>;
   if (!tours || !tours.length) return null;
+  const h = moduleHeading(content, 'tours');
   return (
     <Section
-      eyebrow="Programm"
-      title={<>Touren & <em className="italic-pop">Erlebnisse.</em></>}
-      subtitle="Kleine Gruppen, lokale Guides, ehrliche Pausen. Jede Tour mit klarem Schwierigkeitsgrad."
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={h.subtitle}
       className="surface"
     >
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
@@ -224,12 +266,13 @@ export function TreatmentListModule({ content }: { content: SiteContent }) {
     return acc;
   }, {} as Record<string, typeof treatments>);
   const categories = Object.keys(byCat);
+  const h = moduleHeading(content, 'treatments');
 
   return (
     <Section
-      eyebrow="Treatments & Preise"
-      title={<>Pflege als <em className="italic-pop">Handwerk.</em></>}
-      subtitle="Alle Preise inkl. Beratung. Für umfangreiche Color-Termine empfehlen wir ein 15-Minuten-Vorgespräch."
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={h.subtitle}
     >
       <div className="grid lg:grid-cols-2 gap-x-14 gap-y-12 reveal-stagger">
         {categories.map((cat, i) => (
@@ -266,11 +309,12 @@ export function TreatmentListModule({ content }: { content: SiteContent }) {
 export function CourseScheduleModule({ content }: { content: SiteContent }) {
   const courses = ((content as any).courses || []) as NonNullable<SiteContent['courses']>;
   if (!courses || !courses.length) return null;
+  const h = moduleHeading(content, 'courses');
   return (
     <Section
-      eyebrow="Kursplan"
-      title={<>Programme & <em className="italic-pop">Formate.</em></>}
-      subtitle="Maximal 8 Personen pro Klasse. Jede Stunde mit klarem Fokus, Korrekturen und Raum für Ihre Praxis."
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={h.subtitle}
       className="surface"
     >
       <div className="overflow-x-auto reveal">
@@ -312,14 +356,15 @@ export function CourseScheduleModule({ content }: { content: SiteContent }) {
 /* ─────────────────────────────────────────────────────────────────
  * FITNESS / CONSULTING — Pricing Packages (3-tier)
  * ─────────────────────────────────────────────────────────────── */
-export function PricePackagesModule({ content, eyebrow = 'Pakete & Preise', title }: { content: SiteContent; eyebrow?: string; title?: React.ReactNode }) {
+export function PricePackagesModule({ content, eyebrow, title }: { content: SiteContent; eyebrow?: string; title?: React.ReactNode }) {
   const packages = ((content as any).packages || []) as NonNullable<SiteContent['packages']>;
   if (!packages || !packages.length) return null;
+  const h = moduleHeading(content, 'packages');
   return (
     <Section
-      eyebrow={eyebrow}
-      title={title || <>Klar gerechnet, <em className="italic-pop">fair.</em></>}
-      subtitle="Keine versteckten Gebühren. Wechsel oder Pause monatlich möglich."
+      eyebrow={eyebrow || h.eyebrow}
+      title={title || h.title}
+      subtitle={h.subtitle}
     >
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
         {packages.map((p, i) => (
@@ -357,11 +402,12 @@ export function PricePackagesModule({ content, eyebrow = 'Pakete & Preise', titl
 export function ProcessStepsModule({ content }: { content: SiteContent }) {
   const steps = ((content as any).processSteps || []) as NonNullable<SiteContent['processSteps']>;
   if (!steps || !steps.length) return null;
+  const h = moduleHeading(content, 'process');
   return (
     <Section
-      eyebrow="Beratungsprozess"
-      title={<>So <em className="italic-pop">arbeiten wir.</em></>}
-      subtitle="Vom ersten Gespräch bis zur Umsetzung – mit klaren Phasen und ehrlichen Erwartungen."
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={h.subtitle}
       className="surface"
     >
       <ol className="grid md:grid-cols-2 lg:grid-cols-4 gap-0 lg:gap-0 reveal-stagger">
@@ -385,11 +431,12 @@ export function ProcessStepsModule({ content }: { content: SiteContent }) {
 export function DoctorTeamModule({ content }: { content: SiteContent }) {
   const doctors = ((content as any).doctors || []) as NonNullable<SiteContent['doctors']>;
   if (!doctors || !doctors.length) return null;
+  const h = moduleHeading(content, 'doctors');
   return (
     <Section
-      eyebrow="Ärzt:innen & Team"
-      title={<>Menschen, denen Sie <em className="italic-pop">vertrauen.</em></>}
-      subtitle="Alle Ärzt:innen mit Facharzt-Anerkennung. Termine ausschließlich nach Vereinbarung – wir nehmen uns Zeit."
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={h.subtitle}
     >
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
         {doctors.map((d, i) => (
@@ -419,11 +466,12 @@ export function OnlineBookingModule({ content }: { content: SiteContent }) {
   const b = ((content as any).booking || {}) as NonNullable<SiteContent['booking']>;
   if (!b || !b.enabled) return null;
   const provider = b.provider || 'Online-Termin';
+  const h = moduleHeading(content, 'booking');
   return (
     <Section
-      eyebrow="Termin online"
-      title={<>{provider} – <em className="italic-pop">in 60 Sekunden.</em></>}
-      subtitle={b.note || 'Buchen Sie Ihren Wunschtermin direkt – ohne Anruf, ohne Wartezeit. Stornierung bis 24 h vorher kostenfrei.'}
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={b.note || h.subtitle}
       className="surface"
     >
       {b.embedUrl ? (
@@ -461,12 +509,13 @@ export function FundingCalculatorModule({ content }: { content: SiteContent }) {
   const maxPercent = items.reduce((acc, it) => Math.max(acc, parseFloat((it.percent || '0').replace(/[^0-9.,]/g, '').replace(',', '.')) || 0), 0);
   const saving = Math.round(total * (maxPercent / 100));
   const net = total - saving;
+  const h = moduleHeading(content, 'funding');
 
   return (
     <Section
-      eyebrow="Förder-Kalkulator"
-      title={<>Was kostet Sie das <em className="italic-pop">wirklich?</em></>}
-      subtitle="KfW, BAFA, regionale Programme: wir berechnen vor Auftrag, was Ihnen netto bleibt."
+      eyebrow={h.eyebrow}
+      title={h.title}
+      subtitle={h.subtitle}
       className="surface"
     >
       <div className="grid lg:grid-cols-12 gap-10 items-start">
