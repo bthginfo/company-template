@@ -553,7 +553,17 @@ export function SiteFooter({ content, basePath: basePathProp, nav }: { content: 
 
         <div className="mt-10 pt-6 border-t border-white/10 text-xs text-white/50 flex flex-col md:flex-row gap-2 justify-between">
           <span>© {new Date().getFullYear()} {content.brand.name}. Alle Rechte vorbehalten.</span>
-          <span className="font-mono">Made with care · DACH</span>
+          <span className="font-mono">
+            Made with care by{' '}
+            <a
+              href="https://flamingomedia.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-accent underline-offset-4 hover:underline"
+            >
+              FlamingoMedia
+            </a>
+          </span>
         </div>
       </div>
     </footer>
