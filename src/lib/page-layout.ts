@@ -107,7 +107,13 @@ const DEFAULT_SUBPAGE_ORDERS: Record<Exclude<PageId, 'home'>, string[]> = {
   contact:  ['block', 'arrival', 'cta'],
 };
 
-export function getDefaultSubpageOrder(page: Exclude<PageId, 'home'>): string[] {
+export function getDefaultSubpageOrder(page: Exclude<PageId, 'home'>, variant?: Variant): string[] {
+  // Restaurant has a dedicated, full Speisekarte module ("module") so the
+  // generic services "list" duplicate (RestaurantMenu rendered from
+  // content.services) is removed by default. Tenants can re-enable it.
+  if (page === 'services' && variant === 'restaurant') {
+    return ['highlights', 'module', 'process', 'faq', 'cta'];
+  }
   return [...DEFAULT_SUBPAGE_ORDERS[page]];
 }
 
@@ -152,7 +158,7 @@ export function getEffectivePageOrder(
       .filter((s) => !s.variants || !variant || s.variants.includes(variant))
       .map((s) => s.key);
   }
-  return getDefaultSubpageOrder(page);
+  return getDefaultSubpageOrder(page, variant);
 }
 
 /**

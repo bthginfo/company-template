@@ -44,6 +44,11 @@ export type BranchTextDefaults = {
   certsTitle: string;
   pressEyebrow: string;
   pressTitle: string;
+  aboutSidebarEyebrow: string;
+  servicesTeaserEyebrow: string;
+  heroEyebrow: string;
+  newsEyebrow: string;
+  newsTitle: string;
 };
 
 export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
@@ -79,6 +84,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     certsTitle: 'Geprüft & zertifiziert.',
     pressEyebrow: 'Presse',
     pressTitle: 'Was die Presse schreibt.',
+    aboutSidebarEyebrow: 'Auf einen Blick',
+    servicesTeaserEyebrow: 'Speisekarte',
+    heroEyebrow: '',
+    newsEyebrow: 'Aktuelles',
+    newsTitle: 'News & Notizen.',
   },
 
   salon: {
@@ -113,6 +123,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     certsTitle: 'Geprüft & zertifiziert.',
     pressEyebrow: 'Presse',
     pressTitle: 'Was die Presse schreibt.',
+    aboutSidebarEyebrow: 'Auf einen Blick',
+    servicesTeaserEyebrow: 'Treatments',
+    heroEyebrow: '',
+    newsEyebrow: 'Aktuelles',
+    newsTitle: 'News & Notizen.',
   },
 
   tradesman: {
@@ -147,6 +162,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     certsTitle: 'Geprüft & zertifiziert.',
     pressEyebrow: 'Presse',
     pressTitle: 'Was die Presse schreibt.',
+    aboutSidebarEyebrow: 'Auf einen Blick',
+    servicesTeaserEyebrow: 'Leistungen',
+    heroEyebrow: '',
+    newsEyebrow: 'Aktuelles',
+    newsTitle: 'News & Notizen.',
   },
 
   hotel: {
@@ -181,6 +201,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     certsTitle: 'Ausgezeichnet & geprüft.',
     pressEyebrow: 'Presse',
     pressTitle: 'Was die Presse schreibt.',
+    aboutSidebarEyebrow: 'Auf einen Blick',
+    servicesTeaserEyebrow: 'Zimmer & Suiten',
+    heroEyebrow: '',
+    newsEyebrow: 'Aktuelles',
+    newsTitle: 'News & Notizen.',
   },
 
   tourism: {
@@ -215,6 +240,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     certsTitle: 'Lizenziert & zertifiziert.',
     pressEyebrow: 'Presse',
     pressTitle: 'Was die Presse schreibt.',
+    aboutSidebarEyebrow: 'Auf einen Blick',
+    servicesTeaserEyebrow: 'Touren',
+    heroEyebrow: '',
+    newsEyebrow: 'Aktuelles',
+    newsTitle: 'News & Notizen.',
   },
 
   consulting: {
@@ -249,6 +279,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     certsTitle: 'Geprüft & zertifiziert.',
     pressEyebrow: 'Presse',
     pressTitle: 'Was die Presse schreibt.',
+    aboutSidebarEyebrow: 'Auf einen Blick',
+    servicesTeaserEyebrow: 'Leistungen',
+    heroEyebrow: '',
+    newsEyebrow: 'Aktuelles',
+    newsTitle: 'News & Notizen.',
   },
 
   medical: {
@@ -283,6 +318,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     certsTitle: 'Facharzt-anerkannt & zertifiziert.',
     pressEyebrow: 'Presse',
     pressTitle: 'Was über uns geschrieben wird.',
+    aboutSidebarEyebrow: 'Auf einen Blick',
+    servicesTeaserEyebrow: 'Leistungen',
+    heroEyebrow: '',
+    newsEyebrow: 'Aktuelles',
+    newsTitle: 'News & Notizen.',
   },
 
   fitness: {
@@ -317,6 +357,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     certsTitle: 'Zertifiziert & lizenziert.',
     pressEyebrow: 'Presse',
     pressTitle: 'Was über uns geschrieben wird.',
+    aboutSidebarEyebrow: 'Auf einen Blick',
+    servicesTeaserEyebrow: 'Klassen & Programme',
+    heroEyebrow: '',
+    newsEyebrow: 'Aktuelles',
+    newsTitle: 'News & Notizen.',
   },
 };
 

@@ -671,7 +671,8 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Buttons." badge="Sektion 2">
-        <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift.">
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
+        <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift (Classic/Modern).">
           <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
         </Field>
         <Field label="Hauptüberschrift">
@@ -722,6 +723,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop. Bilder erscheinen oben auf den Karten (Modern/Klassisch)." badge="Sektion 4" pageKey="home" sectionKey="services" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow']} />
         <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
         <p className="text-xs text-muted">
           Vollständige Liste – Reihenfolge bestimmt, was auf der Startseite (erste 3) und auf der Unterseite (alle) erscheint.
@@ -730,7 +732,9 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 5" pageKey="home" sectionKey="about" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutTeaserEyebrow', 'manifestEyebrow', 'manifestTitle', 'learnMoreLabel', 'learnMoreHref']} />
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={_ctx.style === 'bold'
+          ? ['aboutTeaserEyebrow', 'manifestEyebrow', 'manifestTitle', 'learnMoreLabel', 'learnMoreHref']
+          : ['aboutTeaserEyebrow', 'learnMoreLabel', 'learnMoreHref']} />
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
@@ -750,6 +754,10 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             </div>
           ))}
         </div>
+      </SectionCard>
+
+      <SectionCard title="Logo-Strip" description="Partner / Presse / Auszeichnungen als Wortmarken-Band (nur im Modern-Style sichtbar)." badge="Sektion 6b">
+        <LogosEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
       <SectionCard title="Bewertungen-Teaser" description="Die ersten drei Stimmen erscheinen auf der Startseite." badge="Sektion 7" pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
@@ -990,6 +998,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Über uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
       </SectionCard>
       <SectionCard title="Geschichte / Erzählung" description="Längerer Fließtext mit Bild." badge="Sektion 2" pageKey="about" sectionKey="intro" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
@@ -1644,7 +1653,10 @@ type BranchTextKey =
   | 'pressEyebrow'
   | 'pressTitle'
   | 'newsEyebrow'
-  | 'newsTitle';
+  | 'newsTitle'
+  | 'aboutSidebarEyebrow'
+  | 'servicesTeaserEyebrow'
+  | 'heroEyebrow';
 
 const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; rows?: number }> = {
   teaserSubtitle: { label: 'Hero-Beschreibung (alternativ)', hint: 'Wird verwendet, wenn der Beschreibungstext oben leer ist.', rows: 2 },
@@ -1679,6 +1691,9 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   pressTitle: { label: 'Presse – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
   newsEyebrow: { label: 'Eyebrow' },
   newsTitle: { label: 'Überschrift' },
+  aboutSidebarEyebrow: { label: 'Über-uns-Sidebar Eyebrow', hint: 'Modern-Style: kleine Überschrift in der Sidebar („Auf einen Blick“).' },
+  servicesTeaserEyebrow: { label: 'Leistungen-Teaser Eyebrow', hint: 'Eyebrow über dem Speisekarten-/Leistungen-Teaser auf der Startseite.' },
+  heroEyebrow: { label: 'Hero Eyebrow (Bold)', hint: 'Bold-Style: kleine Zeile direkt über dem riesigen Titel.' },
 };
 
 function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: BranchTextKey[] }) {
@@ -2184,29 +2199,67 @@ function PageHeaderEditor({ data, setData, field, defaults }: SetterProps & { fi
   );
 }
 
+/* ─────────── Logo-Strip ─────────── */
+function defaultLogos(t: TemplateKey): string[] {
+  if (t === 'restaurant') return ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food'];
+  if (t === 'salon') return ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI'];
+  if (t === 'hotel') return ['Falstaff', 'Relais & Châteaux', 'GaultMillau', 'Tripadvisor', 'Booking'];
+  if (t === 'tourism') return ['Tirol Werbung', 'Bergführer-Verband', 'ÖAV', 'GeoPark', 'Slow Tourism'];
+  if (t === 'consulting') return ['Forbes', 'Handelsblatt', 'WirtschaftsWoche', 'Brand Eins', 'Manager Magazin'];
+  if (t === 'medical') return ['Ärztekammer', 'Doctolib', 'jameda', 'Top Mediziner', 'Focus Gesundheit'];
+  if (t === 'fitness') return ['Yoga Alliance', 'Pilates Federation', 'Stiftung Warentest', 'Fit For Fun', 'Vogue'];
+  return ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA'];
+}
+function LogosEditor({ data, setData, tpl }: SectionProps) {
+  const def = defaultLogos(tpl);
+  const list = ((data as any).logos as string[] | undefined) ?? def;
+  const update = (arr: string[]) => setData({ ...(data as any), logos: arr } as SiteContent);
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted">Wortmarken (kein Bild). Leer lassen, um den Standard zu verwenden.</p>
+      <RepeatableList
+        items={list}
+        onChange={update}
+        render={(v, i, set) => (
+          <input className={inputCls} value={v} onChange={(e) => set(e.target.value)} placeholder={def[i] || 'Marke'} />
+        )}
+        newItem={() => ''}
+        addLabel="+ Logo hinzufügen"
+      />
+    </div>
+  );
+}
+
 /* ─────────── Aktionsleiste (Home Strip) ─────────── */
 function HomeStripEditor({ data, setData, tpl }: SectionProps) {
   // Keys are agnostic; the live site shows them in the variant-specific layout.
-  const stripDefaults: Record<TemplateKey, { eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }> = {
-    restaurant: { eyebrow: 'Heute geöffnet', hint: '', primaryLabel: 'Tisch reservieren', secondaryLabel: 'Speisekarte ansehen', secondaryHref: '/speisekarte' },
-    salon: { eyebrow: 'Termine online', hint: 'Frei wählbar · Stornierung kostenlos bis 24 h vorher', primaryLabel: '', secondaryLabel: 'Termin buchen →', secondaryHref: '/kontakt' },
-    tradesman: { eyebrow: '24/7 Notdienst verfügbar', hint: 'Wir kommen schnell — versprochen.', primaryLabel: '', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' },
-    hotel: { eyebrow: 'Direkt-Anfrage', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', secondaryLabel: 'Zimmer anfragen →', secondaryHref: '/kontakt' },
-    tourism: { eyebrow: 'Nächste Tour', hint: '', primaryLabel: '', secondaryLabel: 'Tour buchen →', secondaryHref: '/touren' },
-    consulting: { eyebrow: 'Erstgespräch', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' },
-    medical: { eyebrow: 'Termin online', hint: 'Online-Buchung verfügbar', primaryLabel: '', secondaryLabel: 'Termin buchen', secondaryHref: '/kontakt' },
-    fitness: { eyebrow: 'Heute geöffnet', hint: '', primaryLabel: '', secondaryLabel: 'Probetraining buchen', secondaryHref: '/kontakt' },
+  const stripDefaults: Record<TemplateKey, { tone: 'light' | 'dark'; eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }> = {
+    restaurant: { tone: 'light', eyebrow: 'Heute geöffnet', hint: '', primaryLabel: 'Tisch reservieren', secondaryLabel: 'Speisekarte ansehen', secondaryHref: '/speisekarte' },
+    salon: { tone: 'light', eyebrow: 'Termine online', hint: 'Frei wählbar · Stornierung kostenlos bis 24 h vorher', primaryLabel: '', secondaryLabel: 'Termin buchen →', secondaryHref: '/kontakt' },
+    tradesman: { tone: 'dark', eyebrow: '24/7 Notdienst verfügbar', hint: 'Wir kommen schnell — versprochen.', primaryLabel: '', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' },
+    hotel: { tone: 'light', eyebrow: 'Direkt-Anfrage', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', secondaryLabel: 'Zimmer anfragen →', secondaryHref: '/kontakt' },
+    tourism: { tone: 'dark', eyebrow: 'Nächste Tour', hint: '', primaryLabel: '', secondaryLabel: 'Tour buchen →', secondaryHref: '/touren' },
+    consulting: { tone: 'light', eyebrow: 'Erstgespräch', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' },
+    medical: { tone: 'light', eyebrow: 'Termin online', hint: 'Online-Buchung verfügbar', primaryLabel: '', secondaryLabel: 'Termin buchen', secondaryHref: '/kontakt' },
+    fitness: { tone: 'light', eyebrow: 'Heute geöffnet', hint: '', primaryLabel: '', secondaryLabel: 'Probetraining buchen', secondaryHref: '/kontakt' },
   };
   const def = stripDefaults[tpl] || stripDefaults.consulting;
-  const [v, set] = useExtra<{ eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }>(
+  const [v, set] = useExtra<{ tone: 'light' | 'dark' | ''; eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }>(
     data, setData, 'homeStrip',
-    { eyebrow: '', hint: '', primaryLabel: '', secondaryLabel: '', secondaryHref: '' },
+    { tone: '', eyebrow: '', hint: '', primaryLabel: '', secondaryLabel: '', secondaryHref: '' },
   );
   return (
     <>
       <p className="text-xs text-muted">
         Felder leer lassen, um den Standard-Text zu verwenden. Telefonnummer wird automatisch aus den Kontaktdaten übernommen.
       </p>
+      <Field label="Farbschema" hint={`Standard: ${def.tone === 'dark' ? 'Dunkel (Brand)' : 'Hell'}`}>
+        <select className={inputCls} value={v.tone || ''} onChange={(e) => set({ ...v, tone: (e.target.value as 'light' | 'dark' | '') })}>
+          <option value="">Standard ({def.tone === 'dark' ? 'Dunkel' : 'Hell'})</option>
+          <option value="light">Hell</option>
+          <option value="dark">Dunkel (Brand)</option>
+        </select>
+      </Field>
       <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Eyebrow (kleine Zeile links)" hint={`Standard: ${def.eyebrow}`}>
           <input className={inputCls} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={def.eyebrow} />
@@ -2640,6 +2693,18 @@ function defaultHighlights(t: TemplateKey) {
     { t: 'Persönliche Betreuung', d: 'Lehrer:innen sehen jede Person.' },
     { t: 'Faires Pricing', d: 'Einzelstunden, 10er-Karte, Monatspass.' },
   ];
+  if (t === 'hotel') return [
+    { t: 'Spa inklusive', d: 'Sauna, Dampfbad und Außenpool für Hausgäste.' },
+    { t: 'Genuss aus der Küche', d: 'Halbpension, regionale Produkte, hausgemachte Mehlspeisen.' },
+    { t: 'Kostenfreie Stornierung', d: 'Bis 7 Tage vor Anreise.' },
+    { t: 'Hund willkommen', d: 'Mit Decke, Napf und festen Auslaufzeiten.' },
+  ];
+  if (t === 'tourism') return [
+    { t: 'Kleine Gruppen', d: 'Maximal 12 Gäste pro Guide.' },
+    { t: 'Lizenzierte Guides', d: 'Bergführer und Wanderführer mit Prüfung.' },
+    { t: 'Mehrsprachig', d: 'DE / EN immer dabei, weitere auf Anfrage.' },
+    { t: 'Wetterbedingt flexibel', d: 'Bei Tour-Absage volle Erstattung.' },
+  ];
   return [
     { t: 'Festpreis-Garantie', d: 'Schriftlich vor Auftrag.' },
     { t: 'Förderberatung', d: 'KfW, BAFA, regional.' },
@@ -2678,6 +2743,18 @@ function defaultProcess(t: TemplateKey) {
     { t: 'Trainieren', d: 'Klassen, Kleingruppen oder 1:1.' },
     { t: 'Dranbleiben', d: 'Persönliche Rückmeldung nach jeder Stunde.' },
   ];
+  if (t === 'hotel') return [
+    { t: 'Anfrage', d: 'Reisedaten und Wünsche schicken — wir antworten persönlich.' },
+    { t: 'Bestätigung', d: 'Fixe Reservierung mit allen Optionen.' },
+    { t: 'Ankunft', d: 'Check-in ab 15:00 mit Begrüßung und Hausführung.' },
+    { t: 'Aufenthalt', d: 'Spa, Restaurant, Wandertipps — entspannt geniessen.' },
+  ];
+  if (t === 'tourism') return [
+    { t: 'Tour wählen', d: 'Termine, Level und Sprache nach Wunsch.' },
+    { t: 'Briefing', d: 'Vorab-Info zu Ausrüstung und Treffpunkt.' },
+    { t: 'Tour', d: 'Mit lizenziertem Guide unterwegs.' },
+    { t: 'Erinnerung', d: 'Fotos und Rückblick per Mail im Nachgang.' },
+  ];
   return [
     { t: 'Anfrage', d: 'Wir melden uns binnen 24 h.' },
     { t: 'Termin vor Ort', d: 'Kostenlos, unverbindlich.' },
@@ -2698,6 +2775,31 @@ function defaultValues(t: TemplateKey) {
     { t: 'Beratung vor Schere.', d: 'Was passt zu Ihrem Alltag, Haar, Ihnen.' },
     { t: 'Pflege ist Handwerk.', d: 'Ehrliche Empfehlungen für zuhause.' },
     { t: 'Wohlfühlen zählt.', d: 'Tee, Musik, Couch zum Warten.' },
+  ];
+  if (t === 'hotel') return [
+    { t: 'Gastfreundschaft, ehrlich.', d: 'Wir kennen Ihre Namen, nicht nur Ihre Zimmernummer.' },
+    { t: 'Region statt Convenience.', d: 'Frühstück, Küche und Tipps aus dem Tal.' },
+    { t: 'Zeit zum Ankommen.', d: 'Spa, Bibliothek, Sonnenterrasse — ohne Hektik.' },
+  ];
+  if (t === 'tourism') return [
+    { t: 'Klein statt gross.', d: 'Maximal 12 Gäste pro Guide.' },
+    { t: 'Lokal verwurzelt.', d: 'Wir leben hier — und führen so durch.' },
+    { t: 'Verantwortungsvoll.', d: 'Respekt vor Natur, Menschen und Tieren.' },
+  ];
+  if (t === 'consulting') return [
+    { t: 'Klarheit vor Komplexität.', d: 'Wir vereinfachen, bevor wir empfehlen.' },
+    { t: 'Festpreis statt Stunden.', d: 'Klare Outputs, keine Überraschungen.' },
+    { t: 'Hands-on bis Live-Gang.', d: 'Wir bleiben dabei, bis es läuft.' },
+  ];
+  if (t === 'medical') return [
+    { t: 'Zeit für Patient:innen.', d: 'Wir hören zu, bevor wir behandeln.' },
+    { t: 'Evidenz vor Trend.', d: 'Was wirkt, hat Vorrang vor was modern ist.' },
+    { t: 'Klare Aufklärung.', d: 'Sie verstehen, was wir tun — und warum.' },
+  ];
+  if (t === 'fitness') return [
+    { t: 'Bewegung statt Druck.', d: 'Wir holen Sie dort ab, wo Sie sind.' },
+    { t: 'Persönlich statt anonym.', d: 'Lehrer:innen sehen jede Person.' },
+    { t: 'Ehrlich statt schick.', d: 'Geräte, die Sie wirklich brauchen.' },
   ];
   return [
     { t: 'Festpreis, keine Tricks.', d: 'Schriftlich vor Auftrag.' },
@@ -2730,6 +2832,16 @@ function defaultTeam(t: TemplateKey) {
     { n: 'Sarah Berg', r: 'Studio-Leitung · Vinyasa', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
     { n: 'Mira Klein', r: 'Yin & Mindful Movement', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
     { n: 'Jonas Renz', r: 'Reformer Pilates', img: 'https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?auto=format&fit=crop&w=600&q=80', bio: 'Physiotherapeut mit Pilates-Spezialisierung. Trainiert Sportler:innen und Reha-Klient:innen.' },
+  ];
+  if (t === 'hotel') return [
+    { n: 'Lisa Mayrhofer', r: 'Gastgeberin', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', bio: 'Führt das Haus in der dritten Generation.' },
+    { n: 'Florian Egger', r: 'Küchenchef', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80', bio: 'Regional geprägte Küche, lange Karriere in Wien.' },
+    { n: 'Anna Steiner', r: 'Spa-Leitung', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', bio: 'Diplomierte Wellness-Trainerin und Masseurin.' },
+  ];
+  if (t === 'tourism') return [
+    { n: 'Markus Auer', r: 'Bergführer · Lead Guide', img: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?auto=format&fit=crop&w=600&q=80', bio: 'Staatlich geprüfter Bergführer, kennt jeden Pfad.' },
+    { n: 'Eva Tschiderer', r: 'Wanderführerin & Kräuter', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80', bio: 'Kräuterpädagogin, führt unsere Slow-Touren.' },
+    { n: 'Tobias Schöpf', r: 'Foto-Guide', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'Landschaftsfotograf, beratet zu Licht und Komposition.' },
   ];
   return [
     { n: 'Stefan Mayer', r: 'Geschäftsführer · Meister', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Übernahm den Familienbetrieb 2008.' },
@@ -2768,6 +2880,18 @@ function defaultNumbers(t: TemplateKey) {
     { value: '8', label: 'max. pro Klasse' },
     { value: '5', label: 'Lehrer:innen' },
   ];
+  if (t === 'hotel') return [
+    { value: '24', label: 'Zimmer & Suiten' },
+    { value: '1972', label: 'Familienbetrieb seit' },
+    { value: '4,8', label: 'Sterne Ø' },
+    { value: '1.400 m', label: 'Seehöhe' },
+  ];
+  if (t === 'tourism') return [
+    { value: '120+', label: 'Touren pro Jahr' },
+    { value: '12', label: 'max. Gruppe' },
+    { value: '4,9', label: 'Sterne Ø' },
+    { value: '15', label: 'Jahre Erfahrung' },
+  ];
   return [
     { value: '50+', label: 'Jahre Erfahrung' },
     { value: '18', label: 'Mitarbeitende' },
@@ -2781,6 +2905,8 @@ function defaultCta(t: TemplateKey) {
   if (t === 'consulting') return { eyebrow: 'Bereit?', lead: 'Lassen Sie uns reden.', sub: '45 Minuten Erstgespräch — kostenlos und unverbindlich.', cta: 'Termin vereinbaren', ctaHref: '/kontakt' };
   if (t === 'medical') return { eyebrow: 'Bereit?', lead: 'Wir sind für Sie da.', sub: 'Online-Termin in unter zwei Minuten gebucht.', cta: 'Termin buchen', ctaHref: '/kontakt' };
   if (t === 'fitness') return { eyebrow: 'Bereit?', lead: 'Starten Sie heute.', sub: 'Probetraining gratis — wir freuen uns auf Sie.', cta: 'Probetraining sichern', ctaHref: '/kontakt' };
+  if (t === 'hotel') return { eyebrow: 'Bereit?', lead: 'Pause buchen?', sub: 'Wir antworten persönlich — ohne Formularkette.', cta: 'Zimmer anfragen', ctaHref: '/kontakt' };
+  if (t === 'tourism') return { eyebrow: 'Bereit?', lead: 'Auf in die Berge?', sub: 'Wir beraten ehrlich, welche Tour zu Ihnen passt.', cta: 'Tour buchen', ctaHref: '/kontakt' };
   return { eyebrow: 'Bereit?', lead: 'Etwas tropft?', sub: 'Wir melden uns binnen 24 h mit einem Festpreis-Angebot.', cta: 'Jetzt anfragen', ctaHref: '/kontakt' };
 }
 

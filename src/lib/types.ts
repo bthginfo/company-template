@@ -183,6 +183,12 @@ export const SiteContentSchema = z.object({
     /** Eyebrow + title for the news/blog teaser block on the home page. */
     newsEyebrow: z.string().optional().default(''),
     newsTitle: z.string().optional().default(''),
+    /** Eyebrow shown on the about-page sidebar (modern style "Auf einen Blick"). */
+    aboutSidebarEyebrow: z.string().optional().default(''),
+    /** Eyebrow above the services teaser on the home page (modern/bold). */
+    servicesTeaserEyebrow: z.string().optional().default(''),
+    /** Eyebrow shown above the hero headline (bold style). */
+    heroEyebrow: z.string().optional().default(''),
   }).optional().default({}),
 
   /**
@@ -230,7 +236,38 @@ export const SiteContentSchema = z.object({
     sub: z.string().optional().default(''),
     cta: z.string().optional().default(''),
     ctaHref: z.string().optional().default(''),
+    eyebrow: z.string().optional().default(''),
+    leadAccent: z.string().optional().default(''),
   }).optional().default({}),
+
+  /**
+   * Branch action strip (sits under hero) – per-tenant overrides.
+   */
+  homeStrip: z.object({
+    tone: z.enum(['light', 'dark']).optional().default('light'),
+    eyebrow: z.string().optional().default(''),
+    hint: z.string().optional().default(''),
+    primaryLabel: z.string().optional().default(''),
+    primaryHref: z.string().optional().default(''),
+    secondaryLabel: z.string().optional().default(''),
+    secondaryHref: z.string().optional().default(''),
+  }).optional().default({}),
+
+  /**
+   * Signature/feature heading block under the hero (classic/modern home).
+   */
+  homeSignature: z.object({
+    eyebrow: z.string().optional().default(''),
+    titleA: z.string().optional().default(''),
+    titleB: z.string().optional().default(''),
+    intro: z.string().optional().default(''),
+  }).optional().default({}),
+
+  /**
+   * Logo / partner band under the hero. Plain string list.
+   * When empty, the template falls back to a per-variant default.
+   */
+  logos: z.array(z.string()).optional().default([]),
 
   /* ─── BRANCH-SPECIFIC MODULES ─────────────────────────────────────
    * Each block below maps to a dedicated visual module rendered only

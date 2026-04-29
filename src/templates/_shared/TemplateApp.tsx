@@ -381,7 +381,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
     ) : null,
     services: featuredServices.length > 0 ? (
       <Section
-        eyebrow={cfg.servicesEyebrow}
+        eyebrow={effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}
         title={<>{splitTitle(cfg.servicesHeadline)}</>}
         subtitle={subtitleFor(variant, content)}
         className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
@@ -450,7 +450,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
     funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
     services: featuredServices.length > 0 ? (
       <SpotlightSection as="div" color="rgba(242,65,113,0.16)" size={620} className="surface">
-        <Section eyebrow={cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
+        <Section eyebrow={effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
             {featuredServices.map((s, i) => (
               <Tilt3DCard key={i} max={5} className="rounded-2xl">
@@ -478,16 +478,24 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
         </Section>
       </SpotlightSection>
     ) : null,
-    logos: (
-      <section className="py-14 border-y border-line">
-        <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
-          {(variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
-            : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
-              : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA']
-          ).map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
-        </div>
-      </section>
-    ),
+    logos: (() => {
+      const overlay = ((content as any).logos as string[] | undefined)?.filter((s) => s && s.trim());
+      const fallback =
+        variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
+        : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
+        : variant === 'hotel' ? ['Falstaff', 'Relais & Châteaux', 'GaultMillau', 'Tripadvisor', 'Booking']
+        : variant === 'tourism' ? ['Tirol Werbung', 'Bergführer-Verband', 'ÖAV', 'GeoPark', 'Slow Tourism']
+        : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA'];
+      const list = overlay && overlay.length ? overlay : fallback;
+      if (!list.length) return null;
+      return (
+        <section className="py-14 border-y border-line">
+          <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+            {list.map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
+          </div>
+        </section>
+      );
+    })(),
     about: content.about?.body ? (
       <Section eyebrow={effectiveBranchText(variant, content).aboutTeaserEyebrow || 'Über uns'} title={<>{splitTitle(content.about.title || 'Über uns')}</>}>
         <div className="grid lg:grid-cols-2 gap-12 items-start">
@@ -648,7 +656,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         <div className="container-x">
           <div className="flex items-end justify-between gap-6 mb-16">
             <div>
-              <p className="eyebrow mb-4 !text-white/70">{cfg.servicesEyebrow}</p>
+              <p className="eyebrow mb-4 !text-white/70">{effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
               <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
             </div>
             <TLink to={cfg.servicesPath} className="btn-accent hidden md:inline-flex">Alle <span aria-hidden>→</span></TLink>
@@ -671,7 +679,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         <div className="container-x">
           <div className="flex items-end justify-between gap-6 mb-12">
             <div>
-              <p className="eyebrow mb-4">Galerie</p>
+              <p className="eyebrow mb-4">{effectiveBranchText(variant, content).galleryTeaserEyebrow}</p>
               <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, content)}</h2>
             </div>
             <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="link-underline hidden md:inline-flex">{effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span></TLink>
@@ -719,7 +727,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
       <section className="pt-40 pb-10 grain relative overflow-hidden">
         <AuroraBackground intensity={0.22} colors={['var(--accent-color)', '#FFB347', '#22d3ee', '#7C3AED']} />
         <div className="container-x relative">
-          <p className="eyebrow mb-6 reveal">{content.brand.tagline || cfg.servicesEyebrow}</p>
+          <p className="eyebrow mb-6 reveal">{effectiveBranchText(variant, content).heroEyebrow || content.brand.tagline || cfg.servicesEyebrow}</p>
           <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[clamp(2.5rem,13vw,180px)] md:text-[14vw] lg:text-[180px] break-words [overflow-wrap:anywhere] [hyphens:auto]">
             {(content.hero?.title || ((content.brand.hideName && content.brand.logoUrl) ? '' : content.brand.name)).toUpperCase()}
           </h1>
@@ -760,9 +768,15 @@ function ModernServicesGrid({ services }: { services: SiteContent['services'] })
       {services.map((s, i) => (
         <Tilt3DCard key={i} max={6} className="rounded-2xl">
           <HoverGlow className="bg-white border border-line rounded-2xl p-7 h-full" color="rgba(242,65,113,0.12)">
-            <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
-              <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
-            </div>
+            {s.imageUrl ? (
+              <div className="-mx-7 -mt-7 mb-5 aspect-[4/3] overflow-hidden rounded-t-2xl">
+                <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+              </div>
+            ) : (
+              <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+                <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+            )}
             <h3 className="font-display text-2xl mt-5">{s.title}</h3>
             {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
             {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
@@ -782,10 +796,17 @@ function BoldServicesList({ services }: { services: SiteContent['services'] }) {
       {services.map((s, i) => (
         <li
           key={i}
-          className="grid md:grid-cols-12 gap-6 py-8 items-baseline group transition-transform hover:translate-x-1"
+          className="grid md:grid-cols-12 gap-6 py-8 items-center group transition-transform hover:translate-x-1"
         >
-          <span className="md:col-span-2 font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-          <h3 className="md:col-span-5 font-display text-3xl md:text-5xl leading-[0.95] tracking-tight uppercase">
+          <span className="md:col-span-1 font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+          {s.imageUrl ? (
+            <div className="md:col-span-2 aspect-[4/3] overflow-hidden rounded-xl">
+              <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          ) : (
+            <span className="hidden md:block md:col-span-2" aria-hidden />
+          )}
+          <h3 className="md:col-span-4 font-display text-3xl md:text-5xl leading-[0.95] tracking-tight uppercase">
             {s.title}
           </h3>
           {s.description && <p className="md:col-span-4 text-muted text-base">{s.description}</p>}
@@ -869,7 +890,12 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
   const phone = content.contact.phone || '';
   const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
   const def = defaultHomeStrip(variant);
-  const cfg = { ...def, ...((content as any).homeStrip || {}) } as ReturnType<typeof defaultHomeStrip>;
+  // Strip empty-string overrides so the per-variant default keeps winning.
+  const overlay = Object.fromEntries(
+    Object.entries(((content as any).homeStrip || {}) as Record<string, unknown>)
+      .filter(([, val]) => (typeof val === 'string' ? val.trim() !== '' : val != null))
+  );
+  const cfg = { ...def, ...overlay } as ReturnType<typeof defaultHomeStrip>;
 
   // Resolve a maybe-empty href; "tel:" placeholder turns into the real phone link.
   const resolveHref = (href: string) => (href === 'tel:' ? phoneHref : href);
@@ -1050,7 +1076,7 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
 /* ─── Services / Speisekarte / Leistungen ────────────────────────── */
 function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const cfg = NAV_BY_VARIANT[variant];
-  const order = getEffectivePageOrder(content, 'services').filter((k) => isSectionEnabled(content, 'services', k));
+  const order = getEffectivePageOrder(content, 'services', variant).filter((k) => isSectionEnabled(content, 'services', k));
   const blocks: Record<string, JSX.Element | null> = {
     highlights: <ServiceHighlights variant={variant} content={content} />,
     list: (
@@ -1243,7 +1269,7 @@ function GalleryPage({
       />
 
       {(() => {
-        const order = getEffectivePageOrder(content, 'gallery').filter((k) => isSectionEnabled(content, 'gallery', k));
+        const order = getEffectivePageOrder(content, 'gallery', variant).filter((k) => isSectionEnabled(content, 'gallery', k));
         const blocks: Record<string, JSX.Element | null> = {
           story: <GalleryStorySection variant={variant} content={content} />,
           grid: (
@@ -1406,7 +1432,7 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
 
 /* ─── About ──────────────────────────────────────────────────────── */
 function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const order = getEffectivePageOrder(content, 'about').filter((k) => isSectionEnabled(content, 'about', k));
+  const order = getEffectivePageOrder(content, 'about', variant).filter((k) => isSectionEnabled(content, 'about', k));
   const introBlock = style !== 'modern' ? (
     <Section spacing="lg">
       <div className={`grid lg:grid-cols-12 gap-10 items-start ${style === 'bold' ? '' : ''}`}>
@@ -1436,7 +1462,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         </div>
         <aside className="lg:col-span-4 lg:col-start-9 reveal">
           <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
-            <p className="eyebrow mb-4">Auf einen Blick</p>
+            <p className="eyebrow mb-4">{effectiveBranchText(variant, content).aboutSidebarEyebrow}</p>
             <dl className="space-y-3 text-sm">
               {resolveHeroMeta(variant, content).map((m, i) => (
                 <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
@@ -1674,7 +1700,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   };
   const overlay = (content as any).arrival as { t: string; d: string }[] | undefined;
   const arrival = overlay && overlay.length ? overlay.filter((a) => a.t || a.d) : arrivalFallbacks[variant];
-  const order = getEffectivePageOrder(content, 'contact').filter((k) => isSectionEnabled(content, 'contact', k));
+  const order = getEffectivePageOrder(content, 'contact', variant).filter((k) => isSectionEnabled(content, 'contact', k));
   // If the page already has the dedicated arrival map below, skip the small
   // map under the form to avoid showing two Google Maps embeds back-to-back.
   const arrivalEnabled = isSectionEnabled(content, 'contact', 'arrival') && order.includes('arrival');
@@ -1899,6 +1925,11 @@ function RestaurantMenu({ services, compact }: { services: SiteContent['services
             <span className="flex-1 h-px border-b border-dotted border-current opacity-30 mb-2" aria-hidden />
             {s.price && <span className="font-mono text-base whitespace-nowrap">{s.price}</span>}
           </div>
+          {s.imageUrl && (
+            <div className="mt-3 aspect-[16/9] overflow-hidden rounded-xl">
+              <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          )}
           {s.description && <p className="mt-2 text-sm md:text-base text-muted italic leading-relaxed max-w-prose">{s.description}</p>}
         </li>
       ))}
