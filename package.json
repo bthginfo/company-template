@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vercel dev",
     "dev:vite": "vite",
-    "build": "tsc -b --noEmit && vite build && node scripts/postbuild-prerender.mjs",
+    "build": "tsc -b --noEmit && vite build && tsx scripts/postbuild-prerender.ts",
     "preview": "vite preview",
     "lint": "tsc -b --noEmit",
     "db:generate": "drizzle-kit generate",
