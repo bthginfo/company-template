@@ -37,7 +37,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     <text x="80" y="320" font-size="${fitFontSize(name, 96, 1040)}" font-weight="700" letter-spacing="-2">${escapeXml(name)}</text>
     ${tagline ? `<text x="80" y="395" font-size="34" opacity="0.85">${escapeXml(tagline)}</text>` : ''}
     <line x1="80" y1="510" x2="200" y2="510" stroke="${fg}" stroke-width="3" opacity="0.8"/>
-    <text x="80" y="555" font-size="22" opacity="0.75">flamingomedia.de</text>
+    <text x="80" y="555" font-size="22" opacity="0.75">flamingomedia.online</text>
   </g>
 </svg>`;
 

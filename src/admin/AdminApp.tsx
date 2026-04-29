@@ -39,6 +39,10 @@ export function AdminApp() {
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // JSON snapshot of the last persisted state, used to detect unsaved edits
+  // and warn the operator before they close the tab / navigate away.
+  const [pristine, setPristine] = useState<string | null>(null);
+  const isDirty = !!draft && pristine !== null && JSON.stringify(draft) !== pristine;
 
   useEffect(() => {
     fetch('/api/admin/session')
@@ -48,8 +52,23 @@ export function AdminApp() {
   }, []);
 
   useEffect(() => {
-    if (state.status === 'ready' && draft === null) setDraft(state.content);
+    if (state.status === 'ready' && draft === null) {
+      setDraft(state.content);
+      setPristine(JSON.stringify(state.content));
+    }
   }, [state, draft]);
+
+  // Browser-level "unsaved changes" guard.
+  useEffect(() => {
+    if (!isDirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Modern browsers ignore the custom string but require returnValue to be set.
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [isDirty]);
 
   const tplKey = useMemo<TemplateKey>(
     () => (state.status === 'ready' ? asTemplateKey(state.tenant.template) : 'restaurant'),
@@ -66,6 +85,10 @@ export function AdminApp() {
   }, [tplKey, presetId]);
 
   const logout = async () => {
+    if (isDirty) {
+      const ok = window.confirm('Es gibt nicht gespeicherte Änderungen. Wirklich abmelden?');
+      if (!ok) return;
+    }
     await fetch('/api/admin/logout', { method: 'POST' });
     navigate('/admin/login', { replace: true });
   };
@@ -77,6 +100,7 @@ export function AdminApp() {
       await save(draft);
       const ts = new Date().toLocaleTimeString('de-DE');
       setSavedAt(ts);
+      setPristine(JSON.stringify(draft));
       setTimeout(() => setSavedAt(null), 5000);
       toast.success('Gespeichert', { description: `Alle Änderungen sind live · ${ts}` });
     } catch (e: any) {

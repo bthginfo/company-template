@@ -17,7 +17,11 @@
     --radius-lg: 28px;
   }
 
-  html { scroll-behavior: smooth; }
+  /* Smooth in-page anchor scrolling — disabled when the visitor prefers
+     reduced motion (system-wide a11y setting). */
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
   /* Don't set `height: 100%` on html/body together with `overflow-x: hidden`
      on body — that combination promotes <body> to the scroll-container
      instead of the viewport, which causes occasional dropped wheel events

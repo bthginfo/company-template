@@ -203,39 +203,33 @@ Write-Step "Provisioning tenant via Vercel API"
 $tsxArgs = @('scripts/provision-tenant.ts', $Slug, $Name, $Template, $Style)
 if ($Reseed.IsPresent) { $tsxArgs += '--reseed' }
 
-$logFile = Join-Path $RepoRoot (".tenant-provision-" + $Slug + ".log")
-& npx tsx @tsxArgs 2>&1 | Tee-Object -FilePath $logFile
+# Stream output directly. We deliberately do NOT tee to a log file:
+# provision-tenant.ts no longer prints the password to stdout — instead it
+# writes credentials directly to .tenant-credentials.txt with mode 600.
+& npx tsx @tsxArgs
+$provisionExit = $LASTEXITCODE
 
-if ($LASTEXITCODE -ne 0) {
+if ($provisionExit -ne 0) {
   Write-Host ""
-  Write-Err2 ("Provisioning failed. Full log: " + $logFile)
+  Write-Err2 "Provisioning failed."
   Write-Host ""
   Write-Host "Common causes:" -ForegroundColor Yellow
   Write-Host "  - VERCEL_TOKEN expired or lacks team scope" -ForegroundColor Yellow
   Write-Host "  - Slug already used as a Vercel project name" -ForegroundColor Yellow
   Write-Host "  - POSTGRES_URL unreachable from this machine" -ForegroundColor Yellow
   Write-Host "  - Network blocked (corporate proxy)" -ForegroundColor Yellow
+  Write-Host "  - AUTH_SECRET missing as plaintext in .env.local (must match showcase)" -ForegroundColor Yellow
   exit 10
 }
 
-# --- 5. Persist credentials locally ----------------------------------
-$logContent = Get-Content $logFile -Raw
-$pwMatch    = [regex]::Match($logContent, 'Password:\s+(\S+)')
-if ($pwMatch.Success) {
-  $password = $pwMatch.Groups[1].Value
-  $credFile = Join-Path $RepoRoot ".tenant-credentials.txt"
-  $now      = [DateTime]::UtcNow.ToString('o')
-  $entry    = "[" + $now + "] " + $Slug + "`r`n"
-  $entry   += "  Name:     " + $Name + "`r`n"
-  $entry   += "  Template: " + $Template + " / " + $Style + "`r`n"
-  $entry   += "  Login:    https://" + $Slug + ".vercel.app/admin/login`r`n"
-  $entry   += "  User:     " + $Slug + "`r`n"
-  $entry   += "  Password: " + $password + "`r`n`r`n"
-  Add-Content -Path $credFile -Value $entry
-  Write-Ok "Credentials appended to .tenant-credentials.txt (gitignored)"
+# --- 5. Confirm credentials file ------------------------------------
+$credFile = Join-Path $RepoRoot ".tenant-credentials.txt"
+if (Test-Path $credFile) {
+  Write-Ok "Credentials available in .tenant-credentials.txt (gitignored, append-only)"
+  Write-Host "  Hand them to the customer via a secure channel, then delete the entry." -ForegroundColor Yellow
+} else {
+  Write-Warn2 "No .tenant-credentials.txt produced. Tenant likely existed already (password preserved)."
 }
-
-Remove-Item $logFile -ErrorAction SilentlyContinue
 
 Write-Host ""
 Write-Host "------------------------------------------" -ForegroundColor Green
