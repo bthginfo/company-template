@@ -618,6 +618,10 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
       </SectionCard>
 
+      <SectionCard title="Aktionsleiste" description="Schmaler Streifen direkt unter dem Lauftext (z. B. „Heute geöffnet · Tisch reservieren · Speisekarte ansehen“)." badge="Sektion 1b">
+        <HomeStripEditor data={data} setData={setData} tpl={tpl} />
+      </SectionCard>
+
       <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Haupt-Button." badge="Sektion 2">
         <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift.">
           <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
@@ -659,6 +663,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 5" pageKey="home" sectionKey="services" data={data} setData={setData}>
+        <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
         <p className="text-xs text-muted">
           Bearbeiten Sie die Liste unter <strong>{tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen'}</strong> in der Seitenleiste. Hier wählen Sie nur, welche zuerst erscheinen.
         </p>
@@ -2085,6 +2090,95 @@ function PageHeaderEditor({ data, setData, field, defaults }: SetterProps & { fi
       <Field label="Überschrift"><input className={inputCls} value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} /></Field>
       <Field label="Untertitel"><textarea className={inputCls} rows={2} value={v.subtitle} onChange={(e) => set({ ...v, subtitle: e.target.value })} /></Field>
     </>
+  );
+}
+
+/* ─────────── Aktionsleiste (Home Strip) ─────────── */
+function HomeStripEditor({ data, setData, tpl }: SectionProps) {
+  // Keys are agnostic; the live site shows them in the variant-specific layout.
+  const stripDefaults: Record<TemplateKey, { eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }> = {
+    restaurant: { eyebrow: 'Heute geöffnet', hint: '', primaryLabel: 'Tisch reservieren', secondaryLabel: 'Speisekarte ansehen', secondaryHref: '/speisekarte' },
+    salon: { eyebrow: 'Termine online', hint: 'Frei wählbar · Stornierung kostenlos bis 24 h vorher', primaryLabel: '', secondaryLabel: 'Termin buchen →', secondaryHref: '/kontakt' },
+    tradesman: { eyebrow: '24/7 Notdienst verfügbar', hint: 'Wir kommen schnell — versprochen.', primaryLabel: '', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' },
+    hotel: { eyebrow: 'Direkt-Anfrage', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', secondaryLabel: 'Zimmer anfragen →', secondaryHref: '/kontakt' },
+    tourism: { eyebrow: 'Nächste Tour', hint: '', primaryLabel: '', secondaryLabel: 'Tour buchen →', secondaryHref: '/touren' },
+    consulting: { eyebrow: 'Erstgespräch', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' },
+    medical: { eyebrow: 'Termin online', hint: 'Online-Buchung verfügbar', primaryLabel: '', secondaryLabel: 'Termin buchen', secondaryHref: '/kontakt' },
+    fitness: { eyebrow: 'Heute geöffnet', hint: '', primaryLabel: '', secondaryLabel: 'Probetraining buchen', secondaryHref: '/kontakt' },
+  };
+  const def = stripDefaults[tpl] || stripDefaults.consulting;
+  const [v, set] = useExtra<{ eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }>(
+    data, setData, 'homeStrip',
+    { eyebrow: '', hint: '', primaryLabel: '', secondaryLabel: '', secondaryHref: '' },
+  );
+  return (
+    <>
+      <p className="text-xs text-muted">
+        Felder leer lassen, um den Standard-Text zu verwenden. Telefonnummer wird automatisch aus den Kontaktdaten übernommen.
+      </p>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Eyebrow (kleine Zeile links)" hint={`Standard: ${def.eyebrow}`}>
+          <input className={inputCls} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={def.eyebrow} />
+        </Field>
+        <Field label="Hinweis (Mitte, optional)" hint={def.hint || 'Wird ausgeblendet, wenn leer.'}>
+          <input className={inputCls} value={v.hint} onChange={(e) => set({ ...v, hint: e.target.value })} placeholder={def.hint} />
+        </Field>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Telefon-Button-Label (vor der Nummer)" hint={`Standard: ${def.primaryLabel || '— (nur Nummer)'}`}>
+          <input className={inputCls} value={v.primaryLabel} onChange={(e) => set({ ...v, primaryLabel: e.target.value })} placeholder={def.primaryLabel} />
+        </Field>
+        <Field label="Sekundär-Button-Text" hint={`Standard: ${def.secondaryLabel}`}>
+          <input className={inputCls} value={v.secondaryLabel} onChange={(e) => set({ ...v, secondaryLabel: e.target.value })} placeholder={def.secondaryLabel} />
+        </Field>
+      </div>
+      <Field label="Sekundär-Button-Ziel" hint={`Standard: ${def.secondaryHref}. /pfad oder https://…`}>
+        <input className={inputCls + ' font-mono text-xs'} value={v.secondaryHref} onChange={(e) => set({ ...v, secondaryHref: e.target.value })} placeholder={def.secondaryHref} />
+      </Field>
+    </>
+  );
+}
+
+/* ─────────── Signature-Block Heading ─────────── */
+function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
+  // Defaults differ per (variant × style). For admin UX we just show the most common wording
+  // and let the editor know the live page may add stylistic flourishes.
+  const sigDefaults: Record<TemplateKey, { eyebrow: string; titleA: string; titleB: string; intro: string }> = {
+    restaurant: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.' },
+    salon: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.' },
+    tradesman: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.' },
+    hotel: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.' },
+    tourism: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.' },
+    consulting: { eyebrow: '', titleA: '', titleB: '', intro: '' },
+    medical: { eyebrow: '', titleA: '', titleB: '', intro: '' },
+    fitness: { eyebrow: '', titleA: '', titleB: '', intro: '' },
+  };
+  const def = sigDefaults[tpl];
+  const [v, set] = useExtra<{ eyebrow: string; titleA: string; titleB: string; intro: string }>(
+    data, setData, 'homeSignature',
+    { eyebrow: '', titleA: '', titleB: '', intro: '' },
+  );
+  return (
+    <div className="border border-line rounded-2xl p-4 bg-[#fafaf7] mb-4 space-y-4">
+      <div>
+        <p className="text-sm font-medium">Überschrift des Teaser-Blocks</p>
+        <p className="text-xs text-muted mt-0.5">Felder leer lassen für den Standard-Text. Der zweite Titel-Teil erscheint kursiv.</p>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field label="Eyebrow" hint={`Standard: ${def.eyebrow || '—'}`}>
+          <input className={inputCls + ' !bg-white'} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={def.eyebrow} />
+        </Field>
+        <Field label="Titel (Teil 1)" hint={`Standard: ${def.titleA}`}>
+          <input className={inputCls + ' !bg-white'} value={v.titleA} onChange={(e) => set({ ...v, titleA: e.target.value })} placeholder={def.titleA} />
+        </Field>
+      </div>
+      <Field label="Titel (Teil 2, kursiv)" hint={`Standard: ${def.titleB}`}>
+        <input className={inputCls + ' !bg-white'} value={v.titleB} onChange={(e) => set({ ...v, titleB: e.target.value })} placeholder={def.titleB} />
+      </Field>
+      <Field label="Beschreibung" hint={def.intro ? `Standard: ${def.intro}` : 'Erscheint unter dem Titel (optional).'}>
+        <textarea className={inputCls + ' !bg-white'} rows={2} value={v.intro} onChange={(e) => set({ ...v, intro: e.target.value })} placeholder={def.intro} />
+      </Field>
+    </div>
   );
 }
 

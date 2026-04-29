@@ -349,14 +349,14 @@ function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galle
  */
 const BRANCH_STYLE_ORDER: Record<TemplateVariant, Record<TemplateStyle, string[]>> = {
   restaurant: {
-    classic: ['action', 'signature', 'menu', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
-    modern:  ['action', 'services', 'menu', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
-    bold:    ['action', 'signature', 'numbers', 'gallery', 'menu', 'testimonials', 'about', 'news'],
+    classic: ['action', 'signature', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
+    modern:  ['action', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
+    bold:    ['action', 'signature', 'numbers', 'gallery', 'testimonials', 'about', 'news'],
   },
   hotel: {
-    classic: ['action', 'signature', 'rooms', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'gallery', 'rooms', 'signature', 'about', 'numbers', 'testimonials', 'news'],
-    bold:    ['action', 'gallery', 'signature', 'numbers', 'rooms', 'testimonials', 'about', 'news'],
+    classic: ['action', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news'],
+    bold:    ['action', 'gallery', 'signature', 'numbers', 'testimonials', 'about', 'news'],
   },
   tradesman: {
     classic: ['action', 'services', 'funding', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
@@ -364,14 +364,14 @@ const BRANCH_STYLE_ORDER: Record<TemplateVariant, Record<TemplateStyle, string[]
     bold:    ['action', 'services', 'funding', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
   },
   salon: {
-    classic: ['action', 'treatments', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'signature', 'treatments', 'gallery', 'testimonials', 'about', 'numbers', 'news'],
-    bold:    ['action', 'gallery', 'treatments', 'signature', 'about', 'numbers', 'testimonials', 'news'],
+    classic: ['action', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'signature', 'gallery', 'testimonials', 'about', 'numbers', 'news'],
+    bold:    ['action', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news'],
   },
   tourism: {
-    classic: ['action', 'gallery', 'signature', 'tours', 'about', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'signature', 'gallery', 'tours', 'numbers', 'about', 'testimonials', 'news'],
-    bold:    ['action', 'gallery', 'numbers', 'signature', 'tours', 'testimonials', 'about', 'news'],
+    classic: ['action', 'gallery', 'signature', 'about', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
+    bold:    ['action', 'gallery', 'numbers', 'signature', 'testimonials', 'about', 'news'],
   },
 };
 
@@ -858,103 +858,80 @@ function MasonryGrid({ images }: { images: string[] }) {
 }
 
 /* Branch-specific action strip — sits right under Hero to make each branch feel different. */
+/**
+ * Default texts for the action strip — one set per branch.
+ * Admins can override every field via content.homeStrip.
+ */
+function defaultHomeStrip(variant: TemplateVariant): {
+  tone: 'light' | 'dark';
+  eyebrow: string;
+  hint: string;
+  primaryLabel: string;
+  primaryHref: string;
+  secondaryLabel: string;
+  secondaryHref: string;
+} {
+  if (variant === 'restaurant') return { tone: 'light', eyebrow: 'Heute geöffnet', hint: '', primaryLabel: 'Tisch reservieren', primaryHref: 'tel:', secondaryLabel: 'Speisekarte ansehen', secondaryHref: '/speisekarte' };
+  if (variant === 'hotel') return { tone: 'light', eyebrow: 'Direkt-Anfrage', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Zimmer anfragen →', secondaryHref: '/kontakt' };
+  if (variant === 'tradesman') return { tone: 'dark', eyebrow: '24/7 Notdienst verfügbar', hint: 'Wir kommen schnell — versprochen.', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' };
+  if (variant === 'salon') return { tone: 'light', eyebrow: 'Termine online', hint: 'Frei wählbar · Stornierung kostenlos bis 24 h vorher', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Termin buchen →', secondaryHref: '/kontakt' };
+  if (variant === 'tourism') return { tone: 'dark', eyebrow: 'Nächste Tour', hint: '', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Tour buchen →', secondaryHref: '/touren' };
+  return { tone: 'light', eyebrow: 'Jetzt Kontakt aufnehmen', hint: 'Wir freuen uns auf Ihre Nachricht.', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' };
+}
+
 function BranchActionStrip({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const phone = content.contact.phone || '';
   const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
+  const def = defaultHomeStrip(variant);
+  const cfg = { ...def, ...((content as any).homeStrip || {}) } as ReturnType<typeof defaultHomeStrip>;
 
+  // Resolve a maybe-empty href; "tel:" placeholder turns into the real phone link.
+  const resolveHref = (href: string) => (href === 'tel:' ? phoneHref : href);
+
+  // Hide the strip entirely if everything is blanked out.
+  if (!cfg.eyebrow && !cfg.hint && !cfg.primaryLabel && !cfg.secondaryLabel && !phone) return null;
+
+  const tone = cfg.tone === 'dark' ? 'bg-brand text-white border-white/10' : 'bg-white border-line';
+  const dotColor = cfg.tone === 'dark' ? 'bg-[var(--accent-color)]' : 'bg-emerald-500';
+  const hintColor = cfg.tone === 'dark' ? 'text-white/70' : 'text-muted';
+  const eyebrowColor = cfg.tone === 'dark' ? 'text-white' : 'text-brand';
+
+  // Restaurant special: also surface today's opening hours alongside eyebrow.
+  let todayInfo: React.ReactNode = null;
   if (variant === 'restaurant') {
     const today = new Date().toLocaleDateString('de-DE', { weekday: 'long' });
     const todayRow = (content.contact.hours || []).find((h) => h.day.toLowerCase().includes(today.toLowerCase().slice(0, 2)));
-    return (
-      <section className="bg-white border-y border-line">
-        <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
-          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs text-brand">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Heute geöffnet
-          </span>
-          {todayRow && <span className="text-muted">{todayRow.day} · <span className="font-medium text-brand">{todayRow.time}</span></span>}
-          <span className="ml-auto flex flex-wrap gap-3">
-            {phone && <a href={phoneHref} className="btn-outline !py-2 !px-4 !text-xs">Tisch reservieren {phone}</a>}
-            <TLink to="/speisekarte" className="btn-primary !py-2 !px-4 !text-xs">Speisekarte ansehen</TLink>
-          </span>
-        </div>
-      </section>
-    );
+    if (todayRow) todayInfo = <span className="text-muted">{todayRow.day} · <span className="font-medium text-brand">{todayRow.time}</span></span>;
   }
 
-  if (variant === 'hotel') {
-    return (
-      <section className="bg-white border-y border-line">
-        <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
-          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs text-brand">
-            <span className="h-2 w-2 rounded-full bg-[var(--accent-color)]" /> Direkt-Anfrage
+  return (
+    <section className={`border-y ${tone}`}>
+      <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
+        {cfg.eyebrow && (
+          <span className={`inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs ${eyebrowColor}`}>
+            <span className={`h-2 w-2 rounded-full ${dotColor} ${variant === 'restaurant' ? 'animate-pulse' : ''}`} /> {cfg.eyebrow}
           </span>
-          <span className="text-muted hidden md:inline">Persönliche Beratung · Antwort innerhalb eines Werktages</span>
-          <span className="ml-auto flex flex-wrap gap-3 items-center">
-            {phone && <a href={phoneHref} className="btn-outline !py-2 !px-4 !text-xs">{phone}</a>}
-            <TLink to="/kontakt" className="btn-primary !py-2 !px-5 !text-xs h-fit">Zimmer anfragen →</TLink>
-          </span>
-        </div>
-      </section>
-    );
-  }
-
-  if (variant === 'tradesman') {
-    return (
-      <section className="bg-brand text-white border-y border-white/10">
-        <div className="container-x py-4 flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
-          <span className="inline-flex items-center gap-3 font-mono uppercase tracking-widest text-xs">
-            <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent-color)] animate-pulse" />
-            24/7 Notdienst verfügbar
-          </span>
-          <span className="text-white/70 hidden md:inline">Wir kommen schnell — versprochen.</span>
-          <span className="ml-auto flex flex-wrap gap-3 items-center">
-            {phone && (
-              <a href={phoneHref} className="font-display text-2xl md:text-3xl tracking-tight hover:text-[var(--accent-color)] transition-colors">
-                {phone}
-              </a>
-            )}
-            <TLink to="/kontakt" className="btn-accent !py-2 !px-4 !text-xs">Anfrage senden</TLink>
-          </span>
-        </div>
-      </section>
-    );
-  }
-
-  if (variant === 'salon') {
-    return (
-      <section className="bg-white border-y border-line">
-        <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
-          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs text-brand">
-            <span className="h-2 w-2 rounded-full bg-[var(--accent-color)]" /> Termine online
-          </span>
-          <span className="text-muted hidden md:inline">Frei wählbar · Stornierung kostenlos bis 24 h vorher</span>
-          <span className="ml-auto flex flex-wrap gap-3">
-            {phone && <a href={phoneHref} className="btn-outline !py-2 !px-4 !text-xs">{phone}</a>}
-            <TLink to="/kontakt" className="btn-primary !py-2 !px-4 !text-xs">Termin buchen →</TLink>
-          </span>
-        </div>
-      </section>
-    );
-  }
-
-  if (variant === 'tourism') {
-    return (
-      <section className="bg-brand text-white border-y border-white/10">
-        <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
-          <span className="inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs">
-            <span>★</span> Nächste Tour
-          </span>
-          <span className="text-white/80">{content.services?.[0]?.title || 'Tour ansehen'} · ab {content.services?.[0]?.price || 'auf Anfrage'}</span>
-          <span className="ml-auto flex flex-wrap gap-3">
-            {phone && <a href={phoneHref} className="text-white/90 hover:text-[var(--accent-color)] text-xs">{phone}</a>}
-            <TLink to="/touren" className="btn-accent !py-2 !px-4 !text-xs">Tour buchen →</TLink>
-          </span>
-        </div>
-      </section>
-    );
-  }
-
-  return null;
+        )}
+        {todayInfo}
+        {cfg.hint && <span className={`hidden md:inline ${hintColor}`}>{cfg.hint}</span>}
+        <span className="ml-auto flex flex-wrap gap-3 items-center">
+          {phone && cfg.primaryHref === 'tel:' && (
+            <a href={phoneHref} className={cfg.tone === 'dark' && variant === 'tradesman' ? 'font-display text-2xl md:text-3xl tracking-tight hover:text-[var(--accent-color)] transition-colors' : 'btn-outline !py-2 !px-4 !text-xs'}>
+              {cfg.primaryLabel ? `${cfg.primaryLabel} ${phone}` : phone}
+            </a>
+          )}
+          {cfg.primaryLabel && cfg.primaryHref !== 'tel:' && (
+            <a href={resolveHref(cfg.primaryHref)} className="btn-outline !py-2 !px-4 !text-xs">{cfg.primaryLabel}</a>
+          )}
+          {cfg.secondaryLabel && (
+            <TLink to={resolveHref(cfg.secondaryHref)} className={cfg.tone === 'dark' ? 'btn-accent !py-2 !px-4 !text-xs' : 'btn-primary !py-2 !px-4 !text-xs'}>
+              {cfg.secondaryLabel}
+            </TLink>
+          )}
+        </span>
+      </div>
+    </section>
+  );
 }
 
 function NumbersBand({ variant, content }: { variant: TemplateVariant; content?: SiteContent }) {

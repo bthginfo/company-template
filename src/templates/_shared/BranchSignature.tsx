@@ -39,19 +39,66 @@ const sectionBg = (style: TemplateStyle, branchTone: 'light' | 'dark' | 'accent'
 };
 
 /* ═══════════════════════════════════════════════════════════════════
+ * Editable signature text — defaults per variant+style, overridable
+ * via content.homeSignature.{eyebrow,titleA,titleB,intro,metaLabel}.
+ * ═══════════════════════════════════════════════════════════════════ */
+type SignatureCopy = { eyebrow: string; titleA: string; titleB: string; intro: string; metaLabel?: string };
+
+const SIGNATURE_DEFAULTS: Record<TemplateVariant, Record<TemplateStyle, SignatureCopy>> = {
+  restaurant: {
+    classic: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.' },
+    modern:  { eyebrow: 'Heute auf der Karte', titleA: 'Empfehlungen', titleB: 'vom Haus.', intro: '', metaLabel: 'Saisonal' },
+    bold:    { eyebrow: 'Heute · Tonight', titleA: 'Auf', titleB: 'dem Tisch.', intro: '' },
+  },
+  salon: {
+    classic: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.' },
+    modern:  { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '' },
+    bold:    { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '' },
+  },
+  tradesman: {
+    classic: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.' },
+    modern:  { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '' },
+    bold:    { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '' },
+  },
+  hotel: {
+    classic: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.' },
+    modern:  { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '' },
+    bold:    { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '' },
+  },
+  tourism: {
+    classic: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.' },
+    modern:  { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '' },
+    bold:    { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '' },
+  },
+};
+
+function resolveSignature(variant: TemplateVariant, style: TemplateStyle, content: SiteContent): SignatureCopy {
+  const def = SIGNATURE_DEFAULTS[variant][style];
+  const ov = ((content as any).homeSignature || {}) as Partial<SignatureCopy>;
+  return {
+    eyebrow: ov.eyebrow ?? def.eyebrow,
+    titleA: ov.titleA ?? def.titleA,
+    titleB: ov.titleB ?? def.titleB,
+    intro: ov.intro ?? def.intro,
+    metaLabel: ov.metaLabel ?? def.metaLabel,
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
  * RESTAURANT — "Heute auf der Karte" / Menu spotlight
  * ═══════════════════════════════════════════════════════════════════ */
 function RestaurantSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
   const dishes = content.services.slice(0, 3);
   const photos = content.gallery.slice(0, 3);
   if (!dishes.length) return null;
+  const t = resolveSignature('restaurant', style, content);
 
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-36 bg-brand text-white relative overflow-hidden">
         <div className="container-x">
-          <Eyebrow style={style}>Heute · Tonight</Eyebrow>
-          <Title style={style}>Auf<br />dem Tisch.</Title>
+          {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+          <Title style={style}>{t.titleA}<br />{t.titleB}</Title>
           <ol className="mt-16 space-y-8">
             {dishes.map((d, i) => (
               <li key={i} className="grid md:grid-cols-12 gap-6 items-baseline border-b border-white/15 pb-6">
@@ -73,10 +120,12 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
         <div className="container-x">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
-              <Eyebrow style={style}>Heute auf der Karte</Eyebrow>
-              <Title style={style}>Empfehlungen <em className="italic-pop">vom Haus.</em></Title>
+              {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+              <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
             </div>
-            <span className="text-xs font-mono uppercase tracking-widest text-muted">Saisonal · {new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long' })}</span>
+            {t.metaLabel && (
+              <span className="text-xs font-mono uppercase tracking-widest text-muted">{t.metaLabel} · {new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long' })}</span>
+            )}
           </div>
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
             {dishes.map((d, i) => (
@@ -102,9 +151,9 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
     <section className="py-24 md:py-32">
       <div className="container-x grid md:grid-cols-12 gap-10">
         <div className="md:col-span-4">
-          <Eyebrow style={style}>Empfehlung des Hauses</Eyebrow>
-          <Title style={style}>Heute<br/><em className="italic-pop">auf der Karte.</em></Title>
-          <p className="mt-6 text-muted leading-relaxed">Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.</p>
+          {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+          <Title style={style}>{t.titleA}<br/><em className="italic-pop">{t.titleB}</em></Title>
+          {t.intro && <p className="mt-6 text-muted leading-relaxed">{t.intro}</p>}
         </div>
         <div className="md:col-span-8 border-t-2 border-b-2 border-brand py-8 reveal">
           <ul className="divide-y divide-line">
