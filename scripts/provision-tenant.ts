@@ -37,6 +37,7 @@ import { SiteContentSchema, type SiteContent } from '../src/lib/types';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
 import { BRANCH_TEXT_DEFAULTS } from '../src/lib/branch-text-defaults';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '../src/lib/section-defaults';
+import { FAQ_DEFAULTS } from '../src/lib/faq-defaults';
 
 const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
 const VALID_STYLES = ['classic', 'modern', 'bold'] as const;
@@ -123,9 +124,11 @@ const DEFAULT_CONTENT_PRIMARY: Record<'restaurant' | 'salon' | 'tradesman' | 'ho
 };
 void DEFAULT_CONTENT_PRIMARY;
 
-/** Defaults for branches that share the single-page ExtraBranchTemplate.
- *  We seed from the showcase demo content so the freshly provisioned site
- *  already looks complete; the admin can then customize via the editor. */
+/** Defaults for branches that share the single-page ExtraBranchTemplate
+ *  (consulting/medical/fitness). We seed from the showcase demo content so
+ *  the freshly provisioned site already looks complete; the admin can then
+ *  customize via the editor. Symmetric to `fullDefaults`: same overlay seeds,
+ *  same contact-stripping, same FAQ persistence. */
 function extraDefaults(key: 'consulting' | 'medical' | 'fitness'): SiteContent {
   const base = EXTRA_DEMO_CONTENT[key];
   return SiteContentSchema.parse({
@@ -133,6 +136,21 @@ function extraDefaults(key: 'consulting' | 'medical' | 'fitness'): SiteContent {
     brand: { ...base.brand, name },
     hero: { ...base.hero, title: name },
     branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[key] },
+    galleryStory: defaultGalleryStory(key),
+    galleryCategories: defaultGalleryCategories(key),
+    arrival: defaultArrival(key),
+    faq: FAQ_DEFAULTS[key] ?? [],
+    contact: {
+      ...base.contact,
+      // Strip showcase phone/email/address so the tenant fills their own.
+      // Without this, a fresh consulting/medical/fitness site would publish
+      // the demo office's phone number as its click-to-call link.
+      phone: '',
+      email: '',
+      address: '',
+      city: base.contact?.city || '',
+      mapsUrl: '',
+    },
   });
 }
 
@@ -154,6 +172,7 @@ function fullDefaults(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tou
     galleryStory: defaultGalleryStory(key),
     galleryCategories: defaultGalleryCategories(key),
     arrival: defaultArrival(key),
+    faq: FAQ_DEFAULTS[key] ?? [],
     contact: {
       ...base.contact,
       // Strip showcase phone/email/address so the tenant fills their own – avoids

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
@@ -750,7 +750,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten 7 Bilder erscheinen hier.</p>
         <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
           {data.gallery.slice(0, 7).map((src, i) => (
-            <div key={i} className="aspect-square rounded-lg overflow-hidden bg-[#f6f6f3]">
+            <div key={`${i}_${src}`} className="aspect-square rounded-lg overflow-hidden bg-[#f6f6f3]">
               <img src={src} alt="" className="w-full h-full object-cover" />
             </div>
           ))}
@@ -964,7 +964,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title={`Alle Bilder (${data.gallery.length})`} description="Reihenfolge per ↑/↓, Bild entfernen mit ×." badge="Sektion 4" pageKey="gallery" sectionKey="grid" data={data} setData={setData}>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {data.gallery.map((src, i) => (
-            <div key={i} className="relative group aspect-square overflow-hidden rounded-xl border border-line">
+            <div key={`${i}_${src}`} className="relative group aspect-square overflow-hidden rounded-xl border border-line">
               <img src={src} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-x-0 top-0 p-1.5 flex justify-between opacity-0 group-hover:opacity-100 transition">
                 <span className="bg-white/95 rounded-full text-[10px] px-2 py-0.5 font-mono">{String(i + 1).padStart(2, '0')}</span>
@@ -1160,6 +1160,7 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
 
   const footer = (data as any).footer || {};
   const setFooter = (patch: any) => setData({ ...data, footer: { ...footer, ...patch } } as any);
+  const navKeys = useListKeys(list);
 
   return (
     <>
@@ -1169,7 +1170,7 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
       >
         <div className="space-y-2">
           {list.map((it, i) => (
-            <div key={i} className="grid md:grid-cols-[2.5rem_1fr_1fr_auto_auto] gap-2 items-center bg-[#f6f6f3] rounded-xl p-3">
+            <div key={navKeys[i]} className="grid md:grid-cols-[2.5rem_1fr_1fr_auto_auto] gap-2 items-center bg-[#f6f6f3] rounded-xl p-3">
               <div className="flex flex-col">
                 <button onClick={() => move(i, -1)} disabled={i === 0} className="text-xs px-2 py-1 disabled:opacity-30 hover:bg-white rounded">↑</button>
                 <button onClick={() => move(i, 1)} disabled={i === list.length - 1} className="text-xs px-2 py-1 disabled:opacity-30 hover:bg-white rounded">↓</button>
@@ -2043,12 +2044,13 @@ function TimelineEditor({ data, setData }: SetterProps) {
   const update = (i: number, patch: any) => setList(list.map((t, j) => j === i ? { ...t, ...patch } : t));
   const remove = (i: number) => setList(list.filter((_, j) => j !== i));
   const add = () => setList([...list, { year: '', title: '', description: '' }]);
+  const keys = useListKeys(list);
   return (
     <>
       <p className="text-sm text-muted">Die Timeline erscheint auf der „Über uns"-Seite zwischen Werten und Team. Lassen Sie sie leer, wenn Sie sie nicht brauchen.</p>
       <div className="space-y-3">
         {list.map((t, i) => (
-          <div key={i} className="border border-line rounded-2xl p-4 grid md:grid-cols-[7rem_1fr_auto] gap-3 items-start bg-white">
+          <div key={keys[i]} className="border border-line rounded-2xl p-4 grid md:grid-cols-[7rem_1fr_auto] gap-3 items-start bg-white">
             <Field label="Jahr / Marker">
               <input className={inputCls} value={t.year} onChange={(e) => update(i, { year: e.target.value })} placeholder="z. B. 2008 oder Heute" />
             </Field>
@@ -2085,12 +2087,13 @@ function ContactFields({ data, setData }: SetterProps) {
 function HoursEditor({ data, setData }: SetterProps) {
   const c = data.contact;
   const set = (patch: Partial<SiteContent['contact']>) => setData({ ...data, contact: { ...c, ...patch } });
+  const keys = useListKeys(c.hours);
   return (
     <div>
       <p className="text-xs uppercase tracking-widest text-muted mb-3">Zeilen</p>
       <div className="space-y-2">
         {c.hours.map((h, i) => (
-          <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 sm:items-center">
+          <div key={keys[i]} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 sm:items-center">
             <input className={inputCls} placeholder="Tag(e)" value={h.day} onChange={(e) => set({ hours: c.hours.map((x, j) => j === i ? { ...x, day: e.target.value } : x) })} />
             <input className={inputCls} placeholder="Uhrzeit" value={h.time} onChange={(e) => set({ hours: c.hours.map((x, j) => j === i ? { ...x, time: e.target.value } : x) })} />
             <button onClick={() => set({ hours: c.hours.filter((_, j) => j !== i) })} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">×</button>
@@ -2110,10 +2113,11 @@ function ServicesListEditor({ data, setData }: SetterProps) {
     const next = [...data.services]; [next[i], next[j]] = [next[j], next[i]]; setData({ ...data, services: next });
   };
   const add = () => setData({ ...data, services: [...data.services, { title: 'Neuer Eintrag', description: '', price: '', imageUrl: '' }] });
+  const keys = useListKeys(data.services);
   return (
     <div className="space-y-3">
       {data.services.map((s, i) => (
-        <details key={i} className="border border-line rounded-xl bg-[#fafaf7] open:bg-white" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-xl bg-[#fafaf7] open:bg-white" open={i === 0}>
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             <span className="font-mono text-xs text-muted w-8">{String(i + 1).padStart(2, '0')}</span>
             {s.imageUrl ? <img src={s.imageUrl} alt="" className="h-9 w-9 object-cover rounded" /> : <div className="h-9 w-9 rounded bg-[#eaeae3]" />}
@@ -2148,10 +2152,11 @@ function TestimonialsEditor({ data, setData, max }: SetterProps & { max?: number
   const update = (i: number, patch: any) => setData({ ...data, testimonials: data.testimonials.map((t, j) => j === i ? { ...t, ...patch } : t) });
   const remove = (i: number) => setData({ ...data, testimonials: data.testimonials.filter((_, j) => j !== i) });
   const add = () => setData({ ...data, testimonials: [...data.testimonials, { author: '', text: '' }] });
+  const keys = useListKeys(list);
   return (
     <div className="space-y-3">
       {list.map((t, i) => (
-        <div key={i} className="border border-line rounded-xl p-4 bg-[#fafaf7] space-y-2">
+        <div key={keys[i]} className="border border-line rounded-xl p-4 bg-[#fafaf7] space-y-2">
           <input className={inputCls} placeholder="Name" value={t.author} onChange={(e) => update(i, { author: e.target.value })} />
           <textarea className={inputCls} rows={3} placeholder="Zitat" value={t.text} onChange={(e) => update(i, { text: e.target.value })} />
           <div className="flex justify-end"><button onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Entfernen</button></div>
@@ -2163,10 +2168,11 @@ function TestimonialsEditor({ data, setData, max }: SetterProps & { max?: number
 }
 
 function RepeatableList<T>({ items, onChange, render, newItem, addLabel }: { items: T[]; onChange: (arr: T[]) => void; render: (item: T, index: number, set: (v: T) => void) => React.ReactNode; newItem: () => T; addLabel: string }) {
+  const keys = useListKeys(items);
   return (
     <div className="space-y-2">
       {items.map((it, i) => (
-        <div key={i} className="grid grid-cols-[1fr_auto] gap-2 items-center">
+        <div key={keys[i]} className="grid grid-cols-[1fr_auto] gap-2 items-center">
           {render(it, i, (v) => onChange(items.map((x, j) => j === i ? v : x)))}
           <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">×</button>
         </div>
@@ -2187,6 +2193,72 @@ function useExtra<T>(data: SiteContent, setData: (d: SiteContent) => void, field
   }, [data, field, defaults]);
   const set = (v: T) => setData({ ...(data as any), [field]: v } as SiteContent);
   return [value, set];
+}
+
+/**
+ * Returns a stable string key per index for list editors.
+ *
+ * Tracks the items array by reference across renders. When an item is
+ * removed (length shrinks by N), we detect which positions disappeared
+ * by comparing object identity to the previous render and drop matching
+ * keys, so remaining rows keep their identity. New items receive fresh
+ * UUIDs. This prevents input focus loss and `<details open>` jumping
+ * to the wrong panel after middle-deletions.
+ *
+ * Note: in-place edits via `list.map((x,j)=>j===i?{...x,...}:x)` create
+ * a new object reference for the edited row. We treat that as identity-
+ * preserving by matching position when the list length is unchanged.
+ */
+function useListKeys<T>(items: T[]): string[] {
+  const newId = (): string => {
+    try { return (globalThis as any).crypto?.randomUUID?.() ?? `k_${Math.random().toString(36).slice(2)}_${Date.now().toString(36)}`; }
+    catch { return `k_${Math.random().toString(36).slice(2)}_${Date.now().toString(36)}`; }
+  };
+  const ref = useRef<{ items: T[]; keys: string[] }>({ items: [], keys: [] });
+  const prev = ref.current;
+
+  if (prev.items === items) {
+    return prev.keys;
+  }
+
+  let keys: string[];
+  if (items.length === prev.items.length) {
+    // Same length — assume in-place edits/reorders preserve position semantics.
+    // (Pure reorders are rare in these editors; in-place edits dominate.)
+    if (prev.keys.length === items.length) {
+      keys = prev.keys;
+    } else {
+      keys = items.map(() => newId());
+    }
+  } else if (items.length > prev.items.length) {
+    // Items appended: keep existing keys, generate new ones for the tail.
+    keys = prev.keys.slice(0, items.length);
+    while (keys.length < items.length) keys.push(newId());
+  } else {
+    // Items removed: find which previous indices survived by reference.
+    keys = [];
+    let cursor = 0;
+    for (let i = 0; i < items.length; i++) {
+      let matched = -1;
+      for (let j = cursor; j < prev.items.length; j++) {
+        if (prev.items[j] === items[i]) { matched = j; break; }
+      }
+      if (matched >= 0) {
+        keys.push(prev.keys[matched]);
+        cursor = matched + 1;
+      } else {
+        // No reference match (e.g. user edited the row before deleting another) —
+        // fall back to positional reuse.
+        keys.push(prev.keys[cursor] ?? newId());
+        cursor++;
+      }
+    }
+    // Pad if anything went wrong.
+    while (keys.length < items.length) keys.push(newId());
+  }
+
+  ref.current = { items, keys };
+  return keys;
 }
 
 function PageHeaderEditor({ data, setData, field, defaults }: SetterProps & { field: string; defaults: { eyebrow: string; title: string; subtitle: string } }) {
@@ -2446,10 +2518,11 @@ function MedicalNoticeEditor({ data, setData }: SetterProps) {
 
 function FaqEditor({ data, setData, defaults }: SetterProps & { defaults: { q: string; a: string }[] }) {
   const [list, set] = useExtra<{ q: string; a: string }[]>(data, setData, 'faq', defaults);
+  const keys = useListKeys(list);
   return (
     <div className="space-y-3">
       {list.map((f, i) => (
-        <div key={i} className="border border-line rounded-xl p-4 bg-[#fafaf7] space-y-2">
+        <div key={keys[i]} className="border border-line rounded-xl p-4 bg-[#fafaf7] space-y-2">
           <input className={inputCls} placeholder="Frage" value={f.q} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, q: e.target.value } : x))} />
           <textarea className={inputCls} rows={3} placeholder="Antwort" value={f.a} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, a: e.target.value } : x))} />
           <div className="flex justify-end"><button onClick={() => set(list.filter((_, j) => j !== i))} className="text-xs text-rose-600 hover:underline">Entfernen</button></div>
@@ -2476,10 +2549,11 @@ function ValuesEditor({ data, setData, defaults }: SetterProps & { defaults: { t
 
 function TeamEditor({ data, setData, defaults }: SetterProps & { defaults: { n: string; r: string; img: string; bio: string }[] }) {
   const [list, set] = useExtra<{ n: string; r: string; img: string; bio: string }[]>(data, setData, 'team', defaults);
+  const keys = useListKeys(list);
   return (
     <div className="space-y-3">
       {list.map((m, i) => (
-        <details key={i} className="border border-line rounded-xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-xl bg-[#fafaf7]" open={i === 0}>
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             {m.img ? <img src={m.img} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
@@ -2587,6 +2661,7 @@ type GalleryStory = { eyebrow: string; title: string; body: string; captions: { 
 function GalleryStoryEditor({ data, setData, defaults }: SetterProps & { defaults: GalleryStory }) {
   const [v, set] = useExtra<GalleryStory>(data, setData, 'galleryStory', defaults);
   const setCaption = (i: number, next: { t: string; d: string }) => set({ ...v, captions: v.captions.map((c, j) => j === i ? next : c) });
+  const captionKeys = useListKeys(v.captions);
   return (
     <div className="space-y-3">
       <Field label="Eyebrow"><input className={inputCls} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} /></Field>
@@ -2596,7 +2671,7 @@ function GalleryStoryEditor({ data, setData, defaults }: SetterProps & { default
         <label className="text-xs text-muted block mb-2">Drei Captions (was schauen Besucher in der Galerie an?)</label>
         <div className="space-y-2">
           {v.captions.map((c, i) => (
-            <div key={i} className="grid sm:grid-cols-[1fr_2fr] gap-2">
+            <div key={captionKeys[i]} className="grid sm:grid-cols-[1fr_2fr] gap-2">
               <input className={inputCls} placeholder={`Caption ${i + 1} – Titel`} value={c.t} onChange={(e) => setCaption(i, { ...c, t: e.target.value })} />
               <input className={inputCls} placeholder="Kurzbeschreibung" value={c.d} onChange={(e) => setCaption(i, { ...c, d: e.target.value })} />
             </div>
@@ -2626,10 +2701,11 @@ function FormFieldsEditor({ data, setData }: SetterProps) {
     { key: 'phone', label: 'Telefon', required: false, type: 'tel' },
     { key: 'message', label: 'Nachricht', required: true, type: 'textarea' },
   ]);
+  const keys = useListKeys(list);
   return (
     <div className="space-y-2">
       {list.map((f, i) => (
-        <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_120px_auto_auto] gap-2 sm:items-center">
+        <div key={keys[i]} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_120px_auto_auto] gap-2 sm:items-center">
           <input className={inputCls} placeholder="Beschriftung" value={f.label} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
           <input className={inputCls} placeholder="Schlüssel" value={f.key} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, key: e.target.value } : x))} />
           <select className={inputCls} value={f.type} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, type: e.target.value as any } : x))}>
@@ -2950,10 +3026,11 @@ function MenuEditor({ data, setData }: SetterProps) {
   const list = ((data as any).menu as MenuCategory[] | undefined) ?? [];
   const setList = (next: MenuCategory[]) => setData({ ...(data as any), menu: next } as SiteContent);
   const setCat = (i: number, next: MenuCategory) => setList(list.map((x, j) => (j === i ? next : x)));
+  const keys = useListKeys(list);
   return (
     <div className="space-y-4">
       {list.map((cat, i) => (
-        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
             <div className="flex-1 min-w-0">
@@ -3013,10 +3090,11 @@ function RoomsEditor({ data, setData }: SetterProps) {
   const list = ((data as any).rooms as Room[] | undefined) ?? [];
   const setList = (next: Room[]) => setData({ ...(data as any), rooms: next } as SiteContent);
   const update = (i: number, next: Room) => setList(list.map((x, j) => j === i ? next : x));
+  const keys = useListKeys(list);
   return (
     <div className="space-y-3">
       {list.map((r, i) => (
-        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             {r.imageUrl ? <img src={r.imageUrl} alt="" className="h-9 w-12 rounded object-cover" /> : <div className="h-9 w-12 rounded bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
@@ -3053,10 +3131,11 @@ function ToursEditor({ data, setData }: SetterProps) {
   const list = ((data as any).tours as Tour[] | undefined) ?? [];
   const setList = (next: Tour[]) => setData({ ...(data as any), tours: next } as SiteContent);
   const update = (i: number, next: Tour) => setList(list.map((x, j) => j === i ? next : x));
+  const keys = useListKeys(list);
   return (
     <div className="space-y-3">
       {list.map((t, i) => (
-        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             {t.imageUrl ? <img src={t.imageUrl} alt="" className="h-9 w-12 rounded object-cover" /> : <div className="h-9 w-12 rounded bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
@@ -3140,10 +3219,11 @@ function PackagesEditor({ data, setData }: SetterProps) {
   const list = ((data as any).packages as Pkg[] | undefined) ?? [];
   const setList = (next: Pkg[]) => setData({ ...(data as any), packages: next } as SiteContent);
   const update = (i: number, next: Pkg) => setList(list.map((x, j) => j === i ? next : x));
+  const keys = useListKeys(list);
   return (
     <div className="space-y-3">
       {list.map((p, i) => (
-        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
             <div className="flex-1 min-w-0">
@@ -3206,10 +3286,11 @@ function DoctorsEditor({ data, setData }: SetterProps) {
   const list = ((data as any).doctors as Doctor[] | undefined) ?? [];
   const setList = (next: Doctor[]) => setData({ ...(data as any), doctors: next } as SiteContent);
   const update = (i: number, next: Doctor) => setList(list.map((x, j) => j === i ? next : x));
+  const keys = useListKeys(list);
   return (
     <div className="space-y-3">
       {list.map((d, i) => (
-        <details key={i} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             {d.imageUrl ? <img src={d.imageUrl} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
