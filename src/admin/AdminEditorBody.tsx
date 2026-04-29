@@ -73,7 +73,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     return () => cancelAnimationFrame(id);
   }, [pageId]);
 
-  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news' || pageId === 'navigation' || pageId === 'mail';
+  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news' || pageId === 'navigation' || pageId === 'mail' || pageId === 'legal';
 
   return (
     <div className="min-h-screen bg-[#f6f6f3]">
@@ -136,6 +136,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
               <option value="seo">SEO & Sichtbarkeit</option>
               <option value="scripts">Skripte & Tracking</option>
               <option value="mail">Mail-Server</option>
+              <option value="legal">Impressum & Datenschutz</option>
             </optgroup>
           </select>
         </div>
@@ -189,6 +190,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'seo' && <SeoPage data={data} setData={setData} />}
             {pageId === 'scripts' && <ScriptsPage data={data} setData={setData} />}
             {pageId === 'mail' && <MailPage data={data} setData={setData} />}
+            {pageId === 'legal' && <LegalPage data={data} setData={setData} />}
             {pageId === 'security' && <SecurityPage />}
             {pageId === 'news' && <NewsPage data={data} setData={setData} />}
             {pageId === 'home' && <HomePageEditor data={data} setData={setData} tpl={tplKey} />}
@@ -236,7 +238,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 }
 
 /* ───────────── Pages config per template ───────────── */
-type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation' | 'mail' | 'security';
+type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation' | 'mail' | 'security' | 'legal';
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
@@ -293,6 +295,7 @@ function labelForGlobal(p: PageId) {
   if (p === 'scripts') return 'Skripte & Tracking';
   if (p === 'mail') return 'Mail-Server';
   if (p === 'security') return 'Passwort & Zugang';
+  if (p === 'legal') return 'Impressum & Datenschutz';
   if (p === 'news') return 'News & Blog';
   return '';
 }
@@ -1648,6 +1651,93 @@ function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 80);
+}
+
+function LegalPage({ data, setData }: SetterProps) {
+  const legal = ((data as any).legal ?? {}) as { imprint?: any; privacy?: any };
+  const ip = legal.imprint ?? {};
+  const pv = legal.privacy ?? {};
+  const setIp = (patch: any) => setData({ ...(data as any), legal: { ...legal, imprint: { ...ip, ...patch } } } as SiteContent);
+  const setPv = (patch: any) => setData({ ...(data as any), legal: { ...legal, privacy: { ...pv, ...patch } } } as SiteContent);
+
+  return (
+    <>
+      <SectionCard
+        title="Impressum"
+        description="Pflichtangaben gemäß §§ 5 ECG, 14 UGB, 25 MedienG. Wird auf /impressum angezeigt."
+        badge="Pflicht"
+      >
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Firmenname" hint="z. B. die Wilderin GmbH. Standard: Markenname.">
+            <input className={inputCls} value={ip.legalName || ''} onChange={(e) => setIp({ legalName: e.target.value })} placeholder={data.brand.name} />
+          </Field>
+          <Field label="Vertretungsberechtigt" hint="z. B. Geschäftsführerin Claudia Kogler.">
+            <input className={inputCls} value={ip.representative || ''} onChange={(e) => setIp({ representative: e.target.value })} placeholder="Geschäftsführer/in …" />
+          </Field>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Straße" hint="Standard: Adresse aus Kontaktdaten.">
+            <input className={inputCls} value={ip.street || ''} onChange={(e) => setIp({ street: e.target.value })} placeholder={data.contact.address || 'Seilergasse 5'} />
+          </Field>
+          <Field label="PLZ + Ort" hint="Standard: Stadt aus Kontaktdaten.">
+            <input className={inputCls} value={ip.city || ''} onChange={(e) => setIp({ city: e.target.value })} placeholder={data.contact.city || '6020 Innsbruck'} />
+          </Field>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <Field label="Land">
+            <input className={inputCls} value={ip.country || ''} onChange={(e) => setIp({ country: e.target.value })} placeholder="Österreich" />
+          </Field>
+          <Field label="UID-Nummer" hint="Umsatzsteuer-ID, z. B. ATU82076147.">
+            <input className={inputCls} value={ip.uid || ''} onChange={(e) => setIp({ uid: e.target.value })} placeholder="ATU…" />
+          </Field>
+          <Field label="Firmenbuch" hint="Optional, z. B. FN 123456a, LG Innsbruck.">
+            <input className={inputCls} value={ip.register || ''} onChange={(e) => setIp({ register: e.target.value })} placeholder="" />
+          </Field>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Aufsichtsbehörde" hint="z. B. Bezirkshauptmannschaft Innsbruck-Stadt.">
+            <input className={inputCls} value={ip.authority || ''} onChange={(e) => setIp({ authority: e.target.value })} placeholder="" />
+          </Field>
+          <Field label="Kammer" hint="z. B. Wirtschaftskammer Tirol, Fachgruppe Gastronomie.">
+            <input className={inputCls} value={ip.chamber || ''} onChange={(e) => setIp({ chamber: e.target.value })} placeholder="" />
+          </Field>
+        </div>
+        <Field label="Weitere Hinweise (optional)" hint="Erscheint als zusätzlicher Abschnitt. Leerzeile = neuer Absatz.">
+          <textarea className={inputCls} rows={3} value={ip.extra || ''} onChange={(e) => setIp({ extra: e.target.value })} />
+        </Field>
+        <details className="mt-2 border border-line rounded-2xl overflow-hidden">
+          <summary className="cursor-pointer px-4 py-3 bg-[#fafaf7] text-sm">Profi: Komplett eigener Text</summary>
+          <div className="p-4">
+            <Field label="Eigener Impressum-Text" hint="Wenn ausgefüllt, ersetzt den strukturierten Block oben komplett. ## Überschrift für Abschnitte. Leerzeile = neuer Absatz.">
+              <textarea className={inputCls} rows={10} value={ip.bodyHtml || ''} onChange={(e) => setIp({ bodyHtml: e.target.value })} placeholder={'## Anbieter\nMusterfirma GmbH\nMusterstraße 1\n1010 Wien\n\n## Kontakt\nE-Mail: …'} />
+            </Field>
+          </div>
+        </details>
+      </SectionCard>
+
+      <SectionCard
+        title="Datenschutzerklärung"
+        description="Standard-DSGVO-Text — wird automatisch mit Firmenname und Kontaktdaten befüllt. Eigener Text optional."
+      >
+        <Field label="Stand / Datum" hint="z. B. April 2026. Erscheint oben auf der Datenschutzseite.">
+          <input className={inputCls} value={pv.effectiveDate || ''} onChange={(e) => setPv({ effectiveDate: e.target.value })} placeholder="April 2026" />
+        </Field>
+        <details className="mt-2 border border-line rounded-2xl overflow-hidden">
+          <summary className="cursor-pointer px-4 py-3 bg-[#fafaf7] text-sm">Profi: Eigener Datenschutz-Text</summary>
+          <div className="p-4">
+            <Field label="Eigener Datenschutz-Text" hint="Wenn ausgefüllt, ersetzt den Standard-Text komplett. ## Überschrift für Abschnitte.">
+              <textarea className={inputCls} rows={12} value={pv.bodyHtml || ''} onChange={(e) => setPv({ bodyHtml: e.target.value })} />
+            </Field>
+          </div>
+        </details>
+        <p className="text-xs text-muted mt-2 leading-relaxed">
+          Hinweis: Der Standard-Text deckt die typischen Punkte ab (Verantwortlicher, Logs,
+          Kontaktformular, Cookies, Schriften, Rechte). Bei besonderen Diensten (Newsletter, Buchungssystem,
+          Tracking) sollte ein eigener Text hinterlegt werden.
+        </p>
+      </SectionCard>
+    </>
+  );
 }
 
 function SecurityPage() {

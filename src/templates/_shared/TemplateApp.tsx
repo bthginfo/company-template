@@ -19,6 +19,7 @@ import { TLink } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
+import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getOpenStatus } from '@/lib/open-hours';
@@ -236,6 +237,8 @@ export default function TemplateApp({
             <Route path="kontakt" element={<><PageSeo page="contactPage" variant={variant} content={content} /><ContactPage content={content} variant={variant} style={style} /></>} />
             <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} />} />
             <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} />} />
+            <Route path="impressum" element={<Imprint content={content} />} />
+            <Route path="datenschutz" element={<Privacy content={content} />} />
             <Route path="*" element={<><PageSeo page="home" variant={variant} content={content} /><HomePage variant={variant} content={content} style={style} /></>} />
           </Routes>
         </main>

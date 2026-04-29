@@ -7,6 +7,7 @@ import { BasePathProvider, useBasePath, withBase } from '@/components/site-block
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
+import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline } from '@/components/branch-modules';
 
@@ -87,6 +88,8 @@ export default function ExtraBranchTemplate({
             <Route path="kontakt" element={<><PageSeoExtra content={content} branch={branch} page="contact" /><SubPage content={content} branch={branch} page="contact" style={style} eyebrow={eb} /></>} />
             <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} />} />
             <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} />} />
+            <Route path="impressum" element={<Imprint content={content} />} />
+            <Route path="datenschutz" element={<Privacy content={content} />} />
             <Route path="*" element={<><PageSeoExtra content={content} branch={branch} page="home" /><Layout content={content} eyebrow={eb} branch={branch} page="home" /></>} />
           </Routes>
         </main>
