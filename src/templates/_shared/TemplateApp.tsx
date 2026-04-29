@@ -1245,13 +1245,14 @@ function GalleryPage({
           variant === 'restaurant' ? 'Aus Küche & Saal.' :
           'Bilder & Eindrücke.'
         )}
-        subtitle={headerOverride?.subtitle ||
-          (variant === 'restaurant'
-            ? 'Eindrücke aus dem Lokal, von Tellern, Saucen und Familie. Aufgenommen in echtem Kerzenlicht.'
-            : variant === 'salon'
-              ? 'Looks unserer Kund:innen – mit Erlaubnis dokumentiert.'
-              : 'Aktuelle Projekte aus den letzten Monaten – von kleiner Reparatur bis zur kompletten Sanierung.')
-        }
+        subtitle={headerOverride?.subtitle || (
+          variant === 'restaurant' ? 'Eindrücke aus dem Lokal, von Tellern, Saucen und Familie. Aufgenommen in echtem Kerzenlicht.' :
+          variant === 'salon'      ? 'Looks unserer Kund:innen – mit Erlaubnis dokumentiert.' :
+          variant === 'tradesman'  ? 'Aktuelle Projekte aus den letzten Monaten – von kleiner Reparatur bis zur kompletten Sanierung.' :
+          variant === 'hotel'      ? 'Räume, Spa und Außenbereich – Eindrücke aus dem Haus.' :
+          variant === 'tourism'    ? 'Bilder unserer letzten Touren – Berge, Gäste, Momente.' :
+          undefined
+        )}
         style={style}
       />
 

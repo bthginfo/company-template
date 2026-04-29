@@ -584,15 +584,42 @@ function LinkTargetField({ label, value, onChange, sections }: { label: string; 
   );
 }
 
-function homeSectionsFor(_t: TemplateKey) {
+function homeSectionsFor(t: TemplateKey) {
+  // Branch-specific service page label + path
+  const servicesPage: Record<TemplateKey, { id: string; label: string }> = {
+    restaurant: { id: '/speisekarte', label: '→ Seite: Speisekarte' },
+    salon:      { id: '/leistungen', label: '→ Seite: Leistungen' },
+    tradesman:  { id: '/leistungen', label: '→ Seite: Leistungen' },
+    hotel:      { id: '/zimmer',     label: '→ Seite: Zimmer' },
+    tourism:    { id: '/touren',     label: '→ Seite: Touren' },
+    consulting: { id: '/leistungen', label: '→ Seite: Leistungen' },
+    medical:    { id: '/leistungen', label: '→ Seite: Leistungen' },
+    fitness:    { id: '/leistungen', label: '→ Seite: Leistungen' },
+  };
+  const galleryLabel: Record<TemplateKey, string> = {
+    restaurant: '→ Seite: Galerie',
+    salon: '→ Seite: Looks',
+    tradesman: '→ Seite: Referenzen',
+    hotel: '→ Seite: Haus & Spa',
+    tourism: '→ Seite: Eindrücke',
+    consulting: '→ Seite: Galerie',
+    medical: '→ Seite: Galerie',
+    fitness: '→ Seite: Galerie',
+  };
+  const galleryPath = t === 'tradesman' ? '/referenzen' : '/galerie';
   return [
     { id: '#hero', label: 'Startbereich (oben)' },
-    { id: '#about', label: 'Über uns' },
-    { id: '#services', label: 'Leistungen / Speisekarte' },
-    { id: '#gallery', label: 'Galerie / Eindrücke' },
-    { id: '#testimonials', label: 'Bewertungen' },
-    { id: '/kontakt', label: '→ Seite: Kontakt' },
+    { id: '#about', label: 'Sektion: Über uns' },
+    { id: '#services', label: 'Sektion: Leistungen / Speisekarte' },
+    { id: '#gallery', label: 'Sektion: Galerie / Eindrücke' },
+    { id: '#testimonials', label: 'Sektion: Bewertungen' },
+    servicesPage[t],
+    { id: galleryPath, label: galleryLabel[t] },
     { id: '/ueber-uns', label: '→ Seite: Über uns' },
+    { id: '/kontakt', label: '→ Seite: Kontakt' },
+    { id: '/news', label: '→ Seite: News & Blog' },
+    { id: '/impressum', label: '→ Seite: Impressum' },
+    { id: '/datenschutz', label: '→ Seite: Datenschutz' },
   ];
 }
 
@@ -662,25 +689,12 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
       </SectionCard>
 
-      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 5" pageKey="home" sectionKey="services" data={data} setData={setData}>
+      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop." badge="Sektion 5" pageKey="home" sectionKey="services" data={data} setData={setData}>
         <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
         <p className="text-xs text-muted">
-          Bearbeiten Sie die Liste unter <strong>{tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen'}</strong> in der Seitenleiste. Hier wählen Sie nur, welche zuerst erscheinen.
+          Vollständige Liste – Reihenfolge bestimmt, was auf der Startseite (erste 3) und auf der Unterseite (alle) erscheint.
         </p>
-        <ReorderList
-          items={data.services}
-          onChange={(arr) => setData({ ...data, services: arr })}
-          getKey={(s, i) => s.title + i}
-          render={(s) => (
-            <div className="flex items-center gap-3">
-              {s.imageUrl ? <img src={s.imageUrl} alt="" className="h-10 w-10 object-cover rounded" /> : <div className="h-10 w-10 rounded bg-[#eaeae3]" />}
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{s.title}</p>
-                <p className="text-xs text-muted truncate">{s.price}</p>
-              </div>
-            </div>
-          )}
-        />
+        <ServicesListEditor data={data} setData={setData} />
       </SectionCard>
 
       <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6" pageKey="home" sectionKey="gallery" data={data} setData={setData}>
@@ -730,9 +744,8 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Überschrift." badge="Sektion 2" pageKey="services" sectionKey="highlights" data={data} setData={setData}>
         <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
       </SectionCard>
-      <SectionCard title={tpl === 'restaurant' ? 'Gerichte' : 'Leistungen'} description="Vollständige Liste – Reihenfolge, Bild, Preis, Beschreibung." badge="Sektion 3" pageKey="services" sectionKey="list" data={data} setData={setData}>
-        <ServicesListEditor data={data} setData={setData} />
-      </SectionCard>
+      {/* Vollständige Gerichte-/Leistungs-Liste wird auf der Startseite gepflegt (Speisekarte-Teaser).
+          Auf dieser Seite wird die Liste automatisch komplett angezeigt. */}
       {tpl === 'fitness' && (
         <SectionCard title="Programme" description="Kurse / Trainings, die im Programm-Spotlight erscheinen." badge="Sektion 3b">
           <ProgramsEditor data={data} setData={setData} />
@@ -814,6 +827,24 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   );
 }
 
+/** Defaults for the gallery page header — must mirror live-page fallbacks in TemplateApp.tsx (GalleryPage). */
+function galleryHeaderDefaults(tpl: TemplateKey): { eyebrow: string; title: string; subtitle: string } {
+  switch (tpl) {
+    case 'restaurant':
+      return { eyebrow: 'Galerie', title: 'Aus Küche & Saal.', subtitle: 'Eindrücke aus dem Lokal, von Tellern, Saucen und Familie. Aufgenommen in echtem Kerzenlicht.' };
+    case 'salon':
+      return { eyebrow: 'Galerie', title: 'Looks & Momente.', subtitle: 'Looks unserer Kund:innen – mit Erlaubnis dokumentiert.' };
+    case 'tradesman':
+      return { eyebrow: 'Projekte', title: 'Referenzen aus der Werkstatt.', subtitle: 'Aktuelle Projekte aus den letzten Monaten – von kleiner Reparatur bis zur kompletten Sanierung.' };
+    case 'hotel':
+      return { eyebrow: 'Galerie', title: 'Haus & Spa.', subtitle: 'Räume, Spa und Außenbereich – Eindrücke aus dem Haus.' };
+    case 'tourism':
+      return { eyebrow: 'Galerie', title: 'Unterwegs in den Bergen.', subtitle: 'Bilder unserer letzten Touren – Berge, Gäste, Momente.' };
+    default:
+      return { eyebrow: 'Galerie', title: 'Bilder & Eindrücke.', subtitle: '' };
+  }
+}
+
 function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   const remove = (i: number) => setData({ ...data, gallery: data.gallery.filter((_, idx) => idx !== i) });
   const move = (i: number, dir: -1 | 1) => {
@@ -843,11 +874,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   return (
     <>
       <SectionCard title="Seiten-Header" badge="Sektion 1">
-        <PageHeaderEditor data={data} setData={setData} field="gallery" defaults={{
-          eyebrow: tpl === 'tradesman' ? 'Projekte' : 'Galerie',
-          title: tpl === 'tradesman' ? 'Referenzen aus der Werkstatt.' : tpl === 'salon' ? 'Looks & Momente.' : 'Bilder & Eindrücke.',
-          subtitle: '',
-        }} />
+        <PageHeaderEditor data={data} setData={setData} field="gallery" defaults={galleryHeaderDefaults(tpl)} />
       </SectionCard>
 
       <SectionCard title="Galerie-Einleitung" description="Kurzer Text mit drei Captions über den Bildern – was schauen Besucher hier?" badge="Sektion 2" pageKey="gallery" sectionKey="story" data={data} setData={setData}>
@@ -2055,24 +2082,11 @@ function RepeatableList<T>({ items, onChange, render, newItem, addLabel }: { ite
     </div>
   );
 }
-function ReorderList<T>({ items, onChange, render, getKey }: { items: T[]; onChange: (arr: T[]) => void; render: (item: T) => React.ReactNode; getKey: (item: T, index: number) => string }) {
-  const move = (i: number, dir: -1 | 1) => {
-    const j = i + dir; if (j < 0 || j >= items.length) return;
-    const next = [...items]; [next[i], next[j]] = [next[j], next[i]]; onChange(next);
-  };
-  return (
-    <ul className="divide-y divide-line border border-line rounded-xl overflow-hidden bg-white">
-      {items.map((it, i) => (
-        <li key={getKey(it, i)} className="flex items-center gap-3 px-3 py-2">
-          <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
-          <div className="flex-1 min-w-0">{render(it)}</div>
-          <button onClick={() => move(i, -1)} className="h-7 w-7 grid place-items-center rounded hover:bg-[#f6f6f3] text-xs">↑</button>
-          <button onClick={() => move(i, 1)} className="h-7 w-7 grid place-items-center rounded hover:bg-[#f6f6f3] text-xs">↓</button>
-        </li>
-      ))}
-    </ul>
-  );
+function ReorderList<T>(_p: { items: T[]; onChange: (arr: T[]) => void; render: (item: T) => React.ReactNode; getKey: (item: T, index: number) => string }) {
+  void _p; return null; // unused since ServicesListEditor moved to home; kept to avoid breaking referrers.
 }
+// Acknowledge intentional retention for tree-shaking.
+void ReorderList;
 
 function useExtra<T>(data: SiteContent, setData: (d: SiteContent) => void, field: string, defaults: T): [T, (v: T) => void] {
   const value = useMemo(() => {
@@ -2132,9 +2146,12 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
           <input className={inputCls} value={v.secondaryLabel} onChange={(e) => set({ ...v, secondaryLabel: e.target.value })} placeholder={def.secondaryLabel} />
         </Field>
       </div>
-      <Field label="Sekundär-Button-Ziel" hint={`Standard: ${def.secondaryHref}. /pfad oder https://…`}>
-        <input className={inputCls + ' font-mono text-xs'} value={v.secondaryHref} onChange={(e) => set({ ...v, secondaryHref: e.target.value })} placeholder={def.secondaryHref} />
-      </Field>
+      <LinkTargetField
+        label="Sekundär-Button-Ziel"
+        value={v.secondaryHref || def.secondaryHref}
+        onChange={(href) => set({ ...v, secondaryHref: href })}
+        sections={homeSectionsFor(tpl)}
+      />
     </>
   );
 }
