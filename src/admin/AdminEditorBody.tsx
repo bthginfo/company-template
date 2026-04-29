@@ -670,7 +670,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <HomeStripEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
-      <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Haupt-Button." badge="Sektion 2">
+      <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Buttons." badge="Sektion 2">
         <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift.">
           <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
         </Field>
@@ -684,10 +684,27 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
         </Field>
         <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
+        <p className="text-xs font-medium text-muted mt-4">Primär-Button</p>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Button-Text"><input className={inputCls} value={data.hero.ctaLabel || ''} onChange={(e) => set({ hero: { ...data.hero, ctaLabel: e.target.value } })} /></Field>
           <LinkTargetField label="Button-Ziel" value={data.hero.ctaHref || ''} onChange={(v) => set({ hero: { ...data.hero, ctaHref: v } })} sections={homeSectionsFor(tpl)} />
         </div>
+        {(() => {
+          const heroCta = ((data as any).heroCta ?? {}) as { secondaryLabel?: string; secondaryHref?: string };
+          const setHeroCta = (patch: { secondaryLabel?: string; secondaryHref?: string }) =>
+            setData({ ...(data as any), heroCta: { ...heroCta, ...patch } } as SiteContent);
+          return (
+            <>
+              <p className="text-xs font-medium text-muted mt-4">Sekundär-Button (optional)</p>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Field label="Button-Text" hint="Leer lassen, um den zweiten Button auszublenden.">
+                  <input className={inputCls} value={heroCta.secondaryLabel || ''} onChange={(e) => setHeroCta({ secondaryLabel: e.target.value })} placeholder="Speisekarte ansehen" />
+                </Field>
+                <LinkTargetField label="Button-Ziel" value={heroCta.secondaryHref || ''} onChange={(v) => setHeroCta({ secondaryHref: v })} sections={homeSectionsFor(tpl)} />
+              </div>
+            </>
+          );
+        })()}
       </SectionCard>
 
       {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
@@ -704,8 +721,16 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
-      <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 4" pageKey="home" sectionKey="about" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutTeaserEyebrow', 'manifestEyebrow', 'manifestTitle', 'learnMoreLabel']} />
+      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop. Bilder erscheinen oben auf den Karten (Modern/Klassisch)." badge="Sektion 4" pageKey="home" sectionKey="services" data={data} setData={setData}>
+        <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
+        <p className="text-xs text-muted">
+          Vollständige Liste – Reihenfolge bestimmt, was auf der Startseite (erste 3) und auf der Unterseite (alle) erscheint.
+        </p>
+        <ServicesListEditor data={data} setData={setData} />
+      </SectionCard>
+
+      <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 5" pageKey="home" sectionKey="about" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutTeaserEyebrow', 'manifestEyebrow', 'manifestTitle', 'learnMoreLabel', 'learnMoreHref']} />
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
@@ -713,14 +738,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
         </Field>
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
-      </SectionCard>
-
-      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop." badge="Sektion 5" pageKey="home" sectionKey="services" data={data} setData={setData}>
-        <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
-        <p className="text-xs text-muted">
-          Vollständige Liste – Reihenfolge bestimmt, was auf der Startseite (erste 3) und auf der Unterseite (alle) erscheint.
-        </p>
-        <ServicesListEditor data={data} setData={setData} />
       </SectionCard>
 
       <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6" pageKey="home" sectionKey="gallery" data={data} setData={setData}>
@@ -1131,10 +1148,6 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
   const add = () => setItems([...list, { label: 'Neuer Eintrag', path: '/', visible: true }]);
   const reset = () => setData({ ...data, navItems: [] } as any);
 
-  const heroCta = (data as any).heroCta || {};
-  const setHero = (patch: Partial<{ primaryLabel: string; primaryHref: string; secondaryLabel: string; secondaryHref: string }>) => {
-    setData({ ...data, heroCta: { ...heroCta, ...patch } } as any);
-  };
   const footer = (data as any).footer || {};
   const setFooter = (patch: any) => setData({ ...data, footer: { ...footer, ...patch } } as any);
 
@@ -1182,23 +1195,6 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
         <p className="mt-4 text-xs text-muted">
           Tipp: Pfade sollten zu existierenden Seiten passen. Bekannte Pfade: <span className="font-mono">{KNOWN_PATHS_HINT.join(' · ')}</span>
         </p>
-      </SectionCard>
-
-      <SectionCard title="Hero-Buttons (Startseite)" description="Beschriftung und Verlinkung der Buttons im Hero-Bereich.">
-        <div className="grid md:grid-cols-2 gap-4">
-          <Field label="Primär-Button Beschriftung" hint="z.B. 'Tisch reservieren'">
-            <input className={inputCls} value={heroCta.primaryLabel || ''} onChange={(e) => setHero({ primaryLabel: e.target.value })} placeholder="Kontakt aufnehmen" />
-          </Field>
-          <Field label="Primär-Button Ziel" hint="Pfad oder URL">
-            <input className={inputCls + ' font-mono text-xs'} value={heroCta.primaryHref || ''} onChange={(e) => setHero({ primaryHref: e.target.value })} placeholder="/kontakt" />
-          </Field>
-          <Field label="Sekundär-Button Beschriftung">
-            <input className={inputCls} value={heroCta.secondaryLabel || ''} onChange={(e) => setHero({ secondaryLabel: e.target.value })} placeholder="Speisekarte ansehen" />
-          </Field>
-          <Field label="Sekundär-Button Ziel">
-            <input className={inputCls + ' font-mono text-xs'} value={heroCta.secondaryHref || ''} onChange={(e) => setHero({ secondaryHref: e.target.value })} placeholder="/speisekarte" />
-          </Field>
-        </div>
       </SectionCard>
 
       <SectionCard title="Footer-Tagline" description="Kleiner Untertitel-Text neben dem Markennamen im Footer.">
@@ -1625,6 +1621,7 @@ type BranchTextKey =
   | 'faqEyebrow'
   | 'faqTitle'
   | 'learnMoreLabel'
+  | 'learnMoreHref'
   | 'galleryAllLabel'
   | 'testimonialsEyebrow'
   | 'testimonialsTitle'
@@ -1658,6 +1655,7 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   faqEyebrow: { label: 'FAQ – Eyebrow' },
   faqTitle: { label: 'FAQ – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
   learnMoreLabel: { label: '"Mehr erfahren"-Button-Text' },
+  learnMoreHref: { label: '"Mehr erfahren"-Button-Ziel', hint: 'z. B. /ueber-uns oder /kontakt' },
   galleryAllLabel: { label: 'Galerie-"Alle anzeigen"-Button-Text' },
   testimonialsEyebrow: { label: 'Eyebrow' },
   testimonialsTitle: { label: 'Überschrift' },

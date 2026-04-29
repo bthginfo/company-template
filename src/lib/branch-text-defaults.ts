@@ -22,6 +22,7 @@ export type BranchTextDefaults = {
   faqEyebrow: string;
   faqTitle: string;
   learnMoreLabel: string;
+  learnMoreHref: string;
   galleryAllLabel: string;
   testimonialsEyebrow: string;
   testimonialsTitle: string;
@@ -56,6 +57,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     faqEyebrow: 'Häufig gefragt',
     faqTitle: 'Antworten auf Ihre Fragen.',
     learnMoreLabel: 'Mehr erfahren',
+    learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Komplette Galerie',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Gäste sagen.',
@@ -89,6 +91,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     faqEyebrow: 'Häufig gefragt',
     faqTitle: 'Antworten auf Ihre Fragen.',
     learnMoreLabel: 'Mehr erfahren',
+    learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Komplette Galerie',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Kund:innen sagen.',
@@ -122,6 +125,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     faqEyebrow: 'Häufig gefragt',
     faqTitle: 'Antworten auf Ihre Fragen.',
     learnMoreLabel: 'Mehr erfahren',
+    learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Projekte',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Kund:innen sagen.',
@@ -155,6 +159,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     faqEyebrow: 'Häufig gefragt',
     faqTitle: 'Antworten auf Ihre Fragen.',
     learnMoreLabel: 'Mehr erfahren',
+    learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Zimmer',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Gäste sagen.',
@@ -188,6 +193,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     faqEyebrow: 'Häufig gefragt',
     faqTitle: 'Antworten auf Ihre Fragen.',
     learnMoreLabel: 'Mehr erfahren',
+    learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Touren',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Gäste erzählen.',
@@ -221,6 +227,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     faqEyebrow: 'Häufig gefragt',
     faqTitle: 'Antworten auf Ihre Fragen.',
     learnMoreLabel: 'Mehr erfahren',
+    learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Cases',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was Kund:innen über uns sagen.',
@@ -254,6 +261,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     faqEyebrow: 'Häufig gefragt',
     faqTitle: 'Antworten auf Ihre Fragen.',
     learnMoreLabel: 'Mehr erfahren',
+    learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Bilder',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Patient:innen sagen.',
@@ -287,6 +295,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     faqEyebrow: 'Häufig gefragt',
     faqTitle: 'Antworten auf Ihre Fragen.',
     learnMoreLabel: 'Mehr erfahren',
+    learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Bilder',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Mitglieder sagen.',

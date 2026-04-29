@@ -145,6 +145,8 @@ export const SiteContentSchema = z.object({
     faqTitle: z.string().optional().default(''),
     /** Label of the "learn more" button on the about teaser. */
     learnMoreLabel: z.string().optional().default(''),
+    /** Link target of the "learn more" button on the about teaser. */
+    learnMoreHref: z.string().optional().default(''),
     /** Label of the "view all" button on the gallery teaser. */
     galleryAllLabel: z.string().optional().default(''),
     /** Subtitle / description text used as fallback below hero + above services. */

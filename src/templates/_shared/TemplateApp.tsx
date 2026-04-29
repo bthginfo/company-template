@@ -351,7 +351,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
     action: <BranchActionStrip variant={variant} content={content} />,
     signature: <BranchSignature variant={variant} style="classic" content={content} />,
     numbers: <NumbersBand variant={variant} content={content} />,
-    news: <NewsPreview content={content} />,
+    news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'News & Notizen.'} />,
     // branch-specific modules
     menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} /> : null,
     rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} /> : null,
@@ -374,7 +374,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
                 <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
               ))}
             </div>
-            <TLink to="/ueber-uns" className="btn-outline mt-6 reveal">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
+            <TLink to={effectiveBranchText(variant, content).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
           </div>
         </div>
       </Section>
@@ -454,13 +454,20 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
             {featuredServices.map((s, i) => (
               <Tilt3DCard key={i} max={5} className="rounded-2xl">
-                <article className="bg-white border border-line rounded-2xl p-7 hover-lift h-full">
-                  <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
-                    <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+                <article className="bg-white border border-line rounded-2xl overflow-hidden hover-lift h-full flex flex-col">
+                  {s.imageUrl ? (
+                    <div className="aspect-[16/10] overflow-hidden">
+                      <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                  ) : null}
+                  <div className="p-7 flex-1">
+                    <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+                      <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+                    </div>
+                    <h3 className="font-display text-xl mt-5">{s.title}</h3>
+                    {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+                    {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
                   </div>
-                  <h3 className="font-display text-xl mt-5">{s.title}</h3>
-                  {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
-                  {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
                 </article>
               </Tilt3DCard>
             ))}
@@ -488,7 +495,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
             {(content.about.body || '').split('\n\n').slice(0, 2).map((p, i) => (
               <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
             ))}
-            <TLink to="/ueber-uns" className="btn-outline mt-2">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
+            <TLink to={effectiveBranchText(variant, content).learnMoreHref || '/ueber-uns'} className="btn-outline mt-2">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
           </div>
           {content.about.imageUrl && (
             <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3] reveal">
@@ -551,10 +558,21 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
               ) : null}
             </h1>
             <p className="mt-8 text-lg text-muted max-w-xl">{heroBodyFor(variant, content)}</p>
-            <div className="mt-10 flex flex-wrap gap-3">
-              <TLink to="/kontakt" className="btn-primary">Kontakt aufnehmen <span aria-hidden>→</span></TLink>
-              <TLink to={cfg.servicesPath} className="btn-outline">{cfg.servicesLabel} ansehen</TLink>
-            </div>
+            {(() => {
+              const hc = (content as any).heroCta as { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string } | undefined;
+              const primaryLabel = hc?.primaryLabel || content.hero.ctaLabel || 'Kontakt aufnehmen';
+              const primaryHref = hc?.primaryHref || content.hero.ctaHref || '/kontakt';
+              const secondaryLabel = hc?.secondaryLabel ?? `${cfg.servicesLabel} ansehen`;
+              const secondaryHref = hc?.secondaryHref || cfg.servicesPath;
+              return (
+                <div className="mt-10 flex flex-wrap gap-3">
+                  <TLink to={primaryHref} className="btn-primary">{primaryLabel} <span aria-hidden>→</span></TLink>
+                  {secondaryLabel ? (
+                    <TLink to={secondaryHref} className="btn-outline">{secondaryLabel}</TLink>
+                  ) : null}
+                </div>
+              );
+            })()}
             <dl className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-4 max-w-xl">
               {meta.map((m, i) => (
                 <div key={i}>
@@ -620,7 +638,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
             {(content.about?.body || subtitleFor(variant, content)).split('\n\n').slice(0, 2).map((p, i) => (
               <p key={i} className="text-lg md:text-xl leading-relaxed mb-5">{p}</p>
             ))}
-            <TLink to="/ueber-uns" className="link-underline mt-2 inline-flex">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
+            <TLink to={effectiveBranchText(variant, content).learnMoreHref || '/ueber-uns'} className="link-underline mt-2 inline-flex">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
           </div>
         </div>
       </section>
@@ -793,6 +811,11 @@ export function ClassicServicesGrid({ services }: { services: SiteContent['servi
     <div className="grid md:grid-cols-2 gap-x-12 gap-y-14 reveal-stagger">
       {services.map((s, i) => (
         <article key={i} className="border-t border-line pt-8 group">
+          {s.imageUrl ? (
+            <div className="aspect-[4/3] overflow-hidden rounded-2xl mb-6">
+              <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          ) : null}
           <div className="flex items-baseline justify-between mb-5">
             <span className="font-display italic text-3xl text-[var(--accent-color)]">
               {ROMAN_NUMERALS[i] || String(i + 1)}
