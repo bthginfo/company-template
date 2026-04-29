@@ -23,7 +23,10 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
     where: eq(schema.siteContent.tenantId, tenant.id),
   });
 
-  res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+  // Always serve fresh content so admin saves are reflected immediately on the
+  // public site and inside the editor preview. Per-tenant traffic is low and
+  // correctness > CDN savings here.
+  res.setHeader('Cache-Control', 'no-store, must-revalidate');
   res.json({
     tenant: { slug: tenant.slug, name: tenant.name, template: tenant.template, style: tenant.style },
     content: content?.data ?? null,

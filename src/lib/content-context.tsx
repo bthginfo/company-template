@@ -29,7 +29,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     setState({ status: 'loading' });
     try {
       const slug = getTenantSlug();
-      const r = await fetch(`/api/content?slug=${encodeURIComponent(slug)}`);
+      // Bypass any browser/CDN cache so edits show up immediately after save.
+      const r = await fetch(`/api/content?slug=${encodeURIComponent(slug)}`, { cache: 'no-store' });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const json = await r.json();
       const parsed = json.content ? SiteContentSchema.parse(json.content) : FALLBACK_CONTENT;

@@ -324,7 +324,7 @@ export function Hero({
       {showScroll && (
         <a
           href="#mehr"
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/90 hover:text-white flex flex-col items-center gap-2"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/90 hover:text-white hidden md:flex flex-col items-center gap-2"
           aria-label="Weiter scrollen"
         >
           <span className="text-[10px] uppercase tracking-[0.3em] opacity-80">Scroll</span>
@@ -503,7 +503,7 @@ export function SiteFooter({ content, basePath: basePathProp, nav }: { content: 
               <img
                 src={content.brand.logoUrl}
                 alt={content.brand.name}
-                className="h-12 w-auto max-w-[220px] object-contain mb-3 brightness-0 invert"
+                className="h-12 w-auto max-w-[220px] object-contain mb-3"
               />
             ) : null}
             {!(content.brand.logoUrl && content.brand.hideName) && (

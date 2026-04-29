@@ -159,6 +159,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             <SidebarItem active={pageId === 'seo'} onClick={() => setPageId('seo')} icon="◎">SEO & Sichtbarkeit</SidebarItem>
             <SidebarItem active={pageId === 'scripts'} onClick={() => setPageId('scripts')} icon="〈">Skripte & Tracking</SidebarItem>
             <SidebarItem active={pageId === 'mail'} onClick={() => setPageId('mail')} icon="M">Mail-Server</SidebarItem>
+            <SidebarItem active={pageId === 'security'} onClick={() => setPageId('security')} icon="⚿">Passwort & Zugang</SidebarItem>
           </SidebarGroup>
         </aside>
 
@@ -187,6 +188,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'seo' && <SeoPage data={data} setData={setData} />}
             {pageId === 'scripts' && <ScriptsPage data={data} setData={setData} />}
             {pageId === 'mail' && <MailPage data={data} setData={setData} />}
+            {pageId === 'security' && <SecurityPage />}
             {pageId === 'news' && <NewsPage data={data} setData={setData} />}
             {pageId === 'home' && <HomePageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'services' && <ServicesPageEditor data={data} setData={setData} tpl={tplKey} />}
@@ -215,7 +217,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 }
 
 /* ───────────── Pages config per template ───────────── */
-type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation' | 'mail';
+type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation' | 'mail' | 'security';
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
@@ -271,6 +273,7 @@ function labelForGlobal(p: PageId) {
   if (p === 'seo') return 'SEO & Sichtbarkeit';
   if (p === 'scripts') return 'Skripte & Tracking';
   if (p === 'mail') return 'Mail-Server';
+  if (p === 'security') return 'Passwort & Zugang';
   if (p === 'news') return 'News & Blog';
   return '';
 }
