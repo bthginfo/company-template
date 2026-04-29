@@ -14,6 +14,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { randomBytes } from 'node:crypto';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -55,17 +56,49 @@ console.log(`[provision] team=${teamId}`);
 console.log(`[provision] source project=${SOURCE_PROJECT_ID}`);
 console.log(`[provision] target slug=${slug} template=${template}`);
 
-// 1. Read source project env vars (decrypted requires VERCEL_TOKEN with team scope)
-console.log('[provision] reading source env vars…');
-const srcEnvs = await api(`/v9/projects/${SOURCE_PROJECT_ID}/env?decrypt=true`);
+// 1. Read shared env vars from local .env.local (these are PLAINTEXT — Vercel's
+//    decrypt=true API does not return real values for "sensitive" envs, so we
+//    rely on the local file populated by `vercel env pull`).
+function parseDotenv(filePath) {
+  const out = {};
+  let txt = '';
+  try { txt = readFileSync(filePath, 'utf8'); } catch { return out; }
+  for (const raw of txt.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) continue;
+    const m = line.match(/^([A-Z0-9_]+)=(.*)$/i);
+    if (!m) continue;
+    let v = m[2];
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1);
+    // Skip clearly-encrypted ciphertexts that vercel env pull leaves for sensitive vars
+    if (v.startsWith('eyJ') && v.length > 200) continue;
+    if (!(m[1] in out)) out[m[1]] = v; // first occurrence wins
+  }
+  return out;
+}
+
+const localEnv = parseDotenv(resolve(root, '.env.local'));
 const ALWAYS_COPY = [
-  'POSTGRES_URL', 'POSTGRES_URL_NON_POOLING', 'POSTGRES_URL_NO_SSL',
-  'AUTH_SECRET', 'BLOB_READ_WRITE_TOKEN',
+  'POSTGRES_URL', 'POSTGRES_URL_NON_POOLING', 'POSTGRES_URL_NO_SSL', 'POSTGRES_PRISMA_URL',
+  'POSTGRES_USER', 'POSTGRES_HOST', 'POSTGRES_PASSWORD', 'POSTGRES_DATABASE',
+  'AUTH_SECRET', 'ADMIN_PASSWORD_HASH', 'BLOB_READ_WRITE_TOKEN',
   'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS',
   'MAIL_FROM', 'MAIL_TO', 'MAIL_AUTOREPLY',
 ];
-const envsToCopy = (srcEnvs.envs || []).filter((e) => ALWAYS_COPY.includes(e.key));
-console.log(`[provision] will copy ${envsToCopy.length} env keys: ${envsToCopy.map((e) => e.key).join(', ')}`);
+const sharedEnv = Object.fromEntries(
+  ALWAYS_COPY.filter((k) => localEnv[k]).map((k) => [k, localEnv[k]]),
+);
+const missing = ALWAYS_COPY.filter((k) => !sharedEnv[k]);
+// AUTH_SECRET is per-project — fine to auto-generate when missing.
+if (!sharedEnv.AUTH_SECRET) {
+  sharedEnv.AUTH_SECRET = randomBytes(32).toString('base64url');
+  console.log('[provision]   AUTH_SECRET not in .env.local — generated a fresh one');
+}
+const stillMissing = missing.filter((k) => !sharedEnv[k]);
+if (stillMissing.length) {
+  console.warn(`[provision] ⚠ missing in .env.local (will skip): ${stillMissing.join(', ')}`);
+}
+console.log(`[provision] copying ${Object.keys(sharedEnv).length} shared env keys from .env.local`);
 
 // 2. Create or reuse target project
 let project;
@@ -94,11 +127,11 @@ const tenantEnvs = [
   { key: 'TENANT_SLUG',       value: slug,     target: ['production', 'preview', 'development'], type: 'plain' },
   { key: 'VITE_TENANT_SLUG',  value: slug,     target: ['production', 'preview', 'development'], type: 'plain' },
   { key: 'VITE_TEMPLATE',     value: template, target: ['production', 'preview', 'development'], type: 'plain' },
-  ...envsToCopy.map((e) => ({
-    key: e.key,
-    value: e.value,
-    target: e.target && e.target.length ? e.target : ['production', 'preview', 'development'],
-    type: e.type === 'sensitive' ? 'encrypted' : (e.type || 'encrypted'),
+  ...Object.entries(sharedEnv).map(([key, value]) => ({
+    key,
+    value,
+    target: ['production', 'preview', 'development'],
+    type: 'encrypted',
   })),
 ];
 
