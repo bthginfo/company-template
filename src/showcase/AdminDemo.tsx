@@ -65,6 +65,7 @@ export default function AdminDemo() {
       onSave={fakeSave}
       savedAt={savedAt}
       previewUrlBase={`/preview/${tplKey}`}
+      style={'classic'}
       topBar={embedded ? undefined : (
         <div className="bg-[var(--accent-color)] text-brand text-sm py-2.5 text-center font-medium">
           <span>Live-Demo des Admin-Bereichs · Ihre Änderungen werden hier nicht gespeichert · </span>

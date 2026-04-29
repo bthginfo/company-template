@@ -108,6 +108,7 @@ export function AdminApp() {
       brandTitle={state.tenant.name}
       previewUrlBase=""
       uploadImage={uploadImage}
+      style={(state.tenant.style as 'classic' | 'modern' | 'bold' | undefined) || 'classic'}
       headerStatus={
         <div className="hidden md:flex items-center gap-3 text-xs">
           <span className="uppercase tracking-widest text-muted bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">

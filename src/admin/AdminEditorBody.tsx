@@ -17,6 +17,8 @@ import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
  */
 export type UploadImageFn = (file: File) => Promise<string>;
 
+export type TemplateStyle = 'classic' | 'modern' | 'bold';
+
 export type AdminEditorBodyProps = {
   tplKey: TemplateKey;
   onTplChange?: (k: TemplateKey) => void;
@@ -32,10 +34,13 @@ export type AdminEditorBodyProps = {
   footerExtraActions?: ReactNode;
   previewUrlBase?: string; // e.g. "/preview/restaurant" or ""
   uploadImage?: UploadImageFn;
+  /** Current visual style of this tenant (used to filter add-section catalog). */
+  style?: TemplateStyle;
 };
 
 type Ctx = {
   uploadImage?: UploadImageFn;
+  style?: TemplateStyle;
 };
 const noCtx: Ctx = {};
 let _ctx: Ctx = noCtx; // module-scoped for the simple atoms below
@@ -47,9 +52,10 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     brandTitle, topBar, headerStatus, footerStatus, footerExtraActions,
     previewUrlBase = '',
     uploadImage,
+    style: tplStyle,
   } = props;
 
-  _ctx = { uploadImage };
+  _ctx = { uploadImage, style: tplStyle };
 
   const [pageId, setPageId] = useState<PageId>('home');
   const pages = pagesFor(tplKey);
@@ -413,7 +419,7 @@ function AddSectionRow({ pageKey, data, setData, tpl }: {
   const order = ((data as any).sectionOrder ?? {}) as Record<string, string[]>;
   const visibility = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
   const effective = getEffectivePageOrder(data as any, pageKey, variant);
-  const remaining = getRemainingSections(pageKey, effective, variant);
+  const remaining = getRemainingSections(pageKey, effective, variant, _ctx.style);
   if (remaining.length === 0) return null;
   const onAdd = (key: string) => {
     setData({

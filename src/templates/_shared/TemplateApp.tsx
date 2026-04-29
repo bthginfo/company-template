@@ -526,7 +526,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           </div>
           {content.about.imageUrl && (
             <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3] reveal">
-              <img src={content.about.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+              <img src={content.about.imageUrl} alt={content.about.title || content.brand.name} className="w-full h-full object-cover" loading="lazy" />
             </div>
           )}
         </div>
@@ -537,7 +537,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
           {featuredGallery.map((src, i) => (
             <div key={i} className="aspect-square overflow-hidden rounded-xl img-zoom">
-              <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+              <img src={src} alt={`${content.brand.name} – Eindruck ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
             </div>
           ))}
         </div>
@@ -755,7 +755,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         {heroImg && (
           <div className="container-x mt-12 reveal">
             <div className="aspect-[21/9] overflow-hidden rounded-none">
-              <img src={heroImg} alt="" className="w-full h-full object-cover" />
+              <img src={heroImg} alt={content.brand.name} className="w-full h-full object-cover" />
             </div>
           </div>
         )}
@@ -1117,7 +1117,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 reveal-stagger">
           {content.gallery.slice(0, 8).map((src, i) => (
             <div key={i} className="aspect-square rounded-2xl overflow-hidden img-zoom">
-              <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+              <img src={src} alt={`${content.brand.name} – Bild ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
             </div>
           ))}
         </div>
@@ -1821,7 +1821,7 @@ function PageHero({ eyebrow, title, subtitle, style = 'classic', image }: {
               <div className="relative">
                 <div className="absolute -inset-4 rounded-[2rem] bg-[var(--accent-color)] opacity-20 blur-2xl" aria-hidden />
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-line shadow-xl">
-                  <img src={image} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
             </div>
