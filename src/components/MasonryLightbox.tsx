@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 /**
  * Masonry grid that respects each image's true aspect ratio.
@@ -99,6 +100,10 @@ export function MasonryLightbox({ images, showIndex = true, gapClass = 'gap-4' }
   const next = useCallback(() => setOpen((i) => (i === null ? null : (i + 1) % images.length)), [images.length]);
   const prev = useCallback(() => setOpen((i) => (i === null ? null : (i - 1 + images.length) % images.length)), [images.length]);
 
+  // Defensive: always close lightbox when the route changes, so body overflow is restored.
+  const loc = useLocation();
+  useEffect(() => { setOpen(null); }, [loc.pathname]);
+
   useEffect(() => {
     if (open === null) return;
     const onKey = (e: KeyboardEvent) => {
@@ -111,7 +116,9 @@ export function MasonryLightbox({ images, showIndex = true, gapClass = 'gap-4' }
     document.body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prevOverflow;
+      // Always reset to '' rather than restoring captured value—avoids sticky
+      // 'hidden' if the captured value itself was 'hidden' from a stale render.
+      document.body.style.overflow = prevOverflow || '';
     };
   }, [open, close, next, prev]);
 

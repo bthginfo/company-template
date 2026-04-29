@@ -249,6 +249,8 @@ export default function TemplateApp({
 function ScrollToTopOnRoute() {
   const { pathname } = useLocation();
   useEffect(() => {
+    // Defensive: if any modal/lightbox/menu left body locked, restore on every navigation.
+    if (typeof document !== 'undefined') document.body.style.overflow = '';
     const lenis = (window as any).__lenis as { scrollTo?: (t: any, o?: any) => void } | undefined;
     if (lenis?.scrollTo) lenis.scrollTo(0, { immediate: true, force: true });
     else window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });

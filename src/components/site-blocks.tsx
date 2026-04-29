@@ -80,6 +80,14 @@ export function SiteHeader({
   }, []);
   useEffect(() => setMobile(false), [loc.pathname]);
 
+  // Lock body scroll while mobile drawer is open; always restore on close/unmount.
+  useEffect(() => {
+    if (!mobile) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev || ''; };
+  }, [mobile]);
+
   // The light/transparent nav (white text on dark hero) is only safe on the
   // home page – subpages render PageHero on a light/cream background, where
   // white nav text disappears. Force dark text whenever we're off the
