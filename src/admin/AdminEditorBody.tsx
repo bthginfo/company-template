@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { toast } from 'sonner';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
@@ -197,7 +198,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'contactPage' && <ContactPageEditor data={data} setData={setData} tpl={tplKey} />}
           </div>
 
-          <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7]/95 backdrop-blur rounded-b-2xl sticky bottom-0 z-20 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+          <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7] rounded-b-2xl">
             <div className="text-sm text-muted">
               {savedAt
                 ? <span className="text-emerald-700">✓ Gespeichert um {savedAt}</span>
@@ -205,13 +206,31 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             </div>
             <div className="flex gap-2 flex-wrap">
               {footerExtraActions}
-              <button onClick={() => onSave()} disabled={saving} className="btn-primary !px-5 !py-2 text-sm disabled:opacity-60 shadow-md">
-                {saving ? 'Speichert …' : 'Speichern'}
-              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Floating save button — always visible, no scrolling required. */}
+      <button
+        type="button"
+        onClick={() => onSave()}
+        disabled={saving}
+        aria-label="Änderungen speichern"
+        className="fixed bottom-6 right-6 z-40 btn-primary !px-6 !py-3 text-sm font-medium rounded-full shadow-2xl ring-1 ring-black/5 disabled:opacity-60 transition-transform hover:scale-105 active:scale-95"
+      >
+        {saving ? (
+          <span className="flex items-center gap-2">
+            <span className="inline-block h-3 w-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            Speichert …
+          </span>
+        ) : (
+          <span className="flex items-center gap-2">
+            <span aria-hidden="true">💾</span>
+            Speichern
+          </span>
+        )}
+      </button>
     </div>
   );
 }
@@ -1612,6 +1631,64 @@ function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 80);
+}
+
+function SecurityPage() {
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (next !== confirm) {
+      toast.error('Passwörter stimmen nicht überein');
+      return;
+    }
+    if (next.length < 8) {
+      toast.error('Mindestens 8 Zeichen');
+      return;
+    }
+    try {
+      setBusy(true);
+      const r = await fetch('/api/admin/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ current, next }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || 'Fehler beim Speichern');
+      toast.success('Passwort geändert', { description: 'Beim nächsten Login mit dem neuen Passwort anmelden.' });
+      setCurrent(''); setNext(''); setConfirm('');
+    } catch (err: any) {
+      toast.error('Fehlgeschlagen', { description: err?.message || String(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <SectionCard
+      title="Passwort ändern"
+      description="Setzen Sie ein neues Login-Passwort für diesen Admin-Bereich. Mindestens 8 Zeichen."
+      badge="Zugang"
+    >
+      <form onSubmit={submit} className="space-y-4 max-w-md">
+        <Field label="Aktuelles Passwort">
+          <input type="password" className={inputCls} value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" required />
+        </Field>
+        <Field label="Neues Passwort" hint="Mindestens 8 Zeichen.">
+          <input type="password" className={inputCls} value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" required />
+        </Field>
+        <Field label="Neues Passwort bestätigen">
+          <input type="password" className={inputCls} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required />
+        </Field>
+        <button type="submit" disabled={busy} className="btn-primary !px-5 !py-2 text-sm disabled:opacity-60">
+          {busy ? 'Speichert …' : 'Passwort ändern'}
+        </button>
+      </form>
+    </SectionCard>
+  );
 }
 
 function NewsPage({ data, setData }: SetterProps) {
