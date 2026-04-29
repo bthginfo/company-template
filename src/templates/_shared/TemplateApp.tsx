@@ -360,7 +360,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
     funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
     about: content.about?.body ? (
       <Section
-        eyebrow={variant === 'restaurant' ? 'Unsere Geschichte' : variant === 'salon' ? 'Unser Studio' : variant === 'hotel' ? 'Unser Haus' : variant === 'tourism' ? 'Unsere Region' : 'Unser Betrieb'}
+        eyebrow={effectiveBranchText(variant, content).aboutTeaserEyebrow}
         title={<>{splitTitle(content.about.title || 'Über uns')}</>}
         spacing="lg"
       >
@@ -374,7 +374,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
                 <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
               ))}
             </div>
-            <TLink to="/ueber-uns" className="btn-outline mt-6 reveal">Mehr erfahren <span aria-hidden>→</span></TLink>
+            <TLink to="/ueber-uns" className="btn-outline mt-6 reveal">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
           </div>
         </div>
       </Section>
@@ -393,10 +393,10 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
       </Section>
     ) : null,
     gallery: featuredGallery.length > 0 ? (
-      <Section eyebrow={variant === 'tradesman' ? 'Referenzen' : variant === 'hotel' ? 'Zimmer & Räume' : variant === 'tourism' ? 'Highlights' : 'Eindrücke'} title={galleryTeaserTitle(variant, content)} spacing="lg">
+      <Section eyebrow={effectiveBranchText(variant, content).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, content)} spacing="lg">
         <GalleryShowcase variant={variant} images={featuredGallery} mode="teaser" />
         <div className="mt-12 reveal">
-          <TLink to={variant === 'tradesman' ? '/referenzen' : variant === 'hotel' ? '/zimmer' : variant === 'tourism' ? '/touren' : '/galerie'} className="btn-outline">{variant === 'tradesman' ? 'Alle Projekte' : variant === 'hotel' ? 'Alle Zimmer' : variant === 'tourism' ? 'Alle Touren' : 'Komplette Galerie'} <span aria-hidden>→</span></TLink>
+          <TLink to={variant === 'tradesman' ? '/referenzen' : variant === 'hotel' ? '/zimmer' : variant === 'tourism' ? '/touren' : '/galerie'} className="btn-outline">{effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span></TLink>
         </div>
       </Section>
     ) : null,
@@ -488,7 +488,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
             {(content.about.body || '').split('\n\n').slice(0, 2).map((p, i) => (
               <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
             ))}
-            <TLink to="/ueber-uns" className="btn-outline mt-2">Mehr erfahren <span aria-hidden>→</span></TLink>
+            <TLink to="/ueber-uns" className="btn-outline mt-2">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
           </div>
           {content.about.imageUrl && (
             <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3] reveal">
@@ -499,7 +499,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       </Section>
     ) : null,
     gallery: featuredGallery.length > 0 ? (
-      <Section eyebrow="Galerie" title={galleryTeaserTitle(variant, content)} className="surface">
+      <Section eyebrow={effectiveBranchText(variant, content).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, content)} className="surface">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
           {featuredGallery.map((src, i) => (
             <div key={i} className="aspect-square overflow-hidden rounded-xl img-zoom">
@@ -513,7 +513,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       </Section>
     ) : null,
     faq: (
-      <Section eyebrow="Häufig gefragt" title={<>Antworten auf <em className="italic-pop">Ihre Fragen.</em></>}>
+      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)}>
         <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
@@ -620,7 +620,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
             {(content.about?.body || subtitleFor(variant, content)).split('\n\n').slice(0, 2).map((p, i) => (
               <p key={i} className="text-lg md:text-xl leading-relaxed mb-5">{p}</p>
             ))}
-            <TLink to="/ueber-uns" className="link-underline mt-2 inline-flex">Unsere Geschichte <span aria-hidden>→</span></TLink>
+            <TLink to="/ueber-uns" className="link-underline mt-2 inline-flex">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
           </div>
         </div>
       </section>
@@ -656,7 +656,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
               <p className="eyebrow mb-4">Galerie</p>
               <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, content)}</h2>
             </div>
-            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="link-underline hidden md:inline-flex">Alle Bilder <span aria-hidden>→</span></TLink>
+            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="link-underline hidden md:inline-flex">{effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span></TLink>
           </div>
           <MasonryGrid images={featuredGallery} />
         </div>
@@ -994,10 +994,10 @@ function CtaBand({ variant, content }: { variant: TemplateVariant; content?: Sit
 function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: 'modern' | 'bold' }) {
   const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string } | undefined;
   const bt = effectiveBranchText(variant, content);
-  const boldTitle = variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : variant === 'hotel' ? 'Pause buchen?' : variant === 'tourism' ? 'Tour buchen?' : 'Auftrag?';
-  const title = (ov?.lead && ov.lead.trim()) || (style === 'modern' ? bt.softCtaTitle : boldTitle);
-  const sub = (ov?.sub && ov.sub.trim()) || (style === 'modern' ? bt.softCtaText : 'Schreiben Sie uns. Wir antworten.');
-  const cta = (ov?.cta && ov.cta.trim()) || (style === 'modern' ? bt.softCtaButton : 'Jetzt Kontakt');
+  const boldFallbackTitle = variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : variant === 'hotel' ? 'Pause buchen?' : variant === 'tourism' ? 'Tour buchen?' : 'Auftrag?';
+  const title = (ov?.lead && ov.lead.trim()) || (bt.softCtaTitle && bt.softCtaTitle.trim()) || (style === 'bold' ? boldFallbackTitle : '');
+  const sub = (ov?.sub && ov.sub.trim()) || (bt.softCtaText && bt.softCtaText.trim()) || (style === 'bold' ? 'Schreiben Sie uns. Wir antworten.' : '');
+  const cta = (ov?.cta && ov.cta.trim()) || (bt.softCtaButton && bt.softCtaButton.trim()) || (style === 'bold' ? 'Jetzt Kontakt' : '');
   const href = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
   if (style === 'modern') {
     return (
@@ -1057,7 +1057,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
       </Section>
     ) : null,
     gallery: content.gallery.length > 0 ? (
-      <Section eyebrow="Eindrücke" title={<>Aus unserem <em className="italic-pop">Alltag.</em></>}>
+      <Section eyebrow={effectiveBranchText(variant, content).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, content)}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 reveal-stagger">
           {content.gallery.slice(0, 8).map((src, i) => (
             <div key={i} className="aspect-square rounded-2xl overflow-hidden img-zoom">
@@ -1068,7 +1068,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
       </Section>
     ) : null,
     faq: (
-      <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>} className="surface">
+      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)} className="surface">
         <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
@@ -1449,7 +1449,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
       </Section>
     ) : null,
     faq: (
-      <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>} className="surface">
+      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)} className="surface">
         <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
@@ -1680,7 +1680,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
       </Section>
     ),
     faq: (
-      <Section eyebrow="Fragen" title={<>Häufig <em className="italic-pop">gefragt.</em></>}>
+      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)}>
         <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),

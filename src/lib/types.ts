@@ -136,6 +136,17 @@ export const SiteContentSchema = z.object({
     marqueeWords: z.array(z.string()).optional().default([]),
     /** Title of the gallery teaser section on the home page. Plain string – the template wraps the last word in italic-pop. */
     galleryTeaserTitle: z.string().optional().default(''),
+    /** Eyebrow of the gallery teaser section on the home page. */
+    galleryTeaserEyebrow: z.string().optional().default(''),
+    /** Eyebrow of the about teaser section on the home page (modern style). */
+    aboutTeaserEyebrow: z.string().optional().default(''),
+    /** FAQ section eyebrow + title (used on home + services page). */
+    faqEyebrow: z.string().optional().default(''),
+    faqTitle: z.string().optional().default(''),
+    /** Label of the "learn more" button on the about teaser. */
+    learnMoreLabel: z.string().optional().default(''),
+    /** Label of the "view all" button on the gallery teaser. */
+    galleryAllLabel: z.string().optional().default(''),
     /** Subtitle / description text used as fallback below hero + above services. */
     teaserSubtitle: z.string().optional().default(''),
     /** Eyebrow + headline of the testimonials block. */

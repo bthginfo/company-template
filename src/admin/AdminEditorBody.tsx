@@ -702,7 +702,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 4" pageKey="home" sectionKey="about" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['manifestEyebrow', 'manifestTitle']} />
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutTeaserEyebrow', 'manifestEyebrow', 'manifestTitle', 'learnMoreLabel']} />
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
@@ -721,7 +721,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6" pageKey="home" sectionKey="gallery" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserTitle']} />
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserEyebrow', 'galleryTeaserTitle', 'galleryAllLabel']} />
         <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten 7 Bilder erscheinen hier.</p>
         <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
           {data.gallery.slice(0, 7).map((src, i) => (
@@ -850,6 +850,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
         <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
       </SectionCard>
       <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5" pageKey="services" sectionKey="faq" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['faqEyebrow', 'faqTitle']} />
         <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
       </SectionCard>
       <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="services" sectionKey="cta" data={data} setData={setData}>
@@ -1610,6 +1611,12 @@ type BranchTextKey =
   | 'teaserSubtitle'
   | 'marqueeWords'
   | 'galleryTeaserTitle'
+  | 'galleryTeaserEyebrow'
+  | 'aboutTeaserEyebrow'
+  | 'faqEyebrow'
+  | 'faqTitle'
+  | 'learnMoreLabel'
+  | 'galleryAllLabel'
   | 'testimonialsEyebrow'
   | 'testimonialsTitle'
   | 'manifestEyebrow'
@@ -1625,6 +1632,12 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   teaserSubtitle: { label: 'Hero-Beschreibung (alternativ)', hint: 'Wird verwendet, wenn der Beschreibungstext oben leer ist.', rows: 2 },
   marqueeWords: { label: 'Marquee / Laufband-Wörter (kommagetrennt)' },
   galleryTeaserTitle: { label: 'Galerie-Teaser-Titel', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  galleryTeaserEyebrow: { label: 'Galerie-Teaser-Eyebrow' },
+  aboutTeaserEyebrow: { label: 'Über-uns-Teaser-Eyebrow' },
+  faqEyebrow: { label: 'FAQ – Eyebrow' },
+  faqTitle: { label: 'FAQ – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  learnMoreLabel: { label: '"Mehr erfahren"-Button-Text' },
+  galleryAllLabel: { label: 'Galerie-"Alle anzeigen"-Button-Text' },
   testimonialsEyebrow: { label: 'Eyebrow' },
   testimonialsTitle: { label: 'Überschrift' },
   manifestEyebrow: { label: 'Manifest – Eyebrow' },
