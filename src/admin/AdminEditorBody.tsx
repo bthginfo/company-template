@@ -958,6 +958,7 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
         <FormFieldsEditor data={data} setData={setData} />
       </SectionCard>
       <SectionCard title="Wegbeschreibung" description="Drei Karten mit Anfahrt-Hinweisen." badge="Sektion 4" pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
+        <ArrivalSectionHeader data={data} setData={setData} />
         <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(tpl)} />
       </SectionCard>
       <SectionCard title="Karte" description="Google-Maps-Link einbetten." badge="Sektion 5">
@@ -2190,6 +2191,27 @@ function PressEditor({ data, setData }: SetterProps) {
   );
 }
 
+function ArrivalSectionHeader({ data, setData }: SetterProps) {
+  const v = ((data as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+  const set = (patch: Partial<typeof v>) => setData({ ...(data as any), arrivalSection: { ...v, ...patch } } as SiteContent);
+  return (
+    <div className="space-y-3 mb-4 pb-4 border-b border-line">
+      <p className="text-xs uppercase tracking-widest text-muted">Überschrift dieses Abschnitts</p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field label="Eyebrow" hint="Standard: Wegbeschreibung">
+          <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ eyebrow: e.target.value })} placeholder="Wegbeschreibung" />
+        </Field>
+        <Field label="Titel" hint="Standard: So finden Sie uns.">
+          <input className={inputCls} value={v.title || ''} onChange={(e) => set({ title: e.target.value })} placeholder="So finden Sie uns." />
+        </Field>
+      </div>
+      <Field label="Untertitel (optional)">
+        <textarea className={inputCls} rows={2} value={v.subtitle || ''} onChange={(e) => set({ subtitle: e.target.value })} placeholder="" />
+      </Field>
+    </div>
+  );
+}
+
 function ArrivalEditor({ data, setData, defaults }: SetterProps & { defaults: { t: string; d: string }[] }) {
   const [list, set] = useExtra<{ t: string; d: string }[]>(data, setData, 'arrival', defaults);
   return (
@@ -2270,10 +2292,21 @@ function FormFieldsEditor({ data, setData }: SetterProps) {
 
 function CtaBandEditor({ data, setData, tpl }: SectionProps) {
   const def = defaultCta(tpl);
-  const [v, set] = useExtra<{ lead: string; sub: string; cta: string; ctaHref: string }>(data, setData, 'ctaBandOverride', { lead: '', sub: '', cta: '', ctaHref: '/kontakt' });
+  const [v, set] = useExtra<{ lead: string; sub: string; cta: string; ctaHref: string; eyebrow: string; leadAccent: string }>(
+    data, setData, 'ctaBandOverride',
+    { lead: '', sub: '', cta: '', ctaHref: '/kontakt', eyebrow: '', leadAccent: '' },
+  );
   return (
     <>
-      <Field label="Headline" hint="Große Hauptzeile (z. B. „Hunger?“, „Termin?“, „Auftrag?“).">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Bereit?. Leer = ausgeblendet.">
+          <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
+        </Field>
+        <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Standard: Schreiben Sie uns. Leer = ausgeblendet.">
+          <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder="Schreiben Sie uns." />
+        </Field>
+      </div>
+      <Field label="Headline" hint="Große Hauptzeile (z. B. Hunger?, Termin?, Auftrag?).">
         <input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} placeholder={def.lead} />
       </Field>
       <Field label="Untertitel">

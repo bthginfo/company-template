@@ -386,7 +386,7 @@ export function Section({
 }
 
 /* ─── ContactBlock ───────────────────────────────────────────────── */
-export function ContactBlock({ content, showForm = true, formTenant }: { content: SiteContent; showForm?: boolean; formTenant?: string }) {
+export function ContactBlock({ content, showForm = true, showMap = true, formTenant }: { content: SiteContent; showForm?: boolean; showMap?: boolean; formTenant?: string }) {
   const c = content.contact;
   // Tenant slug for /api/contact resolution. Server-side this is used to look up
   // the tenant's own SMTP config; falls back to env if absent. Brand name alone
@@ -459,12 +459,12 @@ export function ContactBlock({ content, showForm = true, formTenant }: { content
                   />
                 );
               })()}
-              {(c.mapsUrl || c.address) && (
+              {showMap && (c.mapsUrl || c.address) && (
                 <SafeMapEmbed mapsUrl={c.mapsUrl || ''} address={c.address || ''} city={c.city || ''} className="h-[280px]" />
               )}
             </div>
           ) : (
-            <SafeMapEmbed mapsUrl={c.mapsUrl || ''} address={c.address || ''} city={c.city || ''} className="h-[520px]" />
+            showMap ? <SafeMapEmbed mapsUrl={c.mapsUrl || ''} address={c.address || ''} city={c.city || ''} className="h-[520px]" /> : null
           )}
         </div>
       </div>

@@ -1023,9 +1023,11 @@ function CtaBand({ variant, content }: { variant: TemplateVariant; content?: Sit
     tourism: { lead: 'Auf in die Berge?', cta: 'Tour buchen', sub: 'Wir beraten ehrlich, welche Tour zu Ihrer Gruppe und Saison passt.' },
   };
   const def = text[variant];
-  const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string } | undefined;
+  const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string; eyebrow?: string; leadAccent?: string } | undefined;
   const t = {
+    eyebrow: (ov?.eyebrow && ov.eyebrow.trim()) || 'Bereit?',
     lead: (ov?.lead && ov.lead.trim()) || def.lead,
+    leadAccent: (ov?.leadAccent && ov.leadAccent.trim()) || 'Schreiben Sie uns.',
     sub: (ov?.sub && ov.sub.trim()) || def.sub,
     cta: (ov?.cta && ov.cta.trim()) || def.cta,
     ctaHref: (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt',
@@ -1033,10 +1035,9 @@ function CtaBand({ variant, content }: { variant: TemplateVariant; content?: Sit
   return (
     <section className="py-32 md:py-44 surface relative overflow-hidden">
       <div className="container-x text-center max-w-3xl mx-auto reveal">
-        <p className="eyebrow mb-5 justify-center">Bereit?</p>
+        {t.eyebrow ? <p className="eyebrow mb-5 justify-center">{t.eyebrow}</p> : null}
         <h2 className="headline-xl">
-          {t.lead}<br />
-          <em className="italic-pop">Schreiben Sie uns.</em>
+          {t.lead}{t.leadAccent ? <><br /><em className="italic-pop">{t.leadAccent}</em></> : null}
         </h2>
         <p className="mt-8 text-lg md:text-xl text-muted">{t.sub}</p>
         <div className="mt-12">
@@ -1707,10 +1708,19 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   const overlay = (content as any).arrival as { t: string; d: string }[] | undefined;
   const arrival = overlay && overlay.length ? overlay.filter((a) => a.t || a.d) : arrivalFallbacks[variant];
   const order = getEffectivePageOrder(content, 'contact').filter((k) => isSectionEnabled(content, 'contact', k));
+  // If the page already has the dedicated arrival map below, skip the small
+  // map under the form to avoid showing two Google Maps embeds back-to-back.
+  const arrivalEnabled = isSectionEnabled(content, 'contact', 'arrival') && order.includes('arrival');
+  const arrivalOv = ((content as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const blocks: Record<string, JSX.Element | null> = {
-    block: <ContactBlock content={content} />,
+    block: <ContactBlock content={content} showMap={!arrivalEnabled} />,
     arrival: (
-      <Section eyebrow="Wegbeschreibung" title={<>So <em className="italic-pop">finden Sie uns.</em></>} className="surface">
+      <Section
+        eyebrow={arrivalOv.eyebrow || 'Wegbeschreibung'}
+        title={arrivalOv.title || <>So <em className="italic-pop">finden Sie uns.</em></>}
+        subtitle={arrivalOv.subtitle || undefined}
+        className="surface"
+      >
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
           {arrival.map((a, i) => (
             <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
