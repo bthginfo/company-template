@@ -157,9 +157,9 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
         </aside>
 
         {/* RIGHT: page editor */}
-        <div className="bg-white rounded-2xl shadow-sm">
-          <div className="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-line flex items-start justify-between gap-4 flex-wrap">
-            <div>
+        <div className="bg-white rounded-2xl shadow-sm min-w-0 overflow-hidden">
+          <div className="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-line flex items-start justify-between gap-4 flex-wrap min-w-0">
+            <div className="min-w-0">
               <p className="text-xs uppercase tracking-widest text-muted">{isGlobal ? 'Global' : 'Seite'}</p>
               <h1 className="font-display text-3xl mt-1">{activePage?.label || labelForGlobal(pageId)}</h1>
               {!isGlobal && (
@@ -584,6 +584,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           newItem={() => ''}
           addLabel="+ Hinweis hinzufügen"
         />
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
       </SectionCard>
 
       <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Haupt-Button." badge="Sektion 2">
@@ -599,6 +600,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <Field label="Beschreibungstext" hint="Längerer Fließtext unter dem Untertitel – beschreibt das Angebot in 1–3 Sätzen.">
           <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
         </Field>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teaserSubtitle']} />
         <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Button-Text"><input className={inputCls} value={data.hero.ctaLabel || ''} onChange={(e) => set({ hero: { ...data.hero, ctaLabel: e.target.value } })} /></Field>
@@ -624,6 +626,10 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
         </Field>
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
+        <div className="pt-2 border-t border-black/5">
+          <p className="text-xs text-muted mb-3">Manifest-Block (kurzer Leitsatz unter dem Teaser, falls die Variante einen anzeigt).</p>
+          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['manifestEyebrow', 'manifestTitle']} />
+        </div>
       </SectionCard>
 
       <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 5" pageKey="home" sectionKey="services" data={data} setData={setData}>
@@ -647,6 +653,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6" pageKey="home" sectionKey="gallery" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserTitle']} />
         <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten 7 Bilder erscheinen hier.</p>
         <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
           {data.gallery.slice(0, 7).map((src, i) => (
@@ -658,10 +665,12 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Bewertungen-Teaser" description="Die ersten drei Stimmen erscheinen auf der Startseite." badge="Sektion 7" pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['testimonialsEyebrow', 'testimonialsTitle']} />
         <TestimonialsEditor data={data} setData={setData} max={3} />
       </SectionCard>
 
       <SectionCard title="News-Teaser" description="Die 3 neuesten veröffentlichten Beiträge erscheinen auf der Startseite." badge="Sektion 8" pageKey="home" sectionKey="news" data={data} setData={setData}>
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['newsEyebrow', 'newsTitle']} />
         <p className="text-xs text-muted">
           Beiträge anlegen und bearbeiten Sie unter <strong>News &amp; Blog</strong> in der Seitenleiste. Hier sehen Sie nur, welche aktuell auf der Startseite landen.
         </p>
@@ -670,10 +679,10 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Abschluss-Aufruf (CTA)" description="Der Aufruf am Seitenende." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
-
-      <SectionCard title="Branchen-Texte (Standard-Überschreibungen)" description="Überschreiben Sie die mitgelieferten Standard-Texte (Marquee, Manifest, Galerie-Titel, News-Heading …). Leer lassen = Standardtext der Branche/Stilkombination wird verwendet." badge="Texte">
-        <BranchTextEditor data={data} setData={setData} tpl={tpl} />
+        <div className="pt-2 border-t border-black/5">
+          <p className="text-xs text-muted mb-3">Soft-CTA-Texte (werden in den Stilen <em>Modern</em> und <em>Bold</em> verwendet).</p>
+          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['softCtaEyebrow', 'softCtaTitle', 'softCtaText', 'softCtaButton']} />
+        </div>
       </SectionCard>
 
       <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
@@ -1514,82 +1523,80 @@ function ScriptsPage({ data, setData }: SetterProps) {
 }
 
 
-function BranchTextEditor({ data, setData, tpl }: SectionProps) {
+type BranchTextKey =
+  | 'teaserSubtitle'
+  | 'marqueeWords'
+  | 'galleryTeaserTitle'
+  | 'testimonialsEyebrow'
+  | 'testimonialsTitle'
+  | 'manifestEyebrow'
+  | 'manifestTitle'
+  | 'softCtaEyebrow'
+  | 'softCtaTitle'
+  | 'softCtaText'
+  | 'softCtaButton'
+  | 'newsEyebrow'
+  | 'newsTitle';
+
+const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; rows?: number }> = {
+  teaserSubtitle: { label: 'Hero-Beschreibung (alternativ)', hint: 'Wird verwendet, wenn der Beschreibungstext oben leer ist.', rows: 2 },
+  marqueeWords: { label: 'Marquee / Laufband-Wörter (kommagetrennt)' },
+  galleryTeaserTitle: { label: 'Galerie-Teaser-Titel', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  testimonialsEyebrow: { label: 'Eyebrow' },
+  testimonialsTitle: { label: 'Überschrift' },
+  manifestEyebrow: { label: 'Manifest – Eyebrow' },
+  manifestTitle: { label: 'Manifest – Überschrift' },
+  softCtaEyebrow: { label: 'Eyebrow' },
+  softCtaTitle: { label: 'Überschrift' },
+  softCtaText: { label: 'Text' },
+  softCtaButton: { label: 'Button-Beschriftung' },
+  newsEyebrow: { label: 'Eyebrow' },
+  newsTitle: { label: 'Überschrift' },
+};
+
+function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: BranchTextKey[] }) {
   const bt = ((data as any).branchText ?? {}) as Record<string, any>;
   const def = branchTextDefaults(tpl);
   const update = (patch: Record<string, any>) => {
     setData({ ...(data as any), branchText: { ...bt, ...patch } } as SiteContent);
   };
-  const marqueeStr = Array.isArray(bt.marqueeWords) ? bt.marqueeWords.join(', ') : '';
   return (
-    <div className="grid gap-4">
-      <Field label="Hero-Untertitel (Branchen-Standard)" hint={`Standard: ${def.teaserSubtitle}`}>
-        <textarea
-          className={inputCls}
-          rows={2}
-          value={bt.teaserSubtitle ?? ''}
-          onChange={(e) => update({ teaserSubtitle: e.target.value })}
-          placeholder={def.teaserSubtitle}
-        />
-      </Field>
-      <Field label="Marquee / Laufband-Wörter (kommagetrennt)" hint={`Standard: ${def.marqueeWords.join(', ')}`}>
-        <input
-          className={inputCls}
-          value={marqueeStr}
-          onChange={(e) => {
-            const arr = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
-            update({ marqueeWords: arr });
-          }}
-          placeholder={def.marqueeWords.join(', ')}
-        />
-      </Field>
-      <Field label="Galerie-Teaser-Titel" hint={`Standard: ${def.galleryTeaserTitle} – die zweite Hälfte wird automatisch kursiv.`}>
-        <input
-          className={inputCls}
-          value={bt.galleryTeaserTitle ?? ''}
-          onChange={(e) => update({ galleryTeaserTitle: e.target.value })}
-          placeholder={def.galleryTeaserTitle}
-        />
-      </Field>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Testimonials Eyebrow" hint={`Standard: ${def.testimonialsEyebrow}`}>
-          <input className={inputCls} value={bt.testimonialsEyebrow ?? ''} onChange={(e) => update({ testimonialsEyebrow: e.target.value })} placeholder={def.testimonialsEyebrow} />
-        </Field>
-        <Field label="Testimonials Titel" hint={`Standard: ${def.testimonialsTitle}`}>
-          <input className={inputCls} value={bt.testimonialsTitle ?? ''} onChange={(e) => update({ testimonialsTitle: e.target.value })} placeholder={def.testimonialsTitle} />
-        </Field>
-      </div>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Manifest Eyebrow" hint={`Standard: ${def.manifestEyebrow}`}>
-          <input className={inputCls} value={bt.manifestEyebrow ?? ''} onChange={(e) => update({ manifestEyebrow: e.target.value })} placeholder={def.manifestEyebrow} />
-        </Field>
-        <Field label="Manifest Titel" hint={`Standard: ${def.manifestTitle}`}>
-          <input className={inputCls} value={bt.manifestTitle ?? ''} onChange={(e) => update({ manifestTitle: e.target.value })} placeholder={def.manifestTitle} />
-        </Field>
-      </div>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Soft-CTA Eyebrow" hint={`Standard: ${def.softCtaEyebrow}`}>
-          <input className={inputCls} value={bt.softCtaEyebrow ?? ''} onChange={(e) => update({ softCtaEyebrow: e.target.value })} placeholder={def.softCtaEyebrow} />
-        </Field>
-        <Field label="Soft-CTA Titel" hint={`Standard: ${def.softCtaTitle}`}>
-          <input className={inputCls} value={bt.softCtaTitle ?? ''} onChange={(e) => update({ softCtaTitle: e.target.value })} placeholder={def.softCtaTitle} />
-        </Field>
-      </div>
-      <Field label="Soft-CTA Text" hint={`Standard: ${def.softCtaText}`}>
-        <input className={inputCls} value={bt.softCtaText ?? ''} onChange={(e) => update({ softCtaText: e.target.value })} placeholder={def.softCtaText} />
-      </Field>
-      <Field label="Soft-CTA Button-Beschriftung" hint={`Standard: ${def.softCtaButton}`}>
-        <input className={inputCls} value={bt.softCtaButton ?? ''} onChange={(e) => update({ softCtaButton: e.target.value })} placeholder={def.softCtaButton} />
-      </Field>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="News-Teaser Eyebrow" hint="Kleine Beschriftung über der Überschrift. Standard: Aktuelles">
-          <input className={inputCls} value={bt.newsEyebrow ?? ''} onChange={(e) => update({ newsEyebrow: e.target.value })} placeholder="Aktuelles" />
-        </Field>
-        <Field label="News-Teaser Überschrift" hint="Standard: Notizen.">
-          <input className={inputCls} value={bt.newsTitle ?? ''} onChange={(e) => update({ newsTitle: e.target.value })} placeholder="Notizen." />
-        </Field>
-      </div>
-    </div>
+    <>
+      {keys.map((key) => {
+        const meta = BRANCH_TEXT_LABELS[key];
+        if (key === 'marqueeWords') {
+          const arr = Array.isArray(bt.marqueeWords) ? bt.marqueeWords : [];
+          const placeholder = (def as any).marqueeWords?.join?.(', ') ?? '';
+          return (
+            <Field key={key} label={meta.label} hint={meta.hint}>
+              <input
+                className={inputCls}
+                value={arr.join(', ')}
+                onChange={(e) => {
+                  const next = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
+                  update({ marqueeWords: next });
+                }}
+                placeholder={placeholder}
+              />
+            </Field>
+          );
+        }
+        const val = (bt[key] as string | undefined) ?? '';
+        const placeholder = String((def as any)[key] ?? '');
+        if (meta.rows && meta.rows > 1) {
+          return (
+            <Field key={key} label={meta.label} hint={meta.hint}>
+              <textarea className={inputCls} rows={meta.rows} value={val} onChange={(e) => update({ [key]: e.target.value })} placeholder={placeholder} />
+            </Field>
+          );
+        }
+        return (
+          <Field key={key} label={meta.label} hint={meta.hint}>
+            <input className={inputCls} value={val} onChange={(e) => update({ [key]: e.target.value })} placeholder={placeholder} />
+          </Field>
+        );
+      })}
+    </>
   );
 }
 
@@ -1792,7 +1799,7 @@ function HoursEditor({ data, setData }: SetterProps) {
       <p className="text-xs uppercase tracking-widest text-muted mb-3">Zeilen</p>
       <div className="space-y-2">
         {c.hours.map((h, i) => (
-          <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+          <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 sm:items-center">
             <input className={inputCls} placeholder="Tag(e)" value={h.day} onChange={(e) => set({ hours: c.hours.map((x, j) => j === i ? { ...x, day: e.target.value } : x) })} />
             <input className={inputCls} placeholder="Uhrzeit" value={h.time} onChange={(e) => set({ hours: c.hours.map((x, j) => j === i ? { ...x, time: e.target.value } : x) })} />
             <button onClick={() => set({ hours: c.hours.filter((_, j) => j !== i) })} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">×</button>
@@ -2167,7 +2174,7 @@ function FormFieldsEditor({ data, setData }: SetterProps) {
   return (
     <div className="space-y-2">
       {list.map((f, i) => (
-        <div key={i} className="grid grid-cols-[1fr_1fr_120px_auto_auto] gap-2 items-center">
+        <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_120px_auto_auto] gap-2 sm:items-center">
           <input className={inputCls} placeholder="Beschriftung" value={f.label} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
           <input className={inputCls} placeholder="Schlüssel" value={f.key} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, key: e.target.value } : x))} />
           <select className={inputCls} value={f.type} onChange={(e) => set(list.map((x, j) => j === i ? { ...x, type: e.target.value as any } : x))}>
