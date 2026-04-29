@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
-import { SECTION_CATALOG, getEffectivePageOrder, getRemainingSections, isSectionEnabled, type PageId as LayoutPageId } from '@/lib/page-layout';
+import { getEffectivePageOrder, getRemainingSections, isSectionEnabled, type PageId as LayoutPageId } from '@/lib/page-layout';
 import { RichTextEditor } from './RichTextEditor';
 import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
 import { scrollToTop } from '@/lib/scroll';
@@ -189,7 +189,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'contactPage' && <ContactPageEditor data={data} setData={setData} tpl={tplKey} />}
           </div>
 
-          <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7] rounded-b-2xl">
+          <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7]/95 backdrop-blur rounded-b-2xl sticky bottom-0 z-20 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
             <div className="text-sm text-muted">
               {savedAt
                 ? <span className="text-emerald-700">✓ Gespeichert um {savedAt}</span>
@@ -197,7 +197,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             </div>
             <div className="flex gap-2 flex-wrap">
               {footerExtraActions}
-              <button onClick={() => onSave()} disabled={saving} className="btn-primary !px-5 !py-2 text-sm disabled:opacity-60">
+              <button onClick={() => onSave()} disabled={saving} className="btn-primary !px-5 !py-2 text-sm disabled:opacity-60 shadow-md">
                 {saving ? 'Speichert …' : 'Speichern'}
               </button>
             </div>
@@ -299,18 +299,140 @@ type SetterProps = { data: SiteContent; setData: (d: SiteContent) => void };
 type SectionProps = SetterProps & { tpl: TemplateKey };
 const inputCls = 'w-full bg-[#f6f6f3] rounded-xl px-4 py-2.5 border border-line focus:border-brand focus:bg-white outline-none transition text-sm';
 
-function SectionCard({ title, description, badge, children }: { title: string; description?: string; badge?: string; children: React.ReactNode }) {
+function SectionCard({ title, description, badge, children, pageKey, sectionKey, data, setData }: {
+  title: string;
+  description?: string;
+  badge?: string;
+  children: React.ReactNode;
+  pageKey?: LayoutPageId;
+  sectionKey?: string;
+  data?: SiteContent;
+  setData?: (d: SiteContent) => void;
+}) {
+  const showControls = !!(pageKey && sectionKey && data && setData);
   return (
     <section className="border border-line rounded-2xl overflow-hidden">
       <header className="px-5 py-4 bg-[#fafaf7] border-b border-line flex items-center justify-between gap-3 flex-wrap">
-        <div>
+        <div className="min-w-0">
           <h2 className="font-display text-xl">{title}</h2>
           {description && <p className="text-xs text-muted mt-0.5">{description}</p>}
         </div>
-        {badge && <span className="text-[10px] uppercase tracking-widest bg-white border border-line text-muted rounded-full px-2.5 py-1">{badge}</span>}
+        <div className="flex items-center gap-2 flex-wrap">
+          {showControls && <SectionInlineControls pageKey={pageKey!} sectionKey={sectionKey!} data={data!} setData={setData!} />}
+          {badge && <span className="text-[10px] uppercase tracking-widest bg-white border border-line text-muted rounded-full px-2.5 py-1">{badge}</span>}
+        </div>
       </header>
       <div className="p-5 md:p-6 space-y-4">{children}</div>
     </section>
+  );
+}
+
+/**
+ * Inline visibility/reorder/remove controls rendered in each SectionCard header
+ * when a `pageKey` + `sectionKey` are provided. Mirrors the logic in the (now-removed)
+ * top-level Layout-Manager panel.
+ */
+function SectionInlineControls({ pageKey, sectionKey, data, setData }: {
+  pageKey: LayoutPageId;
+  sectionKey: string;
+  data: SiteContent;
+  setData: (d: SiteContent) => void;
+}) {
+  const variant = (data.brand as any)?.variant as any;
+  const visibility = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
+  const order = ((data as any).sectionOrder ?? {}) as Record<string, string[]>;
+  const effective = getEffectivePageOrder(data as any, pageKey, variant);
+  const inOrder = effective.includes(sectionKey);
+  const idx = effective.indexOf(sectionKey);
+  const isOn = isSectionEnabled(data as any, pageKey, sectionKey);
+
+  const writeVisibility = (next: Record<string, boolean>) => {
+    setData({ ...(data as any), sectionVisibility: next } as SiteContent);
+  };
+  const writeOrder = (next: string[]) => {
+    setData({ ...(data as any), sectionOrder: { ...order, [pageKey]: next } } as SiteContent);
+  };
+
+  const toggleOn = () => {
+    const visKey = `${pageKey}.${sectionKey}`;
+    const next = { ...visibility, [visKey]: !isOn };
+    if (pageKey === 'home' && Object.prototype.hasOwnProperty.call(visibility, sectionKey)) {
+      next[sectionKey] = !isOn;
+    }
+    writeVisibility(next);
+  };
+
+  const move = (dir: -1 | 1) => {
+    if (idx < 0) return;
+    const j = idx + dir;
+    if (j < 0 || j >= effective.length) return;
+    const next = effective.slice();
+    [next[idx], next[j]] = [next[j], next[idx]];
+    writeOrder(next);
+  };
+
+  const removeFromPage = () => {
+    if (idx < 0) return;
+    if (!confirm('Diese Sektion von der Seite entfernen? Du kannst sie unten wieder hinzufügen.')) return;
+    writeOrder(effective.filter((k) => k !== sectionKey));
+  };
+
+  return (
+    <div className="flex items-center gap-1 text-sm">
+      <button
+        type="button"
+        onClick={toggleOn}
+        title={isOn ? 'Sektion ausblenden' : 'Sektion einblenden'}
+        className={`px-2.5 py-1 rounded-lg border text-xs ${isOn ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-white border-line text-muted'}`}
+      >
+        {isOn ? '● Sichtbar' : '○ Versteckt'}
+      </button>
+      {inOrder && (
+        <>
+          <button type="button" onClick={() => move(-1)} disabled={idx <= 0} className="h-7 w-7 rounded-lg border border-line bg-white grid place-items-center text-xs disabled:opacity-30" title="Höher schieben">↑</button>
+          <button type="button" onClick={() => move(1)} disabled={idx >= effective.length - 1} className="h-7 w-7 rounded-lg border border-line bg-white grid place-items-center text-xs disabled:opacity-30" title="Tiefer schieben">↓</button>
+          <span className="text-[10px] font-mono text-muted px-1" title="Position auf der Seite">{idx + 1}/{effective.length}</span>
+          <button type="button" onClick={removeFromPage} className="h-7 w-7 rounded-lg border border-line bg-white grid place-items-center text-xs text-rose-600" title="Von Seite entfernen">×</button>
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Footer for each page editor: lets the user add removed sections back.
+ * Only catalog sections valid for this variant are listed.
+ */
+function AddSectionRow({ pageKey, data, setData, tpl }: {
+  pageKey: LayoutPageId;
+  data: SiteContent;
+  setData: (d: SiteContent) => void;
+  tpl: TemplateKey;
+}) {
+  const variant = tpl as any;
+  const order = ((data as any).sectionOrder ?? {}) as Record<string, string[]>;
+  const visibility = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
+  const effective = getEffectivePageOrder(data as any, pageKey, variant);
+  const remaining = getRemainingSections(pageKey, effective, variant);
+  if (remaining.length === 0) return null;
+  const onAdd = (key: string) => {
+    setData({
+      ...(data as any),
+      sectionOrder: { ...order, [pageKey]: [...effective, key] },
+      sectionVisibility: { ...visibility, [`${pageKey}.${key}`]: true },
+    } as SiteContent);
+  };
+  return (
+    <div className="border border-dashed border-line rounded-2xl p-5 bg-[#fafaf7]">
+      <p className="text-xs uppercase tracking-widest text-muted mb-3">Entfernte Sektion wieder hinzufügen</p>
+      <div className="flex flex-wrap gap-2">
+        {remaining.map((s) => (
+          <button key={s.key} type="button" onClick={() => onAdd(s.key)} className="text-xs px-3 py-1.5 rounded-full border border-line bg-white hover:bg-brand hover:text-white transition" title={s.description}>
+            + {s.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
@@ -452,10 +574,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
   const announcements = (data as any).announcements as string[] | undefined;
   return (
     <>
-      <SectionCard title="Layout & Sichtbarkeit (alle Seiten)" description="Sektionen pro Seite ein-/ausblenden, neu sortieren und bestehende Sektionen hinzufügen." badge="Layout">
-        <SectionVisibilityEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
-
       <SectionCard title="Lauftext-Banner" description="Die kleine Marquee-Zeile ganz oben über dem Hero." badge="Sektion 1">
         <RepeatableList
           items={announcements ?? defaultAnnouncements(tpl)}
@@ -494,11 +612,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         </SectionCard>
       )}
 
-      <SectionCard title="Zahlen-Band" description={'Vier Eckdaten – meist direkt unter dem Hero (auch in „Über uns").'} badge="Sektion 3">
+      <SectionCard title="Zahlen-Band" description={'Vier Eckdaten – meist direkt unter dem Hero (auch in „Über uns").'} badge="Sektion 3" pageKey="home" sectionKey="numbers" data={data} setData={setData}>
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
-      <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 4">
+      <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 4" pageKey="home" sectionKey="about" data={data} setData={setData}>
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
@@ -508,7 +626,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
       </SectionCard>
 
-      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 5">
+      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 5" pageKey="home" sectionKey="services" data={data} setData={setData}>
         <p className="text-xs text-muted">
           Bearbeiten Sie die Liste unter <strong>{tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen'}</strong> in der Seitenleiste. Hier wählen Sie nur, welche zuerst erscheinen.
         </p>
@@ -528,7 +646,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         />
       </SectionCard>
 
-      <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6">
+      <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6" pageKey="home" sectionKey="gallery" data={data} setData={setData}>
         <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten 7 Bilder erscheinen hier.</p>
         <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
           {data.gallery.slice(0, 7).map((src, i) => (
@@ -539,24 +657,26 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
-      <SectionCard title="Bewertungen-Teaser" description="Die ersten drei Stimmen erscheinen auf der Startseite." badge="Sektion 7">
+      <SectionCard title="Bewertungen-Teaser" description="Die ersten drei Stimmen erscheinen auf der Startseite." badge="Sektion 7" pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
         <TestimonialsEditor data={data} setData={setData} max={3} />
       </SectionCard>
 
-      <SectionCard title="News-Teaser" description="Die 3 neuesten veröffentlichten Beiträge erscheinen auf der Startseite." badge="Sektion 8">
+      <SectionCard title="News-Teaser" description="Die 3 neuesten veröffentlichten Beiträge erscheinen auf der Startseite." badge="Sektion 8" pageKey="home" sectionKey="news" data={data} setData={setData}>
         <p className="text-xs text-muted">
           Beiträge anlegen und bearbeiten Sie unter <strong>News &amp; Blog</strong> in der Seitenleiste. Hier sehen Sie nur, welche aktuell auf der Startseite landen.
         </p>
         <NewsHomePreview data={data} />
       </SectionCard>
 
-      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der Aufruf am Seitenende." badge="Sektion 9">
+      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der Aufruf am Seitenende." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
       <SectionCard title="Branchen-Texte (Standard-Überschreibungen)" description="Überschreiben Sie die mitgelieferten Standard-Texte (Marquee, Manifest, Galerie-Titel, News-Heading …). Leer lassen = Standardtext der Branche/Stilkombination wird verwendet." badge="Texte">
         <BranchTextEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
+
+      <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
     </>
   );
 }
@@ -571,10 +691,10 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           subtitle: '',
         }} />
       </SectionCard>
-      <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Überschrift." badge="Sektion 2">
+      <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Überschrift." badge="Sektion 2" pageKey="services" sectionKey="highlights" data={data} setData={setData}>
         <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
       </SectionCard>
-      <SectionCard title={tpl === 'restaurant' ? 'Gerichte' : 'Leistungen'} description="Vollständige Liste – Reihenfolge, Bild, Preis, Beschreibung." badge="Sektion 3">
+      <SectionCard title={tpl === 'restaurant' ? 'Gerichte' : 'Leistungen'} description="Vollständige Liste – Reihenfolge, Bild, Preis, Beschreibung." badge="Sektion 3" pageKey="services" sectionKey="list" data={data} setData={setData}>
         <ServicesListEditor data={data} setData={setData} />
       </SectionCard>
       {tpl === 'fitness' && (
@@ -590,22 +710,22 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
 
       {/* ───── Branch-specific modules (Phase 2) ───── */}
       {tpl === 'restaurant' && (
-        <SectionCard title="Speisekarte (Kategorien & Gerichte)" description="Vollständige Karte mit Kategorien, Allergenen und Tags. Erscheint als Modul-Block auf der Speisekarte-Seite." badge="Modul · Speisekarte">
+        <SectionCard title="Speisekarte (Kategorien & Gerichte)" description="Vollständige Karte mit Kategorien, Allergenen und Tags. Erscheint als Modul-Block auf der Speisekarte-Seite." badge="Modul · Speisekarte" pageKey="services" sectionKey="module" data={data} setData={setData}>
           <MenuEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'hotel' && (
-        <SectionCard title="Zimmer-Showcase" description="Detaillierte Zimmer mit Größe, Bett, Preis & Ausstattung. Erscheint als Modul-Block auf der Zimmer-Seite." badge="Modul · Zimmer">
+        <SectionCard title="Zimmer-Showcase" description="Detaillierte Zimmer mit Größe, Bett, Preis & Ausstattung. Erscheint als Modul-Block auf der Zimmer-Seite." badge="Modul · Zimmer" pageKey="services" sectionKey="module" data={data} setData={setData}>
           <RoomsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'tourism' && (
-        <SectionCard title="Tour-Karten" description="Touren mit Schwierigkeit, Dauer, Sprachen und Preis. Erscheint als Modul-Block auf der Touren-Seite." badge="Modul · Touren">
+        <SectionCard title="Tour-Karten" description="Touren mit Schwierigkeit, Dauer, Sprachen und Preis. Erscheint als Modul-Block auf der Touren-Seite." badge="Modul · Touren" pageKey="services" sectionKey="module" data={data} setData={setData}>
           <ToursEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'salon' && (
-        <SectionCard title="Behandlungen (kategorisiert)" description="Kategorisierte Behandlungsliste mit Dauer & Preis." badge="Modul · Treatments">
+        <SectionCard title="Behandlungen (kategorisiert)" description="Kategorisierte Behandlungsliste mit Dauer & Preis." badge="Modul · Treatments" pageKey="services" sectionKey="module" data={data} setData={setData}>
           <TreatmentsEditor data={data} setData={setData} />
         </SectionCard>
       )}
@@ -644,15 +764,16 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           <EmergencyBannerEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte „So läuft es ab".'} badge="Sektion 4">
+      <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte „So läuft es ab".'} badge="Sektion 4" pageKey="services" sectionKey="process" data={data} setData={setData}>
         <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
       </SectionCard>
-      <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5">
+      <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5" pageKey="services" sectionKey="faq" data={data} setData={setData}>
         <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
       </SectionCard>
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6">
+      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="services" sectionKey="cta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
+      <AddSectionRow pageKey="services" data={data} setData={setData} tpl={tpl} />
     </>
   );
 }
@@ -693,7 +814,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
         }} />
       </SectionCard>
 
-      <SectionCard title="Galerie-Einleitung" description="Kurzer Text mit drei Captions über den Bildern – was schauen Besucher hier?" badge="Sektion 2">
+      <SectionCard title="Galerie-Einleitung" description="Kurzer Text mit drei Captions über den Bildern – was schauen Besucher hier?" badge="Sektion 2" pageKey="gallery" sectionKey="story" data={data} setData={setData}>
         <GalleryStoryEditor data={data} setData={setData} defaults={defaultGalleryStory(tpl)} />
       </SectionCard>
 
@@ -713,7 +834,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
-      <SectionCard title={`Alle Bilder (${data.gallery.length})`} description="Reihenfolge per ↑/↓, Bild entfernen mit ×." badge="Sektion 4">
+      <SectionCard title={`Alle Bilder (${data.gallery.length})`} description="Reihenfolge per ↑/↓, Bild entfernen mit ×." badge="Sektion 4" pageKey="gallery" sectionKey="grid" data={data} setData={setData}>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {data.gallery.map((src, i) => (
             <div key={i} className="relative group aspect-square overflow-hidden rounded-xl border border-line">
@@ -731,13 +852,14 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
-      <SectionCard title="Kategorien-Übersicht" description="Drei Kategorien-Karten unter der Galerie – was bieten Sie inhaltlich?" badge="Sektion 5">
+      <SectionCard title="Kategorien-Übersicht" description="Drei Kategorien-Karten unter der Galerie – was bieten Sie inhaltlich?" badge="Sektion 5" pageKey="gallery" sectionKey="categories" data={data} setData={setData}>
         <GalleryCategoriesEditor data={data} setData={setData} defaults={defaultGalleryCategories(tpl)} />
       </SectionCard>
 
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6">
+      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="gallery" sectionKey="cta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
+      <AddSectionRow pageKey="gallery" data={data} setData={setData} tpl={tpl} />
     </>
   );
 }
@@ -748,7 +870,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Seiten-Header" badge="Sektion 1">
         <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Über uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
       </SectionCard>
-      <SectionCard title="Geschichte / Erzählung" description="Längerer Fließtext mit Bild." badge="Sektion 2">
+      <SectionCard title="Geschichte / Erzählung" description="Längerer Fließtext mit Bild." badge="Sektion 2" pageKey="about" sectionKey="intro" data={data} setData={setData}>
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
         </Field>
@@ -757,34 +879,35 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         </Field>
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
       </SectionCard>
-      <SectionCard title="Werte / Grundsätze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3">
+      <SectionCard title="Werte / Grundsätze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3" pageKey="about" sectionKey="values" data={data} setData={setData}>
         <ValuesEditor data={data} setData={setData} defaults={defaultValues(tpl)} />
       </SectionCard>
-      <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, Jubiläen — als vertikale Zeitleiste." badge="Sektion 4">
+      <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, Jubiläen — als vertikale Zeitleiste." badge="Sektion 4" pageKey="about" sectionKey="timeline" data={data} setData={setData}>
         <TimelineEditor data={data} setData={setData} />
       </SectionCard>
-      <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 5">
+      <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 5" pageKey="about" sectionKey="team" data={data} setData={setData}>
         <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
       </SectionCard>
-      <SectionCard title="Zahlen-Band" badge="Sektion 6">
+      <SectionCard title="Zahlen-Band" badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
       {tpl === 'tradesman' && (
-        <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 7">
+        <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 7" pageKey="about" sectionKey="certifications" data={data} setData={setData}>
           <CertificationsEditor data={data} setData={setData} />
         </SectionCard>
       )}
       {tpl === 'restaurant' && (
-        <SectionCard title="Presse-Stimmen" description="Drei Zitate aus Magazinen / Zeitungen." badge="Sektion 7">
+        <SectionCard title="Presse-Stimmen" description="Drei Zitate aus Magazinen / Zeitungen." badge="Sektion 7" pageKey="about" sectionKey="press" data={data} setData={setData}>
           <PressEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      <SectionCard title="Bewertungen" description="Alle Kund:innen-Stimmen." badge="Sektion 8">
+      <SectionCard title="Bewertungen" description="Alle Kund:innen-Stimmen." badge="Sektion 8" pageKey="about" sectionKey="testimonials" data={data} setData={setData}>
         <TestimonialsEditor data={data} setData={setData} />
       </SectionCard>
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 9">
+      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 9" pageKey="about" sectionKey="cta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
+      <AddSectionRow pageKey="about" data={data} setData={setData} tpl={tpl} />
     </>
   );
 }
@@ -799,14 +922,14 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
           subtitle: '',
         }} />
       </SectionCard>
-      <SectionCard title="Kontaktdaten-Block" description="Telefon, E-Mail, Adresse, Öffnungszeiten." badge="Sektion 2">
+      <SectionCard title="Kontaktdaten-Block" description="Telefon, E-Mail, Adresse, Öffnungszeiten." badge="Sektion 2" pageKey="contact" sectionKey="block" data={data} setData={setData}>
         <ContactFields data={data} setData={setData} />
         <HoursEditor data={data} setData={setData} />
       </SectionCard>
       <SectionCard title="Kontakt-Formular" description="Welche Felder soll das Formular haben?" badge="Sektion 3">
         <FormFieldsEditor data={data} setData={setData} />
       </SectionCard>
-      <SectionCard title="Wegbeschreibung" description="Drei Karten mit Anfahrt-Hinweisen." badge="Sektion 4">
+      <SectionCard title="Wegbeschreibung" description="Drei Karten mit Anfahrt-Hinweisen." badge="Sektion 4" pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
         <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(tpl)} />
       </SectionCard>
       <SectionCard title="Karte" description="Google-Maps-Link einbetten." badge="Sektion 5">
@@ -815,6 +938,7 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
         </Field>
         <Toggle value={!!data.contact.mapsUrl} onChange={(v) => !v && setData({ ...data, contact: { ...data.contact, mapsUrl: '' } })} label="Karte auf der Kontakt-Seite anzeigen" />
       </SectionCard>
+      <AddSectionRow pageKey="contact" data={data} setData={setData} tpl={tpl} />
     </>
   );
 }
@@ -1389,192 +1513,6 @@ function ScriptsPage({ data, setData }: SetterProps) {
   );
 }
 
-/* ─── Layout-Manager (Sichtbarkeit + Reihenfolge + Hinzufügen pro Seite) ─── */
-
-const PAGE_LABELS: Record<LayoutPageId, string> = {
-  home: 'Startseite',
-  services: 'Leistungen',
-  gallery: 'Galerie',
-  about: 'Über uns',
-  contact: 'Kontakt',
-};
-
-const PAGES_ORDER: LayoutPageId[] = ['home', 'services', 'gallery', 'about', 'contact'];
-
-function SectionVisibilityEditor({ data, setData, tpl }: SectionProps) {
-  const variant = tpl as any;
-  const visibility = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
-  const order = ((data as any).sectionOrder ?? {}) as Record<string, string[]>;
-
-  const setVisibility = (next: Record<string, boolean>) => {
-    setData({ ...(data as any), sectionVisibility: next } as SiteContent);
-  };
-  const setOrder = (next: Record<string, string[]>) => {
-    setData({ ...(data as any), sectionOrder: next } as SiteContent);
-  };
-
-  return (
-    <div className="grid gap-6">
-      <p className="text-xs text-muted">
-        Pro Seite kannst du Sektionen ein- und ausblenden, neu sortieren und ausgeblendete Sektionen wieder hinzufügen.
-        Es lassen sich nur bestehende Sektionstypen einsetzen – neue Layouts werden nicht erfunden.
-      </p>
-      {PAGES_ORDER.map((page) => (
-        <PageLayoutCard
-          key={page}
-          page={page}
-          variant={variant}
-          data={data}
-          visibility={visibility}
-          order={order}
-          setVisibility={setVisibility}
-          setOrder={setOrder}
-        />
-      ))}
-    </div>
-  );
-}
-
-function PageLayoutCard({
-  page, variant, data, visibility, order, setVisibility, setOrder,
-}: {
-  page: LayoutPageId;
-  variant: string;
-  data: SiteContent;
-  visibility: Record<string, boolean>;
-  order: Record<string, string[]>;
-  setVisibility: (next: Record<string, boolean>) => void;
-  setOrder: (next: Record<string, string[]>) => void;
-}) {
-  const effective = getEffectivePageOrder(data as any, page, variant as any);
-  const catalog = SECTION_CATALOG[page];
-  const meta = (k: string) => catalog.find((s) => s.key === k);
-  const remaining = getRemainingSections(page, effective, variant as any);
-
-  const visKey = (k: string) => `${page}.${k}`;
-  // Backward-compat: home stored some flags unprefixed historically.
-  const isOn = (k: string) => isSectionEnabled(data as any, page, k);
-  const setOn = (k: string, v: boolean) => {
-    const next = { ...visibility, [visKey(k)]: v };
-    // Keep legacy unprefixed home key in sync so older code paths still react.
-    if (page === 'home' && Object.prototype.hasOwnProperty.call(visibility, k)) {
-      next[k] = v;
-    }
-    setVisibility(next);
-  };
-
-  const writeOrder = (next: string[]) => {
-    setOrder({ ...order, [page]: next });
-  };
-
-  const move = (idx: number, dir: -1 | 1) => {
-    const j = idx + dir;
-    if (j < 0 || j >= effective.length) return;
-    const next = effective.slice();
-    [next[idx], next[j]] = [next[j], next[idx]];
-    writeOrder(next);
-  };
-
-  const remove = (k: string) => {
-    writeOrder(effective.filter((x) => x !== k));
-  };
-
-  const add = (k: string) => {
-    if (effective.includes(k)) return;
-    writeOrder([...effective, k]);
-    // Make sure newly added section is visible.
-    setOn(k, true);
-  };
-
-  const reset = () => {
-    const next = { ...order };
-    delete next[page];
-    setOrder(next);
-  };
-
-  return (
-    <div className="border border-line rounded-2xl bg-white">
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-line">
-        <div>
-          <p className="font-display text-lg leading-none">{PAGE_LABELS[page]}</p>
-          <p className="text-xs text-muted mt-1">
-            {effective.length} Sektion{effective.length === 1 ? '' : 'en'}
-            {order[page] ? ' · benutzerdefinierte Reihenfolge' : ' · Standard-Reihenfolge'}
-          </p>
-        </div>
-        {order[page] && (
-          <button type="button" onClick={reset} className="text-xs underline text-muted hover:text-ink">
-            Reihenfolge zurücksetzen
-          </button>
-        )}
-      </div>
-      <ul className="divide-y divide-line/60">
-        {effective.map((k, idx) => {
-          const m = meta(k);
-          return (
-            <li key={k} className="flex items-center gap-3 px-4 py-3">
-              <div className="flex flex-col gap-1">
-                <button
-                  type="button"
-                  aria-label="Nach oben"
-                  onClick={() => move(idx, -1)}
-                  disabled={idx === 0}
-                  className="text-xs px-2 py-0.5 rounded border border-line hover:bg-[var(--surface-color)] disabled:opacity-30"
-                >▲</button>
-                <button
-                  type="button"
-                  aria-label="Nach unten"
-                  onClick={() => move(idx, 1)}
-                  disabled={idx === effective.length - 1}
-                  className="text-xs px-2 py-0.5 rounded border border-line hover:bg-[var(--surface-color)] disabled:opacity-30"
-                >▼</button>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium truncate">
-                  {m?.label ?? k}
-                  {m?.variants && !m.variants.includes(variant as any) && (
-                    <span className="ml-2 text-[10px] text-muted">(nur {m.variants.join('/')})</span>
-                  )}
-                </p>
-                {m?.description && <p className="text-xs text-muted">{m.description}</p>}
-              </div>
-              <Toggle value={isOn(k)} onChange={(v) => setOn(k, v)} label="" />
-              <button
-                type="button"
-                onClick={() => remove(k)}
-                aria-label="Entfernen"
-                className="text-muted hover:text-ink text-lg leading-none px-2"
-                title="Sektion entfernen"
-              >×</button>
-            </li>
-          );
-        })}
-      </ul>
-      {remaining.length > 0 && (
-        <div className="px-4 py-3 border-t border-line/60 bg-[var(--surface-color)]/40">
-          <label className="text-xs text-muted block mb-1">Sektion hinzufügen</label>
-          <select
-            className={inputCls + ' !py-2 text-sm'}
-            value=""
-            onChange={(e) => {
-              if (e.target.value) {
-                add(e.target.value);
-                e.target.value = '';
-              }
-            }}
-          >
-            <option value="">+ wähle eine bestehende Sektion …</option>
-            {remaining.map((s) => (
-              <option key={s.key} value={s.key}>{s.label}</option>
-            ))}
-          </select>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─── Branchen-Texte editor (variant copy overrides) ──────────── */
 
 function BranchTextEditor({ data, setData, tpl }: SectionProps) {
   const bt = ((data as any).branchText ?? {}) as Record<string, any>;
@@ -2482,7 +2420,7 @@ function defaultCta(t: TemplateKey) {
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ───── Restaurant: menu (categorised) ───── */
-type MenuItem = { name: string; description?: string; price?: string; allergens?: string; tags?: string[] };
+type MenuItem = { name: string; description?: string; price?: string; allergens?: string; tags?: string[]; imageUrl?: string };
 type MenuCategory = { category: string; description?: string; priceLabel?: string; items: MenuItem[] };
 
 function MenuEditor({ data, setData }: SetterProps) {
@@ -2525,12 +2463,13 @@ function MenuEditor({ data, setData }: SetterProps) {
                       <input className={inputCls} placeholder="Allergene (z. B. A, G, L)" value={it.allergens || ''} onChange={(e) => setCat(i, { ...cat, items: cat.items.map((x, m) => m === k ? { ...x, allergens: e.target.value } : x) })} />
                       <input className={inputCls} placeholder="Tags (kommasepariert)" value={(it.tags || []).join(', ')} onChange={(e) => setCat(i, { ...cat, items: cat.items.map((x, m) => m === k ? { ...x, tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) } : x) })} />
                     </div>
+                    <ImagePickerField label="Bild (optional)" value={(it as any).imageUrl || ''} onChange={(v) => setCat(i, { ...cat, items: cat.items.map((x, m) => m === k ? { ...x, imageUrl: v } : x) })} />
                     <div className="flex justify-end">
                       <button onClick={() => setCat(i, { ...cat, items: cat.items.filter((_, m) => m !== k) })} className="text-xs text-rose-600 hover:underline">Gericht entfernen</button>
                     </div>
                   </div>
                 ))}
-                <button onClick={() => setCat(i, { ...cat, items: [...cat.items, { name: '', description: '', price: '', allergens: '', tags: [] }] })} className="btn-outline !px-4 !py-2 text-sm">+ Gericht hinzufügen</button>
+                <button onClick={() => setCat(i, { ...cat, items: [...cat.items, { name: '', description: '', price: '', allergens: '', tags: [], imageUrl: '' }] })} className="btn-outline !px-4 !py-2 text-sm">+ Gericht hinzufügen</button>
               </div>
             </div>
             <div className="flex justify-end">

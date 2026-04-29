@@ -36,7 +36,10 @@ export function BranchModulesInline({ variant, content }: { variant: Variant; co
  * ─────────────────────────────────────────────────────────────── */
 export function MenuCategoriesModule({ content }: { content: SiteContent }) {
   const menu = ((content as any).menu || []) as NonNullable<SiteContent['menu']>;
+  const [active, setActive] = useState(0);
   if (!menu || !menu.length) return null;
+  const safeActive = Math.min(active, menu.length - 1);
+  const cat = menu[safeActive];
   return (
     <Section
       eyebrow="Speisekarte"
@@ -44,41 +47,60 @@ export function MenuCategoriesModule({ content }: { content: SiteContent }) {
       subtitle="Saisonal, hausgemacht, ehrlich. Allergene auf Anfrage – wir passen Gerichte gerne an."
       className="surface"
     >
-      <div className="grid md:grid-cols-2 gap-x-12 gap-y-14 reveal-stagger">
-        {menu.map((cat, i) => (
-          <article key={i}>
-            <header className="border-b border-line pb-3 mb-6 flex items-baseline justify-between gap-4">
-              <h3 className="font-display text-3xl">{cat.category}</h3>
-              <span className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-            </header>
-            {cat.description && <p className="text-sm text-muted mb-3 leading-relaxed">{cat.description}</p>}
-            {(cat as any).priceLabel && (
-              <p className="mb-4 flex justify-end font-mono text-[10px] uppercase tracking-widest text-muted">{(cat as any).priceLabel}</p>
-            )}
-            <ul className="space-y-5">
-              {cat.items.map((it, j) => (
-                <li key={j} className="grid grid-cols-[1fr_auto] gap-x-4 items-baseline">
-                  <div>
-                    <p className="font-display text-lg leading-tight">
-                      {it.name}
-                      {it.tags && it.tags.length > 0 && (
-                        <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
-                          {it.tags.map((t, k) => (
-                            <span key={k} className="text-[10px] uppercase tracking-widest font-mono bg-[var(--accent-color)]/15 text-brand px-1.5 py-0.5 rounded">{t}</span>
-                          ))}
-                        </span>
-                      )}
-                    </p>
-                    {it.description && <p className="mt-1 text-sm text-muted leading-relaxed">{it.description}</p>}
-                    {it.allergens && <p className="mt-1 text-[10px] uppercase tracking-widest text-muted">Allergene: {it.allergens}</p>}
-                  </div>
-                  {it.price && <span className="font-mono text-sm text-brand whitespace-nowrap">{it.price}</span>}
-                </li>
-              ))}
-            </ul>
-          </article>
+      {/* Category tabs */}
+      <div className="reveal mb-10 flex flex-wrap gap-2 border-b border-line pb-4">
+        {menu.map((c, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setActive(i)}
+            className={`px-4 py-2 rounded-full text-sm transition border ${i === safeActive ? 'bg-brand text-white border-brand' : 'bg-white text-ink border-line hover:border-brand/40'}`}
+          >
+            {c.category || `Kategorie ${i + 1}`}
+            <span className="ml-2 font-mono text-[10px] opacity-60">{String(c.items?.length || 0).padStart(2, '0')}</span>
+          </button>
         ))}
       </div>
+
+      <article className="reveal">
+        <header className="border-b border-line pb-3 mb-6 flex items-baseline justify-between gap-4">
+          <h3 className="font-display text-3xl">{cat.category}</h3>
+          <span className="font-mono text-xs text-muted">/ {String(safeActive + 1).padStart(2, '0')}</span>
+        </header>
+        {cat.description && <p className="text-sm text-muted mb-3 leading-relaxed">{cat.description}</p>}
+        {(cat as any).priceLabel && (
+          <p className="mb-4 flex justify-end font-mono text-[10px] uppercase tracking-widest text-muted">{(cat as any).priceLabel}</p>
+        )}
+        <ul className="space-y-6">
+          {cat.items.map((it, j) => {
+            const img = (it as any).imageUrl as string | undefined;
+            return (
+              <li key={j} className="grid grid-cols-[auto_1fr_auto] gap-x-4 items-start">
+                {img ? (
+                  <img src={img} alt={it.name} className="h-16 w-16 rounded-xl object-cover border border-line" loading="lazy" />
+                ) : (
+                  <span className="h-16 w-16" aria-hidden />
+                )}
+                <div className="min-w-0 self-center">
+                  <p className="font-display text-lg leading-tight">
+                    {it.name}
+                    {it.tags && it.tags.length > 0 && (
+                      <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
+                        {it.tags.map((t, k) => (
+                          <span key={k} className="text-[10px] uppercase tracking-widest font-mono bg-[var(--accent-color)]/15 text-brand px-1.5 py-0.5 rounded">{t}</span>
+                        ))}
+                      </span>
+                    )}
+                  </p>
+                  {it.description && <p className="mt-1 text-sm text-muted leading-relaxed">{it.description}</p>}
+                  {it.allergens && <p className="mt-1 text-[10px] uppercase tracking-widest text-muted">Allergene: {it.allergens}</p>}
+                </div>
+                {it.price && <span className="font-mono text-sm text-brand whitespace-nowrap self-center">{it.price}</span>}
+              </li>
+            );
+          })}
+        </ul>
+      </article>
     </Section>
   );
 }

@@ -426,11 +426,21 @@ export function ContactBlock({ content, showForm = true, formTenant }: { content
         <div className="lg:col-span-7 reveal">
           {showForm ? (
             <div className="space-y-6">
-              <ContactForm
-                tenant={tenantSlug || content.brand.name}
-                source={`tenant:${tenantSlug || (content.brand.name || '').toLowerCase().replace(/\s+/g, '-')}`}
-                fields={['name', 'email', 'phone', 'subject', 'message']}
-              />
+              {(() => {
+                const admin = ((content as any).formFields ?? []) as Array<{ key: string }>;
+                const ALLOWED: Array<'name' | 'email' | 'phone' | 'subject' | 'message' | 'branche' | 'paket'> = ['name', 'email', 'phone', 'subject', 'message', 'branche', 'paket'];
+                const fromAdmin = admin
+                  .map((f) => (f?.key || '').toLowerCase())
+                  .filter((k): k is typeof ALLOWED[number] => (ALLOWED as readonly string[]).includes(k));
+                const fields = (fromAdmin.length ? fromAdmin : ['name', 'email', 'phone', 'subject', 'message']) as typeof ALLOWED;
+                return (
+                  <ContactForm
+                    tenant={tenantSlug || content.brand.name}
+                    source={`tenant:${tenantSlug || (content.brand.name || '').toLowerCase().replace(/\s+/g, '-')}`}
+                    fields={fields}
+                  />
+                );
+              })()}
               {(c.mapsUrl || c.address) && (
                 <SafeMapEmbed mapsUrl={c.mapsUrl || ''} address={c.address || ''} city={c.city || ''} className="h-[280px]" />
               )}
@@ -488,7 +498,9 @@ export function SiteFooter({ content, basePath: basePathProp, nav }: { content: 
                 className="h-12 w-auto max-w-[220px] object-contain mb-3 brightness-0 invert"
               />
             ) : null}
-            <p className="font-display text-3xl">{content.brand.name}</p>
+            {!(content.brand.logoUrl && content.brand.hideName) && (
+              <p className="font-display text-3xl">{content.brand.name}</p>
+            )}
             {(() => {
               const footerTagline = (content as any).footer?.tagline as string | undefined;
               const tag = (footerTagline && footerTagline.trim()) || content.brand.tagline;

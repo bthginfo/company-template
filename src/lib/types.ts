@@ -219,6 +219,7 @@ export const SiteContentSchema = z.object({
       price: z.string().optional().default(''),
       allergens: z.string().optional().default(''),
       tags: z.array(z.string()).optional().default([]),
+      imageUrl: z.string().optional().default(''),
     })).default([]),
   })).optional().default([]),
 

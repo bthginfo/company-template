@@ -330,6 +330,23 @@ function isSectionVisible(content: SiteContent, key: string): boolean {
   return isSectionEnabled(content, 'home', key);
 }
 
+/** Map a variant to its catalog branch-module key (menu/rooms/tours/treatments/funding). */
+function branchModuleKey(variant: TemplateVariant): string | null {
+  if (variant === 'restaurant') return 'menu';
+  if (variant === 'hotel') return 'rooms';
+  if (variant === 'tourism') return 'tours';
+  if (variant === 'salon') return 'treatments';
+  if (variant === 'tradesman') return 'funding';
+  return null;
+}
+
+/** Pull a per-page header override from `content` extras (set by admin's PageHeaderEditor). */
+function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader'): { eyebrow: string; title: string; subtitle: string } | null {
+  const v = (content as any)[key];
+  if (!v || typeof v !== 'object') return null;
+  return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || '') };
+}
+
 /**
  * BRANCH_STYLE_ORDER — full 5×3 = 15 distinct section flows.
  * Each (variant, style) tells a different narrative arc, so Restaurant/Classic
@@ -469,7 +486,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           <div className="lg:col-span-6 reveal">
             <p className="eyebrow mb-5">{content.brand.tagline || 'Willkommen'}</p>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
-              <TextReveal text={content.hero?.title || (content.brand.name + '.')} />
+              <TextReveal text={content.hero?.title || ((content.brand.hideName && content.brand.logoUrl) ? '' : (content.brand.name + '.'))} />
               {content.hero?.subtitle ? (
                 <>
                   <br />
@@ -542,7 +559,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
       {isSectionVisible(content, 'signature') && <BranchSignature variant={variant} style="modern" content={content} />}
 
       {/* Branch-specific module (Menu / Rooms / Tours / Treatments / Funding…) */}
-      {isSectionVisible(content, 'branchModule') && <BranchModulesInline variant={variant} content={content} />}
+      {(() => { const k = branchModuleKey(variant); return k && isSectionVisible(content, k); })() && <BranchModulesInline variant={variant} content={content} />}
 
       {/* Logos / press strip */}
       {isSectionVisible(content, 'logos') && (
@@ -637,7 +654,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         <div className="container-x relative">
           <p className="eyebrow mb-6 reveal">{content.brand.tagline || cfg.servicesEyebrow}</p>
           <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[clamp(2.5rem,13vw,180px)] md:text-[14vw] lg:text-[180px] break-words [overflow-wrap:anywhere] [hyphens:auto]">
-            {(content.hero?.title || content.brand.name).toUpperCase()}
+            {(content.hero?.title || ((content.brand.hideName && content.brand.logoUrl) ? '' : content.brand.name)).toUpperCase()}
           </h1>
         </div>
         {/* Smooth brand strip */}
@@ -687,7 +704,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
       {isSectionVisible(content, 'signature') && <BranchSignature variant={variant} style="bold" content={content} />}
 
       {/* Branch-specific module (Menu / Rooms / Tours / Treatments / Funding…) */}
-      {isSectionVisible(content, 'branchModule') && <BranchModulesInline variant={variant} content={content} />}
+      {(() => { const k = branchModuleKey(variant); return k && isSectionVisible(content, k); })() && <BranchModulesInline variant={variant} content={content} />}
 
       {/* Big colored services as numbered editorial list */}
       {isSectionVisible(content, 'services') && (
@@ -1113,12 +1130,13 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
     ),
     cta: <CtaBand variant={variant} content={content} />,
   };
+  const headerOverride = pageHeaderOverride(content, 'servicesHeader');
   return (
     <>
       <PageHero
-        eyebrow={cfg.servicesEyebrow}
-        title={cfg.servicesHeadline}
-        subtitle={subtitleFor(variant, content)}
+        eyebrow={(headerOverride?.eyebrow || cfg.servicesEyebrow)}
+        title={headerOverride?.title || cfg.servicesHeadline}
+        subtitle={headerOverride?.subtitle || subtitleFor(variant, content)}
         style={style}
         image={style === 'modern' ? content.gallery[2] || content.gallery[0] : undefined}
       />
@@ -1233,11 +1251,12 @@ function ServiceProcess({ variant, content }: { variant: TemplateVariant; conten
 function GalleryPage({
   content, variant, title, eyebrow, style,
 }: { content: SiteContent; variant: TemplateVariant; title?: string; eyebrow?: string; style: TemplateStyle }) {
+  const headerOverride = pageHeaderOverride(content, 'galleryHeader');
   return (
     <>
       <PageHero
-        eyebrow={eyebrow ?? (variant === 'tradesman' ? 'Projekte' : 'Galerie')}
-        title={title ?? (
+        eyebrow={headerOverride?.eyebrow || eyebrow || (variant === 'tradesman' ? 'Projekte' : 'Galerie')}
+        title={headerOverride?.title || title || (
           variant === 'tradesman' ? 'Referenzen aus der Werkstatt.' :
           variant === 'salon' ? 'Looks & Momente.' :
           variant === 'hotel' ? 'Haus & Spa.' :
@@ -1245,12 +1264,12 @@ function GalleryPage({
           variant === 'restaurant' ? 'Aus Küche & Saal.' :
           'Bilder & Eindrücke.'
         )}
-        subtitle={
-          variant === 'restaurant'
+        subtitle={headerOverride?.subtitle ||
+          (variant === 'restaurant'
             ? 'Eindrücke aus dem Lokal, von Tellern, Saucen und Familie. Aufgenommen in echtem Kerzenlicht.'
             : variant === 'salon'
               ? 'Looks unserer Kund:innen – mit Erlaubnis dokumentiert.'
-              : 'Aktuelle Projekte aus den letzten Monaten – von kleiner Reparatur bis zur kompletten Sanierung.'
+              : 'Aktuelle Projekte aus den letzten Monaten – von kleiner Reparatur bis zur kompletten Sanierung.')
         }
         style={style}
       />
@@ -1469,8 +1488,8 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
     timeline: <Timeline content={content} />,
     team: <TeamSection variant={variant} content={content} />,
     numbers: <NumbersBand variant={variant} content={content} />,
-    certifications: variant === 'tradesman' ? <CertificationsSection /> : null,
-    press: variant === 'restaurant' ? <PressSection /> : null,
+    certifications: variant === 'tradesman' ? <CertificationsSection content={content} /> : null,
+    press: variant === 'restaurant' ? <PressSection content={content} /> : null,
     testimonials: content.testimonials.length > 0 ? (
       <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
@@ -1494,9 +1513,9 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
   return (
     <>
       <PageHero
-        eyebrow={style === 'bold' ? 'Wer wir sind' : 'Über uns'}
-        title={content.about?.title || 'Unsere Geschichte.'}
-        subtitle={style === 'modern' ? 'Wer wir sind, wie wir denken, was uns wichtig ist.' : undefined}
+        eyebrow={pageHeaderOverride(content, 'aboutHeader')?.eyebrow || (style === 'bold' ? 'Wer wir sind' : 'Über uns')}
+        title={pageHeaderOverride(content, 'aboutHeader')?.title || content.about?.title || 'Unsere Geschichte.'}
+        subtitle={pageHeaderOverride(content, 'aboutHeader')?.subtitle || (style === 'modern' ? 'Wer wir sind, wie wir denken, was uns wichtig ist.' : undefined)}
         style={style}
         image={style === 'modern' ? content.about?.imageUrl || content.gallery[0] : undefined}
       />
@@ -1604,8 +1623,8 @@ function TeamSection({ variant, content }: { variant: TemplateVariant; content: 
   );
 }
 
-function CertificationsSection() {
-  const items = [
+function CertificationsSection({ content }: { content?: SiteContent }) {
+  const fallback = [
     { t: 'Meisterbetrieb HWK', d: 'Eingetragen bei der Handwerkskammer für Mittelfranken seit 1972.' },
     { t: 'Innungsmitglied', d: 'Aktives Mitglied der Innung für Sanitär- und Heizungstechnik.' },
     { t: 'Zertifizierter Wärmepumpen-Installateur', d: 'Schulungen bei Viessmann, Vaillant und Daikin – jährlich aktualisiert.' },
@@ -1613,6 +1632,8 @@ function CertificationsSection() {
     { t: 'Förder-Partner BAFA', d: 'Anträge beim BAFA für Heizungsförderung schreiben wir mit Ihnen gemeinsam.' },
     { t: 'Photovoltaik-Fachpartner', d: 'Komplettpaket inkl. Anmeldung beim Netzbetreiber und Steuerformular.' },
   ];
+  const overlay = content ? ((content as any).certifications as { t: string; d: string }[] | undefined) : undefined;
+  const items = overlay && overlay.length ? overlay : fallback;
   return (
     <Section eyebrow="Qualifikationen" title={<>Geprüft & <em className="italic-pop">zertifiziert.</em></>} className="surface">
       <div className="grid md:grid-cols-3 gap-4 reveal-stagger">
@@ -1632,12 +1653,14 @@ function CertificationsSection() {
   );
 }
 
-function PressSection() {
-  const items = [
+function PressSection({ content }: { content?: SiteContent }) {
+  const fallback = [
     { src: 'Falstaff', q: '„Eine der ehrlichsten Trattorien Tirols."', y: '2024' },
     { src: 'Tiroler Tageszeitung', q: '„Pasta wie in Bologna – nur näher."', y: '2023' },
     { src: 'À la Carte', q: '„Hier kocht jemand, der Italien wirklich kennt."', y: '2023' },
   ];
+  const overlay = content ? ((content as any).press as { src: string; q: string; y: string }[] | undefined) : undefined;
+  const items = overlay && overlay.length ? overlay : fallback;
   return (
     <Section eyebrow="Presse" title={<>Was die <em className="italic-pop">Presse schreibt.</em></>}>
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
@@ -1712,14 +1735,16 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   return (
     <>
       <PageHero
-        eyebrow="Kontakt"
+        eyebrow={pageHeaderOverride(content, 'contactPageHeader')?.eyebrow || 'Kontakt'}
         title={
-          variant === 'restaurant'
-            ? 'Reservieren oder einfach vorbeikommen.'
-            : variant === 'salon'
-              ? 'Termin vereinbaren oder kurz fragen.'
-              : 'Anfrage senden oder Notdienst rufen.'
+          pageHeaderOverride(content, 'contactPageHeader')?.title || (
+            variant === 'restaurant'
+              ? 'Reservieren oder einfach vorbeikommen.'
+              : variant === 'salon'
+                ? 'Termin vereinbaren oder kurz fragen.'
+                : 'Anfrage senden oder Notdienst rufen.')
         }
+        subtitle={pageHeaderOverride(content, 'contactPageHeader')?.subtitle || undefined}
         style={style}
       />
       {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
