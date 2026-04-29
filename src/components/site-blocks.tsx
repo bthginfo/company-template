@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useRef, useState, createContext, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import type { SiteContent } from '@/lib/types';
 import { Marquee, SplitText, useReveal as _useReveal } from './fx';
@@ -153,41 +154,46 @@ export function SiteHeader({
           </button>
         </div>
 
-        {mobile && (
-          <div className="fixed inset-0 z-50 bg-[var(--bg-color)]">
-            <div className="container-x py-5 flex justify-between items-center">
-              {content.brand.logoUrl ? (
-                <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto max-w-[180px] object-contain" />
-              ) : (
-                <span className="font-display text-2xl text-[var(--text-color)]">{content.brand.name}</span>
-              )}              <button onClick={() => setMobile(false)} className="p-2 text-[var(--muted-color)]" aria-label="Schließen">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
-            <nav className="container-x flex flex-col gap-1 mt-8">
-              {nav.map((n) => (
-                <NavLink
-                  key={n.to}
-                  to={`${basePath}${n.to}`}
-                  end={n.to === '/'}
-                  className={({ isActive }) =>
-                    `py-5 text-5xl font-display border-b border-line transition-transform hover:translate-x-2 ${
-                      isActive ? 'italic-pop text-brand' : 'text-[var(--text-color)]'
-                    }`
-                  }
-                >
-                  {n.label}
-                </NavLink>
-              ))}
-              <Link to={`${basePath}/kontakt`} className="btn-primary mt-10 self-start">
-                Termin anfragen <span aria-hidden>→</span>
-              </Link>
-            </nav>
-          </div>
-        )}
       </header>
+      {/* Mobile menu rendered as a portal to <body> so it escapes the
+          header's backdrop-filter stacking context (which would otherwise
+          clip our position:fixed overlay to the header's box). */}
+      {mobile && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100] bg-[var(--bg-color)] overflow-y-auto">
+          <div className="container-x py-5 flex justify-between items-center">
+            {content.brand.logoUrl ? (
+              <img src={content.brand.logoUrl} alt={content.brand.name} className="h-9 w-auto max-w-[180px] object-contain" />
+            ) : (
+              <span className="font-display text-2xl text-[var(--text-color)]">{content.brand.name}</span>
+            )}
+            <button onClick={() => setMobile(false)} className="p-2 text-[var(--muted-color)]" aria-label="Schließen">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+          <nav className="container-x flex flex-col gap-1 mt-8 pb-12">
+            {nav.map((n) => (
+              <NavLink
+                key={n.to}
+                to={`${basePath}${n.to}`}
+                end={n.to === '/'}
+                className={({ isActive }) =>
+                  `py-5 text-5xl font-display border-b border-line transition-transform hover:translate-x-2 ${
+                    isActive ? 'italic-pop text-brand' : 'text-[var(--text-color)]'
+                  }`
+                }
+              >
+                {n.label}
+              </NavLink>
+            ))}
+            <Link to={`${basePath}/kontakt`} className="btn-primary mt-10 self-start">
+              Termin anfragen <span aria-hidden>→</span>
+            </Link>
+          </nav>
+        </div>,
+        document.body,
+      )}
     </>
   );
 }
@@ -389,13 +395,17 @@ export function ContactBlock({ content, showForm = true, formTenant }: { content
   const tenantSlug = formTenant
     || (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_TENANT_SLUG : '')
     || '';
+  const cb = ((content as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+  const eyebrow = cb.eyebrow || 'Kontakt';
+  const title = cb.title || 'Wir freuen uns auf Sie.';
+  const subtitle = cb.subtitle || 'Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da.';
   return (
     <Section id="kontakt" className="surface" align="left">
       <div className="grid lg:grid-cols-12 gap-10">
         <div className="lg:col-span-5 reveal">
-          <p className="eyebrow mb-5">Kontakt</p>
-          <h2 className="headline-md">Wir freuen <em className="italic-pop">uns auf Sie.</em></h2>
-          <p className="mt-5 text-lg text-muted">Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da.</p>
+          <p className="eyebrow mb-5">{eyebrow}</p>
+          <h2 className="headline-md">{title}</h2>
+          {subtitle ? <p className="mt-5 text-lg text-muted">{subtitle}</p> : null}
 
           <div className="mt-10 space-y-6 text-lg">
             {c.phone ? (

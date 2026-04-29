@@ -1222,10 +1222,26 @@ function BrandPage({ data, setData, tpl }: SectionProps) {
   );
 }
 function ContactGlobal({ data, setData }: SetterProps) {
+  const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+  const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
   return (
     <>
       <SectionCard title="Erreichbarkeit"><ContactFields data={data} setData={setData} /></SectionCard>
       <SectionCard title="Öffnungszeiten"><HoursEditor data={data} setData={setData} /></SectionCard>
+      <SectionCard
+        title="Kontakt-Block (Überschrift)"
+        description="Erscheint im Kontakt-Bereich auf der Startseite und auf /kontakt – über Telefon, E-Mail und Adresse."
+      >
+        <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Kontakt">
+          <input className={inputCls} value={cb.eyebrow || ''} onChange={(e) => setCb({ eyebrow: e.target.value })} placeholder="Kontakt" />
+        </Field>
+        <Field label="Überschrift" hint="Standard: Wir freuen uns auf Sie.">
+          <input className={inputCls} value={cb.title || ''} onChange={(e) => setCb({ title: e.target.value })} placeholder="Wir freuen uns auf Sie." />
+        </Field>
+        <Field label="Untertitel" hint="Leer lassen, um ihn auszublenden.">
+          <textarea className={inputCls} rows={2} value={cb.subtitle || ''} onChange={(e) => setCb({ subtitle: e.target.value })} placeholder="Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da." />
+        </Field>
+      </SectionCard>
     </>
   );
 }
