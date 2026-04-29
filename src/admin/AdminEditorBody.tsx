@@ -600,7 +600,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <Field label="Beschreibungstext" hint="Längerer Fließtext unter dem Untertitel – beschreibt das Angebot in 1–3 Sätzen.">
           <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
         </Field>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teaserSubtitle']} />
         <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Button-Text"><input className={inputCls} value={data.hero.ctaLabel || ''} onChange={(e) => set({ hero: { ...data.hero, ctaLabel: e.target.value } })} /></Field>
@@ -626,10 +625,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
         </Field>
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
-        <div className="pt-2 border-t border-black/5">
-          <p className="text-xs text-muted mb-3">Manifest-Block (kurzer Leitsatz unter dem Teaser, falls die Variante einen anzeigt).</p>
-          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['manifestEyebrow', 'manifestTitle']} />
-        </div>
       </SectionCard>
 
       <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite." badge="Sektion 5" pageKey="home" sectionKey="services" data={data} setData={setData}>
@@ -677,12 +672,8 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <NewsHomePreview data={data} />
       </SectionCard>
 
-      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der Aufruf am Seitenende." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
+      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der große Aufruf zur Aktion am Seitenende – wird auf allen Unterseiten angezeigt." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
-        <div className="pt-2 border-t border-black/5">
-          <p className="text-xs text-muted mb-3">Soft-CTA-Texte (werden in den Stilen <em>Modern</em> und <em>Bold</em> verwendet).</p>
-          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['softCtaEyebrow', 'softCtaTitle', 'softCtaText', 'softCtaButton']} />
-        </div>
       </SectionCard>
 
       <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
@@ -1037,10 +1028,6 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
   const setHero = (patch: Partial<{ primaryLabel: string; primaryHref: string; secondaryLabel: string; secondaryHref: string }>) => {
     setData({ ...data, heroCta: { ...heroCta, ...patch } } as any);
   };
-  const ctaBand = (data as any).ctaBandOverride || {};
-  const setBand = (patch: Partial<{ lead: string; sub: string; cta: string; ctaHref: string }>) => {
-    setData({ ...data, ctaBandOverride: { ...ctaBand, ...patch } } as any);
-  };
   const footer = (data as any).footer || {};
   const setFooter = (patch: any) => setData({ ...data, footer: { ...footer, ...patch } } as any);
 
@@ -1103,23 +1090,6 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
           </Field>
           <Field label="Sekundär-Button Ziel">
             <input className={inputCls + ' font-mono text-xs'} value={heroCta.secondaryHref || ''} onChange={(e) => setHero({ secondaryHref: e.target.value })} placeholder="/speisekarte" />
-          </Field>
-        </div>
-      </SectionCard>
-
-      <SectionCard title="CTA-Band vor dem Footer" description="Großer Aufruf zur Aktion am Ende der Startseite.">
-        <div className="grid md:grid-cols-2 gap-4">
-          <Field label="Headline" hint="z.B. 'Hunger?' / 'Termin?' / 'Auftrag?'">
-            <input className={inputCls} value={ctaBand.lead || ''} onChange={(e) => setBand({ lead: e.target.value })} placeholder="Bereit?" />
-          </Field>
-          <Field label="Untertitel">
-            <input className={inputCls} value={ctaBand.sub || ''} onChange={(e) => setBand({ sub: e.target.value })} placeholder="Schreiben Sie uns. Wir antworten." />
-          </Field>
-          <Field label="Button Beschriftung">
-            <input className={inputCls} value={ctaBand.cta || ''} onChange={(e) => setBand({ cta: e.target.value })} placeholder="Jetzt anfragen" />
-          </Field>
-          <Field label="Button Ziel">
-            <input className={inputCls + ' font-mono text-xs'} value={ctaBand.ctaHref || ''} onChange={(e) => setBand({ ctaHref: e.target.value })} placeholder="/kontakt" />
           </Field>
         </div>
       </SectionCard>
@@ -2197,14 +2167,18 @@ function FormFieldsEditor({ data, setData }: SetterProps) {
 }
 
 function CtaBandEditor({ data, setData, tpl }: SectionProps) {
-  const [v, set] = useExtra<{ eyebrow: string; lead: string; sub: string; cta: string; ctaHref: string }>(data, setData, 'ctaBand', defaultCta(tpl));
+  const def = defaultCta(tpl);
+  const [v, set] = useExtra<{ lead: string; sub: string; cta: string; ctaHref: string }>(data, setData, 'ctaBandOverride', { lead: '', sub: '', cta: '', ctaHref: '/kontakt' });
   return (
     <>
-      <Field label="Eyebrow"><input className={inputCls} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} /></Field>
-      <Field label="Hauptzeile"><input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} /></Field>
-      <Field label="Untertitel"><textarea className={inputCls} rows={2} value={v.sub} onChange={(e) => set({ ...v, sub: e.target.value })} /></Field>
+      <Field label="Headline" hint="Große Hauptzeile (z. B. „Hunger?“, „Termin?“, „Auftrag?“).">
+        <input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} placeholder={def.lead} />
+      </Field>
+      <Field label="Untertitel">
+        <textarea className={inputCls} rows={2} value={v.sub} onChange={(e) => set({ ...v, sub: e.target.value })} placeholder={def.sub} />
+      </Field>
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Button-Text"><input className={inputCls} value={v.cta} onChange={(e) => set({ ...v, cta: e.target.value })} /></Field>
+        <Field label="Button-Text"><input className={inputCls} value={v.cta} onChange={(e) => set({ ...v, cta: e.target.value })} placeholder={def.cta} /></Field>
         <LinkTargetField label="Button-Ziel" value={v.ctaHref} onChange={(href) => set({ ...v, ctaHref: href })} sections={homeSectionsFor(tpl)} />
       </div>
     </>

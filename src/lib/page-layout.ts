@@ -29,6 +29,8 @@ export type SectionDef = {
   description: string;
   /** Restrict to specific variants (omit = all). */
   variants?: Variant[];
+  /** Restrict to specific styles (omit = all). */
+  styles?: Style[];
 };
 
 /* ─────────────────────────────────────────────────────────────────
@@ -50,8 +52,8 @@ export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
     { key: 'gallery',      label: 'Galerie',                  description: 'Galerie-Vorschau auf der Startseite.' },
     { key: 'numbers',      label: 'Zahlen-Band',              description: 'Vier Eckdaten als Stat-Strip.' },
     { key: 'testimonials', label: 'Bewertungen',              description: 'Kundenstimmen-Block.' },
-    { key: 'logos',        label: 'Logo-Strip',               description: 'Partner / Presse Logos.' },
-    { key: 'faq',          label: 'FAQ',                      description: 'Häufige Fragen mit Akkordeon.' },
+    { key: 'logos',        label: 'Logo-Strip',               description: 'Partner / Presse Logos.', styles: ['modern'] },
+    { key: 'faq',          label: 'FAQ',                      description: 'Häufige Fragen mit Akkordeon.', styles: ['classic', 'modern'] },
     { key: 'news',         label: 'News-Teaser',              description: 'Neueste Beiträge.' },
     { key: 'softCta',      label: 'Soft-CTA',                 description: 'CTA-Block am Seitenende.' },
   ],
@@ -161,10 +163,12 @@ export function getRemainingSections(
   page: PageId,
   current: string[],
   variant?: Variant,
+  style?: Style,
 ): SectionDef[] {
   return SECTION_CATALOG[page].filter((s) => {
     if (current.includes(s.key)) return false;
     if (s.variants && variant && !s.variants.includes(variant)) return false;
+    if (s.styles && style && !s.styles.includes(style)) return false;
     return true;
   });
 }
@@ -173,6 +177,10 @@ export function getRemainingSections(
  * Returns sections from the catalog that are valid for this variant
  * (i.e. not restricted to other variants).
  */
-export function getCatalogForVariant(page: PageId, variant?: Variant): SectionDef[] {
-  return SECTION_CATALOG[page].filter((s) => !s.variants || !variant || s.variants.includes(variant));
+export function getCatalogForVariant(page: PageId, variant?: Variant, style?: Style): SectionDef[] {
+  return SECTION_CATALOG[page].filter((s) => {
+    if (s.variants && variant && !s.variants.includes(variant)) return false;
+    if (s.styles && style && !s.styles.includes(style)) return false;
+    return true;
+  });
 }

@@ -330,16 +330,6 @@ function isSectionVisible(content: SiteContent, key: string): boolean {
   return isSectionEnabled(content, 'home', key);
 }
 
-/** Map a variant to its catalog branch-module key (menu/rooms/tours/treatments/funding). */
-function branchModuleKey(variant: TemplateVariant): string | null {
-  if (variant === 'restaurant') return 'menu';
-  if (variant === 'hotel') return 'rooms';
-  if (variant === 'tourism') return 'tours';
-  if (variant === 'salon') return 'treatments';
-  if (variant === 'tradesman') return 'funding';
-  return null;
-}
-
 /** Pull a per-page header override from `content` extras (set by admin's PageHeaderEditor). */
 function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' | 'newsHeader'): { eyebrow: string; title: string; subtitle: string } | null {
   const v = (content as any)[key];
@@ -476,6 +466,104 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
   const heroImg = content.gallery[0] || content.about?.imageUrl;
   const meta = resolveHeroMeta(variant, content);
 
+  const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
+  const baseOrder = customHomeOrder && customHomeOrder.length ? customHomeOrder : BRANCH_STYLE_ORDER[variant].modern;
+  const order = baseOrder.filter((k) => isSectionVisible(content, k));
+
+  const blocks: Record<string, JSX.Element | null> = {
+    action: <BranchActionStrip variant={variant} content={content} />,
+    signature: <BranchSignature variant={variant} style="modern" content={content} />,
+    numbers: <NumbersBand variant={variant} content={content} />,
+    news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'News & Notizen.'} />,
+    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} /> : null,
+    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} /> : null,
+    tours: variant === 'tourism' ? <TourCardsModule content={content} /> : null,
+    treatments: variant === 'salon' ? <TreatmentListModule content={content} /> : null,
+    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
+    services: featuredServices.length > 0 ? (
+      <SpotlightSection as="div" color="rgba(242,65,113,0.16)" size={620} className="surface">
+        <Section eyebrow={cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+            {featuredServices.map((s, i) => (
+              <Tilt3DCard key={i} max={5} className="rounded-2xl">
+                <article className="bg-white border border-line rounded-2xl p-7 hover-lift h-full">
+                  <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+                    <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+                  </div>
+                  <h3 className="font-display text-xl mt-5">{s.title}</h3>
+                  {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+                  {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
+                </article>
+              </Tilt3DCard>
+            ))}
+          </div>
+          <div className="mt-12 reveal">
+            <TLink to={cfg.servicesPath} className="btn-primary">Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
+          </div>
+        </Section>
+      </SpotlightSection>
+    ) : null,
+    logos: (
+      <section className="py-14 border-y border-line">
+        <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+          {(variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
+            : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
+              : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA']
+          ).map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
+        </div>
+      </section>
+    ),
+    about: content.about?.body ? (
+      <Section eyebrow="Über uns" title={<>{splitTitle(content.about.title || 'Über uns')}</>}>
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className="prose-lite reveal">
+            {(content.about.body || '').split('\n\n').slice(0, 2).map((p, i) => (
+              <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
+            ))}
+            <TLink to="/ueber-uns" className="btn-outline mt-2">Mehr erfahren <span aria-hidden>→</span></TLink>
+          </div>
+          {content.about.imageUrl && (
+            <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3] reveal">
+              <img src={content.about.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          )}
+        </div>
+      </Section>
+    ) : null,
+    gallery: featuredGallery.length > 0 ? (
+      <Section eyebrow="Galerie" title={galleryTeaserTitle(variant, content)} className="surface">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
+          {featuredGallery.map((src, i) => (
+            <div key={i} className="aspect-square overflow-hidden rounded-xl img-zoom">
+              <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          ))}
+        </div>
+        <div className="mt-10 reveal">
+          <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">Alles ansehen <span aria-hidden>→</span></TLink>
+        </div>
+      </Section>
+    ) : null,
+    faq: (
+      <Section eyebrow="Häufig gefragt" title={<>Antworten auf <em className="italic-pop">Ihre Fragen.</em></>}>
+        <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      </Section>
+    ),
+    testimonials: content.testimonials.length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
+        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+          {content.testimonials.slice(0, 3).map((t, i) => (
+            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+              <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+              <p className="text-lg leading-relaxed">{t.text}</p>
+              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </Section>
+    ) : null,
+  };
+
   return (
     <>
       {/* Split hero – text left, framed image right, with aurora + dot grid backdrop */}
@@ -522,119 +610,10 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           </div>
         </div>
       </section>
-
-      {isSectionVisible(content, 'action') && <BranchActionStrip variant={variant} content={content} />}
-
-      {/* Feature grid wrapped with cursor-following spotlight */}
-      {isSectionVisible(content, 'services') && (
-      <SpotlightSection
-        as="div"
-        color="rgba(242,65,113,0.16)"
-        size={620}
-        className="surface"
-      >
-        <Section eyebrow={cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-            {featuredServices.map((s, i) => (
-              <Tilt3DCard key={i} max={5} className="rounded-2xl">
-                <article className="bg-white border border-line rounded-2xl p-7 hover-lift h-full">
-                  <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
-                    <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
-                  </div>
-                  <h3 className="font-display text-xl mt-5">{s.title}</h3>
-                  {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
-                  {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
-                </article>
-              </Tilt3DCard>
-            ))}
-          </div>
-          <div className="mt-12 reveal">
-            <TLink to={cfg.servicesPath} className="btn-primary">Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
-          </div>
-        </Section>
-      </SpotlightSection>
-      )}
-
-      {/* Branch + style signature block */}
-      {isSectionVisible(content, 'signature') && <BranchSignature variant={variant} style="modern" content={content} />}
-
-      {/* Branch-specific module (Menu / Rooms / Tours / Treatments / Funding…) */}
-      {(() => { const k = branchModuleKey(variant); return k && isSectionVisible(content, k); })() && <BranchModulesInline variant={variant} content={content} />}
-
-      {/* Logos / press strip */}
-      {isSectionVisible(content, 'logos') && (
-      <section className="py-14 border-y border-line">
-        <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
-          {(variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
-            : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
-              : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA']
-          ).map((n) => (
-            <span key={n} className="font-display text-2xl tracking-wide">{n}</span>
-          ))}
-        </div>
-      </section>
-      )}
-
-      {/* About teaser */}
-      {isSectionVisible(content, 'about') && content.about?.body && (
-        <Section eyebrow="Über uns" title={<>{splitTitle(content.about.title || 'Über uns')}</>}>
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            <div className="prose-lite reveal">
-              {(content.about.body || '').split('\n\n').slice(0, 2).map((p, i) => (
-                <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
-              ))}
-              <TLink to="/ueber-uns" className="btn-outline mt-2">Mehr erfahren <span aria-hidden>→</span></TLink>
-            </div>
-            {content.about.imageUrl && (
-              <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3] reveal">
-                <img src={content.about.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
-              </div>
-            )}
-          </div>
-        </Section>
-      )}
-
-      {/* Gallery teaser – clean grid */}
-      {isSectionVisible(content, 'gallery') && featuredGallery.length > 0 && (
-        <Section eyebrow="Galerie" title={galleryTeaserTitle(variant, content)} className="surface">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
-            {featuredGallery.map((src, i) => (
-              <div key={i} className="aspect-square overflow-hidden rounded-xl img-zoom">
-                <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 reveal">
-            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">Alles ansehen <span aria-hidden>→</span></TLink>
-          </div>
-        </Section>
-      )}
-
-      {/* FAQ accordion */}
-      {isSectionVisible(content, 'faq') && (
-      <Section eyebrow="Häufig gefragt" title={<>Antworten auf <em className="italic-pop">Ihre Fragen.</em></>}>
-        <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
-      </Section>
-      )}
-
-      {isSectionVisible(content, 'news') && <NewsPreview content={content} />}
-
-      {/* Soft CTA */}
-      {isSectionVisible(content, 'softCta') && (() => {
-        const t = effectiveBranchText(variant, content);
-        return (
-          <section className="py-24 surface">
-            <div className="container-x">
-              <div className="rounded-3xl bg-white border border-line p-10 md:p-14 text-center reveal">
-                <p className="eyebrow justify-center mb-4">{t.softCtaEyebrow}</p>
-                <h2 className="headline-lg">{t.softCtaTitle}</h2>
-                <p className="mt-5 text-muted max-w-xl mx-auto">{t.softCtaText}</p>
-                <TLink to="/kontakt" className="btn-primary mt-8">{t.softCtaButton} <span aria-hidden>→</span></TLink>
-              </div>
-            </div>
-          </section>
-        );
-      })()}
+      {order.map((key) => (
+        <React.Fragment key={key}>{blocks[key]}</React.Fragment>
+      ))}
+      {isSectionVisible(content, 'softCta') && <SoftCtaBlock variant={variant} content={content} style="modern" />}
     </>
   );
 }
@@ -645,6 +624,108 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
   const featuredServices = content.services.slice(0, 8);
   const featuredGallery = content.gallery.slice(0, 12);
   const heroImg = content.gallery[0];
+
+  const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
+  const baseOrder = customHomeOrder && customHomeOrder.length ? customHomeOrder : BRANCH_STYLE_ORDER[variant].bold;
+  const order = baseOrder.filter((k) => isSectionVisible(content, k));
+
+  const blocks: Record<string, JSX.Element | null> = {
+    action: <BranchActionStrip variant={variant} content={content} />,
+    signature: <BranchSignature variant={variant} style="bold" content={content} />,
+    numbers: <NumbersBand variant={variant} content={content} />,
+    news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'Notizen.'} />,
+    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} /> : null,
+    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} /> : null,
+    tours: variant === 'tourism' ? <TourCardsModule content={content} /> : null,
+    treatments: variant === 'salon' ? <TreatmentListModule content={content} /> : null,
+    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
+    about: (
+      <section className="py-24 md:py-36">
+        <div className="container-x grid md:grid-cols-12 gap-10">
+          <div className="md:col-span-5 md:col-start-2">
+            <p className="eyebrow mb-5 reveal">{content.about?.title ? 'Manifest' : effectiveBranchText(variant, content).manifestEyebrow}</p>
+            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] reveal">
+              {splitTitle(content.about?.title || effectiveBranchText(variant, content).manifestTitle)}
+            </h2>
+          </div>
+          <div className="md:col-span-5 md:pt-14 reveal">
+            {(content.about?.body || subtitleFor(variant, content)).split('\n\n').slice(0, 2).map((p, i) => (
+              <p key={i} className="text-lg md:text-xl leading-relaxed mb-5">{p}</p>
+            ))}
+            <TLink to="/ueber-uns" className="link-underline mt-2 inline-flex">Unsere Geschichte <span aria-hidden>→</span></TLink>
+          </div>
+        </div>
+      </section>
+    ),
+    services: featuredServices.length > 0 ? (
+      <section className="py-24 md:py-36 bg-brand text-white">
+        <div className="container-x">
+          <div className="flex items-end justify-between gap-6 mb-16">
+            <div>
+              <p className="eyebrow mb-4 !text-white/70">{cfg.servicesEyebrow}</p>
+              <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
+            </div>
+            <TLink to={cfg.servicesPath} className="btn-accent hidden md:inline-flex">Alle <span aria-hidden>→</span></TLink>
+          </div>
+          <ol className="divide-y divide-white/15 reveal-stagger">
+            {featuredServices.map((s, i) => (
+              <li key={i} className="grid md:grid-cols-12 gap-6 py-7 items-baseline group hover:bg-white/5 transition-colors -mx-4 px-4 rounded">
+                <span className="md:col-span-2 font-mono text-xs text-white/50">/ {String(i + 1).padStart(2, '0')}</span>
+                <h3 className="md:col-span-5 font-display text-3xl md:text-4xl">{s.title}</h3>
+                {s.description && <p className="md:col-span-4 text-white/70 text-sm">{s.description}</p>}
+                {s.price && <span className="md:col-span-1 font-mono text-sm md:text-right text-[var(--accent-color)]">{s.price}</span>}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    ) : null,
+    gallery: featuredGallery.length > 0 ? (
+      <section className="py-24 md:py-36">
+        <div className="container-x">
+          <div className="flex items-end justify-between gap-6 mb-12">
+            <div>
+              <p className="eyebrow mb-4">Galerie</p>
+              <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, content)}</h2>
+            </div>
+            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="link-underline hidden md:inline-flex">Alle Bilder <span aria-hidden>→</span></TLink>
+          </div>
+          <MasonryGrid images={featuredGallery} />
+        </div>
+      </section>
+    ) : null,
+    testimonials: content.testimonials.length > 0 ? (
+      <>
+        <div className="py-8 bg-[var(--accent-color)] text-[var(--accent-fg)] border-y border-brand/20">
+          <MarqueeTrack speed={50}>
+            <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap uppercase tracking-tight">
+              <span>Stimmen</span><span className="opacity-50">/</span>
+              <span>Ehrliche Worte</span><span className="opacity-50">/</span>
+              <span>Vertrauen</span><span className="opacity-50">/</span>
+              <span>Stimmen</span><span className="opacity-50">/</span>
+            </span>
+          </MarqueeTrack>
+        </div>
+        <section className="py-24 md:py-36 surface">
+          <div className="container-x grid md:grid-cols-12 gap-10">
+            <div className="md:col-span-7 reveal">
+              <span className="font-display text-[140px] md:text-[200px] leading-[0.6] text-[var(--accent-color)] block">&ldquo;</span>
+              <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{content.testimonials[0].text}</p>
+              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
+            </div>
+            <div className="md:col-span-5 space-y-5">
+              {content.testimonials.slice(1, 4).map((t, i) => (
+                <HardShadowCard key={i} className="bg-white border border-brand rounded-none p-6 reveal" offset={6}>
+                  <p className="text-base leading-relaxed">{t.text}</p>
+                  <footer className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">— {t.author}</footer>
+                </HardShadowCard>
+              ))}
+            </div>
+          </div>
+        </section>
+      </>
+    ) : null,
+  };
 
   return (
     <>
@@ -677,126 +758,10 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           </div>
         )}
       </section>
-
-      {isSectionVisible(content, 'action') && <BranchActionStrip variant={variant} content={content} />}
-
-      {/* Asymmetric statement split */}
-      {isSectionVisible(content, 'about') && (
-      <section className="py-24 md:py-36">
-        <div className="container-x grid md:grid-cols-12 gap-10">
-          <div className="md:col-span-5 md:col-start-2">
-            <p className="eyebrow mb-5 reveal">{effectiveBranchText(variant, content).manifestEyebrow}</p>
-            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] reveal">
-              {splitTitle(effectiveBranchText(variant, content).manifestTitle)}
-            </h2>
-          </div>
-          <div className="md:col-span-5 md:pt-14 reveal">
-            {(content.about?.body || subtitleFor(variant, content)).split('\n\n').slice(0, 2).map((p, i) => (
-              <p key={i} className="text-lg md:text-xl leading-relaxed mb-5">{p}</p>
-            ))}
-            <TLink to="/ueber-uns" className="link-underline mt-2 inline-flex">Unsere Geschichte <span aria-hidden>→</span></TLink>
-          </div>
-        </div>
-      </section>
-      )}
-
-      {/* Branch + style signature block */}
-      {isSectionVisible(content, 'signature') && <BranchSignature variant={variant} style="bold" content={content} />}
-
-      {/* Branch-specific module (Menu / Rooms / Tours / Treatments / Funding…) */}
-      {(() => { const k = branchModuleKey(variant); return k && isSectionVisible(content, k); })() && <BranchModulesInline variant={variant} content={content} />}
-
-      {/* Big colored services as numbered editorial list */}
-      {isSectionVisible(content, 'services') && (
-      <section className="py-24 md:py-36 bg-brand text-white">
-        <div className="container-x">
-          <div className="flex items-end justify-between gap-6 mb-16">
-            <div>
-              <p className="eyebrow mb-4 !text-white/70">{cfg.servicesEyebrow}</p>
-              <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
-            </div>
-            <TLink to={cfg.servicesPath} className="btn-accent hidden md:inline-flex">Alle <span aria-hidden>→</span></TLink>
-          </div>
-          <ol className="divide-y divide-white/15 reveal-stagger">
-            {featuredServices.map((s, i) => (
-              <li key={i} className="grid md:grid-cols-12 gap-6 py-7 items-baseline group hover:bg-white/5 transition-colors -mx-4 px-4 rounded">
-                <span className="md:col-span-2 font-mono text-xs text-white/50">/ {String(i + 1).padStart(2, '0')}</span>
-                <h3 className="md:col-span-5 font-display text-3xl md:text-4xl">{s.title}</h3>
-                {s.description && <p className="md:col-span-4 text-white/70 text-sm">{s.description}</p>}
-                {s.price && <span className="md:col-span-1 font-mono text-sm md:text-right text-[var(--accent-color)]">{s.price}</span>}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-      )}
-
-      {/* Oversized stats with grain */}
-      {isSectionVisible(content, 'numbers') && <NumbersBand variant={variant} content={content} />}
-
-      {/* Real masonry gallery teaser */}
-      {isSectionVisible(content, 'gallery') && featuredGallery.length > 0 && (
-        <section className="py-24 md:py-36">
-          <div className="container-x">
-            <div className="flex items-end justify-between gap-6 mb-12">
-              <div>
-                <p className="eyebrow mb-4">Galerie</p>
-                <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, content)}</h2>
-              </div>
-              <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="link-underline hidden md:inline-flex">Alle Bilder <span aria-hidden>→</span></TLink>
-            </div>
-            <MasonryGrid images={featuredGallery} />
-          </div>
-        </section>
-      )}
-
-      {/* Testimonials – big quote */}
-      {isSectionVisible(content, 'testimonials') && content.testimonials.length > 0 && (
-        <>
-          <div className="py-8 bg-[var(--accent-color)] text-[var(--accent-fg)] border-y border-brand/20">
-            <MarqueeTrack speed={50}>
-              <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap uppercase tracking-tight">
-                <span>Stimmen</span><span className="opacity-50">/</span>
-                <span>Ehrliche Worte</span><span className="opacity-50">/</span>
-                <span>Vertrauen</span><span className="opacity-50">/</span>
-                <span>Stimmen</span><span className="opacity-50">/</span>
-              </span>
-            </MarqueeTrack>
-          </div>
-          <section className="py-24 md:py-36 surface">
-            <div className="container-x grid md:grid-cols-12 gap-10">
-              <div className="md:col-span-7 reveal">
-                <span className="font-display text-[140px] md:text-[200px] leading-[0.6] text-[var(--accent-color)] block">&ldquo;</span>
-                <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{content.testimonials[0].text}</p>
-                <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
-              </div>
-              <div className="md:col-span-5 space-y-5">
-                {content.testimonials.slice(1, 4).map((t, i) => (
-                  <HardShadowCard key={i} className="bg-white border border-brand rounded-none p-6 reveal" offset={6}>
-                    <p className="text-base leading-relaxed">{t.text}</p>
-                    <footer className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">— {t.author}</footer>
-                  </HardShadowCard>
-                ))}
-              </div>
-            </div>
-          </section>
-        </>
-      )}
-
-      {isSectionVisible(content, 'news') && <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'Notizen.'} />}
-
-      {/* Bold CTA */}
-      {isSectionVisible(content, 'softCta') && (
-      <section className="py-32 md:py-44 bg-[var(--accent-color)] text-brand grain">
-        <div className="container-x text-center reveal">
-          <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">
-            {variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : 'Auftrag?'}
-          </h2>
-          <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto">Schreiben Sie uns. Wir antworten.</p>
-          <TLink to="/kontakt" className="btn-primary mt-10">Jetzt Kontakt <span aria-hidden>→</span></TLink>
-        </div>
-      </section>
-      )}
+      {order.map((key) => (
+        <React.Fragment key={key}>{blocks[key]}</React.Fragment>
+      ))}
+      {isSectionVisible(content, 'softCta') && <SoftCtaBlock variant={variant} content={content} style="bold" />}
     </>
   );
 }
@@ -1075,6 +1040,39 @@ function CtaBand({ variant, content }: { variant: TemplateVariant; content?: Sit
         <div className="mt-12">
           <TLink to={t.ctaHref} className="btn-primary">{t.cta} <span aria-hidden>→</span></TLink>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: 'modern' | 'bold' }) {
+  const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string } | undefined;
+  const bt = effectiveBranchText(variant, content);
+  const boldTitle = variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : variant === 'hotel' ? 'Pause buchen?' : variant === 'tourism' ? 'Tour buchen?' : 'Auftrag?';
+  const title = (ov?.lead && ov.lead.trim()) || (style === 'modern' ? bt.softCtaTitle : boldTitle);
+  const sub = (ov?.sub && ov.sub.trim()) || (style === 'modern' ? bt.softCtaText : 'Schreiben Sie uns. Wir antworten.');
+  const cta = (ov?.cta && ov.cta.trim()) || (style === 'modern' ? bt.softCtaButton : 'Jetzt Kontakt');
+  const href = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
+  if (style === 'modern') {
+    return (
+      <section className="py-24 surface">
+        <div className="container-x">
+          <div className="rounded-3xl bg-white border border-line p-10 md:p-14 text-center reveal">
+            <p className="eyebrow justify-center mb-4">{bt.softCtaEyebrow}</p>
+            <h2 className="headline-lg">{title}</h2>
+            <p className="mt-5 text-muted max-w-xl mx-auto">{sub}</p>
+            <TLink to={href} className="btn-primary mt-8">{cta} <span aria-hidden>→</span></TLink>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  return (
+    <section className="py-32 md:py-44 bg-[var(--accent-color)] text-brand grain">
+      <div className="container-x text-center reveal">
+        <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">{title}</h2>
+        <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto">{sub}</p>
+        <TLink to={href} className="btn-primary mt-10">{cta} <span aria-hidden>→</span></TLink>
       </div>
     </section>
   );
