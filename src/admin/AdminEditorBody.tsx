@@ -686,17 +686,42 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
         </Field>
         <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
-        <p className="text-xs font-medium text-muted mt-4">Primär-Button</p>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Button-Text"><input className={inputCls} value={data.hero.ctaLabel || ''} onChange={(e) => set({ hero: { ...data.hero, ctaLabel: e.target.value } })} /></Field>
-          <LinkTargetField label="Button-Ziel" value={data.hero.ctaHref || ''} onChange={(v) => set({ hero: { ...data.hero, ctaHref: v } })} sections={homeSectionsFor(tpl)} />
-        </div>
         {(() => {
-          const heroCta = ((data as any).heroCta ?? {}) as { secondaryLabel?: string; secondaryHref?: string };
-          const setHeroCta = (patch: { secondaryLabel?: string; secondaryHref?: string }) =>
+          const heroCta = ((data as any).heroCta ?? {}) as {
+            primaryLabel?: string;
+            primaryHref?: string;
+            secondaryLabel?: string;
+            secondaryHref?: string;
+          };
+          const setHeroCta = (patch: { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string }) =>
             setData({ ...(data as any), heroCta: { ...heroCta, ...patch } } as SiteContent);
+          const primaryLabel = heroCta.primaryLabel || data.hero.ctaLabel || '';
+          const primaryHref = heroCta.primaryHref || data.hero.ctaHref || '';
           return (
             <>
+        <p className="text-xs font-medium text-muted mt-4">Primär-Button</p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Button-Text">
+            <input
+              className={inputCls}
+              value={primaryLabel}
+              onChange={(e) => {
+                const v = e.target.value;
+                set({ hero: { ...data.hero, ctaLabel: v } });
+                setHeroCta({ primaryLabel: v });
+              }}
+            />
+          </Field>
+          <LinkTargetField
+            label="Button-Ziel"
+            value={primaryHref}
+            onChange={(v) => {
+              set({ hero: { ...data.hero, ctaHref: v } });
+              setHeroCta({ primaryHref: v });
+            }}
+            sections={homeSectionsFor(tpl)}
+          />
+        </div>
               <p className="text-xs font-medium text-muted mt-4">Sekundär-Button (optional)</p>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="Button-Text" hint="Leer lassen, um den zweiten Button auszublenden.">
@@ -1723,6 +1748,17 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
                 placeholder={placeholder}
               />
             </Field>
+          );
+        }
+        if (key === 'learnMoreHref') {
+          return (
+            <LinkTargetField
+              key={key}
+              label={meta.label}
+              value={((bt[key] as string | undefined) ?? '')}
+              onChange={(v) => update({ [key]: v })}
+              sections={homeSectionsFor(tpl)}
+            />
           );
         }
         const val = (bt[key] as string | undefined) ?? '';
