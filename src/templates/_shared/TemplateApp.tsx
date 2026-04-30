@@ -388,9 +388,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
       >
         <ClassicServicesGrid services={featuredServices} />
         <div className="mt-12 reveal">
-          <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>
-            {effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span>
-          </TLink>
+          <TLink to={cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
         </div>
       </Section>
     ) : null,
@@ -475,9 +473,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
             ))}
           </div>
           <div className="mt-12 reveal">
-            <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className="btn-primary">
-              {effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span>
-            </TLink>
+            <TLink to={cfg.servicesPath} className="btn-primary">Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
           </div>
         </Section>
       </SpotlightSection>
