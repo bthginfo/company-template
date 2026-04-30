@@ -259,9 +259,10 @@ export default function CrmApp() {
     if (!provisionModal.p) return;
     setBusy(true);
     try {
-      const data = await req<ProvisioningResponse>(`/api/prospects/${provisionModal.p.id}/provision`, {
+      const data = await req<ProvisioningResponse>(`/api/prospects/provision?id=${encodeURIComponent(provisionModal.p.id)}`, {
         method: 'POST',
         body: JSON.stringify({
+          id: provisionModal.p.id,
           slug: provSlug,
           name: provName,
           template: provTemplate,
