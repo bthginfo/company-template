@@ -28,13 +28,33 @@ import {
   type AnyTemplate,
   type AnyStyle,
 } from '../src/lib/provision-core.js';
+import { PRESETS } from '../src/lib/theme.js';
 
 const RAW_ARGS = process.argv.slice(2);
+const takeFlagValue = (flag: string): string | undefined => {
+  const i = RAW_ARGS.indexOf(flag);
+  if (i === -1) return undefined;
+  const v = RAW_ARGS[i + 1];
+  if (!v || v.startsWith('--')) return undefined;
+  return v;
+};
+
 const RESEED = RAW_ARGS.includes('--reseed');
-const FILTERED = RAW_ARGS.filter((a) => a !== '--reseed');
+const AUTH_SECRET_OVERRIDE = takeFlagValue('--auth-secret');
+const ADMIN_HASH_OVERRIDE = takeFlagValue('--admin-hash');
+const PRESET_OVERRIDE = takeFlagValue('--preset');
+
+const FILTERED = RAW_ARGS.filter((a, i) => {
+  if (a === '--reseed') return false;
+  if (['--auth-secret', '--admin-hash', '--preset'].includes(a)) return false;
+  const prev = RAW_ARGS[i - 1];
+  if (prev && ['--auth-secret', '--admin-hash', '--preset'].includes(prev)) return false;
+  return true;
+});
+
 const [slug, name, template, styleArg] = FILTERED;
 
-const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <${VALID_TEMPLATES.join('|')}> [${VALID_STYLES.join('|')}]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n`;
+const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <${VALID_TEMPLATES.join('|')}> [${VALID_STYLES.join('|')}] [--preset <id>] [--reseed] [--auth-secret <value>] [--admin-hash <bcrypt>]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern --preset espresso\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic --reseed\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n\nIf AUTH_SECRET / ADMIN_PASSWORD_HASH in .env.local are encrypted blobs, pass plaintext explicitly via --auth-secret / --admin-hash.\n`;
 
 if (slug === '--help' || slug === '-h') {
   console.log(HELP);
@@ -55,6 +75,15 @@ if (styleArg && !VALID_STYLES.includes(styleArg as AnyStyle)) {
 }
 const style: AnyStyle = (styleArg as AnyStyle) || 'classic';
 
+if (PRESET_OVERRIDE) {
+  const presets = PRESETS[template as AnyTemplate] ?? [];
+  if (!presets.some((p) => p.id === PRESET_OVERRIDE)) {
+    const valid = presets.map((p) => p.id).join(', ');
+    console.error(`✗ Preset "${PRESET_OVERRIDE}" ungültig für Template "${template}". Gültig: ${valid}`);
+    process.exit(1);
+  }
+}
+
 async function main() {
   console.log(`\n→ Provisioning tenant '${slug}'\n`);
   const result = await provisionTenant({
@@ -62,6 +91,11 @@ async function main() {
     name,
     template: template as AnyTemplate,
     style,
+    themePresetId: PRESET_OVERRIDE,
+    sharedEnvOverrides: {
+      AUTH_SECRET: AUTH_SECRET_OVERRIDE,
+      ADMIN_PASSWORD_HASH: ADMIN_HASH_OVERRIDE,
+    },
     reseed: RESEED,
     waitForBuild: true,
     onLog: (line) => console.log(line),
@@ -90,6 +124,7 @@ async function main() {
   console.log(`  Slug:          ${result.slug}`);
   console.log(`  Template:      ${result.template}`);
   console.log(`  Style:         ${result.style}`);
+  if (PRESET_OVERRIDE) console.log(`  Preset:        ${PRESET_OVERRIDE}`);
   console.log(`  Project URL:   ${result.projectUrl}`);
   console.log(`  Login URL:     ${result.loginUrl}`);
   console.log(`  Deploy URL:    ${result.deploymentUrl}`);

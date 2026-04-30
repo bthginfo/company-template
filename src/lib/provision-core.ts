@@ -16,6 +16,7 @@ import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content.js';
 import { BRANCH_TEXT_DEFAULTS } from './branch-text-defaults.js';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from './section-defaults.js';
 import { FAQ_DEFAULTS } from './faq-defaults.js';
+import { getPreset } from './theme.js';
 
 export const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
 export const VALID_STYLES = ['classic', 'modern', 'bold'] as const;
@@ -46,9 +47,13 @@ export type ProvisionInput = {
   name: string;
   template: AnyTemplate;
   style?: AnyStyle;
+  /** Optional theme preset id (e.g. 'espresso'). Applied to seeded brand content. */
+  themePresetId?: string;
   reseed?: boolean;
   /** Optional: override the GitHub repo. Defaults to GITHUB_REPO env or bthginfo/company-template. */
   githubRepo?: string;
+  /** Optional: explicit shared env vars that should win over process.env. */
+  sharedEnvOverrides?: Partial<Record<string, string>>;
   /** Override polling. CLI waits ~60s; API endpoints should set false to return fast. */
   waitForBuild?: boolean;
   /** Verbose logger — defaults to no-op so the API stays quiet. */
@@ -121,9 +126,24 @@ function fullDefaults(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tou
   });
 }
 
-export function defaultsFor(t: AnyTemplate, name: string): SiteContent {
-  if (t === 'consulting' || t === 'medical' || t === 'fitness') return extraDefaults(t, name);
-  return fullDefaults(t as 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism', name);
+export function defaultsFor(t: AnyTemplate, name: string, themePresetId?: string): SiteContent {
+  const seeded = (t === 'consulting' || t === 'medical' || t === 'fitness')
+    ? extraDefaults(t, name)
+    : fullDefaults(t as 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism', name);
+
+  if (!themePresetId) return seeded;
+  const preset = getPreset(t, themePresetId);
+  if (!preset) return seeded;
+
+  return SiteContentSchema.parse({
+    ...seeded,
+    brand: {
+      ...seeded.brand,
+      themePresetId: preset.id,
+      // Keep legacy color in sync for code paths that still read primaryColor.
+      primaryColor: preset.primary,
+    },
+  });
 }
 
 function vercelFactory(token: string, team: string) {
@@ -152,6 +172,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
   const name = input.name;
   const template = input.template;
   const style: AnyStyle = input.style ?? 'classic';
+  const themePresetId = input.themePresetId?.trim() || undefined;
   const reseed = input.reseed ?? false;
   const waitForBuild = input.waitForBuild ?? false;
 
@@ -197,7 +218,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
       await db.update(schema.tenants).set({ name, template, style }).where(eq(schema.tenants.id, existing.id));
       log('  ✓ Tenant row updated (existed) — password preserved');
       if (reseed) {
-        const seed = defaultsFor(template, name);
+        const seed = defaultsFor(template, name, themePresetId);
         await db.insert(schema.siteContent)
           .values({ tenantId, data: seed })
           .onConflictDoUpdate({ target: schema.siteContent.tenantId, set: { data: seed } });
@@ -210,7 +231,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
       tenantId = row.id;
       tenantWasNew = true;
       passwordRotated = true;
-      const seed = defaultsFor(template, name);
+      const seed = defaultsFor(template, name, themePresetId);
       await db.insert(schema.siteContent)
         .values({ tenantId, data: seed })
         .onConflictDoUpdate({ target: schema.siteContent.tenantId, set: { data: seed } });
@@ -236,6 +257,11 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
         continue;
       }
       envMap.set(k, v);
+    }
+    if (input.sharedEnvOverrides) {
+      for (const [k, v] of Object.entries(input.sharedEnvOverrides)) {
+        if (v && v.trim()) envMap.set(k, v.trim());
+      }
     }
     if (!envMap.has('AUTH_SECRET')) {
       throw new Error('AUTH_SECRET nicht als Plaintext in der Umgebung. Alle Tenants müssen denselben AUTH_SECRET teilen.');
