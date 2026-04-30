@@ -1108,7 +1108,16 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         ) : style === 'modern' ? (
           <ModernServicesGrid services={content.services} />
         ) : (
-          <ServicesShowcase variant={variant} services={content.services} />
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+            <div className="lg:col-span-4 reveal">
+              <p className="eyebrow mb-5">{effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
+              <h2 className="font-display text-5xl md:text-6xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
+              <p className="mt-8 text-lg text-muted leading-relaxed">{subtitleFor(variant, content)}</p>
+            </div>
+            <div className="lg:col-span-8">
+              <ServicesShowcase variant={variant} services={content.services} />
+            </div>
+          </div>
         )}
       </Section>
     ),
