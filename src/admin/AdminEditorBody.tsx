@@ -687,9 +687,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
           </Field>
         )}
-        <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
+        {_ctx.style === 'classic' && (
+          <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
+        )}
         {(_ctx.style === 'modern' || _ctx.style === 'bold') && (
-          <ImagePickerField label="Hero-Bild (Modern/Bold)" value={data.branchText?.heroImageUrl || ''} onChange={(v) => setData({ ...data, branchText: { ...data.branchText, heroImageUrl: v } })} ratio="aspect-[4/5]" />
+          <ImagePickerField label="Hero-Bild" value={data.branchText?.heroImageUrl || ''} onChange={(v) => setData({ ...data, branchText: { ...data.branchText, heroImageUrl: v } })} ratio="aspect-[4/5]" />
         )}
         {(() => {
           const heroCta = ((data as any).heroCta ?? {}) as {
