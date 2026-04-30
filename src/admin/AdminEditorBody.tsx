@@ -669,9 +669,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Buttons." badge="Sektion 2">
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
-        <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift (Classic/Modern).">
-          <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
-        </Field>
+        {_ctx.style !== 'bold' && (
+          <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift (Classic/Modern).">
+            <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
+          </Field>
+        )}
         <Field label="Hauptüberschrift">
           <input className={inputCls} value={data.hero.title} onChange={(e) => set({ hero: { ...data.hero, title: e.target.value } })} />
         </Field>
