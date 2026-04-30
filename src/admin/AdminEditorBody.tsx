@@ -667,10 +667,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         />
       </SectionCard>
 
-      <SectionCard title="Aktionsleiste" description="Schmaler Streifen direkt unter dem Lauftext (z. B. „Heute geöffnet · Tisch reservieren · Speisekarte ansehen“)." badge="Sektion 1b">
-        <HomeStripEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
-
       <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Buttons." badge="Sektion 2">
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
         <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift (Classic/Modern).">
@@ -734,8 +730,12 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         })()}
       </SectionCard>
 
+      <SectionCard title="Aktionsleiste" description="Schmaler Streifen direkt unter dem Hero-Bereich (z. B. „Heute geöffnet · Tisch reservieren · Speisekarte ansehen“)." badge="Sektion 2b">
+        <HomeStripEditor data={data} setData={setData} tpl={tpl} />
+      </SectionCard>
+
       {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
-        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 2b">
+        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 2c">
           <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
         </SectionCard>
       )}
