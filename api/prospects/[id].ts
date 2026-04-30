@@ -33,7 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.json({ prospect: row });
   }
 
-  if (req.method === 'PATCH') {
+  if (req.method === 'PATCH' || req.method === 'POST') {
     const body = typeof req.body === 'string' ? safeParse(req.body) : req.body || {};
     const parsed = PatchSchema.safeParse(body);
     if (!parsed.success) {
@@ -54,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.json({ ok: true });
   }
 
-  res.setHeader('Allow', 'GET, PATCH, DELETE');
+  res.setHeader('Allow', 'GET, PATCH, POST, DELETE');
   return res.status(405).json({ error: 'Method not allowed' });
 }
 

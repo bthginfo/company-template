@@ -172,7 +172,7 @@ export default function CrmApp() {
     try {
       if (editing) {
         await req(`/api/prospects/${editing.id}`, {
-          method: 'PATCH',
+          method: 'POST',
           body: JSON.stringify({ ...form, categoryId: form.categoryId || null }),
         });
       } else {
