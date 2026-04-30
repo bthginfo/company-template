@@ -1746,8 +1746,8 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   aboutSidebarEyebrow: { label: 'Über-uns-Sidebar Eyebrow', hint: 'Modern-Style: kleine Überschrift in der Sidebar („Auf einen Blick“).' },
   servicesTeaserEyebrow: { label: 'Leistungen-Teaser Eyebrow', hint: 'Eyebrow über dem Speisekarten-/Leistungen-Teaser auf der Startseite.' },
   servicesTeaserTitle: { label: 'Leistungen-Teaser Titel', hint: 'Z. B. „Aus der Küche." oder „Ihre Behandlungen."' },
-  servicesAllLabel: { label: 'Leistungen-Teaser Button-Text', hint: 'Bold-Style: Button rechts oben im Speisekarten-/Leistungen-Teaser.' },
-  servicesAllHref: { label: 'Leistungen-Teaser Button-Ziel', hint: 'z. B. /speisekarte, /leistungen oder #kontakt' },
+  servicesAllLabel: { label: 'Button-Text', hint: 'z. B. „Alle Gerichte", „Zur Speisekarte"' },
+  servicesAllHref: { label: 'Button-Ziel', hint: 'z. B. /speisekarte, /leistungen oder #kontakt' },
   heroEyebrow: { label: 'Hero Eyebrow (Bold)', hint: 'Bold-Style: kleine Zeile direkt über dem riesigen Titel.' },
 };
 
@@ -1761,7 +1761,7 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
     if (key === 'heroEyebrow') return _ctx.style === 'bold';
     if (key === 'aboutSidebarEyebrow') return _ctx.style === 'modern';
     if (key === 'marqueeWords') return _ctx.style === 'bold';
-    if (key === 'servicesAllLabel' || key === 'servicesAllHref') return _ctx.style === 'bold';
+    if (key === 'servicesAllLabel' || key === 'servicesAllHref') return true;
     return true;
   };
   return (
