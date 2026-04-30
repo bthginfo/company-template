@@ -2082,19 +2082,20 @@ function Pricing() {
       ],
     },
     {
-      name: 'Mit Foto-Add-on',
-      price: '2.890 €',
+      name: 'Mit Content Kit (Foto + Video)',
+      price: '3.180 €',
       sub: 'einmalig',
       monthly: '+ 29 € / Monat Hosting & Pflege',
       featured: true,
-      badge: 'Mit Bild & Film',
+      badge: 'Content Kit',
       features: [
         'Alles aus „Template"',
-        'Foto-Shooting bei Dir vor Ort (halber–ganzer Tag)',
-        '20–40 bearbeitete Fotos',
-        '30–60 Sekunden kurzer Imagefilm',
-        'Beratung zu Bildsprache und Look',
-        'Social-Media-Cuts inklusive',
+        '2 Drehtage bei Dir vor Ort',
+        'Teamfotos bis 20 Personen (Einzel + Gruppe)',
+        'Location komplett: Räume, Atmosphäre, Details',
+        'Food-, Produkt- und Servicemomente inklusive',
+        '50 bearbeitete Bilder + 3 Reels (à 30 Sek.)',
+        'Beratung zu Bildsprache, Story und Einsatz auf Web & Social',
       ],
     },
     {
@@ -2116,7 +2117,7 @@ function Pricing() {
   const addons = [
     { t: 'Mehrsprachigkeit', p: 'ab 290 €', d: 'DE + EN, weitere Sprachen auf Anfrage. Inkl. Sprach-Switcher.' },
     { t: 'Online-Reservierung', p: 'ab 390 €', d: 'Anbindung an Tools wie Quandoo, OpenTable, Treatwell.' },
-    { t: 'Foto-Nachshooting', p: '690 €', d: 'Halber Tag. Für saisonale Updates oder neue Produkte.' },
+    { t: 'Foto-/Video-Nachshooting', p: '890 €', d: '1 Drehtag light für saisonale Updates, neue Produkte oder Teamwechsel (ca. 25 Bilder + 1 Reel).' },
     { t: 'Newsletter-Setup', p: '290 €', d: 'Anbindung an Mailerlite, Brevo oder Mailchimp.' },
     { t: 'Texte & SEO', p: 'ab 490 €', d: 'Schreiben aller Inhalte durch unsere Copywriter:innen, inkl. SEO-Recherche.' },
     { t: 'Logo-Refresh', p: 'ab 590 €', d: 'Modernisierung Deines bestehenden Logos. Drei Iterationen.' },
@@ -2207,7 +2208,7 @@ function Pricing() {
           </h2>
           <Accordion
             items={[
-              { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise wenige Tage nach Inhalts-Übergabe. Wie schnell es real geht, hängt vor allem davon ab, wie zügig Texte und Fotos von Deiner Seite kommen. Mit Foto-Add-on planen wir zusätzlich Zeit für Shooting und Schnitt ein.' },
+              { q: 'Wie lange dauert die Erstellung?', a: 'Bei Template-Projekten typischerweise wenige Tage nach Inhalts-Übergabe. Wie schnell es real geht, hängt vor allem davon ab, wie zügig Texte und Fotos von Deiner Seite kommen. Mit Content Kit planen wir zusätzlich Zeit für Dreh, Auswahl und Schnitt ein.' },
               { q: 'Kann ich Inhalte selbst pflegen?', a: 'Ja. Du bekommst einen einfachen Admin-Bereich. Texte, Bilder, Speisekarte und Öffnungszeiten änderst Du ohne Vorkenntnisse direkt im Browser. Du siehst den Effekt sofort.' },
               { q: 'Was passiert, wenn etwas kaputt ist?', a: 'Im Pflegepaket überwachen wir Deine Seite automatisch – wir bekommen Probleme oft mit, bevor Du es tust. Wir reagieren innerhalb der Geschäftszeiten in der Regel binnen weniger Stunden.' },
               { q: 'Wem gehört die Website?', a: 'Dir. Du kannst den Quellcode jederzeit anfordern, das Hosting wechseln und mit anderen Agenturen weiterarbeiten. Wir liefern keine Verträge mit Lock-in-Klauseln.' },
@@ -2276,7 +2277,7 @@ function Contact() {
               ]}
               paketOptions={[
                 'Template (1.490 €)',
-                'Mit Foto-Add-on (2.890 €)',
+                'Mit Content Kit (Foto + Video) (3.180 €)',
                 'Custom (auf Anfrage)',
                 'Noch unentschieden',
               ]}
