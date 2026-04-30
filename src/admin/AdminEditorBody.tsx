@@ -848,6 +848,8 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           title: tpl === 'restaurant' ? 'Aus der Küche.' : tpl === 'salon' ? 'Ihre Behandlungen.' : 'Was wir können.',
           subtitle: '',
         }} />
+        <hr className="my-4 border-line" />
+        <ImagePickerField label="Header-Bild (Modern Style)" value={data.branchText?.servicesPageImageUrl || ''} onChange={(url) => setData({ ...data, branchText: { ...data.branchText, servicesPageImageUrl: url } })} ratio="aspect-[16/9]" />
       </SectionCard>
       <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Überschrift." badge="Sektion 2" pageKey="services" sectionKey="highlights" data={data} setData={setData}>
         <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />

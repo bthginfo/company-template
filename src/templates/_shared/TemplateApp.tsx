@@ -1164,6 +1164,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
     cta: <CtaBand variant={variant} content={content} />,
   };
   const headerOverride = pageHeaderOverride(content, 'servicesHeader');
+  const servicesImg = effectiveBranchText(variant, content).servicesPageImageUrl || content.gallery[2] || content.gallery[0];
   return (
     <>
       <PageHero
@@ -1171,7 +1172,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         title={headerOverride?.title || cfg.servicesHeadline}
         subtitle={headerOverride?.subtitle || subtitleFor(variant, content)}
         style={style}
-        image={style === 'modern' ? content.gallery[2] || content.gallery[0] : undefined}
+        image={style === 'modern' ? servicesImg : undefined}
       />
       {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
     </>

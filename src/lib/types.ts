@@ -196,6 +196,8 @@ export const SiteContentSchema = z.object({
     heroEyebrow: z.string().optional().default(''),
     /** Hero image shown on modern and bold home pages. Defaults to first gallery image. */
     heroImageUrl: z.string().url().optional().or(z.literal('')).default(''),
+    /** Services page header image (modern style). Defaults to gallery[2] or gallery[0]. */
+    servicesPageImageUrl: z.string().url().optional().or(z.literal('')).default(''),
   }).optional().default({}),
 
   /**
