@@ -75,12 +75,16 @@ const SIGNATURE_DEFAULTS: Record<TemplateVariant, Record<TemplateStyle, Signatur
 function resolveSignature(variant: TemplateVariant, style: TemplateStyle, content: SiteContent): SignatureCopy {
   const def = SIGNATURE_DEFAULTS[variant][style];
   const ov = ((content as any).homeSignature || {}) as Partial<SignatureCopy>;
+  const use = (value: string | undefined, fallback: string | undefined) => {
+    if (typeof value === 'string' && value.trim().length > 0) return value;
+    return fallback;
+  };
   return {
-    eyebrow: ov.eyebrow ?? def.eyebrow,
-    titleA: ov.titleA ?? def.titleA,
-    titleB: ov.titleB ?? def.titleB,
-    intro: ov.intro ?? def.intro,
-    metaLabel: ov.metaLabel ?? def.metaLabel,
+    eyebrow: use(ov.eyebrow, def.eyebrow) || '',
+    titleA: use(ov.titleA, def.titleA) || '',
+    titleB: use(ov.titleB, def.titleB) || '',
+    intro: use(ov.intro, def.intro) || '',
+    metaLabel: use(ov.metaLabel, def.metaLabel),
   };
 }
 
