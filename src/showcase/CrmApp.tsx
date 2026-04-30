@@ -89,6 +89,7 @@ export default function CrmApp() {
   const [editing, setEditing] = useState<Prospect | null>(null);
 
   const [emailModal, setEmailModal] = useState<{ open: boolean; p: Prospect | null }>({ open: false, p: null });
+  const [detailsModal, setDetailsModal] = useState<{ open: boolean; p: Prospect | null }>({ open: false, p: null });
   const [emailKind, setEmailKind] = useState<MailKind>('initial');
   const [emailTo, setEmailTo] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
@@ -171,7 +172,7 @@ export default function CrmApp() {
     setBusy(true);
     try {
       if (editing) {
-        await req(`/api/prospects/${editing.id}`, {
+        await req(`/api/prospects/item?id=${encodeURIComponent(editing.id)}`, {
           method: 'POST',
           body: JSON.stringify({ ...form, categoryId: form.categoryId || null }),
         });
@@ -209,7 +210,7 @@ export default function CrmApp() {
     if (!confirm(`Prospect "${p.name}" wirklich löschen?`)) return;
     setBusy(true);
     try {
-      await req(`/api/prospects/${p.id}`, { method: 'DELETE' });
+      await req(`/api/prospects/item?id=${encodeURIComponent(p.id)}`, { method: 'DELETE' });
       await reloadProspects();
       if (editing?.id === p.id) resetForm();
     } catch (e: any) {
@@ -516,6 +517,7 @@ export default function CrmApp() {
                     <Td>{p.lastEmailedAt ? formatDate(p.lastEmailedAt) : '-'}</Td>
                     <Td>
                       <div className="flex flex-wrap gap-1.5">
+                        <button onClick={() => setDetailsModal({ open: true, p })} className="btn-ghost !px-2.5 !py-1.5">Öffnen</button>
                         <button onClick={() => startEdit(p)} className="btn-ghost !px-2.5 !py-1.5">Edit</button>
                         <button onClick={() => openEmail(p)} className="btn-ghost !px-2.5 !py-1.5">Mail</button>
                         <button onClick={() => openProvision(p)} className="btn-ghost !px-2.5 !py-1.5">Provision</button>
@@ -581,6 +583,31 @@ export default function CrmApp() {
               <button className="rounded-xl bg-rose-500 text-white px-4 py-2 hover:bg-rose-400" onClick={() => void sendEmail()}>
                 Senden
               </button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
+
+      {detailsModal.open && detailsModal.p ? (
+        <Modal title={`Prospect: ${detailsModal.p.name || detailsModal.p.company || '-'}`} onClose={() => setDetailsModal({ open: false, p: null })}>
+          <div className="grid sm:grid-cols-2 gap-3 text-sm">
+            <Detail label="Kategorie" value={detailsModal.p.categoryId ? (categoryNameById.get(detailsModal.p.categoryId) || '-') : '-'} />
+            <Detail label="Status" value={STATUS_LABEL[detailsModal.p.status]} />
+            <Detail label="Name" value={detailsModal.p.name || '-'} />
+            <Detail label="Firma" value={detailsModal.p.company || '-'} />
+            <Detail label="E-Mail" value={detailsModal.p.email || '-'} />
+            <Detail label="Adresse" value={detailsModal.p.address || '-'} />
+            <Detail label="Website alt" value={detailsModal.p.websiteOld || '-'} />
+            <Detail label="Website neu" value={detailsModal.p.websiteNew || '-'} />
+            <Detail label="Letzte E-Mail" value={detailsModal.p.lastEmailedAt ? formatDate(detailsModal.p.lastEmailedAt) : '-'} />
+            <Detail label="Provisioned Slug" value={detailsModal.p.provisionedTenantSlug || '-'} />
+            <Detail label="Erstellt" value={formatDate(detailsModal.p.createdAt)} />
+            <Detail label="Aktualisiert" value={formatDate(detailsModal.p.updatedAt)} />
+          </div>
+          <div className="mt-3">
+            <p className="text-sm text-slate-600">Notizen</p>
+            <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 p-3 whitespace-pre-wrap text-sm">
+              {detailsModal.p.notes || '-'}
             </div>
           </div>
         </Modal>
@@ -678,6 +705,15 @@ function Th({ children }: { children: React.ReactNode }) {
 
 function Td({ children }: { children: React.ReactNode }) {
   return <td className="px-3 py-2.5">{children}</td>;
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="mt-0.5 text-slate-900">{value}</p>
+    </div>
+  );
 }
 
 function draftInitial(p: Prospect) {
