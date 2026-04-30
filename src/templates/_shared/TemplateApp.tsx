@@ -654,7 +654,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
     services: featuredServices.length > 0 ? (
       <section className="py-24 md:py-36 bg-brand text-white">
         <div className="container-x">
-          <div className="flex items-end justify-between gap-6 mb-16">
+          <div className="flex flex-col items-start gap-6 mb-16 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="eyebrow mb-4 !text-white/70">{effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
               <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
