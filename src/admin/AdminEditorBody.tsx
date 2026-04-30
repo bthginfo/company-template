@@ -761,13 +761,16 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
-      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop. Bilder erscheinen oben auf den Karten (Modern/Klassisch)." badge="Sektion 4" pageKey="home" sectionKey="services" data={data} setData={setData}>
+      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop." badge="Sektion 4" pageKey="home" sectionKey="services" data={data} setData={setData}>
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesTeaserTitle', 'servicesAllLabel', 'servicesAllHref']} />
-        <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
         <p className="text-xs text-muted">
-          Vollständige Liste – Reihenfolge bestimmt, was auf der Startseite (erste 3) und auf der Unterseite (alle) erscheint.
+          Reihenfolge per Drag & Drop bestimmt, welche Gerichte/Leistungen hier (erste 3) und auf der Unterseite (alle) erscheinen.
         </p>
         <ServicesListEditor data={data} setData={setData} />
+      </SectionCard>
+
+      <SectionCard title={tpl === 'restaurant' ? 'Heute auf der Karte' : tpl === 'salon' ? 'Aktuelle Looks' : tpl === 'hotel' ? 'Verfügbare Zimmer' : 'Angebot'} description={tpl === 'restaurant' ? 'Empfehlungen / Highlights aus der Speisekarte.' : 'Aktuelle Highlights oder Tagesangebot.'} badge="Sektion 4b" pageKey="home" sectionKey="signature" data={data} setData={setData}>
+        <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
       <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 5" pageKey="home" sectionKey="about" data={data} setData={setData}>
