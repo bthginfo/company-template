@@ -49,6 +49,7 @@ export type BranchTextDefaults = {
   servicesAllLabel: string;
   servicesAllHref: string;
   heroEyebrow: string;
+  heroImageUrl: string;
   newsEyebrow: string;
   newsTitle: string;
 };
@@ -91,6 +92,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/speisekarte',
     heroEyebrow: '',
+    heroImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
   },
@@ -132,6 +134,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
+    heroImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
   },
@@ -173,6 +176,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
+    heroImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
   },
@@ -214,6 +218,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/zimmer',
     heroEyebrow: '',
+    heroImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
   },
@@ -255,6 +260,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/touren',
     heroEyebrow: '',
+    heroImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
   },
@@ -296,6 +302,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
+    heroImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
   },
@@ -337,6 +344,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
+    heroImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
   },
@@ -378,6 +386,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
+    heroImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
   },
