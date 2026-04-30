@@ -823,6 +823,15 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Abschluss-Aufruf (CTA)" description="Der große Aufruf zur Aktion am Seitenende – wird auf allen Unterseiten angezeigt." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
+        {(_ctx.style === 'modern' || _ctx.style === 'bold') && (
+          <>
+            <hr className="my-6 border-line" />
+            <p className="text-xs text-muted mb-4">
+              {_ctx.style === 'modern' ? 'Diese Felder überschreiben die obigen Werte im Modern-Stil.' : 'Diese Felder überschreiben die obigen Werte im Bold-Stil.'}
+            </p>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['softCtaEyebrow', 'softCtaTitle', 'softCtaText', 'softCtaButton']} />
+          </>
+        )}
       </SectionCard>
 
       <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
@@ -1725,10 +1734,10 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   testimonialsTitle: { label: 'Überschrift' },
   manifestEyebrow: { label: 'Manifest – Eyebrow' },
   manifestTitle: { label: 'Manifest – Überschrift' },
-  softCtaEyebrow: { label: 'Eyebrow' },
-  softCtaTitle: { label: 'Überschrift' },
-  softCtaText: { label: 'Text' },
-  softCtaButton: { label: 'Button-Beschriftung' },
+  softCtaEyebrow: { label: 'Eyebrow (kleine Zeile darüber)', hint: 'Standard: "HUNGER?" oder vergleichbar je nach Branche.' },
+  softCtaTitle: { label: 'Überschrift', hint: 'Große Hauptzeile des Call-to-Action. Überschreibt Headline aus zu editierendem Feld oben.' },
+  softCtaText: { label: 'Untertitel', hint: 'Kurzer erläuternder Text. Überschreibt Untertitel aus zu editierendem Feld oben.' },
+  softCtaButton: { label: 'Button-Beschriftung', hint: 'Der Text auf dem CTA-Button. Überschreibt Button-Text aus zu editierendem Feld oben.' },
   processEyebrow: { label: 'Prozess – Eyebrow' },
   processTitle: { label: 'Prozess – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
   galleryCategoriesEyebrow: { label: 'Galerie-Kategorien – Eyebrow' },
@@ -2851,16 +2860,35 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
     data, setData, 'ctaBandOverride',
     { lead: '', sub: '', cta: '', ctaHref: '/kontakt', eyebrow: '', leadAccent: '' },
   );
+  
+  const isClassic = _ctx.style === 'classic';
+  const isModern = _ctx.style === 'modern';
+  const isBold = _ctx.style === 'bold';
+
   return (
     <>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Bereit?. Leer = ausgeblendet.">
-          <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
-        </Field>
-        <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Standard: Schreiben Sie uns. Leer = ausgeblendet.">
-          <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder="Schreiben Sie uns." />
-        </Field>
-      </div>
+      {/* Classic: shows eyebrow & leadAccent */}
+      {isClassic && (
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Bereit?. Leer = ausgeblendet.">
+            <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
+          </Field>
+          <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Standard: Schreiben Sie uns. Leer = ausgeblendet.">
+            <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder="Schreiben Sie uns." />
+          </Field>
+        </div>
+      )}
+      
+      {/* Modern & Bold: no eyebrow/leadAccent in this section */}
+      {(isModern || isBold) && (
+        <div className="text-sm text-muted bg-surface rounded p-3 mb-4">
+          <p>
+            {isModern && 'Im Modern Stil wird das Eyebrow aus den Branch-Text-Feldern übernommen.'}
+            {isBold && `Im Bold Stil wird nur die Headline und der Call-to-Action gezeigt – ohne Eyebrow und Akzent-Zeile.`}
+          </p>
+        </div>
+      )}
+      
       <Field label="Headline" hint="Große Hauptzeile (z. B. Hunger?, Termin?, Auftrag?).">
         <input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} placeholder={def.lead} />
       </Field>
