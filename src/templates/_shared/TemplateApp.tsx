@@ -388,7 +388,9 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
       >
         <ClassicServicesGrid services={featuredServices} />
         <div className="mt-12 reveal">
-          <TLink to={cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
+          <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>
+            {effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span>
+          </TLink>
         </div>
       </Section>
     ) : null,
@@ -473,7 +475,9 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
             ))}
           </div>
           <div className="mt-12 reveal">
-            <TLink to={cfg.servicesPath} className="btn-primary">Alle {cfg.servicesLabel} <span aria-hidden>→</span></TLink>
+            <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className="btn-primary">
+              {effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span>
+            </TLink>
           </div>
         </Section>
       </SpotlightSection>
@@ -659,7 +663,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
               <p className="eyebrow mb-4 !text-white/70">{effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
               <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
             </div>
-            <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className="btn-accent inline-flex">{effectiveBranchText(variant, content).servicesAllLabel} <span aria-hidden>→</span></TLink>
+            <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className="btn-accent inline-flex">{effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
           </div>
           <ol className="divide-y divide-white/15 reveal-stagger">
             {featuredServices.map((s, i) => (
