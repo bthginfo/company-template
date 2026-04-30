@@ -762,7 +762,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop. Bilder erscheinen oben auf den Karten (Modern/Klassisch)." badge="Sektion 4" pageKey="home" sectionKey="services" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesAllLabel', 'servicesAllHref']} />
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesTeaserTitle', 'servicesAllLabel', 'servicesAllHref']} />
         <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
         <p className="text-xs text-muted">
           Vollständige Liste – Reihenfolge bestimmt, was auf der Startseite (erste 3) und auf der Unterseite (alle) erscheint.
@@ -1700,6 +1700,7 @@ type BranchTextKey =
   | 'newsTitle'
   | 'aboutSidebarEyebrow'
   | 'servicesTeaserEyebrow'
+  | 'servicesTeaserTitle'
   | 'servicesAllLabel'
   | 'servicesAllHref'
   | 'heroEyebrow';
@@ -1739,6 +1740,7 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   newsTitle: { label: 'Überschrift' },
   aboutSidebarEyebrow: { label: 'Über-uns-Sidebar Eyebrow', hint: 'Modern-Style: kleine Überschrift in der Sidebar („Auf einen Blick“).' },
   servicesTeaserEyebrow: { label: 'Leistungen-Teaser Eyebrow', hint: 'Eyebrow über dem Speisekarten-/Leistungen-Teaser auf der Startseite.' },
+  servicesTeaserTitle: { label: 'Leistungen-Teaser Titel', hint: 'Z. B. „Aus der Küche." oder „Ihre Behandlungen."' },
   servicesAllLabel: { label: 'Leistungen-Teaser Button-Text', hint: 'Bold-Style: Button rechts oben im Speisekarten-/Leistungen-Teaser.' },
   servicesAllHref: { label: 'Leistungen-Teaser Button-Ziel', hint: 'z. B. /speisekarte, /leistungen oder #kontakt' },
   heroEyebrow: { label: 'Hero Eyebrow (Bold)', hint: 'Bold-Style: kleine Zeile direkt über dem riesigen Titel.' },

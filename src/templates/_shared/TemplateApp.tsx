@@ -382,7 +382,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
     services: featuredServices.length > 0 ? (
       <Section
         eyebrow={effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}
-        title={<>{splitTitle(cfg.servicesHeadline)}</>}
+        title={<>{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</>}
         subtitle={subtitleFor(variant, content)}
         className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
       >
@@ -450,7 +450,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
     funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
     services: featuredServices.length > 0 ? (
       <SpotlightSection as="div" color="rgba(242,65,113,0.16)" size={620} className="surface">
-        <Section eyebrow={effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow} title={<>{splitTitle(cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
+        <Section eyebrow={effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow} title={<>{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
             {featuredServices.map((s, i) => (
               <Tilt3DCard key={i} max={5} className="rounded-2xl">
@@ -657,7 +657,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           <div className="flex flex-col items-start gap-6 mb-16 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="eyebrow mb-4 !text-white/70">{effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
-              <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
+              <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</h2>
             </div>
             <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className="btn-accent inline-flex">{effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
           </div>

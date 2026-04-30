@@ -46,6 +46,7 @@ export type BranchTextDefaults = {
   pressTitle: string;
   aboutSidebarEyebrow: string;
   servicesTeaserEyebrow: string;
+  servicesTeaserTitle: string;
   servicesAllLabel: string;
   servicesAllHref: string;
   heroEyebrow: string;
@@ -89,6 +90,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     pressTitle: 'Was die Presse schreibt.',
     aboutSidebarEyebrow: 'Auf einen Blick',
     servicesTeaserEyebrow: 'Speisekarte',
+    servicesTeaserTitle: 'Aus der Küche.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/speisekarte',
     heroEyebrow: '',
@@ -131,6 +133,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     pressTitle: 'Was die Presse schreibt.',
     aboutSidebarEyebrow: 'Auf einen Blick',
     servicesTeaserEyebrow: 'Treatments',
+    servicesTeaserTitle: 'Ihre Behandlungen.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
@@ -173,6 +176,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     pressTitle: 'Was die Presse schreibt.',
     aboutSidebarEyebrow: 'Auf einen Blick',
     servicesTeaserEyebrow: 'Leistungen',
+    servicesTeaserTitle: 'Was wir können.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
@@ -215,6 +219,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     pressTitle: 'Was die Presse schreibt.',
     aboutSidebarEyebrow: 'Auf einen Blick',
     servicesTeaserEyebrow: 'Zimmer & Suiten',
+    servicesTeaserTitle: 'Ihr Zuhause auf Zeit.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/zimmer',
     heroEyebrow: '',
@@ -257,6 +262,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     pressTitle: 'Was die Presse schreibt.',
     aboutSidebarEyebrow: 'Auf einen Blick',
     servicesTeaserEyebrow: 'Touren',
+    servicesTeaserTitle: 'Unser Programm.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/touren',
     heroEyebrow: '',
@@ -299,6 +305,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     pressTitle: 'Was die Presse schreibt.',
     aboutSidebarEyebrow: 'Auf einen Blick',
     servicesTeaserEyebrow: 'Leistungen',
+    servicesTeaserTitle: 'Leistungen.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
@@ -341,6 +348,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     pressTitle: 'Was über uns geschrieben wird.',
     aboutSidebarEyebrow: 'Auf einen Blick',
     servicesTeaserEyebrow: 'Leistungen',
+    servicesTeaserTitle: 'Leistungen.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
@@ -383,6 +391,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     pressTitle: 'Was über uns geschrieben wird.',
     aboutSidebarEyebrow: 'Auf einen Blick',
     servicesTeaserEyebrow: 'Klassen & Programme',
+    servicesTeaserTitle: 'Klassen & Programme.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
     heroEyebrow: '',
