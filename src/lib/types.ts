@@ -277,6 +277,19 @@ export const SiteContentSchema = z.object({
   }).optional().default({}),
 
   /**
+   * Items for the home signature block (e.g. today's specials, featured looks, etc.).
+   * Separate from the main services list — allows different selection for the hero teaser.
+   */
+  homeSignatureItems: z.array(
+    z.object({
+      title: z.string(),
+      description: z.string().optional().default(''),
+      price: z.string().optional().default(''),
+      imageUrl: z.string().url().optional().or(z.literal('')).default(''),
+    })
+  ).optional().default([]),
+
+  /**
    * Logo / partner band under the hero. Plain string list.
    * When empty, the template falls back to a per-variant default.
    */

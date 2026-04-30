@@ -92,7 +92,7 @@ function resolveSignature(variant: TemplateVariant, style: TemplateStyle, conten
  * RESTAURANT — "Heute auf der Karte" / Menu spotlight
  * ═══════════════════════════════════════════════════════════════════ */
 function RestaurantSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
-  const dishes = content.services.slice(0, 3);
+  const dishes = (content as any).homeSignatureItems?.length > 0 ? (content as any).homeSignatureItems : content.services.slice(0, 3);
   const photos = content.gallery.slice(0, 3);
   if (!dishes.length) return null;
   const t = resolveSignature('restaurant', style, content);
@@ -104,7 +104,7 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
           {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
           <Title style={style}>{t.titleA}<br />{t.titleB}</Title>
           <ol className="mt-16 space-y-8">
-            {dishes.map((d, i) => (
+            {dishes.map((d: any, i: number) => (
               <li key={i} className="grid md:grid-cols-12 gap-6 items-center border-b border-white/15 pb-6">
                 <span className="md:col-span-1 font-mono text-sm text-white/50">/{String(i + 1).padStart(2, '0')}</span>
                 {d.imageUrl ? (
@@ -137,7 +137,7 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
             )}
           </div>
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-            {dishes.map((d, i) => {
+            {dishes.map((d: any, i: number) => {
               const img = d.imageUrl || photos[i];
               return (
               <article key={i} className="bg-white border border-line rounded-2xl overflow-hidden hover-lift">
@@ -169,7 +169,7 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
         </div>
         <div className="md:col-span-8 border-t-2 border-b-2 border-brand py-8 reveal">
           <ul className="divide-y divide-line">
-            {dishes.map((d, i) => (
+            {dishes.map((d: any, i: number) => (
               <li key={i} className="py-5 grid grid-cols-[auto_auto_1fr_auto] items-center gap-5">
                 <span className="font-display italic text-3xl text-[var(--accent-color)]">{['I','II','III'][i]}</span>
                 {d.imageUrl ? (

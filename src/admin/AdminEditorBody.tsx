@@ -771,9 +771,8 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title={tpl === 'restaurant' ? 'Heute auf der Karte' : tpl === 'salon' ? 'Aktuelle Looks' : tpl === 'hotel' ? 'Verfügbare Zimmer' : 'Angebot'} description={tpl === 'restaurant' ? 'Empfehlungen / Highlights aus der Speisekarte.' : 'Aktuelle Highlights oder Tagesangebot.'} badge="Sektion 4b" pageKey="home" sectionKey="signature" data={data} setData={setData}>
         <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
-        <p className="text-xs text-muted bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
-          💡 <strong>Die Gerichte:</strong> Die Sektion zeigt automatisch die <strong>ersten 3 Einträge</strong> aus der Speisekarte-Liste oben. Reihenfolge und Inhalte der Gerichte dort einstellen.
-        </p>
+        <p className="text-xs font-medium text-muted mt-6 mb-3">Items (separate vom Angebot oben)</p>
+        <HomeSignatureItemsEditor data={data} setData={setData} />
       </SectionCard>
 
       <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 5" pageKey="home" sectionKey="about" data={data} setData={setData}>
@@ -2497,6 +2496,56 @@ function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
         <textarea className={inputCls + ' !bg-white'} rows={2} value={v.intro} onChange={(e) => set({ ...v, intro: e.target.value })} placeholder={def.intro} />
       </Field>
     </div>
+  );
+}
+
+function HomeSignatureItemsEditor({ data, setData }: SetterProps) {
+  const [list, set] = useExtra<{ title: string; description: string; price: string; imageUrl: string }[]>(
+    data, setData, 'homeSignatureItems', []
+  );
+  return (
+    <RepeatableList 
+      items={list} 
+      onChange={set} 
+      newItem={() => ({ title: '', description: '', price: '', imageUrl: '' })} 
+      addLabel="+ Item hinzufügen"
+      render={(v, _i, setItem) => (
+        <div className="space-y-3 border border-line rounded-xl p-4 bg-white">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Field label="Titel">
+              <input 
+                className={inputCls} 
+                value={v.title} 
+                onChange={(e) => setItem({ ...v, title: e.target.value })} 
+                placeholder="z. B. Pasta al Tartufo"
+              />
+            </Field>
+            <Field label="Preis (optional)">
+              <input 
+                className={inputCls} 
+                value={v.price} 
+                onChange={(e) => setItem({ ...v, price: e.target.value })} 
+                placeholder="z. B. 24,90 €"
+              />
+            </Field>
+          </div>
+          <Field label="Beschreibung (optional)">
+            <textarea 
+              className={inputCls} 
+              rows={2}
+              value={v.description} 
+              onChange={(e) => setItem({ ...v, description: e.target.value })} 
+              placeholder="Kurze Beschreibung oder Zutatenliste"
+            />
+          </Field>
+          <ImagePickerField 
+            label="Bild (optional)" 
+            value={v.imageUrl} 
+            onChange={(url) => setItem({ ...v, imageUrl: url })} 
+          />
+        </div>
+      )}
+    />
   );
 }
 
