@@ -1067,11 +1067,21 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
   const bt = effectiveBranchText(variant, content);
   const href = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
   
+  // Default texts per variant
+  const defaultTexts: Record<TemplateVariant, { lead: string; sub: string; cta: string }> = {
+    restaurant: { lead: 'Hunger?', sub: 'Wir freuen uns, Sie an unserem Tisch begrüßen zu dürfen.', cta: 'Tisch reservieren' },
+    salon: { lead: 'Bereit für etwas Neues?', sub: 'Wir nehmen uns die Zeit – für Sie, für Ihren Look.', cta: 'Termin buchen' },
+    hotel: { lead: 'Pause buchen?', sub: 'Wir antworten persönlich — ohne Formularkette.', cta: 'Zimmer anfragen' },
+    tourism: { lead: 'Auf in die Berge?', sub: 'Wir beraten ehrlich, welche Tour zu Ihnen passt.', cta: 'Tour buchen' },
+    tradesman: { lead: 'Etwas tropft?', sub: 'Wir melden uns binnen 24 h mit einem Festpreis-Angebot.', cta: 'Jetzt anfragen' },
+  };
+  const def = defaultTexts[variant];
+  
   if (style === 'modern') {
-    // Modern: only use what user explicitly entered
-    const title = (ov?.lead && ov.lead.trim()) || '';
-    const sub = (ov?.sub && ov.sub.trim()) || '';
-    const cta = (ov?.cta && ov.cta.trim()) || '';
+    // Modern: use user-entered or fall back to defaults
+    const title = (ov?.lead && ov.lead.trim()) || def.lead;
+    const sub = (ov?.sub && ov.sub.trim()) || def.sub;
+    const cta = (ov?.cta && ov.cta.trim()) || def.cta;
     
     return (
       <section className="py-24 surface">
@@ -1087,7 +1097,7 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
     );
   }
   
-  // Bold: fallback to branchText fields
+  // Bold: fallback to branchText fields (more options)
   const boldFallbackTitle = variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : variant === 'hotel' ? 'Pause buchen?' : variant === 'tourism' ? 'Tour buchen?' : 'Auftrag?';
   const title = (ov?.lead && ov.lead.trim()) || (bt.softCtaTitle && bt.softCtaTitle.trim()) || boldFallbackTitle;
   const sub = (ov?.sub && ov.sub.trim()) || (bt.softCtaText && bt.softCtaText.trim()) || 'Schreiben Sie uns. Wir antworten.';

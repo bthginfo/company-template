@@ -2860,7 +2860,7 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
   const def = defaultCta(tpl);
   const [v, set] = useExtra<{ lead: string; sub: string; cta: string; ctaHref: string; eyebrow: string; leadAccent: string }>(
     data, setData, 'ctaBandOverride',
-    { lead: '', sub: '', cta: '', ctaHref: '/kontakt', eyebrow: '', leadAccent: '' },
+    { lead: def.lead, sub: def.sub, cta: def.cta, ctaHref: def.ctaHref, eyebrow: def.eyebrow, leadAccent: 'Schreiben Sie uns.' },
   );
   
   const isClassic = _ctx.style === 'classic';
