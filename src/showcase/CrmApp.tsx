@@ -8,6 +8,7 @@ type TemplateStyle = 'classic' | 'modern' | 'bold';
 
 type Prospect = {
   id: string;
+  categoryId: string | null;
   name: string;
   company: string;
   address: string;
@@ -22,6 +23,11 @@ type Prospect = {
   provisionedTenantSlug: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+type ProspectCategory = {
+  id: string;
+  name: string;
 };
 
 type ProvisioningResponse = {
@@ -55,6 +61,7 @@ const STATUS_BADGE: Record<ProspectStatus, string> = {
 };
 
 const EMPTY_FORM = {
+  categoryId: '',
   name: '',
   company: '',
   address: '',
@@ -72,6 +79,9 @@ export default function CrmApp() {
   const [loginError, setLoginError] = useState<string | null>(null);
 
   const [prospects, setProspects] = useState<Prospect[]>([]);
+  const [categories, setCategories] = useState<ProspectCategory[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [loadingProspects, setLoadingProspects] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -96,6 +106,17 @@ export default function CrmApp() {
     [prospects],
   );
 
+  const categoryNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    categories.forEach((c) => map.set(c.id, c.name));
+    return map;
+  }, [categories]);
+
+  const filtered = useMemo(
+    () => sorted.filter((p) => categoryFilter === 'all' || p.categoryId === categoryFilter),
+    [sorted, categoryFilter],
+  );
+
   useEffect(() => {
     void (async () => {
       try {
@@ -111,7 +132,7 @@ export default function CrmApp() {
 
   useEffect(() => {
     if (!authenticated) return;
-    void reloadProspects();
+    void Promise.all([reloadProspects(), reloadCategories()]);
   }, [authenticated]);
 
   useEffect(() => {
@@ -132,6 +153,11 @@ export default function CrmApp() {
     }
   };
 
+  const reloadCategories = async () => {
+    const data = await req<{ categories: ProspectCategory[] }>('/api/prospect-categories');
+    setCategories(data.categories || []);
+  };
+
   const resetForm = () => {
     setForm(EMPTY_FORM);
     setEditing(null);
@@ -147,12 +173,12 @@ export default function CrmApp() {
       if (editing) {
         await req(`/api/prospects/${editing.id}`, {
           method: 'PATCH',
-          body: JSON.stringify(form),
+          body: JSON.stringify({ ...form, categoryId: form.categoryId || null }),
         });
       } else {
         await req('/api/prospects', {
           method: 'POST',
-          body: JSON.stringify(form),
+          body: JSON.stringify({ ...form, categoryId: form.categoryId || null }),
         });
       }
       await reloadProspects();
@@ -167,6 +193,7 @@ export default function CrmApp() {
   const startEdit = (p: Prospect) => {
     setEditing(p);
     setForm({
+      categoryId: p.categoryId || '',
       name: p.name || '',
       company: p.company || '',
       address: p.address || '',
@@ -267,7 +294,41 @@ export default function CrmApp() {
     await req('/api/crm/logout', { method: 'POST' }).catch(() => null);
     setAuthenticated(false);
     setProspects([]);
+    setCategories([]);
     resetForm();
+  };
+
+  const addCategory = async () => {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    setBusy(true);
+    try {
+      await req('/api/prospect-categories', {
+        method: 'POST',
+        body: JSON.stringify({ name }),
+      });
+      setNewCategoryName('');
+      await reloadCategories();
+    } catch (e: any) {
+      alert(e?.message || 'Kategorie konnte nicht angelegt werden.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const deleteCategory = async (c: ProspectCategory) => {
+    if (!confirm(`Kategorie "${c.name}" wirklich löschen?`)) return;
+    setBusy(true);
+    try {
+      await req(`/api/prospect-categories/${c.id}`, { method: 'DELETE' });
+      if (form.categoryId === c.id) setForm((s) => ({ ...s, categoryId: '' }));
+      if (categoryFilter === c.id) setCategoryFilter('all');
+      await Promise.all([reloadCategories(), reloadProspects()]);
+    } catch (e: any) {
+      alert(e?.message || 'Kategorie konnte nicht gelöscht werden.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (loadingSession) {
@@ -328,6 +389,19 @@ export default function CrmApp() {
         <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm h-fit lg:sticky lg:top-20">
           <h2 className="text-lg font-semibold">{editing ? 'Prospect bearbeiten' : 'Neuen Prospect anlegen'}</h2>
           <div className="mt-4 space-y-3">
+            <div>
+              <label className="text-sm text-slate-600">Kategorie</label>
+              <select
+                value={form.categoryId}
+                onChange={(e) => setForm((s) => ({ ...s, categoryId: e.target.value }))}
+                className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 bg-white"
+              >
+                <option value="">Keine Kategorie</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
             <LabeledInput label="Name" value={form.name} onChange={(v) => setForm((s) => ({ ...s, name: v }))} />
             <LabeledInput label="Firma" value={form.company} onChange={(v) => setForm((s) => ({ ...s, company: v }))} />
             <LabeledInput label="E-Mail" value={form.email} onChange={(v) => setForm((s) => ({ ...s, email: v }))} />
@@ -367,13 +441,46 @@ export default function CrmApp() {
                 <button onClick={resetForm} className="btn-ghost !px-4 !py-2.5 text-sm">Abbrechen</button>
               ) : null}
             </div>
+
+            <div className="pt-3 border-t border-slate-200">
+              <p className="text-sm font-medium text-slate-700">Kategorien</p>
+              <div className="mt-2 flex gap-2">
+                <input
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="flex-1 rounded-xl border border-slate-300 px-3 py-2 bg-white"
+                  placeholder="Neue Kategorie anlegen"
+                />
+                <button onClick={() => void addCategory()} className="btn-ghost !px-3 !py-2 text-sm">Anlegen</button>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {categories.map((c) => (
+                  <button key={c.id} onClick={() => void deleteCategory(c)} className="text-xs rounded-full border border-slate-300 px-2.5 py-1 hover:bg-slate-50" title="Kategorie löschen">
+                    {c.name} ×
+                  </button>
+                ))}
+                {!categories.length ? <span className="text-xs text-slate-500">Noch keine Kategorien.</span> : null}
+              </div>
+            </div>
           </div>
         </aside>
 
         <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-            <h2 className="font-semibold">Prospects ({sorted.length})</h2>
-            {loadingProspects ? <span className="text-sm text-slate-500">Lade…</span> : null}
+            <h2 className="font-semibold">Prospects ({filtered.length})</h2>
+            <div className="flex items-center gap-2">
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="rounded-lg border border-slate-300 px-2 py-1 text-sm bg-white"
+              >
+                <option value="all">Alle Kategorien</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              {loadingProspects ? <span className="text-sm text-slate-500">Lade…</span> : null}
+            </div>
           </div>
           <div className="overflow-auto">
             <table className="min-w-full text-sm">
@@ -381,6 +488,7 @@ export default function CrmApp() {
                 <tr>
                   <Th>Name</Th>
                   <Th>Firma</Th>
+                  <Th>Kategorie</Th>
                   <Th>Status</Th>
                   <Th>Kontakt</Th>
                   <Th>Letzter Versand</Th>
@@ -388,7 +496,7 @@ export default function CrmApp() {
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((p) => (
+                {filtered.map((p) => (
                   <tr key={p.id} className="border-t border-slate-100 align-top">
                     <Td>
                       <div className="font-medium">{p.name || '-'}</div>
@@ -398,6 +506,7 @@ export default function CrmApp() {
                       <div>{p.company || '-'}</div>
                       <div className="text-xs text-slate-500">{p.websiteOld || '-'}</div>
                     </Td>
+                    <Td>{p.categoryId ? (categoryNameById.get(p.categoryId) || '-') : '-'}</Td>
                     <Td>
                       <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_BADGE[p.status]}`}>
                         {STATUS_LABEL[p.status]}
@@ -415,9 +524,9 @@ export default function CrmApp() {
                     </Td>
                   </tr>
                 ))}
-                {!sorted.length ? (
+                {!filtered.length ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500">Noch keine Prospects angelegt.</td>
+                    <td colSpan={7} className="px-4 py-8 text-center text-slate-500">Keine Prospects für diesen Filter.</td>
                   </tr>
                 ) : null}
               </tbody>

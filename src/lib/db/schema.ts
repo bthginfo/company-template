@@ -29,6 +29,14 @@ export const siteContent = pgTable('site_content', {
 export type Tenant = typeof tenants.$inferSelect;
 export type SiteContentRow = typeof siteContent.$inferSelect;
 
+/** CRM categories used to classify prospects (e.g. Gastro, Handwerk, Praxis). */
+export const prospectCategories = pgTable('prospect_categories', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 /**
  * Internal CRM — prospects/leads pipeline. Lives on the showcase deployment
  * only; never exposed via SEO. Used by Mario + the founders to track who
@@ -36,6 +44,7 @@ export type SiteContentRow = typeof siteContent.$inferSelect;
  */
 export const prospects = pgTable('prospects', {
   id: uuid('id').defaultRandom().primaryKey(),
+  categoryId: uuid('category_id').references(() => prospectCategories.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   company: text('company').notNull().default(''),
   address: text('address').notNull().default(''),
@@ -56,3 +65,4 @@ export const prospects = pgTable('prospects', {
 });
 
 export type Prospect = typeof prospects.$inferSelect;
+export type ProspectCategory = typeof prospectCategories.$inferSelect;

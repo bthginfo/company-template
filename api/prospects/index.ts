@@ -7,6 +7,7 @@ import { requireCrm } from '../_lib/crm-auth.js';
 const PROSPECT_STATUSES = ['neu', 'angefragt', 'reminder', 'angenommen', 'abgelehnt'] as const;
 
 const CreateSchema = z.object({
+  categoryId: z.preprocess((v) => (v === '' ? null : v), z.string().uuid().nullable()).optional().default(null),
   name: z.string().trim().min(1).max(160),
   company: z.string().trim().max(160).default(''),
   address: z.string().trim().max(300).default(''),
