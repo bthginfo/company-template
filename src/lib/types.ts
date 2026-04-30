@@ -187,6 +187,9 @@ export const SiteContentSchema = z.object({
     aboutSidebarEyebrow: z.string().optional().default(''),
     /** Eyebrow above the services teaser on the home page (modern/bold). */
     servicesTeaserEyebrow: z.string().optional().default(''),
+    /** Label + target of the services teaser action button (used in bold home teaser). */
+    servicesAllLabel: z.string().optional().default(''),
+    servicesAllHref: z.string().optional().default(''),
     /** Eyebrow shown above the hero headline (bold style). */
     heroEyebrow: z.string().optional().default(''),
   }).optional().default({}),

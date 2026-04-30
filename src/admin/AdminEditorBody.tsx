@@ -757,7 +757,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop. Bilder erscheinen oben auf den Karten (Modern/Klassisch)." badge="Sektion 4" pageKey="home" sectionKey="services" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow']} />
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesAllLabel', 'servicesAllHref']} />
         <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
         <p className="text-xs text-muted">
           Vollständige Liste – Reihenfolge bestimmt, was auf der Startseite (erste 3) und auf der Unterseite (alle) erscheint.
@@ -1695,6 +1695,8 @@ type BranchTextKey =
   | 'newsTitle'
   | 'aboutSidebarEyebrow'
   | 'servicesTeaserEyebrow'
+  | 'servicesAllLabel'
+  | 'servicesAllHref'
   | 'heroEyebrow';
 
 const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; rows?: number }> = {
@@ -1732,6 +1734,8 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   newsTitle: { label: 'Überschrift' },
   aboutSidebarEyebrow: { label: 'Über-uns-Sidebar Eyebrow', hint: 'Modern-Style: kleine Überschrift in der Sidebar („Auf einen Blick“).' },
   servicesTeaserEyebrow: { label: 'Leistungen-Teaser Eyebrow', hint: 'Eyebrow über dem Speisekarten-/Leistungen-Teaser auf der Startseite.' },
+  servicesAllLabel: { label: 'Leistungen-Teaser Button-Text', hint: 'Bold-Style: Button rechts oben im Speisekarten-/Leistungen-Teaser.' },
+  servicesAllHref: { label: 'Leistungen-Teaser Button-Ziel', hint: 'z. B. /speisekarte, /leistungen oder #kontakt' },
   heroEyebrow: { label: 'Hero Eyebrow (Bold)', hint: 'Bold-Style: kleine Zeile direkt über dem riesigen Titel.' },
 };
 
@@ -1745,6 +1749,7 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
     if (key === 'heroEyebrow') return _ctx.style === 'bold';
     if (key === 'aboutSidebarEyebrow') return _ctx.style === 'modern';
     if (key === 'marqueeWords') return _ctx.style === 'bold';
+    if (key === 'servicesAllLabel' || key === 'servicesAllHref') return _ctx.style === 'bold';
     return true;
   };
   return (
@@ -1768,7 +1773,7 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
             </Field>
           );
         }
-        if (key === 'learnMoreHref') {
+        if (key === 'learnMoreHref' || key === 'servicesAllHref') {
           return (
             <LinkTargetField
               key={key}
