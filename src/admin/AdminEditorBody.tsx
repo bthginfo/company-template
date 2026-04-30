@@ -762,7 +762,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop." badge="Sektion 4" pageKey="home" sectionKey="services" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesTeaserTitle', 'servicesAllLabel', 'servicesAllHref']} />
+        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle', 'servicesAllLabel', 'servicesAllHref']} />
         <p className="text-xs text-muted">
           Reihenfolge per Drag & Drop bestimmt, welche Gerichte/Leistungen hier (erste 3) und auf der Unterseite (alle) erscheinen.
         </p>
@@ -1711,7 +1711,7 @@ type BranchTextKey =
   | 'heroEyebrow';
 
 const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; rows?: number }> = {
-  teaserSubtitle: { label: 'Hero-Beschreibung (alternativ)', hint: 'Wird verwendet, wenn der Beschreibungstext oben leer ist.', rows: 2 },
+  teaserSubtitle: { label: 'Untertitel (unter der Überschrift)', hint: 'Kurzer Text unter dem Teaser-Titel. Leer lassen = Hero-Untertitel wird verwendet.', rows: 2 },
   marqueeWords: { label: 'Marquee / Laufband-Wörter (kommagetrennt)' },
   galleryTeaserTitle: { label: 'Galerie-Teaser-Titel', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
   galleryTeaserEyebrow: { label: 'Galerie-Teaser-Eyebrow' },

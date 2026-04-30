@@ -1905,6 +1905,8 @@ function effectiveBranchText(v: TemplateVariant, content?: SiteContent) {
 }
 
 function subtitleFor(v: TemplateVariant, content: SiteContent): string {
+  const bt = (content as any).branchText?.teaserSubtitle as string | undefined;
+  if (bt && bt.trim()) return bt;
   return (content.hero?.subtitle && content.hero.subtitle.trim()) || teaserSubtitleFor(v, content);
 }
 
