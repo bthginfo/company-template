@@ -314,12 +314,12 @@ const BRANCH_STYLE_ORDER: Record<TemplateVariant, Record<TemplateStyle, string[]
   restaurant: {
     classic: ['action', 'signature', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
     modern:  ['action', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
-    bold:    ['action', 'signature', 'numbers', 'gallery', 'testimonials', 'about', 'news'],
+    bold:    ['action', 'signature', 'numbers', 'gallery', 'about', 'testimonials', 'news'],
   },
   hotel: {
     classic: ['action', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
     modern:  ['action', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news'],
-    bold:    ['action', 'gallery', 'signature', 'numbers', 'testimonials', 'about', 'news'],
+    bold:    ['action', 'gallery', 'signature', 'numbers', 'about', 'testimonials', 'news'],
   },
   tradesman: {
     classic: ['action', 'services', 'funding', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
@@ -334,7 +334,7 @@ const BRANCH_STYLE_ORDER: Record<TemplateVariant, Record<TemplateStyle, string[]
   tourism: {
     classic: ['action', 'gallery', 'signature', 'about', 'testimonials', 'numbers', 'news'],
     modern:  ['action', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
-    bold:    ['action', 'gallery', 'numbers', 'signature', 'testimonials', 'about', 'news'],
+    bold:    ['action', 'gallery', 'numbers', 'signature', 'about', 'testimonials', 'news'],
   },
 };
 

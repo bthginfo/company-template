@@ -767,7 +767,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 5" pageKey="home" sectionKey="about" data={data} setData={setData}>
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={_ctx.style === 'bold'
-          ? ['aboutTeaserEyebrow', 'manifestEyebrow', 'manifestTitle', 'learnMoreLabel', 'learnMoreHref']
+          ? ['manifestEyebrow', 'manifestTitle', 'learnMoreLabel', 'learnMoreHref']
           : ['aboutTeaserEyebrow', 'learnMoreLabel', 'learnMoreHref']} />
         <Field label="Überschrift">
           <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
@@ -775,7 +775,9 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <Field label="Text" hint="Wird automatisch auf 2–3 Absätze gekürzt auf der Startseite.">
           <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
         </Field>
-        <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
+        {_ctx.style !== 'bold' && (
+          <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
+        )}
       </SectionCard>
 
       <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6" pageKey="home" sectionKey="gallery" data={data} setData={setData}>
