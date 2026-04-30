@@ -823,11 +823,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Abschluss-Aufruf (CTA)" description="Der große Aufruf zur Aktion am Seitenende – wird auf allen Unterseiten angezeigt." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
-        {(_ctx.style === 'modern' || _ctx.style === 'bold') && (
+        {_ctx.style === 'bold' && (
           <>
             <hr className="my-6 border-line" />
             <p className="text-xs text-muted mb-4">
-              {_ctx.style === 'modern' ? 'Diese Felder überschreiben die obigen Werte im Modern-Stil.' : 'Diese Felder überschreiben die obigen Werte im Bold-Stil.'}
+              Diese Felder überschreiben die obigen Werte im Bold-Stil.
             </p>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['softCtaEyebrow', 'softCtaTitle', 'softCtaText', 'softCtaButton']} />
           </>
@@ -2862,7 +2862,6 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
   );
   
   const isClassic = _ctx.style === 'classic';
-  const isModern = _ctx.style === 'modern';
   const isBold = _ctx.style === 'bold';
 
   return (
@@ -2880,12 +2879,9 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
       )}
       
       {/* Modern & Bold: no eyebrow/leadAccent in this section */}
-      {(isModern || isBold) && (
+      {isBold && (
         <div className="text-sm text-muted bg-surface rounded p-3 mb-4">
-          <p>
-            {isModern && 'Im Modern Stil wird das Eyebrow aus den Branch-Text-Feldern übernommen.'}
-            {isBold && `Im Bold Stil wird nur die Headline und der Call-to-Action gezeigt – ohne Eyebrow und Akzent-Zeile.`}
-          </p>
+          <p>Im Bold Stil wird nur die Headline und der Call-to-Action gezeigt – ohne Eyebrow und Akzent-Zeile.</p>
         </div>
       )}
       

@@ -1065,12 +1065,14 @@ function CtaBand({ variant, content }: { variant: TemplateVariant; content?: Sit
 function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: 'modern' | 'bold' }) {
   const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string } | undefined;
   const bt = effectiveBranchText(variant, content);
-  const boldFallbackTitle = variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : variant === 'hotel' ? 'Pause buchen?' : variant === 'tourism' ? 'Tour buchen?' : 'Auftrag?';
-  const title = (ov?.lead && ov.lead.trim()) || (bt.softCtaTitle && bt.softCtaTitle.trim()) || (style === 'bold' ? boldFallbackTitle : '');
-  const sub = (ov?.sub && ov.sub.trim()) || (bt.softCtaText && bt.softCtaText.trim()) || (style === 'bold' ? 'Schreiben Sie uns. Wir antworten.' : '');
-  const cta = (ov?.cta && ov.cta.trim()) || (bt.softCtaButton && bt.softCtaButton.trim()) || (style === 'bold' ? 'Jetzt Kontakt' : '');
   const href = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
+  
   if (style === 'modern') {
+    // Modern: only use what user explicitly entered
+    const title = (ov?.lead && ov.lead.trim()) || '';
+    const sub = (ov?.sub && ov.sub.trim()) || '';
+    const cta = (ov?.cta && ov.cta.trim()) || '';
+    
     return (
       <section className="py-24 surface">
         <div className="container-x">
@@ -1084,6 +1086,13 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
       </section>
     );
   }
+  
+  // Bold: fallback to branchText fields
+  const boldFallbackTitle = variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : variant === 'hotel' ? 'Pause buchen?' : variant === 'tourism' ? 'Tour buchen?' : 'Auftrag?';
+  const title = (ov?.lead && ov.lead.trim()) || (bt.softCtaTitle && bt.softCtaTitle.trim()) || boldFallbackTitle;
+  const sub = (ov?.sub && ov.sub.trim()) || (bt.softCtaText && bt.softCtaText.trim()) || 'Schreiben Sie uns. Wir antworten.';
+  const cta = (ov?.cta && ov.cta.trim()) || (bt.softCtaButton && bt.softCtaButton.trim()) || 'Jetzt Kontakt';
+  
   return (
     <section className="py-32 md:py-44 bg-[var(--accent-color)] text-brand grain">
       <div className="container-x text-center reveal">
