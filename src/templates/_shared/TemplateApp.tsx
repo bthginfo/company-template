@@ -617,7 +617,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
   const cfg = NAV_BY_VARIANT[variant];
   const featuredServices = content.services.slice(0, 8);
   const featuredGallery = content.gallery.slice(0, 12);
-  const heroImg = content.gallery[0];
+  const heroImg = content.hero?.imageUrl || content.gallery[0];
 
   const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
   const baseOrder = customHomeOrder && customHomeOrder.length ? customHomeOrder : BRANCH_STYLE_ORDER[variant].bold;
