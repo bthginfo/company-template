@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { db, schema } from '../../src/lib/db/client.js';
-import { requireCrm } from '../_lib/crm-auth.js';
+import { db, schema } from '../../../src/lib/db/client.js';
+import { requireCrm } from '../../_lib/crm-auth.js';
 
 const PROSPECT_STATUSES = ['neu', 'angefragt', 'reminder', 'angenommen', 'abgelehnt'] as const;
 
