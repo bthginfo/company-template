@@ -740,9 +740,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         </SectionCard>
       )}
 
-      <SectionCard title="Schlagwort-Band" description="Großes Wortband direkt unter dem Hero (nur im Bold-Style sichtbar) – setzt das Profil mit kurzen Begriffen." badge="Sektion 2c">
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
-      </SectionCard>
+      {_ctx.style === 'bold' && (
+        <SectionCard title="Schlagwort-Band" description="Großes Wortband direkt unter dem Hero – setzt das Profil mit kurzen Begriffen." badge="Sektion 2c">
+          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
+        </SectionCard>
+      )}
 
       <SectionCard title="Zahlen-Band" description={'Vier Eckdaten – meist direkt unter dem Hero (auch in „Über uns").'} badge="Sektion 3" pageKey="home" sectionKey="numbers" data={data} setData={setData}>
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
@@ -782,9 +784,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
-      <SectionCard title="Logo-Strip" description="Partner / Presse / Auszeichnungen als Wortmarken-Band (nur im Modern-Style sichtbar)." badge="Sektion 6b">
-        <LogosEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
+      {_ctx.style === 'modern' && (
+        <SectionCard title="Logo-Strip" description="Partner / Presse / Auszeichnungen als Wortmarken-Band." badge="Sektion 6b">
+          <LogosEditor data={data} setData={setData} tpl={tpl} />
+        </SectionCard>
+      )}
 
       <SectionCard title="Bewertungen-Teaser" description="Die ersten drei Stimmen erscheinen auf der Startseite." badge="Sektion 7" pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['testimonialsEyebrow', 'testimonialsTitle']} />
@@ -1729,9 +1733,15 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
   const update = (patch: Record<string, any>) => {
     setData({ ...(data as any), branchText: { ...bt, ...patch } } as SiteContent);
   };
+  const styleVisible = (key: BranchTextKey) => {
+    if (key === 'heroEyebrow') return _ctx.style === 'bold';
+    if (key === 'aboutSidebarEyebrow') return _ctx.style === 'modern';
+    if (key === 'marqueeWords') return _ctx.style === 'bold';
+    return true;
+  };
   return (
     <>
-      {keys.map((key) => {
+      {keys.filter(styleVisible).map((key) => {
         const meta = BRANCH_TEXT_LABELS[key];
         if (key === 'marqueeWords') {
           const arr = Array.isArray(bt.marqueeWords) ? bt.marqueeWords : [];
