@@ -677,12 +677,16 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <Field label="Hauptüberschrift">
           <input className={inputCls} value={data.hero.title} onChange={(e) => set({ hero: { ...data.hero, title: e.target.value } })} />
         </Field>
-        <Field label="Untertitel" hint="Kurze Zeile direkt unter dem Titel (z. B. ein zweiter Halbsatz).">
-          <input className={inputCls} value={data.hero.subtitle || ''} onChange={(e) => set({ hero: { ...data.hero, subtitle: e.target.value } })} />
-        </Field>
-        <Field label="Beschreibungstext" hint="Längerer Fließtext unter dem Untertitel – beschreibt das Angebot in 1–3 Sätzen.">
-          <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
-        </Field>
+        {_ctx.style !== 'bold' && (
+          <Field label="Untertitel" hint="Kurze Zeile direkt unter dem Titel (z. B. ein zweiter Halbsatz).">
+            <input className={inputCls} value={data.hero.subtitle || ''} onChange={(e) => set({ hero: { ...data.hero, subtitle: e.target.value } })} />
+          </Field>
+        )}
+        {_ctx.style !== 'bold' && (
+          <Field label="Beschreibungstext" hint="Längerer Fließtext unter dem Untertitel – beschreibt das Angebot in 1–3 Sätzen.">
+            <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
+          </Field>
+        )}
         <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
         {(() => {
           const heroCta = ((data as any).heroCta ?? {}) as {
