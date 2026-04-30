@@ -771,6 +771,9 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title={tpl === 'restaurant' ? 'Heute auf der Karte' : tpl === 'salon' ? 'Aktuelle Looks' : tpl === 'hotel' ? 'Verfügbare Zimmer' : 'Angebot'} description={tpl === 'restaurant' ? 'Empfehlungen / Highlights aus der Speisekarte.' : 'Aktuelle Highlights oder Tagesangebot.'} badge="Sektion 4b" pageKey="home" sectionKey="signature" data={data} setData={setData}>
         <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
+        <p className="text-xs text-muted bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+          💡 <strong>Die Gerichte:</strong> Die Sektion zeigt automatisch die <strong>ersten 3 Einträge</strong> aus der Speisekarte-Liste oben. Reihenfolge und Inhalte der Gerichte dort einstellen.
+        </p>
       </SectionCard>
 
       <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 5" pageKey="home" sectionKey="about" data={data} setData={setData}>
