@@ -132,17 +132,17 @@ export const EXTRA_HOME_ORDER: Record<'consulting' | 'medical' | 'fitness', Reco
   consulting: {
     classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
     modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    bold:    ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
   },
   medical: {
     classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
     modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    bold:    ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
   },
   fitness: {
     classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
     modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    bold:    ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
   },
 };
 

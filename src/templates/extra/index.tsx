@@ -41,7 +41,10 @@ function $vis(content: SiteContent, key: string): boolean {
 /** Resolve effective section order for extra-branch home page. */
 function extraHomeOrder(content: SiteContent, branch: ExtraBranchKey, style: ExtraStyle): string[] {
   const custom = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
-  if (Array.isArray(custom) && custom.length) return custom;
+  if (Array.isArray(custom) && custom.length) {
+    const validKeys = new Set(EXTRA_HOME_ORDER[branch]?.[style] ?? EXTRA_HOME_ORDER.consulting.classic);
+    return custom.filter((k) => validKeys.has(k));
+  }
   return EXTRA_HOME_ORDER[branch]?.[style] ?? EXTRA_HOME_ORDER.consulting.classic;
 }
 
