@@ -1042,10 +1042,15 @@ function CtaBand({ variant, content, page }: { variant: TemplateVariant; content
   const global = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string; eyebrow?: string; leadAccent?: string } | undefined;
   const pick = (field: 'lead' | 'sub' | 'cta' | 'ctaHref' | 'eyebrow' | 'leadAccent') =>
     (perPage?.[field] && perPage[field]!.trim()) || (global?.[field] && global[field]!.trim()) || '';
+  // leadAccent is classic-only. On subpages, only show if it's explicitly set
+  // for this page — don't inherit the home value (which may be unrelated).
+  const resolvedLeadAccent = page
+    ? (perPage?.leadAccent && perPage.leadAccent.trim()) || ''
+    : (global?.leadAccent && global.leadAccent.trim()) || '';
   const t = {
     eyebrow: pick('eyebrow') || 'Bereit?',
     lead: pick('lead') || def.lead,
-    leadAccent: pick('leadAccent') || 'Schreiben Sie uns.',
+    leadAccent: resolvedLeadAccent,
     sub: pick('sub') || def.sub,
     cta: pick('cta') || def.cta,
     ctaHref: pick('ctaHref') || '/kontakt',
