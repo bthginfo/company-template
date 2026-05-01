@@ -1826,9 +1826,6 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
             </article>
           ))}
         </div>
-        <div className="mt-10 reveal">
-          <ContactMap content={content} />
-        </div>
       </Section>
     ),
     faq: (
