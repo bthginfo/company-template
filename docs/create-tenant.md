@@ -1,5 +1,8 @@
 # Neuen Kunden (Tenant) anlegen
 
+> **🤖 AI-AGENT: Lies diese Datei KOMPLETT durch, bevor du ein Skript ausführst.**
+> Lies außerdem [AGENTS.md](../AGENTS.md) für allgemeine Repository-Regeln.
+>
 > **Zielgruppe:** AI-Agenten und menschliche Entwickler.
 > Folge die Schritte exakt in der angegebenen Reihenfolge.
 

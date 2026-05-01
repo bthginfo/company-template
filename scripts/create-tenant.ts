@@ -1,6 +1,11 @@
 /**
  * Lightweight tenant creator — DB only (no Vercel deployment).
  *
+ * ┌──────────────────────────────────────────────────────────┐
+ * │  🤖 AI-AGENT? Lies zuerst docs/create-tenant.md und     │
+ * │     AGENTS.md bevor du dieses Skript ausführst!          │
+ * └──────────────────────────────────────────────────────────┘
+ *
  * Delegates seed-content building to provision-core.defaultsFor() so the
  * logic stays in one place.  For full provisioning (DB + Vercel project +
  * deploy) use `scripts/provision-tenant.ts` or `scripts/new-tenant.ps1`.

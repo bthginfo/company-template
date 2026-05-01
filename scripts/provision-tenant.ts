@@ -4,6 +4,11 @@
  * adds CLI-only concerns: arg parsing, console output, and writing the
  * tenant credentials to `.tenant-credentials.txt` (gitignored, mode 600).
  *
+ * ┌──────────────────────────────────────────────────────────┐
+ * │  🤖 AI-AGENT? Lies zuerst docs/create-tenant.md und     │
+ * │     AGENTS.md bevor du dieses Skript ausführst!          │
+ * └──────────────────────────────────────────────────────────┘
+ *
  * Usage:
  *   npm run tenant:provision -- <slug> "<Display Name>" <restaurant|salon|tradesman|hotel|tourism|consulting|medical|fitness> [classic|modern|bold] [--reseed]
  *

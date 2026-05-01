@@ -8,6 +8,9 @@
   machine-parseable output. All errors are explicit and exit codes
   follow Unix conventions.
 
+  🤖 AI-AGENT? Lies zuerst docs/create-tenant.md und AGENTS.md
+  bevor du dieses Skript ausführst!
+
 .PARAMETER Slug
   Tenant slug (lowercase, digits, dashes only). e.g. "trattoria-roma".
 
