@@ -117,7 +117,7 @@ export function AnimatedCounter({
   }, [to, duration]);
   return (
     <span ref={ref} className={`num-display ${className}`}>
-      {prefix}{n.toLocaleString('de-DE')}{suffix}
+      {prefix}{n}{suffix}
     </span>
   );
 }
