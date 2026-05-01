@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import type { SiteContent, PageId } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/components/fx';
@@ -11,7 +11,7 @@ import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
-import { isSectionEnabled } from '@/lib/page-layout';
+import { isSectionEnabled, EXTRA_HOME_ORDER } from '@/lib/page-layout';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -36,6 +36,13 @@ function effectiveBranchText(branch: ExtraBranchKey, content?: SiteContent) {
 /** Shorthand: check if section is visible for extra-branch home page. */
 function $vis(content: SiteContent, key: string): boolean {
   return isSectionEnabled(content, 'home', key);
+}
+
+/** Resolve effective section order for extra-branch home page. */
+function extraHomeOrder(content: SiteContent, branch: ExtraBranchKey, style: ExtraStyle): string[] {
+  const custom = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
+  if (Array.isArray(custom) && custom.length) return custom;
+  return EXTRA_HOME_ORDER[branch]?.[style] ?? EXTRA_HOME_ORDER.consulting.classic;
 }
 
 /** Pull a per-page header override from content extras (set by admin's PageHeaderEditor). */
@@ -256,8 +263,105 @@ function SubPage({ content, branch, page, style, eyebrow }: {
  * ──────────────────────────────────────────────────────────────────── */
 function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const bt = effectiveBranchText(branch, content);
+  const order = extraHomeOrder(content, branch, 'classic').filter((k) => $vis(content, k));
+
+  const blocks: Record<string, JSX.Element | null> = {
+    chips: <BranchHeroBadges branch={branch} style="classic" content={content} />,
+    about: content.about ? (
+      <section id="about" className="py-24 md:py-32 surface">
+        <div className="container-x grid md:grid-cols-12 gap-10 items-center">
+          <div className="md:col-span-5 reveal">
+            <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5]" />
+          </div>
+          <div className="md:col-span-7 reveal">
+            <p className="eyebrow mb-5">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
+            <h2 className="headline-lg">{content.about.title}</h2>
+            <div className="mt-8 text-lg text-muted leading-relaxed space-y-5 max-w-2xl">
+              {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+            </div>
+          </div>
+        </div>
+      </section>
+    ) : null,
+    services: content.services.length > 0 ? (
+      <section id="leistungen" className="py-24 md:py-32">
+        <div className="container-x">
+          <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
+            <div className="md:col-span-7 reveal">
+              <p className="eyebrow mb-5">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
+              <h2 className="headline-lg">{bt.servicesTeaserTitle || <>Was wir<br /><em className="italic-pop">für Sie tun.</em></>}</h2>
+            </div>
+            <p className="md:col-span-5 text-lg text-muted reveal">
+              {bt.teaserSubtitle || 'Eine Auswahl aus unserem Repertoire. Mehr im persönlichen Gespräch.'}
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+            {content.services.map((s, i) => (
+              <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
+                {s.imageUrl && (
+                  <div className="aspect-[4/3] overflow-hidden img-zoom">
+                    <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                )}
+                <div className="p-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-display text-2xl">{s.title}</h3>
+                    {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
+                  </div>
+                  {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null,
+    spotlight: <BranchSpotlight branch={branch} style="classic" content={content} />,
+    branchModules: <BranchModulesInline variant={branch} content={content} />,
+    team: <BranchTeam branch={branch} style="classic" content={content} />,
+    gallery: content.gallery.length > 0 ? (
+      <section id="galerie" className="py-24 md:py-32 surface">
+        <div className="container-x">
+          <div className="mb-12 reveal">
+            <p className="eyebrow mb-5">{bt.galleryTeaserEyebrow || 'Eindrücke'}</p>
+            <h2 className="headline-lg">{bt.galleryTeaserTitle || <>Bilder aus<br /><em className="italic-pop">unserem Alltag.</em></>}</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 reveal-stagger">
+            {content.gallery.map((src, i) => {
+              const aspects = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[4/5]', 'aspect-[3/4]', 'aspect-[1/1]'];
+              return (
+                <figure key={i} className={`overflow-hidden rounded-3xl img-zoom ${aspects[i % aspects.length]}`}>
+                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                </figure>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    ) : null,
+    testimonials: content.testimonials.length > 0 ? (
+      <section className="py-24 md:py-32">
+        <div className="container-x">
+          <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
+          <h2 className="headline-lg max-w-3xl reveal">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
+          <div className="mt-14 grid md:grid-cols-3 gap-5 reveal-stagger">
+            {content.testimonials.map((t, i) => (
+              <figure key={i} className="bg-[var(--surface-color)] border border-line rounded-3xl p-7">
+                <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
+                <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null,
+    news: <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
+    contact: <ContactSection content={content} variant="classic" />,
+  };
+
   return (
     <>
+      {/* Hero — always first */}
       <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
           {content.hero.imageUrl && (
@@ -275,103 +379,8 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
           </div>
         </div>
       </section>
-      {$vis(content, 'chips') && <BranchHeroBadges branch={branch} style="classic" content={content} />}
-
-      {$vis(content, 'about') && content.about && (
-        <section id="about" className="py-24 md:py-32 surface">
-          <div className="container-x grid md:grid-cols-12 gap-10 items-center">
-            <div className="md:col-span-5 reveal">
-              <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5]" />
-            </div>
-            <div className="md:col-span-7 reveal">
-              <p className="eyebrow mb-5">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
-              <h2 className="headline-lg">{content.about.title}</h2>
-              <div className="mt-8 text-lg text-muted leading-relaxed space-y-5 max-w-2xl">
-                {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {$vis(content, 'services') && content.services.length > 0 && (
-        <section id="leistungen" className="py-24 md:py-32">
-          <div className="container-x">
-            <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
-              <div className="md:col-span-7 reveal">
-                <p className="eyebrow mb-5">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
-                <h2 className="headline-lg">{bt.servicesTeaserTitle || <>Was wir<br /><em className="italic-pop">für Sie tun.</em></>}</h2>
-              </div>
-              <p className="md:col-span-5 text-lg text-muted reveal">
-                {bt.teaserSubtitle || 'Eine Auswahl aus unserem Repertoire. Mehr im persönlichen Gespräch.'}
-              </p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-              {content.services.map((s, i) => (
-                <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
-                  {s.imageUrl && (
-                    <div className="aspect-[4/3] overflow-hidden img-zoom">
-                      <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
-                    </div>
-                  )}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="font-display text-2xl">{s.title}</h3>
-                      {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
-                    </div>
-                    {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {$vis(content, 'spotlight') && <BranchSpotlight branch={branch} style="classic" content={content} />}
-      {$vis(content, 'branchModules') && <BranchModulesInline variant={branch} content={content} />}
-      {$vis(content, 'team') && <BranchTeam branch={branch} style="classic" content={content} />}
-
-      {$vis(content, 'gallery') && content.gallery.length > 0 && (
-        <section id="galerie" className="py-24 md:py-32 surface">
-          <div className="container-x">
-            <div className="mb-12 reveal">
-              <p className="eyebrow mb-5">{bt.galleryTeaserEyebrow || 'Eindrücke'}</p>
-              <h2 className="headline-lg">{bt.galleryTeaserTitle || <>Bilder aus<br /><em className="italic-pop">unserem Alltag.</em></>}</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 reveal-stagger">
-              {content.gallery.map((src, i) => {
-                const aspects = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[4/5]', 'aspect-[3/4]', 'aspect-[1/1]'];
-                return (
-                  <figure key={i} className={`overflow-hidden rounded-3xl img-zoom ${aspects[i % aspects.length]}`}>
-                    <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-                  </figure>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {$vis(content, 'testimonials') && content.testimonials.length > 0 && (
-        <section className="py-24 md:py-32">
-          <div className="container-x">
-            <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
-            <h2 className="headline-lg max-w-3xl reveal">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
-            <div className="mt-14 grid md:grid-cols-3 gap-5 reveal-stagger">
-              {content.testimonials.map((t, i) => (
-                <figure key={i} className="bg-[var(--surface-color)] border border-line rounded-3xl p-7">
-                  <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
-                  <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {$vis(content, 'news') && <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />}
-      {$vis(content, 'contact') && <ContactSection content={content} variant="classic" />}
+      {/* Ordered sections */}
+      {order.map((key) => <React.Fragment key={key}>{blocks[key]}</React.Fragment>)}
     </>
   );
 }
@@ -396,6 +405,108 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
   const heroBadge = ((content as any).heroBadge ?? {}) as { text?: string; label?: string };
   const badgeText = (heroBadge.text && heroBadge.text.trim()) || '4,9 / 5,0';
   const badgeLabel = (heroBadge.label && heroBadge.label.trim()) || 'Google Bewertung';
+  const order = extraHomeOrder(content, branch, 'modern').filter((k) => $vis(content, k));
+
+  const blocks: Record<string, JSX.Element | null> = {
+    chips: <BranchHeroBadges branch={branch} style="modern" content={content} />,
+    about: content.about ? (
+      <section id="about" className="py-24 md:py-32 surface">
+        <div className="container-x grid lg:grid-cols-12 gap-10">
+          <aside className="lg:col-span-4 reveal">
+            <div className="lg:sticky lg:top-28">
+              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
+              <h2 className="font-display text-4xl md:text-5xl leading-tight">{content.about.title}</h2>
+              {content.about.imageUrl && (
+                <div className="mt-8 aspect-[4/3] rounded-2xl overflow-hidden border border-line">
+                  <img src={content.about.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              )}
+            </div>
+          </aside>
+          <div className="lg:col-span-7 lg:col-start-6 reveal space-y-6 text-lg leading-relaxed text-muted">
+            {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        </div>
+      </section>
+    ) : null,
+    services: content.services.length > 0 ? (
+      <section id="leistungen" className="py-24 md:py-32">
+        <div className="container-x">
+          <div className="max-w-2xl reveal mb-16">
+            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
+            <h2 className="font-display text-4xl md:text-5xl">{bt.servicesTeaserTitle || 'Was Sie bekommen.'}</h2>
+            <p className="mt-4 text-lg text-muted">{bt.teaserSubtitle || 'Klar definierte Pakete – keine versteckten Kosten.'}</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4 reveal-stagger">
+            {content.services.map((s, i) => (
+              <article key={i} className="group bg-white border border-line rounded-2xl p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+                  {s.price && <span className="font-display text-lg">{s.price}</span>}
+                </div>
+                <h3 className="font-display text-2xl md:text-3xl mb-3">{s.title}</h3>
+                {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
+                <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
+                  <span className="text-muted">{((content as any).branchText?.serviceCardNote as string) || 'Inkl. Beratung & Briefing'}</span>
+                  <span className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition">Mehr erfahren →</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null,
+    spotlight: <BranchSpotlight branch={branch} style="modern" content={content} />,
+    branchModules: <BranchModulesInline variant={branch} content={content} />,
+    team: <BranchTeam branch={branch} style="modern" content={content} />,
+    gallery: content.gallery.length > 0 ? (
+      <section id="galerie" className="py-24 md:py-32 surface">
+        <div className="container-x">
+          <div className="flex items-end justify-between gap-6 mb-12 reveal">
+            <div>
+              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.galleryTeaserEyebrow || 'Galerie'}</p>
+              <h2 className="font-display text-4xl md:text-5xl">{bt.galleryTeaserTitle || 'Eindrücke.'}</h2>
+            </div>
+            <p className="text-sm text-muted hidden md:block max-w-xs">Aktuelle Aufnahmen aus unserem Alltag.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 reveal-stagger">
+            {content.gallery.map((src, i) => (
+              <figure key={i} className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-line">
+                <img src={src} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <figcaption className="absolute inset-x-0 bottom-0 px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-white bg-gradient-to-t from-black/70 to-transparent">
+                  / {String(i + 1).padStart(2, '0')}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null,
+    testimonials: content.testimonials.length > 0 ? (
+      <section className="py-24 md:py-32">
+        <div className="container-x max-w-4xl mx-auto text-center reveal">
+          <p className="text-xs font-mono uppercase tracking-widest text-muted mb-6">{bt.testimonialsEyebrow || 'Stimmen'}</p>
+          <blockquote className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight">
+            „{content.testimonials[0].text}"
+          </blockquote>
+          <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
+          {content.testimonials.length > 1 && (
+            <div className="mt-16 grid md:grid-cols-2 gap-4 text-left">
+              {content.testimonials.slice(1).map((t, i) => (
+                <figure key={i} className="bg-[var(--surface-color)] border border-line rounded-2xl p-6">
+                  <p className="text-base leading-relaxed">„{t.text}"</p>
+                  <p className="mt-4 font-mono text-[11px] uppercase tracking-widest text-muted">— {t.author}</p>
+                </figure>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    ) : null,
+    news: <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
+    contact: <ContactSection content={content} variant="modern" />,
+  };
+
   return (
     <>
       {/* Hero — split: text left / image card right with floating badge */}
@@ -446,113 +557,8 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
           </div>
         </div>
       </section>
-      {$vis(content, 'chips') && <BranchHeroBadges branch={branch} style="modern" content={content} />}
-
-      {/* About — sticky rail */}
-      {$vis(content, 'about') && content.about && (
-        <section id="about" className="py-24 md:py-32 surface">
-          <div className="container-x grid lg:grid-cols-12 gap-10">
-            <aside className="lg:col-span-4 reveal">
-              <div className="lg:sticky lg:top-28">
-                <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
-                <h2 className="font-display text-4xl md:text-5xl leading-tight">{content.about.title}</h2>
-                {content.about.imageUrl && (
-                  <div className="mt-8 aspect-[4/3] rounded-2xl overflow-hidden border border-line">
-                    <img src={content.about.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
-                  </div>
-                )}
-              </div>
-            </aside>
-            <div className="lg:col-span-7 lg:col-start-6 reveal space-y-6 text-lg leading-relaxed text-muted">
-              {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Services — feature cards with bullet list */}
-      {$vis(content, 'services') && content.services.length > 0 && (
-        <section id="leistungen" className="py-24 md:py-32">
-          <div className="container-x">
-            <div className="max-w-2xl reveal mb-16">
-              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
-              <h2 className="font-display text-4xl md:text-5xl">{bt.servicesTeaserTitle || 'Was Sie bekommen.'}</h2>
-              <p className="mt-4 text-lg text-muted">{bt.teaserSubtitle || 'Klar definierte Pakete – keine versteckten Kosten.'}</p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-4 reveal-stagger">
-              {content.services.map((s, i) => (
-                <article key={i} className="group bg-white border border-line rounded-2xl p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all">
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-                    {s.price && <span className="font-display text-lg">{s.price}</span>}
-                  </div>
-                  <h3 className="font-display text-2xl md:text-3xl mb-3">{s.title}</h3>
-                  {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
-                  <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
-                    <span className="text-muted">{((content as any).branchText?.serviceCardNote as string) || 'Inkl. Beratung & Briefing'}</span>
-                    <span className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition">Mehr erfahren →</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {$vis(content, 'spotlight') && <BranchSpotlight branch={branch} style="modern" content={content} />}
-      {$vis(content, 'branchModules') && <BranchModulesInline variant={branch} content={content} />}
-      {$vis(content, 'team') && <BranchTeam branch={branch} style="modern" content={content} />}
-
-      {/* Gallery — uniform 3-col grid with caption labels */}
-      {$vis(content, 'gallery') && content.gallery.length > 0 && (
-        <section id="galerie" className="py-24 md:py-32 surface">
-          <div className="container-x">
-            <div className="flex items-end justify-between gap-6 mb-12 reveal">
-              <div>
-                <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.galleryTeaserEyebrow || 'Galerie'}</p>
-                <h2 className="font-display text-4xl md:text-5xl">{bt.galleryTeaserTitle || 'Eindrücke.'}</h2>
-              </div>
-              <p className="text-sm text-muted hidden md:block max-w-xs">Aktuelle Aufnahmen aus unserem Alltag.</p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 reveal-stagger">
-              {content.gallery.map((src, i) => (
-                <figure key={i} className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-line">
-                  <img src={src} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-                  <figcaption className="absolute inset-x-0 bottom-0 px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-white bg-gradient-to-t from-black/70 to-transparent">
-                    / {String(i + 1).padStart(2, '0')}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Testimonials — single big quote with avatars row */}
-      {$vis(content, 'testimonials') && content.testimonials.length > 0 && (
-        <section className="py-24 md:py-32">
-          <div className="container-x max-w-4xl mx-auto text-center reveal">
-            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-6">{bt.testimonialsEyebrow || 'Stimmen'}</p>
-            <blockquote className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight">
-              „{content.testimonials[0].text}"
-            </blockquote>
-            <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
-            {content.testimonials.length > 1 && (
-              <div className="mt-16 grid md:grid-cols-2 gap-4 text-left">
-                {content.testimonials.slice(1).map((t, i) => (
-                  <figure key={i} className="bg-[var(--surface-color)] border border-line rounded-2xl p-6">
-                    <p className="text-base leading-relaxed">„{t.text}"</p>
-                    <p className="mt-4 font-mono text-[11px] uppercase tracking-widest text-muted">— {t.author}</p>
-                  </figure>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {$vis(content, 'news') && <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />}
-      {$vis(content, 'contact') && <ContactSection content={content} variant="modern" />}
+      {/* Ordered sections */}
+      {order.map((key) => <React.Fragment key={key}>{blocks[key]}</React.Fragment>)}
     </>
   );
 }
@@ -562,6 +568,96 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
  * ──────────────────────────────────────────────────────────────────── */
 function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const bt = effectiveBranchText(branch, content);
+  const order = extraHomeOrder(content, branch, 'bold').filter((k) => $vis(content, k));
+
+  const blocks: Record<string, JSX.Element | null> = {
+    chips: <BranchHeroBadges branch={branch} style="bold" content={content} />,
+    marquee: (
+      <div className="border-y border-line py-8 overflow-hidden">
+        <div className="flex gap-12 whitespace-nowrap animate-[marquee_25s_linear_infinite] font-display text-4xl md:text-6xl">
+          {Array.from({ length: 6 }).flatMap((_, i) => [
+            <span key={`a${i}`}>{content.brand.name}</span>,
+            <span key={`b${i}`} className="text-[var(--accent-color)]">✦</span>,
+          ])}
+        </div>
+      </div>
+    ),
+    about: content.about ? (
+      <section id="about" className="py-24 md:py-40">
+        <div className="container-x grid md:grid-cols-12 gap-10">
+          <div className="md:col-span-2 reveal">
+            <p className="font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">01</p>
+          </div>
+          <div className="md:col-span-10 reveal">
+            <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] mb-10">{content.about.title}</h2>
+            <div className="grid md:grid-cols-2 gap-8 text-xl md:text-2xl leading-relaxed">
+              {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+            </div>
+            {content.about.imageUrl && (
+              <img src={content.about.imageUrl} alt="" className="mt-16 w-full aspect-[16/7] object-cover" loading="lazy" />
+            )}
+          </div>
+        </div>
+      </section>
+    ) : null,
+    services: content.services.length > 0 ? (
+      <section id="leistungen" className="py-24 md:py-40 surface">
+        <div className="container-x">
+          <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
+            <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">02</p>
+            <h2 className="md:col-span-10 font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">Leistungen.</h2>
+          </div>
+          <ul className="reveal-stagger">
+            {content.services.map((s, i) => (
+              <li key={i} className="group border-t border-line last:border-b py-8 md:py-12 hover:bg-white/30 transition-colors">
+                <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
+                  <span className="md:col-span-1 font-mono text-sm text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+                  <h3 className="md:col-span-6 font-display text-3xl md:text-5xl leading-tight transition-transform group-hover:translate-x-2">
+                    {s.title}
+                  </h3>
+                  <p className="md:col-span-4 text-muted leading-relaxed">{s.description}</p>
+                  {s.price && <span className="md:col-span-1 md:text-right font-display text-2xl">{s.price}</span>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    ) : null,
+    spotlight: <BranchSpotlight branch={branch} style="bold" content={content} />,
+    branchModules: <BranchModulesInline variant={branch} content={content} />,
+    team: <BranchTeam branch={branch} style="bold" content={content} />,
+    gallery: content.gallery.length > 0 ? (
+      <section id="galerie" className="py-24 md:py-40">
+        <div className="container-x">
+          <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
+            <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">03</p>
+            <h2 className="md:col-span-10 font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">Bilder.</h2>
+          </div>
+          <ExtraMasonry images={content.gallery} />
+        </div>
+      </section>
+    ) : null,
+    testimonials: content.testimonials.length > 0 ? (
+      <section className="py-24 md:py-40 bg-brand text-white grain">
+        <div className="container-x">
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-white/60 mb-10 reveal">— {bt.testimonialsEyebrow || 'Stimmen'} —</p>
+          <div className="grid md:grid-cols-2 gap-12 reveal-stagger">
+            {content.testimonials.map((t, i) => (
+              <figure key={i} className="space-y-6">
+                <span className="font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)] block">"</span>
+                <blockquote className="font-display text-3xl md:text-4xl leading-tight">{t.text}</blockquote>
+                <figcaption className="font-mono text-xs uppercase tracking-widest text-white/60">— {t.author}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null,
+    news: <NewsPreview content={content} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />,
+    contact: <ContactSection content={content} variant="bold" />,
+  };
+
   return (
     <>
       {/* Hero — oversized headline overlapping image */}
@@ -584,103 +680,8 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
           </div>
         </div>
       </section>
-      {$vis(content, 'chips') && <BranchHeroBadges branch={branch} style="bold" content={content} />}
-
-      {/* Marquee separator */}
-      {$vis(content, 'marquee') && (
-      <div className="border-y border-line py-8 overflow-hidden">
-        <div className="flex gap-12 whitespace-nowrap animate-[marquee_25s_linear_infinite] font-display text-4xl md:text-6xl">
-          {Array.from({ length: 6 }).flatMap((_, i) => [
-            <span key={`a${i}`}>{content.brand.name}</span>,
-            <span key={`b${i}`} className="text-[var(--accent-color)]">✦</span>,
-          ])}
-        </div>
-      </div>
-      )}
-
-      {/* About — oversized number + body */}
-      {$vis(content, 'about') && content.about && (
-        <section id="about" className="py-24 md:py-40">
-          <div className="container-x grid md:grid-cols-12 gap-10">
-            <div className="md:col-span-2 reveal">
-              <p className="font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">01</p>
-            </div>
-            <div className="md:col-span-10 reveal">
-              <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] mb-10">{content.about.title}</h2>
-              <div className="grid md:grid-cols-2 gap-8 text-xl md:text-2xl leading-relaxed">
-                {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
-              </div>
-              {content.about.imageUrl && (
-                <img src={content.about.imageUrl} alt="" className="mt-16 w-full aspect-[16/7] object-cover" loading="lazy" />
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Services — stacked numbered list */}
-      {$vis(content, 'services') && content.services.length > 0 && (
-        <section id="leistungen" className="py-24 md:py-40 surface">
-          <div className="container-x">
-            <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
-              <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">02</p>
-              <h2 className="md:col-span-10 font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">Leistungen.</h2>
-            </div>
-            <ul className="reveal-stagger">
-              {content.services.map((s, i) => (
-                <li key={i} className="group border-t border-line last:border-b py-8 md:py-12 hover:bg-white/30 transition-colors">
-                  <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
-                    <span className="md:col-span-1 font-mono text-sm text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-                    <h3 className="md:col-span-6 font-display text-3xl md:text-5xl leading-tight transition-transform group-hover:translate-x-2">
-                      {s.title}
-                    </h3>
-                    <p className="md:col-span-4 text-muted leading-relaxed">{s.description}</p>
-                    {s.price && <span className="md:col-span-1 md:text-right font-display text-2xl">{s.price}</span>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-
-      {$vis(content, 'spotlight') && <BranchSpotlight branch={branch} style="bold" content={content} />}
-      {$vis(content, 'branchModules') && <BranchModulesInline variant={branch} content={content} />}
-      {$vis(content, 'team') && <BranchTeam branch={branch} style="bold" content={content} />}
-
-      {/* Gallery — true masonry */}
-      {$vis(content, 'gallery') && content.gallery.length > 0 && (
-        <section id="galerie" className="py-24 md:py-40">
-          <div className="container-x">
-            <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
-              <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">03</p>
-              <h2 className="md:col-span-10 font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">Bilder.</h2>
-            </div>
-            <ExtraMasonry images={content.gallery} />
-          </div>
-        </section>
-      )}
-
-      {/* Testimonials — full-bleed dark band with rotating quotes */}
-      {$vis(content, 'testimonials') && content.testimonials.length > 0 && (
-        <section className="py-24 md:py-40 bg-brand text-white grain">
-          <div className="container-x">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-white/60 mb-10 reveal">— {bt.testimonialsEyebrow || 'Stimmen'} —</p>
-            <div className="grid md:grid-cols-2 gap-12 reveal-stagger">
-              {content.testimonials.map((t, i) => (
-                <figure key={i} className="space-y-6">
-                  <span className="font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)] block">"</span>
-                  <blockquote className="font-display text-3xl md:text-4xl leading-tight">{t.text}</blockquote>
-                  <figcaption className="font-mono text-xs uppercase tracking-widest text-white/60">— {t.author}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {$vis(content, 'news') && <NewsPreview content={content} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />}
-      {$vis(content, 'contact') && <ContactSection content={content} variant="bold" />}
+      {/* Ordered sections */}
+      {order.map((key) => <React.Fragment key={key}>{blocks[key]}</React.Fragment>)}
     </>
   );
 }
