@@ -1114,6 +1114,8 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
 }
 
 function ContactPageEditor({ data, setData, tpl }: SectionProps) {
+  const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+  const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
   return (
     <>
       <SectionCard title="Seiten-Header" badge="Sektion 1">
@@ -1126,6 +1128,19 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Kontaktdaten & Karte" description="Telefon, E-Mail, Adresse, Öffnungszeiten und Google-Maps-Einbettung." badge="Sektion 2" pageKey="contact" sectionKey="block" data={data} setData={setData}>
         <ContactFields data={data} setData={setData} />
         <HoursEditor data={data} setData={setData} />
+        <div className="mt-4 pt-4 border-t border-line">
+          <p className="text-sm font-medium mb-1">Kontakt-Block (Text über den Kontaktdaten)</p>
+          <p className="text-xs text-muted mb-3">Steuert auf /kontakt und im Kontaktbereich der Startseite: Eyebrow, Überschrift und Untertitel über Telefon/E-Mail/Adresse.</p>
+          <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Kontakt">
+            <input className={inputCls} value={cb.eyebrow || ''} onChange={(e) => setCb({ eyebrow: e.target.value })} placeholder="Kontakt" />
+          </Field>
+          <Field label="Überschrift" hint="Standard: Wir freuen uns auf Sie.">
+            <input className={inputCls} value={cb.title || ''} onChange={(e) => setCb({ title: e.target.value })} placeholder="Wir freuen uns auf Sie." />
+          </Field>
+          <Field label="Untertitel" hint="Leer lassen, um ihn auszublenden.">
+            <textarea className={inputCls} rows={2} value={cb.subtitle || ''} onChange={(e) => setCb({ subtitle: e.target.value })} placeholder="Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da." />
+          </Field>
+        </div>
         <div className="mt-4 pt-4 border-t border-line">
           <p className="text-sm font-medium mb-1">Google-Maps-Karte</p>
           <p className="text-xs text-muted mb-3">Erscheint unter dem Kontaktformular. Am besten die volle URL aus der Browser-Adressleiste einfügen (nicht den kurzen maps.app.goo.gl-Link).</p>
