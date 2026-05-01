@@ -67,6 +67,10 @@ export const SiteContentSchema = z.object({
     instagram: z.string().optional().default(''),
     facebook: z.string().optional().default(''),
     whatsapp: z.string().optional().default(''),
+    linkedin: z.string().optional().default(''),
+    youtube: z.string().optional().default(''),
+    tiktok: z.string().optional().default(''),
+    x: z.string().optional().default(''),
   }).optional(),
 
   // SEO — global defaults plus per-page overrides. AI/search-engine friendly metadata

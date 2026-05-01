@@ -1414,13 +1414,17 @@ function ContactGlobal({ data, setData }: SetterProps) {
   );
 }
 function SocialPage({ data, setData }: SetterProps) {
-  const s = data.social ?? { instagram: '', facebook: '', whatsapp: '' };
+  const s = data.social ?? { instagram: '', facebook: '', whatsapp: '', linkedin: '', youtube: '', tiktok: '', x: '' };
   const set = (patch: Partial<typeof s>) => setData({ ...data, social: { ...s, ...patch } });
   return (
     <SectionCard title="Profile" description="Links erscheinen im Footer.">
       <Field label="Instagram"><input className={inputCls} value={s.instagram || ''} onChange={(e) => set({ instagram: e.target.value })} placeholder="https://instagram.com/..." /></Field>
       <Field label="Facebook"><input className={inputCls} value={s.facebook || ''} onChange={(e) => set({ facebook: e.target.value })} placeholder="https://facebook.com/..." /></Field>
       <Field label="WhatsApp"><input className={inputCls} value={s.whatsapp || ''} onChange={(e) => set({ whatsapp: e.target.value })} placeholder="https://wa.me/..." /></Field>
+      <Field label="LinkedIn"><input className={inputCls} value={s.linkedin || ''} onChange={(e) => set({ linkedin: e.target.value })} placeholder="https://linkedin.com/company/..." /></Field>
+      <Field label="YouTube"><input className={inputCls} value={s.youtube || ''} onChange={(e) => set({ youtube: e.target.value })} placeholder="https://youtube.com/@..." /></Field>
+      <Field label="TikTok"><input className={inputCls} value={s.tiktok || ''} onChange={(e) => set({ tiktok: e.target.value })} placeholder="https://tiktok.com/@..." /></Field>
+      <Field label="X (Twitter)"><input className={inputCls} value={s.x || ''} onChange={(e) => set({ x: e.target.value })} placeholder="https://x.com/..." /></Field>
     </SectionCard>
   );
 }

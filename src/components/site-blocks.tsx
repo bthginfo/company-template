@@ -546,6 +546,42 @@ export function SafeMapEmbed({ mapsUrl, address, city, className = '' }: { mapsU
 export function SiteFooter({ content, basePath: basePathProp, nav }: { content: SiteContent; basePath?: string; nav?: NavItem[] }) {
   const ctxBase = useBasePath();
   const basePath = basePathProp ?? ctxBase;
+  const social = (content.social ?? {}) as {
+    instagram?: string;
+    facebook?: string;
+    whatsapp?: string;
+    linkedin?: string;
+    youtube?: string;
+    tiktok?: string;
+    x?: string;
+  };
+
+  const toUrl = (raw: string | undefined, base: string, allowAt = true): string => {
+    const value = (raw || '').trim();
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    const clean = allowAt ? value.replace(/^@+/, '') : value;
+    return `${base}${clean}`;
+  };
+
+  const waToUrl = (raw: string | undefined): string => {
+    const value = (raw || '').trim();
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    const digits = value.replace(/[^\d]/g, '');
+    return digits ? `https://wa.me/${digits}` : '';
+  };
+
+  const socialLinks = [
+    { label: 'Instagram', href: toUrl(social.instagram, 'https://instagram.com/') },
+    { label: 'Facebook', href: toUrl(social.facebook, 'https://facebook.com/') },
+    { label: 'WhatsApp', href: waToUrl(social.whatsapp) },
+    { label: 'LinkedIn', href: toUrl(social.linkedin, 'https://linkedin.com/') },
+    { label: 'YouTube', href: toUrl(social.youtube, 'https://youtube.com/', false) },
+    { label: 'TikTok', href: toUrl(social.tiktok, 'https://tiktok.com/') },
+    { label: 'X', href: toUrl(social.x, 'https://x.com/') },
+  ].filter((item) => item.href);
+
   return (
     <footer className="bg-brand text-white pt-24 pb-10 mt-auto relative overflow-hidden grain">
       <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
@@ -597,6 +633,20 @@ export function SiteFooter({ content, basePath: basePathProp, nav }: { content: 
               <li><Link to={`${basePath}/datenschutz`} className="hover:text-accent">Datenschutz</Link></li>
             </ul>
           </div>
+          {socialLinks.length ? (
+            <div className="md:col-span-3">
+              <p className="text-xs uppercase tracking-widest text-white/50 mb-4">Social</p>
+              <ul className="space-y-2 text-sm">
+                {socialLinks.map((item) => (
+                  <li key={item.label}>
+                    <a href={item.href} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
 
         <Marquee speed="slow" className="py-2">
