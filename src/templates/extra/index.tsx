@@ -9,7 +9,7 @@ import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
-import { BranchModulesInline } from '@/components/branch-modules';
+import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
@@ -376,11 +376,20 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
  * ──────────────────────────────────────────────────────────────────── */
 function ModernLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const bt = effectiveBranchText(branch, content);
-  const stats = [
-    { value: content.testimonials.length, suffix: '+', label: 'Kund:innen' },
-    { value: content.services.length, suffix: '', label: 'Leistungen' },
-    { value: 24, suffix: 'h', label: 'Antwortzeit' },
-  ];
+  const numbersOverlay = (content as any).numbers as Array<{ value: string; label: string }> | undefined;
+  const stats = numbersOverlay && numbersOverlay.length >= 3
+    ? numbersOverlay.slice(0, 3).map((n) => {
+        const m = /^([\d.,]+)(.*)$/.exec(n.value.trim());
+        return { value: m ? parseInt(m[1].replace(/\D/g, ''), 10) || 0 : 0, suffix: m ? m[2] : '', label: n.label };
+      })
+    : [
+        { value: content.testimonials.length || 50, suffix: '+', label: 'Kund:innen' },
+        { value: content.services.length || 6, suffix: '', label: 'Leistungen' },
+        { value: 24, suffix: 'h', label: 'Antwortzeit' },
+      ];
+  const heroBadge = ((content as any).heroBadge ?? {}) as { text?: string; label?: string };
+  const badgeText = (heroBadge.text && heroBadge.text.trim()) || '4,9 / 5,0';
+  const badgeLabel = (heroBadge.label && heroBadge.label.trim()) || 'Google Bewertung';
   return (
     <>
       {/* Hero — split: text left / image card right with floating badge */}
@@ -422,8 +431,8 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
                     <span className="text-xl">★</span>
                   </div>
                   <div>
-                    <p className="font-display text-lg leading-tight">4,9 / 5,0</p>
-                    <p className="text-xs text-muted">Google Bewertung</p>
+                    <p className="font-display text-lg leading-tight">{badgeText}</p>
+                    <p className="text-xs text-muted">{badgeLabel}</p>
                   </div>
                 </div>
               </div>
@@ -474,7 +483,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
                   <h3 className="font-display text-2xl md:text-3xl mb-3">{s.title}</h3>
                   {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
                   <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
-                    <span className="text-muted">Inkl. Beratung & Briefing</span>
+                    <span className="text-muted">{((content as any).branchText?.serviceCardNote as string) || 'Inkl. Beratung & Briefing'}</span>
                     <span className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition">Mehr erfahren →</span>
                   </div>
                 </article>
@@ -1026,15 +1035,15 @@ function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember
 function BranchTeam({ branch, style, content }: { branch: ExtraBranchKey; style: ExtraStyle; content: SiteContent }) {
   const team = useBranchTeam(content, branch);
   if (team.length === 0) return null;
-  const heading = branch === 'fitness' ? 'Trainer:innen.' : branch === 'medical' ? 'Ärzt:innen & Team.' : 'Das Team.';
-  const eyebrow = branch === 'fitness' ? 'Trainer:innen' : branch === 'medical' ? 'Ärzt:innen' : 'Team';
+  const teamKey: ModuleHeadingKey = branch === 'fitness' ? 'teamFitness' : branch === 'medical' ? 'teamMedical' : 'teamConsulting';
+  const h = moduleHeading(content, teamKey);
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-40 bg-[var(--text-color)] text-[var(--bg-color)]">
         <div className="container-x">
           <div className="grid md:grid-cols-12 gap-8 mb-14 reveal">
-            <p className="md:col-span-2 font-mono text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">{eyebrow}</p>
-            <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">{heading}</h2>
+            <p className="md:col-span-2 font-mono text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">{h.eyebrow}</p>
+            <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">{h.title}</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-px bg-current/10 reveal-stagger">
             {team.map((m, i) => (
@@ -1060,8 +1069,8 @@ function BranchTeam({ branch, style, content }: { branch: ExtraBranchKey; style:
         <div className="container-x">
           <div className="flex items-end justify-between gap-6 mb-12 reveal">
             <div>
-              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{eyebrow}</p>
-              <h2 className="font-display text-4xl md:text-5xl">{heading}</h2>
+              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{h.eyebrow}</p>
+              <h2 className="font-display text-4xl md:text-5xl">{h.title}</h2>
             </div>
           </div>
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
@@ -1090,13 +1099,11 @@ function BranchTeam({ branch, style, content }: { branch: ExtraBranchKey; style:
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
           <div className="md:col-span-7 reveal">
-            <p className="eyebrow mb-5">{eyebrow}</p>
-            <h2 className="headline-lg">{heading.replace('.', '')}<br /><em className="italic-pop">Persönlich erreichbar.</em></h2>
+            <p className="eyebrow mb-5">{h.eyebrow}</p>
+            <h2 className="headline-lg">{h.title}</h2>
           </div>
           <p className="md:col-span-5 text-lg text-muted reveal">
-            {branch === 'fitness'
-              ? 'Fünf Lehrer:innen, jede mit eigener Handschrift. Lernen Sie sie im Probetraining kennen.'
-              : 'Erfahrene Berater:innen mit eigenen Schwerpunkten. Sie erreichen uns direkt – ohne Sekretariat.'}
+            {h.subtitle}
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
@@ -1191,13 +1198,14 @@ function useConsultingSteps(content: SiteContent) {
   return overlay.map((s, i) => ({ k: String(i + 1).padStart(2, '0'), t: s.t, d: s.d }));
 }
 function ConsultingProcess({ style, content }: { style: ExtraStyle; content: SiteContent }) {
+  const h = moduleHeading(content, 'consultingSpotlight');
   const STEPS = useConsultingSteps(content);
   if (style === 'bold') {
     return (
       <section className="py-24 md:py-40 surface">
         <div className="container-x grid md:grid-cols-12 gap-8 mb-14 reveal">
           <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">★</p>
-          <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">Unser Vorgehen.</h2>
+          <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">{h.title}</h2>
         </div>
         <ul className="reveal-stagger">
           {STEPS.map((s) => (
@@ -1218,8 +1226,8 @@ function ConsultingProcess({ style, content }: { style: ExtraStyle; content: Sit
       <section className="py-24 md:py-32">
         <div className="container-x">
           <div className="max-w-2xl reveal mb-14">
-            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">Vorgehen</p>
-            <h2 className="font-display text-4xl md:text-5xl">In vier Schritten zum Ziel.</h2>
+            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{h.eyebrow}</p>
+            <h2 className="font-display text-4xl md:text-5xl">{h.title}</h2>
           </div>
           <ol className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 reveal-stagger">
             {STEPS.map((s) => (
@@ -1239,11 +1247,11 @@ function ConsultingProcess({ style, content }: { style: ExtraStyle; content: Sit
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-8 mb-12 reveal">
           <div className="md:col-span-5">
-            <p className="eyebrow mb-5">Vorgehen</p>
-            <h2 className="headline-lg">Wie wir<br /><em className="italic-pop">arbeiten.</em></h2>
+            <p className="eyebrow mb-5">{h.eyebrow}</p>
+            <h2 className="headline-lg">{h.title}</h2>
           </div>
           <p className="md:col-span-7 text-lg text-muted self-end">
-            Strukturiert, transparent und immer mit klarem Ergebnis. Vier Etappen, kein Bullshit.
+            {h.subtitle}
           </p>
         </div>
         <ol className="grid md:grid-cols-2 gap-x-12 gap-y-10 reveal-stagger">
@@ -1264,6 +1272,7 @@ function ConsultingProcess({ style, content }: { style: ExtraStyle; content: Sit
 
 /* MEDICAL — service info: hours, emergency, online appointment */
 function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: SiteContent }) {
+  const h = moduleHeading(content, 'medicalInfo');
   const hours = content.contact.hours.length
     ? content.contact.hours
     : [
@@ -1284,7 +1293,7 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-5 reveal">
             <p className="font-display text-6xl md:text-8xl leading-[0.9] text-[var(--accent-color)]">+</p>
-            <h2 className="mt-6 font-display text-4xl md:text-6xl leading-tight">Service<br />&amp; Sprechzeiten.</h2>
+            <h2 className="mt-6 font-display text-4xl md:text-6xl leading-tight">{h.title}</h2>
           </div>
           <div className="md:col-span-7 grid sm:grid-cols-2 gap-4 reveal-stagger">
             <div className="bg-white border border-line rounded-3xl p-6">
@@ -1339,8 +1348,8 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
     <section className="py-24 md:py-32">
       <div className="container-x grid md:grid-cols-12 gap-10">
         <div className="md:col-span-4 reveal">
-          <p className="eyebrow mb-5">Service &amp; Info</p>
-          <h2 className="headline-lg">Für Sie<br /><em className="italic-pop">erreichbar.</em></h2>
+          <p className="eyebrow mb-5">{h.eyebrow}</p>
+          <h2 className="headline-lg">{h.title}</h2>
         </div>
         <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 reveal-stagger">
           <div className="bg-white border border-line rounded-3xl p-7">
@@ -1371,6 +1380,7 @@ const FITNESS_PROGRAMS_DEFAULT: Array<{ k: string; t: string; d: string; meta: s
   { k: 'PT',   t: 'Personal Training',d: '60 oder 90 Minuten – ganz auf Sie zugeschnitten.',                   meta: 'flexibel · n. Vereinb.' },
 ];
 function FitnessPrograms({ style, content }: { style: ExtraStyle; content: SiteContent }) {
+  const h = moduleHeading(content, 'fitnessSpotlight');
   const overlayPrograms = (content as any).programs as Array<{ k: string; t: string; d: string; meta: string }> | undefined;
   const PROGRAMS = overlayPrograms && overlayPrograms.length > 0 ? overlayPrograms : FITNESS_PROGRAMS_DEFAULT;
   const overlayNumbers = (content as any).numbers as Array<{ value: string; label: string }> | undefined;
@@ -1393,7 +1403,7 @@ function FitnessPrograms({ style, content }: { style: ExtraStyle; content: SiteC
         <div className="container-x">
           <div className="grid md:grid-cols-12 gap-8 mb-14 reveal">
             <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">⚡</p>
-            <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">Programme.</h2>
+            <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">{h.title}</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-px bg-current/10 reveal-stagger">
             {PROGRAMS.map((p) => (
@@ -1425,8 +1435,8 @@ function FitnessPrograms({ style, content }: { style: ExtraStyle; content: SiteC
         <div className="container-x">
           <div className="flex items-end justify-between gap-6 mb-12 reveal">
             <div>
-              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">Programme</p>
-              <h2 className="font-display text-4xl md:text-5xl">Finde deinen Flow.</h2>
+              <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{h.eyebrow}</p>
+              <h2 className="font-display text-4xl md:text-5xl">{h.title}</h2>
             </div>
             <dl className="hidden md:flex gap-8">
               {stats.map((s, i) => (
@@ -1456,8 +1466,8 @@ function FitnessPrograms({ style, content }: { style: ExtraStyle; content: SiteC
       <div className="container-x">
         <div className="grid md:grid-cols-12 gap-8 mb-12 reveal">
           <div className="md:col-span-6">
-            <p className="eyebrow mb-5">Programme</p>
-            <h2 className="headline-lg">Für jedes<br /><em className="italic-pop">Ziel.</em></h2>
+            <p className="eyebrow mb-5">{h.eyebrow}</p>
+            <h2 className="headline-lg">{h.title}</h2>
           </div>
           <dl className="md:col-span-6 grid grid-cols-3 gap-6 self-end">
             {stats.map((s, i) => (

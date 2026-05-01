@@ -803,6 +803,28 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         )}
       </SectionCard>
 
+      {/* ── Extra-branch spotlight section headings ─────────────── */}
+      {tpl === 'consulting' && (
+        <SectionCard title="Spotlight: Vorgehen" description="Überschrift und Beschreibung für die \u201eWie wir arbeiten\u201c-Sektion auf der Startseite." badge="Extra">
+          <ModuleHeadingFields data={data} setData={setData} mKey="consultingSpotlight" />
+        </SectionCard>
+      )}
+      {tpl === 'medical' && (
+        <SectionCard title="Spotlight: Service & Info" description="Überschrift der Service-Kacheln (Sprechzeiten, Online-Termin, Notfall) auf der Startseite." badge="Extra">
+          <ModuleHeadingFields data={data} setData={setData} mKey="medicalInfo" />
+        </SectionCard>
+      )}
+      {tpl === 'fitness' && (
+        <SectionCard title="Spotlight: Programme" description="Überschrift und Beschreibung für die Programm-Sektion auf der Startseite." badge="Extra">
+          <ModuleHeadingFields data={data} setData={setData} mKey="fitnessSpotlight" />
+        </SectionCard>
+      )}
+      {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
+        <SectionCard title="Hero-Badge" description="Das kleine Bewertungs-Badge neben dem Hero-Bild (Modern-Stil)." badge="Extra">
+          <HeroBadgeEditor data={data} setData={setData} />
+        </SectionCard>
+      )}
+
       <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
     </>
   );
@@ -1051,6 +1073,9 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
       <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 5" pageKey="about" sectionKey="team" data={data} setData={setData}>
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teamEyebrow', 'teamTitle']} />
+        {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
+          <ModuleHeadingFields data={data} setData={setData} mKey={tpl === 'fitness' ? 'teamFitness' : tpl === 'medical' ? 'teamMedical' : 'teamConsulting'} />
+        )}
         <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
       </SectionCard>
       <SectionCard title="Zahlen-Band" badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
@@ -2610,6 +2635,23 @@ function BranchChipsEditor({ data, setData, tpl }: SetterProps & { tpl: Template
         <input className={inputCls} placeholder={`Stichwort ${i + 1}`} value={v} onChange={(e) => setItem(e.target.value)} />
       )}
     />
+  );
+}
+
+function HeroBadgeEditor({ data, setData }: SetterProps) {
+  const badge = ((data as any).heroBadge ?? {}) as { text?: string; label?: string };
+  const update = (patch: Partial<{ text: string; label: string }>) => {
+    setData({ ...(data as any), heroBadge: { ...badge, ...patch } } as SiteContent);
+  };
+  return (
+    <div className="grid sm:grid-cols-2 gap-3">
+      <Field label="Bewertungstext" hint={'z.\u00a0B. \u201e4,9 / 5,0\u201c'}>
+        <input className={inputCls} value={badge.text || ''} placeholder="4,9 / 5,0" onChange={(e) => update({ text: e.target.value })} />
+      </Field>
+      <Field label="Label" hint={'z.\u00a0B. \u201eGoogle Bewertung\u201c'}>
+        <input className={inputCls} value={badge.label || ''} placeholder="Google Bewertung" onChange={(e) => update({ label: e.target.value })} />
+      </Field>
+    </div>
   );
 }
 

@@ -154,7 +154,7 @@ const restaurant: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: NOT_BOLD,
+      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
     },
@@ -180,7 +180,7 @@ const salon: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: NOT_BOLD,
+      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
     },
@@ -206,7 +206,7 @@ const tradesman: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: NOT_BOLD,
+      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
     },
@@ -232,7 +232,7 @@ const hotel: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: NOT_BOLD,
+      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
     },
@@ -258,7 +258,7 @@ const tourism: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: NOT_BOLD,
+      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
     },

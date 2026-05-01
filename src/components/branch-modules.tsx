@@ -21,7 +21,9 @@ type Variant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'con
  */
 export type ModuleHeadingKey =
   | 'menu' | 'rooms' | 'tours' | 'treatments' | 'courses'
-  | 'packages' | 'process' | 'doctors' | 'booking' | 'funding';
+  | 'packages' | 'process' | 'doctors' | 'booking' | 'funding'
+  | 'medicalInfo' | 'consultingSpotlight' | 'fitnessSpotlight'
+  | 'teamConsulting' | 'teamMedical' | 'teamFitness';
 
 export type ModuleHeading = { eyebrow?: string; titleA?: string; titleB?: string; subtitle?: string };
 
@@ -36,6 +38,14 @@ export const MODULE_DEFAULTS: Record<ModuleHeadingKey, Required<ModuleHeading>> 
   doctors:    { eyebrow: 'Ärzt:innen & Team',   titleA: 'Menschen, denen Sie', titleB: 'vertrauen.', subtitle: 'Alle Ärzt:innen mit Facharzt-Anerkennung. Termine ausschließlich nach Vereinbarung – wir nehmen uns Zeit.' },
   booking:    { eyebrow: 'Termin online',       titleA: 'Online-Termin –', titleB: 'in 60 Sekunden.', subtitle: 'Buchen Sie Ihren Wunschtermin direkt – ohne Anruf, ohne Wartezeit. Stornierung bis 24 h vorher kostenfrei.' },
   funding:    { eyebrow: 'Förder-Kalkulator',   titleA: 'Was kostet Sie das', titleB: 'wirklich?',  subtitle: 'KfW, BAFA, regionale Programme: wir berechnen vor Auftrag, was Ihnen netto bleibt.' },
+  // Extra-branch spotlight headings (home page)
+  medicalInfo:          { eyebrow: 'Service & Info',    titleA: 'Für Sie',          titleB: 'erreichbar.',         subtitle: 'Sprechzeiten, Online-Termin und Notfall-Kontakt auf einen Blick.' },
+  consultingSpotlight:  { eyebrow: 'Vorgehen',          titleA: 'Wie wir',          titleB: 'arbeiten.',           subtitle: 'Strukturiert, transparent und immer mit klarem Ergebnis. Vier Etappen, kein Bullshit.' },
+  fitnessSpotlight:     { eyebrow: 'Programme',         titleA: 'Finde deinen',    titleB: 'Flow.',               subtitle: 'Dynamische Klassen, persönliche Betreuung, maximale Wirkung.' },
+  // Extra-branch team headings
+  teamConsulting:       { eyebrow: 'Team',              titleA: 'Das',              titleB: 'Team.',               subtitle: 'Erfahrene Berater:innen mit eigenen Schwerpunkten. Sie erreichen uns direkt – ohne Sekretariat.' },
+  teamMedical:          { eyebrow: 'Ärzt:innen',        titleA: 'Ärzt:innen &',     titleB: 'Team.',               subtitle: 'Alle Ärzt:innen mit Facharzt-Anerkennung. Wir nehmen uns Zeit für Sie.' },
+  teamFitness:          { eyebrow: 'Trainer:innen',     titleA: 'Unsere',           titleB: 'Trainer:innen.',      subtitle: 'Fünf Lehrer:innen, jede mit eigener Handschrift. Lernen Sie sie im Probetraining kennen.' },
 };
 
 export function moduleHeading(content: SiteContent, key: ModuleHeadingKey): { eyebrow: string; title: React.ReactNode; subtitle: string } {
