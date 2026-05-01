@@ -1063,17 +1063,18 @@ function CtaBand({ variant, content }: { variant: TemplateVariant; content?: Sit
 }
 
 function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: 'modern' | 'bold' }) {
-  const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string } | undefined;
-  const bt = effectiveBranchText(variant, content);
+  const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string; eyebrow?: string } | undefined;
+  // Read raw branchText (without merged defaults) so explicit user values win
+  const rawBt = ((content as any)?.branchText ?? {}) as Record<string, string>;
   const href = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
   
+  // Single priority chain for all styles: ctaBandOverride → raw branchText → inline fallback
+  const eyebrow = (ov?.eyebrow && ov.eyebrow.trim()) || (rawBt.softCtaEyebrow && rawBt.softCtaEyebrow.trim()) || '';
+  const title = (ov?.lead && ov.lead.trim()) || (rawBt.softCtaTitle && rawBt.softCtaTitle.trim()) || '';
+  const sub = (ov?.sub && ov.sub.trim()) || (rawBt.softCtaText && rawBt.softCtaText.trim()) || '';
+  const cta = (ov?.cta && ov.cta.trim()) || (rawBt.softCtaButton && rawBt.softCtaButton.trim()) || '';
+  
   if (style === 'modern') {
-    // Modern: prefer softCta branchText fields, then CTA override as fallback
-    const eyebrow = (bt.softCtaEyebrow && bt.softCtaEyebrow.trim()) || '';
-    const title = (bt.softCtaTitle && bt.softCtaTitle.trim()) || (ov?.lead && ov.lead.trim()) || '';
-    const sub = (bt.softCtaText && bt.softCtaText.trim()) || (ov?.sub && ov.sub.trim()) || '';
-    const cta = (bt.softCtaButton && bt.softCtaButton.trim()) || (ov?.cta && ov.cta.trim()) || '';
-    
     return (
       <section className="py-24 surface">
         <div className="container-x">
@@ -1088,18 +1089,15 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
     );
   }
   
-  // Bold: fallback to branchText fields (more options)
+  // Bold: larger styling, accent background
   const boldFallbackTitle = variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : variant === 'hotel' ? 'Pause buchen?' : variant === 'tourism' ? 'Tour buchen?' : 'Auftrag?';
-  const title = (ov?.lead && ov.lead.trim()) || (bt.softCtaTitle && bt.softCtaTitle.trim()) || boldFallbackTitle;
-  const sub = (ov?.sub && ov.sub.trim()) || (bt.softCtaText && bt.softCtaText.trim()) || 'Schreiben Sie uns. Wir antworten.';
-  const cta = (ov?.cta && ov.cta.trim()) || (bt.softCtaButton && bt.softCtaButton.trim()) || 'Jetzt Kontakt';
   
   return (
     <section className="py-32 md:py-44 bg-[var(--accent-color)] text-brand grain">
       <div className="container-x text-center reveal">
-        <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">{title}</h2>
-        <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto">{sub}</p>
-        <TLink to={href} className="btn-primary mt-10">{cta} <span aria-hidden>→</span></TLink>
+        <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">{title || boldFallbackTitle}</h2>
+        <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto">{sub || 'Schreiben Sie uns. Wir antworten.'}</p>
+        <TLink to={href} className="btn-primary mt-10">{cta || 'Jetzt Kontakt'} <span aria-hidden>→</span></TLink>
       </div>
     </section>
   );

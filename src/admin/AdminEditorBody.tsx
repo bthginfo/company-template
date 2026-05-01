@@ -792,15 +792,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Abschluss-Aufruf (CTA)" description="Der große Aufruf zur Aktion am Seitenende – wird auf allen Unterseiten angezeigt." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
-        {$s(cfg.home.softCtaFields) && (
-          <>
-            <hr className="my-6 border-line" />
-            <p className="text-xs text-muted mb-4">
-              {_ctx.style === 'modern' ? 'Diese Felder steuern den CTA-Block im Modern-Stil (Eyebrow, Titel, Text, Button).' : 'Diese Felder überschreiben die obigen Werte im Bold-Stil.'}
-            </p>
-            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['softCtaEyebrow', 'softCtaTitle', 'softCtaText', 'softCtaButton']} />
-          </>
-        )}
       </SectionCard>
 
       {/* ── Extra-branch spotlight section headings ─────────────── */}
@@ -2891,14 +2882,21 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
 
   return (
     <>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Eyebrow (kleine Zeile darüber)" hint="Erscheint im Classic-CTA und auf Unterseiten. Leer = Standard (Bereit?).">
+      {_ctx.style === 'classic' && (
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Eyebrow (kleine Zeile darüber)" hint="Kleine Zeile über der Headline. Leer = Standard (Bereit?).">
+            <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
+          </Field>
+          <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Nur im Classic-Stil sichtbar.">
+            <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder="Schreiben Sie uns." />
+          </Field>
+        </div>
+      )}
+      {_ctx.style !== 'classic' && (
+        <Field label="Eyebrow (kleine Zeile darüber)" hint="Kleine Zeile über der Headline.">
           <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
         </Field>
-        <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Erscheint im Classic-CTA und auf Unterseiten. Leer = Standard.">
-          <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder="Schreiben Sie uns." />
-        </Field>
-      </div>
+      )}
       
       <Field label="Headline" hint="Große Hauptzeile (z. B. Hunger?, Termin?, Auftrag?).">
         <input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} placeholder={def.lead} />
