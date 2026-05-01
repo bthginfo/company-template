@@ -1040,25 +1040,35 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
 
 function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   const cfg = getBranchConfig(tpl);
+  const isModern = _ctx.style === 'modern';
+  const aboutPatch = (patch: Partial<NonNullable<typeof data.about>>) =>
+    setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), ...patch } });
   return (
     <>
       <SectionCard title="Seiten-Header" badge="Sektion 1">
         <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Über uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
+        <Field label="Seitentitel" hint="Erscheint als Hauptüberschrift im Header.">
+          <input className={inputCls} value={data.about?.title || ''} onChange={(e) => aboutPatch({ title: e.target.value })} />
+        </Field>
+        {isModern && (
+          <ImagePickerField label="Header-Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
+        )}
       </SectionCard>
-      <SectionCard title="Geschichte / Erzählung" description="Längerer Fließtext mit Bild." badge="Sektion 2" pageKey="about" sectionKey="intro" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />
-        <Field label="Überschrift">
-          <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
-        </Field>
+      <SectionCard title={isModern ? 'Einleitung & Sidebar' : 'Geschichte / Erzählung'} description={isModern ? 'Fließtext links, Kennzahlen-Sidebar rechts.' : 'Längerer Fließtext mit Bild.'} badge="Sektion 2" pageKey="about" sectionKey="intro" data={data} setData={setData}>
+        {isModern && <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />}
         <Field label="Text" hint="Leerzeile = neuer Absatz.">
-          <textarea className={inputCls} rows={9} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
+          <textarea className={inputCls} rows={9} value={data.about?.body || ''} onChange={(e) => aboutPatch({ body: e.target.value })} />
         </Field>
-        <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
-        <div className="mt-4 pt-4 border-t border-line">
-          <p className="text-sm font-medium mb-1">Sidebar-Kennzahlen (Modern)</p>
-          <p className="text-xs text-muted mb-3">Eigene Zahlen für die Sidebar neben dem Text. Leer lassen = Home-Zahlen.</p>
-          <NumbersEditor data={data} setData={setData} tpl={tpl} field="aboutNumbers" />
-        </div>
+        {!isModern && (
+          <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
+        )}
+        {isModern && (
+          <div className="mt-4 pt-4 border-t border-line">
+            <p className="text-sm font-medium mb-1">Sidebar-Kennzahlen</p>
+            <p className="text-xs text-muted mb-3">Eigene Zahlen für die Sidebar neben dem Text. Leer lassen = Home-Zahlen.</p>
+            <NumbersEditor data={data} setData={setData} tpl={tpl} field="aboutNumbers" />
+          </div>
+        )}
       </SectionCard>
       <SectionCard title="Werte / Grundsätze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3" pageKey="about" sectionKey="values" data={data} setData={setData}>
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['valuesEyebrow', 'valuesTitle']} />
