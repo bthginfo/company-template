@@ -823,11 +823,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Abschluss-Aufruf (CTA)" description="Der große Aufruf zur Aktion am Seitenende – wird auf allen Unterseiten angezeigt." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
-        {_ctx.style === 'bold' && (
+        {(_ctx.style === 'modern' || _ctx.style === 'bold') && (
           <>
             <hr className="my-6 border-line" />
             <p className="text-xs text-muted mb-4">
-              Diese Felder überschreiben die obigen Werte im Bold-Stil.
+              {_ctx.style === 'modern' ? 'Diese Felder steuern den CTA-Block im Modern-Stil (Eyebrow, Titel, Text, Button).' : 'Diese Felder überschreiben die obigen Werte im Bold-Stil.'}
             </p>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['softCtaEyebrow', 'softCtaTitle', 'softCtaText', 'softCtaButton']} />
           </>
@@ -848,8 +848,12 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           title: tpl === 'restaurant' ? 'Aus der Küche.' : tpl === 'salon' ? 'Ihre Behandlungen.' : 'Was wir können.',
           subtitle: '',
         }} />
-        <hr className="my-4 border-line" />
-        <ImagePickerField label="Header-Bild (Modern Style)" value={data.branchText?.servicesPageImageUrl || ''} onChange={(url) => setData({ ...data, branchText: { ...data.branchText, servicesPageImageUrl: url } })} ratio="aspect-[16/9]" />
+        {_ctx.style === 'modern' && (
+          <>
+            <hr className="my-4 border-line" />
+            <ImagePickerField label="Header-Bild" value={data.branchText?.servicesPageImageUrl || ''} onChange={(url) => setData({ ...data, branchText: { ...data.branchText, servicesPageImageUrl: url } })} ratio="aspect-[16/9]" />
+          </>
+        )}
       </SectionCard>
       <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Überschrift." badge="Sektion 2" pageKey="services" sectionKey="highlights" data={data} setData={setData}>
         <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
