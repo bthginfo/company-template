@@ -1855,39 +1855,6 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   );
 }
 
-function ContactMap({ content }: { content: SiteContent }) {
-  const address = content.contact.address || '';
-  const explicitEmbed = content.contact.mapsUrl || '';
-  // Treat URL as a usable embed only if it contains the trusted Google Maps embed pattern
-  const isUsableEmbed =
-    /^https:\/\/(www\.)?google\.[^/]+\/maps\/embed/i.test(explicitEmbed) ||
-    /[?&]output=embed/i.test(explicitEmbed);
-  const embedSrc = isUsableEmbed
-    ? explicitEmbed
-    : `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
-  const linkHref = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
-  return (
-    <div className="rounded-3xl overflow-hidden border border-line bg-slate-100 relative group">
-      <iframe
-        src={embedSrc}
-        title={`Karte: ${address}`}
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        className="block w-full aspect-[16/7] border-0"
-        allow="fullscreen"
-      />
-      <a
-        href={linkHref}
-        target="_blank"
-        rel="noreferrer"
-        className="absolute bottom-4 right-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-widest hover:bg-white transition shadow-sm"
-      >
-        In Karte öffnen ↗
-      </a>
-    </div>
-  );
-}
-
 function PageHero({ eyebrow, title, subtitle, style = 'classic', image }: {
   eyebrow: string;
   title: string;
