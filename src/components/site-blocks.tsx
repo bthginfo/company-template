@@ -481,17 +481,55 @@ export function ContactBlock({ content, showForm = true, showMap = true, formTen
 /* ─── Safe map embed ─────────────────────────────────────────────── */
 export function SafeMapEmbed({ mapsUrl, address, city, className = '' }: { mapsUrl?: string; address?: string; city?: string; className?: string }) {
   const explicit = (mapsUrl || '').trim();
-  const isUsable =
+
+  // Already a usable embed URL?
+  const isEmbed =
     /^https:\/\/(www\.)?google\.[^/]+\/maps\/embed/i.test(explicit) ||
     /^https:\/\/(www\.)?google\.[^/]+\/maps\?[^"]*[?&]output=embed/i.test(explicit) ||
     /^https:\/\/(www\.)?openstreetmap\.org\/export\/embed/i.test(explicit);
-  const fullAddress = [address, city].filter(Boolean).join(', ');
-  const fallback = fullAddress
-    ? `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`
-    : '';
-  const src = isUsable ? explicit : fallback;
+
+  // Convert common Google Maps link formats to embeddable URL:
+  // - maps.app.goo.gl/... (short links)
+  // - google.com/maps/place/...
+  // - google.com/maps?q=...
+  // - google.com/maps?ll=...
+  const isGoogleLink = !isEmbed && /^https:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.)?google\.[^/]+\/maps)/i.test(explicit);
+
+  let src: string;
+  if (isEmbed) {
+    src = explicit;
+  } else if (isGoogleLink) {
+    // Extract place name from /maps/place/NAME/ URLs for a better query
+    const placeMatch = explicit.match(/\/maps\/place\/([^/@?]+)/i);
+    // Extract q= parameter from URL
+    const qMatch = explicit.match(/[?&]q=([^&]+)/i);
+    // Extract coordinates from ll= or @lat,lng
+    const llMatch = explicit.match(/[?&]ll=([-\d.]+),([-\d.]+)/i) || explicit.match(/@([-\d.]+),([-\d.]+)/i);
+
+    if (placeMatch) {
+      src = `https://www.google.com/maps?q=${placeMatch[1]}&output=embed`;
+    } else if (qMatch) {
+      src = `https://www.google.com/maps?q=${qMatch[1]}&output=embed`;
+    } else if (llMatch) {
+      src = `https://www.google.com/maps?ll=${llMatch[1]},${llMatch[2]}&z=16&output=embed`;
+    } else {
+      // For short links (maps.app.goo.gl) we can't resolve client-side,
+      // so fall back to address-based embed
+      const fullAddress = [address, city].filter(Boolean).join(', ');
+      src = fullAddress
+        ? `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`
+        : '';
+    }
+  } else {
+    const fullAddress = [address, city].filter(Boolean).join(', ');
+    src = fullAddress
+      ? `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`
+      : '';
+  }
+
   if (!src) return <div className={`w-full rounded-3xl bg-black/5 ${className}`} />;
-  const linkHref = fullAddress ? `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}` : explicit;
+  const fullAddress = [address, city].filter(Boolean).join(', ');
+  const linkHref = explicit || (fullAddress ? `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}` : '');
   return (
     <div className={`rounded-3xl overflow-hidden border border-line shadow-2xl relative ${className}`}>
       <iframe title={`Karte${fullAddress ? `: ${fullAddress}` : ''}`} src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full border-0" allow="fullscreen" />

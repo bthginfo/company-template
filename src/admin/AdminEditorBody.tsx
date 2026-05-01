@@ -1128,7 +1128,7 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
         <HoursEditor data={data} setData={setData} />
         <div className="mt-4 pt-4 border-t border-line">
           <p className="text-sm font-medium mb-1">Google-Maps-Karte</p>
-          <p className="text-xs text-muted mb-3">Erscheint unter dem Kontaktformular.</p>
+          <p className="text-xs text-muted mb-3">Erscheint unter dem Kontaktformular. Am besten die volle URL aus der Browser-Adressleiste einfügen (nicht den kurzen maps.app.goo.gl-Link).</p>
           <Field label="Google-Maps-URL">
             <input className={inputCls} value={data.contact.mapsUrl || ''} onChange={(e) => setData({ ...data, contact: { ...data.contact, mapsUrl: e.target.value } })} placeholder="https://maps.google.com/..." />
           </Field>
