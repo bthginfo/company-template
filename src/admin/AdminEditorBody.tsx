@@ -1048,24 +1048,24 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
     <>
       <SectionCard title="Seiten-Header" badge="Sektion 1">
         <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Über uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
-        {isModern && (
+        {isModern && !isExtra && (
           <ImagePickerField label="Header-Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
         )}
       </SectionCard>
-      <SectionCard title={isModern ? 'Einleitung & Sidebar' : 'Geschichte / Erzählung'} description={isModern ? 'Fließtext links, Kennzahlen-Sidebar rechts.' : 'Längerer Fließtext mit Bild.'} badge="Sektion 2" pageKey="about" sectionKey="intro" data={data} setData={setData}>
-        {isModern && <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />}
-        {(isExtra || !isModern) && (
-          <Field label="Überschrift">
+      <SectionCard title={isModern && !isExtra ? 'Einleitung & Sidebar' : 'Geschichte / Erzählung'} description={isModern && !isExtra ? 'Fließtext links, Kennzahlen-Sidebar rechts.' : 'Längerer Fließtext mit Bild.'} badge="Sektion 2" pageKey="about" sectionKey="intro" data={data} setData={setData}>
+        {isModern && !isExtra && <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />}
+        {isExtra && (
+          <Field label="Überschrift" hint="Erscheint als Zwischenüberschrift neben dem Bild.">
             <input className={inputCls} value={data.about?.title || ''} onChange={(e) => aboutPatch({ title: e.target.value })} />
           </Field>
         )}
         <Field label="Text" hint="Leerzeile = neuer Absatz.">
           <textarea className={inputCls} rows={9} value={data.about?.body || ''} onChange={(e) => aboutPatch({ body: e.target.value })} />
         </Field>
-        {!isModern && (
+        {(!isModern || isExtra) && (
           <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
         )}
-        {isModern && (
+        {isModern && !isExtra && (
           <div className="mt-4 pt-4 border-t border-line">
             <p className="text-sm font-medium mb-1">Sidebar-Kennzahlen</p>
             <p className="text-xs text-muted mb-3">Eigene Zahlen für die Sidebar neben dem Text. Leer lassen = Home-Zahlen.</p>
