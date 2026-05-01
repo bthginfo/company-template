@@ -88,6 +88,7 @@ export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
   ],
   contact: [
     { key: 'block',        label: 'Kontakt-Block',            description: 'Formular + Kontaktdaten + Öffnungszeiten.' },
+    { key: 'locations',    label: 'Weitere Standorte',        description: 'Zusätzliche Filialen / Zweigstellen.' },
     { key: 'arrival',      label: 'Wegbeschreibung',          description: 'Wie Gäste anreisen + Karte.' },
     { key: 'faq',          label: 'FAQ',                      description: 'Häufige Fragen.' },
     { key: 'cta',          label: 'Abschluss-CTA',            description: 'CTA-Band oberhalb des Footers.' },
@@ -104,7 +105,7 @@ const DEFAULT_SUBPAGE_ORDERS: Record<Exclude<PageId, 'home'>, string[]> = {
   services: ['highlights', 'list', 'module', 'process', 'faq', 'cta'],
   gallery:  ['story', 'grid', 'categories', 'cta'],
   about:    ['intro', 'values', 'timeline', 'team', 'numbers', 'certifications', 'press', 'testimonials', 'cta'],
-  contact:  ['block', 'arrival', 'cta'],
+  contact:  ['block', 'locations', 'arrival', 'cta'],
 };
 
 export function getDefaultSubpageOrder(page: Exclude<PageId, 'home'>, variant?: Variant): string[] {

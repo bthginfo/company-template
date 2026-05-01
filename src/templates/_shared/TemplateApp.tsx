@@ -1068,11 +1068,11 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
   const href = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
   
   if (style === 'modern') {
-    // Modern: prefer explicit CTA override, then branchText softCta fields
+    // Modern: prefer softCta branchText fields, then CTA override as fallback
     const eyebrow = (bt.softCtaEyebrow && bt.softCtaEyebrow.trim()) || '';
-    const title = (ov?.lead && ov.lead.trim()) || (bt.softCtaTitle && bt.softCtaTitle.trim()) || '';
-    const sub = (ov?.sub && ov.sub.trim()) || (bt.softCtaText && bt.softCtaText.trim()) || '';
-    const cta = (ov?.cta && ov.cta.trim()) || (bt.softCtaButton && bt.softCtaButton.trim()) || '';
+    const title = (bt.softCtaTitle && bt.softCtaTitle.trim()) || (ov?.lead && ov.lead.trim()) || '';
+    const sub = (bt.softCtaText && bt.softCtaText.trim()) || (ov?.sub && ov.sub.trim()) || '';
+    const cta = (bt.softCtaButton && bt.softCtaButton.trim()) || (ov?.cta && ov.cta.trim()) || '';
     
     return (
       <section className="py-24 surface">
@@ -1747,7 +1747,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   // map under the form to avoid showing two Google Maps embeds back-to-back.
   const arrivalEnabled = isSectionEnabled(content, 'contact', 'arrival') && order.includes('arrival');
   const arrivalOv = ((content as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
-  const locs: Array<{ name: string; phone?: string; email?: string; address?: string; city?: string; hours?: { day: string; time: string }[]; mapsUrl?: string }> = (content as any).locations ?? [];
+  const locs = content.locations ?? [];
   const blocks: Record<string, JSX.Element | null> = {
     block: <ContactBlock content={content} showMap={!arrivalEnabled} />,
     locations: locs.length ? (
