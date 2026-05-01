@@ -2917,29 +2917,17 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
     data, setData, 'ctaBandOverride',
     { lead: '', sub: '', cta: '', ctaHref: '/kontakt', eyebrow: '', leadAccent: '' },
   );
-  
-  const isClassic = _ctx.style === 'classic';
-  const isBold = _ctx.style === 'bold';
 
   return (
     <>
-      {/* Classic: shows eyebrow & leadAccent */}
-      {isClassic && (
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Bereit?. Leer = ausgeblendet.">
-            <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
-          </Field>
-          <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Standard: Schreiben Sie uns. Leer = ausgeblendet.">
-            <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder="Schreiben Sie uns." />
-          </Field>
-        </div>
-      )}
-      
-      {isBold && (
-        <div className="text-sm text-muted bg-surface rounded p-3 mb-4">
-          <p>Im Bold Stil wird nur die Headline und der Call-to-Action gezeigt – ohne Eyebrow und Akzent-Zeile.</p>
-        </div>
-      )}
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Field label="Eyebrow (kleine Zeile darüber)" hint="Erscheint im Classic-CTA und auf Unterseiten. Leer = Standard (Bereit?).">
+          <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
+        </Field>
+        <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Erscheint im Classic-CTA und auf Unterseiten. Leer = Standard.">
+          <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder="Schreiben Sie uns." />
+        </Field>
+      </div>
       
       <Field label="Headline" hint="Große Hauptzeile (z. B. Hunger?, Termin?, Auftrag?).">
         <input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} placeholder={def.lead} />
