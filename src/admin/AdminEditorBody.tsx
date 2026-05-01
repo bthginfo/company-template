@@ -1790,6 +1790,28 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   heroEyebrow: { label: 'Hero Eyebrow (Bold)', hint: 'Bold-Style: kleine Zeile direkt über dem riesigen Titel.' },
 };
 
+/** Local-state wrapper so commas and spaces aren't stripped on every keystroke. */
+function MarqueeWordsInput({ label, hint, committed, placeholder, inputCls, onCommit }: {
+  label: string; hint?: string; committed: string; placeholder: string; inputCls: string;
+  onCommit: (raw: string) => void;
+}) {
+  const [local, setLocal] = useState(committed);
+  const [focused, setFocused] = useState(false);
+  useEffect(() => { if (!focused) setLocal(committed); }, [committed, focused]);
+  return (
+    <Field label={label} hint={hint}>
+      <input
+        className={inputCls}
+        value={local}
+        onChange={(e) => setLocal(e.target.value)}
+        onBlur={() => { setFocused(false); onCommit(local); }}
+        onFocus={() => setFocused(true)}
+        placeholder={placeholder}
+      />
+    </Field>
+  );
+}
+
 function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: BranchTextKey[] }) {
   const bt = ((data as any).branchText ?? {}) as Record<string, any>;
   const def = branchTextDefaults(tpl);
@@ -1804,18 +1826,20 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
         if (key === 'marqueeWords') {
           const arr = Array.isArray(bt.marqueeWords) ? bt.marqueeWords : [];
           const placeholder = (def as any).marqueeWords?.join?.(', ') ?? '';
+          const committed = arr.join(', ');
           return (
-            <Field key={key} label={meta.label} hint={meta.hint}>
-              <input
-                className={inputCls}
-                value={arr.join(', ')}
-                onChange={(e) => {
-                  const next = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
-                  update({ marqueeWords: next });
-                }}
-                placeholder={placeholder}
-              />
-            </Field>
+            <MarqueeWordsInput
+              key={key}
+              label={meta.label}
+              hint={meta.hint}
+              committed={committed}
+              placeholder={placeholder}
+              inputCls={inputCls}
+              onCommit={(raw) => {
+                const next = raw.split(',').map((s) => s.trim()).filter(Boolean);
+                update({ marqueeWords: next });
+              }}
+            />
           );
         }
         if (key === 'learnMoreHref' || key === 'servicesAllHref') {
