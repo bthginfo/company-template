@@ -1069,8 +1069,8 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         )}
         <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
       </SectionCard>
-      <SectionCard title="Zahlen-Band" badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
-        <NumbersEditor data={data} setData={setData} tpl={tpl} />
+      <SectionCard title="Sidebar-Zahlen" description="Eigene Kennzahlen für die Über-uns-Seite. Leer lassen = Home-Zahlen werden übernommen." badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
+        <NumbersEditor data={data} setData={setData} tpl={tpl} field="aboutNumbers" />
       </SectionCard>
       {cfg.about.extras.includes('certifications') && (
         <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 7" pageKey="about" sectionKey="certifications" data={data} setData={setData}>
@@ -2757,8 +2757,8 @@ function TeamEditor({ data, setData, defaults }: SetterProps & { defaults: { n: 
   );
 }
 
-function NumbersEditor({ data, setData, tpl }: SectionProps) {
-  const [list, set] = useExtra<{ value: string; label: string }[]>(data, setData, 'numbers', defaultNumbers(tpl));
+function NumbersEditor({ data, setData, tpl, field = 'numbers' }: SectionProps & { field?: string }) {
+  const [list, set] = useExtra<{ value: string; label: string }[]>(data, setData, field, field === 'numbers' ? defaultNumbers(tpl) : []);
   return (
     <RepeatableList items={list} onChange={set} newItem={() => ({ value: '', label: '' })} addLabel="+ Zahl hinzufügen"
       render={(v, _i, setItem) => (

@@ -146,6 +146,12 @@ function resolveHeroMeta(variant: TemplateVariant, content: SiteContent): { labe
   if (overlay && overlay.length) return overlay.map((n) => ({ label: n.label, value: n.value }));
   return VARIANT_HERO_META[variant];
 }
+/** About-sidebar stats: uses aboutNumbers if set, else falls back to global numbers/defaults. */
+function resolveAboutMeta(variant: TemplateVariant, content: SiteContent): { label: string; value: string }[] {
+  const about = (content as any).aboutNumbers as { value: string; label: string }[] | undefined;
+  if (about && about.length) return about.map((n) => ({ label: n.label, value: n.value }));
+  return resolveHeroMeta(variant, content);
+}
 function resolveFaq(variant: TemplateVariant, content: SiteContent): { q: string; a: string }[] {
   const overlay = (content as any).faq as { q: string; a: string }[] | undefined;
   if (overlay && overlay.length) return overlay;
@@ -1513,7 +1519,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
           <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
             <p className="eyebrow mb-4">{effectiveBranchText(variant, content).aboutSidebarEyebrow}</p>
             <dl className="space-y-3 text-sm">
-              {resolveHeroMeta(variant, content).map((m, i) => (
+              {resolveAboutMeta(variant, content).map((m, i) => (
                 <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
                   <dt className="text-muted">{m.label}</dt>
                   <dd className="font-display">{m.value}</dd>
