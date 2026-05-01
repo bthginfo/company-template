@@ -1080,15 +1080,16 @@ function CtaBand({ variant, content, page }: { variant: TemplateVariant; content
 
 function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: 'modern' | 'bold' }) {
   const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string; eyebrow?: string } | undefined;
-  // Read raw branchText (without merged defaults) so explicit user values win
+  // Read raw branchText first, then merged defaults so empty tenant payloads still render.
   const rawBt = ((content as any)?.branchText ?? {}) as Record<string, string>;
+  const bt = effectiveBranchText(variant, content);
   const href = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
   
-  // Single priority chain for all styles: ctaBandOverride → raw branchText → inline fallback
-  const eyebrow = (ov?.eyebrow && ov.eyebrow.trim()) || (rawBt.softCtaEyebrow && rawBt.softCtaEyebrow.trim()) || '';
-  const title = (ov?.lead && ov.lead.trim()) || (rawBt.softCtaTitle && rawBt.softCtaTitle.trim()) || '';
-  const sub = (ov?.sub && ov.sub.trim()) || (rawBt.softCtaText && rawBt.softCtaText.trim()) || '';
-  const cta = (ov?.cta && ov.cta.trim()) || (rawBt.softCtaButton && rawBt.softCtaButton.trim()) || '';
+  // Single priority chain for all styles: ctaBandOverride → raw branchText → merged branch defaults → inline fallback
+  const eyebrow = (ov?.eyebrow && ov.eyebrow.trim()) || (rawBt.softCtaEyebrow && rawBt.softCtaEyebrow.trim()) || bt.softCtaEyebrow || '';
+  const title = (ov?.lead && ov.lead.trim()) || (rawBt.softCtaTitle && rawBt.softCtaTitle.trim()) || bt.softCtaTitle || '';
+  const sub = (ov?.sub && ov.sub.trim()) || (rawBt.softCtaText && rawBt.softCtaText.trim()) || bt.softCtaText || '';
+  const cta = (ov?.cta && ov.cta.trim()) || (rawBt.softCtaButton && rawBt.softCtaButton.trim()) || bt.softCtaButton || '';
   
   if (style === 'modern') {
     return (
