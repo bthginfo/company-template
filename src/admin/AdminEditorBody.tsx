@@ -652,6 +652,7 @@ function homeSectionsFor(t: TemplateKey) {
 
 function HomePageEditor({ data, setData, tpl }: SectionProps) {
   const set = (patch: Partial<SiteContent>) => setData({ ...data, ...patch });
+  const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
   const announcements = (data as any).announcements as string[] | undefined;
   return (
     <>
@@ -682,7 +683,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             <input className={inputCls} value={data.hero.subtitle || ''} onChange={(e) => set({ hero: { ...data.hero, subtitle: e.target.value } })} />
           </Field>
         )}
-        {_ctx.style !== 'bold' && (
+        {_ctx.style !== 'bold' && !isExtra && (
           <Field label="Beschreibungstext" hint="Längerer Fließtext unter dem Untertitel – beschreibt das Angebot in 1–3 Sätzen.">
             <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
           </Field>

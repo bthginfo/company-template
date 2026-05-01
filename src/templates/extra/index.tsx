@@ -3,7 +3,7 @@ import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import type { SiteContent, PageId } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/components/fx';
 import Seo from '@/components/Seo';
-import { BasePathProvider, useBasePath, withBase } from '@/components/site-blocks';
+import { BasePathProvider, useBasePath, withBase, SafeMapEmbed } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
@@ -30,6 +30,13 @@ function effectiveBranchText(branch: ExtraBranchKey, content?: SiteContent) {
       }),
     ),
   } as ReturnType<typeof branchTextDefaults>;
+}
+
+/** Pull a per-page header override from content extras (set by admin's PageHeaderEditor). */
+function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader'): { eyebrow: string; title: string; subtitle: string } | null {
+  const v = (content as any)[key];
+  if (!v || typeof v !== 'object') return null;
+  return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || '') };
 }
 
 export type ExtraStyle = 'classic' | 'modern' | 'bold';
@@ -128,6 +135,12 @@ function PageHero({ eyebrow, title, style }: { eyebrow: string; title: string; s
 }
 
 /* ─── Sub-page renderer (services / gallery / about / contact) ──── */
+const PAGE_HEADER_KEY: Record<Exclude<ExtraPage, 'home'>, 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader'> = {
+  services: 'servicesHeader',
+  gallery: 'galleryHeader',
+  about: 'aboutHeader',
+  contact: 'contactPageHeader',
+};
 function SubPage({ content, branch, page, style, eyebrow }: {
   content: SiteContent;
   branch: ExtraBranchKey;
@@ -135,10 +148,13 @@ function SubPage({ content, branch, page, style, eyebrow }: {
   style: ExtraStyle;
   eyebrow: string;
 }) {
-  const title = PAGE_TITLES[page];
+  const ho = pageHeaderOverride(content, PAGE_HEADER_KEY[page]);
+  const bt = effectiveBranchText(branch, content);
+  const title = ho?.title || PAGE_TITLES[page];
+  const heroEyebrow = ho?.eyebrow || eyebrow;
   return (
     <>
-      <PageHero eyebrow={eyebrow} title={title} style={style} />
+      <PageHero eyebrow={heroEyebrow} title={title} style={style} />
 
       {page === 'services' && (
         <>
@@ -203,8 +219,8 @@ function SubPage({ content, branch, page, style, eyebrow }: {
           {content.testimonials.length > 0 && (
             <section className="py-16 md:py-24 surface">
               <div className="container-x">
-                <p className="eyebrow mb-5 reveal">Stimmen</p>
-                <h2 className="headline-lg max-w-3xl reveal mb-12">Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></h2>
+                <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
+                <h2 className="headline-lg max-w-3xl reveal mb-12">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
                 <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
                   {content.testimonials.map((t, i) => (
                     <figure key={i} className="bg-white border border-line rounded-3xl p-7">
@@ -219,7 +235,12 @@ function SubPage({ content, branch, page, style, eyebrow }: {
         </>
       )}
 
-      {page === 'contact' && <ContactSection content={content} variant={style} />}
+      {page === 'contact' && (
+        <>
+          <ContactSection content={content} variant={style} />
+          <LocationsBlock content={content} />
+        </>
+      )}
     </>
   );
 }
@@ -273,10 +294,10 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
             <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
               <div className="md:col-span-7 reveal">
                 <p className="eyebrow mb-5">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
-                <h2 className="headline-lg">Was wir<br /><em className="italic-pop">für Sie tun.</em></h2>
+                <h2 className="headline-lg">{bt.servicesTeaserTitle || <>Was wir<br /><em className="italic-pop">für Sie tun.</em></>}</h2>
               </div>
               <p className="md:col-span-5 text-lg text-muted reveal">
-                Eine Auswahl aus unserem Repertoire. Mehr im persönlichen Gespräch.
+                {bt.teaserSubtitle || 'Eine Auswahl aus unserem Repertoire. Mehr im persönlichen Gespräch.'}
               </p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
@@ -310,7 +331,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
           <div className="container-x">
             <div className="mb-12 reveal">
               <p className="eyebrow mb-5">{bt.galleryTeaserEyebrow || 'Eindrücke'}</p>
-              <h2 className="headline-lg">Bilder aus<br /><em className="italic-pop">unserem Alltag.</em></h2>
+              <h2 className="headline-lg">{bt.galleryTeaserTitle || <>Bilder aus<br /><em className="italic-pop">unserem Alltag.</em></>}</h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 reveal-stagger">
               {content.gallery.map((src, i) => {
@@ -329,8 +350,8 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
       {content.testimonials.length > 0 && (
         <section className="py-24 md:py-32">
           <div className="container-x">
-            <p className="eyebrow mb-5 reveal">Stimmen</p>
-            <h2 className="headline-lg max-w-3xl reveal">Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></h2>
+            <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
+            <h2 className="headline-lg max-w-3xl reveal">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
             <div className="mt-14 grid md:grid-cols-3 gap-5 reveal-stagger">
               {content.testimonials.map((t, i) => (
                 <figure key={i} className="bg-[var(--surface-color)] border border-line rounded-3xl p-7">
@@ -343,7 +364,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         </section>
       )}
 
-      <NewsPreview content={content} />
+      <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />
       <ContactSection content={content} variant="classic" />
     </>
   );
@@ -440,8 +461,8 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
           <div className="container-x">
             <div className="max-w-2xl reveal mb-16">
               <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
-              <h2 className="font-display text-4xl md:text-5xl">Was Sie bekommen.</h2>
-              <p className="mt-4 text-lg text-muted">Klar definierte Pakete – keine versteckten Kosten.</p>
+              <h2 className="font-display text-4xl md:text-5xl">{bt.servicesTeaserTitle || 'Was Sie bekommen.'}</h2>
+              <p className="mt-4 text-lg text-muted">{bt.teaserSubtitle || 'Klar definierte Pakete – keine versteckten Kosten.'}</p>
             </div>
             <div className="grid md:grid-cols-2 gap-4 reveal-stagger">
               {content.services.map((s, i) => (
@@ -474,7 +495,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
             <div className="flex items-end justify-between gap-6 mb-12 reveal">
               <div>
                 <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.galleryTeaserEyebrow || 'Galerie'}</p>
-                <h2 className="font-display text-4xl md:text-5xl">Eindrücke.</h2>
+                <h2 className="font-display text-4xl md:text-5xl">{bt.galleryTeaserTitle || 'Eindrücke.'}</h2>
               </div>
               <p className="text-sm text-muted hidden md:block max-w-xs">Aktuelle Aufnahmen aus unserem Alltag.</p>
             </div>
@@ -496,7 +517,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
       {content.testimonials.length > 0 && (
         <section className="py-24 md:py-32">
           <div className="container-x max-w-4xl mx-auto text-center reveal">
-            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-6">Stimmen</p>
+            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-6">{bt.testimonialsEyebrow || 'Stimmen'}</p>
             <blockquote className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight">
               „{content.testimonials[0].text}"
             </blockquote>
@@ -515,7 +536,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
         </section>
       )}
 
-      <NewsPreview content={content} />
+      <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />
       <ContactSection content={content} variant="modern" />
     </>
   );
@@ -525,6 +546,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
  *  BOLD — magazine: oversized type, full-bleed image, masonry, dramatic
  * ──────────────────────────────────────────────────────────────────── */
 function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+  const bt = effectiveBranchText(branch, content);
   return (
     <>
       {/* Hero — oversized headline overlapping image */}
@@ -626,7 +648,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
       {content.testimonials.length > 0 && (
         <section className="py-24 md:py-40 bg-brand text-white grain">
           <div className="container-x">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-white/60 mb-10 reveal">— Stimmen —</p>
+            <p className="font-mono text-xs uppercase tracking-[0.3em] text-white/60 mb-10 reveal">— {bt.testimonialsEyebrow || 'Stimmen'} —</p>
             <div className="grid md:grid-cols-2 gap-12 reveal-stagger">
               {content.testimonials.map((t, i) => (
                 <figure key={i} className="space-y-6">
@@ -640,7 +662,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         </section>
       )}
 
-      <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'Notizen.'} />
+      <NewsPreview content={content} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />
       <ContactSection content={content} variant="bold" />
     </>
   );
@@ -759,6 +781,65 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
           <div className="rounded-3xl overflow-hidden border border-line">
             <iframe src={mapSrc} title="Karte" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="block w-full aspect-[16/12] border-0" allow="fullscreen" />
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Locations block (mirrors TemplateApp contact locations) ──── */
+function LocationsBlock({ content }: { content: SiteContent }) {
+  const locs = content.locations ?? [];
+  if (!locs.length) return null;
+  return (
+    <section className="py-16 md:py-24">
+      <div className="container-x">
+        <p className="eyebrow mb-5 reveal">Standorte</p>
+        <h2 className="headline-lg reveal mb-12">Unsere <em className="italic-pop">Standorte.</em></h2>
+        <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
+          {locs.map((loc, i) => (
+            <article key={i} className="border border-line rounded-3xl p-7 hover-lift bg-white">
+              <h3 className="font-display text-2xl">{loc.name || `Standort ${i + 1}`}</h3>
+              <div className="mt-5 space-y-4 text-lg">
+                {loc.phone && (
+                  <a href={`tel:${loc.phone}`} className="block group">
+                    <p className="text-xs uppercase tracking-widest text-muted">Telefon</p>
+                    <p className="mt-1 text-xl font-display group-hover:translate-x-1 transition-transform">{loc.phone}</p>
+                  </a>
+                )}
+                {loc.email && (
+                  <a href={`mailto:${loc.email}`} className="block group">
+                    <p className="text-xs uppercase tracking-widest text-muted">E-Mail</p>
+                    <p className="mt-1 text-xl font-display group-hover:translate-x-1 transition-transform">{loc.email}</p>
+                  </a>
+                )}
+                {loc.address && (
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted">Adresse</p>
+                    <p className="mt-1">{loc.address}{loc.city ? `, ${loc.city}` : ''}</p>
+                  </div>
+                )}
+                {loc.hours && loc.hours.length > 0 && (
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted">Öffnungszeiten</p>
+                    <ul className="mt-2 grid grid-cols-[auto,1fr] gap-x-6 gap-y-1">
+                      {loc.hours.map((h, hi) => (
+                        <li key={hi} className="contents">
+                          <span className="font-medium">{h.day}</span>
+                          <span className="text-muted font-mono text-sm whitespace-nowrap">{h.time}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              {(loc.mapsUrl || loc.address) && (
+                <div className="mt-6">
+                  <SafeMapEmbed mapsUrl={loc.mapsUrl || ''} address={loc.address || ''} city={loc.city || ''} className="h-[200px]" />
+                </div>
+              )}
+            </article>
+          ))}
         </div>
       </div>
     </section>
