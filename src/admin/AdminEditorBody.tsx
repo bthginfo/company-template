@@ -1141,6 +1141,7 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
         <Toggle value={!!data.contact.mapsUrl} onChange={(v) => !v && setData({ ...data, contact: { ...data.contact, mapsUrl: '' } })} label="Karte auf der Kontakt-Seite anzeigen" />
       </SectionCard>
       <SectionCard title="Weitere Standorte" description="Zusätzliche Filialen oder Zweigstellen mit eigenen Kontaktdaten." badge="Sektion 6" pageKey="contact" sectionKey="locations" data={data} setData={setData}>
+        <ModuleHeadingFields data={data} setData={setData} mKey="locations" />
         <LocationsEditor data={data} setData={setData} />
       </SectionCard>
       <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 7" pageKey="contact" sectionKey="cta" data={data} setData={setData}>

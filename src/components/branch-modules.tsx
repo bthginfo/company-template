@@ -22,6 +22,7 @@ type Variant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'con
 export type ModuleHeadingKey =
   | 'menu' | 'rooms' | 'tours' | 'treatments' | 'courses'
   | 'packages' | 'process' | 'doctors' | 'booking' | 'funding'
+  | 'locations'
   | 'medicalInfo' | 'consultingSpotlight' | 'fitnessSpotlight'
   | 'teamConsulting' | 'teamMedical' | 'teamFitness';
 
@@ -38,6 +39,8 @@ export const MODULE_DEFAULTS: Record<ModuleHeadingKey, Required<ModuleHeading>> 
   doctors:    { eyebrow: 'Ärzt:innen & Team',   titleA: 'Menschen, denen Sie', titleB: 'vertrauen.', subtitle: 'Alle Ärzt:innen mit Facharzt-Anerkennung. Termine ausschließlich nach Vereinbarung – wir nehmen uns Zeit.' },
   booking:    { eyebrow: 'Termin online',       titleA: 'Online-Termin –', titleB: 'in 60 Sekunden.', subtitle: 'Buchen Sie Ihren Wunschtermin direkt – ohne Anruf, ohne Wartezeit. Stornierung bis 24 h vorher kostenfrei.' },
   funding:    { eyebrow: 'Förder-Kalkulator',   titleA: 'Was kostet Sie das', titleB: 'wirklich?',  subtitle: 'KfW, BAFA, regionale Programme: wir berechnen vor Auftrag, was Ihnen netto bleibt.' },
+  // Contact / locations
+  locations:  { eyebrow: 'Standorte',            titleA: 'Unsere',           titleB: 'Standorte.',          subtitle: '' },
   // Extra-branch spotlight headings (home page)
   medicalInfo:          { eyebrow: 'Service & Info',    titleA: 'Für Sie',          titleB: 'erreichbar.',         subtitle: 'Sprechzeiten, Online-Termin und Notfall-Kontakt auf einen Blick.' },
   consultingSpotlight:  { eyebrow: 'Vorgehen',          titleA: 'Wie wir',          titleB: 'arbeiten.',           subtitle: 'Strukturiert, transparent und immer mit klarem Ergebnis. Vier Etappen, kein Bullshit.' },

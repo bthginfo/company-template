@@ -34,6 +34,7 @@ import {
   FundingCalculatorModule,
   EmergencyStickyBanner,
   BranchModulesInline,
+  moduleHeading,
 } from '@/components/branch-modules';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
@@ -1764,7 +1765,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   const blocks: Record<string, JSX.Element | null> = {
     block: <ContactBlock content={content} showMap={!arrivalEnabled} />,
     locations: locs.length ? (
-      <Section eyebrow="Standorte" title={<>Unsere <em className="italic-pop">Standorte.</em></>}>
+      <Section eyebrow={moduleHeading(content, 'locations').eyebrow} title={moduleHeading(content, 'locations').title}>
         <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
           {locs.map((loc, i) => (
             <article key={i} className="border border-line rounded-3xl p-7 hover-lift bg-white">
