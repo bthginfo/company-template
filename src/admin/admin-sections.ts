@@ -68,43 +68,45 @@ export const GALLERY_TEASER_LIMIT: Record<TemplateStyle, number> = {
 const HOME_ORDER: Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>> = {
   restaurant: {
     classic: ['announcements', 'hero', 'actionStrip', 'signature', 'about', 'gallery', 'numbers', 'testimonials', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'logos', 'news', 'softCta'],
+    modern:  ['announcements', 'hero', 'actionStrip', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news', 'softCta'],
     bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'signature', 'numbers', 'gallery', 'about', 'testimonials', 'news', 'softCta'],
   },
   salon: {
     classic: ['announcements', 'hero', 'actionStrip', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'signature', 'gallery', 'testimonials', 'about', 'numbers', 'logos', 'news', 'softCta'],
+    modern:  ['announcements', 'hero', 'actionStrip', 'signature', 'gallery', 'testimonials', 'about', 'numbers', 'news', 'softCta'],
     bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news', 'softCta'],
   },
   tradesman: {
     classic: ['announcements', 'hero', 'actionStrip', 'services', 'funding', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'numbers', 'services', 'funding', 'signature', 'gallery', 'about', 'testimonials', 'logos', 'news', 'softCta'],
+    modern:  ['announcements', 'hero', 'actionStrip', 'numbers', 'services', 'funding', 'signature', 'gallery', 'about', 'testimonials', 'news', 'softCta'],
     bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'services', 'funding', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news', 'softCta'],
   },
   hotel: {
     classic: ['announcements', 'hero', 'actionStrip', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'logos', 'news', 'softCta'],
+    modern:  ['announcements', 'hero', 'actionStrip', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news', 'softCta'],
     bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'gallery', 'signature', 'numbers', 'about', 'testimonials', 'news', 'softCta'],
   },
   tourism: {
     classic: ['announcements', 'hero', 'actionStrip', 'gallery', 'signature', 'about', 'testimonials', 'numbers', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'logos', 'news', 'softCta'],
+    modern:  ['announcements', 'hero', 'actionStrip', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news', 'softCta'],
     bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'gallery', 'numbers', 'signature', 'about', 'testimonials', 'news', 'softCta'],
   },
+  /* Extra branches — mirrors EXTRA_HOME_ORDER in page-layout.ts.
+     branchModules/team/contact are edited on their own pages, not shown here. */
   consulting: {
-    classic: ['announcements', 'hero', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'testimonials', 'numbers', 'news', 'softCta', 'spotlight', 'heroBadge'],
-    modern:  ['announcements', 'hero', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'testimonials', 'numbers', 'logos', 'news', 'softCta', 'spotlight', 'heroBadge'],
-    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'numbers', 'testimonials', 'news', 'softCta', 'spotlight', 'heroBadge'],
+    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
   },
   medical: {
-    classic: ['announcements', 'hero', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'testimonials', 'numbers', 'news', 'softCta', 'spotlight', 'heroBadge'],
-    modern:  ['announcements', 'hero', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'testimonials', 'numbers', 'logos', 'news', 'softCta', 'spotlight', 'heroBadge'],
-    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'numbers', 'testimonials', 'news', 'softCta', 'spotlight', 'heroBadge'],
+    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
   },
   fitness: {
-    classic: ['announcements', 'hero', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'testimonials', 'numbers', 'news', 'softCta', 'spotlight', 'heroBadge'],
-    modern:  ['announcements', 'hero', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'testimonials', 'numbers', 'logos', 'news', 'softCta', 'spotlight', 'heroBadge'],
-    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'actionStrip', 'services', 'about', 'gallery', 'numbers', 'testimonials', 'news', 'softCta', 'spotlight', 'heroBadge'],
+    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
   },
 };
 
