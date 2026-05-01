@@ -1228,6 +1228,33 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
         </p>
       </SectionCard>
 
+      <SectionCard
+        title="CTA-Button (Navigation)"
+        description="Der hervorgehobene Button oben rechts in der Navigation. Erscheint im Desktop-Header und im mobilen Menü."
+      >
+        {(() => {
+          const nc = ((data as any).navCta ?? {}) as { label?: string; href?: string };
+          const setNc = (patch: Partial<{ label: string; href: string }>) => {
+            setData({ ...(data as any), navCta: { ...nc, ...patch } } as SiteContent);
+          };
+          const def = navDefaultsFor(tpl);
+          const lastNav = def[def.length - 1];
+          return (
+            <>
+              <Field label="Button-Text" hint={`Leer = Standard ("${lastNav?.label || 'Termin'}")`}>
+                <input className={inputCls} value={nc.label || ''} onChange={(e) => setNc({ label: e.target.value })} placeholder={lastNav?.label || 'Termin'} />
+              </Field>
+              <LinkTargetField
+                label="Button-Ziel"
+                value={nc.href || ''}
+                onChange={(href) => setNc({ href })}
+                sections={homeSectionsFor(tpl)}
+              />
+            </>
+          );
+        })()}
+      </SectionCard>
+
       <SectionCard title="Footer-Tagline" description="Kleiner Untertitel-Text neben dem Markennamen im Footer.">
         <Field label="Tagline">
           <input className={inputCls} value={footer.tagline || ''} onChange={(e) => setFooter({ tagline: e.target.value })} placeholder={data.brand.tagline || ''} />

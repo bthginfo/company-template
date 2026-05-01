@@ -138,9 +138,12 @@ export function SiteHeader({
                 {n.label}
               </NavLink>
             ))}
-            <Link to={`${basePath}/kontakt`} className="ml-4 btn-primary !py-2.5 !px-5 text-sm">
-              Termin <span aria-hidden>→</span>
-            </Link>
+            {(() => {
+              const nc = (content as any)?.navCta as { label?: string; href?: string } | undefined;
+              const ctaLabel = (nc?.label && nc.label.trim()) || 'Termin';
+              const ctaHref = (nc?.href && nc.href.trim()) || `${basePath}/kontakt`;
+              return <Link to={ctaHref} className="ml-4 btn-primary !py-2.5 !px-5 text-sm">{ctaLabel} <span aria-hidden>→</span></Link>;
+            })()}
           </nav>
 
           <button
@@ -187,9 +190,12 @@ export function SiteHeader({
                 {n.label}
               </NavLink>
             ))}
-            <Link to={`${basePath}/kontakt`} className="btn-primary mt-10 self-start">
-              Termin anfragen <span aria-hidden>→</span>
-            </Link>
+            {(() => {
+              const nc = (content as any)?.navCta as { label?: string; href?: string } | undefined;
+              const ctaLabel = (nc?.label && nc.label.trim()) || 'Termin anfragen';
+              const ctaHref = (nc?.href && nc.href.trim()) || `${basePath}/kontakt`;
+              return <Link to={ctaHref} className="btn-primary mt-10 self-start">{ctaLabel} <span aria-hidden>→</span></Link>;
+            })()}
           </nav>
         </div>,
         document.body,

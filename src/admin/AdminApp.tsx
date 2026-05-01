@@ -42,6 +42,8 @@ export function AdminApp() {
   // JSON snapshot of the last persisted state, used to detect unsaved edits
   // and warn the operator before they close the tab / navigate away.
   const [pristine, setPristine] = useState<string | null>(null);
+  // Cache tenant metadata so it survives the loading→ready cycle during save
+  const [tenant, setTenant] = useState<{ name: string; slug: string; template: string; style?: string } | null>(null);
   const isDirty = !!draft && pristine !== null && JSON.stringify(draft) !== pristine;
 
   useEffect(() => {
@@ -51,12 +53,20 @@ export function AdminApp() {
       .catch(() => setSession(null));
   }, []);
 
+  // Track whether we're in a save cycle to avoid resetting draft mid-save
+  const [justSaved, setJustSaved] = useState(false);
+
   useEffect(() => {
-    if (state.status === 'ready' && draft === null) {
-      setDraft(state.content);
-      setPristine(JSON.stringify(state.content));
+    if (state.status === 'ready') {
+      setTenant(state.tenant as any);
+      if (draft === null || justSaved) {
+        // Initial load or post-save: sync draft with fresh server data
+        setDraft(state.content);
+        setPristine(JSON.stringify(state.content));
+        setJustSaved(false);
+      }
     }
-  }, [state, draft]);
+  }, [state]);
 
   // Browser-level "unsaved changes" guard.
   useEffect(() => {
@@ -71,13 +81,13 @@ export function AdminApp() {
   }, [isDirty]);
 
   const tplKey = useMemo<TemplateKey>(
-    () => (state.status === 'ready' ? asTemplateKey(state.tenant.template) : 'restaurant'),
-    [state],
+    () => (tenant ? asTemplateKey(tenant.template) : 'restaurant'),
+    [tenant],
   );
 
   // Mirror the tenant's selected color scheme on the admin shell so
   // chrome (buttons, badges, focus rings) match the live site.
-  const presetId = state.status === 'ready' ? state.content?.brand?.themePresetId : undefined;
+  const presetId = draft?.brand?.themePresetId ?? undefined;
   useEffect(() => {
     if (!presetId) return;
     const preset = getPreset(tplKey, presetId);
@@ -97,13 +107,14 @@ export function AdminApp() {
     if (!draft) return;
     try {
       setSaving(true);
+      setJustSaved(true);
       await save(draft);
       const ts = new Date().toLocaleTimeString('de-DE');
       setSavedAt(ts);
-      setPristine(JSON.stringify(draft));
       setTimeout(() => setSavedAt(null), 5000);
       toast.success('Gespeichert', { description: `Alle Änderungen sind live · ${ts}` });
     } catch (e: any) {
+      setJustSaved(false);
       const msg = e?.message || String(e);
       toast.error('Speichern fehlgeschlagen', { description: msg });
     } finally {
@@ -117,7 +128,10 @@ export function AdminApp() {
   if (session === null) {
     return <Navigate to="/admin/login" replace />;
   }
-  if (state.status !== 'ready' || !draft) {
+  if (state.status !== 'ready' && !draft) {
+    return <div className="min-h-screen grid place-items-center text-slate-500">Lädt Inhalte …</div>;
+  }
+  if (!draft || !tenant) {
     return <div className="min-h-screen grid place-items-center text-slate-500">Lädt Inhalte …</div>;
   }
 
@@ -129,14 +143,14 @@ export function AdminApp() {
       onSave={onSave}
       saving={saving}
       savedAt={savedAt}
-      brandTitle={state.tenant.name}
+      brandTitle={tenant.name}
       previewUrlBase=""
       uploadImage={uploadImage}
-      style={(state.tenant.style as 'classic' | 'modern' | 'bold' | undefined) || 'classic'}
+      style={(tenant.style as 'classic' | 'modern' | 'bold' | undefined) || 'classic'}
       headerStatus={
         <div className="hidden md:flex items-center gap-3 text-xs">
           <span className="uppercase tracking-widest text-muted bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">
-            {session.role === 'super' ? 'Super-Admin' : state.tenant.slug}
+            {session.role === 'super' ? 'Super-Admin' : tenant.slug}
           </span>
           <button onClick={logout} className="text-rose-600 hover:underline">Abmelden</button>
         </div>

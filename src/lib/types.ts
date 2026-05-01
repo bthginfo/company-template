@@ -248,6 +248,15 @@ export const SiteContentSchema = z.object({
   }).optional().default({}),
 
   /**
+   * Navigation CTA button (top-right, e.g. "Termin" / "Reservieren").
+   * When empty the template uses a per-variant default.
+   */
+  navCta: z.object({
+    label: z.string().optional().default(''),
+    href: z.string().optional().default(''),
+  }).optional().default({}),
+
+  /**
    * Bottom CTA-band overrides shown above footer (lead/sub/button).
    * `ctaBandOverride` is the global / home default.
    * `ctaBandOverrides` holds optional per-subpage overrides keyed by page id.
