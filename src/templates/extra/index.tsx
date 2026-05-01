@@ -11,6 +11,7 @@ import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
+import { isSectionEnabled } from '@/lib/page-layout';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -30,6 +31,11 @@ function effectiveBranchText(branch: ExtraBranchKey, content?: SiteContent) {
       }),
     ),
   } as ReturnType<typeof branchTextDefaults>;
+}
+
+/** Shorthand: check if section is visible for extra-branch home page. */
+function $vis(content: SiteContent, key: string): boolean {
+  return isSectionEnabled(content, 'home', key);
 }
 
 /** Pull a per-page header override from content extras (set by admin's PageHeaderEditor). */
@@ -269,9 +275,9 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
           </div>
         </div>
       </section>
-      <BranchHeroBadges branch={branch} style="classic" content={content} />
+      {$vis(content, 'chips') && <BranchHeroBadges branch={branch} style="classic" content={content} />}
 
-      {content.about && (
+      {$vis(content, 'about') && content.about && (
         <section id="about" className="py-24 md:py-32 surface">
           <div className="container-x grid md:grid-cols-12 gap-10 items-center">
             <div className="md:col-span-5 reveal">
@@ -288,7 +294,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         </section>
       )}
 
-      {content.services.length > 0 && (
+      {$vis(content, 'services') && content.services.length > 0 && (
         <section id="leistungen" className="py-24 md:py-32">
           <div className="container-x">
             <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
@@ -322,11 +328,11 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         </section>
       )}
 
-      <BranchSpotlight branch={branch} style="classic" content={content} />
-      <BranchModulesInline variant={branch} content={content} />
-      <BranchTeam branch={branch} style="classic" content={content} />
+      {$vis(content, 'spotlight') && <BranchSpotlight branch={branch} style="classic" content={content} />}
+      {$vis(content, 'branchModules') && <BranchModulesInline variant={branch} content={content} />}
+      {$vis(content, 'team') && <BranchTeam branch={branch} style="classic" content={content} />}
 
-      {content.gallery.length > 0 && (
+      {$vis(content, 'gallery') && content.gallery.length > 0 && (
         <section id="galerie" className="py-24 md:py-32 surface">
           <div className="container-x">
             <div className="mb-12 reveal">
@@ -347,7 +353,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         </section>
       )}
 
-      {content.testimonials.length > 0 && (
+      {$vis(content, 'testimonials') && content.testimonials.length > 0 && (
         <section className="py-24 md:py-32">
           <div className="container-x">
             <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
@@ -364,8 +370,8 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         </section>
       )}
 
-      <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />
-      <ContactSection content={content} variant="classic" />
+      {$vis(content, 'news') && <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />}
+      {$vis(content, 'contact') && <ContactSection content={content} variant="classic" />}
     </>
   );
 }
@@ -440,10 +446,10 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
           </div>
         </div>
       </section>
-      <BranchHeroBadges branch={branch} style="modern" content={content} />
+      {$vis(content, 'chips') && <BranchHeroBadges branch={branch} style="modern" content={content} />}
 
       {/* About — sticky rail */}
-      {content.about && (
+      {$vis(content, 'about') && content.about && (
         <section id="about" className="py-24 md:py-32 surface">
           <div className="container-x grid lg:grid-cols-12 gap-10">
             <aside className="lg:col-span-4 reveal">
@@ -465,7 +471,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
       )}
 
       {/* Services — feature cards with bullet list */}
-      {content.services.length > 0 && (
+      {$vis(content, 'services') && content.services.length > 0 && (
         <section id="leistungen" className="py-24 md:py-32">
           <div className="container-x">
             <div className="max-w-2xl reveal mb-16">
@@ -493,12 +499,12 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
         </section>
       )}
 
-      <BranchSpotlight branch={branch} style="modern" content={content} />
-      <BranchModulesInline variant={branch} content={content} />
-      <BranchTeam branch={branch} style="modern" content={content} />
+      {$vis(content, 'spotlight') && <BranchSpotlight branch={branch} style="modern" content={content} />}
+      {$vis(content, 'branchModules') && <BranchModulesInline variant={branch} content={content} />}
+      {$vis(content, 'team') && <BranchTeam branch={branch} style="modern" content={content} />}
 
       {/* Gallery — uniform 3-col grid with caption labels */}
-      {content.gallery.length > 0 && (
+      {$vis(content, 'gallery') && content.gallery.length > 0 && (
         <section id="galerie" className="py-24 md:py-32 surface">
           <div className="container-x">
             <div className="flex items-end justify-between gap-6 mb-12 reveal">
@@ -523,7 +529,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
       )}
 
       {/* Testimonials — single big quote with avatars row */}
-      {content.testimonials.length > 0 && (
+      {$vis(content, 'testimonials') && content.testimonials.length > 0 && (
         <section className="py-24 md:py-32">
           <div className="container-x max-w-4xl mx-auto text-center reveal">
             <p className="text-xs font-mono uppercase tracking-widest text-muted mb-6">{bt.testimonialsEyebrow || 'Stimmen'}</p>
@@ -545,8 +551,8 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
         </section>
       )}
 
-      <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />
-      <ContactSection content={content} variant="modern" />
+      {$vis(content, 'news') && <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />}
+      {$vis(content, 'contact') && <ContactSection content={content} variant="modern" />}
     </>
   );
 }
@@ -578,9 +584,10 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
           </div>
         </div>
       </section>
-      <BranchHeroBadges branch={branch} style="bold" content={content} />
+      {$vis(content, 'chips') && <BranchHeroBadges branch={branch} style="bold" content={content} />}
 
       {/* Marquee separator */}
+      {$vis(content, 'marquee') && (
       <div className="border-y border-line py-8 overflow-hidden">
         <div className="flex gap-12 whitespace-nowrap animate-[marquee_25s_linear_infinite] font-display text-4xl md:text-6xl">
           {Array.from({ length: 6 }).flatMap((_, i) => [
@@ -589,9 +596,10 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
           ])}
         </div>
       </div>
+      )}
 
       {/* About — oversized number + body */}
-      {content.about && (
+      {$vis(content, 'about') && content.about && (
         <section id="about" className="py-24 md:py-40">
           <div className="container-x grid md:grid-cols-12 gap-10">
             <div className="md:col-span-2 reveal">
@@ -611,7 +619,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
       )}
 
       {/* Services — stacked numbered list */}
-      {content.services.length > 0 && (
+      {$vis(content, 'services') && content.services.length > 0 && (
         <section id="leistungen" className="py-24 md:py-40 surface">
           <div className="container-x">
             <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
@@ -636,12 +644,12 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         </section>
       )}
 
-      <BranchSpotlight branch={branch} style="bold" content={content} />
-      <BranchModulesInline variant={branch} content={content} />
-      <BranchTeam branch={branch} style="bold" content={content} />
+      {$vis(content, 'spotlight') && <BranchSpotlight branch={branch} style="bold" content={content} />}
+      {$vis(content, 'branchModules') && <BranchModulesInline variant={branch} content={content} />}
+      {$vis(content, 'team') && <BranchTeam branch={branch} style="bold" content={content} />}
 
       {/* Gallery — true masonry */}
-      {content.gallery.length > 0 && (
+      {$vis(content, 'gallery') && content.gallery.length > 0 && (
         <section id="galerie" className="py-24 md:py-40">
           <div className="container-x">
             <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
@@ -654,7 +662,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
       )}
 
       {/* Testimonials — full-bleed dark band with rotating quotes */}
-      {content.testimonials.length > 0 && (
+      {$vis(content, 'testimonials') && content.testimonials.length > 0 && (
         <section className="py-24 md:py-40 bg-brand text-white grain">
           <div className="container-x">
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-white/60 mb-10 reveal">— {bt.testimonialsEyebrow || 'Stimmen'} —</p>
@@ -671,8 +679,8 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         </section>
       )}
 
-      <NewsPreview content={content} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />
-      <ContactSection content={content} variant="bold" />
+      {$vis(content, 'news') && <NewsPreview content={content} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />}
+      {$vis(content, 'contact') && <ContactSection content={content} variant="bold" />}
     </>
   );
 }

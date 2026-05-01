@@ -41,13 +41,18 @@ export type SectionDef = {
 export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
   home: [
     { key: 'action',       label: 'Aktions-Leiste',           description: 'Branchenspezifische Info-Leiste direkt unter dem Hero.' },
-    { key: 'signature',    label: 'Branchen-Signatur',        description: 'Variantenspezifischer Akzent-Block (z. B. Manifest).' },
+    { key: 'chips',        label: 'Branchen-Stichworte',      description: 'Kurze Schlagwörter direkt unter dem Hero.', variants: ['consulting', 'medical', 'fitness'] },
+    { key: 'marquee',      label: 'Schlagwort-Band',          description: 'Großes Wortband unter dem Hero.', styles: ['bold'] },
+    { key: 'signature',    label: 'Branchen-Signatur',        description: 'Variantenspezifischer Akzent-Block (z. B. Manifest).', variants: ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism'] },
     { key: 'services',     label: 'Leistungen / Speisekarte', description: 'Highlight-Liste der Hauptleistungen.' },
     { key: 'menu',         label: 'Speisekarte (Modul)',      description: 'Kategorisierte Speisekarte mit Allergenen.', variants: ['restaurant'] },
     { key: 'rooms',        label: 'Zimmer (Modul)',           description: 'Zimmer-Showcase mit Preisen.', variants: ['hotel'] },
     { key: 'tours',        label: 'Touren (Modul)',           description: 'Tour-Karten mit Schwierigkeitsgrad.', variants: ['tourism'] },
     { key: 'treatments',   label: 'Treatments (Modul)',       description: 'Behandlungsliste mit Dauer & Preis.', variants: ['salon'] },
     { key: 'funding',      label: 'Förderrechner (Modul)',    description: 'KfW / BAFA Förderübersicht.', variants: ['tradesman'] },
+    { key: 'spotlight',    label: 'Branchen-Spotlight',       description: 'Vorgehen / Service-Info / Programme.', variants: ['consulting', 'medical', 'fitness'] },
+    { key: 'branchModules',label: 'Branchen-Module',          description: 'Packages / Doctors / Courses etc.', variants: ['consulting', 'medical', 'fitness'] },
+    { key: 'team',         label: 'Team',                     description: 'Team-Sektion auf der Startseite.', variants: ['consulting', 'medical', 'fitness'] },
     { key: 'about',        label: 'Über uns',                 description: 'Über-uns-Teaser auf der Startseite.' },
     { key: 'gallery',      label: 'Galerie',                  description: 'Galerie-Vorschau auf der Startseite.' },
     { key: 'numbers',      label: 'Zahlen-Band',              description: 'Vier Eckdaten als Stat-Strip.' },
@@ -56,6 +61,7 @@ export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
     { key: 'faq',          label: 'FAQ',                      description: 'Häufige Fragen mit Akkordeon.', styles: ['classic', 'modern'] },
     { key: 'news',         label: 'News-Teaser',              description: 'Neueste Beiträge.' },
     { key: 'softCta',      label: 'Soft-CTA',                 description: 'CTA-Block am Seitenende.' },
+    { key: 'contact',      label: 'Kontakt-Sektion',          description: 'Kontakt-Block am Seitenende (Extra-Branches).', variants: ['consulting', 'medical', 'fitness'] },
   ],
   services: [
     { key: 'highlights',   label: 'Highlights-Ribbon',        description: 'Vier kurze Highlights direkt unter dem Hero.' },
@@ -117,6 +123,28 @@ export function getDefaultSubpageOrder(page: Exclude<PageId, 'home'>, variant?: 
   }
   return [...DEFAULT_SUBPAGE_ORDERS[page]];
 }
+
+/* ─────────────────────────────────────────────────────────────────
+ * EXTRA HOME ORDERS — 3 extra branches × 3 styles = 9 flows.
+ * Used by extra/index.tsx when no custom sectionOrder is set.
+ * ────────────────────────────────────────────────────────────────── */
+export const EXTRA_HOME_ORDER: Record<'consulting' | 'medical' | 'fitness', Record<Style, string[]>> = {
+  consulting: {
+    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+  },
+  medical: {
+    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+  },
+  fitness: {
+    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+  },
+};
 
 /* ─────────────────────────────────────────────────────────────────
  * Helpers used by the renderer + admin

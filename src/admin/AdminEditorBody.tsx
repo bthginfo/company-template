@@ -710,18 +710,18 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         })()}
       </SectionCard>
 
-      <SectionCard title="Aktionsleiste" description="Schmaler Streifen direkt unter dem Hero-Bereich (z. B. „Heute geöffnet · Tisch reservieren · Speisekarte ansehen“)." badge="Sektion 2b">
+      <SectionCard title="Aktionsleiste" description="Schmaler Streifen direkt unter dem Hero-Bereich (z. B. „Heute geöffnet · Tisch reservieren · Speisekarte ansehen“)." badge="Sektion 2b" pageKey="home" sectionKey="action" data={data} setData={setData}>
         <HomeStripEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
       {cfg.home.branchChips && (
-        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 2c">
+        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 2c" pageKey="home" sectionKey="chips" data={data} setData={setData}>
           <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
         </SectionCard>
       )}
 
       {$s(cfg.home.marqueeWords) && (
-        <SectionCard title="Schlagwort-Band" description="Großes Wortband direkt unter dem Hero – setzt das Profil mit kurzen Begriffen." badge="Sektion 2c">
+        <SectionCard title="Schlagwort-Band" description="Großes Wortband direkt unter dem Hero – setzt das Profil mit kurzen Begriffen." badge="Sektion 2c" pageKey="home" sectionKey="marquee" data={data} setData={setData}>
           <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
         </SectionCard>
       )}
@@ -772,7 +772,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       {$s(cfg.home.logoStrip) && (
-        <SectionCard title="Logo-Strip" description="Partner / Presse / Auszeichnungen als Wortmarken-Band." badge="Sektion 6b">
+        <SectionCard title="Logo-Strip" description="Partner / Presse / Auszeichnungen als Wortmarken-Band." badge="Sektion 6b" pageKey="home" sectionKey="logos" data={data} setData={setData}>
           <LogosEditor data={data} setData={setData} tpl={tpl} />
         </SectionCard>
       )}
@@ -805,22 +805,22 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       {/* ── Extra-branch spotlight section headings ─────────────── */}
       {tpl === 'consulting' && (
-        <SectionCard title="Spotlight: Vorgehen" description="Überschrift und Beschreibung für die \u201eWie wir arbeiten\u201c-Sektion auf der Startseite." badge="Extra">
+        <SectionCard title="Spotlight: Vorgehen" description="Überschrift und Beschreibung für die \u201eWie wir arbeiten\u201c-Sektion auf der Startseite." badge="Extra" pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
           <ModuleHeadingFields data={data} setData={setData} mKey="consultingSpotlight" />
         </SectionCard>
       )}
       {tpl === 'medical' && (
-        <SectionCard title="Spotlight: Service & Info" description="Überschrift der Service-Kacheln (Sprechzeiten, Online-Termin, Notfall) auf der Startseite." badge="Extra">
+        <SectionCard title="Spotlight: Service & Info" description="Überschrift der Service-Kacheln (Sprechzeiten, Online-Termin, Notfall) auf der Startseite." badge="Extra" pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
           <ModuleHeadingFields data={data} setData={setData} mKey="medicalInfo" />
         </SectionCard>
       )}
       {tpl === 'fitness' && (
-        <SectionCard title="Spotlight: Programme" description="Überschrift und Beschreibung für die Programm-Sektion auf der Startseite." badge="Extra">
+        <SectionCard title="Spotlight: Programme" description="Überschrift und Beschreibung für die Programm-Sektion auf der Startseite." badge="Extra" pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
           <ModuleHeadingFields data={data} setData={setData} mKey="fitnessSpotlight" />
         </SectionCard>
       )}
       {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
-        <SectionCard title="Hero-Badge" description="Das kleine Bewertungs-Badge neben dem Hero-Bild (Modern-Stil)." badge="Extra">
+        <SectionCard title="Hero-Badge" description="Das kleine Bewertungs-Badge neben dem Hero-Bild (Modern-Stil)." badge="Extra" pageKey="home" sectionKey="heroBadge" data={data} setData={setData}>
           <HeroBadgeEditor data={data} setData={setData} />
         </SectionCard>
       )}
