@@ -734,6 +734,14 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="chips" data={data} setData={setData}>
             <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
+            {/* Extra branches show heroBadge fields inline (badge is rendered inside the chips block) */}
+            {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && (
+              <>
+                <hr className="my-4 border-line" />
+                <p className="text-xs font-medium text-muted mb-2">Google-Badge (wird im Hero / Chip-Bereich angezeigt)</p>
+                <HeroBadgeEditor data={data} setData={setData} />
+              </>
+            )}
           </SectionCard>
         );
       case 'marquee':

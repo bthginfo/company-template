@@ -92,21 +92,22 @@ const HOME_ORDER: Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>> 
     bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'gallery', 'numbers', 'signature', 'about', 'testimonials', 'news', 'softCta'],
   },
   /* Extra branches — mirrors EXTRA_HOME_ORDER in page-layout.ts.
-     branchModules/team/contact are edited on their own pages, not shown here. */
+     branchModules/team/contact are edited on their own pages, not shown here.
+     heroBadge fields are edited inside the branchChips section card. */
   consulting: {
-    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
-    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
-    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
+    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
+    bold:    ['announcements', 'hero', 'branchChips', 'marquee', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
   },
   medical: {
-    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
-    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
-    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
+    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
+    bold:    ['announcements', 'hero', 'branchChips', 'marquee', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
   },
   fitness: {
-    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
-    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
-    bold:    ['announcements', 'hero', 'marquee', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news', 'heroBadge'],
+    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
+    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
+    bold:    ['announcements', 'hero', 'branchChips', 'marquee', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
   },
 };
 
@@ -202,8 +203,8 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     description: 'Schmaler Streifen direkt unter dem Hero (z. B. „Heute geöffnet · Tisch reservieren").',
   }),
   branchChips: () => ({
-    title: 'Branchen-Stichworte',
-    description: 'Kurze Schlagwörter die der Variante ein klares Profil geben.',
+    title: 'Branchen-Stichworte & Badge',
+    description: 'Kurze Schlagwörter die der Variante ein klares Profil geben, plus Google-Badge.',
   }),
   marquee: () => ({
     title: 'Schlagwort-Band',
