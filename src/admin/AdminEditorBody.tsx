@@ -41,6 +41,8 @@ export type AdminEditorBodyProps = {
   uploadImage?: UploadImageFn;
   /** Current visual style of this tenant (used to filter add-section catalog). */
   style?: TemplateStyle;
+  /** Callback to switch the visual style (persisted by the host). */
+  onStyleChange?: (style: TemplateStyle) => Promise<void> | void;
 };
 
 type Ctx = {
@@ -58,6 +60,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     previewUrlBase = '',
     uploadImage,
     style: tplStyle,
+    onStyleChange,
   } = props;
 
   _ctx = { uploadImage, style: tplStyle };
@@ -168,6 +171,9 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             <SidebarItem active={pageId === 'legal'} onClick={() => setPageId('legal')} icon="§">Impressum & Datenschutz</SidebarItem>
             <SidebarItem active={pageId === 'security'} onClick={() => setPageId('security')} icon="⚿">Passwort & Zugang</SidebarItem>
           </SidebarGroup>
+          {onStyleChange && (
+            <StyleSwitcher current={tplStyle || 'classic'} onChange={onStyleChange} />
+          )}
         </aside>
 
         {/* RIGHT: page editor */}
@@ -293,6 +299,77 @@ function SidebarItem({ active, onClick, icon, children }: { active?: boolean; on
         <span>{children}</span>
       </button>
     </li>
+  );
+}
+
+const STYLE_OPTIONS: { value: TemplateStyle; label: string; desc: string }[] = [
+  { value: 'classic', label: 'Classic', desc: 'Editorial, elegant, zeitlos' },
+  { value: 'modern', label: 'Modern', desc: 'Aufgeräumt, leicht, luftig' },
+  { value: 'bold', label: 'Bold', desc: 'Magazin, groß, plakativ' },
+];
+
+function StyleSwitcher({ current, onChange }: { current: TemplateStyle; onChange: (s: TemplateStyle) => Promise<void> | void }) {
+  const [confirming, setConfirming] = useState<TemplateStyle | null>(null);
+  const [switching, setSwitching] = useState(false);
+
+  const doSwitch = async () => {
+    if (!confirming) return;
+    setSwitching(true);
+    try {
+      await onChange(confirming);
+      setConfirming(null);
+    } finally {
+      setSwitching(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl p-3 shadow-sm">
+      <p className="text-[10px] uppercase tracking-[0.18em] text-muted px-1 pt-1 pb-2">Design-Stil</p>
+      <div className="space-y-1">
+        {STYLE_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => opt.value !== current && setConfirming(opt.value)}
+            className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
+              opt.value === current
+                ? 'bg-brand text-white'
+                : 'hover:bg-[#f6f6f3] text-slate-700'
+            }`}
+          >
+            <span className="w-5 text-center">{opt.value === current ? '●' : '○'}</span>
+            <span>
+              <span className="font-medium">{opt.label}</span>
+              <span className="block text-[11px] opacity-70">{opt.desc}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+      {confirming && (
+        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+          <p className="font-medium text-amber-900">Stil wechseln?</p>
+          <p className="text-amber-800 text-xs mt-1">
+            Das Layout ändert sich sofort. Alle Inhalte bleiben erhalten, einige Sektionen
+            werden je nach Stil ein- oder ausgeblendet.
+          </p>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={doSwitch}
+              disabled={switching}
+              className="bg-brand text-white text-xs font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+            >
+              {switching ? 'Wechselt …' : `Zu ${STYLE_OPTIONS.find((o) => o.value === confirming)?.label} wechseln`}
+            </button>
+            <button
+              onClick={() => setConfirming(null)}
+              className="text-xs text-muted hover:text-slate-800 px-3 py-2"
+            >
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
