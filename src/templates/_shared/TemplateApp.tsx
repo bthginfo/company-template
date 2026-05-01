@@ -1028,7 +1028,7 @@ function NumbersBand({ variant, content }: { variant: TemplateVariant; content?:
   );
 }
 
-function CtaBand({ variant, content }: { variant: TemplateVariant; content?: SiteContent }) {
+function CtaBand({ variant, content, page }: { variant: TemplateVariant; content?: SiteContent; page?: string }) {
   const text: Record<TemplateVariant, { lead: string; cta: string; sub: string }> = {
     restaurant: { lead: 'Hunger?', cta: 'Tisch reservieren', sub: 'Wir freuen uns, Sie an unserem Tisch begrüßen zu dürfen.' },
     salon: { lead: 'Bereit für etwas Neues?', cta: 'Termin buchen', sub: 'Wir nehmen uns die Zeit – für Sie, für Ihren Look.' },
@@ -1037,14 +1037,18 @@ function CtaBand({ variant, content }: { variant: TemplateVariant; content?: Sit
     tourism: { lead: 'Auf in die Berge?', cta: 'Tour buchen', sub: 'Wir beraten ehrlich, welche Tour zu Ihrer Gruppe und Saison passt.' },
   };
   const def = text[variant];
-  const ov = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string; eyebrow?: string; leadAccent?: string } | undefined;
+  // Per-page override wins, then global ctaBandOverride as fallback
+  const perPage = page ? ((content as any)?.ctaBandOverrides ?? {})[page] as { lead?: string; sub?: string; cta?: string; ctaHref?: string; eyebrow?: string; leadAccent?: string } | undefined : undefined;
+  const global = (content as any)?.ctaBandOverride as { lead?: string; sub?: string; cta?: string; ctaHref?: string; eyebrow?: string; leadAccent?: string } | undefined;
+  const pick = (field: 'lead' | 'sub' | 'cta' | 'ctaHref' | 'eyebrow' | 'leadAccent') =>
+    (perPage?.[field] && perPage[field]!.trim()) || (global?.[field] && global[field]!.trim()) || '';
   const t = {
-    eyebrow: (ov?.eyebrow && ov.eyebrow.trim()) || 'Bereit?',
-    lead: (ov?.lead && ov.lead.trim()) || def.lead,
-    leadAccent: (ov?.leadAccent && ov.leadAccent.trim()) || 'Schreiben Sie uns.',
-    sub: (ov?.sub && ov.sub.trim()) || def.sub,
-    cta: (ov?.cta && ov.cta.trim()) || def.cta,
-    ctaHref: (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt',
+    eyebrow: pick('eyebrow') || 'Bereit?',
+    lead: pick('lead') || def.lead,
+    leadAccent: pick('leadAccent') || 'Schreiben Sie uns.',
+    sub: pick('sub') || def.sub,
+    cta: pick('cta') || def.cta,
+    ctaHref: pick('ctaHref') || '/kontakt',
   };
   return (
     <section className="py-32 md:py-44 surface relative overflow-hidden">
@@ -1160,7 +1164,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
-    cta: <CtaBand variant={variant} content={content} />,
+    cta: <CtaBand variant={variant} content={content} page="services" />,
   };
   const headerOverride = pageHeaderOverride(content, 'servicesHeader');
   const servicesImg = effectiveBranchText(variant, content).servicesPageImageUrl || content.gallery[2] || content.gallery[0];
@@ -1336,7 +1340,7 @@ function GalleryPage({
               </div>
             </Section>
           ) : null,
-          cta: <CtaBand variant={variant} content={content} />,
+          cta: <CtaBand variant={variant} content={content} page="gallery" />,
         };
         return order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>);
       })()}
@@ -1542,7 +1546,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
-    cta: <CtaBand variant={variant} content={content} />,
+    cta: <CtaBand variant={variant} content={content} page="about" />,
   };
   return (
     <>
@@ -1823,7 +1827,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
         <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
-    cta: <CtaBand variant={variant} content={content} />,
+    cta: <CtaBand variant={variant} content={content} page="contact" />,
   };
   return (
     <>

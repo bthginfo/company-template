@@ -930,7 +930,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
         <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
       </SectionCard>
       <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="services" sectionKey="cta" data={data} setData={setData}>
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} />
+        <CtaBandEditor data={data} setData={setData} tpl={tpl} page="services" />
       </SectionCard>
       <AddSectionRow pageKey="services" data={data} setData={setData} tpl={tpl} />
     </>
@@ -1031,7 +1031,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
 
       <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="gallery" sectionKey="cta" data={data} setData={setData}>
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} />
+        <CtaBandEditor data={data} setData={setData} tpl={tpl} page="gallery" />
       </SectionCard>
       <AddSectionRow pageKey="gallery" data={data} setData={setData} tpl={tpl} />
     </>
@@ -1088,7 +1088,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         <TestimonialsEditor data={data} setData={setData} />
       </SectionCard>
       <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 9" pageKey="about" sectionKey="cta" data={data} setData={setData}>
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} />
+        <CtaBandEditor data={data} setData={setData} tpl={tpl} page="about" />
       </SectionCard>
       <AddSectionRow pageKey="about" data={data} setData={setData} tpl={tpl} />
     </>
@@ -1124,6 +1124,9 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
       </SectionCard>
       <SectionCard title="Weitere Standorte" description="Zusätzliche Filialen oder Zweigstellen mit eigenen Kontaktdaten." badge="Sektion 6" pageKey="contact" sectionKey="locations" data={data} setData={setData}>
         <LocationsEditor data={data} setData={setData} />
+      </SectionCard>
+      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 7" pageKey="contact" sectionKey="cta" data={data} setData={setData}>
+        <CtaBandEditor data={data} setData={setData} tpl={tpl} page="contact" />
       </SectionCard>
       <AddSectionRow pageKey="contact" data={data} setData={setData} tpl={tpl} />
     </>
@@ -2873,39 +2876,58 @@ function FormFieldsEditor({ data, setData }: SetterProps) {
   );
 }
 
-function CtaBandEditor({ data, setData, tpl }: SectionProps) {
+function CtaBandEditor({ data, setData, tpl, page }: SectionProps & { page?: string }) {
   const def = defaultCta(tpl);
-  const [v, set] = useExtra<{ lead: string; sub: string; cta: string; ctaHref: string; eyebrow: string; leadAccent: string }>(
-    data, setData, 'ctaBandOverride',
-    { lead: '', sub: '', cta: '', ctaHref: '/kontakt', eyebrow: '', leadAccent: '' },
-  );
+  type CtaValues = { lead: string; sub: string; cta: string; ctaHref: string; eyebrow: string; leadAccent: string };
+  const empty: CtaValues = { lead: '', sub: '', cta: '', ctaHref: '/kontakt', eyebrow: '', leadAccent: '' };
+
+  // Home uses top-level ctaBandOverride; subpages use ctaBandOverrides[page]
+  const isSubpage = !!page;
+  const value = useMemo<CtaValues>(() => {
+    if (isSubpage) {
+      const all = ((data as any).ctaBandOverrides ?? {}) as Record<string, CtaValues>;
+      return all[page!] ?? empty;
+    }
+    return (data as any).ctaBandOverride ?? empty;
+  }, [data, page]);
+  const set = (v: CtaValues) => {
+    if (isSubpage) {
+      const all = ((data as any).ctaBandOverrides ?? {}) as Record<string, CtaValues>;
+      setData({ ...(data as any), ctaBandOverrides: { ...all, [page!]: v } } as SiteContent);
+    } else {
+      setData({ ...(data as any), ctaBandOverride: v } as SiteContent);
+    }
+  };
+  const v = value;
+  // For subpages, show the home CTA values as placeholders so it's clear what the fallback is
+  const homeOv = isSubpage ? ((data as any).ctaBandOverride ?? empty) as CtaValues : undefined;
 
   return (
     <>
       {_ctx.style === 'classic' && (
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Eyebrow (kleine Zeile darüber)" hint="Kleine Zeile über der Headline. Leer = Standard (Bereit?).">
-            <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
+          <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline. Leer = Standard (Bereit?).'}>
+            <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
           </Field>
           <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Nur im Classic-Stil sichtbar.">
-            <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder="Schreiben Sie uns." />
+            <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder={homeOv?.leadAccent || 'Schreiben Sie uns.'} />
           </Field>
         </div>
       )}
       {_ctx.style !== 'classic' && (
-        <Field label="Eyebrow (kleine Zeile darüber)" hint="Kleine Zeile über der Headline.">
-          <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder="Bereit?" />
+        <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline.'}>
+          <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
         </Field>
       )}
       
-      <Field label="Headline" hint="Große Hauptzeile (z. B. Hunger?, Termin?, Auftrag?).">
-        <input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} placeholder={def.lead} />
+      <Field label="Headline" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Große Hauptzeile (z. B. Hunger?, Termin?, Auftrag?).'}>
+        <input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} placeholder={homeOv?.lead || def.lead} />
       </Field>
-      <Field label="Untertitel">
-        <textarea className={inputCls} rows={2} value={v.sub} onChange={(e) => set({ ...v, sub: e.target.value })} placeholder={def.sub} />
+      <Field label="Untertitel" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : undefined}>
+        <textarea className={inputCls} rows={2} value={v.sub} onChange={(e) => set({ ...v, sub: e.target.value })} placeholder={homeOv?.sub || def.sub} />
       </Field>
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Button-Text"><input className={inputCls} value={v.cta} onChange={(e) => set({ ...v, cta: e.target.value })} placeholder={def.cta} /></Field>
+        <Field label="Button-Text"><input className={inputCls} value={v.cta} onChange={(e) => set({ ...v, cta: e.target.value })} placeholder={homeOv?.cta || def.cta} /></Field>
         <LinkTargetField label="Button-Ziel" value={v.ctaHref} onChange={(href) => set({ ...v, ctaHref: href })} sections={homeSectionsFor(tpl)} />
       </div>
     </>

@@ -249,6 +249,8 @@ export const SiteContentSchema = z.object({
 
   /**
    * Bottom CTA-band overrides shown above footer (lead/sub/button).
+   * `ctaBandOverride` is the global / home default.
+   * `ctaBandOverrides` holds optional per-subpage overrides keyed by page id.
    */
   ctaBandOverride: z.object({
     lead: z.string().optional().default(''),
@@ -258,6 +260,14 @@ export const SiteContentSchema = z.object({
     eyebrow: z.string().optional().default(''),
     leadAccent: z.string().optional().default(''),
   }).optional().default({}),
+  ctaBandOverrides: z.record(z.string(), z.object({
+    lead: z.string().optional().default(''),
+    sub: z.string().optional().default(''),
+    cta: z.string().optional().default(''),
+    ctaHref: z.string().optional().default(''),
+    eyebrow: z.string().optional().default(''),
+    leadAccent: z.string().optional().default(''),
+  })).optional().default({}),
 
   /**
    * Branch action strip (sits under hero) – per-tenant overrides.
