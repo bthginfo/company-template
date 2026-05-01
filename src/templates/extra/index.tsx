@@ -815,8 +815,8 @@ function LocationsBlock({ content }: { content: SiteContent }) {
   return (
     <section className="py-16 md:py-24">
       <div className="container-x">
-        <p className="eyebrow mb-5 reveal">Standorte</p>
-        <h2 className="headline-lg reveal mb-12">Unsere <em className="italic-pop">Standorte.</em></h2>
+        <p className="eyebrow mb-5 reveal">{moduleHeading(content, 'locations').eyebrow}</p>
+        <h2 className="headline-lg reveal mb-12">{moduleHeading(content, 'locations').title}</h2>
         <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
           {locs.map((loc, i) => (
             <article key={i} className="border border-line rounded-3xl p-7 hover-lift bg-white">

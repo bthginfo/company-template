@@ -1123,28 +1123,29 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
           subtitle: '',
         }} />
       </SectionCard>
-      <SectionCard title="Kontaktdaten-Block" description="Telefon, E-Mail, Adresse, Öffnungszeiten." badge="Sektion 2" pageKey="contact" sectionKey="block" data={data} setData={setData}>
+      <SectionCard title="Kontaktdaten & Karte" description="Telefon, E-Mail, Adresse, Öffnungszeiten und Google-Maps-Einbettung." badge="Sektion 2" pageKey="contact" sectionKey="block" data={data} setData={setData}>
         <ContactFields data={data} setData={setData} />
         <HoursEditor data={data} setData={setData} />
+        <div className="mt-4 pt-4 border-t border-line">
+          <p className="text-sm font-medium mb-1">Google-Maps-Karte</p>
+          <p className="text-xs text-muted mb-3">Erscheint unter dem Kontaktformular.</p>
+          <Field label="Google-Maps-URL">
+            <input className={inputCls} value={data.contact.mapsUrl || ''} onChange={(e) => setData({ ...data, contact: { ...data.contact, mapsUrl: e.target.value } })} placeholder="https://maps.google.com/..." />
+          </Field>
+        </div>
       </SectionCard>
       <SectionCard title="Kontakt-Formular" description="Welche Felder soll das Formular haben?" badge="Sektion 3">
         <FormFieldsEditor data={data} setData={setData} />
       </SectionCard>
-      <SectionCard title="Wegbeschreibung" description="Drei Karten mit Anfahrt-Hinweisen." badge="Sektion 4" pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
-        <ArrivalSectionHeader data={data} setData={setData} />
-        <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(tpl)} />
-      </SectionCard>
-      <SectionCard title="Karte" description="Google-Maps-Link einbetten." badge="Sektion 5">
-        <Field label="Google-Maps-URL">
-          <input className={inputCls} value={data.contact.mapsUrl || ''} onChange={(e) => setData({ ...data, contact: { ...data.contact, mapsUrl: e.target.value } })} placeholder="https://maps.google.com/..." />
-        </Field>
-        <Toggle value={!!data.contact.mapsUrl} onChange={(v) => !v && setData({ ...data, contact: { ...data.contact, mapsUrl: '' } })} label="Karte auf der Kontakt-Seite anzeigen" />
-      </SectionCard>
-      <SectionCard title="Weitere Standorte" description="Zusätzliche Filialen oder Zweigstellen mit eigenen Kontaktdaten." badge="Sektion 6" pageKey="contact" sectionKey="locations" data={data} setData={setData}>
+      <SectionCard title="Weitere Standorte" description="Zusätzliche Filialen oder Zweigstellen mit eigenen Kontaktdaten." badge="Sektion 4" pageKey="contact" sectionKey="locations" data={data} setData={setData}>
         <ModuleHeadingFields data={data} setData={setData} mKey="locations" />
         <LocationsEditor data={data} setData={setData} />
       </SectionCard>
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 7" pageKey="contact" sectionKey="cta" data={data} setData={setData}>
+      <SectionCard title="Wegbeschreibung" description="Drei Karten mit Anfahrt-Hinweisen." badge="Sektion 5" pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
+        <ArrivalSectionHeader data={data} setData={setData} />
+        <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(tpl)} />
+      </SectionCard>
+      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="contact" sectionKey="cta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} page="contact" />
       </SectionCard>
       <AddSectionRow pageKey="contact" data={data} setData={setData} tpl={tpl} />

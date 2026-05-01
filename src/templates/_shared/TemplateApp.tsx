@@ -1757,13 +1757,10 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   const overlay = (content as any).arrival as { t: string; d: string }[] | undefined;
   const arrival = overlay && overlay.length ? overlay.filter((a) => a.t || a.d) : arrivalFallbacks[variant];
   const order = getEffectivePageOrder(content, 'contact', variant).filter((k) => isSectionEnabled(content, 'contact', k));
-  // If the page already has the dedicated arrival map below, skip the small
-  // map under the form to avoid showing two Google Maps embeds back-to-back.
-  const arrivalEnabled = isSectionEnabled(content, 'contact', 'arrival') && order.includes('arrival');
   const arrivalOv = ((content as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const locs = content.locations ?? [];
   const blocks: Record<string, JSX.Element | null> = {
-    block: <ContactBlock content={content} showMap={!arrivalEnabled} />,
+    block: <ContactBlock content={content} />,
     locations: locs.length ? (
       <Section eyebrow={moduleHeading(content, 'locations').eyebrow} title={moduleHeading(content, 'locations').title}>
         <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
