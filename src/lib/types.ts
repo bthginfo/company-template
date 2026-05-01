@@ -53,6 +53,16 @@ export const SiteContentSchema = z.object({
     ).default([]),
     mapsUrl: z.string().optional().default(''),
   }),
+  /** Additional business locations beyond the main contact. */
+  locations: z.array(z.object({
+    name: z.string().default(''),
+    phone: z.string().optional().default(''),
+    email: z.string().optional().default(''),
+    address: z.string().optional().default(''),
+    city: z.string().optional().default(''),
+    hours: z.array(z.object({ day: z.string(), time: z.string() })).default([]),
+    mapsUrl: z.string().optional().default(''),
+  })).optional().default([]),
   social: z.object({
     instagram: z.string().optional().default(''),
     facebook: z.string().optional().default(''),

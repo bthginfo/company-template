@@ -4,7 +4,7 @@ import type { SiteContent, TemplateKey, PageId } from '@/lib/types';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import Seo from '@/components/Seo';
 import {
-  SiteHeader, Hero, Section, ContactBlock, SiteFooter, BasePathProvider,
+  SiteHeader, Hero, Section, ContactBlock, SafeMapEmbed, SiteFooter, BasePathProvider,
   type NavItem,
 } from '@/components/site-blocks';
 import {
@@ -1747,8 +1747,58 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   // map under the form to avoid showing two Google Maps embeds back-to-back.
   const arrivalEnabled = isSectionEnabled(content, 'contact', 'arrival') && order.includes('arrival');
   const arrivalOv = ((content as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+  const locs: Array<{ name: string; phone?: string; email?: string; address?: string; city?: string; hours?: { day: string; time: string }[]; mapsUrl?: string }> = (content as any).locations ?? [];
   const blocks: Record<string, JSX.Element | null> = {
     block: <ContactBlock content={content} showMap={!arrivalEnabled} />,
+    locations: locs.length ? (
+      <Section eyebrow="Standorte" title={<>Unsere <em className="italic-pop">Standorte.</em></>}>
+        <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
+          {locs.map((loc, i) => (
+            <article key={i} className="border border-line rounded-3xl p-7 hover-lift bg-white">
+              <h3 className="font-display text-2xl">{loc.name || `Standort ${i + 1}`}</h3>
+              <div className="mt-5 space-y-4 text-lg">
+                {loc.phone ? (
+                  <a href={`tel:${loc.phone}`} className="block group">
+                    <p className="text-xs uppercase tracking-widest text-muted">Telefon</p>
+                    <p className="mt-1 text-xl font-display group-hover:translate-x-1 transition-transform">{loc.phone}</p>
+                  </a>
+                ) : null}
+                {loc.email ? (
+                  <a href={`mailto:${loc.email}`} className="block group">
+                    <p className="text-xs uppercase tracking-widest text-muted">E-Mail</p>
+                    <p className="mt-1 text-xl font-display group-hover:translate-x-1 transition-transform">{loc.email}</p>
+                  </a>
+                ) : null}
+                {loc.address ? (
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted">Adresse</p>
+                    <p className="mt-1">{loc.address}{loc.city ? `, ${loc.city}` : ''}</p>
+                  </div>
+                ) : null}
+                {loc.hours && loc.hours.length ? (
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted">Öffnungszeiten</p>
+                    <ul className="mt-2 grid grid-cols-[auto,1fr] gap-x-6 gap-y-1">
+                      {loc.hours.map((h, hi) => (
+                        <li key={hi} className="contents">
+                          <span className="font-medium">{h.day}</span>
+                          <span className="text-muted font-mono text-sm whitespace-nowrap">{h.time}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
+              {(loc.mapsUrl || loc.address) ? (
+                <div className="mt-6">
+                  <SafeMapEmbed mapsUrl={loc.mapsUrl || ''} address={loc.address || ''} city={loc.city || ''} className="h-[200px]" />
+                </div>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      </Section>
+    ) : null,
     arrival: (
       <Section
         eyebrow={arrivalOv.eyebrow || 'Wegbeschreibung'}

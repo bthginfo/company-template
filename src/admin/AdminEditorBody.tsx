@@ -1134,6 +1134,9 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
         </Field>
         <Toggle value={!!data.contact.mapsUrl} onChange={(v) => !v && setData({ ...data, contact: { ...data.contact, mapsUrl: '' } })} label="Karte auf der Kontakt-Seite anzeigen" />
       </SectionCard>
+      <SectionCard title="Weitere Standorte" description="Zusätzliche Filialen oder Zweigstellen mit eigenen Kontaktdaten." badge="Sektion 6" pageKey="contact" sectionKey="locations" data={data} setData={setData}>
+        <LocationsEditor data={data} setData={setData} />
+      </SectionCard>
       <AddSectionRow pageKey="contact" data={data} setData={setData} tpl={tpl} />
     </>
   );
@@ -2188,6 +2191,53 @@ function HoursEditor({ data, setData }: SetterProps) {
         ))}
       </div>
       <button onClick={() => set({ hours: [...c.hours, { day: '', time: '' }] })} className="btn-outline !px-4 !py-2 text-sm mt-3">+ Zeile hinzufügen</button>
+    </div>
+  );
+}
+
+type Location = { name: string; phone?: string; email?: string; address?: string; city?: string; hours: { day: string; time: string }[]; mapsUrl?: string };
+const emptyLocation = (): Location => ({ name: '', phone: '', email: '', address: '', city: '', hours: [], mapsUrl: '' });
+
+function LocationsEditor({ data, setData }: SetterProps) {
+  const locs: Location[] = (data as any).locations ?? [];
+  const keys = useListKeys(locs);
+  const setLocs = (next: Location[]) => setData({ ...(data as any), locations: next } as SiteContent);
+  const patch = (i: number, p: Partial<Location>) => setLocs(locs.map((l, j) => j === i ? { ...l, ...p } : l));
+  const remove = (i: number) => setLocs(locs.filter((_, j) => j !== i));
+  return (
+    <div className="space-y-6">
+      {locs.map((loc, i) => (
+        <div key={keys[i]} className="border border-line rounded-2xl p-5 space-y-4 relative">
+          <div className="flex items-center justify-between">
+            <p className="font-display text-lg font-semibold">Standort {i + 1}</p>
+            <button onClick={() => remove(i)} className="text-rose-600 text-sm hover:underline">Entfernen</button>
+          </div>
+          <Field label="Name / Bezeichnung" hint="z.B. Filiale Süd, Zweigstelle Wien">
+            <input className={inputCls} value={loc.name || ''} onChange={(e) => patch(i, { name: e.target.value })} />
+          </Field>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Telefon"><input className={inputCls} value={loc.phone || ''} onChange={(e) => patch(i, { phone: e.target.value })} /></Field>
+            <Field label="E-Mail"><input className={inputCls} value={loc.email || ''} onChange={(e) => patch(i, { email: e.target.value })} /></Field>
+            <Field label="Adresse"><input className={inputCls} value={loc.address || ''} onChange={(e) => patch(i, { address: e.target.value })} /></Field>
+            <Field label="Stadt / PLZ"><input className={inputCls} value={loc.city || ''} onChange={(e) => patch(i, { city: e.target.value })} /></Field>
+          </div>
+          <Field label="Google-Maps-URL">
+            <input className={inputCls} value={loc.mapsUrl || ''} onChange={(e) => patch(i, { mapsUrl: e.target.value })} placeholder="https://maps.google.com/..." />
+          </Field>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted mb-2">Öffnungszeiten</p>
+            {(loc.hours || []).map((h, hi) => (
+              <div key={hi} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 sm:items-center mb-2">
+                <input className={inputCls} placeholder="Tag(e)" value={h.day} onChange={(e) => patch(i, { hours: loc.hours.map((x, j) => j === hi ? { ...x, day: e.target.value } : x) })} />
+                <input className={inputCls} placeholder="Uhrzeit" value={h.time} onChange={(e) => patch(i, { hours: loc.hours.map((x, j) => j === hi ? { ...x, time: e.target.value } : x) })} />
+                <button onClick={() => patch(i, { hours: loc.hours.filter((_, j) => j !== hi) })} className="h-10 w-10 grid place-items-center rounded-lg hover:bg-rose-50 text-rose-600">×</button>
+              </div>
+            ))}
+            <button onClick={() => patch(i, { hours: [...(loc.hours || []), { day: '', time: '' }] })} className="btn-outline !px-4 !py-2 text-xs mt-1">+ Öffnungszeit</button>
+          </div>
+        </div>
+      ))}
+      <button onClick={() => setLocs([...locs, emptyLocation()])} className="btn-outline !px-4 !py-2 text-sm">+ Standort hinzufügen</button>
     </div>
   );
 }
