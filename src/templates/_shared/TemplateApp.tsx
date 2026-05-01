@@ -738,6 +738,21 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[clamp(2.5rem,13vw,180px)] md:text-[14vw] lg:text-[180px] break-words [overflow-wrap:anywhere] [hyphens:auto]">
             {(content.hero?.title || ((content.brand.hideName && content.brand.logoUrl) ? '' : content.brand.name)).toUpperCase()}
           </h1>
+          {(() => {
+            const hc = (content as any).heroCta as { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string } | undefined;
+            const primaryLabel = hc?.primaryLabel || content.hero.ctaLabel;
+            const primaryHref = hc?.primaryHref || content.hero.ctaHref || '/kontakt';
+            const secondaryLabel = hc?.secondaryLabel ?? '';
+            const secondaryHref = hc?.secondaryHref || cfg.servicesPath;
+            return primaryLabel ? (
+              <div className="mt-10 flex flex-wrap gap-4 reveal">
+                <TLink to={primaryHref} className="btn-accent">{primaryLabel} <span aria-hidden>→</span></TLink>
+                {secondaryLabel ? (
+                  <TLink to={secondaryHref} className="btn-outline">{secondaryLabel}</TLink>
+                ) : null}
+              </div>
+            ) : null;
+          })()}
         </div>
         {/* Smooth brand strip */}
         <div className="mt-10 border-y border-line py-4 bg-white">
