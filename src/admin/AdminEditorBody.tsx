@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
+import { getBranchConfig, isActiveForStyle, isBranchTextKeyVisible, type TemplateStyle } from '@/lib/branch-config';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
 import { getEffectivePageOrder, getRemainingSections, isSectionEnabled, type PageId as LayoutPageId } from '@/lib/page-layout';
 import { RichTextEditor } from './RichTextEditor';
@@ -20,7 +21,7 @@ import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
  */
 export type UploadImageFn = (file: File) => Promise<string>;
 
-export type TemplateStyle = 'classic' | 'modern' | 'bold';
+export type { TemplateStyle } from '@/lib/branch-config';
 
 export type AdminEditorBodyProps = {
   tplKey: TemplateKey;
@@ -245,47 +246,13 @@ type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand
 type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
-  if (t === 'consulting' || t === 'medical' || t === 'fitness') return [
-    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
-    { id: 'services', label: 'Leistungen', icon: '☰', previewPath: '#leistungen' },
-    { id: 'gallery', label: 'Galerie', icon: '▦', previewPath: '#galerie' },
-    { id: 'about', label: 'Über uns', icon: '☉', previewPath: '#about' },
-    { id: 'contactPage', label: 'Kontakt', icon: '✉', previewPath: '#kontakt' },
-  ];
-  if (t === 'restaurant') return [
-    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
-    { id: 'services', label: 'Speisekarte', icon: '☰', previewPath: '/speisekarte' },
-    { id: 'gallery', label: 'Galerie', icon: '▦', previewPath: '/galerie' },
-    { id: 'about', label: 'Über uns', icon: '☉', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Kontakt', icon: '✉', previewPath: '/kontakt' },
-  ];
-  if (t === 'salon') return [
-    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
-    { id: 'services', label: 'Leistungen', icon: '☰', previewPath: '/leistungen' },
-    { id: 'gallery', label: 'Looks', icon: '▦', previewPath: '/galerie' },
-    { id: 'about', label: 'Studio', icon: '☉', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Termin', icon: '✉', previewPath: '/kontakt' },
-  ];
-  if (t === 'hotel') return [
-    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
-    { id: 'services', label: 'Zimmer', icon: '☰', previewPath: '/zimmer' },
-    { id: 'gallery', label: 'Haus & Spa', icon: '▦', previewPath: '/galerie' },
-    { id: 'about', label: 'Geschichte', icon: '☉', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Reservieren', icon: '✉', previewPath: '/kontakt' },
-  ];
-  if (t === 'tourism') return [
-    { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
-    { id: 'services', label: 'Touren', icon: '☰', previewPath: '/touren' },
-    { id: 'gallery', label: 'Eindrücke', icon: '▦', previewPath: '/galerie' },
-    { id: 'about', label: 'Guides', icon: '☉', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Buchen', icon: '✉', previewPath: '/kontakt' },
-  ];
+  const cfg = getBranchConfig(t);
   return [
     { id: 'home', label: 'Startseite', icon: '◐', previewPath: '' },
-    { id: 'services', label: 'Leistungen', icon: '☰', previewPath: '/leistungen' },
-    { id: 'gallery', label: 'Referenzen', icon: '▦', previewPath: '/referenzen' },
-    { id: 'about', label: 'Betrieb', icon: '☉', previewPath: '/ueber-uns' },
-    { id: 'contactPage', label: 'Anfrage', icon: '✉', previewPath: '/kontakt' },
+    { id: 'services', label: cfg.pages.services, icon: '☰', previewPath: cfg.paths.services },
+    { id: 'gallery', label: cfg.pages.gallery, icon: '▦', previewPath: cfg.paths.gallery },
+    { id: 'about', label: cfg.pages.about, icon: '☉', previewPath: cfg.paths.about },
+    { id: 'contactPage', label: cfg.pages.contact, icon: '✉', previewPath: cfg.paths.contact },
   ];
 }
 
@@ -652,7 +619,8 @@ function homeSectionsFor(t: TemplateKey) {
 
 function HomePageEditor({ data, setData, tpl }: SectionProps) {
   const set = (patch: Partial<SiteContent>) => setData({ ...data, ...patch });
-  const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
+  const cfg = getBranchConfig(tpl);
+  const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
   const announcements = (data as any).announcements as string[] | undefined;
   return (
     <>
@@ -670,7 +638,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Buttons." badge="Sektion 2">
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
-        {_ctx.style !== 'bold' && (
+        {$s(cfg.home.hero.tagline) && (
           <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift (Classic/Modern).">
             <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
           </Field>
@@ -678,20 +646,20 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <Field label="Hauptüberschrift">
           <input className={inputCls} value={data.hero.title} onChange={(e) => set({ hero: { ...data.hero, title: e.target.value } })} />
         </Field>
-        {_ctx.style !== 'bold' && (
+        {$s(cfg.home.hero.subtitle) && (
           <Field label="Untertitel" hint="Kurze Zeile direkt unter dem Titel (z. B. ein zweiter Halbsatz).">
             <input className={inputCls} value={data.hero.subtitle || ''} onChange={(e) => set({ hero: { ...data.hero, subtitle: e.target.value } })} />
           </Field>
         )}
-        {_ctx.style !== 'bold' && !isExtra && (
+        {$s(cfg.home.hero.body) && (
           <Field label="Beschreibungstext" hint="Längerer Fließtext unter dem Untertitel – beschreibt das Angebot in 1–3 Sätzen.">
             <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
           </Field>
         )}
-        {_ctx.style === 'classic' && (
+        {$s(cfg.home.hero.bgImage) && (
           <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
         )}
-        {(_ctx.style === 'modern' || _ctx.style === 'bold') && (
+        {$s(cfg.home.hero.cardImage) && (
           <ImagePickerField label="Hero-Bild" value={data.branchText?.heroImageUrl || ''} onChange={(v) => setData({ ...data, branchText: { ...data.branchText, heroImageUrl: v } })} ratio="aspect-[4/5]" />
         )}
         {(() => {
@@ -746,13 +714,13 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <HomeStripEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
 
-      {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
+      {cfg.home.branchChips && (
         <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 2c">
           <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
         </SectionCard>
       )}
 
-      {_ctx.style === 'bold' && (
+      {$s(cfg.home.marqueeWords) && (
         <SectionCard title="Schlagwort-Band" description="Großes Wortband direkt unter dem Hero – setzt das Profil mit kurzen Begriffen." badge="Sektion 2c">
           <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
         </SectionCard>
@@ -786,7 +754,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         <Field label="Text" hint="Wird automatisch auf 2–3 Absätze gekürzt auf der Startseite.">
           <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
         </Field>
-        {_ctx.style !== 'bold' && (
+        {$s(cfg.home.aboutImage) && (
           <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
         )}
       </SectionCard>
@@ -803,7 +771,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         </div>
       </SectionCard>
 
-      {_ctx.style === 'modern' && (
+      {$s(cfg.home.logoStrip) && (
         <SectionCard title="Logo-Strip" description="Partner / Presse / Auszeichnungen als Wortmarken-Band." badge="Sektion 6b">
           <LogosEditor data={data} setData={setData} tpl={tpl} />
         </SectionCard>
@@ -824,7 +792,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 
       <SectionCard title="Abschluss-Aufruf (CTA)" description="Der große Aufruf zur Aktion am Seitenende – wird auf allen Unterseiten angezeigt." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
         <CtaBandEditor data={data} setData={setData} tpl={tpl} />
-        {(_ctx.style === 'modern' || _ctx.style === 'bold') && (
+        {$s(cfg.home.softCtaFields) && (
           <>
             <hr className="my-6 border-line" />
             <p className="text-xs text-muted mb-4">
@@ -841,6 +809,9 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 }
 
 function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
+  const cfg = getBranchConfig(tpl);
+  const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
+  const $m = (mod: import('@/lib/branch-config').ServiceModule) => cfg.services.modules.includes(mod);
   return (
     <>
       <SectionCard title="Seiten-Header" description="Überschrift oben auf der Seite." badge="Sektion 1">
@@ -849,7 +820,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           title: tpl === 'restaurant' ? 'Aus der Küche.' : tpl === 'salon' ? 'Ihre Behandlungen.' : 'Was wir können.',
           subtitle: '',
         }} />
-        {_ctx.style === 'modern' && (
+        {$s(cfg.services.headerImage) && (
           <>
             <hr className="my-4 border-line" />
             <ImagePickerField label="Header-Bild" value={data.branchText?.servicesPageImageUrl || ''} onChange={(url) => setData({ ...data, branchText: { ...data.branchText, servicesPageImageUrl: url } })} ratio="aspect-[16/9]" />
@@ -859,81 +830,80 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Überschrift." badge="Sektion 2" pageKey="services" sectionKey="highlights" data={data} setData={setData}>
         <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
       </SectionCard>
-      {/* Vollständige Gerichte-/Leistungs-Liste wird auf der Startseite gepflegt (Speisekarte-Teaser).
-          Auf dieser Seite wird die Liste automatisch komplett angezeigt. */}
-      {tpl === 'fitness' && (
+
+      {$m('programs') && (
         <SectionCard title="Programme" description="Kurse / Trainings, die im Programm-Spotlight erscheinen." badge="Sektion 3b">
           <ProgramsEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'medical' && (
+      {$m('medicalNotice') && (
         <SectionCard title="Hinweise (Online-Termin & Notfall)" description="Texte für die Service-Karten." badge="Sektion 3b">
           <MedicalNoticeEditor data={data} setData={setData} />
         </SectionCard>
       )}
 
-      {/* ───── Branch-specific modules (Phase 2) ───── */}
-      {tpl === 'restaurant' && (
+      {/* ───── Branch-specific modules ───── */}
+      {$m('menu') && (
         <SectionCard title="Speisekarte (Kategorien & Gerichte)" description="Vollständige Karte mit Kategorien, Allergenen und Tags. Erscheint als Modul-Block auf der Speisekarte-Seite." badge="Modul · Speisekarte" pageKey="services" sectionKey="module" data={data} setData={setData}>
           <ModuleHeadingFields data={data} setData={setData} mKey="menu" />
           <MenuEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'hotel' && (
+      {$m('rooms') && (
         <SectionCard title="Zimmer-Showcase" description="Detaillierte Zimmer mit Größe, Bett, Preis & Ausstattung. Erscheint als Modul-Block auf der Zimmer-Seite." badge="Modul · Zimmer" pageKey="services" sectionKey="module" data={data} setData={setData}>
           <ModuleHeadingFields data={data} setData={setData} mKey="rooms" />
           <RoomsEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'tourism' && (
+      {$m('tours') && (
         <SectionCard title="Tour-Karten" description="Touren mit Schwierigkeit, Dauer, Sprachen und Preis. Erscheint als Modul-Block auf der Touren-Seite." badge="Modul · Touren" pageKey="services" sectionKey="module" data={data} setData={setData}>
           <ModuleHeadingFields data={data} setData={setData} mKey="tours" />
           <ToursEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'salon' && (
+      {$m('treatments') && (
         <SectionCard title="Behandlungen (kategorisiert)" description="Kategorisierte Behandlungsliste mit Dauer & Preis." badge="Modul · Treatments" pageKey="services" sectionKey="module" data={data} setData={setData}>
           <ModuleHeadingFields data={data} setData={setData} mKey="treatments" />
           <TreatmentsEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'fitness' && (
+      {$m('courses') && (
         <SectionCard title="Kursplan" description="Kursliste mit Zeitplan, Level, Trainer und Preis." badge="Modul · Kursplan">
           <ModuleHeadingFields data={data} setData={setData} mKey="courses" />
           <CoursesEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {(tpl === 'fitness' || tpl === 'consulting') && (
+      {$m('packages') && (
         <SectionCard title="Preis-Pakete" description="Drei-Stufen-Pakete mit Highlight-Karte." badge="Modul · Pakete">
           <ModuleHeadingFields data={data} setData={setData} mKey="packages" />
           <PackagesEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'consulting' && (
+      {$m('processSteps') && (
         <SectionCard title="Prozess-Schritte" description="Horizontale Timeline mit 3–6 Stationen Ihres Vorgehens." badge="Modul · Prozess">
           <ModuleHeadingFields data={data} setData={setData} mKey="process" />
           <ProcessStepsEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'medical' && (
+      {$m('doctors') && (
         <SectionCard title="Ärzte & Team" description="Profile der behandelnden Ärztinnen und Ärzte." badge="Modul · Doctors">
           <ModuleHeadingFields data={data} setData={setData} mKey="doctors" />
           <DoctorsEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'medical' && (
+      {$m('booking') && (
         <SectionCard title="Online-Terminbuchung" description="Doctolib / jameda / TIMIFY-Anbindung. CTA oder Embed." badge="Modul · Booking">
           <ModuleHeadingFields data={data} setData={setData} mKey="booking" />
           <BookingEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'tradesman' && (
+      {$m('funding') && (
         <SectionCard title="Förder-Übersicht" description="Liste der Förderprogramme mit Prozent-Quote (für den Förder-Kalkulator)." badge="Modul · Förderung">
           <ModuleHeadingFields data={data} setData={setData} mKey="funding" />
           <FundingEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'tradesman' && (
+      {$m('emergencyBanner') && (
         <SectionCard title="Notdienst-Banner" description="Sticky-Banner unten rechts mit 24/7-Hotline." badge="Modul · Notdienst">
           <EmergencyBannerEditor data={data} setData={setData} />
         </SectionCard>
@@ -1056,6 +1026,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
 }
 
 function AboutPageEditor({ data, setData, tpl }: SectionProps) {
+  const cfg = getBranchConfig(tpl);
   return (
     <>
       <SectionCard title="Seiten-Header" badge="Sektion 1">
@@ -1085,13 +1056,13 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       <SectionCard title="Zahlen-Band" badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
         <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
-      {tpl === 'tradesman' && (
+      {cfg.about.extras.includes('certifications') && (
         <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 7" pageKey="about" sectionKey="certifications" data={data} setData={setData}>
           <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['certsEyebrow', 'certsTitle']} />
           <CertificationsEditor data={data} setData={setData} />
         </SectionCard>
       )}
-      {tpl === 'restaurant' && (
+      {cfg.about.extras.includes('press') && (
         <SectionCard title="Presse-Stimmen" description="Drei Zitate aus Magazinen / Zeitungen." badge="Sektion 7" pageKey="about" sectionKey="press" data={data} setData={setData}>
           <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['pressEyebrow', 'pressTitle']} />
           <PressEditor data={data} setData={setData} />
@@ -1144,67 +1115,31 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
 }
 
 /* ─── Navigation & Footer editor ──────────────────────────────────── */
-const NAV_DEFAULTS: Record<TemplateKey, { label: string; path: string }[]> = {
-  restaurant: [
+function navDefaultsFor(t: TemplateKey): { label: string; path: string }[] {
+  const cfg = getBranchConfig(t);
+  const isHash = cfg.paths.services.startsWith('#');
+  if (isHash) {
+    return [
+      { label: 'Start', path: '/' },
+      { label: cfg.pages.services, path: cfg.paths.services },
+      { label: cfg.pages.about, path: cfg.paths.about },
+      { label: cfg.pages.contact, path: cfg.paths.contact },
+    ];
+  }
+  return [
     { label: 'Start', path: '/' },
-    { label: 'Speisekarte', path: '/speisekarte' },
-    { label: 'Galerie', path: '/galerie' },
-    { label: 'Über uns', path: '/ueber-uns' },
-    { label: 'Kontakt', path: '/kontakt' },
-  ],
-  salon: [
-    { label: 'Start', path: '/' },
-    { label: 'Leistungen', path: '/leistungen' },
-    { label: 'Looks', path: '/galerie' },
-    { label: 'Studio', path: '/ueber-uns' },
-    { label: 'Termin', path: '/kontakt' },
-  ],
-  tradesman: [
-    { label: 'Start', path: '/' },
-    { label: 'Leistungen', path: '/leistungen' },
-    { label: 'Referenzen', path: '/referenzen' },
-    { label: 'Betrieb', path: '/ueber-uns' },
-    { label: 'Anfrage', path: '/kontakt' },
-  ],
-  hotel: [
-    { label: 'Start', path: '/' },
-    { label: 'Zimmer', path: '/zimmer' },
-    { label: 'Haus & Spa', path: '/galerie' },
-    { label: 'Geschichte', path: '/ueber-uns' },
-    { label: 'Reservieren', path: '/kontakt' },
-  ],
-  tourism: [
-    { label: 'Start', path: '/' },
-    { label: 'Touren', path: '/touren' },
-    { label: 'Eindrücke', path: '/galerie' },
-    { label: 'Guides', path: '/ueber-uns' },
-    { label: 'Buchen', path: '/kontakt' },
-  ],
-  consulting: [
-    { label: 'Start', path: '/' },
-    { label: 'Leistungen', path: '#leistungen' },
-    { label: 'Über uns', path: '#about' },
-    { label: 'Kontakt', path: '#kontakt' },
-  ],
-  medical: [
-    { label: 'Start', path: '/' },
-    { label: 'Leistungen', path: '#leistungen' },
-    { label: 'Über uns', path: '#about' },
-    { label: 'Kontakt', path: '#kontakt' },
-  ],
-  fitness: [
-    { label: 'Start', path: '/' },
-    { label: 'Programm', path: '#leistungen' },
-    { label: 'Studio', path: '#about' },
-    { label: 'Kontakt', path: '#kontakt' },
-  ],
-};
+    { label: cfg.pages.services, path: cfg.paths.services },
+    { label: cfg.pages.gallery, path: cfg.paths.gallery },
+    { label: cfg.pages.about, path: cfg.paths.about },
+    { label: cfg.pages.contact, path: cfg.paths.contact },
+  ];
+}
 
 const KNOWN_PATHS_HINT = ['/', '/speisekarte', '/leistungen', '/zimmer', '/touren', '/galerie', '/referenzen', '/ueber-uns', '/kontakt', '/news'];
 
 function NavigationPage({ data, setData, tpl }: SectionProps) {
   const items = (data as any).navItems as Array<{ label: string; path: string; visible: boolean }> | undefined;
-  const list = items && items.length ? items : NAV_DEFAULTS[tpl].map((d) => ({ ...d, visible: true }));
+  const list = items && items.length ? items : navDefaultsFor(tpl).map((d) => ({ ...d, visible: true }));
 
   const setItems = (next: Array<{ label: string; path: string; visible: boolean }>) => {
     setData({ ...data, navItems: next } as any);
@@ -1776,14 +1711,7 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
   const update = (patch: Record<string, any>) => {
     setData({ ...(data as any), branchText: { ...bt, ...patch } } as SiteContent);
   };
-  const styleVisible = (key: BranchTextKey) => {
-    if (key === 'heroEyebrow') return _ctx.style === 'bold';
-    if (key === 'aboutSidebarEyebrow') return _ctx.style === 'modern';
-    if (key === 'marqueeWords') return _ctx.style === 'bold';
-    if (key === 'manifestEyebrow' || key === 'manifestTitle') return _ctx.style === 'bold';
-    if (key === 'servicesAllLabel' || key === 'servicesAllHref') return true;
-    return true;
-  };
+  const styleVisible = (key: BranchTextKey) => isBranchTextKeyVisible(key, _ctx.style);
   return (
     <>
       {keys.filter(styleVisible).map((key) => {
