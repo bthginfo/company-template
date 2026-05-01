@@ -1054,6 +1054,11 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
           <textarea className={inputCls} rows={9} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
         </Field>
         <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
+        <div className="mt-4 pt-4 border-t border-line">
+          <p className="text-sm font-medium mb-1">Sidebar-Kennzahlen (Modern)</p>
+          <p className="text-xs text-muted mb-3">Eigene Zahlen für die Sidebar neben dem Text. Leer lassen = Home-Zahlen.</p>
+          <NumbersEditor data={data} setData={setData} tpl={tpl} field="aboutNumbers" />
+        </div>
       </SectionCard>
       <SectionCard title="Werte / Grundsätze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3" pageKey="about" sectionKey="values" data={data} setData={setData}>
         <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['valuesEyebrow', 'valuesTitle']} />
@@ -1069,8 +1074,8 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         )}
         <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
       </SectionCard>
-      <SectionCard title="Sidebar-Zahlen" description="Eigene Kennzahlen für die Über-uns-Seite. Leer lassen = Home-Zahlen werden übernommen." badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
-        <NumbersEditor data={data} setData={setData} tpl={tpl} field="aboutNumbers" />
+      <SectionCard title="Zahlen-Band" badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
+        <NumbersEditor data={data} setData={setData} tpl={tpl} />
       </SectionCard>
       {cfg.about.extras.includes('certifications') && (
         <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 7" pageKey="about" sectionKey="certifications" data={data} setData={setData}>
