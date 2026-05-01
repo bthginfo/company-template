@@ -1068,19 +1068,20 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
   const href = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
   
   if (style === 'modern') {
-    // Modern: prefer explicit admin input, then branch-specific soft CTA texts.
-    const title = (ov?.lead && ov.lead.trim()) || (bt.softCtaTitle && bt.softCtaTitle.trim());
-    const sub = (ov?.sub && ov.sub.trim()) || (bt.softCtaText && bt.softCtaText.trim());
-    const cta = (ov?.cta && ov.cta.trim()) || (bt.softCtaButton && bt.softCtaButton.trim());
+    // Modern: prefer explicit CTA override, then branchText softCta fields
+    const eyebrow = (bt.softCtaEyebrow && bt.softCtaEyebrow.trim()) || '';
+    const title = (ov?.lead && ov.lead.trim()) || (bt.softCtaTitle && bt.softCtaTitle.trim()) || '';
+    const sub = (ov?.sub && ov.sub.trim()) || (bt.softCtaText && bt.softCtaText.trim()) || '';
+    const cta = (ov?.cta && ov.cta.trim()) || (bt.softCtaButton && bt.softCtaButton.trim()) || '';
     
     return (
       <section className="py-24 surface">
         <div className="container-x">
           <div className="rounded-3xl bg-white border border-line p-10 md:p-14 text-center reveal">
-            <p className="eyebrow justify-center mb-4">{bt.softCtaEyebrow}</p>
+            {eyebrow && <p className="eyebrow justify-center mb-4">{eyebrow}</p>}
             <h2 className="headline-lg">{title}</h2>
-            <p className="mt-5 text-muted max-w-xl mx-auto">{sub}</p>
-            <TLink to={href} className="btn-primary mt-8">{cta} <span aria-hidden>→</span></TLink>
+            {sub && <p className="mt-5 text-muted max-w-xl mx-auto">{sub}</p>}
+            {cta && <TLink to={href} className="btn-primary mt-8">{cta} <span aria-hidden>→</span></TLink>}
           </div>
         </div>
       </section>

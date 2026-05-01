@@ -1772,6 +1772,7 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
     if (key === 'heroEyebrow') return _ctx.style === 'bold';
     if (key === 'aboutSidebarEyebrow') return _ctx.style === 'modern';
     if (key === 'marqueeWords') return _ctx.style === 'bold';
+    if (key === 'manifestEyebrow' || key === 'manifestTitle') return _ctx.style === 'bold';
     if (key === 'servicesAllLabel' || key === 'servicesAllHref') return true;
     return true;
   };
@@ -2860,7 +2861,7 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
   const def = defaultCta(tpl);
   const [v, set] = useExtra<{ lead: string; sub: string; cta: string; ctaHref: string; eyebrow: string; leadAccent: string }>(
     data, setData, 'ctaBandOverride',
-    { lead: def.lead, sub: def.sub, cta: def.cta, ctaHref: def.ctaHref, eyebrow: def.eyebrow, leadAccent: 'Schreiben Sie uns.' },
+    { lead: '', sub: '', cta: '', ctaHref: '/kontakt', eyebrow: '', leadAccent: '' },
   );
   
   const isClassic = _ctx.style === 'classic';
@@ -2880,7 +2881,6 @@ function CtaBandEditor({ data, setData, tpl }: SectionProps) {
         </div>
       )}
       
-      {/* Modern & Bold: no eyebrow/leadAccent in this section */}
       {isBold && (
         <div className="text-sm text-muted bg-surface rounded p-3 mb-4">
           <p>Im Bold Stil wird nur die Headline und der Call-to-Action gezeigt – ohne Eyebrow und Akzent-Zeile.</p>
