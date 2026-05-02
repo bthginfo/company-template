@@ -148,13 +148,14 @@ Set these env vars on the customer's Vercel project:
 ### Syntax
 
 ```bash
-npx tsx scripts/provision-tenant.ts <slug> "<Name>" <template> [style] [--reseed] [--preset <id>]
+npx tsx scripts/provision-tenant.ts <slug> "<Name>" <template> [style] [--password <pw>] [--reseed] [--preset <id>]
 ```
 
 ### Zusätzliche Parameter
 
 | Flag | Beschreibung |
 |---|---|
+| `--password <pw>` | Setzt ein initiales Admin-Passwort (min. 8 Zeichen). Wenn leer, wird ein zufälliges generiert. |
 | `--reseed` | Überschreibt bestehenden Seed-Content |
 | `--preset <id>` | Wendet ein Theme-Preset an (z. B. `espresso`) |
 
@@ -179,13 +180,13 @@ Zusätzlich zu `POSTGRES_URL`, `AUTH_SECRET`, `BLOB_READ_WRITE_TOKEN`:
 ### Syntax
 
 ```powershell
-.\scripts\new-tenant.ps1 -Slug <slug> -Name "<Name>" -Template <template> -Style <style> [-Reseed] [-NonInteractive]
+.\scripts\new-tenant.ps1 -Slug <slug> -Name "<Name>" -Template <template> -Style <style> [-Password <pw>] [-Reseed] [-NonInteractive]
 ```
 
 ### Beispiel
 
 ```powershell
-.\scripts\new-tenant.ps1 -Slug bella-vista -Name "Bella Vista" -Template restaurant -Style modern -NonInteractive
+.\scripts\new-tenant.ps1 -Slug bella-vista -Name "Bella Vista" -Template restaurant -Style modern -Password MeinPasswort123 -NonInteractive
 ```
 
 Ruft intern `provision-tenant.ts` auf, mit zusätzlicher Eingabevalidierung und interaktivem Modus.

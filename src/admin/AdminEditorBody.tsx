@@ -11,6 +11,7 @@ import { scrollToTop } from '@/lib/scroll';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import { MODULE_DEFAULTS, type ModuleHeadingKey } from '@/components/branch-modules';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
+import { getAdminSections, getSectionMeta, SERVICE_TEASER_LIMIT, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, fieldHint } from './admin-sections';
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -40,6 +41,8 @@ export type AdminEditorBodyProps = {
   uploadImage?: UploadImageFn;
   /** Current visual style of this tenant (used to filter add-section catalog). */
   style?: TemplateStyle;
+  /** Callback to switch the visual style (persisted by the host). */
+  onStyleChange?: (style: TemplateStyle) => Promise<void> | void;
 };
 
 type Ctx = {
@@ -57,6 +60,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     previewUrlBase = '',
     uploadImage,
     style: tplStyle,
+    onStyleChange,
   } = props;
 
   _ctx = { uploadImage, style: tplStyle };
@@ -167,6 +171,9 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             <SidebarItem active={pageId === 'legal'} onClick={() => setPageId('legal')} icon="§">Impressum & Datenschutz</SidebarItem>
             <SidebarItem active={pageId === 'security'} onClick={() => setPageId('security')} icon="⚿">Passwort & Zugang</SidebarItem>
           </SidebarGroup>
+          {onStyleChange && (
+            <StyleSwitcher current={tplStyle || 'classic'} onChange={onStyleChange} />
+          )}
         </aside>
 
         {/* RIGHT: page editor */}
@@ -292,6 +299,77 @@ function SidebarItem({ active, onClick, icon, children }: { active?: boolean; on
         <span>{children}</span>
       </button>
     </li>
+  );
+}
+
+const STYLE_OPTIONS: { value: TemplateStyle; label: string; desc: string }[] = [
+  { value: 'classic', label: 'Classic', desc: 'Editorial, elegant, zeitlos' },
+  { value: 'modern', label: 'Modern', desc: 'Aufgeräumt, leicht, luftig' },
+  { value: 'bold', label: 'Bold', desc: 'Magazin, groß, plakativ' },
+];
+
+function StyleSwitcher({ current, onChange }: { current: TemplateStyle; onChange: (s: TemplateStyle) => Promise<void> | void }) {
+  const [confirming, setConfirming] = useState<TemplateStyle | null>(null);
+  const [switching, setSwitching] = useState(false);
+
+  const doSwitch = async () => {
+    if (!confirming) return;
+    setSwitching(true);
+    try {
+      await onChange(confirming);
+      setConfirming(null);
+    } finally {
+      setSwitching(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl p-3 shadow-sm">
+      <p className="text-[10px] uppercase tracking-[0.18em] text-muted px-1 pt-1 pb-2">Design-Stil</p>
+      <div className="space-y-1">
+        {STYLE_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => opt.value !== current && setConfirming(opt.value)}
+            className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
+              opt.value === current
+                ? 'bg-brand text-white'
+                : 'hover:bg-[#f6f6f3] text-slate-700'
+            }`}
+          >
+            <span className="w-5 text-center">{opt.value === current ? '●' : '○'}</span>
+            <span>
+              <span className="font-medium">{opt.label}</span>
+              <span className="block text-[11px] opacity-70">{opt.desc}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+      {confirming && (
+        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+          <p className="font-medium text-amber-900">Stil wechseln?</p>
+          <p className="text-amber-800 text-xs mt-1">
+            Das Layout ändert sich sofort. Alle Inhalte bleiben erhalten, einige Sektionen
+            werden je nach Stil ein- oder ausgeblendet.
+          </p>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={doSwitch}
+              disabled={switching}
+              className="bg-brand text-white text-xs font-medium px-4 py-2 rounded-lg disabled:opacity-50"
+            >
+              {switching ? 'Wechselt …' : `Zu ${STYLE_OPTIONS.find((o) => o.value === confirming)?.label} wechseln`}
+            </button>
+            <button
+              onClick={() => setConfirming(null)}
+              className="text-xs text-muted hover:text-slate-800 px-3 py-2"
+            >
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -622,316 +700,395 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
   const cfg = getBranchConfig(tpl);
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
   const announcements = (data as any).announcements as string[] | undefined;
+  const style = _ctx.style || 'classic';
+
+  const sectionOrder = getAdminSections('home', tpl, style);
+
+  const renderSection = (key: string, idx: number) => {
+    const meta = getSectionMeta(key as any, tpl, style);
+    const badge = `${idx + 1}`;
+    switch (key) {
+      case 'announcements':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <RepeatableList
+              items={announcements ?? defaultAnnouncements(tpl)}
+              onChange={(arr: string[]) => setData({ ...(data as any), announcements: arr } as SiteContent)}
+              render={(v: string, i: number, set: (v: string) => void) => (
+                <input className={inputCls} value={v} onChange={(e) => set(e.target.value)} placeholder={`Hinweis ${i + 1}`} />
+              )}
+              newItem={() => ''}
+              addLabel="+ Hinweis hinzufügen"
+            />
+          </SectionCard>
+        );
+      case 'hero':
+        return <HomeSectionHero key={key} data={data} setData={setData} set={set} tpl={tpl} cfg={cfg} $s={$s} meta={meta} badge={badge} />;
+      case 'actionStrip':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="action" data={data} setData={setData}>
+            <HomeStripEditor data={data} setData={setData} tpl={tpl} />
+          </SectionCard>
+        );
+      case 'branchChips':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="chips" data={data} setData={setData}>
+            <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
+            {/* Extra branches show heroBadge fields inline (badge is rendered inside the chips block) */}
+            {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && (
+              <>
+                <hr className="my-4 border-line" />
+                <p className="text-xs font-medium text-muted mb-2">Google-Badge (wird im Hero / Chip-Bereich angezeigt)</p>
+                <HeroBadgeEditor data={data} setData={setData} />
+              </>
+            )}
+          </SectionCard>
+        );
+      case 'marquee':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="marquee" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
+          </SectionCard>
+        );
+      case 'numbers':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="numbers" data={data} setData={setData}>
+            <NumbersEditor data={data} setData={setData} tpl={tpl} />
+          </SectionCard>
+        );
+      case 'services':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="services" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle', 'servicesAllLabel', 'servicesAllHref']} />
+            <p className="text-xs text-muted">
+              Reihenfolge per Drag & Drop. <strong>Die ersten {SERVICE_TEASER_LIMIT[style]} Einträge</strong> erscheinen auf der Startseite, alle auf der Unterseite.
+            </p>
+            <ServicesListEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'signature':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="signature" data={data} setData={setData}>
+            <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
+            <p className="text-xs font-medium text-muted mt-6 mb-3">Items (separate vom Angebot oben)</p>
+            <HomeSignatureItemsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'about':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="about" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={style === 'bold'
+              ? ['manifestEyebrow', 'manifestTitle', 'learnMoreLabel', 'learnMoreHref']
+              : ['aboutTeaserEyebrow', 'learnMoreLabel', 'learnMoreHref']} />
+            <Field label="Überschrift">
+              <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
+            </Field>
+            <Field label="Text" hint={fieldHint(FIELD_CONFIG.homeAbout.bodyHint, style)}>
+              <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
+            </Field>
+            {$s(cfg.home.aboutImage) && (
+              <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
+            )}
+          </SectionCard>
+        );
+      case 'gallery':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="gallery" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserEyebrow', 'galleryTeaserTitle', 'galleryAllLabel']} />
+            <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten <strong>{GALLERY_TEASER_LIMIT[style]} Bilder</strong> erscheinen hier.</p>
+            <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
+              {data.gallery.slice(0, GALLERY_TEASER_LIMIT[style]).map((src, i) => (
+                <div key={`${i}_${src}`} className="aspect-square rounded-lg overflow-hidden bg-[#f6f6f3]">
+                  <img src={src} alt="" className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        );
+      case 'logos':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="logos" data={data} setData={setData}>
+            <LogosEditor data={data} setData={setData} tpl={tpl} />
+          </SectionCard>
+        );
+      case 'testimonials':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['testimonialsEyebrow', 'testimonialsTitle']} />
+            <TestimonialsEditor data={data} setData={setData} max={3} />
+          </SectionCard>
+        );
+      case 'news':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="news" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['newsEyebrow', 'newsTitle']} />
+            <p className="text-xs text-muted">Beiträge anlegen unter <strong>News &amp; Blog</strong> in der Seitenleiste.</p>
+            <NewsHomePreview data={data} />
+          </SectionCard>
+        );
+      case 'softCta':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="softCta" data={data} setData={setData}>
+            <CtaBandEditor data={data} setData={setData} tpl={tpl} />
+          </SectionCard>
+        );
+      case 'funding':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="funding" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="funding" />
+            <FundingEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'spotlight':
+        if (tpl === 'consulting') return (
+          <SectionCard key={key} title="Spotlight: Vorgehen" description="Überschrift für die „Wie wir arbeiten“-Sektion." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="consultingSpotlight" />
+          </SectionCard>
+        );
+        if (tpl === 'medical') return (
+          <SectionCard key={key} title="Spotlight: Service & Info" description="Überschrift der Service-Kacheln." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="medicalInfo" />
+          </SectionCard>
+        );
+        if (tpl === 'fitness') return (
+          <SectionCard key={key} title="Spotlight: Programme" description="Überschrift für die Programm-Sektion." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="fitnessSpotlight" />
+          </SectionCard>
+        );
+        return null;
+      case 'heroBadge':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="heroBadge" data={data} setData={setData}>
+            <HeroBadgeEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
-      <SectionCard title="Lauftext-Banner" description="Die kleine Marquee-Zeile ganz oben über dem Hero." badge="Sektion 1">
-        <RepeatableList
-          items={announcements ?? defaultAnnouncements(tpl)}
-          onChange={(arr) => setData({ ...(data as any), announcements: arr } as SiteContent)}
-          render={(v, i, set) => (
-            <input className={inputCls} value={v} onChange={(e) => set(e.target.value)} placeholder={`Hinweis ${i + 1}`} />
-          )}
-          newItem={() => ''}
-          addLabel="+ Hinweis hinzufügen"
-        />
-      </SectionCard>
-
-      <SectionCard title="Hero (Startbereich)" description="Erster Eindruck – Titel, Untertitel, Hintergrund, Buttons." badge="Sektion 2">
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
-        {$s(cfg.home.hero.tagline) && (
-          <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift (Classic/Modern).">
-            <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
-          </Field>
-        )}
-        <Field label="Hauptüberschrift">
-          <input className={inputCls} value={data.hero.title} onChange={(e) => set({ hero: { ...data.hero, title: e.target.value } })} />
-        </Field>
-        {$s(cfg.home.hero.subtitle) && (
-          <Field label="Untertitel" hint="Kurze Zeile direkt unter dem Titel (z. B. ein zweiter Halbsatz).">
-            <input className={inputCls} value={data.hero.subtitle || ''} onChange={(e) => set({ hero: { ...data.hero, subtitle: e.target.value } })} />
-          </Field>
-        )}
-        {$s(cfg.home.hero.body) && (
-          <Field label="Beschreibungstext" hint="Längerer Fließtext unter dem Untertitel – beschreibt das Angebot in 1–3 Sätzen.">
-            <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
-          </Field>
-        )}
-        {$s(cfg.home.hero.bgImage) && (
-          <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
-        )}
-        {$s(cfg.home.hero.cardImage) && (
-          <ImagePickerField label="Hero-Bild" value={data.branchText?.heroImageUrl || ''} onChange={(v) => setData({ ...data, branchText: { ...data.branchText, heroImageUrl: v } })} ratio="aspect-[4/5]" />
-        )}
-        {(() => {
-          const heroCta = ((data as any).heroCta ?? {}) as {
-            primaryLabel?: string;
-            primaryHref?: string;
-            secondaryLabel?: string;
-            secondaryHref?: string;
-          };
-          const setHeroCta = (patch: { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string }) =>
-            setData({ ...(data as any), heroCta: { ...heroCta, ...patch } } as SiteContent);
-          const primaryLabel = heroCta.primaryLabel || data.hero.ctaLabel || '';
-          const primaryHref = heroCta.primaryHref || data.hero.ctaHref || '';
-          return (
-            <>
-        <p className="text-xs font-medium text-muted mt-4">Primär-Button</p>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Button-Text">
-            <input
-              className={inputCls}
-              value={primaryLabel}
-              onChange={(e) => {
-                const v = e.target.value;
-                set({ hero: { ...data.hero, ctaLabel: v } });
-                setHeroCta({ primaryLabel: v });
-              }}
-            />
-          </Field>
-          <LinkTargetField
-            label="Button-Ziel"
-            value={primaryHref}
-            onChange={(v) => {
-              set({ hero: { ...data.hero, ctaHref: v } });
-              setHeroCta({ primaryHref: v });
-            }}
-            sections={homeSectionsFor(tpl)}
-          />
-        </div>
-              <p className="text-xs font-medium text-muted mt-4">Sekundär-Button (optional)</p>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Field label="Button-Text" hint="Leer lassen, um den zweiten Button auszublenden.">
-                  <input className={inputCls} value={heroCta.secondaryLabel || ''} onChange={(e) => setHeroCta({ secondaryLabel: e.target.value })} placeholder="Speisekarte ansehen" />
-                </Field>
-                <LinkTargetField label="Button-Ziel" value={heroCta.secondaryHref || ''} onChange={(v) => setHeroCta({ secondaryHref: v })} sections={homeSectionsFor(tpl)} />
-              </div>
-            </>
-          );
-        })()}
-      </SectionCard>
-
-      <SectionCard title="Aktionsleiste" description="Schmaler Streifen direkt unter dem Hero-Bereich (z. B. „Heute geöffnet · Tisch reservieren · Speisekarte ansehen“)." badge="Sektion 2b" pageKey="home" sectionKey="action" data={data} setData={setData}>
-        <HomeStripEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
-
-      {cfg.home.branchChips && (
-        <SectionCard title="Branchen-Stichworte" description="Kurze Schlagwörter direkt unter dem Hero – geben der Variante ein klares Profil." badge="Sektion 2c" pageKey="home" sectionKey="chips" data={data} setData={setData}>
-          <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
-        </SectionCard>
-      )}
-
-      {$s(cfg.home.marqueeWords) && (
-        <SectionCard title="Schlagwort-Band" description="Großes Wortband direkt unter dem Hero – setzt das Profil mit kurzen Begriffen." badge="Sektion 2c" pageKey="home" sectionKey="marquee" data={data} setData={setData}>
-          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
-        </SectionCard>
-      )}
-
-      <SectionCard title="Zahlen-Band" description={'Vier Eckdaten – meist direkt unter dem Hero (auch in „Über uns").'} badge="Sektion 3" pageKey="home" sectionKey="numbers" data={data} setData={setData}>
-        <NumbersEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
-
-      <SectionCard title={tpl === 'restaurant' ? 'Speisekarte-Teaser' : 'Leistungen-Teaser'} description="Die ersten 3 Einträge erscheinen auf der Startseite. Reihenfolge per Drag & Drop." badge="Sektion 4" pageKey="home" sectionKey="services" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle', 'servicesAllLabel', 'servicesAllHref']} />
-        <p className="text-xs text-muted">
-          Reihenfolge per Drag & Drop bestimmt, welche Gerichte/Leistungen hier (erste 3) und auf der Unterseite (alle) erscheinen.
-        </p>
-        <ServicesListEditor data={data} setData={setData} />
-      </SectionCard>
-
-      <SectionCard title={tpl === 'restaurant' ? 'Heute auf der Karte' : tpl === 'salon' ? 'Aktuelle Looks' : tpl === 'hotel' ? 'Verfügbare Zimmer' : 'Angebot'} description={tpl === 'restaurant' ? 'Empfehlungen / Highlights aus der Speisekarte.' : 'Aktuelle Highlights oder Tagesangebot.'} badge="Sektion 4b" pageKey="home" sectionKey="signature" data={data} setData={setData}>
-        <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
-        <p className="text-xs font-medium text-muted mt-6 mb-3">Items (separate vom Angebot oben)</p>
-        <HomeSignatureItemsEditor data={data} setData={setData} />
-      </SectionCard>
-
-      <SectionCard title="Über-uns-Teaser" description="Kurzer Auszug, der auf die Über-uns-Seite verweist." badge="Sektion 5" pageKey="home" sectionKey="about" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={_ctx.style === 'bold'
-          ? ['manifestEyebrow', 'manifestTitle', 'learnMoreLabel', 'learnMoreHref']
-          : ['aboutTeaserEyebrow', 'learnMoreLabel', 'learnMoreHref']} />
-        <Field label="Überschrift">
-          <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
-        </Field>
-        <Field label="Text" hint="Wird automatisch auf 2–3 Absätze gekürzt auf der Startseite.">
-          <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
-        </Field>
-        {$s(cfg.home.aboutImage) && (
-          <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: v } })} />
-        )}
-      </SectionCard>
-
-      <SectionCard title="Galerie-Teaser" description="Sieben Bilder für die Vorschau auf der Startseite." badge="Sektion 6" pageKey="home" sectionKey="gallery" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserEyebrow', 'galleryTeaserTitle', 'galleryAllLabel']} />
-        <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten 7 Bilder erscheinen hier.</p>
-        <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
-          {data.gallery.slice(0, 7).map((src, i) => (
-            <div key={`${i}_${src}`} className="aspect-square rounded-lg overflow-hidden bg-[#f6f6f3]">
-              <img src={src} alt="" className="w-full h-full object-cover" />
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-
-      {$s(cfg.home.logoStrip) && (
-        <SectionCard title="Logo-Strip" description="Partner / Presse / Auszeichnungen als Wortmarken-Band." badge="Sektion 6b" pageKey="home" sectionKey="logos" data={data} setData={setData}>
-          <LogosEditor data={data} setData={setData} tpl={tpl} />
-        </SectionCard>
-      )}
-
-      <SectionCard title="Bewertungen-Teaser" description="Die ersten drei Stimmen erscheinen auf der Startseite." badge="Sektion 7" pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['testimonialsEyebrow', 'testimonialsTitle']} />
-        <TestimonialsEditor data={data} setData={setData} max={3} />
-      </SectionCard>
-
-      <SectionCard title="News-Teaser" description="Die 3 neuesten veröffentlichten Beiträge erscheinen auf der Startseite." badge="Sektion 8" pageKey="home" sectionKey="news" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['newsEyebrow', 'newsTitle']} />
-        <p className="text-xs text-muted">
-          Beiträge anlegen und bearbeiten Sie unter <strong>News &amp; Blog</strong> in der Seitenleiste. Hier sehen Sie nur, welche aktuell auf der Startseite landen.
-        </p>
-        <NewsHomePreview data={data} />
-      </SectionCard>
-
-      <SectionCard title="Abschluss-Aufruf (CTA)" description="Der große Aufruf zur Aktion am Seitenende – wird auf allen Unterseiten angezeigt." badge="Sektion 9" pageKey="home" sectionKey="softCta" data={data} setData={setData}>
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
-
-      {/* ── Extra-branch spotlight section headings ─────────────── */}
-      {tpl === 'consulting' && (
-        <SectionCard title="Spotlight: Vorgehen" description="Überschrift und Beschreibung für die \u201eWie wir arbeiten\u201c-Sektion auf der Startseite." badge="Extra" pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
-          <ModuleHeadingFields data={data} setData={setData} mKey="consultingSpotlight" />
-        </SectionCard>
-      )}
-      {tpl === 'medical' && (
-        <SectionCard title="Spotlight: Service & Info" description="Überschrift der Service-Kacheln (Sprechzeiten, Online-Termin, Notfall) auf der Startseite." badge="Extra" pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
-          <ModuleHeadingFields data={data} setData={setData} mKey="medicalInfo" />
-        </SectionCard>
-      )}
-      {tpl === 'fitness' && (
-        <SectionCard title="Spotlight: Programme" description="Überschrift und Beschreibung für die Programm-Sektion auf der Startseite." badge="Extra" pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
-          <ModuleHeadingFields data={data} setData={setData} mKey="fitnessSpotlight" />
-        </SectionCard>
-      )}
-      {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
-        <SectionCard title="Hero-Badge" description="Das kleine Bewertungs-Badge neben dem Hero-Bild (Modern-Stil)." badge="Extra" pageKey="home" sectionKey="heroBadge" data={data} setData={setData}>
-          <HeroBadgeEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-
+      {sectionOrder.map((key, idx) => renderSection(key, idx))}
       <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
     </>
   );
 }
 
+/** Hero section (extracted for readability) */
+function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge }: {
+  data: SiteContent; setData: (d: SiteContent) => void;
+  set: (patch: Partial<SiteContent>) => void;
+  tpl: TemplateKey; cfg: any; $s: (flag: any) => boolean;
+  meta: { title: string; description: string }; badge: string;
+}) {
+  return (
+    <SectionCard title={meta.title} description={meta.description} badge={badge}>
+      <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
+      {$s(cfg.home.hero.tagline) && (
+        <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift (Classic/Modern).">
+          <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
+        </Field>
+      )}
+      <Field label="Hauptüberschrift">
+        <input className={inputCls} value={data.hero.title} onChange={(e) => set({ hero: { ...data.hero, title: e.target.value } })} />
+      </Field>
+      {$s(cfg.home.hero.subtitle) && (
+        <Field label="Untertitel" hint="Kurze Zeile direkt unter dem Titel.">
+          <input className={inputCls} value={data.hero.subtitle || ''} onChange={(e) => set({ hero: { ...data.hero, subtitle: e.target.value } })} />
+        </Field>
+      )}
+      {$s(cfg.home.hero.body) && (
+        <Field label="Beschreibungstext" hint="Längerer Fließtext – beschreibt das Angebot in 1–3 Sätzen.">
+          <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
+        </Field>
+      )}
+      {$s(cfg.home.hero.bgImage) && (
+        <ImagePickerField label="Hintergrundbild" value={data.hero.imageUrl || ''} onChange={(v) => set({ hero: { ...data.hero, imageUrl: v } })} ratio="aspect-[16/9]" />
+      )}
+      {$s(cfg.home.hero.cardImage) && (
+        <ImagePickerField label="Hero-Bild" value={data.branchText?.heroImageUrl || ''} onChange={(v) => setData({ ...data, branchText: { ...data.branchText, heroImageUrl: v } })} ratio="aspect-[4/5]" />
+      )}
+      {(() => {
+        const heroCta = ((data as any).heroCta ?? {}) as {
+          primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string;
+        };
+        const setHeroCta = (patch: { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string }) =>
+          setData({ ...(data as any), heroCta: { ...heroCta, ...patch } } as SiteContent);
+        const primaryLabel = heroCta.primaryLabel || data.hero.ctaLabel || '';
+        const primaryHref = heroCta.primaryHref || data.hero.ctaHref || '';
+        return (
+          <>
+            <p className="text-xs font-medium text-muted mt-4">Primär-Button</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Button-Text">
+                <input className={inputCls} value={primaryLabel} onChange={(e) => { set({ hero: { ...data.hero, ctaLabel: e.target.value } }); setHeroCta({ primaryLabel: e.target.value }); }} />
+              </Field>
+              <LinkTargetField label="Button-Ziel" value={primaryHref} onChange={(v) => { set({ hero: { ...data.hero, ctaHref: v } }); setHeroCta({ primaryHref: v }); }} sections={homeSectionsFor(tpl)} />
+            </div>
+            <p className="text-xs font-medium text-muted mt-4">Sekundär-Button (optional)</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field label="Button-Text" hint="Leer lassen, um den zweiten Button auszublenden.">
+                <input className={inputCls} value={heroCta.secondaryLabel || ''} onChange={(e) => setHeroCta({ secondaryLabel: e.target.value })} placeholder="Speisekarte ansehen" />
+              </Field>
+              <LinkTargetField label="Button-Ziel" value={heroCta.secondaryHref || ''} onChange={(v) => setHeroCta({ secondaryHref: v })} sections={homeSectionsFor(tpl)} />
+            </div>
+          </>
+        );
+      })()}
+    </SectionCard>
+  );
+}
+
+
 function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   const cfg = getBranchConfig(tpl);
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
-  const $m = (mod: import('@/lib/branch-config').ServiceModule) => cfg.services.modules.includes(mod);
+  const style = _ctx.style || 'classic';
+  const sectionOrder = getAdminSections('services', tpl, style);
+
+  const renderSection = (key: string, idx: number) => {
+    const meta = getSectionMeta(key as any, tpl, style);
+    const badge = `Sektion ${idx + 1}`;
+    switch (key) {
+      case 'servicesHeader':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <PageHeaderEditor data={data} setData={setData} field="services" defaults={{
+              eyebrow: tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen',
+              title: tpl === 'restaurant' ? 'Aus der Küche.' : tpl === 'salon' ? 'Ihre Behandlungen.' : 'Was wir können.',
+              subtitle: '',
+            }} />
+            {$s(cfg.services.headerImage) && (
+              <>
+                <hr className="my-4 border-line" />
+                <ImagePickerField label="Header-Bild" value={data.branchText?.servicesPageImageUrl || ''} onChange={(url) => setData({ ...data, branchText: { ...data.branchText, servicesPageImageUrl: url } })} ratio="aspect-[16/9]" />
+              </>
+            )}
+          </SectionCard>
+        );
+      case 'highlights':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="highlights" data={data} setData={setData}>
+            <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
+          </SectionCard>
+        );
+      case 'menu':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Speisekarte" pageKey="services" sectionKey="module" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="menu" />
+            <MenuEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'rooms':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Zimmer" pageKey="services" sectionKey="module" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="rooms" />
+            <RoomsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'tours':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Touren" pageKey="services" sectionKey="module" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="tours" />
+            <ToursEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'treatments':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Treatments" pageKey="services" sectionKey="module" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="treatments" />
+            <TreatmentsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'courses':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Kursplan">
+            <ModuleHeadingFields data={data} setData={setData} mKey="courses" />
+            <CoursesEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'packages':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Pakete">
+            <ModuleHeadingFields data={data} setData={setData} mKey="packages" />
+            <PackagesEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'processSteps':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Prozess">
+            <ModuleHeadingFields data={data} setData={setData} mKey="process" />
+            <ProcessStepsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'doctors':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Doctors">
+            <ModuleHeadingFields data={data} setData={setData} mKey="doctors" />
+            <DoctorsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'booking':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Booking">
+            <ModuleHeadingFields data={data} setData={setData} mKey="booking" />
+            <BookingEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'fundingModule':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Förderung">
+            <ModuleHeadingFields data={data} setData={setData} mKey="funding" />
+            <FundingEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'emergencyBanner':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Notdienst">
+            <EmergencyBannerEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'programs':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <ProgramsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'medicalNotice':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <MedicalNoticeEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'serviceProcess':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="process" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['processEyebrow', 'processTitle']} />
+            <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
+          </SectionCard>
+        );
+      case 'faq':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="faq" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['faqEyebrow', 'faqTitle']} />
+            <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
+          </SectionCard>
+        );
+      case 'servicesCta':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="cta" data={data} setData={setData}>
+            <CtaBandEditor data={data} setData={setData} tpl={tpl} page="services" />
+          </SectionCard>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
-      <SectionCard title="Seiten-Header" description="Überschrift oben auf der Seite." badge="Sektion 1">
-        <PageHeaderEditor data={data} setData={setData} field="services" defaults={{
-          eyebrow: tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen',
-          title: tpl === 'restaurant' ? 'Aus der Küche.' : tpl === 'salon' ? 'Ihre Behandlungen.' : 'Was wir können.',
-          subtitle: '',
-        }} />
-        {$s(cfg.services.headerImage) && (
-          <>
-            <hr className="my-4 border-line" />
-            <ImagePickerField label="Header-Bild" value={data.branchText?.servicesPageImageUrl || ''} onChange={(url) => setData({ ...data, branchText: { ...data.branchText, servicesPageImageUrl: url } })} ratio="aspect-[16/9]" />
-          </>
-        )}
-      </SectionCard>
-      <SectionCard title="Highlights-Leiste" description="Vier kurze Highlights direkt unter der Überschrift." badge="Sektion 2" pageKey="services" sectionKey="highlights" data={data} setData={setData}>
-        <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
-      </SectionCard>
-
-      {$m('programs') && (
-        <SectionCard title="Programme" description="Kurse / Trainings, die im Programm-Spotlight erscheinen." badge="Sektion 3b">
-          <ProgramsEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('medicalNotice') && (
-        <SectionCard title="Hinweise (Online-Termin & Notfall)" description="Texte für die Service-Karten." badge="Sektion 3b">
-          <MedicalNoticeEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-
-      {/* ───── Branch-specific modules ───── */}
-      {$m('menu') && (
-        <SectionCard title="Speisekarte (Kategorien & Gerichte)" description="Vollständige Karte mit Kategorien, Allergenen und Tags. Erscheint als Modul-Block auf der Speisekarte-Seite." badge="Modul · Speisekarte" pageKey="services" sectionKey="module" data={data} setData={setData}>
-          <ModuleHeadingFields data={data} setData={setData} mKey="menu" />
-          <MenuEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('rooms') && (
-        <SectionCard title="Zimmer-Showcase" description="Detaillierte Zimmer mit Größe, Bett, Preis & Ausstattung. Erscheint als Modul-Block auf der Zimmer-Seite." badge="Modul · Zimmer" pageKey="services" sectionKey="module" data={data} setData={setData}>
-          <ModuleHeadingFields data={data} setData={setData} mKey="rooms" />
-          <RoomsEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('tours') && (
-        <SectionCard title="Tour-Karten" description="Touren mit Schwierigkeit, Dauer, Sprachen und Preis. Erscheint als Modul-Block auf der Touren-Seite." badge="Modul · Touren" pageKey="services" sectionKey="module" data={data} setData={setData}>
-          <ModuleHeadingFields data={data} setData={setData} mKey="tours" />
-          <ToursEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('treatments') && (
-        <SectionCard title="Behandlungen (kategorisiert)" description="Kategorisierte Behandlungsliste mit Dauer & Preis." badge="Modul · Treatments" pageKey="services" sectionKey="module" data={data} setData={setData}>
-          <ModuleHeadingFields data={data} setData={setData} mKey="treatments" />
-          <TreatmentsEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('courses') && (
-        <SectionCard title="Kursplan" description="Kursliste mit Zeitplan, Level, Trainer und Preis." badge="Modul · Kursplan">
-          <ModuleHeadingFields data={data} setData={setData} mKey="courses" />
-          <CoursesEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('packages') && (
-        <SectionCard title="Preis-Pakete" description="Drei-Stufen-Pakete mit Highlight-Karte." badge="Modul · Pakete">
-          <ModuleHeadingFields data={data} setData={setData} mKey="packages" />
-          <PackagesEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('processSteps') && (
-        <SectionCard title="Prozess-Schritte" description="Horizontale Timeline mit 3–6 Stationen Ihres Vorgehens." badge="Modul · Prozess">
-          <ModuleHeadingFields data={data} setData={setData} mKey="process" />
-          <ProcessStepsEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('doctors') && (
-        <SectionCard title="Ärzte & Team" description="Profile der behandelnden Ärztinnen und Ärzte." badge="Modul · Doctors">
-          <ModuleHeadingFields data={data} setData={setData} mKey="doctors" />
-          <DoctorsEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('booking') && (
-        <SectionCard title="Online-Terminbuchung" description="Doctolib / jameda / TIMIFY-Anbindung. CTA oder Embed." badge="Modul · Booking">
-          <ModuleHeadingFields data={data} setData={setData} mKey="booking" />
-          <BookingEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('funding') && (
-        <SectionCard title="Förder-Übersicht" description="Liste der Förderprogramme mit Prozent-Quote (für den Förder-Kalkulator)." badge="Modul · Förderung">
-          <ModuleHeadingFields data={data} setData={setData} mKey="funding" />
-          <FundingEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {$m('emergencyBanner') && (
-        <SectionCard title="Notdienst-Banner" description="Sticky-Banner unten rechts mit 24/7-Hotline." badge="Modul · Notdienst">
-          <EmergencyBannerEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      <SectionCard title="Ablauf-Schritte" description={'Die vier Schritte „So läuft es ab".'} badge="Sektion 4" pageKey="services" sectionKey="process" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['processEyebrow', 'processTitle']} />
-        <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
-      </SectionCard>
-      <SectionCard title="FAQ" description="Häufig gestellte Fragen am Seitenende." badge="Sektion 5" pageKey="services" sectionKey="faq" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['faqEyebrow', 'faqTitle']} />
-        <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
-      </SectionCard>
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="services" sectionKey="cta" data={data} setData={setData}>
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} page="services" />
-      </SectionCard>
+      {sectionOrder.map((key, idx) => renderSection(key, idx))}
       <AddSectionRow pageKey="services" data={data} setData={setData} tpl={tpl} />
     </>
   );
@@ -964,6 +1121,8 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   const add = (url: string) => url && setData({ ...data, gallery: [...data.gallery, url] });
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
+  const style = _ctx.style || 'classic';
+  const sectionOrder = getAdminSections('gallery', tpl, style);
 
   const onFiles = async (files: FileList | null) => {
     if (!files) return;
@@ -981,133 +1140,194 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
     } finally { setBusy(false); }
   };
 
+  const renderSection = (key: string, idx: number) => {
+    const meta = getSectionMeta(key as any, tpl, style);
+    const badge = `Sektion ${idx + 1}`;
+    switch (key) {
+      case 'galleryHeader':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <PageHeaderEditor data={data} setData={setData} field="gallery" defaults={galleryHeaderDefaults(tpl)} />
+          </SectionCard>
+        );
+      case 'galleryStory':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="gallery" sectionKey="story" data={data} setData={setData}>
+            <GalleryStoryEditor data={data} setData={setData} defaults={defaultGalleryStory(tpl)} />
+          </SectionCard>
+        );
+      case 'galleryUpload':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <div className="border-2 border-dashed border-line rounded-2xl p-7 text-center bg-[#fafaf7]">
+              <p className="text-2xl mb-2" aria-hidden>↥</p>
+              <p className="font-medium text-sm">Bilder auswählen</p>
+              <p className="text-xs text-muted mt-1">JPG, PNG, WebP. Mehrfachauswahl möglich.</p>
+              <label className="btn-outline mt-4 !py-2 !px-5 text-sm inline-grid place-items-center cursor-pointer">
+                {busy ? 'Lädt …' : 'Vom Computer wählen'}
+                <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
+              </label>
+            </div>
+            <div className="grid grid-cols-[1fr_auto] gap-2">
+              <input className={inputCls} placeholder="oder Bild-URL einfügen" value={draft} onChange={(e) => setDraft(e.target.value)} />
+              <button className="btn-primary !py-2 !px-4 text-sm" onClick={() => { add(draft); setDraft(''); }}>Hinzufügen</button>
+            </div>
+          </SectionCard>
+        );
+      case 'galleryGrid':
+        return (
+          <SectionCard key={key} title={`${meta.title} (${data.gallery.length})`} description={meta.description} badge={badge} pageKey="gallery" sectionKey="grid" data={data} setData={setData}>
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {data.gallery.map((src, i) => (
+                <div key={`${i}_${src}`} className="relative group aspect-square overflow-hidden rounded-xl border border-line">
+                  <img src={src} alt="" className="w-full h-full object-cover" />
+                  <div className="absolute inset-x-0 top-0 p-1.5 flex justify-between opacity-0 group-hover:opacity-100 transition">
+                    <span className="bg-white/95 rounded-full text-[10px] px-2 py-0.5 font-mono">{String(i + 1).padStart(2, '0')}</span>
+                    <button onClick={() => remove(i)} className="bg-white/95 text-rose-600 rounded-full h-6 w-6 grid place-items-center text-sm" title="Entfernen">×</button>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-1.5 flex justify-between opacity-0 group-hover:opacity-100 transition">
+                    <button onClick={() => move(i, -1)} className="bg-white/95 rounded-full h-6 w-6 grid place-items-center text-xs" title="Hoch">↑</button>
+                    <button onClick={() => move(i, 1)} className="bg-white/95 rounded-full h-6 w-6 grid place-items-center text-xs" title="Runter">↓</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        );
+      case 'galleryCategories':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="gallery" sectionKey="categories" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryCategoriesEyebrow', 'galleryCategoriesTitle']} />
+            <GalleryCategoriesEditor data={data} setData={setData} defaults={defaultGalleryCategories(tpl)} />
+          </SectionCard>
+        );
+      case 'galleryCta':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="gallery" sectionKey="cta" data={data} setData={setData}>
+            <CtaBandEditor data={data} setData={setData} tpl={tpl} page="gallery" />
+          </SectionCard>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
-      <SectionCard title="Seiten-Header" badge="Sektion 1">
-        <PageHeaderEditor data={data} setData={setData} field="gallery" defaults={galleryHeaderDefaults(tpl)} />
-      </SectionCard>
-
-      <SectionCard title="Galerie-Einleitung" description="Kurzer Text mit drei Captions über den Bildern – was schauen Besucher hier?" badge="Sektion 2" pageKey="gallery" sectionKey="story" data={data} setData={setData}>
-        <GalleryStoryEditor data={data} setData={setData} defaults={defaultGalleryStory(tpl)} />
-      </SectionCard>
-
-      <SectionCard title="Bilder hochladen" description="Vom Computer wählen oder per URL." badge="Sektion 3">
-        <div className="border-2 border-dashed border-line rounded-2xl p-7 text-center bg-[#fafaf7]">
-          <p className="text-2xl mb-2" aria-hidden>↥</p>
-          <p className="font-medium text-sm">Bilder auswählen</p>
-          <p className="text-xs text-muted mt-1">JPG, PNG, WebP. Mehrfachauswahl möglich.</p>
-          <label className="btn-outline mt-4 !py-2 !px-5 text-sm inline-grid place-items-center cursor-pointer">
-            {busy ? 'Lädt …' : 'Vom Computer wählen'}
-            <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { onFiles(e.target.files); e.target.value = ''; }} />
-          </label>
-        </div>
-        <div className="grid grid-cols-[1fr_auto] gap-2">
-          <input className={inputCls} placeholder="oder Bild-URL einfügen" value={draft} onChange={(e) => setDraft(e.target.value)} />
-          <button className="btn-primary !py-2 !px-4 text-sm" onClick={() => { add(draft); setDraft(''); }}>Hinzufügen</button>
-        </div>
-      </SectionCard>
-
-      <SectionCard title={`Alle Bilder (${data.gallery.length})`} description="Reihenfolge per ↑/↓, Bild entfernen mit ×." badge="Sektion 4" pageKey="gallery" sectionKey="grid" data={data} setData={setData}>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {data.gallery.map((src, i) => (
-            <div key={`${i}_${src}`} className="relative group aspect-square overflow-hidden rounded-xl border border-line">
-              <img src={src} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-x-0 top-0 p-1.5 flex justify-between opacity-0 group-hover:opacity-100 transition">
-                <span className="bg-white/95 rounded-full text-[10px] px-2 py-0.5 font-mono">{String(i + 1).padStart(2, '0')}</span>
-                <button onClick={() => remove(i)} className="bg-white/95 text-rose-600 rounded-full h-6 w-6 grid place-items-center text-sm" title="Entfernen">×</button>
-              </div>
-              <div className="absolute inset-x-0 bottom-0 p-1.5 flex justify-between opacity-0 group-hover:opacity-100 transition">
-                <button onClick={() => move(i, -1)} className="bg-white/95 rounded-full h-6 w-6 grid place-items-center text-xs" title="Hoch">↑</button>
-                <button onClick={() => move(i, 1)} className="bg-white/95 rounded-full h-6 w-6 grid place-items-center text-xs" title="Runter">↓</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Kategorien-Übersicht" description="Drei Kategorien-Karten unter der Galerie – was bieten Sie inhaltlich?" badge="Sektion 5" pageKey="gallery" sectionKey="categories" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryCategoriesEyebrow', 'galleryCategoriesTitle']} />
-        <GalleryCategoriesEditor data={data} setData={setData} defaults={defaultGalleryCategories(tpl)} />
-      </SectionCard>
-
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="gallery" sectionKey="cta" data={data} setData={setData}>
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} page="gallery" />
-      </SectionCard>
+      {sectionOrder.map((key, idx) => renderSection(key, idx))}
       <AddSectionRow pageKey="gallery" data={data} setData={setData} tpl={tpl} />
     </>
   );
 }
 
 function AboutPageEditor({ data, setData, tpl }: SectionProps) {
-  const cfg = getBranchConfig(tpl);
   const isModern = _ctx.style === 'modern';
   const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
+  const style = _ctx.style || 'classic';
+  const sectionOrder = getAdminSections('about', tpl, style);
   const aboutPatch = (patch: Partial<NonNullable<typeof data.about>>) =>
     setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), ...patch } });
+
+  const renderSection = (key: string, idx: number) => {
+    const meta = getSectionMeta(key as any, tpl, style);
+    const badge = `Sektion ${idx + 1}`;
+    switch (key) {
+      case 'aboutHeader':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Über uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
+            {isModern && !isExtra && (
+              <ImagePickerField label="Header-Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
+            )}
+          </SectionCard>
+        );
+      case 'aboutIntro':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="intro" data={data} setData={setData}>
+            {isModern && !isExtra && <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />}
+            {isExtra && (
+              <Field label="Überschrift" hint="Erscheint als Zwischenüberschrift neben dem Bild.">
+                <input className={inputCls} value={data.about?.title || ''} onChange={(e) => aboutPatch({ title: e.target.value })} />
+              </Field>
+            )}
+            <Field label="Text" hint="Leerzeile = neuer Absatz.">
+              <textarea className={inputCls} rows={9} value={data.about?.body || ''} onChange={(e) => aboutPatch({ body: e.target.value })} />
+            </Field>
+            {(!isModern || isExtra) && (
+              <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
+            )}
+            {isModern && !isExtra && (
+              <div className="mt-4 pt-4 border-t border-line">
+                <p className="text-sm font-medium mb-1">Sidebar-Kennzahlen</p>
+                <p className="text-xs text-muted mb-3">Eigene Zahlen für die Sidebar neben dem Text. Leer lassen = Home-Zahlen.</p>
+                <NumbersEditor data={data} setData={setData} tpl={tpl} field="aboutNumbers" />
+              </div>
+            )}
+          </SectionCard>
+        );
+      case 'values':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="values" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['valuesEyebrow', 'valuesTitle']} />
+            <ValuesEditor data={data} setData={setData} defaults={defaultValues(tpl)} />
+          </SectionCard>
+        );
+      case 'timeline':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="timeline" data={data} setData={setData}>
+            <TimelineEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'team':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="team" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teamEyebrow', 'teamTitle']} />
+            {isExtra && (
+              <ModuleHeadingFields data={data} setData={setData} mKey={tpl === 'fitness' ? 'teamFitness' : tpl === 'medical' ? 'teamMedical' : 'teamConsulting'} />
+            )}
+            <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
+          </SectionCard>
+        );
+      case 'aboutNumbers':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="numbers" data={data} setData={setData}>
+            <NumbersEditor data={data} setData={setData} tpl={tpl} />
+          </SectionCard>
+        );
+      case 'certifications':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="certifications" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['certsEyebrow', 'certsTitle']} />
+            <CertificationsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'press':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="press" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['pressEyebrow', 'pressTitle']} />
+            <PressEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'aboutTestimonials':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="testimonials" data={data} setData={setData}>
+            <TestimonialsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'aboutCta':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="cta" data={data} setData={setData}>
+            <CtaBandEditor data={data} setData={setData} tpl={tpl} page="about" />
+          </SectionCard>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
-      <SectionCard title="Seiten-Header" badge="Sektion 1">
-        <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Über uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
-        {isModern && !isExtra && (
-          <ImagePickerField label="Header-Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
-        )}
-      </SectionCard>
-      <SectionCard title={isModern && !isExtra ? 'Einleitung & Sidebar' : 'Geschichte / Erzählung'} description={isModern && !isExtra ? 'Fließtext links, Kennzahlen-Sidebar rechts.' : 'Längerer Fließtext mit Bild.'} badge="Sektion 2" pageKey="about" sectionKey="intro" data={data} setData={setData}>
-        {isModern && !isExtra && <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />}
-        {isExtra && (
-          <Field label="Überschrift" hint="Erscheint als Zwischenüberschrift neben dem Bild.">
-            <input className={inputCls} value={data.about?.title || ''} onChange={(e) => aboutPatch({ title: e.target.value })} />
-          </Field>
-        )}
-        <Field label="Text" hint="Leerzeile = neuer Absatz.">
-          <textarea className={inputCls} rows={9} value={data.about?.body || ''} onChange={(e) => aboutPatch({ body: e.target.value })} />
-        </Field>
-        {(!isModern || isExtra) && (
-          <ImagePickerField label="Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
-        )}
-        {isModern && !isExtra && (
-          <div className="mt-4 pt-4 border-t border-line">
-            <p className="text-sm font-medium mb-1">Sidebar-Kennzahlen</p>
-            <p className="text-xs text-muted mb-3">Eigene Zahlen für die Sidebar neben dem Text. Leer lassen = Home-Zahlen.</p>
-            <NumbersEditor data={data} setData={setData} tpl={tpl} field="aboutNumbers" />
-          </div>
-        )}
-      </SectionCard>
-      <SectionCard title="Werte / Grundsätze" description="Drei Karten mit Ihren Prinzipien." badge="Sektion 3" pageKey="about" sectionKey="values" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['valuesEyebrow', 'valuesTitle']} />
-        <ValuesEditor data={data} setData={setData} defaults={defaultValues(tpl)} />
-      </SectionCard>
-      <SectionCard title="Geschichte / Timeline" description="Stationen, Meilensteine, Jubiläen — als vertikale Zeitleiste." badge="Sektion 4" pageKey="about" sectionKey="timeline" data={data} setData={setData}>
-        <TimelineEditor data={data} setData={setData} />
-      </SectionCard>
-      <SectionCard title="Team" description="Bilder, Namen, Rollen, Kurzbio." badge="Sektion 5" pageKey="about" sectionKey="team" data={data} setData={setData}>
-        <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teamEyebrow', 'teamTitle']} />
-        {(tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') && (
-          <ModuleHeadingFields data={data} setData={setData} mKey={tpl === 'fitness' ? 'teamFitness' : tpl === 'medical' ? 'teamMedical' : 'teamConsulting'} />
-        )}
-        <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
-      </SectionCard>
-      <SectionCard title="Zahlen-Band" badge="Sektion 6" pageKey="about" sectionKey="numbers" data={data} setData={setData}>
-        <NumbersEditor data={data} setData={setData} tpl={tpl} />
-      </SectionCard>
-      {cfg.about.extras.includes('certifications') && (
-        <SectionCard title="Qualifikationen" description="Zertifikate, Mitgliedschaften, Förderpartner." badge="Sektion 7" pageKey="about" sectionKey="certifications" data={data} setData={setData}>
-          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['certsEyebrow', 'certsTitle']} />
-          <CertificationsEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      {cfg.about.extras.includes('press') && (
-        <SectionCard title="Presse-Stimmen" description="Drei Zitate aus Magazinen / Zeitungen." badge="Sektion 7" pageKey="about" sectionKey="press" data={data} setData={setData}>
-          <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['pressEyebrow', 'pressTitle']} />
-          <PressEditor data={data} setData={setData} />
-        </SectionCard>
-      )}
-      <SectionCard title="Bewertungen" description="Alle Kund:innen-Stimmen." badge="Sektion 8" pageKey="about" sectionKey="testimonials" data={data} setData={setData}>
-        <TestimonialsEditor data={data} setData={setData} />
-      </SectionCard>
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 9" pageKey="about" sectionKey="cta" data={data} setData={setData}>
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} page="about" />
-      </SectionCard>
+      {sectionOrder.map((key, idx) => renderSection(key, idx))}
       <AddSectionRow pageKey="about" data={data} setData={setData} tpl={tpl} />
     </>
   );
@@ -1116,59 +1336,89 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
 function ContactPageEditor({ data, setData, tpl }: SectionProps) {
   const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
+  const style = _ctx.style || 'classic';
+  const sectionOrder = getAdminSections('contact', tpl, style);
+
+  const renderSection = (key: string, idx: number) => {
+    const meta = getSectionMeta(key as any, tpl, style);
+    const badge = `Sektion ${idx + 1}`;
+    switch (key) {
+      case 'contactHeader':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <PageHeaderEditor data={data} setData={setData} field="contactPage" defaults={{
+              eyebrow: 'Kontakt',
+              title: tpl === 'restaurant' ? 'Reservieren oder einfach vorbeikommen.' : tpl === 'salon' ? 'Termin vereinbaren oder kurz fragen.' : 'Anfrage senden oder Notdienst rufen.',
+              subtitle: '',
+            }} />
+          </SectionCard>
+        );
+      case 'contactDetails':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="contact" sectionKey="block" data={data} setData={setData}>
+            <ContactFields data={data} setData={setData} />
+            <HoursEditor data={data} setData={setData} />
+            <div className="mt-4 pt-4 border-t border-line">
+              <p className="text-sm font-medium mb-1">Kontakt-Block (Text über den Kontaktdaten)</p>
+              <p className="text-xs text-muted mb-3">Steuert auf /kontakt und im Kontaktbereich der Startseite: Eyebrow, Überschrift und Untertitel über Telefon/E-Mail/Adresse.</p>
+              <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Kontakt">
+                <input className={inputCls} value={cb.eyebrow || ''} onChange={(e) => setCb({ eyebrow: e.target.value })} placeholder="Kontakt" />
+              </Field>
+              <Field label="Überschrift" hint="Standard: Wir freuen uns auf Sie.">
+                <input className={inputCls} value={cb.title || ''} onChange={(e) => setCb({ title: e.target.value })} placeholder="Wir freuen uns auf Sie." />
+              </Field>
+              <Field label="Untertitel" hint="Leer lassen, um ihn auszublenden.">
+                <textarea className={inputCls} rows={2} value={cb.subtitle || ''} onChange={(e) => setCb({ subtitle: e.target.value })} placeholder="Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da." />
+              </Field>
+            </div>
+            <div className="mt-4 pt-4 border-t border-line">
+              <p className="text-sm font-medium mb-1">Google-Maps-Karte</p>
+              <p className="text-xs text-muted mb-3">Erscheint unter dem Kontaktformular. Am besten die volle URL aus der Browser-Adressleiste einfügen (nicht den kurzen maps.app.goo.gl-Link).</p>
+              <Field label="Google-Maps-URL">
+                <input className={inputCls} value={data.contact.mapsUrl || ''} onChange={(e) => setData({ ...data, contact: { ...data.contact, mapsUrl: e.target.value } })} placeholder="https://maps.google.com/..." />
+              </Field>
+            </div>
+          </SectionCard>
+        );
+      case 'contactForm':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            <FormFieldsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'locations':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="contact" sectionKey="locations" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="locations" />
+            <LocationsEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      case 'arrival':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
+            <ArrivalSectionHeader data={data} setData={setData} />
+            <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(tpl)} />
+          </SectionCard>
+        );
+      case 'contactCta':
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="contact" sectionKey="cta" data={data} setData={setData}>
+            <CtaBandEditor data={data} setData={setData} tpl={tpl} page="contact" />
+          </SectionCard>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
-      <SectionCard title="Seiten-Header" badge="Sektion 1">
-        <PageHeaderEditor data={data} setData={setData} field="contactPage" defaults={{
-          eyebrow: 'Kontakt',
-          title: tpl === 'restaurant' ? 'Reservieren oder einfach vorbeikommen.' : tpl === 'salon' ? 'Termin vereinbaren oder kurz fragen.' : 'Anfrage senden oder Notdienst rufen.',
-          subtitle: '',
-        }} />
-      </SectionCard>
-      <SectionCard title="Kontaktdaten & Karte" description="Telefon, E-Mail, Adresse, Öffnungszeiten und Google-Maps-Einbettung." badge="Sektion 2" pageKey="contact" sectionKey="block" data={data} setData={setData}>
-        <ContactFields data={data} setData={setData} />
-        <HoursEditor data={data} setData={setData} />
-        <div className="mt-4 pt-4 border-t border-line">
-          <p className="text-sm font-medium mb-1">Kontakt-Block (Text über den Kontaktdaten)</p>
-          <p className="text-xs text-muted mb-3">Steuert auf /kontakt und im Kontaktbereich der Startseite: Eyebrow, Überschrift und Untertitel über Telefon/E-Mail/Adresse.</p>
-          <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Kontakt">
-            <input className={inputCls} value={cb.eyebrow || ''} onChange={(e) => setCb({ eyebrow: e.target.value })} placeholder="Kontakt" />
-          </Field>
-          <Field label="Überschrift" hint="Standard: Wir freuen uns auf Sie.">
-            <input className={inputCls} value={cb.title || ''} onChange={(e) => setCb({ title: e.target.value })} placeholder="Wir freuen uns auf Sie." />
-          </Field>
-          <Field label="Untertitel" hint="Leer lassen, um ihn auszublenden.">
-            <textarea className={inputCls} rows={2} value={cb.subtitle || ''} onChange={(e) => setCb({ subtitle: e.target.value })} placeholder="Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da." />
-          </Field>
-        </div>
-        <div className="mt-4 pt-4 border-t border-line">
-          <p className="text-sm font-medium mb-1">Google-Maps-Karte</p>
-          <p className="text-xs text-muted mb-3">Erscheint unter dem Kontaktformular. Am besten die volle URL aus der Browser-Adressleiste einfügen (nicht den kurzen maps.app.goo.gl-Link).</p>
-          <Field label="Google-Maps-URL">
-            <input className={inputCls} value={data.contact.mapsUrl || ''} onChange={(e) => setData({ ...data, contact: { ...data.contact, mapsUrl: e.target.value } })} placeholder="https://maps.google.com/..." />
-          </Field>
-        </div>
-      </SectionCard>
-      <SectionCard title="Kontakt-Formular" description="Welche Felder soll das Formular haben?" badge="Sektion 3">
-        <FormFieldsEditor data={data} setData={setData} />
-      </SectionCard>
-      <SectionCard title="Weitere Standorte" description="Zusätzliche Filialen oder Zweigstellen mit eigenen Kontaktdaten." badge="Sektion 4" pageKey="contact" sectionKey="locations" data={data} setData={setData}>
-        <ModuleHeadingFields data={data} setData={setData} mKey="locations" />
-        <LocationsEditor data={data} setData={setData} />
-      </SectionCard>
-      <SectionCard title="Wegbeschreibung" description="Drei Karten mit Anfahrt-Hinweisen." badge="Sektion 5" pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
-        <ArrivalSectionHeader data={data} setData={setData} />
-        <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(tpl)} />
-      </SectionCard>
-      <SectionCard title="Abschluss-Aufruf (CTA)" badge="Sektion 6" pageKey="contact" sectionKey="cta" data={data} setData={setData}>
-        <CtaBandEditor data={data} setData={setData} tpl={tpl} page="contact" />
-      </SectionCard>
+      {sectionOrder.map((key, idx) => renderSection(key, idx))}
       <AddSectionRow pageKey="contact" data={data} setData={setData} tpl={tpl} />
     </>
   );
 }
 
-/* ─── Navigation & Footer editor ──────────────────────────────────── */
 function navDefaultsFor(t: TemplateKey): { label: string; path: string }[] {
   const cfg = getBranchConfig(t);
   const isHash = cfg.paths.services.startsWith('#');
@@ -2562,22 +2812,44 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
 
 /* ─────────── Signature-Block Heading ─────────── */
 function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
-  // Defaults differ per (variant × style). For admin UX we just show the most common wording
-  // and let the editor know the live page may add stylistic flourishes.
-  const sigDefaults: Record<TemplateKey, { eyebrow: string; titleA: string; titleB: string; intro: string }> = {
-    restaurant: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.' },
-    salon: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.' },
-    tradesman: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.' },
-    hotel: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.' },
-    tourism: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.' },
-    consulting: { eyebrow: '', titleA: '', titleB: '', intro: '' },
-    medical: { eyebrow: '', titleA: '', titleB: '', intro: '' },
-    fitness: { eyebrow: '', titleA: '', titleB: '', intro: '' },
+  const style = _ctx.style || 'classic';
+  // Style-aware defaults — mirrors SIGNATURE_DEFAULTS in BranchSignature.tsx
+  const sigDefaults: Record<TemplateKey, Record<TemplateStyle, { eyebrow: string; titleA: string; titleB: string; intro: string; metaLabel: string }>> = {
+    restaurant: {
+      classic: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.', metaLabel: '' },
+      modern:  { eyebrow: 'Heute auf der Karte', titleA: 'Empfehlungen', titleB: 'vom Haus.', intro: '', metaLabel: 'Saisonal' },
+      bold:    { eyebrow: 'Heute · Tonight', titleA: 'Auf', titleB: 'dem Tisch.', intro: '', metaLabel: '' },
+    },
+    salon: {
+      classic: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.', metaLabel: '' },
+      modern:  { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '', metaLabel: '' },
+      bold:    { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '', metaLabel: '' },
+    },
+    tradesman: {
+      classic: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.', metaLabel: '' },
+      modern:  { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '', metaLabel: '' },
+      bold:    { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '', metaLabel: '' },
+    },
+    hotel: {
+      classic: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.', metaLabel: '' },
+      modern:  { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '', metaLabel: '' },
+      bold:    { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '', metaLabel: '' },
+    },
+    tourism: {
+      classic: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.', metaLabel: '' },
+      modern:  { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '', metaLabel: '' },
+      bold:    { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '', metaLabel: '' },
+    },
+    consulting: { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
+    medical:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
+    fitness:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
   };
-  const def = sigDefaults[tpl];
-  const [v, set] = useExtra<{ eyebrow: string; titleA: string; titleB: string; intro: string }>(
+  const def = sigDefaults[tpl][style];
+  const showIntro = FIELD_CONFIG.signature.intro[style] !== false; // Only classic renders intro
+  const showMetaLabel = FIELD_CONFIG.signature.metaLabel[style] !== false; // Only modern renders metaLabel
+  const [v, set] = useExtra<{ eyebrow: string; titleA: string; titleB: string; intro: string; metaLabel: string }>(
     data, setData, 'homeSignature',
-    { eyebrow: '', titleA: '', titleB: '', intro: '' },
+    { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' },
   );
   return (
     <div className="border border-line rounded-2xl p-4 bg-[#fafaf7] mb-4 space-y-4">
@@ -2596,9 +2868,16 @@ function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
       <Field label="Titel (Teil 2, kursiv)" hint={`Standard: ${def.titleB}`}>
         <input className={inputCls + ' !bg-white'} value={v.titleB} onChange={(e) => set({ ...v, titleB: e.target.value })} placeholder={def.titleB} />
       </Field>
-      <Field label="Beschreibung" hint={def.intro ? `Standard: ${def.intro}` : 'Erscheint unter dem Titel (optional).'}>
-        <textarea className={inputCls + ' !bg-white'} rows={2} value={v.intro} onChange={(e) => set({ ...v, intro: e.target.value })} placeholder={def.intro} />
-      </Field>
+      {showMetaLabel && (
+        <Field label="Meta-Label" hint="Erscheint rechts neben dem Titel mit aktuellem Datum (z. B. ‚Saisonal · 2. Mai').">
+          <input className={inputCls + ' !bg-white'} value={v.metaLabel} onChange={(e) => set({ ...v, metaLabel: e.target.value })} placeholder="Saisonal" />
+        </Field>
+      )}
+      {showIntro && (
+        <Field label="Beschreibung" hint={def.intro ? `Standard: ${def.intro}` : 'Erscheint unter dem Titel (optional).'}>
+          <textarea className={inputCls + ' !bg-white'} rows={2} value={v.intro} onChange={(e) => set({ ...v, intro: e.target.value })} placeholder={def.intro} />
+        </Field>
+      )}
     </div>
   );
 }
@@ -2992,19 +3271,29 @@ function CtaBandEditor({ data, setData, tpl, page }: SectionProps & { page?: str
   // For subpages, show the home CTA values as placeholders so it's clear what the fallback is
   const homeOv = isSubpage ? ((data as any).ctaBandOverride ?? empty) as CtaValues : undefined;
 
+  // Field visibility: subpages always use CtaBand (all fields rendered),
+  // home uses style-specific rendering (SoftCtaBlock for modern/bold).
+  const style = _ctx.style || 'classic';
+  const showEyebrow = isSubpage
+    ? fieldVisible(FIELD_CONFIG.cta.subEyebrow, style)
+    : fieldVisible(FIELD_CONFIG.cta.homeEyebrow, style);
+  const showLeadAccent = isSubpage
+    ? fieldVisible(FIELD_CONFIG.cta.subLeadAccent, style)
+    : fieldVisible(FIELD_CONFIG.cta.homeLeadAccent, style);
+
   return (
     <>
-      {_ctx.style === 'classic' && (
+      {showEyebrow && showLeadAccent && (
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline. Leer = Standard (Bereit?).'}>
             <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
           </Field>
-          <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Nur im Classic-Stil sichtbar.">
+          <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Erscheint kursiv unter der Headline.">
             <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder={homeOv?.leadAccent || 'Schreiben Sie uns.'} />
           </Field>
         </div>
       )}
-      {_ctx.style !== 'classic' && (
+      {showEyebrow && !showLeadAccent && (
         <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline.'}>
           <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
         </Field>

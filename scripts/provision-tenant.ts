@@ -48,18 +48,19 @@ const RESEED = RAW_ARGS.includes('--reseed');
 const AUTH_SECRET_OVERRIDE = takeFlagValue('--auth-secret');
 const ADMIN_HASH_OVERRIDE = takeFlagValue('--admin-hash');
 const PRESET_OVERRIDE = takeFlagValue('--preset');
+const PASSWORD_OVERRIDE = takeFlagValue('--password');
 
 const FILTERED = RAW_ARGS.filter((a, i) => {
   if (a === '--reseed') return false;
-  if (['--auth-secret', '--admin-hash', '--preset'].includes(a)) return false;
+  if (['--auth-secret', '--admin-hash', '--preset', '--password'].includes(a)) return false;
   const prev = RAW_ARGS[i - 1];
-  if (prev && ['--auth-secret', '--admin-hash', '--preset'].includes(prev)) return false;
+  if (prev && ['--auth-secret', '--admin-hash', '--preset', '--password'].includes(prev)) return false;
   return true;
 });
 
 const [slug, name, template, styleArg] = FILTERED;
 
-const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <${VALID_TEMPLATES.join('|')}> [${VALID_STYLES.join('|')}] [--preset <id>] [--reseed] [--auth-secret <value>] [--admin-hash <bcrypt>]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern --preset espresso\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic --reseed\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n\nIf AUTH_SECRET / ADMIN_PASSWORD_HASH in .env.local are encrypted blobs, pass plaintext explicitly via --auth-secret / --admin-hash.\n`;
+const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <${VALID_TEMPLATES.join('|')}> [${VALID_STYLES.join('|')}] [--preset <id>] [--password <pw>] [--reseed] [--auth-secret <value>] [--admin-hash <bcrypt>]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern --preset espresso\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic --password MySecure123\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n\nIf AUTH_SECRET / ADMIN_PASSWORD_HASH in .env.local are encrypted blobs, pass plaintext explicitly via --auth-secret / --admin-hash.\n`;
 
 if (slug === '--help' || slug === '-h') {
   console.log(HELP);
@@ -97,6 +98,7 @@ async function main() {
     template: template as AnyTemplate,
     style,
     themePresetId: PRESET_OVERRIDE,
+    password: PASSWORD_OVERRIDE,
     sharedEnvOverrides: {
       AUTH_SECRET: AUTH_SECRET_OVERRIDE,
       ADMIN_PASSWORD_HASH: ADMIN_HASH_OVERRIDE,

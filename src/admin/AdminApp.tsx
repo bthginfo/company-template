@@ -6,6 +6,7 @@ import { useContent } from '@/lib/content-context';
 import { AdminEditorBody, type UploadImageFn } from './AdminEditorBody';
 import { assertValidUpload, humanizeUploadError } from './upload-limits';
 import type { SiteContent, TemplateKey } from '@/lib/types';
+import type { TemplateStyle } from '@/lib/branch-config';
 import { applyTheme, getPreset } from '@/lib/theme';
 
 type Session = { role: 'super' | 'tenant'; tenantId: string | null; slug: string | null } | null;
@@ -122,6 +123,26 @@ export function AdminApp() {
     }
   };
 
+  const onStyleChange = async (newStyle: TemplateStyle) => {
+    if (isDirty) {
+      const ok = window.confirm('Es gibt nicht gespeicherte Änderungen. Erst speichern oder verwerfen?');
+      if (!ok) return;
+    }
+    const res = await fetch('/api/admin/style', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ style: newStyle }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Unbekannter Fehler' }));
+      toast.error('Stil-Wechsel fehlgeschlagen', { description: err.error });
+      return;
+    }
+    // Update local tenant metadata and reload content
+    setTenant((prev) => prev ? { ...prev, style: newStyle } : prev);
+    toast.success('Stil gewechselt', { description: `Neuer Stil: ${newStyle.charAt(0).toUpperCase() + newStyle.slice(1)}` });
+  };
+
   if (session === undefined) {
     return <div className="min-h-screen grid place-items-center text-slate-500">Lädt …</div>;
   }
@@ -147,6 +168,7 @@ export function AdminApp() {
       previewUrlBase=""
       uploadImage={uploadImage}
       style={(tenant.style as 'classic' | 'modern' | 'bold' | undefined) || 'classic'}
+      onStyleChange={onStyleChange}
       headerStatus={
         <div className="hidden md:flex items-center gap-3 text-xs">
           <span className="uppercase tracking-widest text-muted bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">

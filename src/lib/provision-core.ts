@@ -49,6 +49,8 @@ export type ProvisionInput = {
   style?: AnyStyle;
   /** Optional theme preset id (e.g. 'espresso'). Applied to seeded brand content. */
   themePresetId?: string;
+  /** If provided, use this as the admin password instead of generating one. */
+  password?: string;
   reseed?: boolean;
   /** Optional: override the GitHub repo. Defaults to GITHUB_REPO env or bthginfo/company-template. */
   githubRepo?: string;
@@ -204,7 +206,9 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
   };
 
   // 1. DB tenant + password
-  const password = randomBytes(12).toString('base64').replace(/[+/=]/g, '').slice(0, 16);
+  const password = (input.password && input.password.trim().length >= 8)
+    ? input.password.trim()
+    : randomBytes(12).toString('base64').replace(/[+/=]/g, '').slice(0, 16);
   const passwordHash = bcrypt.hashSync(password, 12);
 
   const existing = await db.query.tenants.findFirst({ where: eq(schema.tenants.slug, slug) });

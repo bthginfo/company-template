@@ -26,6 +26,9 @@
 .PARAMETER Reseed
   If set, overwrites existing siteContent.
 
+.PARAMETER Password
+  Optional initial admin password (min 8 chars). If omitted, a random password is generated.
+
 .PARAMETER NonInteractive
   If set, the script never prompts. Missing args cause an error exit.
 
@@ -42,6 +45,7 @@ param(
   [ValidateSet('classic','modern','bold','')]
   [string]$Style = '',
   [switch]$Reseed,
+  [string]$Password = '',
   [switch]$NonInteractive
 )
 
@@ -205,6 +209,7 @@ Write-Step "Provisioning tenant via Vercel API"
 
 $tsxArgs = @('scripts/provision-tenant.ts', $Slug, $Name, $Template, $Style)
 if ($Reseed.IsPresent) { $tsxArgs += '--reseed' }
+if ($Password) { $tsxArgs += '--password'; $tsxArgs += $Password }
 
 # Stream output directly. We deliberately do NOT tee to a log file:
 # provision-tenant.ts no longer prints the password to stdout — instead it

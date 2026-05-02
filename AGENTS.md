@@ -15,6 +15,7 @@ For ops procedures (rollback, key rotation, incident response), see
 | Task                          | Single command (no thinking required)                                |
 | ----------------------------- | -------------------------------------------------------------------- |
 | Add a new tenant              | `npm run tenant:new -- -Slug <s> -Name "<n>" -Template <t> -Style <st> -NonInteractive` |
+| Add tenant with custom pw     | `npm run tenant:new -- -Slug <s> -Name "<n>" -Template <t> -Style <st> -Password <pw> -NonInteractive` |
 | Re-seed an existing tenant    | Same as above, plus `-Reseed`                                        |
 | Type-check the codebase       | `npm run lint`                                                       |
 | Build (must pass before push) | `npm run build`                                                      |
@@ -63,6 +64,7 @@ npm run tenant:new -- -Slug <slug> -Name "<Display Name>" -Template <template> -
 | `-Name`      | yes      | Display name. Must be quoted if it contains spaces. e.g. `"Trattoria Roma"`              |
 | `-Template`  | yes      | One of: `restaurant`, `salon`, `tradesman`, `hotel`, `tourism`, `consulting`, `medical`, `fitness` |
 | `-Style`     | no       | One of: `classic`, `modern`, `bold`. Default: `classic`                                  |
+| `-Password`  | no       | Initial admin password (min 8 chars). If omitted, a random 16-char password is generated. |
 | `-Reseed`    | no       | Switch. If present, overwrites existing site content for an existing tenant.             |
 | `-NonInteractive` | no  | Switch. **Always pass this in automation** so the script never prompts.                  |
 

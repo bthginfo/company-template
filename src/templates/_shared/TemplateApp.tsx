@@ -1125,10 +1125,10 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
   const boldFallbackTitle = variant === 'restaurant' ? 'Tisch frei?' : variant === 'salon' ? 'Termin?' : variant === 'hotel' ? 'Pause buchen?' : variant === 'tourism' ? 'Tour buchen?' : 'Auftrag?';
   
   return (
-    <section className="py-32 md:py-44 bg-[var(--accent-color)] text-brand grain">
+    <section className="py-32 md:py-44 bg-[var(--accent-color)] text-[var(--accent-fg)] grain">
       <div className="container-x text-center reveal">
         <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">{title || boldFallbackTitle}</h2>
-        <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto">{sub || 'Schreiben Sie uns. Wir antworten.'}</p>
+        <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto opacity-80">{sub || 'Schreiben Sie uns. Wir antworten.'}</p>
         <TLink to={href} className="btn-primary mt-10">{cta || 'Jetzt Kontakt'} <span aria-hidden>→</span></TLink>
       </div>
     </section>
@@ -1705,7 +1705,7 @@ function CertificationsSection({ variant, content }: { variant: TemplateVariant;
       <div className="grid md:grid-cols-3 gap-4 reveal-stagger">
         {items.map((it, i) => (
           <article key={i} className="bg-white border border-line rounded-2xl p-6 hover-lift">
-            <span className="inline-flex h-10 w-10 rounded-full bg-[var(--accent-color)] items-center justify-center text-brand">
+            <span className="inline-flex h-10 w-10 rounded-full bg-[var(--accent-color)] items-center justify-center text-[var(--accent-fg)]">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
