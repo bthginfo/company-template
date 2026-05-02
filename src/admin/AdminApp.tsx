@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { upload } from '@vercel/blob/client';
-import { useContent } from '@/lib/content-context';
+import { useContent, setAdminMode } from '@/lib/content-context';
 import { AdminEditorBody, type UploadImageFn } from './AdminEditorBody';
 import { assertValidUpload, humanizeUploadError } from './upload-limits';
 import type { SiteContent, TemplateKey } from '@/lib/types';
@@ -36,7 +36,7 @@ const uploadImage: UploadImageFn = async (file) => {
 export function AdminApp() {
   const [session, setSession] = useState<Session | undefined>(undefined);
   const navigate = useNavigate();
-  const { state, save } = useContent();
+  const { state, save, publish, discard } = useContent();
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -48,10 +48,12 @@ export function AdminApp() {
   const isDirty = !!draft && pristine !== null && JSON.stringify(draft) !== pristine;
 
   useEffect(() => {
+    setAdminMode(true);
     fetch('/api/admin/session')
       .then((r) => r.json())
       .then((j) => setSession(j.session ?? null))
       .catch(() => setSession(null));
+    return () => { setAdminMode(false); };
   }, []);
 
   // Track whether we're in a save cycle to avoid resetting draft mid-save
@@ -113,13 +115,38 @@ export function AdminApp() {
       const ts = new Date().toLocaleTimeString('de-DE');
       setSavedAt(ts);
       setTimeout(() => setSavedAt(null), 5000);
-      toast.success('Gespeichert', { description: `Alle Änderungen sind live · ${ts}` });
+      toast.success('Entwurf gespeichert', { description: `Änderungen als Entwurf gesichert · ${ts}` });
     } catch (e: any) {
       setJustSaved(false);
       const msg = e?.message || String(e);
       toast.error('Speichern fehlgeschlagen', { description: msg });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const [publishing, setPublishing] = useState(false);
+
+  const onPublish = async () => {
+    if (!confirm('Entwurf jetzt live schalten?')) return;
+    try {
+      setPublishing(true);
+      await publish();
+      toast.success('Veröffentlicht', { description: 'Alle Änderungen sind jetzt live.' });
+    } catch (e: any) {
+      toast.error('Veröffentlichen fehlgeschlagen', { description: e?.message || String(e) });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const onDiscard = async () => {
+    if (!confirm('Entwurf verwerfen? Alle nicht veröffentlichten Änderungen gehen verloren.')) return;
+    try {
+      await discard();
+      toast.success('Entwurf verworfen', { description: 'Live-Inhalte wiederhergestellt.' });
+    } catch (e: any) {
+      toast.error('Verwerfen fehlgeschlagen', { description: e?.message || String(e) });
     }
   };
 
@@ -177,7 +204,27 @@ export function AdminApp() {
           <button onClick={logout} className="text-rose-600 hover:underline">Abmelden</button>
         </div>
       }
-      footerStatus={'Änderungen werden bei "Speichern" sofort live übernommen.'}
+      footerStatus={
+        state.status === 'ready' && state.hasDraft
+          ? <span className="text-amber-600">Unveröffentlichter Entwurf — noch nicht live.</span>
+          : 'Änderungen werden als Entwurf gespeichert.'
+      }
+      footerExtraActions={
+        state.status === 'ready' && state.hasDraft ? (
+          <>
+            <button onClick={onDiscard} className="btn-secondary text-sm">
+              Verwerfen
+            </button>
+            <button
+              onClick={onPublish}
+              disabled={publishing}
+              className="btn-primary bg-emerald-600 hover:bg-emerald-700 text-sm"
+            >
+              {publishing ? 'Veröffentlicht …' : '🚀 Veröffentlichen'}
+            </button>
+          </>
+        ) : undefined
+      }
     />
   );
 }

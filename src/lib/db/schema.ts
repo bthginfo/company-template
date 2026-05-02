@@ -23,6 +23,8 @@ export const siteContent = pgTable('site_content', {
     .references(() => tenants.id, { onDelete: 'cascade' })
     .primaryKey(),
   data: jsonb('data').notNull().$type<Record<string, unknown>>(),
+  /** Unpublished draft. When non-null, the admin edits this; public site shows `data`. */
+  draft: jsonb('draft').$type<Record<string, unknown>>(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
