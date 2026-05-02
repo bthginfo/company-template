@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { SiteContent, TemplateKey } from '@/lib/types';
+import type { TemplateStyle } from '@/lib/tenant';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '@/lib/demo-content';
 import { clearOverride, downloadJson, loadFor, writeOverride } from '@/lib/demo-overrides';
 import { AdminEditorBody } from '@/admin/AdminEditorBody';
@@ -20,6 +21,7 @@ export default function AdminDemo() {
   const [tplKey, setTplKey] = useState<DemoKey>('restaurant');
   const [data, setDataInternal] = useState<SiteContent>(() => loadFor('restaurant'));
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [style, setStyle] = useState<TemplateStyle>('classic');
 
   const setData = (next: SiteContent) => {
     setDataInternal(next);
@@ -30,6 +32,7 @@ export default function AdminDemo() {
     setTplKey(k);
     setDataInternal(loadFor(k));
     setSavedAt(null);
+    setStyle('classic');
   };
   const fakeSave = () => {
     setSavedAt(new Date().toLocaleTimeString('de-DE'));
@@ -65,7 +68,8 @@ export default function AdminDemo() {
       onSave={fakeSave}
       savedAt={savedAt}
       previewUrlBase={`/preview/${tplKey}`}
-      style={'classic'}
+      style={style}
+      onStyleChange={(s) => setStyle(s)}
       topBar={embedded ? undefined : (
         <div className="bg-[var(--accent-color)] text-brand text-sm py-2.5 text-center font-medium">
           <span>Live-Demo des Admin-Bereichs · Ihre Änderungen werden hier nicht gespeichert · </span>
