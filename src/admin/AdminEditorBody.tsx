@@ -171,9 +171,6 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             <SidebarItem active={pageId === 'legal'} onClick={() => setPageId('legal')} icon="§">Impressum & Datenschutz</SidebarItem>
             <SidebarItem active={pageId === 'security'} onClick={() => setPageId('security')} icon="⚿">Passwort & Zugang</SidebarItem>
           </SidebarGroup>
-          {onStyleChange && (
-            <StyleSwitcher current={tplStyle || 'classic'} onChange={onStyleChange} />
-          )}
         </aside>
 
         {/* RIGHT: page editor */}
@@ -194,7 +191,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
           </div>
 
           <div className="p-6 md:p-8 space-y-10">
-            {pageId === 'brand' && <BrandPage data={data} setData={setData} tpl={tplKey} />}
+            {pageId === 'brand' && <BrandPage data={data} setData={setData} tpl={tplKey} style={tplStyle} onStyleChange={onStyleChange} />}
             {pageId === 'navigation' && <NavigationPage data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'contact' && <ContactGlobal data={data} setData={setData} />}
             {pageId === 'social' && <SocialPage data={data} setData={setData} />}
@@ -308,7 +305,7 @@ const STYLE_OPTIONS: { value: TemplateStyle; label: string; desc: string }[] = [
   { value: 'bold', label: 'Bold', desc: 'Magazin, groß, plakativ' },
 ];
 
-function StyleSwitcher({ current, onChange }: { current: TemplateStyle; onChange: (s: TemplateStyle) => Promise<void> | void }) {
+function StyleSwitcher({ current, onChange, inline }: { current: TemplateStyle; onChange: (s: TemplateStyle) => Promise<void> | void; inline?: boolean }) {
   const [confirming, setConfirming] = useState<TemplateStyle | null>(null);
   const [switching, setSwitching] = useState(false);
 
@@ -324,9 +321,9 @@ function StyleSwitcher({ current, onChange }: { current: TemplateStyle; onChange
   };
 
   return (
-    <div className="bg-white rounded-2xl p-3 shadow-sm">
-      <p className="text-[10px] uppercase tracking-[0.18em] text-muted px-1 pt-1 pb-2">Design-Stil</p>
-      <div className="space-y-1">
+    <div className={inline ? '' : 'bg-white rounded-2xl p-3 shadow-sm'}>
+      {!inline && <p className="text-[10px] uppercase tracking-[0.18em] text-muted px-1 pt-1 pb-2">Design-Stil</p>}
+      <div className={inline ? 'grid grid-cols-3 gap-3' : 'space-y-1'}>
         {STYLE_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -334,10 +331,10 @@ function StyleSwitcher({ current, onChange }: { current: TemplateStyle; onChange
             className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
               opt.value === current
                 ? 'bg-brand text-white'
-                : 'hover:bg-[#f6f6f3] text-slate-700'
+                : inline ? 'border border-line hover:border-slate-400 text-slate-700' : 'hover:bg-[#f6f6f3] text-slate-700'
             }`}
           >
-            <span className="w-5 text-center">{opt.value === current ? '●' : '○'}</span>
+            {!inline && <span className="w-5 text-center">{opt.value === current ? '●' : '○'}</span>}
             <span>
               <span className="font-medium">{opt.label}</span>
               <span className="block text-[11px] opacity-70">{opt.desc}</span>
@@ -1549,7 +1546,7 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
   );
 }
 
-function BrandPage({ data, setData, tpl }: SectionProps) {
+function BrandPage({ data, setData, tpl, style, onStyleChange }: SectionProps & { style?: TemplateStyle; onStyleChange?: (s: TemplateStyle) => Promise<void> | void }) {
   const presets = PRESETS[tpl] ?? [];
   const activeId = data.brand.themePresetId || '';
   const onPickPreset = (p: ThemePreset) => {
@@ -1616,6 +1613,11 @@ function BrandPage({ data, setData, tpl }: SectionProps) {
           </button>
         )}
       </SectionCard>
+      {onStyleChange && (
+        <SectionCard title="Design-Stil" description="Das Layout und die Optik wechseln sofort. Alle Inhalte bleiben erhalten.">
+          <StyleSwitcher current={style || 'classic'} onChange={onStyleChange} inline />
+        </SectionCard>
+      )}
       <SectionCard title="Eigene Farbe (Fallback)" description="Wird verwendet, wenn kein Schema gewählt ist – sonst überschreibt das Schema oben.">
         <Field label="Hauptfarbe" hint="Wird für Buttons und Akzente verwendet.">
           <div className="flex items-center gap-3">
