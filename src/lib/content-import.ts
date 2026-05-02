@@ -46,17 +46,15 @@ export async function importContentJson(
       set: { data: parse.data, updatedAt: new Date() },
     });
 
-  // Update branch/style on tenant row if provided
-  const updates: Record<string, string> = {};
-  if (raw.branch && typeof raw.branch === 'string') updates.template = raw.branch;
-  if (raw.style && typeof raw.style === 'string') updates.style = raw.style;
-  if (Object.keys(updates).length > 0) {
-    await db.update(schema.tenants).set(updates).where(eq(schema.tenants.id, tenant.id));
-  }
+  // Only update branch/style on the tenant row if the caller did NOT already
+  // set them via provisioning. The CRM provisions the tenant first (which sets
+  // the user-chosen style), then calls import-content with the JSON that may
+  // contain a different style value. We should not overwrite the user's choice.
+  // → Skip branch/style update; the provisioning step is authoritative.
 
   return {
-    branch: updates.template ?? tenant.template,
-    style: updates.style ?? tenant.style,
+    branch: tenant.template,
+    style: tenant.style,
   };
 }
 
