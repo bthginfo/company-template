@@ -1,9 +1,21 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { db, schema } from '../../src/lib/db/client.js';
-import { requireCrm } from '../_lib/crm-auth.js';
-import { provisionTenant, VALID_STYLES, VALID_TEMPLATES } from '../../src/lib/provision-core.js';
+
+let db: any, schema: any, requireCrm: any, provisionTenant: any, VALID_STYLES: any, VALID_TEMPLATES: any;
+let _initError: string | null = null;
+try {
+  const c = require('../../src/lib/db/client.js');
+  db = c.db; schema = c.schema;
+  requireCrm = require('../_lib/crm-auth.js').requireCrm;
+  const p = require('../../src/lib/provision-core.js');
+  provisionTenant = p.provisionTenant;
+  VALID_STYLES = p.VALID_STYLES;
+  VALID_TEMPLATES = p.VALID_TEMPLATES;
+} catch (e: any) {
+  _initError = e?.stack || e?.message || String(e);
+  console.error('[provision.ts init]', _initError);
+}
 
 const ProvisionSchema = z.object({
   id: z.string().uuid().optional(),
@@ -16,6 +28,9 @@ const ProvisionSchema = z.object({
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (_initError) {
+    return res.status(500).json({ error: 'Module init failed', detail: _initError });
+  }
   if (await requireCrm(req, res)) return;
 
   if (req.method !== 'POST') {
