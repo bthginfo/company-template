@@ -1,4 +1,4 @@
-import { SiteContentSchema, type SiteContent } from './types';
+import { SiteContentSchema, type SiteContent } from './types.js';
 
 /**
  * Demo content for the showcase preview pages.

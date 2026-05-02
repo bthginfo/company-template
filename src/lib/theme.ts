@@ -1,4 +1,4 @@
-import type { TemplateKey } from './types';
+import type { TemplateKey } from './types.js';
 
 export type ThemePreset = {
   id: string;

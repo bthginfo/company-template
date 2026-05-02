@@ -11,7 +11,7 @@
  * changes, every surface picks it up automatically.
  */
 
-import type { TemplateKey } from './types';
+import type { TemplateKey } from './types.js';
 
 export type BranchTextDefaults = {
   teaserSubtitle: string;

@@ -2,7 +2,7 @@
  * Single source of truth for default FAQ entries per template.
  * Used by the live FAQ resolver in TemplateApp and by the FaqEditor in admin.
  */
-import type { TemplateKey } from './types';
+import type { TemplateKey } from './types.js';
 
 export const FAQ_DEFAULTS: Record<TemplateKey, { q: string; a: string }[]> = {
   restaurant: [
