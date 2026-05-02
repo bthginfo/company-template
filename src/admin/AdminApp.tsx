@@ -58,15 +58,17 @@ export function AdminApp() {
 
   // Track whether we're in a save cycle to avoid resetting draft mid-save
   const [justSaved, setJustSaved] = useState(false);
+  const [justDiscarded, setJustDiscarded] = useState(false);
 
   useEffect(() => {
     if (state.status === 'ready') {
       setTenant(state.tenant as any);
-      if (draft === null || justSaved) {
-        // Initial load or post-save: sync draft with fresh server data
+      if (draft === null || justSaved || justDiscarded) {
+        // Initial load, post-save, or post-discard: sync draft with fresh server data
         setDraft(state.content);
         setPristine(JSON.stringify(state.content));
         setJustSaved(false);
+        setJustDiscarded(false);
       }
     }
   }, [state]);
@@ -131,6 +133,7 @@ export function AdminApp() {
     if (!confirm('Entwurf jetzt live schalten?')) return;
     try {
       setPublishing(true);
+      setJustDiscarded(true); // reuse flag to sync draft with new live content
       await publish();
       toast.success('Veröffentlicht', { description: 'Alle Änderungen sind jetzt live.' });
     } catch (e: any) {
@@ -143,6 +146,7 @@ export function AdminApp() {
   const onDiscard = async () => {
     if (!confirm('Entwurf verwerfen? Alle nicht veröffentlichten Änderungen gehen verloren.')) return;
     try {
+      setJustDiscarded(true);
       await discard();
       toast.success('Entwurf verworfen', { description: 'Live-Inhalte wiederhergestellt.' });
     } catch (e: any) {
