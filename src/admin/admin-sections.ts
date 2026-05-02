@@ -214,12 +214,14 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     title: `${serviceLabel(tpl)}-Teaser`,
     description: `Die ersten ${SERVICE_TEASER_LIMIT[style]} Einträge erscheinen hier auf der Startseite.`,
   }),
-  signature: (tpl) => ({
-    title: tpl === 'restaurant' ? 'Heute auf der Karte'
+  signature: (tpl, style) => ({
+    title: tpl === 'restaurant'
+      ? (style === 'bold' ? 'Auf dem Tisch' : style === 'modern' ? 'Empfehlungen vom Haus' : 'Heute auf der Karte')
       : tpl === 'salon' ? 'Aktuelle Looks'
       : tpl === 'hotel' ? 'Zimmer-Vorschau'
       : 'Angebot / Highlights',
-    description: tpl === 'restaurant' ? 'Empfehlungen / Tagesangebot.'
+    description: tpl === 'restaurant'
+      ? (style === 'bold' ? 'Große Nummern-Liste mit Gerichten.' : 'Empfehlungen / Tagesangebot.')
       : 'Aktuelle Highlights im Fokus.',
   }),
   about: (_tpl, style) => ({

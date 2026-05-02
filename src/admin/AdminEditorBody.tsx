@@ -2812,19 +2812,40 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
 
 /* ─────────── Signature-Block Heading ─────────── */
 function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
-  // Defaults differ per (variant × style). For admin UX we just show the most common wording
-  // and let the editor know the live page may add stylistic flourishes.
-  const sigDefaults: Record<TemplateKey, { eyebrow: string; titleA: string; titleB: string; intro: string }> = {
-    restaurant: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.' },
-    salon: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.' },
-    tradesman: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.' },
-    hotel: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.' },
-    tourism: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.' },
-    consulting: { eyebrow: '', titleA: '', titleB: '', intro: '' },
-    medical: { eyebrow: '', titleA: '', titleB: '', intro: '' },
-    fitness: { eyebrow: '', titleA: '', titleB: '', intro: '' },
+  const style = _ctx.style || 'classic';
+  // Style-aware defaults — mirrors SIGNATURE_DEFAULTS in BranchSignature.tsx
+  const sigDefaults: Record<TemplateKey, Record<TemplateStyle, { eyebrow: string; titleA: string; titleB: string; intro: string }>> = {
+    restaurant: {
+      classic: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.' },
+      modern:  { eyebrow: 'Heute auf der Karte', titleA: 'Empfehlungen', titleB: 'vom Haus.', intro: '' },
+      bold:    { eyebrow: 'Heute · Tonight', titleA: 'Auf', titleB: 'dem Tisch.', intro: '' },
+    },
+    salon: {
+      classic: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.' },
+      modern:  { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '' },
+      bold:    { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '' },
+    },
+    tradesman: {
+      classic: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.' },
+      modern:  { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '' },
+      bold:    { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '' },
+    },
+    hotel: {
+      classic: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.' },
+      modern:  { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '' },
+      bold:    { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '' },
+    },
+    tourism: {
+      classic: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.' },
+      modern:  { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '' },
+      bold:    { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '' },
+    },
+    consulting: { classic: { eyebrow: '', titleA: '', titleB: '', intro: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '' } },
+    medical:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '' } },
+    fitness:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '' } },
   };
-  const def = sigDefaults[tpl];
+  const def = sigDefaults[tpl][style];
+  const showIntro = style !== 'bold'; // Bold never renders intro
   const [v, set] = useExtra<{ eyebrow: string; titleA: string; titleB: string; intro: string }>(
     data, setData, 'homeSignature',
     { eyebrow: '', titleA: '', titleB: '', intro: '' },
@@ -2846,9 +2867,11 @@ function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
       <Field label="Titel (Teil 2, kursiv)" hint={`Standard: ${def.titleB}`}>
         <input className={inputCls + ' !bg-white'} value={v.titleB} onChange={(e) => set({ ...v, titleB: e.target.value })} placeholder={def.titleB} />
       </Field>
-      <Field label="Beschreibung" hint={def.intro ? `Standard: ${def.intro}` : 'Erscheint unter dem Titel (optional).'}>
-        <textarea className={inputCls + ' !bg-white'} rows={2} value={v.intro} onChange={(e) => set({ ...v, intro: e.target.value })} placeholder={def.intro} />
-      </Field>
+      {showIntro && (
+        <Field label="Beschreibung" hint={def.intro ? `Standard: ${def.intro}` : 'Erscheint unter dem Titel (optional).'}>
+          <textarea className={inputCls + ' !bg-white'} rows={2} value={v.intro} onChange={(e) => set({ ...v, intro: e.target.value })} placeholder={def.intro} />
+        </Field>
+      )}
     </div>
   );
 }
@@ -3254,7 +3277,7 @@ function CtaBandEditor({ data, setData, tpl, page }: SectionProps & { page?: str
           </Field>
         </div>
       )}
-      {_ctx.style !== 'classic' && (
+      {_ctx.style === 'modern' && (
         <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline.'}>
           <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
         </Field>
