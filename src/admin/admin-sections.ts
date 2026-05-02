@@ -444,3 +444,57 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
 export function getSectionMeta(key: AdminSectionKey, tpl: TemplateKey, style: TemplateStyle): SectionMeta {
   return SECTION_META[key](tpl, style);
 }
+
+/* ─── Field-level visibility per section × style ────────────────── */
+
+/**
+ * Declares which admin fields are visible per section×style.
+ * Only sections with style-dependent field differences are listed.
+ * Sections not listed here show all their fields on all styles.
+ *
+ * true  = visible (no special hint)
+ * false = hidden (frontend doesn't render this field for this style)
+ * string = visible, with that string as hint text
+ */
+type FieldVis = boolean | string;
+
+export const FIELD_CONFIG = {
+  /** HOME: Signature section */
+  signature: {
+    intro:     { classic: true,  modern: false, bold: false } as Record<TemplateStyle, FieldVis>,
+    // metaLabel is part of BranchSignature — for now not editable
+  },
+
+  /** HOME: About teaser */
+  homeAbout: {
+    aboutTeaserEyebrow: { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
+    manifestFields:     { classic: false, modern: false, bold: true  } as Record<TemplateStyle, FieldVis>,
+    aboutImage:         { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
+    bodyHint: {
+      classic: 'Alle Absätze werden auf der Startseite angezeigt.',
+      modern:  '2–3 kurze Absätze sehen am besten aus.',
+      bold:    '2 kurze Absätze sehen am besten aus.',
+    } as Record<TemplateStyle, string>,
+  },
+
+  /** CTA fields — differ between HOME softCta and subpage CtaBand */
+  cta: {
+    /** HOME softCta: classic uses CtaBand (all), modern SoftCta (no leadAccent), bold SoftCta (no eyebrow/leadAccent) */
+    homeEyebrow:     { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
+    homeLeadAccent:  { classic: true, modern: false, bold: false } as Record<TemplateStyle, FieldVis>,
+    /** Subpage CtaBand: always renders all fields regardless of style */
+    subEyebrow:      { classic: true, modern: true, bold: true } as Record<TemplateStyle, FieldVis>,
+    subLeadAccent:   { classic: true, modern: true, bold: true } as Record<TemplateStyle, FieldVis>,
+  },
+} as const;
+
+/** Check if a field should be shown for the current style */
+export function fieldVisible(vis: Record<TemplateStyle, FieldVis>, style: TemplateStyle): boolean {
+  return vis[style] !== false;
+}
+
+/** Get hint text (returns the string value, or undefined if boolean) */
+export function fieldHint(vis: Record<TemplateStyle, FieldVis>, style: TemplateStyle): string | undefined {
+  const v = vis[style];
+  return typeof v === 'string' ? v : undefined;
+}

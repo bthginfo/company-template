@@ -11,7 +11,7 @@ import { scrollToTop } from '@/lib/scroll';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import { MODULE_DEFAULTS, type ModuleHeadingKey } from '@/components/branch-modules';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
-import { getAdminSections, getSectionMeta, SERVICE_TEASER_LIMIT, GALLERY_TEASER_LIMIT } from './admin-sections';
+import { getAdminSections, getSectionMeta, SERVICE_TEASER_LIMIT, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, fieldHint } from './admin-sections';
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -783,7 +783,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             <Field label="Überschrift">
               <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
             </Field>
-            <Field label="Text" hint="Wird automatisch auf 2–3 Absätze gekürzt auf der Startseite.">
+            <Field label="Text" hint={fieldHint(FIELD_CONFIG.homeAbout.bodyHint, style)}>
               <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
             </Field>
             {$s(cfg.home.aboutImage) && (
@@ -2845,7 +2845,7 @@ function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
     fitness:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '' } },
   };
   const def = sigDefaults[tpl][style];
-  const showIntro = style !== 'bold'; // Bold never renders intro
+  const showIntro = FIELD_CONFIG.signature.intro[style] !== false; // Only classic renders intro
   const [v, set] = useExtra<{ eyebrow: string; titleA: string; titleB: string; intro: string }>(
     data, setData, 'homeSignature',
     { eyebrow: '', titleA: '', titleB: '', intro: '' },
@@ -3265,19 +3265,29 @@ function CtaBandEditor({ data, setData, tpl, page }: SectionProps & { page?: str
   // For subpages, show the home CTA values as placeholders so it's clear what the fallback is
   const homeOv = isSubpage ? ((data as any).ctaBandOverride ?? empty) as CtaValues : undefined;
 
+  // Field visibility: subpages always use CtaBand (all fields rendered),
+  // home uses style-specific rendering (SoftCtaBlock for modern/bold).
+  const style = _ctx.style || 'classic';
+  const showEyebrow = isSubpage
+    ? fieldVisible(FIELD_CONFIG.cta.subEyebrow, style)
+    : fieldVisible(FIELD_CONFIG.cta.homeEyebrow, style);
+  const showLeadAccent = isSubpage
+    ? fieldVisible(FIELD_CONFIG.cta.subLeadAccent, style)
+    : fieldVisible(FIELD_CONFIG.cta.homeLeadAccent, style);
+
   return (
     <>
-      {_ctx.style === 'classic' && (
+      {showEyebrow && showLeadAccent && (
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline. Leer = Standard (Bereit?).'}>
             <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
           </Field>
-          <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Nur im Classic-Stil sichtbar.">
+          <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Erscheint kursiv unter der Headline.">
             <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder={homeOv?.leadAccent || 'Schreiben Sie uns.'} />
           </Field>
         </div>
       )}
-      {_ctx.style === 'modern' && (
+      {showEyebrow && !showLeadAccent && (
         <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline.'}>
           <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
         </Field>
