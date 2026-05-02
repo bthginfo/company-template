@@ -101,6 +101,8 @@ export default function CrmApp() {
   const [provTemplate, setProvTemplate] = useState<TemplateKey>('restaurant');
   const [provStyle, setProvStyle] = useState<TemplateStyle>('modern');
   const [provPassword, setProvPassword] = useState('');
+  const [provContentJson, setProvContentJson] = useState<Record<string, unknown> | null>(null);
+  const [provContentName, setProvContentName] = useState('');
   const [provResult, setProvResult] = useState<ProvisioningResponse['provisioning'] | null>(null);
 
   const sorted = useMemo(
@@ -254,6 +256,8 @@ export default function CrmApp() {
     setProvSlug(slugify(p.company || p.name));
     setProvName((p.company || p.name || '').trim());
     setProvPassword('');
+    setProvContentJson(null);
+    setProvContentName('');
     setProvisionModal({ open: true, p });
   };
 
@@ -273,6 +277,17 @@ export default function CrmApp() {
         }),
       });
       setProvResult(data.provisioning);
+      // Auto-import content JSON if provided
+      if (provContentJson) {
+        try {
+          await req(`/api/admin/import-content?slug=${encodeURIComponent(provSlug)}`, {
+            method: 'POST',
+            body: JSON.stringify(provContentJson),
+          });
+        } catch (e: any) {
+          alert(`Tenant erstellt, aber Content-Import fehlgeschlagen: ${e?.message}`);
+        }
+      }
       await reloadProspects();
     } catch (e: any) {
       alert(e?.message || 'Provisioning fehlgeschlagen.');
@@ -625,6 +640,26 @@ export default function CrmApp() {
             <div>
               <label className="text-sm text-slate-600">Passwort (min. 8 Zeichen, leer = auto)</label>
               <input type="text" value={provPassword} onChange={(e) => setProvPassword(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 bg-white font-mono" placeholder="Leer = wird automatisch generiert" />
+            </div>
+            <div>
+              <label className="text-sm text-slate-600">Content-JSON (Perplexity-Export)</label>
+              <input type="file" accept=".json" className="mt-1 w-full text-sm" onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) { setProvContentJson(null); setProvContentName(''); return; }
+                setProvContentName(file.name);
+                const reader = new FileReader();
+                reader.onload = () => {
+                  try {
+                    const json = JSON.parse(reader.result as string);
+                    setProvContentJson(json);
+                    // Auto-set branch + style from JSON if present
+                    if (json.branch) setProvTemplate(json.branch);
+                    if (json.style) setProvStyle(json.style);
+                  } catch { alert('Ungültiges JSON'); setProvContentJson(null); }
+                };
+                reader.readAsText(file);
+              }} />
+              {provContentName && provContentJson ? <p className="text-xs text-emerald-600 mt-1">✓ {provContentName} geladen{provContentJson.branch ? ` (${provContentJson.branch}/${(provContentJson as any).style || '?'})` : ''}</p> : null}
             </div>
             <div className="grid sm:grid-cols-2 gap-2">
               <div>

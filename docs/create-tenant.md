@@ -148,7 +148,7 @@ Set these env vars on the customer's Vercel project:
 ### Syntax
 
 ```bash
-npx tsx scripts/provision-tenant.ts <slug> "<Name>" <template> [style] [--password <pw>] [--reseed] [--preset <id>]
+npx tsx scripts/provision-tenant.ts <slug> "<Name>" <template> [style] [--password <pw>] [--content <file.json>] [--reseed] [--preset <id>]
 ```
 
 ### Zusätzliche Parameter
@@ -156,6 +156,7 @@ npx tsx scripts/provision-tenant.ts <slug> "<Name>" <template> [style] [--passwo
 | Flag | Beschreibung |
 |---|---|
 | `--password <pw>` | Setzt ein initiales Admin-Passwort (min. 8 Zeichen). Wenn leer, wird ein zufälliges generiert. |
+| `--content <file>` | Pfad zu einer Content-JSON-Datei (Perplexity-Export). Content wird nach dem Provisioning importiert. |
 | `--reseed` | Überschreibt bestehenden Seed-Content |
 | `--preset <id>` | Wendet ein Theme-Preset an (z. B. `espresso`) |
 
@@ -180,13 +181,17 @@ Zusätzlich zu `POSTGRES_URL`, `AUTH_SECRET`, `BLOB_READ_WRITE_TOKEN`:
 ### Syntax
 
 ```powershell
-.\scripts\new-tenant.ps1 -Slug <slug> -Name "<Name>" -Template <template> -Style <style> [-Password <pw>] [-Reseed] [-NonInteractive]
+.\scripts\new-tenant.ps1 -Slug <slug> -Name "<Name>" -Template <template> -Style <style> [-Password <pw>] [-ContentJson <file.json>] [-Reseed] [-NonInteractive]
 ```
 
 ### Beispiel
 
 ```powershell
+# Standard-Provisionierung
 .\scripts\new-tenant.ps1 -Slug bella-vista -Name "Bella Vista" -Template restaurant -Style modern -Password MeinPasswort123 -NonInteractive
+
+# Mit vorbefülltem Content aus Perplexity
+.\scripts\new-tenant.ps1 -Slug bella-vista -Name "Bella Vista" -Template restaurant -Style modern -ContentJson ./bella-vista-content.json -NonInteractive
 ```
 
 Ruft intern `provision-tenant.ts` auf, mit zusätzlicher Eingabevalidierung und interaktivem Modus.
@@ -226,6 +231,11 @@ scripts/new-tenant.ps1          ← PowerShell-Wrapper (interaktiv)
 scripts/create-tenant.ts        ← Lightweight DB-only Creator
   └── src/lib/provision-core.ts
         └── defaultsFor()
+
+src/lib/content-import.ts       ← Content-Import (Perplexity JSON → DB deep-merge)
+api/admin/import-content.ts     ← API-Endpoint für Content-Import (CRM + Admin)
+docs/content-template.json      ← JSON-Template für Perplexity Space
+docs/perplexity-prompt.md       ← System-Prompt für Perplexity Space
 
 src/lib/branch-config.ts        ← Single Source of Truth für Branch×Style Sichtbarkeit
 ```

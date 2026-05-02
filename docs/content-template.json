@@ -1,0 +1,767 @@
+{
+  "_version": "1.0",
+  "_description": "Content-Template für company-template. Perplexity füllt alle Felder für einen konkreten Kunden aus. Bilder (imageUrl) bleiben leer – werden manuell hochgeladen.",
+  "_instructions": "Setze branch + style + dann alle Felder. Leere Strings = Feld wird nicht gesetzt. Arrays dürfen leer sein wenn nicht relevant.",
+
+  "branch": "",
+  "_branch_options": ["restaurant", "salon", "tradesman", "hotel", "tourism", "consulting", "medical", "fitness"],
+  "_branch_help": "Branche des Kunden. Bestimmt welche Module verfügbar sind.",
+
+  "style": "",
+  "_style_options": ["classic", "modern", "bold"],
+  "_style_help": "Design-Stil. classic=traditionell, modern=kartenbasiert, bold=große Typografie.",
+
+  "brand": {
+    "name": "",
+    "_name_max": 40,
+    "_name_help": "Firmenname, z.B. 'Ristorante Da Luigi'",
+
+    "tagline": "",
+    "_tagline_max": 80,
+    "_tagline_help": "Slogan/Untertitel, z.B. 'Seit 1998 · Authentische Küche aus Bologna'",
+
+    "primaryColor": "#0f172a",
+    "_primaryColor_help": "Hauptfarbe als Hex, z.B. '#8b5c2a'. Passend zur Marke."
+  },
+
+  "hero": {
+    "title": "",
+    "_title_max": 80,
+    "_title_help": "Hauptüberschrift der Startseite. Kurz, emotional, auf den Punkt.",
+
+    "subtitle": "",
+    "_subtitle_max": 100,
+    "_subtitle_help": "Untertitel (classic+modern). Ergänzt die Headline. Nicht bei bold.",
+
+    "body": "",
+    "_body_max": 300,
+    "_body_help": "Beschreibungstext (nur modern). 1-2 Sätze unter der Headline.",
+
+    "ctaLabel": "",
+    "_ctaLabel_max": 30,
+    "_ctaLabel_help": "Primärer Button-Text, z.B. 'Tisch reservieren', 'Jetzt buchen'",
+
+    "ctaHref": "#kontakt",
+    "_ctaHref_help": "Button-Link, z.B. '#kontakt', '/speisekarte', externe URL"
+  },
+
+  "heroCta": {
+    "primaryLabel": "",
+    "_primaryLabel_max": 30,
+    "_primaryLabel_help": "Gleich wie hero.ctaLabel – Override für den primären Hero-Button",
+
+    "primaryHref": "",
+    "secondaryLabel": "",
+    "_secondaryLabel_max": 30,
+    "_secondaryLabel_help": "Sekundärer Button, z.B. 'Speisekarte ansehen', 'Mehr erfahren'",
+
+    "secondaryHref": ""
+  },
+
+  "navItems": [
+    {
+      "label": "",
+      "_label_max": 20,
+      "_label_help": "Name in der Navigation. Perplexity soll passende Namen vorschlagen (z.B. 'Speisekarte' statt 'Leistungen' bei Restaurants)",
+      "path": "/",
+      "visible": true
+    }
+  ],
+  "_navItems_help": "5-6 Navigationseinträge. Pfade: / (Home), /speisekarte|/leistungen|/zimmer|/touren (Services), /galerie, /ueber-uns, /kontakt, /news (optional). Label ist der sichtbare Name.",
+  "_navItems_defaults": {
+    "restaurant": [
+      { "label": "Start", "path": "/" },
+      { "label": "Speisekarte", "path": "/speisekarte" },
+      { "label": "Galerie", "path": "/galerie" },
+      { "label": "Über uns", "path": "/ueber-uns" },
+      { "label": "Kontakt", "path": "/kontakt" }
+    ],
+    "salon": [
+      { "label": "Start", "path": "/" },
+      { "label": "Leistungen", "path": "/leistungen" },
+      { "label": "Looks", "path": "/galerie" },
+      { "label": "Studio", "path": "/ueber-uns" },
+      { "label": "Termin", "path": "/kontakt" }
+    ],
+    "tradesman": [
+      { "label": "Start", "path": "/" },
+      { "label": "Leistungen", "path": "/leistungen" },
+      { "label": "Referenzen", "path": "/galerie" },
+      { "label": "Betrieb", "path": "/ueber-uns" },
+      { "label": "Anfrage", "path": "/kontakt" }
+    ],
+    "hotel": [
+      { "label": "Start", "path": "/" },
+      { "label": "Zimmer", "path": "/zimmer" },
+      { "label": "Haus & Spa", "path": "/galerie" },
+      { "label": "Geschichte", "path": "/ueber-uns" },
+      { "label": "Reservieren", "path": "/kontakt" }
+    ],
+    "tourism": [
+      { "label": "Start", "path": "/" },
+      { "label": "Touren", "path": "/touren" },
+      { "label": "Eindrücke", "path": "/galerie" },
+      { "label": "Guides", "path": "/ueber-uns" },
+      { "label": "Buchen", "path": "/kontakt" }
+    ],
+    "consulting": [
+      { "label": "Start", "path": "/" },
+      { "label": "Leistungen", "path": "/leistungen" },
+      { "label": "Galerie", "path": "/galerie" },
+      { "label": "Über uns", "path": "/ueber-uns" },
+      { "label": "Kontakt", "path": "/kontakt" }
+    ],
+    "medical": [
+      { "label": "Start", "path": "/" },
+      { "label": "Leistungen", "path": "/leistungen" },
+      { "label": "Galerie", "path": "/galerie" },
+      { "label": "Über uns", "path": "/ueber-uns" },
+      { "label": "Kontakt", "path": "/kontakt" }
+    ],
+    "fitness": [
+      { "label": "Start", "path": "/" },
+      { "label": "Leistungen", "path": "/leistungen" },
+      { "label": "Galerie", "path": "/galerie" },
+      { "label": "Über uns", "path": "/ueber-uns" },
+      { "label": "Kontakt", "path": "/kontakt" }
+    ]
+  },
+
+  "navCta": {
+    "label": "",
+    "_label_max": 20,
+    "_label_help": "CTA-Button oben rechts in der Nav, z.B. 'Reservieren', 'Termin', 'Buchen'",
+    "href": ""
+  },
+
+  "announcements": [],
+  "_announcements_help": "Laufband-Texte oben auf der Seite. 2-4 kurze Sätze, je max 60 Zeichen. z.B. 'Neu: Sommerterrasse ab Mai geöffnet'",
+  "_announcements_item_max": 60,
+
+  "homeStrip": {
+    "eyebrow": "",
+    "_eyebrow_max": 50,
+    "_eyebrow_help": "Kleine Zeile über dem Strip, z.B. 'Heute geöffnet · 11:00 – 22:00' (wird normalerweise automatisch aus Öffnungszeiten generiert)",
+
+    "hint": "",
+    "_hint_max": 100,
+    "_hint_help": "Zusatzinfo unter dem Eyebrow, z.B. 'Warme Küche bis 21:30'",
+
+    "primaryLabel": "",
+    "_primaryLabel_max": 30,
+    "_primaryLabel_help": "Telefon-Button Text, z.B. 'Anrufen'",
+
+    "secondaryLabel": "",
+    "_secondaryLabel_max": 40,
+    "_secondaryLabel_help": "Zweiter Button, z.B. 'Online reservieren'",
+
+    "secondaryHref": "",
+    "tone": "light"
+  },
+
+  "homeSignature": {
+    "eyebrow": "",
+    "_eyebrow_max": 40,
+    "_eyebrow_help": "Kleine Zeile über der Signature-Sektion, z.B. 'Unsere Empfehlung'",
+
+    "titleA": "",
+    "_titleA_max": 40,
+    "_titleA_help": "Erster Teil der Überschrift, z.B. 'Heute frisch'",
+
+    "titleB": "",
+    "_titleB_max": 40,
+    "_titleB_help": "Zweiter Teil (wird kursiv dargestellt), z.B. 'auf den Tisch'",
+
+    "intro": "",
+    "_intro_max": 200,
+    "_intro_help": "Beschreibungstext (nur classic). 1-2 Sätze.",
+
+    "metaLabel": "",
+    "_metaLabel_max": 20,
+    "_metaLabel_help": "Kurzes Label (nur modern), z.B. 'Saisonal', 'Seit 2010', 'Top bewertet'"
+  },
+
+  "homeSignatureItems": [
+    {
+      "title": "",
+      "_title_max": 60,
+      "description": "",
+      "_description_max": 150,
+      "price": "",
+      "_price_max": 20
+    }
+  ],
+  "_homeSignatureItems_help": "3-6 Highlight-Items auf der Startseite (z.B. Tagesempfehlungen, Top-Leistungen). Ohne Bilder – die werden manuell hochgeladen.",
+
+  "branchText": {
+    "_help": "Textbausteine die je nach Branche/Stil verwendet werden. Nur relevante Felder ausfüllen.",
+
+    "heroEyebrow": "",
+    "_heroEyebrow_max": 50,
+    "_heroEyebrow_help": "Eyebrow über der Hero-Headline (nur bold), z.B. 'Willkommen bei'",
+
+    "marqueeWords": [],
+    "_marqueeWords_help": "Wortband (nur bold), 4-8 Wörter, z.B. ['Pasta', 'Fresca', 'Amore', 'Gusto']",
+    "_marqueeWords_item_max": 20,
+
+    "servicesTeaserEyebrow": "",
+    "_servicesTeaserEyebrow_max": 40,
+    "servicesTeaserTitle": "",
+    "_servicesTeaserTitle_max": 60,
+    "servicesAllLabel": "",
+    "_servicesAllLabel_max": 30,
+    "_servicesAllLabel_help": "Button-Text zu allen Services, z.B. 'Zur Speisekarte'",
+    "servicesAllHref": "",
+
+    "aboutTeaserEyebrow": "",
+    "_aboutTeaserEyebrow_max": 40,
+    "_aboutTeaserEyebrow_help": "Eyebrow über About-Teaser (classic+modern), z.B. 'Über uns'",
+
+    "manifestEyebrow": "",
+    "_manifestEyebrow_max": 40,
+    "_manifestEyebrow_help": "Manifest-Eyebrow (nur bold), z.B. 'Unser Versprechen'",
+    "manifestTitle": "",
+    "_manifestTitle_max": 100,
+    "_manifestTitle_help": "Manifest-Überschrift (nur bold), z.B. 'Handwerk mit Leidenschaft'",
+
+    "learnMoreLabel": "",
+    "_learnMoreLabel_max": 30,
+    "_learnMoreLabel_help": "Button bei About-Teaser, z.B. 'Mehr erfahren', 'Geschichte lesen'",
+    "learnMoreHref": "",
+
+    "galleryTeaserEyebrow": "",
+    "_galleryTeaserEyebrow_max": 40,
+    "galleryTeaserTitle": "",
+    "_galleryTeaserTitle_max": 60,
+    "_galleryTeaserTitle_help": "Galerie-Teaser Überschrift. Letztes Wort wird automatisch kursiv.",
+    "galleryAllLabel": "",
+    "_galleryAllLabel_max": 30,
+
+    "testimonialsEyebrow": "",
+    "_testimonialsEyebrow_max": 40,
+    "testimonialsTitle": "",
+    "_testimonialsTitle_max": 60,
+
+    "newsEyebrow": "",
+    "_newsEyebrow_max": 40,
+    "newsTitle": "",
+    "_newsTitle_max": 60,
+
+    "softCtaEyebrow": "",
+    "softCtaTitle": "",
+    "softCtaText": "",
+    "softCtaButton": "",
+
+    "faqEyebrow": "",
+    "_faqEyebrow_max": 40,
+    "faqTitle": "",
+    "_faqTitle_max": 60,
+
+    "processEyebrow": "",
+    "_processEyebrow_max": 40,
+    "processTitle": "",
+    "_processTitle_max": 60,
+
+    "galleryCategoriesEyebrow": "",
+    "galleryCategoriesTitle": "",
+
+    "valuesEyebrow": "",
+    "valuesTitle": "",
+    "teamEyebrow": "",
+    "teamTitle": "",
+    "certsEyebrow": "",
+    "_certsEyebrow_help": "Nur tradesman. Eyebrow für Zertifikate-Sektion.",
+    "certsTitle": "",
+    "pressEyebrow": "",
+    "_pressEyebrow_help": "Nur restaurant. Eyebrow für Presse-Sektion.",
+    "pressTitle": "",
+
+    "aboutSidebarEyebrow": "",
+    "_aboutSidebarEyebrow_help": "Nur modern. Sidebar-Eyebrow auf der About-Seite, z.B. 'Auf einen Blick'",
+
+    "heroImageUrl": "",
+    "_heroImageUrl_help": "LEER LASSEN – wird manuell hochgeladen",
+    "servicesPageImageUrl": "",
+    "_servicesPageImageUrl_help": "LEER LASSEN – wird manuell hochgeladen"
+  },
+
+  "about": {
+    "title": "",
+    "_title_max": 60,
+    "_title_help": "Überschrift der Über-uns-Sektion, z.B. 'Unsere Geschichte'",
+
+    "body": "",
+    "_body_max": 600,
+    "_body_help": "Haupttext Über-uns. 2-3 Absätze, durch Leerzeilen getrennt. Erzählt die Geschichte des Unternehmens."
+  },
+
+  "services": [
+    {
+      "title": "",
+      "_title_max": 60,
+      "description": "",
+      "_description_max": 200,
+      "price": "",
+      "_price_max": 20
+    }
+  ],
+  "_services_help": "Hauptleistungen / Angebote. 4-8 Einträge. Ohne Bilder.",
+
+  "testimonials": [
+    {
+      "author": "",
+      "_author_max": 50,
+      "text": "",
+      "_text_max": 300,
+      "_text_help": "Kundenzitat. Authentisch klingend, 2-3 Sätze."
+    }
+  ],
+  "_testimonials_help": "3-5 Kundenstimmen. Wenn echte Reviews online sind (Google, TripAdvisor etc.), verwende diese.",
+
+  "numbers": [
+    {
+      "value": "",
+      "_value_max": 20,
+      "_value_help": "Zahl oder kurzer Wert, z.B. '25+', '4.9 ★', '1998'",
+      "label": "",
+      "_label_max": 30,
+      "_label_help": "Beschriftung, z.B. 'Jahre Erfahrung', 'Bewertung', 'Projekte'"
+    }
+  ],
+  "_numbers_help": "4 Kennzahlen für die Startseite.",
+
+  "logos": [],
+  "_logos_help": "Partner-/Marken-Logos als Textnamen (nur classic+modern), z.B. ['TripAdvisor', 'Falstaff', 'Gault Millau']. 3-6 Einträge.",
+  "_logos_item_max": 30,
+
+  "contact": {
+    "phone": "",
+    "_phone_help": "Telefonnummer mit Vorwahl, z.B. '+43 1 234 5678'",
+    "email": "",
+    "address": "",
+    "_address_help": "Straße + Hausnummer",
+    "city": "",
+    "_city_help": "PLZ + Ort, z.B. '1010 Wien'",
+    "hours": [
+      { "day": "", "_day_help": "z.B. 'Mo – Fr'", "time": "", "_time_help": "z.B. '09:00 – 18:00'" }
+    ],
+    "_hours_help": "Öffnungszeiten als Tag-Zeit-Paare. 2-4 Einträge.",
+    "mapsUrl": "",
+    "_mapsUrl_help": "Google Maps Embed-URL oder Link zur Karte"
+  },
+
+  "social": {
+    "instagram": "",
+    "_instagram_help": "Volle URL, z.B. 'https://instagram.com/username'",
+    "facebook": "",
+    "whatsapp": "",
+    "_whatsapp_help": "WhatsApp-Link, z.B. 'https://wa.me/43123456789'",
+    "linkedin": "",
+    "youtube": "",
+    "tiktok": "",
+    "x": ""
+  },
+
+  "ctaBandOverride": {
+    "_help": "CTA-Band am Ende der Startseite.",
+    "eyebrow": "",
+    "_eyebrow_max": 40,
+    "lead": "",
+    "_lead_max": 80,
+    "_lead_help": "Haupttext, z.B. 'Bereit für Ihren Besuch?'",
+    "sub": "",
+    "_sub_max": 80,
+    "leadAccent": "",
+    "_leadAccent_max": 40,
+    "_leadAccent_help": "Hervorgehobenes Wort (classic+modern). z.B. 'Besuch' wenn lead 'Bereit für Ihren Besuch?' ist.",
+    "cta": "",
+    "_cta_max": 30,
+    "_cta_help": "Button-Text, z.B. 'Jetzt reservieren'",
+    "ctaHref": ""
+  },
+
+  "ctaBandOverrides": {
+    "_help": "Separate CTA-Bänder für jede Subpage. Gleiche Felder wie ctaBandOverride.",
+    "services": {
+      "eyebrow": "", "lead": "", "sub": "", "leadAccent": "", "cta": "", "ctaHref": ""
+    },
+    "gallery": {
+      "eyebrow": "", "lead": "", "sub": "", "leadAccent": "", "cta": "", "ctaHref": ""
+    },
+    "about": {
+      "eyebrow": "", "lead": "", "sub": "", "leadAccent": "", "cta": "", "ctaHref": ""
+    },
+    "contactPage": {
+      "eyebrow": "", "lead": "", "sub": "", "leadAccent": "", "cta": "", "ctaHref": ""
+    }
+  },
+
+  "footer": {
+    "tagline": "",
+    "_tagline_max": 100,
+    "_tagline_help": "Kurzer Text im Footer, z.B. 'Täglich frisch. Seit 1998.'"
+  },
+
+  "seo": {
+    "title": "",
+    "_title_max": 60,
+    "_title_help": "SEO-Titel der Startseite, z.B. 'Ristorante Da Luigi | Wien – Italienische Küche'",
+    "description": "",
+    "_description_max": 160,
+    "_description_help": "Meta-Description für Google. Max 160 Zeichen.",
+    "keywords": "",
+    "_keywords_help": "Komma-getrennte Keywords, z.B. 'restaurant wien, italienisch, pasta'",
+    "locale": "de_AT",
+    "priceRange": "",
+    "_priceRange_help": "Preisklasse: '$', '$$', '$$$', '$$$$' oder z.B. '€10–25'",
+    "cuisine": "",
+    "_cuisine_help": "Nur restaurant. Küche für Schema.org, z.B. 'Italienisch'"
+  },
+
+  "pageSeo": {
+    "_help": "Optionale SEO-Overrides pro Subpage.",
+    "services": { "title": "", "description": "" },
+    "gallery": { "title": "", "description": "" },
+    "about": { "title": "", "description": "" },
+    "contactPage": { "title": "", "description": "" }
+  },
+
+  "_subpage_services": {
+    "_help": "=== SERVICES / LEISTUNGEN / SPEISEKARTE PAGE ===",
+
+    "servicesHeader": {
+      "eyebrow": "",
+      "_eyebrow_max": 40,
+      "title": "",
+      "_title_max": 80,
+      "subtitle": "",
+      "_subtitle_max": 200
+    },
+
+    "highlights": [
+      {
+        "title": "",
+        "_title_max": 40,
+        "description": "",
+        "_description_max": 100,
+        "_help": "4 kurze Highlights/USPs, z.B. 'Frische Zutaten', 'Hausgemacht'"
+      }
+    ],
+    "_highlights_help": "4 Quick-Highlights der Leistungen.",
+
+    "serviceProcess": [
+      {
+        "title": "",
+        "_title_max": 40,
+        "description": "",
+        "_description_max": 150,
+        "_help": "4 Schritte des Ablaufs, z.B. 'Beratung → Planung → Umsetzung → Abnahme'"
+      }
+    ],
+    "_serviceProcess_help": "4 Prozess-Schritte.",
+
+    "faq": [
+      {
+        "question": "",
+        "_question_max": 100,
+        "answer": "",
+        "_answer_max": 400,
+        "_help": "5-8 realistische FAQ-Einträge"
+      }
+    ]
+  },
+
+  "_subpage_services_branch_modules": {
+    "_help": "=== BRANCHENSPEZIFISCHE MODULE (nur relevant für die jeweilige Branche) ===",
+
+    "menu": {
+      "_branch": "restaurant",
+      "_help": "Kategorisierte Speisekarte. Nur für restaurant.",
+      "categories": [
+        {
+          "category": "",
+          "_category_max": 40,
+          "_category_help": "z.B. 'Vorspeisen', 'Pasta', 'Desserts'",
+          "description": "",
+          "priceLabel": "",
+          "_priceLabel_help": "Optionaler Spaltenheader, z.B. 'Achterl | Flasche'",
+          "items": [
+            {
+              "name": "",
+              "_name_max": 60,
+              "description": "",
+              "_desc_max": 100,
+              "price": "",
+              "allergens": "",
+              "_allergens_help": "z.B. 'A, C, G' (EU-Allergennummern)"
+            }
+          ]
+        }
+      ]
+    },
+
+    "treatments": {
+      "_branch": "salon",
+      "_help": "Behandlungsliste. Nur für salon.",
+      "items": [
+        {
+          "name": "", "description": "", "duration": "", "price": "", "category": "",
+          "_category_help": "z.B. 'Schnitt', 'Farbe', 'Pflege'"
+        }
+      ]
+    },
+
+    "rooms": {
+      "_branch": "hotel",
+      "_help": "Zimmerliste. Nur für hotel.",
+      "items": [
+        {
+          "name": "", "description": "", "size": "", "beds": "", "price": "",
+          "features": [],
+          "_features_help": "z.B. ['WLAN', 'Minibar', 'Balkon']"
+        }
+      ]
+    },
+
+    "tours": {
+      "_branch": "tourism",
+      "_help": "Tourenliste. Nur für tourism.",
+      "items": [
+        {
+          "name": "", "description": "", "duration": "", "level": "",
+          "_level_help": "z.B. '1/4 leicht', '3/4 sportlich'",
+          "groupSize": "", "price": "", "languages": []
+        }
+      ]
+    },
+
+    "fundingItems": {
+      "_branch": "tradesman",
+      "_help": "Förderprogramme. Nur für tradesman.",
+      "items": [
+        {
+          "title": "", "description": "", "percent": "",
+          "_percent_help": "z.B. '35 %'",
+          "program": "",
+          "_program_help": "z.B. 'KfW 458'"
+        }
+      ]
+    },
+
+    "processSteps": {
+      "_branch": "consulting",
+      "_help": "Beratungsprozess. Nur für consulting.",
+      "items": [
+        { "title": "", "description": "", "duration": "" }
+      ]
+    },
+
+    "packages": {
+      "_branch": ["consulting", "fitness"],
+      "_help": "Preispakete (3-Tier). Für consulting + fitness.",
+      "items": [
+        {
+          "name": "", "price": "", "period": "",
+          "_period_help": "z.B. '/ Monat'",
+          "description": "",
+          "features": [],
+          "highlight": false,
+          "_highlight_help": "true für das empfohlene Paket",
+          "ctaLabel": "", "ctaHref": ""
+        }
+      ]
+    },
+
+    "doctors": {
+      "_branch": "medical",
+      "_help": "Ärzte/Spezialisten. Nur für medical.",
+      "items": [
+        {
+          "name": "", "role": "", "specialty": "", "bio": ""
+        }
+      ]
+    },
+
+    "booking": {
+      "_branch": "medical",
+      "_help": "Online-Buchung. Nur für medical.",
+      "enabled": false,
+      "provider": "",
+      "_provider_help": "z.B. 'Doctolib', 'jameda', 'TIMIFY'",
+      "url": "",
+      "note": ""
+    },
+
+    "courses": {
+      "_branch": "fitness",
+      "_help": "Kursplan. Nur für fitness.",
+      "items": [
+        {
+          "name": "", "description": "", "schedule": "",
+          "_schedule_help": "z.B. 'Mo 18:00 · Mi 19:30'",
+          "level": "", "duration": "", "trainer": "", "price": ""
+        }
+      ]
+    },
+
+    "emergencyBanner": {
+      "_branch": "tradesman",
+      "_help": "Notdienst-Banner. Nur für tradesman.",
+      "enabled": false,
+      "text": "",
+      "_text_help": "z.B. '24h Notdienst – Heizung, Sanitär, Elektro'",
+      "phone": ""
+    }
+  },
+
+  "_subpage_gallery": {
+    "_help": "=== GALERIE PAGE ===",
+
+    "galleryHeader": {
+      "eyebrow": "",
+      "title": "",
+      "_title_max": 80,
+      "subtitle": "",
+      "_subtitle_max": 200
+    },
+
+    "galleryStory": {
+      "eyebrow": "",
+      "title": "",
+      "body": "",
+      "_body_max": 300,
+      "captions": [
+        { "t": "", "d": "" },
+        { "t": "", "d": "" },
+        { "t": "", "d": "" }
+      ],
+      "_captions_help": "3 Bildunterschriften: t=Titel, d=Beschreibung. Werden neben dem Grid angezeigt."
+    },
+
+    "galleryCategories": [
+      { "t": "", "d": "" }
+    ],
+    "_galleryCategories_help": "Optionale Kategoriekarten, z.B. [{t:'Innenbereich', d:'Unser Gastraum'}, {t:'Terrasse', d:'Sommerfrische'}]"
+  },
+
+  "_subpage_about": {
+    "_help": "=== ÜBER UNS PAGE ===",
+
+    "aboutHeader": {
+      "eyebrow": "",
+      "title": "",
+      "_title_max": 80,
+      "subtitle": "",
+      "_subtitle_max": 200
+    },
+
+    "values": [
+      {
+        "title": "",
+        "_title_max": 40,
+        "description": "",
+        "_description_max": 200,
+        "_help": "3 Kernwerte des Unternehmens, z.B. 'Qualität', 'Nachhaltigkeit', 'Regionalität'"
+      }
+    ],
+
+    "timeline": [
+      {
+        "year": "",
+        "title": "",
+        "_title_max": 60,
+        "description": "",
+        "_description_max": 200,
+        "_help": "Chronologische Meilensteine. 3-6 Einträge."
+      }
+    ],
+
+    "team": [
+      {
+        "name": "",
+        "_name_max": 50,
+        "role": "",
+        "_role_max": 40,
+        "bio": "",
+        "_bio_max": 200,
+        "_help": "Team-Mitglieder. Ohne Bilder (werden manuell hochgeladen)."
+      }
+    ],
+
+    "aboutNumbers": [
+      { "value": "", "label": "" }
+    ],
+    "_aboutNumbers_help": "Kennzahlen auf der About-Seite (kann abweichen von Home-Zahlen).",
+
+    "certifications": [
+      {
+        "title": "",
+        "description": "",
+        "_help": "Nur tradesman. Zertifikate, Meisterbriefe etc."
+      }
+    ],
+
+    "press": [
+      {
+        "title": "",
+        "source": "",
+        "url": "",
+        "_help": "Nur restaurant. Pressezitate / Auszeichnungen."
+      }
+    ]
+  },
+
+  "_subpage_contact": {
+    "_help": "=== KONTAKT PAGE ===",
+
+    "contactPageHeader": {
+      "eyebrow": "",
+      "title": "",
+      "_title_max": 80,
+      "subtitle": "",
+      "_subtitle_max": 200
+    },
+
+    "arrival": [
+      {
+        "title": "",
+        "_title_max": 40,
+        "description": "",
+        "_description_max": 150,
+        "_help": "3 Anfahrtsoptionen, z.B. 'Mit dem Auto', 'Öffentlich', 'Zu Fuß'"
+      }
+    ],
+
+    "locations": [
+      {
+        "name": "", "phone": "", "email": "", "address": "", "city": "",
+        "hours": [],
+        "_help": "Zusätzliche Standorte (falls vorhanden)."
+      }
+    ]
+  },
+
+  "_subpage_news": {
+    "_help": "=== NEWS / BLOG ===",
+    "posts": [
+      {
+        "title": "",
+        "_title_max": 80,
+        "slug": "",
+        "_slug_help": "URL-freundlich, z.B. 'sommerkarte-2025'",
+        "date": "",
+        "_date_help": "ISO-Datum, z.B. '2025-05-01'",
+        "excerpt": "",
+        "_excerpt_max": 200,
+        "body": "",
+        "_body_max": 2000,
+        "_body_help": "Artikeltext. Absätze durch Leerzeilen trennen.",
+        "published": true
+      }
+    ],
+    "_posts_help": "2-3 initiale Blog-/News-Beiträge. Aktuelle Themen des Unternehmens."
+  },
+
+  "branchChips": [],
+  "_branchChips_help": "Nur consulting/medical/fitness. Schlagwort-Tags, z.B. ['Strategie', 'Change Management', 'Digitalisierung']. 4-8 Einträge."
+}

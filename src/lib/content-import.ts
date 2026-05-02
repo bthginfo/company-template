@@ -1,0 +1,137 @@
+/**
+ * Shared content-import logic used by both the API endpoint
+ * (`api/admin/import-content.ts`) and the CLI (`scripts/provision-tenant.ts`).
+ *
+ * Accepts a raw JSON object (Perplexity output) and deep-merges it into
+ * the tenant's existing site content, skipping empty values.
+ */
+import { eq } from 'drizzle-orm';
+import { db, schema } from './db/client.js';
+import { SiteContentSchema } from './types.js';
+
+/**
+ * Import a content JSON into the tenant's site content.
+ * Returns the updated branch + style (if changed by the import).
+ */
+export async function importContentJson(
+  slug: string,
+  raw: Record<string, unknown>,
+): Promise<{ branch: string; style: string }> {
+  const tenant = await db.query.tenants.findFirst({
+    where: eq(schema.tenants.slug, slug),
+  });
+  if (!tenant) throw new Error(`Tenant "${slug}" not found`);
+
+  const cleaned = normaliseImport(raw);
+
+  const existing = await db.query.siteContent.findFirst({
+    where: eq(schema.siteContent.tenantId, tenant.id),
+  });
+  const existingData = (existing?.data ?? {}) as Record<string, unknown>;
+  const merged = deepMerge(existingData, cleaned);
+
+  const parse = SiteContentSchema.safeParse(merged);
+  if (!parse.success) {
+    throw new Error(`Content validation failed: ${JSON.stringify(parse.error.flatten())}`);
+  }
+
+  await db
+    .insert(schema.siteContent)
+    .values({ tenantId: tenant.id, data: parse.data })
+    .onConflictDoUpdate({
+      target: schema.siteContent.tenantId,
+      set: { data: parse.data, updatedAt: new Date() },
+    });
+
+  // Update branch/style on tenant row if provided
+  const updates: Record<string, string> = {};
+  if (raw.branch && typeof raw.branch === 'string') updates.template = raw.branch;
+  if (raw.style && typeof raw.style === 'string') updates.style = raw.style;
+  if (Object.keys(updates).length > 0) {
+    await db.update(schema.tenants).set(updates).where(eq(schema.tenants.id, tenant.id));
+  }
+
+  return {
+    branch: updates.template ?? tenant.template,
+    style: updates.style ?? tenant.style,
+  };
+}
+
+/** Strip `_` prefixed keys, hoist `_subpage_*` children to top-level. */
+function normaliseImport(raw: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(raw)) {
+    if (key.startsWith('_')) {
+      // Hoist children of _subpage_* containers
+      if (key.startsWith('_subpage_') && key !== '_subpage_services_branch_modules' && value && typeof value === 'object' && !Array.isArray(value)) {
+        for (const [childKey, childVal] of Object.entries(value as Record<string, unknown>)) {
+          if (!childKey.startsWith('_')) {
+            result[childKey] = stripMeta(childVal);
+          }
+        }
+      }
+      // Hoist branch modules
+      if (key === '_subpage_services_branch_modules' && value && typeof value === 'object') {
+        for (const [modKey, modVal] of Object.entries(value as Record<string, unknown>)) {
+          if (!modKey.startsWith('_') && modVal && typeof modVal === 'object') {
+            const mod = modVal as Record<string, unknown>;
+            if ('items' in mod) {
+              result[modKey] = stripMeta(mod.items);
+            } else if ('categories' in mod) {
+              result[modKey] = stripMeta(mod.categories);
+            } else {
+              result[modKey] = stripMeta(mod);
+            }
+          }
+        }
+      }
+      continue;
+    }
+    if (key === 'branch' || key === 'style') continue;
+    result[key] = stripMeta(value);
+  }
+
+  return result;
+}
+
+/** Recursively remove keys that start with `_`. */
+function stripMeta(value: unknown): unknown {
+  if (value === null || value === undefined) return value;
+  if (Array.isArray(value)) return value.map(stripMeta);
+  if (typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (!k.startsWith('_')) out[k] = stripMeta(v);
+    }
+    return out;
+  }
+  return value;
+}
+
+/**
+ * Deep-merge `source` into `target`. Skips empty strings and empty arrays
+ * in source (doesn't overwrite existing content with nothing).
+ */
+function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+  const result = { ...target };
+
+  for (const [key, srcVal] of Object.entries(source)) {
+    if (srcVal === undefined || srcVal === null) continue;
+    if (typeof srcVal === 'string' && srcVal.trim() === '') continue;
+    if (Array.isArray(srcVal) && srcVal.length === 0) continue;
+
+    const tgtVal = target[key];
+
+    if (
+      srcVal && typeof srcVal === 'object' && !Array.isArray(srcVal) &&
+      tgtVal && typeof tgtVal === 'object' && !Array.isArray(tgtVal)
+    ) {
+      result[key] = deepMerge(tgtVal as Record<string, unknown>, srcVal as Record<string, unknown>);
+    } else {
+      result[key] = srcVal;
+    }
+  }
+
+  return result;
+}

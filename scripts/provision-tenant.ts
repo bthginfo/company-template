@@ -23,7 +23,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 dotenv.config({ path: '.env.local', override: true });
 
-import { appendFileSync } from 'fs';
+import { appendFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import {
   provisionTenant,
@@ -49,18 +49,19 @@ const AUTH_SECRET_OVERRIDE = takeFlagValue('--auth-secret');
 const ADMIN_HASH_OVERRIDE = takeFlagValue('--admin-hash');
 const PRESET_OVERRIDE = takeFlagValue('--preset');
 const PASSWORD_OVERRIDE = takeFlagValue('--password');
+const CONTENT_FILE = takeFlagValue('--content');
 
 const FILTERED = RAW_ARGS.filter((a, i) => {
   if (a === '--reseed') return false;
-  if (['--auth-secret', '--admin-hash', '--preset', '--password'].includes(a)) return false;
+  if (['--auth-secret', '--admin-hash', '--preset', '--password', '--content'].includes(a)) return false;
   const prev = RAW_ARGS[i - 1];
-  if (prev && ['--auth-secret', '--admin-hash', '--preset', '--password'].includes(prev)) return false;
+  if (prev && ['--auth-secret', '--admin-hash', '--preset', '--password', '--content'].includes(prev)) return false;
   return true;
 });
 
 const [slug, name, template, styleArg] = FILTERED;
 
-const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <${VALID_TEMPLATES.join('|')}> [${VALID_STYLES.join('|')}] [--preset <id>] [--password <pw>] [--reseed] [--auth-secret <value>] [--admin-hash <bcrypt>]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern --preset espresso\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic --password MySecure123\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n\nIf AUTH_SECRET / ADMIN_PASSWORD_HASH in .env.local are encrypted blobs, pass plaintext explicitly via --auth-secret / --admin-hash.\n`;
+const HELP = `\nUsage:\n  npm run tenant:provision -- <slug> "<Display Name>" <${VALID_TEMPLATES.join('|')}> [${VALID_STYLES.join('|')}] [--preset <id>] [--password <pw>] [--content <file.json>] [--reseed] [--auth-secret <value>] [--admin-hash <bcrypt>]\n\nExample:\n  npm run tenant:provision -- bella-roma "Trattoria Bella Roma" restaurant modern --preset espresso\n  npm run tenant:provision -- praxis-lindner "Praxis Dr. Lindner" medical classic --password MySecure123\n  npm run tenant:provision -- bella-roma "Bella Roma" restaurant modern --content content.json\n\nRequired env (in .env.local):\n  VERCEL_TOKEN, VERCEL_TEAM_ID, POSTGRES_URL, BLOB_READ_WRITE_TOKEN,\n  AUTH_SECRET, ADMIN_PASSWORD_HASH\n\nIf AUTH_SECRET / ADMIN_PASSWORD_HASH in .env.local are encrypted blobs, pass plaintext explicitly via --auth-secret / --admin-hash.\n`;
 
 if (slug === '--help' || slug === '-h') {
   console.log(HELP);
@@ -107,6 +108,18 @@ async function main() {
     waitForBuild: true,
     onLog: (line) => console.log(line),
   });
+
+  // Import content JSON if provided
+  if (CONTENT_FILE) {
+    try {
+      const raw = JSON.parse(readFileSync(CONTENT_FILE, 'utf-8'));
+      const { importContentJson } = await import('../src/lib/content-import.js');
+      await importContentJson(slug, raw);
+      console.log(`  ✓ Content imported from ${CONTENT_FILE}`);
+    } catch (e: any) {
+      console.error(`  ⚠ Content import failed: ${e.message}`);
+    }
+  }
 
   if (result.password) {
     const credPath = join(process.cwd(), '.tenant-credentials.txt');

@@ -29,6 +29,9 @@
 .PARAMETER Password
   Optional initial admin password (min 8 chars). If omitted, a random password is generated.
 
+.PARAMETER ContentJson
+  Optional path to a content JSON file (Perplexity export). Content is imported after provisioning.
+
 .PARAMETER NonInteractive
   If set, the script never prompts. Missing args cause an error exit.
 
@@ -46,6 +49,7 @@ param(
   [string]$Style = '',
   [switch]$Reseed,
   [string]$Password = '',
+  [string]$ContentJson = '',
   [switch]$NonInteractive
 )
 
@@ -210,6 +214,10 @@ Write-Step "Provisioning tenant via Vercel API"
 $tsxArgs = @('scripts/provision-tenant.ts', $Slug, $Name, $Template, $Style)
 if ($Reseed.IsPresent) { $tsxArgs += '--reseed' }
 if ($Password) { $tsxArgs += '--password'; $tsxArgs += $Password }
+if ($ContentJson) {
+  if (-not (Test-Path $ContentJson)) { Fail ("Content file not found: " + $ContentJson) 2 }
+  $tsxArgs += '--content'; $tsxArgs += (Resolve-Path $ContentJson).Path
+}
 
 # Stream output directly. We deliberately do NOT tee to a log file:
 # provision-tenant.ts no longer prints the password to stdout — instead it
