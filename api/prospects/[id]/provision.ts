@@ -10,6 +10,7 @@ const ProvisionSchema = z.object({
   name: z.string().trim().min(2).max(120),
   template: z.enum(VALID_TEMPLATES),
   style: z.enum(VALID_STYLES).optional(),
+  password: z.string().min(8).max(128).optional(),
   reseed: z.boolean().optional(),
 });
 
@@ -39,6 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       name: parsed.data.name,
       template: parsed.data.template,
       style: parsed.data.style,
+      password: parsed.data.password,
       reseed: parsed.data.reseed ?? false,
       waitForBuild: false,
       onLog: () => {},

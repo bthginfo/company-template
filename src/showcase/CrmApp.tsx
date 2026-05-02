@@ -100,6 +100,7 @@ export default function CrmApp() {
   const [provName, setProvName] = useState('');
   const [provTemplate, setProvTemplate] = useState<TemplateKey>('restaurant');
   const [provStyle, setProvStyle] = useState<TemplateStyle>('modern');
+  const [provPassword, setProvPassword] = useState('');
   const [provResult, setProvResult] = useState<ProvisioningResponse['provisioning'] | null>(null);
 
   const sorted = useMemo(
@@ -252,6 +253,7 @@ export default function CrmApp() {
     setProvResult(null);
     setProvSlug(slugify(p.company || p.name));
     setProvName((p.company || p.name || '').trim());
+    setProvPassword('');
     setProvisionModal({ open: true, p });
   };
 
@@ -267,6 +269,7 @@ export default function CrmApp() {
           name: provName,
           template: provTemplate,
           style: provStyle,
+          ...(provPassword.trim().length >= 8 ? { password: provPassword.trim() } : {}),
         }),
       });
       setProvResult(data.provisioning);
@@ -619,6 +622,10 @@ export default function CrmApp() {
           <div className="space-y-3">
             <LabeledInput label="Slug" value={provSlug} onChange={setProvSlug} />
             <LabeledInput label="Name" value={provName} onChange={setProvName} />
+            <div>
+              <label className="text-sm text-slate-600">Passwort (min. 8 Zeichen, leer = auto)</label>
+              <input type="text" value={provPassword} onChange={(e) => setProvPassword(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 bg-white font-mono" placeholder="Leer = wird automatisch generiert" />
+            </div>
             <div className="grid sm:grid-cols-2 gap-2">
               <div>
                 <label className="text-sm text-slate-600">Template</label>
