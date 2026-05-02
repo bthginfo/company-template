@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getSession, unauthorized } from '../_lib/auth.js';
+import { getCrmSession } from '../_lib/crm-auth.js';
 import { importContentJson } from '../../src/lib/content-import.js';
 
 /**
@@ -8,7 +9,7 @@ import { importContentJson } from '../../src/lib/content-import.js';
  * Accepts a JSON content payload (from the Perplexity template) and
  * deep-merges it into the tenant's existing site content.
  *
- * Auth: super-admin OR matching tenant session.
+ * Auth: super-admin OR matching tenant session OR CRM session.
  *
  * Body: JSON with `branch`, `style`, and all content fields.
  * Fields starting with `_` are stripped (template metadata).
@@ -22,13 +23,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const session = await getSession(req);
-  if (!session) return unauthorized(res);
+  const crmSession = !session ? await getCrmSession(req) : null;
+  if (!session && !crmSession) return unauthorized(res);
 
   const slug = String(req.query.slug || '');
   if (!slug) return res.status(400).json({ error: 'slug query param required' });
 
-  // Tenant role can only import to own tenant
-  if (session.role === 'tenant' && session.slug !== slug) {
+  // Tenant role can only import to own tenant; CRM session can import to any
+  if (session?.role === 'tenant' && session.slug !== slug) {
     return res.status(403).json({ error: 'Zugriff verweigert.' });
   }
 
