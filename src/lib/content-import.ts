@@ -30,6 +30,9 @@ export async function importContentJson(
   const existingData = (existing?.data ?? {}) as Record<string, unknown>;
   const merged = deepMerge(existingData, cleaned);
 
+  // Coerce known array fields that may arrive as wrapper objects
+  coerceArrayFields(merged);
+
   const parse = SiteContentSchema.safeParse(merged);
   if (!parse.success) {
     throw new Error(`Content validation failed: ${JSON.stringify(parse.error.flatten())}`);
@@ -89,11 +92,6 @@ function normaliseImport(raw: Record<string, unknown>): Record<string, unknown> 
     result[key] = stripMeta(value);
   }
 
-  // Auto-generate missing `id` fields on array items that require them
-  ensureIds(result, 'posts');
-  ensureIds(result, 'testimonials');
-  ensureIds(result, 'announcements');
-
   return result;
 }
 
@@ -135,6 +133,31 @@ function ensureIds(obj: Record<string, unknown>, field: string) {
     if (item && typeof item === 'object' && !('id' in item)) {
       (item as Record<string, unknown>).id = crypto.randomUUID();
     }
+  }
+}
+
+/**
+ * Schema expects certain top-level fields to be arrays.
+ * Perplexity output may wrap them as objects (e.g. `menu: { categories: [...] }`).
+ * Coerce these to arrays before validation.
+ */
+const ARRAY_FIELDS = [
+  'menu', 'rooms', 'tours', 'treatments', 'courses', 'packages',
+  'processSteps', 'doctors', 'fundingItems', 'services', 'testimonials',
+  'posts', 'timeline', 'highlights', 'faq', 'team', 'values',
+  'certifications', 'press', 'announcements', 'numbers', 'homeSignatureItems',
+];
+function coerceArrayFields(obj: Record<string, unknown>) {
+  for (const field of ARRAY_FIELDS) {
+    const val = obj[field];
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      const unwrapped = unwrapSingleArray(val as Record<string, unknown>);
+      if (unwrapped) {
+        obj[field] = unwrapped;
+      }
+    }
+    // Ensure ids on array items
+    ensureIds(obj, field);
   }
 }
 
