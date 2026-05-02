@@ -2814,41 +2814,42 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
 function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
   const style = _ctx.style || 'classic';
   // Style-aware defaults — mirrors SIGNATURE_DEFAULTS in BranchSignature.tsx
-  const sigDefaults: Record<TemplateKey, Record<TemplateStyle, { eyebrow: string; titleA: string; titleB: string; intro: string }>> = {
+  const sigDefaults: Record<TemplateKey, Record<TemplateStyle, { eyebrow: string; titleA: string; titleB: string; intro: string; metaLabel: string }>> = {
     restaurant: {
-      classic: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.' },
-      modern:  { eyebrow: 'Heute auf der Karte', titleA: 'Empfehlungen', titleB: 'vom Haus.', intro: '' },
-      bold:    { eyebrow: 'Heute · Tonight', titleA: 'Auf', titleB: 'dem Tisch.', intro: '' },
+      classic: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch — was die Lieferanten bringen, kommt auf den Tisch.', metaLabel: '' },
+      modern:  { eyebrow: 'Heute auf der Karte', titleA: 'Empfehlungen', titleB: 'vom Haus.', intro: '', metaLabel: 'Saisonal' },
+      bold:    { eyebrow: 'Heute · Tonight', titleA: 'Auf', titleB: 'dem Tisch.', intro: '', metaLabel: '' },
     },
     salon: {
-      classic: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.' },
-      modern:  { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '' },
-      bold:    { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '' },
+      classic: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.', metaLabel: '' },
+      modern:  { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '', metaLabel: '' },
+      bold:    { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '', metaLabel: '' },
     },
     tradesman: {
-      classic: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.' },
-      modern:  { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '' },
-      bold:    { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '' },
+      classic: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.', metaLabel: '' },
+      modern:  { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '', metaLabel: '' },
+      bold:    { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '', metaLabel: '' },
     },
     hotel: {
-      classic: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.' },
-      modern:  { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '' },
-      bold:    { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '' },
+      classic: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.', metaLabel: '' },
+      modern:  { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '', metaLabel: '' },
+      bold:    { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '', metaLabel: '' },
     },
     tourism: {
-      classic: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.' },
-      modern:  { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '' },
-      bold:    { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '' },
+      classic: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.', metaLabel: '' },
+      modern:  { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '', metaLabel: '' },
+      bold:    { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '', metaLabel: '' },
     },
-    consulting: { classic: { eyebrow: '', titleA: '', titleB: '', intro: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '' } },
-    medical:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '' } },
-    fitness:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '' } },
+    consulting: { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
+    medical:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
+    fitness:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
   };
   const def = sigDefaults[tpl][style];
   const showIntro = FIELD_CONFIG.signature.intro[style] !== false; // Only classic renders intro
-  const [v, set] = useExtra<{ eyebrow: string; titleA: string; titleB: string; intro: string }>(
+  const showMetaLabel = FIELD_CONFIG.signature.metaLabel[style] !== false; // Only modern renders metaLabel
+  const [v, set] = useExtra<{ eyebrow: string; titleA: string; titleB: string; intro: string; metaLabel: string }>(
     data, setData, 'homeSignature',
-    { eyebrow: '', titleA: '', titleB: '', intro: '' },
+    { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' },
   );
   return (
     <div className="border border-line rounded-2xl p-4 bg-[#fafaf7] mb-4 space-y-4">
@@ -2867,6 +2868,11 @@ function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
       <Field label="Titel (Teil 2, kursiv)" hint={`Standard: ${def.titleB}`}>
         <input className={inputCls + ' !bg-white'} value={v.titleB} onChange={(e) => set({ ...v, titleB: e.target.value })} placeholder={def.titleB} />
       </Field>
+      {showMetaLabel && (
+        <Field label="Meta-Label" hint="Erscheint rechts neben dem Titel mit aktuellem Datum (z. B. ‚Saisonal · 2. Mai').">
+          <input className={inputCls + ' !bg-white'} value={v.metaLabel} onChange={(e) => set({ ...v, metaLabel: e.target.value })} placeholder="Saisonal" />
+        </Field>
+      )}
       {showIntro && (
         <Field label="Beschreibung" hint={def.intro ? `Standard: ${def.intro}` : 'Erscheint unter dem Titel (optional).'}>
           <textarea className={inputCls + ' !bg-white'} rows={2} value={v.intro} onChange={(e) => set({ ...v, intro: e.target.value })} placeholder={def.intro} />

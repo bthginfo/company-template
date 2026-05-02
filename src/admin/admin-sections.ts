@@ -462,7 +462,7 @@ export const FIELD_CONFIG = {
   /** HOME: Signature section */
   signature: {
     intro:     { classic: true,  modern: false, bold: false } as Record<TemplateStyle, FieldVis>,
-    // metaLabel is part of BranchSignature — for now not editable
+    metaLabel: { classic: false, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
   },
 
   /** HOME: About teaser */
