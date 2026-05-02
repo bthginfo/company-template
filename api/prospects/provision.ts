@@ -1,37 +1,20 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { z } from 'zod';
-import { eq } from 'drizzle-orm';
 
-let db: any, schema: any, requireCrm: any, provisionTenant: any, VALID_STYLES: any, VALID_TEMPLATES: any;
-let _initError: string | null = null;
-try {
-  const c = require('../../src/lib/db/client.js');
-  db = c.db; schema = c.schema;
-  requireCrm = require('../_lib/crm-auth.js').requireCrm;
-  const p = require('../../src/lib/provision-core.js');
-  provisionTenant = p.provisionTenant;
-  VALID_STYLES = p.VALID_STYLES;
-  VALID_TEMPLATES = p.VALID_TEMPLATES;
-} catch (e: any) {
-  _initError = e?.stack || e?.message || String(e);
-  console.error('[provision.ts init]', _initError);
-}
+let _z: any, _eq: any, _db: any, _schema: any, _requireCrm: any, _provisionTenant: any, _VALID_STYLES: any, _VALID_TEMPLATES: any;
+let _initErr: string | null = null;
 
-const ProvisionSchema = z.object({
-  id: z.string().uuid().optional(),
-  slug: z.string().trim().min(2).max(64),
-  name: z.string().trim().min(2).max(120),
-  template: z.enum(VALID_TEMPLATES),
-  style: z.enum(VALID_STYLES).optional(),
-  password: z.string().min(8).max(128).optional(),
-  reseed: z.boolean().optional(),
-});
+const _ready = Promise.all([
+  import('zod').then(m => { _z = m.z; }),
+  import('drizzle-orm').then(m => { _eq = m.eq; }),
+  import('../../src/lib/db/client.js').then(m => { _db = m.db; _schema = m.schema; }),
+  import('../_lib/crm-auth.js').then(m => { _requireCrm = m.requireCrm; }),
+  import('../../src/lib/provision-core.js').then(m => { _provisionTenant = m.provisionTenant; _VALID_STYLES = m.VALID_STYLES; _VALID_TEMPLATES = m.VALID_TEMPLATES; }),
+]).catch((e: any) => { _initErr = e?.stack || e?.message || String(e); console.error('[provision init]', _initErr); });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (_initError) {
-    return res.status(500).json({ error: 'Module init failed', detail: _initError });
-  }
-  if (await requireCrm(req, res)) return;
+  await _ready;
+  if (_initErr) return res.status(500).json({ error: 'Module init failed', detail: _initErr });
+  if (await _requireCrm(req, res)) return;
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -42,16 +25,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const id = String((req.query.id ?? body.id ?? '') as string).trim();
   if (!id) return res.status(400).json({ error: 'id missing' });
 
+  const ProvisionSchema = _z.object({
+    id: _z.string().uuid().optional(),
+    slug: _z.string().trim().min(2).max(64),
+    name: _z.string().trim().min(2).max(120),
+    template: _z.enum(_VALID_TEMPLATES),
+    style: _z.enum(_VALID_STYLES).optional(),
+    password: _z.string().min(8).max(128).optional(),
+    reseed: _z.boolean().optional(),
+  });
+
   const parsed = ProvisionSchema.safeParse({ ...body, id });
   if (!parsed.success) {
     return res.status(400).json({ error: 'Ungültige Eingabe', details: parsed.error.flatten() });
   }
 
-  const prospect = await db.query.prospects.findFirst({ where: eq(schema.prospects.id, id) });
+  const prospect = await _db.query.prospects.findFirst({ where: _eq(_schema.prospects.id, id) });
   if (!prospect) return res.status(404).json({ error: 'Prospect not found' });
 
   try {
-    const result = await provisionTenant({
+    const result = await _provisionTenant({
       slug: parsed.data.slug,
       name: parsed.data.name,
       template: parsed.data.template,
@@ -62,13 +55,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       onLog: () => {},
     });
 
-    const [updated] = await db
-      .update(schema.prospects)
+    const [updated] = await _db
+      .update(_schema.prospects)
       .set({
         provisionedTenantSlug: result.slug,
         updatedAt: new Date(),
       })
-      .where(eq(schema.prospects.id, id))
+      .where(_eq(_schema.prospects.id, id))
       .returning();
 
     return res.json({ ok: true, prospect: updated, provisioning: result });
