@@ -43,6 +43,11 @@ export type AdminEditorBodyProps = {
   style?: TemplateStyle;
   /** Callback to switch the visual style (persisted by the host). */
   onStyleChange?: (style: TemplateStyle) => Promise<void> | void;
+  /** Draft workflow */
+  hasDraft?: boolean;
+  onPublish?: () => void | Promise<void>;
+  publishing?: boolean;
+  onDiscard?: () => void | Promise<void>;
 };
 
 type Ctx = {
@@ -61,6 +66,10 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     uploadImage,
     style: tplStyle,
     onStyleChange,
+    hasDraft,
+    onPublish,
+    publishing,
+    onDiscard,
   } = props;
 
   _ctx = { uploadImage, style: tplStyle };
@@ -221,26 +230,74 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
         </div>
       </div>
 
-      {/* Floating save button — always visible, no scrolling required. */}
-      <button
-        type="button"
-        onClick={() => onSave()}
-        disabled={saving}
-        aria-label="Änderungen speichern"
-        className="fixed bottom-6 right-6 z-40 btn-primary !px-6 !py-3 text-sm font-medium rounded-full shadow-2xl ring-1 ring-black/5 disabled:opacity-60 transition-transform hover:scale-105 active:scale-95"
-      >
-        {saving ? (
-          <span className="flex items-center gap-2">
-            <span className="inline-block h-3 w-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-            Speichert …
-          </span>
-        ) : (
-          <span className="flex items-center gap-2">
-            <span aria-hidden="true">💾</span>
-            Speichern
-          </span>
+      {/* Floating action buttons — always visible */}
+      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2">
+        {/* Discard */}
+        {hasDraft && onDiscard && (
+          <button
+            type="button"
+            onClick={() => onDiscard()}
+            aria-label="Entwurf verwerfen"
+            title="Entwurf verwerfen"
+            className="h-12 w-12 md:w-auto md:px-4 flex items-center justify-center gap-2 rounded-full bg-white text-slate-600 hover:text-rose-600 shadow-xl ring-1 ring-black/10 text-sm font-medium transition-transform hover:scale-105 active:scale-95"
+          >
+            <span aria-hidden="true">🗑</span>
+            <span className="hidden md:inline">Verwerfen</span>
+          </button>
         )}
-      </button>
+        {/* Preview */}
+        {hasDraft && (
+          <a
+            href="/?preview=1"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Vorschau ansehen"
+            title="Vorschau ansehen"
+            className="h-12 w-12 md:w-auto md:px-4 flex items-center justify-center gap-2 rounded-full bg-white text-amber-600 hover:text-amber-800 shadow-xl ring-1 ring-black/10 text-sm font-medium transition-transform hover:scale-105 active:scale-95"
+          >
+            <span aria-hidden="true">👁</span>
+            <span className="hidden md:inline">Vorschau</span>
+          </a>
+        )}
+        {/* Publish */}
+        {onPublish && (
+          <button
+            type="button"
+            onClick={() => onPublish()}
+            disabled={!hasDraft || publishing}
+            aria-label="Veröffentlichen"
+            title={hasDraft ? 'Entwurf veröffentlichen' : 'Erst speichern, dann veröffentlichen'}
+            className="h-12 w-12 md:w-auto md:px-5 flex items-center justify-center gap-2 rounded-full bg-emerald-600 text-white shadow-xl ring-1 ring-black/5 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-transform hover:scale-105 active:scale-95 hover:bg-emerald-700"
+          >
+            {publishing ? (
+              <span className="inline-block h-3 w-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            ) : (
+              <span aria-hidden="true">🚀</span>
+            )}
+            <span className="hidden md:inline">{publishing ? 'Veröffentlicht …' : 'Veröffentlichen'}</span>
+          </button>
+        )}
+        {/* Save */}
+        <button
+          type="button"
+          onClick={() => onSave()}
+          disabled={saving}
+          aria-label="Änderungen speichern"
+          className="h-12 px-5 md:px-6 flex items-center justify-center gap-2 rounded-full btn-primary shadow-2xl ring-1 ring-black/5 text-sm font-medium disabled:opacity-60 transition-transform hover:scale-105 active:scale-95"
+        >
+          {saving ? (
+            <>
+              <span className="inline-block h-3 w-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              <span className="hidden md:inline">Speichert …</span>
+            </>
+          ) : (
+            <>
+              <span aria-hidden="true">💾</span>
+              <span className="hidden md:inline">Speichern</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

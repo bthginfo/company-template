@@ -196,16 +196,15 @@ export function AdminApp() {
       uploadImage={uploadImage}
       style={(tenant.style as 'classic' | 'modern' | 'bold' | undefined) || 'classic'}
       onStyleChange={onStyleChange}
+      hasDraft={state.status === 'ready' && state.hasDraft}
+      onPublish={onPublish}
+      publishing={publishing}
+      onDiscard={onDiscard}
       headerStatus={
         <div className="hidden md:flex items-center gap-3 text-xs">
           <span className="uppercase tracking-widest text-muted bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">
             {session.role === 'super' ? 'Super-Admin' : tenant.slug}
           </span>
-          {state.status === 'ready' && state.hasDraft && (
-            <a href="/?preview=1" target="_blank" rel="noreferrer" className="text-amber-600 hover:text-amber-800 font-medium">
-              👁 Vorschau
-            </a>
-          )}
           <button onClick={logout} className="text-rose-600 hover:underline">Abmelden</button>
         </div>
       }
@@ -213,22 +212,6 @@ export function AdminApp() {
         state.status === 'ready' && state.hasDraft
           ? <span className="text-amber-600">Unveröffentlichter Entwurf — noch nicht live.</span>
           : 'Änderungen werden als Entwurf gespeichert.'
-      }
-      footerExtraActions={
-        state.status === 'ready' && state.hasDraft ? (
-          <>
-            <button onClick={onDiscard} className="btn-secondary text-sm">
-              Verwerfen
-            </button>
-            <button
-              onClick={onPublish}
-              disabled={publishing}
-              className="btn-primary bg-emerald-600 hover:bg-emerald-700 text-sm"
-            >
-              {publishing ? 'Veröffentlicht …' : '🚀 Veröffentlichen'}
-            </button>
-          </>
-        ) : undefined
       }
     />
   );
