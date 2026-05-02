@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import Seo from '@/components/Seo';
 
 type ProspectStatus = 'neu' | 'angefragt' | 'reminder' | 'angenommen' | 'abgelehnt';
@@ -44,6 +44,20 @@ type ProvisioningResponse = {
   };
 };
 
+type CrmTab = 'prospects' | 'tenants';
+
+type TenantRow = {
+  id: string;
+  slug: string;
+  name: string;
+  template: string;
+  style: string;
+  createdAt: string;
+  contentUpdatedAt: string | null;
+  adminUrl: string;
+  siteUrl: string;
+};
+
 const STATUS_LABEL: Record<ProspectStatus, string> = {
   neu: 'Neu',
   angefragt: 'Angefragt',
@@ -77,6 +91,7 @@ export default function CrmApp() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [crmTab, setCrmTab] = useState<CrmTab>('prospects');
 
   const [prospects, setProspects] = useState<Prospect[]>([]);
   const [categories, setCategories] = useState<ProspectCategory[]>([]);
@@ -105,6 +120,16 @@ export default function CrmApp() {
   const [provContentName, setProvContentName] = useState('');
   const [provResult, setProvResult] = useState<ProvisioningResponse['provisioning'] | null>(null);
 
+  // Tenants tab state
+  const [tenants, setTenants] = useState<TenantRow[]>([]);
+  const [loadingTenants, setLoadingTenants] = useState(false);
+  const [tenantSearch, setTenantSearch] = useState('');
+  const [dupModal, setDupModal] = useState<{ open: boolean; t: TenantRow | null }>({ open: false, t: null });
+  const [dupSlug, setDupSlug] = useState('');
+  const [dupName, setDupName] = useState('');
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; t: TenantRow | null }>({ open: false, t: null });
+  const [deleteVercel, setDeleteVercel] = useState(true);
+
   const sorted = useMemo(
     () => [...prospects].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)),
     [prospects],
@@ -120,6 +145,12 @@ export default function CrmApp() {
     () => sorted.filter((p) => categoryFilter === 'all' || p.categoryId === categoryFilter),
     [sorted, categoryFilter],
   );
+
+  const filteredTenants = useMemo(() => {
+    if (!tenantSearch.trim()) return tenants;
+    const q = tenantSearch.toLowerCase();
+    return tenants.filter((t) => t.name.toLowerCase().includes(q) || t.slug.toLowerCase().includes(q) || t.template.includes(q));
+  }, [tenants, tenantSearch]);
 
   useEffect(() => {
     void (async () => {
@@ -137,7 +168,12 @@ export default function CrmApp() {
   useEffect(() => {
     if (!authenticated) return;
     void Promise.all([reloadProspects(), reloadCategories()]);
+    if (crmTab === 'tenants') void reloadTenants();
   }, [authenticated]);
+
+  useEffect(() => {
+    if (authenticated && crmTab === 'tenants' && tenants.length === 0) void reloadTenants();
+  }, [crmTab]);
 
   useEffect(() => {
     if (!emailModal.p) return;
@@ -296,6 +332,51 @@ export default function CrmApp() {
     }
   };
 
+  const reloadTenants = useCallback(async () => {
+    setLoadingTenants(true);
+    try {
+      const data = await req<TenantRow[]>('/api/tenants');
+      setTenants(data);
+    } catch { /* ignore */ } finally {
+      setLoadingTenants(false);
+    }
+  }, []);
+
+  const deleteTenant = async () => {
+    if (!deleteModal.t) return;
+    if (!confirm(`Tenant "${deleteModal.t.name}" (${deleteModal.t.slug}) wirklich löschen?`)) return;
+    setBusy(true);
+    try {
+      await req('/api/tenants?action=delete', {
+        method: 'POST',
+        body: JSON.stringify({ slug: deleteModal.t.slug, deleteVercelProject: deleteVercel }),
+      });
+      setDeleteModal({ open: false, t: null });
+      await reloadTenants();
+    } catch (e: any) {
+      alert(e?.message || 'Löschen fehlgeschlagen.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const duplicateTenant = async () => {
+    if (!dupModal.t) return;
+    setBusy(true);
+    try {
+      await req('/api/tenants?action=duplicate', {
+        method: 'POST',
+        body: JSON.stringify({ sourceSlug: dupModal.t.slug, newSlug: dupSlug, newName: dupName }),
+      });
+      setDupModal({ open: false, t: null });
+      await reloadTenants();
+    } catch (e: any) {
+      alert(e?.message || 'Duplizieren fehlgeschlagen.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const doLogin = async () => {
     setLoginError(null);
     try {
@@ -395,7 +476,11 @@ export default function CrmApp() {
             <h1 className="text-xl font-semibold">Flamingo CRM</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button className="btn-ghost !px-3 !py-2 text-sm" onClick={() => void reloadProspects()} disabled={loadingProspects}>
+            <nav className="flex rounded-lg border border-slate-200 overflow-hidden mr-2">
+              <button onClick={() => setCrmTab('prospects')} className={`px-3 py-1.5 text-sm font-medium transition ${crmTab === 'prospects' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Prospects</button>
+              <button onClick={() => setCrmTab('tenants')} className={`px-3 py-1.5 text-sm font-medium transition ${crmTab === 'tenants' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Tenants</button>
+            </nav>
+            <button className="btn-ghost !px-3 !py-2 text-sm" onClick={() => crmTab === 'prospects' ? void reloadProspects() : void reloadTenants()} disabled={loadingProspects || loadingTenants}>
               Aktualisieren
             </button>
             <button className="btn-ghost !px-3 !py-2 text-sm" onClick={() => void doLogout()}>
@@ -405,6 +490,7 @@ export default function CrmApp() {
         </div>
       </header>
 
+      {crmTab === 'prospects' ? (
       <section className="mx-auto max-w-7xl px-4 py-6 grid lg:grid-cols-[380px,1fr] gap-6">
         <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm h-fit lg:sticky lg:top-20">
           <h2 className="text-lg font-semibold">{editing ? 'Prospect bearbeiten' : 'Neuen Prospect anlegen'}</h2>
@@ -555,6 +641,99 @@ export default function CrmApp() {
           </div>
         </section>
       </section>
+      ) : null}
+
+      {crmTab === 'tenants' ? (
+      <section className="mx-auto max-w-7xl px-4 py-6">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-3">
+            <h2 className="font-semibold">Tenants ({filteredTenants.length})</h2>
+            <input
+              value={tenantSearch}
+              onChange={(e) => setTenantSearch(e.target.value)}
+              placeholder="Suchen…"
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm bg-white w-56"
+            />
+            {loadingTenants ? <span className="text-sm text-slate-500">Lade…</span> : null}
+          </div>
+          <div className="overflow-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-50 text-slate-600">
+                <tr>
+                  <Th>Name</Th>
+                  <Th>Slug</Th>
+                  <Th>Template</Th>
+                  <Th>Style</Th>
+                  <Th>Erstellt</Th>
+                  <Th>Content aktualisiert</Th>
+                  <Th>Links</Th>
+                  <Th>Aktionen</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTenants.map((t) => (
+                  <tr key={t.id} className="border-t border-slate-100 align-top">
+                    <Td><span className="font-medium">{t.name}</span></Td>
+                    <Td><code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded">{t.slug}</code></Td>
+                    <Td>{t.template}</Td>
+                    <Td><span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium">{t.style}</span></Td>
+                    <Td>{formatDate(t.createdAt)}</Td>
+                    <Td>{t.contentUpdatedAt ? formatDate(t.contentUpdatedAt) : '-'}</Td>
+                    <Td>
+                      <div className="flex flex-col gap-0.5 text-xs">
+                        <a href={t.siteUrl} target="_blank" rel="noreferrer" className="text-rose-600 hover:underline">Website ↗</a>
+                        <a href={t.adminUrl} target="_blank" rel="noreferrer" className="text-rose-600 hover:underline">Admin ↗</a>
+                      </div>
+                    </Td>
+                    <Td>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button onClick={() => { setDupSlug(t.slug + '-kopie'); setDupName(t.name + ' (Kopie)'); setDupModal({ open: true, t }); }} className="btn-ghost !px-2.5 !py-1.5">Duplizieren</button>
+                        <button onClick={() => { setDeleteVercel(true); setDeleteModal({ open: true, t }); }} className="btn-ghost !px-2.5 !py-1.5 text-rose-700">Löschen</button>
+                      </div>
+                    </Td>
+                  </tr>
+                ))}
+                {!filteredTenants.length ? (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-8 text-center text-slate-500">{tenantSearch ? 'Kein Tenant passt zum Filter.' : 'Noch keine Tenants angelegt.'}</td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {dupModal.open && dupModal.t ? (
+        <Modal title={`${dupModal.t.name} duplizieren`} onClose={() => setDupModal({ open: false, t: null })}>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-600">Erstellt eine Kopie des Contents als neuen Tenant (ohne Vercel-Projekt – muss separat provisioniert werden).</p>
+            <LabeledInput label="Neuer Slug" value={dupSlug} onChange={setDupSlug} />
+            <LabeledInput label="Neuer Name" value={dupName} onChange={setDupName} />
+            <div className="flex justify-end gap-2">
+              <button className="btn-ghost !px-4 !py-2" onClick={() => setDupModal({ open: false, t: null })}>Abbrechen</button>
+              <button className="rounded-xl bg-slate-900 text-white px-4 py-2 hover:bg-slate-700" onClick={() => void duplicateTenant()}>Duplizieren</button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
+
+      {deleteModal.open && deleteModal.t ? (
+        <Modal title={`Tenant „${deleteModal.t.name}" löschen`} onClose={() => setDeleteModal({ open: false, t: null })}>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-600">Löscht den Tenant <strong>{deleteModal.t.slug}</strong> aus der Datenbank. Content und Zugangsdaten gehen verloren.</p>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={deleteVercel} onChange={(e) => setDeleteVercel(e.target.checked)} className="rounded" />
+              Auch das Vercel-Projekt löschen
+            </label>
+            <div className="flex justify-end gap-2">
+              <button className="btn-ghost !px-4 !py-2" onClick={() => setDeleteModal({ open: false, t: null })}>Abbrechen</button>
+              <button className="rounded-xl bg-rose-600 text-white px-4 py-2 hover:bg-rose-700" onClick={() => void deleteTenant()}>Endgültig löschen</button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
 
       {emailModal.open && emailModal.p ? (
         <Modal title={`E-Mail an ${emailModal.p.name || emailModal.p.company || 'Prospect'}`} onClose={() => setEmailModal({ open: false, p: null })}>
