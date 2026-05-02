@@ -76,13 +76,10 @@ function normaliseImport(raw: Record<string, unknown>): Record<string, unknown> 
         for (const [modKey, modVal] of Object.entries(value as Record<string, unknown>)) {
           if (!modKey.startsWith('_') && modVal && typeof modVal === 'object') {
             const mod = modVal as Record<string, unknown>;
-            if ('items' in mod) {
-              result[modKey] = stripMeta(mod.items);
-            } else if ('categories' in mod) {
-              result[modKey] = stripMeta(mod.categories);
-            } else {
-              result[modKey] = stripMeta(mod);
-            }
+            // Unwrap container objects that hold a single array-valued child
+            // e.g. menu: { categories: [...] } → menu: [...]
+            const unwrapped = unwrapSingleArray(mod);
+            result[modKey] = stripMeta(unwrapped ?? mod);
           }
         }
       }
@@ -91,6 +88,11 @@ function normaliseImport(raw: Record<string, unknown>): Record<string, unknown> 
     if (key === 'branch' || key === 'style') continue;
     result[key] = stripMeta(value);
   }
+
+  // Auto-generate missing `id` fields on array items that require them
+  ensureIds(result, 'posts');
+  ensureIds(result, 'testimonials');
+  ensureIds(result, 'announcements');
 
   return result;
 }
@@ -107,6 +109,33 @@ function stripMeta(value: unknown): unknown {
     return out;
   }
   return value;
+}
+
+/**
+ * If `obj` is a wrapper with metadata keys (`_*`) plus exactly one array-valued
+ * non-meta key (e.g. `{ _branch: "restaurant", categories: [...] }`),
+ * return that array. Otherwise return null.
+ */
+function unwrapSingleArray(obj: Record<string, unknown>): unknown[] | null {
+  const nonMeta = Object.entries(obj).filter(([k]) => !k.startsWith('_'));
+  if (nonMeta.length === 1 && Array.isArray(nonMeta[0][1])) {
+    return nonMeta[0][1] as unknown[];
+  }
+  // Also handle the direct case: items or categories key
+  if ('items' in obj && Array.isArray(obj.items)) return obj.items as unknown[];
+  if ('categories' in obj && Array.isArray(obj.categories)) return obj.categories as unknown[];
+  return null;
+}
+
+/** Ensure each item in an array field has an `id`. */
+function ensureIds(obj: Record<string, unknown>, field: string) {
+  const arr = obj[field];
+  if (!Array.isArray(arr)) return;
+  for (const item of arr) {
+    if (item && typeof item === 'object' && !('id' in item)) {
+      (item as Record<string, unknown>).id = crypto.randomUUID();
+    }
+  }
 }
 
 /**
