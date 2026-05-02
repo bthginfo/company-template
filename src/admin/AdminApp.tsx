@@ -201,6 +201,11 @@ export function AdminApp() {
           <span className="uppercase tracking-widest text-muted bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">
             {session.role === 'super' ? 'Super-Admin' : tenant.slug}
           </span>
+          {state.status === 'ready' && state.hasDraft && (
+            <a href="/?preview=1" target="_blank" rel="noreferrer" className="text-amber-600 hover:text-amber-800 font-medium">
+              👁 Vorschau
+            </a>
+          )}
           <button onClick={logout} className="text-rose-600 hover:underline">Abmelden</button>
         </div>
       }

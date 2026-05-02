@@ -49,12 +49,33 @@ export function SiteRouter() {
     );
   }
 
+  const isPreview = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === '1';
+
   const key = state.tenant.template || getTemplateKey();
   const style: TemplateStyle =
     (state.tenant.style as TemplateStyle | undefined) || getTemplateStyle();
   if (isExtraBranchKey(key)) {
-    return <ExtraBranchTemplate content={state.content} style={style} branch={key} />;
+    return (
+      <>
+        {isPreview && <PreviewBanner />}
+        <ExtraBranchTemplate content={state.content} style={style} branch={key} />
+      </>
+    );
   }
   const Tpl = TEMPLATES[key] ?? RestaurantTemplate;
-  return <Tpl content={state.content} style={style} />;
+  return (
+    <>
+      {isPreview && <PreviewBanner />}
+      <Tpl content={state.content} style={style} />
+    </>
+  );
+}
+
+function PreviewBanner() {
+  return (
+    <div className="bg-amber-500 text-white text-center text-sm py-2 px-4 font-medium sticky top-0 z-50">
+      👁 Vorschau-Modus — Diese Seite zeigt den unveröffentlichten Entwurf.{' '}
+      <a href="/" className="underline underline-offset-2 hover:text-amber-100">Zur Live-Seite →</a>
+    </div>
+  );
 }

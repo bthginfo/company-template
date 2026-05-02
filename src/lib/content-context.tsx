@@ -43,7 +43,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     setState({ status: 'loading' });
     try {
       const slug = getTenantSlug();
-      const qs = adminMode ? '&preview=1' : '';
+      const urlPreview = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === '1';
+      const qs = (adminMode || urlPreview) ? '&preview=1' : '';
       // Bypass any browser/CDN cache so edits show up immediately after save.
       const r = await fetch(`/api/content?slug=${encodeURIComponent(slug)}${qs}`, { cache: 'no-store' });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
