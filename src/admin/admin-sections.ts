@@ -2,7 +2,9 @@
  * Admin Section Registry — single source of truth for what the admin shows.
  *
  * For each (branch, style, page) this file declares the EXACT sections
- * that appear in the admin, in the EXACT order the frontend renders them.
+ * that appear in the admin. **Home** order is derived from the same
+ * `BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER` as the live site, with small
+ * editor-UX tweaks (see `buildHomeAdminOrderFromFrontend`).
  *
  * This eliminates drift between admin and frontend.
  * When adding a section to the frontend, add it here. Period.
@@ -10,7 +12,9 @@
 
 import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle, ServiceModule } from '@/lib/branch-config';
-import { getBranchConfig } from '@/lib/branch-config';
+import { getBranchConfig, isExtraBranch } from '@/lib/branch-config';
+import { BRANCH_STYLE_ORDER, type CoreVariant } from '@/lib/template-orders';
+import { EXTRA_HOME_ORDER } from '@/lib/page-layout';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 
@@ -54,55 +58,90 @@ export const GALLERY_TEASER_LIMIT: Record<TemplateStyle, number> = {
 /* ─── Home page section orders ──────────────────────────────────── */
 
 /**
- * The EXACT section order for the homepage frontend.
- * Mirrors BRANCH_STYLE_ORDER in TemplateApp.tsx.
- * 'announcements' and 'hero' are always first (not reorderable).
+ * Maps default home `sectionOrder` block ids (see `SECTION_CATALOG.home` /
+ * `BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER`) to admin section keys.
+ * `null` = no dedicated admin card on the home page (edited elsewhere).
  */
-const HOME_ORDER: Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>> = {
-  restaurant: {
-    classic: ['announcements', 'hero', 'actionStrip', 'signature', 'about', 'gallery', 'numbers', 'testimonials', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news', 'softCta'],
-    bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'signature', 'numbers', 'gallery', 'about', 'testimonials', 'news', 'softCta'],
-  },
-  salon: {
-    classic: ['announcements', 'hero', 'actionStrip', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'signature', 'gallery', 'testimonials', 'about', 'numbers', 'news', 'softCta'],
-    bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news', 'softCta'],
-  },
-  tradesman: {
-    classic: ['announcements', 'hero', 'actionStrip', 'services', 'funding', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'numbers', 'services', 'funding', 'signature', 'gallery', 'about', 'testimonials', 'news', 'softCta'],
-    bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'services', 'funding', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news', 'softCta'],
-  },
-  hotel: {
-    classic: ['announcements', 'hero', 'actionStrip', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news', 'softCta'],
-    bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'gallery', 'signature', 'numbers', 'about', 'testimonials', 'news', 'softCta'],
-  },
-  tourism: {
-    classic: ['announcements', 'hero', 'actionStrip', 'gallery', 'signature', 'about', 'testimonials', 'numbers', 'news', 'softCta'],
-    modern:  ['announcements', 'hero', 'actionStrip', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news', 'softCta'],
-    bold:    ['announcements', 'hero', 'marquee', 'actionStrip', 'gallery', 'numbers', 'signature', 'about', 'testimonials', 'news', 'softCta'],
-  },
-  /* Extra branches — mirrors EXTRA_HOME_ORDER in page-layout.ts.
-     branchModules/team/contact are edited on their own pages, not shown here.
-     heroBadge fields are edited inside the branchChips section card. */
-  consulting: {
-    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-    bold:    ['announcements', 'hero', 'branchChips', 'marquee', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-  },
-  medical: {
-    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-    bold:    ['announcements', 'hero', 'branchChips', 'marquee', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-  },
-  fitness: {
-    classic: ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-    modern:  ['announcements', 'hero', 'branchChips', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-    bold:    ['announcements', 'hero', 'branchChips', 'marquee', 'about', 'services', 'spotlight', 'gallery', 'testimonials', 'news'],
-  },
+export const HOME_CATALOG_BLOCK_TO_ADMIN: Record<string, AdminSectionKey | null> = {
+  action: 'actionStrip',
+  chips: 'branchChips',
+  marquee: 'marquee',
+  signature: 'signature',
+  services: 'services',
+  menu: 'menu',
+  rooms: 'rooms',
+  tours: 'tours',
+  treatments: 'treatments',
+  funding: 'funding',
+  spotlight: 'spotlight',
+  branchModules: null,
+  team: null,
+  about: 'about',
+  gallery: 'gallery',
+  numbers: 'numbers',
+  logos: 'logos',
+  testimonials: 'testimonials',
+  faq: 'faq',
+  news: 'news',
+  contact: null,
 };
+
+/**
+ * Builds the home admin sidebar order from the same canonical block order the
+ * frontend uses (`BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER`).
+ *
+ * Editor tweaks (intentionally not identical to scroll order):
+ *  - **`numbers` immediately after `hero`** — shares `content.numbers` with the
+ *    hero meta / modern hero tiles so operators find it next to the hero editor.
+ *  - **Core Bold: `marquee` right after `hero`** — `BRANCH_STYLE_ORDER` omits a
+ *    separate `marquee` key for core-5 bold, but the admin still edits it here.
+ */
+export function buildHomeAdminOrderFromFrontend(tpl: TemplateKey, style: TemplateStyle): AdminSectionKey[] {
+  if (isExtraBranch(tpl)) {
+    const front = EXTRA_HOME_ORDER[tpl as 'consulting' | 'medical' | 'fitness'][style];
+    const out: AdminSectionKey[] = ['announcements', 'hero'];
+    for (const block of front) {
+      const adminKey = HOME_CATALOG_BLOCK_TO_ADMIN[block];
+      if (adminKey && !out.includes(adminKey)) out.push(adminKey);
+    }
+    return out;
+  }
+  const front = BRANCH_STYLE_ORDER[tpl as CoreVariant][style];
+  const out: AdminSectionKey[] = ['announcements', 'hero'];
+  if (style === 'bold') out.push('marquee');
+  if (front.includes('numbers')) out.push('numbers');
+  for (const block of front) {
+    if (block === 'numbers') continue;
+    const adminKey = HOME_CATALOG_BLOCK_TO_ADMIN[block];
+    if (adminKey && !out.includes(adminKey)) out.push(adminKey);
+  }
+  out.push('softCta');
+  return out;
+}
+
+const HOME_ORDER_CORE: readonly CoreVariant[] = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism'];
+const HOME_ORDER_EXTRAS: readonly ('consulting' | 'medical' | 'fitness')[] = ['consulting', 'medical', 'fitness'];
+const HOME_STYLES: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
+
+function buildAllHomeOrders(): Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>> {
+  const acc = {} as Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>>;
+  for (const tpl of HOME_ORDER_CORE) {
+    acc[tpl] = {} as Record<TemplateStyle, AdminSectionKey[]>;
+    for (const style of HOME_STYLES) {
+      acc[tpl][style] = buildHomeAdminOrderFromFrontend(tpl, style);
+    }
+  }
+  for (const tpl of HOME_ORDER_EXTRAS) {
+    acc[tpl] = {} as Record<TemplateStyle, AdminSectionKey[]>;
+    for (const style of HOME_STYLES) {
+      acc[tpl][style] = buildHomeAdminOrderFromFrontend(tpl, style);
+    }
+  }
+  return acc;
+}
+
+/** Cached home admin order — single source derived from frontend defaults. */
+const HOME_ORDER: Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>> = buildAllHomeOrders();
 
 /* ─── Services page section orders ──────────────────────────────── */
 

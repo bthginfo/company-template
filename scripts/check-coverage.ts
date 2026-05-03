@@ -15,6 +15,8 @@
  *  6. Frontend home order (`BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER`) ↔
  *     admin home order parity. Every frontend section is reachable in
  *     the admin (either in HOME_ORDER or as global data).
+ *  6b. Every home-flow block id maps via `HOME_CATALOG_BLOCK_TO_ADMIN`;
+ *     `getAdminSections("home")` matches `buildHomeAdminOrderFromFrontend`.
  *
  * Exit code: 0 = all green, 1 = drift detected. Wired into `npm run build`.
  *
@@ -72,6 +74,8 @@ import {
   getAdminSections,
   HANDLED_SECTIONS_BY_PAGE,
   MODULE_TO_KEY,
+  HOME_CATALOG_BLOCK_TO_ADMIN,
+  buildHomeAdminOrderFromFrontend,
   type AdminSectionKey,
   type PageKey,
 } from '../src/admin/admin-sections';
@@ -301,6 +305,36 @@ for (const tpl of TEMPLATES) {
       if (!adminOrder.includes(adminKey)) {
         note(`[admin-undershoot] ${tpl}/${style}: frontend renders "${frontKey}" but admin "${adminKey}" not in HOME_ORDER`);
       }
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ *  6b: Home block keys ↔ admin map; derived home order is the only source
+ * ───────────────────────────────────────────────────────────────── */
+const CORE_VARIANTS = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism'] as const;
+const allHomeFrontKeys = new Set<string>();
+for (const tpl of CORE_VARIANTS) {
+  for (const style of STYLES) {
+    for (const k of BRANCH_STYLE_ORDER[tpl][style]) allHomeFrontKeys.add(k);
+  }
+}
+for (const tpl of ['consulting', 'medical', 'fitness'] as const) {
+  for (const style of STYLES) {
+    for (const k of EXTRA_HOME_ORDER[tpl][style]) allHomeFrontKeys.add(k);
+  }
+}
+for (const k of allHomeFrontKeys) {
+  if (!(k in HOME_CATALOG_BLOCK_TO_ADMIN)) {
+    note(`[home-block-unmapped] home flow key "${k}" has no HOME_CATALOG_BLOCK_TO_ADMIN entry`);
+  }
+}
+for (const tpl of TEMPLATES) {
+  for (const style of STYLES) {
+    const built = buildHomeAdminOrderFromFrontend(tpl, style);
+    const got = getAdminSections('home', tpl, style);
+    if (JSON.stringify(got) !== JSON.stringify(built)) {
+      note(`[home-order-source] ${tpl}/${style}: getAdminSections("home") !== buildHomeAdminOrderFromFrontend`);
     }
   }
 }
