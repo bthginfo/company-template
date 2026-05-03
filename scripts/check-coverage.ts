@@ -8,8 +8,12 @@
  *     (declared via `HANDLED_SECTIONS_BY_PAGE`).
  *  3. Every `cfg.services.modules` entry maps to an admin section via
  *     `MODULE_TO_KEY`.
- *  4. Per-section dataKeys (`section-registry.ts`) actually appear in both
- *     the frontend renderer and the admin editor source files (text grep).
+ *  4. Combo-scoped dataKeys: for each (branch × style × page) section from
+ *     `getAdminSections`, every `SECTION_CONTRACTS` dataKey must appear in
+ *     **that template's** frontend tree (`src/templates/<tpl>` or `extra` for
+ *     the three extras) plus `_shared` + `components`, and in
+ *     `AdminEditorBody.tsx`. Orphan `SECTION_CONTRACTS` keys (never listed by
+ *     `getAdminSections`) fail. Optional omits: `src/lib/combo-drift-omissions.ts`.
  *  5. Branch invariants: extras have compact subpages disabled, core 5
  *     have them all enabled.
  *  6. Frontend home order (`BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER`) ↔
@@ -17,9 +21,8 @@
  *     the admin (either in HOME_ORDER or as global data).
  *  6b. Every home-flow block id maps via `HOME_CATALOG_BLOCK_TO_ADMIN`;
  *     `getAdminSections("home")` matches `buildHomeAdminOrderFromFrontend`.
- *  7–9. See `drift-machine.ts`: schema roots for contract dataKeys, stricter
- *     path matching over all template/component sources, branch-config home
- *     PerStyle ↔ data paths, subpage cfg flags ↔ admin order + frontend,
+ *  7–9. See `drift-machine.ts`: branch-config home PerStyle ↔ data paths
+ *     (full-template haystack), subpage cfg flags ↔ admin order + frontend,
  *     and every `FIELD_CONFIG` leaf referenced from the page editor.
  *
  * Exit code: 0 = all green, 1 = drift detected. Wired into `npm run build`.
@@ -35,18 +38,18 @@
  * • **Registry is the contract list.** A new `SiteContent` field rendered in JSX
  *   but never added to `section-registry.ts` still produces **no failure** for
  *   that field alone — add it to the matching `SECTION_CONTRACTS` entry so
- *   step 4 runs. Conversely, every contract `dataKey` root must exist on
- *   `SiteContentSchema` in `types.ts` (step 4a).
+ *   step 4 runs for combos that surface that section. Every contract `dataKey`
+ *   root must exist on `SiteContentSchema` in `types.ts` (schema-root pass).
  *
- * • **Structured text match, not AST.** Step 4 uses literal substrings plus
- *   small role-specific rules (`branchText.*` → `effectiveBranchText` / quoted
- *   keys, `moduleHeadings.*` → `mKey="…"`, `contact.*` → `c.phone` patterns, …)
- *   implemented in `scripts/drift-machine.ts`. It is not a TypeScript AST or
- *   data-flow proof.
+ * • **Structured text match, not AST.** Step 4 uses the same strict substring
+ *   rules as before (`branchText.*`, `moduleHeadings.*`, `contact.*`, …) in
+ *   `scripts/drift-machine.ts`, scoped per template. It is not a TypeScript AST
+ *   or data-flow proof.
  *
- * • **Frontend search scope.** Step 4 scans all `src/templates/**` and
- *   `src/components/**` (`.ts`/`.tsx`). Logic under other folders is invisible
- *   unless those files import into scanned modules.
+ * • **Frontend search scope.** Step 4 scans each template's subtree plus
+ *   `_shared` and `src/components/**`. The separate `branchHomeStyleBindingIssues`
+ *   pass still uses the full `src/templates` + `components` haystack for
+ *   PerStyle needles.
  *
  * • **Sub-pages ignore style.** `getAdminSections('services'|'gallery'|…)`
  *   currently does not vary by `TemplateStyle` (parameter exists but is
@@ -91,9 +94,9 @@ import { EXTRA_HOME_ORDER, SECTION_CATALOG } from '../src/lib/page-layout';
 import {
   branchHomeStyleBindingIssues,
   collectDirSources,
+  comboScopedDataKeyIssues,
   contractDataKeyRootsMissingFromSchema,
   fieldConfigEditorReferenceIssues,
-  strictDataKeyMention,
   subpageBranchFlagIssues,
 } from './drift-machine';
 
@@ -148,11 +151,7 @@ for (const tpl of TEMPLATES) {
 }
 
 /* ─────────────────────────────────────────────────────────────────
- *  4: Per-section dataKeys are mentioned in renderer + editor source
- *
- *  We do a text grep over the candidate source files. This is a
- *  pragmatic check (not AST), but it catches every "field renamed in
- *  one place but not the other" drift case.
+ *  4: Combo-scoped section dataKeys ↔ template frontend + admin body
  * ───────────────────────────────────────────────────────────────── */
 const FRONTEND_SOURCES = collectDirSources(repoRoot, ['src/templates', 'src/components']);
 
@@ -162,16 +161,7 @@ for (const root of contractDataKeyRootsMissingFromSchema()) {
   note(`[schema-root] SECTION_CONTRACTS references root "${root}" which is missing from SiteContentSchema — add it to src/lib/types.ts`);
 }
 
-for (const contract of Object.values(SECTION_CONTRACTS)) {
-  for (const path of contract.dataKeys) {
-    if (!strictDataKeyMention(FRONTEND_SOURCES, path, 'frontend')) {
-      note(`[orphan-frontend] section "${contract.key}" declares dataKey "${path}" but no frontend source references it (strict match)`);
-    }
-    if (!strictDataKeyMention(ADMIN_SOURCES, path, 'admin')) {
-      note(`[orphan-admin] section "${contract.key}" declares dataKey "${path}" but AdminEditorBody does not reference it (strict match)`);
-    }
-  }
-}
+for (const msg of comboScopedDataKeyIssues(repoRoot, ADMIN_SOURCES, TEMPLATES, STYLES, PAGES)) note(msg);
 
 for (const msg of branchHomeStyleBindingIssues(ADMIN_SOURCES, FRONTEND_SOURCES)) note(msg);
 for (const msg of subpageBranchFlagIssues(FRONTEND_SOURCES)) note(msg);
@@ -221,12 +211,12 @@ for (const tpl of TEMPLATES) {
  *  Mapping admin section key → frontend section key (in BRANCH_STYLE_ORDER /
  *  EXTRA_HOME_ORDER). `null` = the admin section drives no frontend block
  *  in the order array (e.g. `announcements`, `hero`, `softCta` are rendered
- *  outside the order, `heroBadge` is inline in chips).
+ *  outside the order; `heroBadge` content is edited under `branchChips`).
  * ───────────────────────────────────────────────────────────────── */
 const ADMIN_TO_FRONTEND_HOME: Record<AdminSectionKey, string | null> = {
   // null = the admin card edits data that the frontend consumes somewhere
   // on the home page, but not via a discrete entry in the order array.
-  announcements: null, hero: null, softCta: null, heroBadge: null,
+  announcements: null, hero: null, softCta: null,
   // `marquee` is a separate block in extras-bold home order, but inlined
   // into the hero in core-5 bold. Either way it edits branchText.marqueeWords
   // which the dataKey check verifies is consumed.

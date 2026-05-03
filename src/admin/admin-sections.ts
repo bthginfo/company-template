@@ -23,7 +23,7 @@ export type AdminSectionKey =
   | 'announcements' | 'hero' | 'actionStrip' | 'branchChips' | 'marquee'
   | 'services' | 'signature' | 'about' | 'gallery' | 'numbers'
   | 'logos' | 'testimonials' | 'news' | 'softCta'
-  | 'funding' | 'spotlight' | 'heroBadge'
+  | 'funding' | 'spotlight'
   // Services sections
   | 'servicesHeader' | 'highlights' | 'menu' | 'rooms'
   | 'tours' | 'treatments' | 'courses' | 'packages' | 'processSteps'
@@ -345,10 +345,6 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   spotlight: () => ({
     title: 'Branchen-Spotlight',
     description: 'Hervorgehobener Branchen-Block.',
-  }),
-  heroBadge: () => ({
-    title: 'Hero-Badge',
-    description: 'Kleines Bewertungs-Badge am Hero.',
   }),
 
   // ─── Services ─────────────────────────────────────────────

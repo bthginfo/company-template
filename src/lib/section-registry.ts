@@ -52,7 +52,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
     ],
   },
   actionStrip: { key: 'actionStrip', dataKeys: ['homeStrip'] },
-  branchChips: { key: 'branchChips', dataKeys: ['branchChips', 'heroBadge'] },
+  branchChips: { key: 'branchChips', dataKeys: ['branchChips'] },
   marquee: { key: 'marquee', dataKeys: ['branchText.marqueeWords'] },
   services: {
     key: 'services',
@@ -95,7 +95,6 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
     key: 'spotlight',
     dataKeys: ['moduleHeadings.consultingSpotlight', 'moduleHeadings.medicalInfo', 'moduleHeadings.fitnessSpotlight'],
   },
-  heroBadge: { key: 'heroBadge', dataKeys: ['heroBadge'] },
 
   /* ─── Services ─────────────────────────────────────────────────── */
   servicesHeader: { key: 'servicesHeader', dataKeys: ['servicesHeader', 'branchText.servicesPageImageUrl'] },

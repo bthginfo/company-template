@@ -7,7 +7,8 @@ import { join } from 'node:path';
 import { z } from 'zod';
 
 import type { BranchConfig, TemplateStyle } from '../src/lib/branch-config';
-import { BRANCH_CONFIGS, isActiveForStyle, isPerStyleFlag } from '../src/lib/branch-config';
+import { BRANCH_CONFIGS, isActiveForStyle, isExtraBranch, isPerStyleFlag } from '../src/lib/branch-config';
+import { COMBO_DATA_KEY_OMITS } from '../src/lib/combo-drift-omissions';
 import {
   FIELD_CONFIG,
   getAdminSections,
@@ -181,6 +182,105 @@ function readCfgPath(cfg: BranchConfig, dotPath: string): unknown {
 
 const TEMPLATES = Object.keys(BRANCH_CONFIGS) as TemplateKey[];
 const STYLES: TemplateStyle[] = ['classic', 'modern', 'bold'];
+
+/** Frontend sources that can affect a deployed tenant site for `tpl`. */
+export function templateFrontendRelDirs(tpl: TemplateKey): readonly string[] {
+  if (isExtraBranch(tpl)) {
+    return ['src/templates/extra', 'src/templates/_shared', 'src/components'];
+  }
+  return [`src/templates/${tpl}`, 'src/templates/_shared', 'src/components'];
+}
+
+function comboOmitApplies(
+  tpl: TemplateKey,
+  style: TemplateStyle,
+  page: PageKey,
+  section: AdminSectionKey,
+  dataKey: string,
+): boolean {
+  return COMBO_DATA_KEY_OMITS.some(
+    (r) =>
+      r.template === tpl &&
+      r.style === style &&
+      r.page === page &&
+      r.section === section &&
+      r.dataKey === dataKey,
+  );
+}
+
+/**
+ * For every `(template, style, page)` where `getAdminSections` lists a section,
+ * each contract `dataKey` must appear in **that template's** frontend sources
+ * (plus `_shared` + `components`) and in `AdminEditorBody.tsx`. Also asserts
+ * every `SECTION_CONTRACTS` key is returned by `getAdminSections` for at least
+ * one combo (no orphan admin contracts).
+ */
+export function comboScopedDataKeyIssues(
+  repoRoot: string,
+  adminHaystack: string,
+  templates: readonly TemplateKey[],
+  styles: readonly TemplateStyle[],
+  pages: readonly PageKey[],
+): string[] {
+  const out: string[] = [];
+  const seenSections = new Set<AdminSectionKey>();
+  for (const tpl of templates) {
+    for (const style of styles) {
+      for (const page of pages) {
+        for (const s of getAdminSections(page, tpl, style)) seenSections.add(s);
+      }
+    }
+  }
+  for (const contract of Object.values(SECTION_CONTRACTS)) {
+    if (!seenSections.has(contract.key)) {
+      out.push(
+        `[orphan-contract-section] SECTION_CONTRACTS declares "${contract.key}" but getAdminSections never returns it for any template×style×page — remove the contract or add the section to admin order.`,
+      );
+    }
+  }
+
+  const frontendByTpl = new Map<TemplateKey, string>();
+  for (const tpl of templates) {
+    frontendByTpl.set(tpl, collectDirSources(repoRoot, [...templateFrontendRelDirs(tpl)]));
+  }
+
+  const adminMiss = new Set<string>();
+  const feMiss = new Set<string>();
+
+  for (const tpl of templates) {
+    const fe = frontendByTpl.get(tpl)!;
+    for (const style of styles) {
+      for (const page of pages) {
+        for (const section of getAdminSections(page, tpl, style)) {
+          const contract = SECTION_CONTRACTS[section];
+          if (!contract) continue;
+          for (const dk of contract.dataKeys) {
+            if (comboOmitApplies(tpl, style, page, section, dk)) continue;
+            const admKey = `${section}|${dk}`;
+            if (!strictDataKeyMention(adminHaystack, dk, 'admin')) {
+              if (!adminMiss.has(admKey)) {
+                adminMiss.add(admKey);
+                out.push(
+                  `[combo-admin] section="${section}" dataKey "${dk}" missing in AdminEditorBody (first seen at ${tpl}/${style}/${page})`,
+                );
+              }
+            }
+            const feKey = `${tpl}|${section}|${dk}`;
+            if (!strictDataKeyMention(fe, dk, 'frontend')) {
+              if (!feMiss.has(feKey)) {
+                feMiss.add(feKey);
+                out.push(
+                  `[combo-frontend] ${tpl}: section="${section}" dataKey "${dk}" missing from this template's frontend tree (first seen at ${style}/${page})`,
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return out;
+}
 
 export function branchHomeStyleBindingIssues(
   adminHaystack: string,

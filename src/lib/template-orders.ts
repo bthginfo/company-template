@@ -24,27 +24,27 @@ export type Style = 'classic' | 'modern' | 'bold';
 export const BRANCH_STYLE_ORDER: Record<CoreVariant, Record<Style, readonly string[]>> = {
   restaurant: {
     classic: ['action', 'signature', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
-    modern:  ['action', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
+    modern:  ['action', 'services', 'signature', 'about', 'gallery', 'logos', 'testimonials', 'numbers', 'news'],
     bold:    ['action', 'signature', 'numbers', 'gallery', 'about', 'testimonials', 'news'],
   },
   hotel: {
     classic: ['action', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news'],
+    modern:  ['action', 'gallery', 'logos', 'signature', 'about', 'numbers', 'testimonials', 'news'],
     bold:    ['action', 'gallery', 'signature', 'numbers', 'about', 'testimonials', 'news'],
   },
   tradesman: {
     classic: ['action', 'services', 'funding', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
-    modern:  ['action', 'numbers', 'services', 'funding', 'signature', 'gallery', 'about', 'testimonials', 'news'],
+    modern:  ['action', 'numbers', 'services', 'funding', 'signature', 'gallery', 'logos', 'about', 'testimonials', 'news'],
     bold:    ['action', 'services', 'funding', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
   },
   salon: {
     classic: ['action', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'signature', 'gallery', 'testimonials', 'about', 'numbers', 'news'],
+    modern:  ['action', 'signature', 'gallery', 'logos', 'testimonials', 'about', 'numbers', 'news'],
     bold:    ['action', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news'],
   },
   tourism: {
     classic: ['action', 'gallery', 'signature', 'about', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
+    modern:  ['action', 'signature', 'gallery', 'logos', 'numbers', 'about', 'testimonials', 'news'],
     bold:    ['action', 'gallery', 'numbers', 'signature', 'about', 'testimonials', 'news'],
   },
 };
