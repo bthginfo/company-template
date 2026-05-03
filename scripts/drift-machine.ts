@@ -219,7 +219,12 @@ const STYLES: TemplateStyle[] = ['classic', 'modern', 'bold'];
 /** Frontend sources that can affect a deployed tenant site for `tpl`. */
 export function templateFrontendRelDirs(tpl: TemplateKey): readonly string[] {
   if (isExtraBranch(tpl)) {
-    return ['src/templates/extra', 'src/templates/_shared', 'src/components'];
+    return [
+      'src/templates/_shared/extra',
+      'src/templates/extra',
+      'src/templates/_shared',
+      'src/components',
+    ];
   }
   return [`src/templates/${tpl}`, 'src/templates/_shared', 'src/components'];
 }

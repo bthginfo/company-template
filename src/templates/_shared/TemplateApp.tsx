@@ -39,7 +39,7 @@ import {
 } from '@/components/branch-modules';
 import { mergedServiceHighlights, normaliseArrivalList, normaliseFaqList, normalisePressList, normaliseTdList, normaliseTeamList, type PressCard } from '@/lib/content-field-aliases';
 import { isExtraBranch } from '@/lib/branch-config';
-import ExtraBranchTemplate, { type ExtraBranchKey } from '../extra';
+import ExtraBranchTemplate, { type ExtraBranchKey } from './extra';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -182,7 +182,7 @@ export default function TemplateApp({
   style = 'classic',
   eyebrow,
 }: {
-  /** All eight tenant templates — extras delegate to `templates/extra`. */
+  /** All eight tenant templates — extras render via `_shared/extra`. */
   variant: TemplateKey;
   content: SiteContent;
   basePath?: string;

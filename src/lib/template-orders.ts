@@ -3,7 +3,7 @@
  *
  * Two surfaces share these:
  *  - the renderer in `src/templates/_shared/TemplateApp.tsx` for all eight
- *    branches (core five + extras; extras delegate to `templates/extra`).
+ *    branches (core five + extras; extras live in `_shared/extra`).
  *    `EXTRA_HOME_ORDER` exported from `src/lib/page-layout.ts`)
  *
  * The drift-coverage script in `scripts/check-coverage.ts` imports the same
