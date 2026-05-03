@@ -765,3 +765,122 @@ export const EXTRA_DEMO_CONTENT = {
   { name: 'Reformer 8er-Block', price: '224 €', period: '8 Klassen', description: 'Acht Reformer-Klassen, gültig 12 Wochen.', features: ['8 Reformer-Klassen', 'Gültig 12 Wochen', 'Persönliche Einführung', 'Bewegungs-Analyse'], ctaLabel: 'Block kaufen' },
 ];
 
+// ─── Extra branches: richer gallery + about subpages (showcase / preview) ───
+const extraGalleryStoryConsulting = {
+  eyebrow: 'Aus dem Projektalltag',
+  title: 'Beratung, die man sieht.',
+  body: 'Workshops, Workshops und noch mehr Workshops – aber auch die stillen Momente vor dem Flipchart. Diese Galerie zeigt, wie wir arbeiten, wenn Mandanten uns vertrauen.',
+  captions: [
+    { t: 'Kick-off', d: 'Alignment im Raum, klare Rollen, erste Roadmap an der Wand.' },
+    { t: 'Deep Dive', d: 'Zahlen, Risiken, Chancen – mit Ruhe und Struktur.' },
+    { t: 'Go-live', d: 'Wenn aus Strategie Alltag wird – und wir noch an Ihrer Seite sind.' },
+  ],
+};
+(EXTRA_DEMO_CONTENT.consulting as any).galleryStory = extraGalleryStoryConsulting;
+(EXTRA_DEMO_CONTENT.consulting as any).galleryCategories = [
+  { t: 'Strategie', d: 'Markt, Wettbewerb, Optionen – fundiert und ehrlich.' },
+  { t: 'Organisation', d: 'Prozesse, Rollen, Steuerung – damit nichts verloren geht.' },
+  { t: 'Change', d: 'Kommunikation, Schulungen, Begleitung beim Roll-out.' },
+];
+(EXTRA_DEMO_CONTENT.consulting as any).aboutNumbers = [
+  { value: '25+', label: 'Jahre Erfahrung' },
+  { value: '180+', label: 'Projekte' },
+  { value: '14', label: 'Berater:innen' },
+  { value: '48h', label: 'Erste Antwort' },
+];
+(EXTRA_DEMO_CONTENT.consulting as any).ctaBandOverrides = {
+  ...(EXTRA_DEMO_CONTENT.consulting as any).ctaBandOverrides,
+  gallery: {
+    eyebrow: 'Mehr Bilder?',
+    lead: 'Projekt besprechen',
+    sub: 'Wir melden uns mit einem konkreten Vorschlag für ein Erstgespräch.',
+    cta: 'Kontakt',
+    ctaHref: '/kontakt',
+  },
+  about: {
+    eyebrow: 'Chemie stimmt?',
+    lead: 'Lernen Sie uns in 60 Minuten kennen',
+    sub: 'Unverbindliches Erstgespräch – remote oder vor Ort.',
+    cta: 'Termin anfragen',
+    ctaHref: '/kontakt',
+  },
+};
+
+(EXTRA_DEMO_CONTENT.medical as any).galleryStory = {
+  eyebrow: 'Authentische Momente',
+  title: 'Die Praxis, wie Sie sie erleben.',
+  body: 'Von der ersten Minute an legen wir Wert auf Klarheit und Ruhe. Diese Bilder zeigen unsere Räume und den Umgangston, den wir uns für Sie wünschen.',
+  captions: [
+    { t: 'Empfang', d: 'Persönliche Begrüßung, unkomplizierte Terminfindung, Wartebereich mit Tageslicht.' },
+    { t: 'Beratung', d: 'Ausführliche Gespräche – mit Zeit, Beschwerden wirklich zu verstehen.' },
+    { t: 'Behandlung', d: 'Ruhige Liegen, sterile Abläufe, klare Ansagen.' },
+  ],
+};
+(EXTRA_DEMO_CONTENT.medical as any).galleryCategories = [
+  { t: 'Team & Praxis', d: 'Ärzt:innen, Praxismanagement, Labor – ein eingespieltes Team.' },
+  { t: 'Diagnostik', d: 'EKG, Ultraschall, Laborparameter – alles an einem Ort.' },
+  { t: 'Komplementärmedizin', d: 'Akupunktur, Ernährungstherapie, evidenzbasiert begleitet.' },
+];
+(EXTRA_DEMO_CONTENT.medical as any).aboutNumbers = [
+  { value: '30', label: 'Min. pro Termin' },
+  { value: '2', label: 'Ärztinnen' },
+  { value: '2019', label: 'Praxis seit' },
+  { value: '4,9', label: 'Google Ø' },
+];
+(EXTRA_DEMO_CONTENT.medical as any).ctaBandOverrides = {
+  ...(EXTRA_DEMO_CONTENT.medical as any).ctaBandOverrides,
+  gallery: {
+    eyebrow: 'Gesehen genug?',
+    lead: 'Vereinbaren Sie einen Termin',
+    sub: 'Online oder telefonisch – wir melden uns mit konkreten Vorschlägen.',
+    cta: 'Zu Kontakt',
+    ctaHref: '/kontakt',
+  },
+  about: {
+    eyebrow: 'Persönlich?',
+    lead: 'Wir nehmen uns Zeit für Sie',
+    sub: 'Erstgespräch nach Buchung – ausführlich und ohne Hetze.',
+    cta: 'Terminvereinbarung',
+    ctaHref: '/kontakt',
+  },
+};
+
+(EXTRA_DEMO_CONTENT.fitness as any).galleryStory = {
+  eyebrow: 'Studio-Leben',
+  title: 'Training, das man spürt.',
+  body: 'Keine Inszenierung: echte Kurse, echte Schweißperlen, echte Ruhe in Savasana. So dokumentieren wir unser Studio – für alle, die vorher wissen wollen, wie es sich anfühlt.',
+  captions: [
+    { t: 'Flow', d: 'Vinyasa-Reihen, Musik, die trägt, Lehrer:innen im Raum.' },
+    { t: 'Kraft', d: 'Reformer, Gewichte, kleine Gruppen – jede Person im Blick.' },
+    { t: 'Ruhe', d: 'Yin, Restorative, Meditation – der Gegenpol zum Alltag.' },
+  ],
+};
+(EXTRA_DEMO_CONTENT.fitness as any).galleryCategories = [
+  { t: 'Yoga', d: 'Vinyasa, Yin, Restorative – für Einsteiger und Fortgeschrittene.' },
+  { t: 'Pilates', d: 'Reformer-Kleingruppen, präzise Korrekturen, klare Progression.' },
+  { t: 'Community', d: 'Workshops, Retreats, offene Sonntage.' },
+];
+(EXTRA_DEMO_CONTENT.fitness as any).aboutNumbers = [
+  { value: '8', label: 'Max. pro Kurs' },
+  { value: '5', label: 'Lehrer:innen' },
+  { value: '12+', label: 'Jahre Erfahrung' },
+  { value: '350+', label: 'Stammgäste' },
+];
+(EXTRA_DEMO_CONTENT.fitness as any).ctaBandOverrides = {
+  ...(EXTRA_DEMO_CONTENT.fitness as any).ctaBandOverrides,
+  gallery: {
+    eyebrow: 'Lust auf Mitte?',
+    lead: 'Probetraining buchen',
+    sub: 'Eine Klasse Ihrer Wahl – wir zeigen Ihnen Studio und Trainer:innen.',
+    cta: 'Termin sichern',
+    ctaHref: '/kontakt',
+  },
+  about: {
+    eyebrow: 'Studio kennenlernen?',
+    lead: 'Kommen Sie vorbei',
+    sub: 'Wir zeigen Ihnen Räume, Kursplan und finden das passende Format.',
+    cta: 'Probetraining',
+    ctaHref: '/kontakt',
+  },
+};
+

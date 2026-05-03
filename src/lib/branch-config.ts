@@ -365,8 +365,8 @@ const tourism: BranchConfig = {
  * The extras template (consulting / medical / fitness) intentionally
  * uses a compact subpage layout. Each extra subpage renders only:
  *  - services: PageHero + service grid + spotlight + branchModules
- *  - gallery: PageHero + grid
- *  - about: PageHero + about + team + timeline + testimonials
+ *  - gallery: PageHero + story + grid + categories + testimonials + CTA
+ *  - about: PageHero + about + team + timeline + Zahlen + testimonials + CTA
  *  - contact: PageHero + ContactSection + LocationsBlock
  *
  * Admin therefore only exposes those sections (plus serviceProcess for
@@ -374,8 +374,8 @@ const tourism: BranchConfig = {
  * ────────────────────────────────────────────────────────────────── */
 const EXTRA_SUBPAGES = {
   services: { showHighlights: false, showProcess: false, showFaq: false, showCta: false },
-  gallery:  { showStory: false, showUpload: true, showCategories: false, showCta: false },
-  about:    { showValues: false, showTimeline: true, showNumbers: false, showTestimonials: true, showCta: false },
+  gallery:  { showStory: true, showUpload: true, showCategories: true, showCta: true },
+  about:    { showValues: false, showTimeline: true, showNumbers: true, showTestimonials: true, showCta: true },
   contact:  { showForm: false, showArrival: false, showCta: false },
 } as const;
 

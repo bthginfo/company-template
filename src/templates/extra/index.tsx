@@ -3,7 +3,7 @@ import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import type { SiteContent, PageId } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/components/fx';
 import Seo from '@/components/Seo';
-import { BasePathProvider, useBasePath, withBase, SafeMapEmbed } from '@/components/site-blocks';
+import { BasePathProvider, useBasePath, withBase, SafeMapEmbed, Section } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
@@ -332,6 +332,224 @@ function ExtraLeistungenServiceCards({
   );
 }
 
+type ExtraGalleryStory = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  captions: Array<{ t: string; d: string }>;
+};
+
+const EXTRA_GALLERY_STORY_FALLBACK: Record<ExtraBranchKey, ExtraGalleryStory> = {
+  consulting: {
+    eyebrow: 'Hinter dem Bericht',
+    title: 'Echte Projekte, echte Teams.',
+    body: 'Die Fotos entstanden bei Workshops, Kick-offs und Go-lives – nicht im Stock-Foto-Pool. Sie sehen unsere Arbeitswelten und die Menschen, mit denen wir zusammenarbeiten.',
+    captions: [
+      { t: 'Workshops', d: 'Whiteboards, Post-its, intensive Phasen – wenn Entscheidungen fallen.' },
+      { t: 'Vor Ort', d: 'Wir arbeiten bei Ihnen im Haus – ohne Koffer-Powerpoints von gestern.' },
+      { t: 'Umsetzung', d: 'Meilensteine, Reviews, die Momente, in denen aus Strategie Alltag wird.' },
+    ],
+  },
+  medical: {
+    eyebrow: 'Einblick Praxisalltag',
+    title: 'Räume, Menschen, Atmosphäre.',
+    body: 'Unsere Galerie zeigt Behandlungsräume, Team und Empfang – wie Patient:innen sie vorfinden. Ohne klinisches Theater, mit echtem Tageslicht und ruhigen Wartebereichen.',
+    captions: [
+      { t: 'Sprechzimmer', d: 'Zeit für Gespräch – Bildschirm nur, wenn er wirklich hilft.' },
+      { t: 'Diagnostik', d: 'EKG, Labor, Ultraschall – moderne Geräte, persönliche Auswertung.' },
+      { t: 'Therapie', d: 'Akupunktur, manuelle Verfahren, ruhige Behandlungsliegen.' },
+    ],
+  },
+  fitness: {
+    eyebrow: 'Durch das Studio',
+    title: 'Holz, Licht, Gemeinschaft.',
+    body: 'So sieht das Studio aus, wenn Kurse laufen und danach: viel Holz, große Fenster, Matten, Reformer und der Tee-Bereich.',
+    captions: [
+      { t: 'Yoga-Raum', d: 'Mattenabstand, Tageslicht, gute Akustik – nicht gedrängelt.' },
+      { t: 'Reformer', d: 'Maximal fünf Personen pro Stunde – jede Korrektur sichtbar.' },
+      { t: 'Gemeinschaft', d: 'Pause, Plaudern, Tee – der Teil, der ein kleines Studio ausmacht.' },
+    ],
+  },
+};
+
+const EXTRA_GALLERY_CATEGORY_FALLBACK: Record<ExtraBranchKey, Array<{ t: string; d: string }>> = {
+  consulting: [
+    { t: 'Strategie & Analyse', d: 'Diagnose-Workshops, Datenräume, Org-Charts und das, was wir schriftlich festhalten.' },
+    { t: 'Transformation', d: 'Change-Kommunikation, Schulungen, Begleitung beim Roll-out.' },
+    { t: 'Operative Exzellenz', d: 'Controlling, PMO, Sockel-Prozesse – wenn Klarheit im Alltag ankommt.' },
+  ],
+  medical: [
+    { t: 'Praxis & Empfang', d: 'Wartebereich, Terminkoordination, barrierefreier Zugang.' },
+    { t: 'Diagnostik & Vorsorge', d: 'Labor, EKG, Langzeit-Blutdruck, Check-up-Auswertung.' },
+    { t: 'Therapie & Prävention', d: 'Akupunktur, Ernährung, Mikronährstoffe, Begleitung chronischer Beschwerden.' },
+  ],
+  fitness: [
+    { t: 'Yoga & Flow', d: 'Vinyasa, Yin, Restorative – alle Levels mit Zeit für Korrektur.' },
+    { t: 'Pilates & Kraft', d: 'Reformer, Props, kleine Gruppen mit messbarem Fortschritt.' },
+    { t: 'Community', d: 'Workshops, Retreats, offene Sonntage – Studio-Leben jenseits der Stunde.' },
+  ],
+};
+
+/** Galerie-Story inkl. `galleryStory`-Overlay (Admin) — `galleryStory` für Drift-Coverage. */
+function ExtraGalleryStorySection({ branch, content }: { branch: ExtraBranchKey; content: SiteContent }) {
+  const overlay = ((content as unknown as { galleryStory?: Partial<ExtraGalleryStory> }).galleryStory ?? {}) as Partial<ExtraGalleryStory>;
+  const base = EXTRA_GALLERY_STORY_FALLBACK[branch];
+  const merged: ExtraGalleryStory = {
+    eyebrow: (overlay.eyebrow && overlay.eyebrow.trim()) || base.eyebrow,
+    title: (overlay.title && overlay.title.trim()) || base.title,
+    body: (overlay.body && overlay.body.trim()) || base.body,
+    captions: normaliseTdList(overlay.captions ?? []).length ? normaliseTdList(overlay.captions ?? []) : base.captions,
+  };
+  if (!(merged.title || merged.body)) return null;
+  return (
+    <Section eyebrow={merged.eyebrow} title={merged.title} className="surface" spacing="lg">
+      <div className="grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-5 reveal">
+          {merged.body.split('\n\n').filter(Boolean).map((p, i) => (
+            <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
+          ))}
+        </div>
+        <div className="lg:col-span-7 grid sm:grid-cols-3 gap-5 reveal-stagger">
+          {(merged.captions || []).filter((c) => c.t || c.d).map((c, i) => (
+            <article key={i} className="bg-white border border-line rounded-2xl p-6 hover-lift">
+              <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+              <h3 className="font-display text-xl mt-3">{c.t}</h3>
+              <p className="mt-2 text-sm text-muted leading-relaxed">{c.d}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/** Kategorien unter der Galerie — `galleryCategories` aus Content oder Fallback. */
+function ExtraGalleryCategoriesSection({ branch, content }: { branch: ExtraBranchKey; content: SiteContent }) {
+  const bt = effectiveBranchText(branch, content);
+  const overlay = normaliseTdList(((content as unknown as { galleryCategories?: unknown }).galleryCategories) ?? []);
+  const list = overlay.filter((c) => c.t || c.d);
+  const cats = list.length ? list : EXTRA_GALLERY_CATEGORY_FALLBACK[branch];
+  if (!cats.length) return null;
+  return (
+    <Section
+      eyebrow={bt.galleryCategoriesEyebrow || 'Bereiche'}
+      title={bt.galleryCategoriesTitle || 'Überblick.'}
+      spacing="lg"
+    >
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {cats.map((c, i) => (
+          <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
+            <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+            <h3 className="font-display text-2xl mt-3">{c.t}</h3>
+            <p className="mt-3 text-muted leading-relaxed">{c.d}</p>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function ExtraGalleryTestimonials({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
+  if (content.testimonials.length === 0) return null;
+  const bt = effectiveBranchText(branch, content);
+  return (
+    <section className="py-24 md:py-32 surface">
+      <div className="container-x">
+        <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
+        <h2 className="headline-lg max-w-3xl reveal mb-12">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
+        <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+          {content.testimonials.map((t, i) => (
+            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+              <p className="text-lg leading-relaxed">„{t.text}"</p>
+              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">— {t.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Schließt-CTA für Galerie/Über-uns — `page="gallery"` / `page="about"` für Drift-Subpage-Flags. */
+function ExtraSubpageCta({ content, page }: { content: SiteContent; page: 'gallery' | 'about' }) {
+  const perPage = ((content as unknown as { ctaBandOverrides?: Record<string, Record<string, string | undefined>> }).ctaBandOverrides ?? {})[page] ?? {};
+  const global = (content as unknown as { ctaBandOverride?: Record<string, string | undefined> }).ctaBandOverride ?? {};
+  const pick = (field: 'lead' | 'sub' | 'cta' | 'ctaHref' | 'eyebrow' | 'leadAccent') =>
+    (perPage[field] && String(perPage[field]).trim()) || (global[field] && String(global[field]).trim()) || '';
+  const def =
+    page === 'gallery'
+      ? { eyebrow: 'Mehr gesehen als genug?', lead: 'Nächster Schritt', sub: 'Schreiben Sie uns – wir antworten persönlich, meist innerhalb eines Werktags.', cta: 'Kontakt aufnehmen', ctaHref: '/kontakt' }
+      : { eyebrow: 'Persönlich weiter?', lead: 'Wir freuen uns auf Sie', sub: 'Ein kurzes Gespräch reicht, um zu klären, ob wir zusammenpassen.', cta: 'Kontakt aufnehmen', ctaHref: '/kontakt' };
+  const eyebrow = pick('eyebrow') || def.eyebrow;
+  const lead = pick('lead') || def.lead;
+  const sub = pick('sub') || def.sub;
+  const cta = pick('cta') || def.cta;
+  const ctaHref = pick('ctaHref') || def.ctaHref;
+  const leadAccent = page === 'about' ? (pick('leadAccent') || '') : '';
+  return (
+    <section className="py-32 md:py-44 surface relative overflow-hidden">
+      <div className="container-x text-center max-w-3xl mx-auto reveal">
+        {eyebrow ? <p className="eyebrow mb-5 justify-center">{eyebrow}</p> : null}
+        <h2 className="headline-xl">
+          {lead}
+          {leadAccent ? (
+            <>
+              <br />
+              <em className="italic-pop">{leadAccent}</em>
+            </>
+          ) : null}
+        </h2>
+        <p className="mt-8 text-lg md:text-xl text-muted">{sub}</p>
+        <div className="mt-12">
+          <ExtraHeroLink href={ctaHref} className="btn-primary">
+            {cta} <span aria-hidden>→</span>
+          </ExtraHeroLink>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Zahlen-Band auf /ueber-uns — `aboutNumbers` aus Admin „Eckdaten“. */
+function ExtraAboutNumbersBand({ content }: { content: SiteContent }) {
+  const raw = ((content as unknown as { aboutNumbers?: Array<{ value?: string; label?: string }> }).aboutNumbers) ?? [];
+  const rows = raw.filter((n) => n && (String(n.value ?? '').trim() || String(n.label ?? '').trim()));
+  if (!rows.length) return null;
+  return (
+    <section className="py-20 md:py-28 bg-brand text-white grain relative overflow-hidden">
+      <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
+      <div className="container-x relative">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 md:gap-y-0 reveal-stagger">
+          {rows.map((m, i) => (
+            <div key={i} className="md:border-l border-white/15 md:pl-8">
+              <p className="num-display text-5xl md:text-7xl leading-none font-display">{m.value}</p>
+              <p className="mt-3 text-xs uppercase tracking-widest text-white/60">{m.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExtraGallerySubpage({ branch, content }: { branch: ExtraBranchKey; content: SiteContent }) {
+  return (
+    <>
+      <ExtraGalleryStorySection branch={branch} content={content} />
+      {content.gallery.length > 0 && (
+        <section className="py-16 md:py-24">
+          <div className="container-x">
+            <ExtraMasonry images={content.gallery} />
+          </div>
+        </section>
+      )}
+      <ExtraGalleryCategoriesSection branch={branch} content={content} />
+      <ExtraGalleryTestimonials content={content} branch={branch} />
+      <ExtraSubpageCta content={content} page="gallery" />
+    </>
+  );
+}
+
 function SubPage({ content, branch, page, style, eyebrow }: {
   content: SiteContent;
   branch: ExtraBranchKey;
@@ -366,13 +584,7 @@ function SubPage({ content, branch, page, style, eyebrow }: {
         </>
       )}
 
-      {page === 'gallery' && content.gallery.length > 0 && (
-        <section className="py-16 md:py-24">
-          <div className="container-x">
-            <ExtraMasonry images={content.gallery} />
-          </div>
-        </section>
-      )}
+      {page === 'gallery' && <ExtraGallerySubpage branch={branch} content={content} />}
 
       {page === 'about' && (
         <>
@@ -385,6 +597,7 @@ function SubPage({ content, branch, page, style, eyebrow }: {
                   )}
                 </div>
                 <div className="md:col-span-7 reveal">
+                  <p className="eyebrow mb-5">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
                   <h2 className="headline-lg">{content.about.title}</h2>
                   <div className="mt-6 text-lg text-muted leading-relaxed space-y-5">
                     {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
@@ -393,8 +606,9 @@ function SubPage({ content, branch, page, style, eyebrow }: {
               </div>
             </section>
           )}
-          <BranchTeam branch={branch} style={style} content={content} />
+          <BranchTeam branch={branch} style={style} content={content} suppressMedicalWhenNamedDoctors={false} />
           <Timeline content={content} />
+          <ExtraAboutNumbersBand content={content} />
           {content.testimonials.length > 0 && (
             <section className="py-16 md:py-24 surface">
               <div className="container-x">
@@ -411,6 +625,7 @@ function SubPage({ content, branch, page, style, eyebrow }: {
               </div>
             </section>
           )}
+          <ExtraSubpageCta content={content} page="about" />
         </>
       )}
 
@@ -1305,9 +1520,20 @@ function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember
   if (overlay.length > 0) return overlay.filter((m) => m && (m.n || m.r));
   return BRANCH_TEAM_DEFAULT[branch];
 }
-function BranchTeam({ branch, style, content }: { branch: ExtraBranchKey; style: ExtraStyle; content: SiteContent }) {
+function BranchTeam({
+  branch,
+  style,
+  content,
+  suppressMedicalWhenNamedDoctors = true,
+}: {
+  branch: ExtraBranchKey;
+  style: ExtraStyle;
+  content: SiteContent;
+  /** Home hides generic team when `doctors` renders in modules — keep false on /ueber-uns so the Team editor still surfaces. */
+  suppressMedicalWhenNamedDoctors?: boolean;
+}) {
   const team = useBranchTeam(content, branch);
-  if (branch === 'medical') {
+  if (branch === 'medical' && suppressMedicalWhenNamedDoctors) {
     const docs = ((content as unknown as { doctors?: { name?: string }[] }).doctors) ?? [];
     const hasNamedDoctor = docs.some((d) => d && String(d.name ?? '').trim().length > 0);
     if (hasNamedDoctor) return null;

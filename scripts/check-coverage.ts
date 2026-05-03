@@ -186,11 +186,20 @@ for (const tpl of TEMPLATES) {
     ['about', 'showValues'], ['about', 'showNumbers'], ['about', 'showCta'],
     ['contact', 'showForm'], ['contact', 'showArrival'], ['contact', 'showCta'],
   ];
+  /** Extra-branch gallery/about are allowed fuller subpages than the legacy “all false” rule. */
+  const extraAllowsTrue = new Set<string>([
+    'gallery.showStory',
+    'gallery.showCategories',
+    'gallery.showCta',
+    'about.showNumbers',
+    'about.showCta',
+  ]);
   for (const [section, flag] of flagPaths) {
     const value = (cfg[section] as Record<string, unknown>)[flag];
     if (expectFull && value !== true) {
       note(`[invariant] ${tpl}: cfg.${String(section)}.${flag} should be true for core branches (got ${value})`);
     }
+    if (!expectFull && extraAllowsTrue.has(`${String(section)}.${String(flag)}`)) continue;
     if (!expectFull && value !== false) {
       note(`[invariant] ${tpl}: cfg.${String(section)}.${flag} should be false for extra branches (got ${value})`);
     }
