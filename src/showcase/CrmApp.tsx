@@ -130,6 +130,9 @@ export default function CrmApp() {
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; t: TenantRow | null }>({ open: false, t: null });
   const [deleteVercel, setDeleteVercel] = useState(true);
 
+  // On mobile, collapse the create/edit form to keep the prospect list above the fold.
+  const [formOpen, setFormOpen] = useState(false);
+
   const sorted = useMemo(
     () => [...prospects].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)),
     [prospects],
@@ -243,6 +246,9 @@ export default function CrmApp() {
       status: p.status,
       notes: p.notes || '',
     });
+    // On mobile the form is collapsed by default; open it when editing.
+    setFormOpen(true);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const removeProspect = async (p: Prospect) => {
@@ -470,20 +476,29 @@ export default function CrmApp() {
       <Seo title="Flamingo CRM" description="Interner CRM-Bereich" noindex />
 
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Interner Admin</p>
-            <h1 className="text-xl font-semibold">Flamingo CRM</h1>
+        <div className="mx-auto max-w-7xl px-4 py-3 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Interner Admin</p>
+              <h1 className="text-xl font-semibold">Flamingo CRM</h1>
+            </div>
+            <button
+              className="btn-ghost !px-3 !py-2 text-sm sm:hidden"
+              onClick={() => void doLogout()}
+              aria-label="Logout"
+            >
+              Logout
+            </button>
           </div>
-          <div className="flex items-center gap-2">
-            <nav className="flex rounded-lg border border-slate-200 overflow-hidden mr-2">
-              <button onClick={() => setCrmTab('prospects')} className={`px-3 py-1.5 text-sm font-medium transition ${crmTab === 'prospects' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Prospects</button>
-              <button onClick={() => setCrmTab('tenants')} className={`px-3 py-1.5 text-sm font-medium transition ${crmTab === 'tenants' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Tenants</button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <nav className="flex rounded-lg border border-slate-200 overflow-hidden flex-1 sm:flex-none sm:mr-2">
+              <button onClick={() => setCrmTab('prospects')} className={`flex-1 sm:flex-none px-3 py-1.5 text-sm font-medium transition ${crmTab === 'prospects' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Prospects</button>
+              <button onClick={() => setCrmTab('tenants')} className={`flex-1 sm:flex-none px-3 py-1.5 text-sm font-medium transition ${crmTab === 'tenants' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Tenants</button>
             </nav>
             <button className="btn-ghost !px-3 !py-2 text-sm" onClick={() => crmTab === 'prospects' ? void reloadProspects() : void reloadTenants()} disabled={loadingProspects || loadingTenants}>
               Aktualisieren
             </button>
-            <button className="btn-ghost !px-3 !py-2 text-sm" onClick={() => void doLogout()}>
+            <button className="btn-ghost !px-3 !py-2 text-sm hidden sm:inline-flex" onClick={() => void doLogout()}>
               Logout
             </button>
           </div>
@@ -491,10 +506,21 @@ export default function CrmApp() {
       </header>
 
       {crmTab === 'prospects' ? (
-      <section className="mx-auto max-w-7xl px-4 py-6 grid lg:grid-cols-[380px,1fr] gap-6">
-        <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm h-fit lg:sticky lg:top-20">
-          <h2 className="text-lg font-semibold">{editing ? 'Prospect bearbeiten' : 'Neuen Prospect anlegen'}</h2>
-          <div className="mt-4 space-y-3">
+      <section className="mx-auto max-w-7xl px-4 py-4 sm:py-6 grid lg:grid-cols-[380px,1fr] gap-4 sm:gap-6">
+        <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm h-fit lg:sticky lg:top-32 lg:p-4">
+          <button
+            type="button"
+            onClick={() => setFormOpen((v) => !v)}
+            className="lg:hidden w-full flex items-center justify-between gap-3 p-4 text-left"
+            aria-expanded={formOpen}
+          >
+            <span className="text-base font-semibold">
+              {editing ? 'Prospect bearbeiten' : 'Neuen Prospect anlegen'}
+            </span>
+            <span className={`text-slate-500 transition-transform ${formOpen ? 'rotate-180' : ''}`} aria-hidden>▾</span>
+          </button>
+          <h2 className="hidden lg:block text-lg font-semibold">{editing ? 'Prospect bearbeiten' : 'Neuen Prospect anlegen'}</h2>
+          <div className={`${formOpen ? 'block' : 'hidden'} lg:block px-4 pb-4 lg:px-0 lg:pb-0 space-y-3 lg:mt-4`}>
             <div>
               <label className="text-sm text-slate-600">Kategorie</label>
               <select
@@ -572,13 +598,13 @@ export default function CrmApp() {
         </aside>
 
         <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+          <div className="px-3 sm:px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-2 flex-wrap">
             <h2 className="font-semibold">Prospects ({filtered.length})</h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="rounded-lg border border-slate-300 px-2 py-1 text-sm bg-white"
+                className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm bg-white"
               >
                 <option value="all">Alle Kategorien</option>
                 {categories.map((c) => (
@@ -588,7 +614,42 @@ export default function CrmApp() {
               {loadingProspects ? <span className="text-sm text-slate-500">Lade…</span> : null}
             </div>
           </div>
-          <div className="overflow-auto">
+
+          {/* Mobile card list (md-) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {filtered.map((p) => (
+              <article key={p.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{p.name || '-'}</div>
+                    <div className="text-sm text-slate-600 truncate">{p.company || '-'}</div>
+                  </div>
+                  <span className={`shrink-0 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${STATUS_BADGE[p.status]}`}>
+                    {STATUS_LABEL[p.status]}
+                  </span>
+                </div>
+                <dl className="grid grid-cols-[5rem_1fr] gap-x-3 gap-y-1 text-xs">
+                  {p.email ? (<><dt className="text-slate-500">E-Mail</dt><dd className="truncate"><a className="text-rose-600 underline-offset-2 hover:underline" href={`mailto:${p.email}`}>{p.email}</a></dd></>) : null}
+                  {p.address ? (<><dt className="text-slate-500">Adresse</dt><dd className="truncate">{p.address}</dd></>) : null}
+                  {p.categoryId ? (<><dt className="text-slate-500">Kategorie</dt><dd className="truncate">{categoryNameById.get(p.categoryId) || '-'}</dd></>) : null}
+                  {p.lastEmailedAt ? (<><dt className="text-slate-500">Versand</dt><dd>{formatDate(p.lastEmailedAt)}</dd></>) : null}
+                </dl>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <button onClick={() => setDetailsModal({ open: true, p })} className="btn-ghost !px-2.5 !py-2 text-sm">Öffnen</button>
+                  <button onClick={() => startEdit(p)} className="btn-ghost !px-2.5 !py-2 text-sm">Bearbeiten</button>
+                  <button onClick={() => openEmail(p)} className="btn-ghost !px-2.5 !py-2 text-sm">Mail</button>
+                  <button onClick={() => openProvision(p)} className="btn-ghost !px-2.5 !py-2 text-sm">Provision</button>
+                  <button onClick={() => void removeProspect(p)} className="btn-ghost !px-2.5 !py-2 text-sm text-rose-700 col-span-2 sm:col-span-1">Löschen</button>
+                </div>
+              </article>
+            ))}
+            {!filtered.length ? (
+              <p className="px-4 py-8 text-center text-slate-500">Keine Prospects für diesen Filter.</p>
+            ) : null}
+          </div>
+
+          {/* Desktop table (md+) */}
+          <div className="hidden md:block overflow-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
@@ -644,19 +705,55 @@ export default function CrmApp() {
       ) : null}
 
       {crmTab === 'tenants' ? (
-      <section className="mx-auto max-w-7xl px-4 py-6">
+      <section className="mx-auto max-w-7xl px-4 py-4 sm:py-6">
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-3">
+          <div className="px-3 sm:px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
             <h2 className="font-semibold">Tenants ({filteredTenants.length})</h2>
-            <input
-              value={tenantSearch}
-              onChange={(e) => setTenantSearch(e.target.value)}
-              placeholder="Suchen…"
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm bg-white w-56"
-            />
-            {loadingTenants ? <span className="text-sm text-slate-500">Lade…</span> : null}
+            <div className="flex items-center gap-2 flex-1 sm:flex-none min-w-0 sm:min-w-[14rem] justify-end">
+              <input
+                value={tenantSearch}
+                onChange={(e) => setTenantSearch(e.target.value)}
+                placeholder="Suchen…"
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm bg-white flex-1 sm:flex-none sm:w-56"
+              />
+              {loadingTenants ? <span className="text-sm text-slate-500">Lade…</span> : null}
+            </div>
           </div>
-          <div className="overflow-auto">
+
+          {/* Mobile card list (md-) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {filteredTenants.map((t) => (
+              <article key={t.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{t.name}</div>
+                    <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded">{t.slug}</code>
+                  </div>
+                  <span className="shrink-0 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium">
+                    {t.template} · {t.style}
+                  </span>
+                </div>
+                <dl className="grid grid-cols-[6.5rem_1fr] gap-x-3 gap-y-1 text-xs">
+                  <dt className="text-slate-500">Erstellt</dt>
+                  <dd>{formatDate(t.createdAt)}</dd>
+                  <dt className="text-slate-500">Content</dt>
+                  <dd>{t.contentUpdatedAt ? formatDate(t.contentUpdatedAt) : '-'}</dd>
+                </dl>
+                <div className="flex flex-wrap gap-2 text-sm">
+                  <a href={t.siteUrl} target="_blank" rel="noreferrer" className="btn-ghost !px-2.5 !py-2">Website ↗</a>
+                  <a href={t.adminUrl} target="_blank" rel="noreferrer" className="btn-ghost !px-2.5 !py-2">Admin ↗</a>
+                  <button onClick={() => { setDupSlug(t.slug + '-kopie'); setDupName(t.name + ' (Kopie)'); setDupModal({ open: true, t }); }} className="btn-ghost !px-2.5 !py-2">Duplizieren</button>
+                  <button onClick={() => { setDeleteVercel(true); setDeleteModal({ open: true, t }); }} className="btn-ghost !px-2.5 !py-2 text-rose-700">Löschen</button>
+                </div>
+              </article>
+            ))}
+            {!filteredTenants.length ? (
+              <p className="px-4 py-8 text-center text-slate-500">{tenantSearch ? 'Kein Tenant passt zum Filter.' : 'Noch keine Tenants angelegt.'}</p>
+            ) : null}
+          </div>
+
+          {/* Desktop table (md+) */}
+          <div className="hidden md:block overflow-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
@@ -899,14 +996,35 @@ export default function CrmApp() {
 }
 
 function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
+  // Lock body scroll while a modal is open and close on Esc.
+  useEffect(() => {
+    const prev = typeof document !== 'undefined' ? document.body.style.overflow : '';
+    if (typeof document !== 'undefined') document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    if (typeof window !== 'undefined') window.addEventListener('keydown', onKey);
+    return () => {
+      if (typeof document !== 'undefined') document.body.style.overflow = prev;
+      if (typeof window !== 'undefined') window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm p-4 grid place-items-center">
-      <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-3">
+    <div
+      className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm overflow-y-auto p-0 sm:p-4 flex items-stretch sm:items-start sm:justify-center"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="w-full sm:max-w-2xl sm:my-8 bg-white shadow-2xl border-t sm:border border-slate-200 sm:rounded-2xl flex flex-col max-h-screen sm:max-h-[calc(100vh-4rem)]">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-4 sm:px-5 py-3 sm:py-4 sticky top-0 bg-white sm:static z-10">
           <h3 className="text-lg font-semibold">{title}</h3>
-          <button onClick={onClose} className="btn-ghost !px-3 !py-1.5">X</button>
+          <button
+            onClick={onClose}
+            className="btn-ghost !px-3 !py-1.5"
+            aria-label="Schließen"
+          >
+            ✕
+          </button>
         </div>
-        <div className="pt-4">{children}</div>
+        <div className="px-4 sm:px-5 py-4 overflow-y-auto">{children}</div>
       </div>
     </div>
   );
