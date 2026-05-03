@@ -8,6 +8,7 @@
 import { eq } from 'drizzle-orm';
 import { db, schema } from './db/client.js';
 import { SiteContentSchema } from './types.js';
+import { applyContentFieldAliases } from './content-field-aliases.js';
 
 /**
  * Import a content JSON into the tenant's site content.
@@ -30,8 +31,11 @@ export async function importContentJson(
   const existingData = (existing?.data ?? {}) as Record<string, unknown>;
   const merged = deepMerge(existingData, cleaned);
 
-  // Coerce known array fields that may arrive as wrapper objects
+  // Coerce array shapes, then map AI export aliases (question/answer → q/a, etc.)
   coerceArrayFields(merged);
+  applyContentFieldAliases(merged);
+  ensureIds(merged, 'faq');
+  ensureIds(merged, 'press');
 
   const parse = SiteContentSchema.safeParse(merged);
   if (!parse.success) {

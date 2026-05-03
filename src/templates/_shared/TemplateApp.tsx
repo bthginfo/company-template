@@ -37,6 +37,7 @@ import {
   BranchModulesInline,
   moduleHeading,
 } from '@/components/branch-modules';
+import { normaliseArrivalList, normaliseFaqList, normalisePressList, type PressCard } from '@/lib/content-field-aliases';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -155,8 +156,9 @@ function resolveAboutMeta(variant: TemplateVariant, content: SiteContent): { lab
   return resolveHeroMeta(variant, content);
 }
 function resolveFaq(variant: TemplateVariant, content: SiteContent): { q: string; a: string }[] {
-  const overlay = (content as any).faq as { q: string; a: string }[] | undefined;
-  if (overlay && overlay.length) return overlay;
+  const raw = (content as unknown as { faq?: unknown }).faq;
+  const mapped = normaliseFaqList(raw ?? []);
+  if (mapped.length > 0) return mapped;
   return FAQ_DEFAULTS[variant as keyof typeof FAQ_DEFAULTS] ?? [];
 }
 function parseNumberValue(raw: string): { v: number; s?: string; raw?: boolean } {
@@ -1719,8 +1721,9 @@ function PressSection({ variant, content }: { variant: TemplateVariant; content?
     { src: 'Tiroler Tageszeitung', q: '„Pasta wie in Bologna – nur näher."', y: '2023' },
     { src: 'À la Carte', q: '„Hier kocht jemand, der Italien wirklich kennt."', y: '2023' },
   ];
-  const overlay = content ? ((content as any).press as { src: string; q: string; y: string }[] | undefined) : undefined;
-  const items = overlay && overlay.length ? overlay : fallback;
+  const raw = content ? (content as unknown as { press?: unknown }).press : undefined;
+  const mapped = normalisePressList(raw ?? []);
+  const items: PressCard[] = mapped.length > 0 ? mapped : fallback;
   return (
     <Section eyebrow={(content && effectiveBranchText(variant, content).pressEyebrow) || 'Presse'} title={<>{splitTitle((content && effectiveBranchText(variant, content).pressTitle) || 'Was die Presse schreibt.')}</>}>
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
@@ -1728,6 +1731,11 @@ function PressSection({ variant, content }: { variant: TemplateVariant; content?
           <article key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
             <p className="font-mono text-xs text-muted uppercase tracking-widest">/ {p.src} · {p.y}</p>
             <p className="mt-6 font-display text-2xl leading-snug">{p.q}</p>
+            {p.url ? (
+              <a href={p.url} target="_blank" rel="noreferrer" className="mt-5 inline-block text-sm font-medium text-[var(--accent-color)] hover:underline">
+                Artikel öffnen ↗
+              </a>
+            ) : null}
           </article>
         ))}
       </div>
@@ -1764,8 +1772,9 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
       { t: 'Beratung', d: 'Sie wissen nicht, welche Tour passt? Wir telefonieren gerne 15 Minuten unverbindlich.' },
     ],
   };
-  const overlay = (content as any).arrival as { t: string; d: string }[] | undefined;
-  const arrival = overlay && overlay.length ? overlay.filter((a) => a.t || a.d) : arrivalFallbacks[variant];
+  const rawArrival = (content as unknown as { arrival?: unknown }).arrival;
+  const mappedArrival = normaliseArrivalList(rawArrival ?? []);
+  const arrival = mappedArrival.length > 0 ? mappedArrival : arrivalFallbacks[variant];
   const order = getEffectivePageOrder(content, 'contact', variant).filter((k) => isSectionEnabled(content, 'contact', k));
   const arrivalOv = ((content as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const locs = content.locations ?? [];
