@@ -10,8 +10,9 @@
  *     `MODULE_TO_KEY`.
  *  4. Combo-scoped dataKeys: for each (branch × style × page) section from
  *     `getAdminSections`, every `SECTION_CONTRACTS` dataKey must appear in
+ *     `SECTION_CONTRACTS` dataKey must appear in
  *     **that template's** frontend tree (`src/templates/<tpl>` or `extra` for
- *     the three extras) plus `_shared` + `components`, and in
+ *     the three extras — also reached via `TemplateApp`) plus `_shared` + `components`, and in
  *     `AdminEditorBody.tsx`. Orphan `SECTION_CONTRACTS` keys (never listed by
  *     `getAdminSections`) fail. Optional omits: `src/lib/combo-drift-omissions.ts`.
  *  4b. Global layout fields (`navItems`, `navCta`, `customScripts`,

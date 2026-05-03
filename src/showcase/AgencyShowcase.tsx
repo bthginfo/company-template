@@ -9,12 +9,7 @@ import CrmApp from './CrmApp';
 import { Imprint, Privacy } from './Legal';
 import { BlogIndex, BlogPost, NotFound } from './Blog';
 import Seo from '@/components/Seo';
-import RestaurantTemplate from '@/templates/restaurant';
-import SalonTemplate from '@/templates/salon';
-import TradesmanTemplate from '@/templates/tradesman';
-import HotelTemplate from '@/templates/hotel';
-import TourismTemplate from '@/templates/tourism';
-import ExtraBranchTemplate from '@/templates/extra';
+import TemplateApp from '@/templates/_shared/TemplateApp';
 import {
   Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, useReveal,
 } from '@/components/fx';
@@ -2382,20 +2377,17 @@ function TemplatePreview() {
 
   return (
     <div>
-      {(() => {
-        // consulting/medical/fitness are single-page extras → ExtraBranchTemplate
-        if (tplKey === 'consulting' || tplKey === 'medical' || tplKey === 'fitness') {
-          return <ExtraBranchTemplate content={themedContent} style={style} branch={tplKey} eyebrow={EXTRA_BRANCHES[tplKey].tagline} basePath={basePath} />;
+      <TemplateApp
+        content={themedContent}
+        style={style}
+        variant={tplKey as TemplateKey}
+        basePath={basePath}
+        eyebrow={
+          tplKey === 'consulting' || tplKey === 'medical' || tplKey === 'fitness'
+            ? EXTRA_BRANCHES[tplKey].tagline
+            : undefined
         }
-        // restaurant/salon/tradesman/hotel/tourism → full TemplateApp variants
-        const RealTpl =
-          tplKey === 'restaurant' ? RestaurantTemplate :
-          tplKey === 'salon' ? SalonTemplate :
-          tplKey === 'tradesman' ? TradesmanTemplate :
-          tplKey === 'hotel' ? HotelTemplate :
-          TourismTemplate;
-        return <RealTpl content={themedContent} basePath={basePath} style={style} />;
-      })()}
+      />
 
       <PreviewControls
         tplKey={tplKey}

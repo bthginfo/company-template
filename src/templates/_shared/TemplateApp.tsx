@@ -38,6 +38,8 @@ import {
   moduleHeading,
 } from '@/components/branch-modules';
 import { mergedServiceHighlights, normaliseArrivalList, normaliseFaqList, normalisePressList, normaliseTdList, normaliseTeamList, type PressCard } from '@/lib/content-field-aliases';
+import { isExtraBranch } from '@/lib/branch-config';
+import ExtraBranchTemplate, { type ExtraBranchKey } from '../extra';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -178,14 +180,31 @@ export default function TemplateApp({
   content,
   basePath = '',
   style = 'classic',
+  eyebrow,
 }: {
-  variant: TemplateVariant;
+  /** All eight tenant templates — extras delegate to `templates/extra`. */
+  variant: TemplateKey;
   content: SiteContent;
   basePath?: string;
   style?: TemplateStyle;
+  /** Optional hero eyebrow (showcase preview for extras). */
+  eyebrow?: string;
 }) {
-  const cfg = NAV_BY_VARIANT[variant];
-  const announcements = announcementsFor(variant, content);
+  if (isExtraBranch(variant)) {
+    return (
+      <ExtraBranchTemplate
+        content={content}
+        style={style}
+        branch={variant as ExtraBranchKey}
+        basePath={basePath}
+        eyebrow={eyebrow}
+      />
+    );
+  }
+
+  const coreVariant = variant as TemplateVariant;
+  const cfg = NAV_BY_VARIANT[coreVariant];
+  const announcements = announcementsFor(coreVariant, content);
   useReveal();
 
   // Tenant-overridden navigation: only kept items with non-empty label that are visible.
@@ -202,21 +221,21 @@ export default function TemplateApp({
         <main className="flex-1">
           <ScrollToTopOnRoute />
           <Routes>
-            <Route index element={<><PageSeo page="home" variant={variant} content={content} /><HomePage variant={variant} content={content} style={style} /></>} />
-            <Route path={cfg.servicesPath.replace(/^\//, '')} element={<><PageSeo page="services" variant={variant} content={content} /><ServicesPage variant={variant} content={content} style={style} /></>} />
-            <Route path="galerie" element={<><PageSeo page="gallery" variant={variant} content={content} /><GalleryPage content={content} variant={variant} style={style} /></>} />
-            <Route path="referenzen" element={<><PageSeo page="gallery" variant={variant} content={content} /><GalleryPage content={content} variant={variant} style={style} title="Referenzen" eyebrow="Projekte" /></>} />
-            <Route path="ueber-uns" element={<><PageSeo page="about" variant={variant} content={content} /><AboutPage variant={variant} content={content} style={style} /></>} />
-            <Route path="kontakt" element={<><PageSeo page="contactPage" variant={variant} content={content} /><ContactPage content={content} variant={variant} style={style} /></>} />
+            <Route index element={<><PageSeo page="home" variant={coreVariant} content={content} /><HomePage variant={coreVariant} content={content} style={style} /></>} />
+            <Route path={cfg.servicesPath.replace(/^\//, '')} element={<><PageSeo page="services" variant={coreVariant} content={content} /><ServicesPage variant={coreVariant} content={content} style={style} /></>} />
+            <Route path="galerie" element={<><PageSeo page="gallery" variant={coreVariant} content={content} /><GalleryPage content={content} variant={coreVariant} style={style} /></>} />
+            <Route path="referenzen" element={<><PageSeo page="gallery" variant={coreVariant} content={content} /><GalleryPage content={content} variant={coreVariant} style={style} title="Referenzen" eyebrow="Projekte" /></>} />
+            <Route path="ueber-uns" element={<><PageSeo page="about" variant={coreVariant} content={content} /><AboutPage variant={coreVariant} content={content} style={style} /></>} />
+            <Route path="kontakt" element={<><PageSeo page="contactPage" variant={coreVariant} content={content} /><ContactPage content={content} variant={coreVariant} style={style} /></>} />
             <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} />} />
             <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} />} />
             <Route path="impressum" element={<Imprint content={content} />} />
             <Route path="datenschutz" element={<Privacy content={content} />} />
-            <Route path="*" element={<><PageSeo page="home" variant={variant} content={content} /><HomePage variant={variant} content={content} style={style} /></>} />
+            <Route path="*" element={<><PageSeo page="home" variant={coreVariant} content={content} /><HomePage variant={coreVariant} content={content} style={style} /></>} />
           </Routes>
         </main>
         <SiteFooter content={content} basePath={basePath} nav={resolvedNav} />
-        {variant === 'tradesman' && <EmergencyStickyBanner content={content} />}
+        {coreVariant === 'tradesman' && <EmergencyStickyBanner content={content} />}
       </div>
     </BasePathProvider>
   );

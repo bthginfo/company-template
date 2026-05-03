@@ -1,27 +1,9 @@
 import { useContent } from './lib/content-context';
 import { getTemplateKey, getTemplateStyle, type TemplateStyle } from './lib/tenant';
-import RestaurantTemplate from './templates/restaurant';
-import SalonTemplate from './templates/salon';
-import TradesmanTemplate from './templates/tradesman';
-import HotelTemplate from './templates/hotel';
-import TourismTemplate from './templates/tourism';
-import ExtraBranchTemplate, { isExtraBranchKey } from './templates/extra';
-import type { SiteContent, TemplateKey } from './lib/types';
+import TemplateApp from './templates/_shared/TemplateApp';
+import type { TemplateKey } from './lib/types';
 import { useEffect } from 'react';
 import { applyTheme, resolveThemePreset } from './lib/theme';
-
-type TplProps = { content: SiteContent; style?: TemplateStyle };
-
-const TEMPLATES: Record<string, (props: TplProps) => JSX.Element> = {
-  restaurant: RestaurantTemplate,
-  salon: SalonTemplate,
-  tradesman: TradesmanTemplate,
-  hotel: HotelTemplate,
-  tourism: TourismTemplate,
-  consulting: ExtraBranchTemplate,
-  medical: ExtraBranchTemplate,
-  fitness: ExtraBranchTemplate,
-};
 
 export function SiteRouter() {
   const { state } = useContent();
@@ -53,22 +35,14 @@ export function SiteRouter() {
 
   const isPreview = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === '1';
 
-  const key = state.tenant.template || getTemplateKey();
+  const variant = (state.tenant.template || getTemplateKey()) as TemplateKey;
   const style: TemplateStyle =
     (state.tenant.style as TemplateStyle | undefined) || getTemplateStyle();
-  if (isExtraBranchKey(key)) {
-    return (
-      <>
-        {isPreview && <PreviewBanner />}
-        <ExtraBranchTemplate content={state.content} style={style} branch={key} />
-      </>
-    );
-  }
-  const Tpl = TEMPLATES[key] ?? RestaurantTemplate;
+
   return (
     <>
       {isPreview && <PreviewBanner />}
-      <Tpl content={state.content} style={style} />
+      <TemplateApp variant={variant} content={state.content} style={style} />
     </>
   );
 }

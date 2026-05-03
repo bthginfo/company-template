@@ -2,8 +2,8 @@
  * Default frontend section orders for the home page, per (variant, style).
  *
  * Two surfaces share these:
- *  - the renderer in `src/templates/_shared/TemplateApp.tsx` for core 5 branches
- *  - the renderer in `src/templates/extra/index.tsx` for extras (uses
+ *  - the renderer in `src/templates/_shared/TemplateApp.tsx` for all eight
+ *    branches (core five + extras; extras delegate to `templates/extra`).
  *    `EXTRA_HOME_ORDER` exported from `src/lib/page-layout.ts`)
  *
  * The drift-coverage script in `scripts/check-coverage.ts` imports the same
