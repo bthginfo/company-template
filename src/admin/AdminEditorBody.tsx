@@ -11,7 +11,7 @@ import { scrollToTop } from '@/lib/scroll';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import { MODULE_DEFAULTS, type ModuleHeadingKey } from '@/components/branch-modules';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
-import { getAdminSections, getSectionMeta, SERVICE_TEASER_LIMIT, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, fieldHint, type AdminSectionKey, type PageKey } from './admin-sections';
+import { getAdminSections, getSectionMeta, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, fieldHint, type AdminSectionKey, type PageKey } from './admin-sections';
 import { adminKeyForCatalog, CROSS_PAGE_TARGETS } from '@/lib/section-registry';
 
 /**
@@ -560,7 +560,7 @@ function AddSectionRow({ pageKey, data, setData, tpl }: {
   return (
     <div className="border border-dashed border-line rounded-2xl p-5 bg-[#fafaf7]">
       <p className="text-xs uppercase tracking-widest text-muted mb-1">Sektion hinzufügen</p>
-      <p className="text-xs text-muted mb-3">Verfügbare Sektionen für diese Branche und diesen Stil. Du kannst sie danach mit den ↑↓-Pfeilen verschieben.</p>
+      <p className="text-xs text-muted mb-3">Passende Zusatz-Sektionen für deine Branche und diesen Stil. Nach dem Einfügen die Position mit den ↑↓-Pfeilen in der Seitenleiste anpassen.</p>
       <div className="flex flex-wrap gap-2">
         {remaining.map((s) => (
           <button key={s.key} type="button" onClick={() => onAdd(s.key)} className="text-xs px-3 py-1.5 rounded-full border border-line bg-white hover:bg-brand hover:text-white transition" title={s.description}>
@@ -926,9 +926,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="services" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={baseKeys} />
-            <p className="text-xs text-muted">
-              Reihenfolge per Drag & Drop. <strong>Die ersten {SERVICE_TEASER_LIMIT[style]} Einträge</strong> erscheinen auf der Startseite, alle auf der Unterseite.
-            </p>
             <ServicesListEditor data={data} setData={setData} />
           </SectionCard>
         );
@@ -937,7 +934,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="signature" data={data} setData={setData}>
             <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
-            <p className="text-xs font-medium text-muted mt-6 mb-3">Items (separate vom Angebot oben)</p>
+            <p className="text-xs font-medium text-muted mt-6 mb-3">Highlight-Einträge nur für diesen Block (nicht die Leistungsliste darüber)</p>
             <HomeSignatureItemsEditor data={data} setData={setData} />
           </SectionCard>
         );
@@ -962,7 +959,9 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="gallery" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserEyebrow', 'galleryTeaserTitle', 'galleryAllLabel']} />
-            <p className="text-xs text-muted">Volle Bildverwaltung unter <strong>Galerie</strong>. Die ersten <strong>{GALLERY_TEASER_LIMIT[style]} Bilder</strong> erscheinen hier.</p>
+            <p className="text-xs text-muted">
+              Bilder hochladen und Reihenfolge festlegen unter <strong>Galerie</strong> (↑↓ bei jedem Bild). Die ersten <strong>{GALLERY_TEASER_LIMIT[style]}</strong> Bilder dieser Liste erscheinen im Teaser — unten eine Vorschau.
+            </p>
             <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
               {data.gallery.slice(0, GALLERY_TEASER_LIMIT[style]).map((src, i) => (
                 <div key={`${i}_${src}`} className="aspect-square rounded-lg overflow-hidden bg-[#f6f6f3]">
@@ -982,7 +981,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['testimonialsEyebrow', 'testimonialsTitle']} />
-            <TestimonialsEditor data={data} setData={setData} max={3} />
+            <TestimonialsEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'news':
@@ -1059,7 +1058,7 @@ function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge }: {
     <SectionCard title={meta.title} description={meta.description} badge={badge}>
       <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
       {$s(cfg.home.hero.tagline) && (
-        <Field label="Slogan / Eyebrow" hint="Kleine Zeile über der Überschrift (Classic/Modern).">
+        <Field label="Slogan / Eyebrow" hint="Kurzer Slogan über der Hauptzeile — nur sichtbar, wenn diese Variante ihn vorsieht.">
           <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
         </Field>
       )}
@@ -2228,7 +2227,7 @@ type BranchTextKey =
 
 const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; rows?: number }> = {
   teaserSubtitle: { label: 'Untertitel (unter der Überschrift)', hint: 'Kurzer Text unter dem Teaser-Titel. Leer lassen = Hero-Untertitel wird verwendet.', rows: 2 },
-  marqueeWords: { label: 'Marquee / Laufband-Wörter (kommagetrennt)' },
+  marqueeWords: { label: 'Marquee / Laufband-Wörter (komma-getrennt)', hint: 'Mit Kommas trennen — die Wörter erscheinen nacheinander im animierten Band.' },
   galleryTeaserTitle: { label: 'Galerie-Teaser-Titel', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
   galleryTeaserEyebrow: { label: 'Galerie-Teaser-Eyebrow' },
   aboutTeaserEyebrow: { label: 'Über-uns-Teaser-Eyebrow' },
@@ -2241,10 +2240,10 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   testimonialsTitle: { label: 'Überschrift' },
   manifestEyebrow: { label: 'Manifest – Eyebrow' },
   manifestTitle: { label: 'Manifest – Überschrift' },
-  softCtaEyebrow: { label: 'Eyebrow (kleine Zeile darüber)', hint: 'Standard: "HUNGER?" oder vergleichbar je nach Branche.' },
-  softCtaTitle: { label: 'Überschrift', hint: 'Große Hauptzeile des Call-to-Action. Überschreibt Headline aus zu editierendem Feld oben.' },
-  softCtaText: { label: 'Untertitel', hint: 'Kurzer erläuternder Text. Überschreibt Untertitel aus zu editierendem Feld oben.' },
-  softCtaButton: { label: 'Button-Beschriftung', hint: 'Der Text auf dem CTA-Button. Überschreibt Button-Text aus zu editierendem Feld oben.' },
+  softCtaEyebrow: { label: 'Eyebrow (kleine Zeile darüber)', hint: 'Fallback für den unteren CTA, wenn dort keine Eyebrow gesetzt ist.' },
+  softCtaTitle: { label: 'Überschrift', hint: 'Fallback für die große CTA-Zeile, wenn der Hauptblock unten leer bleibt.' },
+  softCtaText: { label: 'Untertitel', hint: 'Fallback für den erklärenden Text unter der CTA-Überschrift.' },
+  softCtaButton: { label: 'Button-Beschriftung', hint: 'Fallback für den Text auf dem CTA-Button.' },
   processEyebrow: { label: 'Prozess – Eyebrow' },
   processTitle: { label: 'Prozess – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
   galleryCategoriesEyebrow: { label: 'Galerie-Kategorien – Eyebrow' },
@@ -2260,8 +2259,8 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   newsEyebrow: { label: 'Eyebrow' },
   newsTitle: { label: 'Überschrift' },
   aboutSidebarEyebrow: { label: 'Über-uns-Sidebar Eyebrow', hint: 'Modern-Style: kleine Überschrift in der Sidebar („Auf einen Blick“).' },
-  servicesTeaserEyebrow: { label: 'Leistungen-Teaser Eyebrow', hint: 'Eyebrow über dem Speisekarten-/Leistungen-Teaser auf der Startseite.' },
-  servicesTeaserTitle: { label: 'Leistungen-Teaser Titel', hint: 'Z. B. „Aus der Küche." oder „Ihre Behandlungen."' },
+  servicesTeaserEyebrow: { label: 'Leistungen-Teaser — Eyebrow', hint: 'Kleine Zeile über der Liste im Startseiten-Teaser.' },
+  servicesTeaserTitle: { label: 'Leistungen-Teaser — Überschrift', hint: 'Z. B. „Aus der Küche." oder „Ihre Behandlungen." (je nach Branche).' },
   servicesAllLabel: { label: 'Button-Text', hint: 'z. B. „Alle Gerichte", „Zur Speisekarte"' },
   servicesAllHref: { label: 'Button-Ziel', hint: 'z. B. /speisekarte, /leistungen oder #kontakt' },
   serviceCardNote: { label: 'Service-Karte: Fußnote', hint: 'Modern-Style: kleine Zeile am Ende jeder Service-Karte (z. B. „Inkl. Beratung").' },
@@ -2787,35 +2786,47 @@ function ServicesListEditor({ data, setData }: SetterProps) {
             <ImagePickerField label="Bild" value={s.imageUrl || ''} onChange={(v) => update(i, { imageUrl: v })} />
             <div className="flex justify-between items-center">
               <div className="flex gap-1">
-                <button onClick={() => move(i, -1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↑ hoch</button>
-                <button onClick={() => move(i, 1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↓ runter</button>
+                <button type="button" onClick={() => move(i, -1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↑ hoch</button>
+                <button type="button" onClick={() => move(i, 1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↓ runter</button>
               </div>
-              <button onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Entfernen</button>
+              <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Entfernen</button>
             </div>
           </div>
         </details>
       ))}
-      <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Eintrag hinzufügen</button>
+      <button type="button" onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Eintrag hinzufügen</button>
     </div>
   );
 }
 
-function TestimonialsEditor({ data, setData, max }: SetterProps & { max?: number }) {
-  const list = max ? data.testimonials.slice(0, max) : data.testimonials;
+function TestimonialsEditor({ data, setData }: SetterProps) {
   const update = (i: number, patch: any) => setData({ ...data, testimonials: data.testimonials.map((t, j) => j === i ? { ...t, ...patch } : t) });
   const remove = (i: number) => setData({ ...data, testimonials: data.testimonials.filter((_, j) => j !== i) });
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= data.testimonials.length) return;
+    const next = [...data.testimonials];
+    [next[i], next[j]] = [next[j], next[i]];
+    setData({ ...data, testimonials: next });
+  };
   const add = () => setData({ ...data, testimonials: [...data.testimonials, { author: '', text: '' }] });
-  const keys = useListKeys(list);
+  const keys = useListKeys(data.testimonials);
   return (
     <div className="space-y-3">
-      {list.map((t, i) => (
+      {data.testimonials.map((t, i) => (
         <div key={keys[i]} className="border border-line rounded-xl p-4 bg-[#fafaf7] space-y-2">
           <input className={inputCls} placeholder="Name" value={t.author} onChange={(e) => update(i, { author: e.target.value })} />
           <textarea className={inputCls} rows={3} placeholder="Zitat" value={t.text} onChange={(e) => update(i, { text: e.target.value })} />
-          <div className="flex justify-end"><button onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Entfernen</button></div>
+          <div className="flex justify-between items-center pt-1">
+            <div className="flex gap-1">
+              <button type="button" onClick={() => move(i, -1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↑ hoch</button>
+              <button type="button" onClick={() => move(i, 1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↓ runter</button>
+            </div>
+            <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">Entfernen</button>
+          </div>
         </div>
       ))}
-      <button onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Bewertung hinzufügen</button>
+      <button type="button" onClick={add} className="btn-outline !px-4 !py-2 text-sm">+ Bewertung hinzufügen</button>
     </div>
   );
 }

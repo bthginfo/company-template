@@ -342,7 +342,7 @@ export const CROSS_PAGE_TARGETS: Partial<Record<AdminSectionKey, DeepLinkTarget>
   aboutTestimonials: {
     page: 'about',
     label: 'Bewertungen (Über-uns-Seite)',
-    description: 'Alle Kundenstimmen werden auf der Über-uns-Seite gepflegt — sie können zusätzlich auf weiteren Seiten eingeblendet werden.',
+    description: 'Es gibt nur eine gemeinsame Bewertungsliste — auch unter „Startseite → Bewertungen“. Reihenfolge gilt überall.',
   },
   // Gallery grid primary editor lives on the Gallery page; can be
   // re-used as a section on Services etc.

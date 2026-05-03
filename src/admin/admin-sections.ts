@@ -243,7 +243,7 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   // ─── Home ─────────────────────────────────────────────────
   announcements: () => ({
     title: 'Hinweis-Banner (oben)',
-    description: 'Kurze Hinweis-Zeilen die ganz oben über dem Hero laufen — z. B. Öffnungszeit-Info, aktuelle Aktionen.',
+    description: 'Laufzeile direkt über dem Hero — z. B. Öffnungsstatus oder kurze Aktionen (ein Hinweis pro Zeile).',
   }),
   hero: (_tpl, style) => ({
     title: 'Hero (Startbereich)',
@@ -265,9 +265,12 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     title: 'Schlagwort-Band',
     description: 'Großes animiertes Wortband — fließende Bewegungs-Akzent.',
   }),
-  services: (_tpl, style) => ({
+  services: (tpl, style) => ({
     title: 'Leistungs-Teaser',
-    description: `Die ersten ${SERVICE_TEASER_LIMIT[style]} Einträge aus deiner Leistungs-/Speisekarten-Liste erscheinen auf der Startseite. Vollständige Pflege auf der Service-Seite.`,
+    description:
+      tpl === 'restaurant'
+        ? `Gerichte und Leistungen legst du hier an und sortierst sie mit „↑ hoch“ / „↓ runter“ unter jedem Eintrag. Die obersten ${SERVICE_TEASER_LIMIT[style]} erscheinen im Startseiten-Teaser; dieselbe Liste wird vollständig auf der Speise-/Leistungsseite gezeigt. Die Menükarte mit Kategorien pflegst du zusätzlich unter „Menü“ auf der Service-Seite.`
+        : `Einträge legst du hier an und sortierst sie mit „↑ hoch“ / „↓ runter“. Die obersten ${SERVICE_TEASER_LIMIT[style]} erscheinen im Startseiten-Teaser; dieselbe Liste wird vollständig auf der Leistungs-/Service-Seite gezeigt.`,
   }),
   signature: () => ({
     title: 'Branchen-Highlight',
@@ -281,23 +284,26 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
   gallery: (_tpl, style) => ({
     title: 'Galerie-Teaser',
-    description: `Die ersten ${GALLERY_TEASER_LIMIT[style]} Bilder aus deiner Galerie erscheinen auf der Startseite. Vollständige Pflege auf der Galerie-Seite.`,
+    description: `Überschriften und Button hier; Bilder inklusive Reihenfolge unter „Galerie“ (↑↓ je Bild). Die obersten ${GALLERY_TEASER_LIMIT[style]} dieser Liste erscheinen im Startseiten-Teaser.`,
   }),
   numbers: () => ({
     title: 'Eckdaten-Band',
-    description: 'Vier Eckdaten in einer Reihe (z. B. „Seit 1998 · 64 Plätze · 4,9 Sterne").',
+    description: 'Zahl plus Kurz-Label pro Eintrag (typisch vier Stück; Layout ordnet mehr oder weniger automatisch).',
   }),
   logos: () => ({
     title: 'Logo-Strip',
     description: 'Partner / Presse / Auszeichnungen als Wortmarken-Band.',
   }),
-  testimonials: () => ({
+  testimonials: (tpl) => ({
     title: 'Bewertungen-Teaser',
-    description: 'Die ersten drei Kundenstimmen erscheinen auf der Startseite. Vollständige Pflege auf der Über-uns-Seite.',
+    description:
+      tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness'
+        ? 'Alle Zitate teilen sich eine Liste mit „Über uns → Bewertungen“. Auf dieser Branche wird die Startseite nicht auf drei Zitate gekürzt — Reihenfolge mit „↑ hoch“ / „↓ runter“ unter jedem Eintrag.'
+        : 'Alle Zitate teilen sich eine Liste mit „Über uns → Bewertungen“. Hier oder dort pflegen; nur die ersten drei erscheinen auf der Startseite — Reihenfolge mit „↑ hoch“ / „↓ runter“.',
   }),
   news: () => ({
     title: 'News-Teaser',
-    description: 'Die drei neuesten Beiträge aus dem News-Bereich. Pflege unter „News & Blog" in der Seitenleiste.',
+    description: 'Zeigt die drei neuesten veröffentlichten Beiträge (nach Datum). Beiträge anlegen unter „News & Blog“ in der Seitenleiste.',
   }),
   softCta: () => ({
     title: 'Abschluss-Aufruf (CTA)',
@@ -305,7 +311,7 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
   funding: () => ({
     title: 'Förder-Rechner',
-    description: 'Interaktiver Slider mit Förderprogramm-Liste. Investment-Bereich + Programme im Admin pflegbar.',
+    description: 'Slider mit konfigurierbarem Investitionsbereich plus Liste der Förderungen — Bereiche und Programme hier pflegen.',
   }),
   spotlight: () => ({
     title: 'Branchen-Spotlight',
@@ -323,7 +329,7 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
   highlights: () => ({
     title: 'Highlights-Leiste',
-    description: 'Vier kurze Highlights direkt unter der Überschrift.',
+    description: 'Kompakte Info-Karten direkt unter dem Seiten-Header (Überschrift + kurzer Text pro Eintrag).',
   }),
 
   menu: () => ({
@@ -442,7 +448,7 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
   aboutNumbers: () => ({
     title: 'Eckdaten-Band (Über-uns)',
-    description: 'Eigene Eckdaten/Statistiken für die Über-uns-Seite. Leer lassen = Home-Eckdaten werden übernommen.',
+    description: 'Optionales Zahlen-Band nur für die Über-uns-Seite. Leer lassen = dieselben Eckdaten wie auf der Startseite.',
   }),
   certifications: () => ({
     title: 'Qualifikationen & Zertifizierungen',
@@ -517,9 +523,9 @@ export const FIELD_CONFIG = {
     aboutTeaserEyebrow: { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
     aboutImage:         { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
     bodyHint: {
-      classic: 'Alle Absätze werden auf der Startseite angezeigt.',
-      modern:  '2–3 kurze Absätze sehen am besten aus.',
-      bold:    '2 kurze Absätze sehen am besten aus.',
+      classic: 'Alle Absätze erscheinen im Über-uns-Teaser auf der Startseite.',
+      modern:  'Zwei bis drei kurze Absätze wirken auf der Startseite am ruhigsten.',
+      bold:    'Zwei kurze Absätze für den Bold-„Manifest"-Teaser.',
     } as Record<TemplateStyle, string>,
   },
 
