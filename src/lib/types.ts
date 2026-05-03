@@ -1,5 +1,19 @@
 import { z } from 'zod';
 
+/** Tenant-owned named palette; referenced by `brand.themePresetId` as `custom:<id>`. */
+export const TenantCustomThemeSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  primary: z.string(),
+  primaryFg: z.string(),
+  accent: z.string(),
+  accentFg: z.string().optional(),
+  surface: z.string(),
+  bg: z.string(),
+  text: z.string(),
+});
+export type TenantCustomTheme = z.infer<typeof TenantCustomThemeSchema>;
+
 /**
  * Shared content shape. Every template renders from a SiteContent object.
  * Keep new fields optional so old tenants don't break when we extend the schema.
@@ -12,8 +26,13 @@ export const SiteContentSchema = z.object({
     primaryColor: z.string().default('#0f172a'),
     /** When true and a logo is uploaded, hides the brand name text next to the logo (logo only). */
     hideName: z.boolean().optional().default(false),
-    /** Selected preset id (matches PRESETS[template][n].id). When set, overrides primaryColor at runtime via applyTheme(). */
+    /**
+     * Built-in preset id (`PRESETS[template][n].id`) or `custom:<uuid>` for an entry in `customThemes`.
+     * When set, overrides `primaryColor` at runtime via `applyTheme()`.
+     */
     themePresetId: z.string().optional().default(''),
+    /** Named custom color themes created in the admin (button „Eigenes Farbschema“). */
+    customThemes: z.array(TenantCustomThemeSchema).optional().default([]),
   }),
   hero: z.object({
     title: z.string(),

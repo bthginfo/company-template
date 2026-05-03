@@ -1,4 +1,4 @@
-import type { TemplateKey } from './types.js';
+import type { TemplateKey, TenantCustomTheme } from './types.js';
 
 export type ThemePreset = {
   id: string;
@@ -112,12 +112,52 @@ export function applyTheme(p: ThemePreset) {
   document.body.style.color = p.text;
 }
 
+/** Prefix for `brand.themePresetId` when the active palette comes from `brand.customThemes`. */
+export const CUSTOM_THEME_PREFIX = 'custom:';
+
+/** Returns the custom theme id when `themePresetId` is `custom:<id>`, else null. */
+export function parseCustomThemeRef(themePresetId: string | undefined | null): string | null {
+  if (!themePresetId?.startsWith(CUSTOM_THEME_PREFIX)) return null;
+  const id = themePresetId.slice(CUSTOM_THEME_PREFIX.length);
+  return id.length ? id : null;
+}
+
 /** Find a preset by id within a template's preset list. Returns null when not found. */
 export function getPreset(template: TemplateKey, id: string | undefined | null): ThemePreset | null {
-  if (!id) return null;
+  if (!id || parseCustomThemeRef(id)) return null;
   const list = PRESETS[template];
   if (!list) return null;
   return list.find((p) => p.id === id) ?? null;
+}
+
+export function customThemeToPreset(ct: TenantCustomTheme): ThemePreset {
+  return {
+    id: ct.id,
+    label: ct.name,
+    primary: ct.primary,
+    primaryFg: ct.primaryFg,
+    accent: ct.accent,
+    accentFg: ct.accentFg,
+    surface: ct.surface,
+    bg: ct.bg,
+    text: ct.text,
+  };
+}
+
+/**
+ * Resolves the active `ThemePreset` from built-in presets or tenant `customThemes`.
+ */
+export function resolveThemePreset(
+  template: TemplateKey,
+  themePresetId: string | undefined | null,
+  customThemes: readonly TenantCustomTheme[] | undefined,
+): ThemePreset | null {
+  const customId = parseCustomThemeRef(themePresetId);
+  if (customId) {
+    const ct = (customThemes ?? []).find((t) => t.id === customId);
+    return ct ? customThemeToPreset(ct) : null;
+  }
+  return getPreset(template, themePresetId);
 }
 
 /** Pick black or white as foreground based on hex color luminance. */

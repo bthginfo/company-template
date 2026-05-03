@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import type { SiteContent, TemplateKey } from '@/lib/types';
+import type { SiteContent, TemplateKey, TenantCustomTheme } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getBranchConfig, isActiveForStyle, isBranchTextKeyVisible, type TemplateStyle } from '@/lib/branch-config';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
@@ -8,11 +8,13 @@ import { getEffectivePageOrder, getRemainingSections, isSectionEnabled, type Pag
 import { RichTextEditor } from './RichTextEditor';
 import { assertValidUpload, humanizeUploadError, UPLOAD_HINT } from './upload-limits';
 import { scrollToTop } from '@/lib/scroll';
-import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
+import { PRESETS, applyTheme, CUSTOM_THEME_PREFIX, customThemeToPreset, resolveThemePreset, type ThemePreset } from '@/lib/theme';
 import { MODULE_DEFAULTS, type ModuleHeadingKey } from '@/components/branch-modules';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import { getAdminSections, getSectionMeta, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, type AdminSectionKey, type PageKey } from './admin-sections';
 import { adminKeyForCatalog, CROSS_PAGE_TARGETS } from '@/lib/section-registry';
+
+const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -1763,23 +1765,152 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
 
 function BrandPage({ data, setData, tpl, style, onStyleChange }: SectionProps & { style?: TemplateStyle; onStyleChange?: (s: TemplateStyle) => Promise<void> | void }) {
   const presets = PRESETS[tpl] ?? [];
+  const customThemes = data.brand.customThemes ?? EMPTY_CUSTOM_THEMES;
+
   const activeId = data.brand.themePresetId || '';
+
+  const [customEditorOpen, setCustomEditorOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formName, setFormName] = useState('');
+  const [formColors, setFormColors] = useState({
+    primary: '#111111',
+    primaryFg: '#ffffff',
+    accent: '#111111',
+    surface: '#f5f5f5',
+    bg: '#ffffff',
+    text: '#0a0a0a',
+  });
+  const [formAccentFg, setFormAccentFg] = useState('');
+  const [useAccentFg, setUseAccentFg] = useState(false);
+
+  const basePreset = useMemo(() => {
+    const list = PRESETS[tpl] ?? [];
+    return resolveThemePreset(tpl, activeId, customThemes) ?? list[0];
+  }, [tpl, activeId, customThemes]);
+
+  const openNewEditor = () => {
+    const b = basePreset;
+    setEditingId(null);
+    setFormName('');
+    setFormColors({
+      primary: b.primary,
+      primaryFg: b.primaryFg,
+      accent: b.accent,
+      surface: b.surface,
+      bg: b.bg,
+      text: b.text,
+    });
+    setFormAccentFg(b.accentFg ?? '');
+    setUseAccentFg(!!b.accentFg);
+    setCustomEditorOpen(true);
+  };
+
+  const openEditEditor = (ct: TenantCustomTheme) => {
+    setEditingId(ct.id);
+    setFormName(ct.name);
+    setFormColors({
+      primary: ct.primary,
+      primaryFg: ct.primaryFg,
+      accent: ct.accent,
+      surface: ct.surface,
+      bg: ct.bg,
+      text: ct.text,
+    });
+    setFormAccentFg(ct.accentFg ?? '');
+    setUseAccentFg(!!ct.accentFg);
+    setCustomEditorOpen(true);
+  };
+
+  const closeEditor = () => {
+    setCustomEditorOpen(false);
+    setEditingId(null);
+  };
+
+  const saveCustomTheme = () => {
+    const name = formName.trim();
+    if (!name) {
+      toast.error('Bitte geben Sie dem Theme einen Namen.');
+      return;
+    }
+    const accentFg = useAccentFg && formAccentFg.trim() ? formAccentFg.trim() : undefined;
+    const id = editingId ?? crypto.randomUUID();
+    const entry: TenantCustomTheme = {
+      id,
+      name,
+      primary: formColors.primary,
+      primaryFg: formColors.primaryFg,
+      accent: formColors.accent,
+      surface: formColors.surface,
+      bg: formColors.bg,
+      text: formColors.text,
+      ...(accentFg ? { accentFg } : {}),
+    };
+    const nextList = editingId
+      ? customThemes.map((c) => (c.id === editingId ? entry : c))
+      : [...customThemes, entry];
+    const preset = customThemeToPreset(entry);
+    setData({
+      ...data,
+      brand: {
+        ...data.brand,
+        customThemes: nextList,
+        themePresetId: `${CUSTOM_THEME_PREFIX}${id}`,
+        primaryColor: entry.primary,
+      },
+    });
+    try { applyTheme(preset); } catch { /* SSR / no-DOM */ }
+    toast.success(editingId ? 'Theme aktualisiert' : 'Theme gespeichert und aktiviert');
+    closeEditor();
+  };
+
   const onPickPreset = (p: ThemePreset) => {
     setData({
       ...data,
       brand: {
         ...data.brand,
         themePresetId: p.id,
-        // mirror primary into the legacy primaryColor field so non-preset code paths stay consistent
         primaryColor: p.primary,
       },
     });
-    // Apply immediately so the admin shell + any open preview re-paint
     try { applyTheme(p); } catch { /* SSR / no-DOM */ }
   };
+
+  const onPickCustom = (ct: TenantCustomTheme) => {
+    const p = customThemeToPreset(ct);
+    setData({
+      ...data,
+      brand: {
+        ...data.brand,
+        themePresetId: `${CUSTOM_THEME_PREFIX}${ct.id}`,
+        primaryColor: ct.primary,
+      },
+    });
+    try { applyTheme(p); } catch { /* SSR / no-DOM */ }
+  };
+
+  const onDeleteCustom = (ct: TenantCustomTheme) => {
+    if (!window.confirm(`Theme „${ct.name}“ wirklich löschen?`)) return;
+    const ref = `${CUSTOM_THEME_PREFIX}${ct.id}`;
+    const wasActive = activeId === ref;
+    const nextList = customThemes.filter((c) => c.id !== ct.id);
+    setData({
+      ...data,
+      brand: {
+        ...data.brand,
+        customThemes: nextList,
+        themePresetId: wasActive ? '' : data.brand.themePresetId,
+      },
+    });
+  };
+
   const onClearPreset = () => {
     setData({ ...data, brand: { ...data.brand, themePresetId: '' } });
   };
+
+  const setFormColor = (key: keyof typeof formColors, v: string) => {
+    setFormColors((prev) => ({ ...prev, [key]: v }));
+  };
+
   return (
     <>
       <SectionCard title="Name & Slogan">
@@ -1788,9 +1919,91 @@ function BrandPage({ data, setData, tpl, style, onStyleChange }: SectionProps & 
       </SectionCard>
       <SectionCard
         title="Farbschema"
-        description="Sechs branchengerechte Paletten – ein Klick wechselt sofort Hintergrund, Text, Buttons und Akzente."
+        description="Vorgefertigte Paletten oder eigene, benannte Themes. Farbwähler für ein eigenes Theme erscheinen erst nach Klick auf den Button unten."
         badge="Empfohlen"
       >
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => (customEditorOpen ? closeEditor() : openNewEditor())}
+            className="btn-outline !px-4 !py-2 text-sm"
+          >
+            {customEditorOpen ? 'Editor schließen' : 'Eigenes Farbschema anlegen'}
+          </button>
+        </div>
+
+        {customEditorOpen && (
+          <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50/90 p-4 space-y-4">
+            <p className="text-sm font-medium text-slate-800">
+              {editingId ? 'Eigenes Theme bearbeiten' : 'Neues eigenes Theme'}
+            </p>
+            <Field label="Theme-Name (wird in der Liste angezeigt)">
+              <input
+                className={inputCls}
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                placeholder="z. B. Sommer-Kampagne 2026"
+              />
+            </Field>
+            {([
+              ['primary', 'Primärfarbe (Buttons, Links)'],
+              ['primaryFg', 'Text auf Primärfarbe'],
+              ['accent', 'Akzentfarbe'],
+              ['surface', 'Flächen / Karten-Hintergrund'],
+              ['bg', 'Seiten-Hintergrund'],
+              ['text', 'Fließtext'],
+            ] as const).map(([key, label]) => (
+              <Field key={key} label={label}>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={formColors[key]}
+                    onChange={(e) => setFormColor(key, e.target.value)}
+                    className="h-10 w-16 rounded-lg border border-line shrink-0"
+                  />
+                  <input
+                    className={inputCls}
+                    value={formColors[key]}
+                    onChange={(e) => setFormColor(key, e.target.value)}
+                  />
+                </div>
+              </Field>
+            ))}
+            <div className="space-y-2">
+              <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={useAccentFg}
+                  onChange={(e) => setUseAccentFg(e.target.checked)}
+                />
+                <span>Akzent-Button-Textfarbe manuell setzen (sonst automatisch)</span>
+              </label>
+              {useAccentFg && (
+                <Field label="Text auf Akzentfarbe">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={formAccentFg || '#ffffff'}
+                      onChange={(e) => setFormAccentFg(e.target.value)}
+                      className="h-10 w-16 rounded-lg border border-line shrink-0"
+                    />
+                    <input className={inputCls} value={formAccentFg} onChange={(e) => setFormAccentFg(e.target.value)} placeholder="#ffffff" />
+                  </div>
+                </Field>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <button type="button" onClick={saveCustomTheme} className="btn !px-4 !py-2 text-sm">
+                Theme speichern
+              </button>
+              <button type="button" onClick={closeEditor} className="btn-outline !px-4 !py-2 text-sm">
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {presets.map((p) => {
             const isActive = activeId === p.id;
@@ -1819,6 +2032,60 @@ function BrandPage({ data, setData, tpl, style, onStyleChange }: SectionProps & 
                   <span className="h-3 w-3 rounded-full border border-black/10" style={{ background: p.text }} title="Text" />
                 </div>
               </button>
+            );
+          })}
+          {customThemes.map((ct) => {
+            const p = customThemeToPreset(ct);
+            const ref = `${CUSTOM_THEME_PREFIX}${ct.id}`;
+            const isActive = activeId === ref;
+            return (
+              <div
+                key={ct.id}
+                className={`rounded-xl border p-3 text-left transition ${
+                  isActive
+                    ? 'border-slate-900 ring-2 ring-slate-900/15 shadow-sm'
+                    : 'border-line hover:border-slate-400'
+                }`}
+              >
+                <button type="button" onClick={() => onPickCustom(ct)} className="w-full text-left">
+                  <div
+                    className="h-14 w-full rounded-lg mb-2 ring-1 ring-black/5"
+                    style={{ background: `linear-gradient(135deg, ${p.primary} 0%, ${p.primary} 60%, ${p.accent} 60%, ${p.accent} 100%)` }}
+                  />
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-medium text-slate-900 truncate">{p.label}</span>
+                    <span className="text-[9px] uppercase tracking-wide text-violet-700 shrink-0">eigen</span>
+                  </div>
+                  <div className="mt-1 flex gap-1">
+                    <span className="h-3 w-3 rounded-full border border-black/10" style={{ background: p.bg }} title="Hintergrund" />
+                    <span className="h-3 w-3 rounded-full border border-black/10" style={{ background: p.surface }} title="Surface" />
+                    <span className="h-3 w-3 rounded-full border border-black/10" style={{ background: p.text }} title="Text" />
+                  </div>
+                  {isActive && <div className="mt-1 text-[10px] text-emerald-700">aktiv</div>}
+                </button>
+                <div className="mt-2 flex gap-2">
+                  <button
+                    type="button"
+                    className="text-[11px] text-slate-600 hover:text-slate-900 underline underline-offset-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openEditEditor(ct);
+                    }}
+                  >
+                    Bearbeiten
+                  </button>
+                  <button
+                    type="button"
+                    className="text-[11px] text-rose-600 hover:text-rose-800 underline underline-offset-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onDeleteCustom(ct);
+                    }}
+                  >
+                    Löschen
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>

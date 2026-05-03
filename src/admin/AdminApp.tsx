@@ -7,7 +7,7 @@ import { AdminEditorBody, type UploadImageFn } from './AdminEditorBody';
 import { assertValidUpload, humanizeUploadError } from './upload-limits';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
-import { applyTheme, getPreset } from '@/lib/theme';
+import { applyTheme, resolveThemePreset } from '@/lib/theme';
 
 type Session = { role: 'super' | 'tenant'; tenantId: string | null; slug: string | null } | null;
 
@@ -93,11 +93,12 @@ export function AdminApp() {
   // Mirror the tenant's selected color scheme on the admin shell so
   // chrome (buttons, badges, focus rings) match the live site.
   const presetId = draft?.brand?.themePresetId ?? undefined;
+  const customThemesKey = JSON.stringify(draft?.brand?.customThemes ?? []);
   useEffect(() => {
     if (!presetId) return;
-    const preset = getPreset(tplKey, presetId);
+    const preset = resolveThemePreset(tplKey, presetId, draft?.brand?.customThemes ?? []);
     if (preset) applyTheme(preset);
-  }, [tplKey, presetId]);
+  }, [tplKey, presetId, customThemesKey]);
 
   const logout = async () => {
     if (isDirty) {

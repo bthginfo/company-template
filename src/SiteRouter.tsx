@@ -8,7 +8,7 @@ import TourismTemplate from './templates/tourism';
 import ExtraBranchTemplate, { isExtraBranchKey } from './templates/extra';
 import type { SiteContent, TemplateKey } from './lib/types';
 import { useEffect } from 'react';
-import { applyTheme, getPreset } from './lib/theme';
+import { applyTheme, resolveThemePreset } from './lib/theme';
 
 type TplProps = { content: SiteContent; style?: TemplateStyle };
 
@@ -28,12 +28,14 @@ export function SiteRouter() {
 
   // Apply the tenant's chosen color scheme (if any) whenever it changes.
   const presetId = state.status === 'ready' ? state.content?.brand?.themePresetId : undefined;
+  const customThemes = state.status === 'ready' ? state.content?.brand?.customThemes : undefined;
+  const customThemesKey = state.status === 'ready' ? JSON.stringify(state.content?.brand?.customThemes ?? []) : '';
   const themeKey = state.status === 'ready' ? (state.tenant.template || getTemplateKey()) : null;
   useEffect(() => {
     if (!presetId || !themeKey) return;
-    const preset = getPreset(themeKey as TemplateKey, presetId);
+    const preset = resolveThemePreset(themeKey as TemplateKey, presetId, customThemes);
     if (preset) applyTheme(preset);
-  }, [themeKey, presetId]);
+  }, [themeKey, presetId, customThemesKey, customThemes]);
 
   if (state.status === 'loading') {
     return <div className="min-h-screen grid place-items-center text-slate-500">Lädt …</div>;
