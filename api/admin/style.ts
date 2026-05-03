@@ -18,9 +18,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Invalid style. Must be classic, modern, or bold.' });
   }
 
-  // Resolve tenant
-  const slug = session.slug;
-  if (!slug) return res.status(400).json({ error: 'No tenant in session' });
+  // Resolve tenant — tenant sessions always carry `slug`; super-admin
+  // sessions do not, but per-tenant Vercel projects set `TENANT_SLUG`.
+  const slug = session.slug ?? (session.role === 'super' ? process.env.TENANT_SLUG : undefined);
+  if (!slug || !String(slug).trim()) {
+    return res.status(400).json({ error: 'No tenant in session' });
+  }
 
   const tenant = await db.query.tenants.findFirst({
     where: eq(schema.tenants.slug, slug),

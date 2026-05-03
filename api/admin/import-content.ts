@@ -34,13 +34,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(403).json({ error: 'Zugriff verweigert.' });
   }
 
-  const raw = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  let raw: unknown;
+  if (typeof req.body === 'string') {
+    try {
+      raw = JSON.parse(req.body);
+    } catch {
+      return res.status(400).json({ error: 'Ungültiges JSON im Body.' });
+    }
+  } else {
+    raw = req.body;
+  }
   if (!raw || typeof raw !== 'object') {
     return res.status(400).json({ error: 'JSON body required' });
   }
 
   try {
-    const result = await importContentJson(slug, raw);
+    const result = await importContentJson(slug, raw as Record<string, unknown>);
     res.json({ ok: true, ...result });
   } catch (e: any) {
     const status = e.message?.includes('not found') ? 404 : 400;
