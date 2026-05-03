@@ -33,9 +33,9 @@ import {
   type AdminSectionKey,
   type PageKey,
 } from '../src/admin/admin-sections';
-import { SECTION_CONTRACTS } from '../src/lib/section-registry';
+import { SECTION_CONTRACTS, CATALOG_TO_ADMIN, CROSS_PAGE_TARGETS } from '../src/lib/section-registry';
 import { BRANCH_STYLE_ORDER } from '../src/lib/template-orders';
-import { EXTRA_HOME_ORDER } from '../src/lib/page-layout';
+import { EXTRA_HOME_ORDER, SECTION_CATALOG } from '../src/lib/page-layout';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
@@ -260,6 +260,55 @@ for (const tpl of TEMPLATES) {
         note(`[admin-undershoot] ${tpl}/${style}: frontend renders "${frontKey}" but admin "${adminKey}" not in HOME_ORDER`);
       }
     }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ *  7: Catalog ↔ admin mapping is exhaustive
+ *
+ *  Every key in `SECTION_CATALOG[page]` must have an entry in
+ *  `CATALOG_TO_ADMIN[page]` (either an admin section or explicit null).
+ *  Every non-null mapping must point to a known admin section that has
+ *  a renderer case AND an entry in `SECTION_CONTRACTS`. Cross-page
+ *  targets must reference a real admin page.
+ * ───────────────────────────────────────────────────────────────── */
+const ADMIN_PAGES: PageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
+
+for (const page of ADMIN_PAGES) {
+  const catalogKeys = SECTION_CATALOG[page].map((s) => s.key);
+  const mapping = CATALOG_TO_ADMIN[page];
+  for (const cat of catalogKeys) {
+    if (!(cat in mapping)) {
+      note(`[catalog-unmapped] page="${page}": catalog key "${cat}" has no entry in CATALOG_TO_ADMIN`);
+      continue;
+    }
+    const adminKey = mapping[cat];
+    if (adminKey === null) continue; // intentionally not editable
+    if (!(adminKey in SECTION_CONTRACTS)) {
+      note(`[catalog-bad-mapping] page="${page}": "${cat}" → "${adminKey}" but admin key not in SECTION_CONTRACTS`);
+    }
+    if (!HANDLED_SECTIONS_BY_PAGE[page].includes(adminKey) && !CROSS_PAGE_TARGETS[adminKey]) {
+      note(`[catalog-no-editor] page="${page}": "${cat}" → "${adminKey}" but admin has no editor on this page and no CROSS_PAGE_TARGETS entry`);
+    }
+  }
+  // Reverse: keys declared in CATALOG_TO_ADMIN that aren't in the catalog.
+  for (const cat of Object.keys(mapping)) {
+    if (!catalogKeys.includes(cat)) {
+      note(`[catalog-stale-mapping] page="${page}": CATALOG_TO_ADMIN has "${cat}" but SECTION_CATALOG.${page} doesn't`);
+    }
+  }
+}
+
+// CROSS_PAGE_TARGETS sanity: target page must be a valid admin page and
+// have the referenced admin section as an editor.
+for (const [adminKey, target] of Object.entries(CROSS_PAGE_TARGETS)) {
+  if (!target) continue;
+  if (!ADMIN_PAGES.includes(target.page)) {
+    note(`[cross-page-bad-target] "${adminKey}": target page "${target.page}" is not a real admin page`);
+    continue;
+  }
+  if (!HANDLED_SECTIONS_BY_PAGE[target.page].includes(adminKey as AdminSectionKey)) {
+    note(`[cross-page-no-editor] "${adminKey}": CROSS_PAGE_TARGETS points to "${target.page}" but no editor case for it on that page`);
   }
 }
 

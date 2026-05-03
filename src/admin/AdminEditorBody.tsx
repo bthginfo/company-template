@@ -11,7 +11,8 @@ import { scrollToTop } from '@/lib/scroll';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import { MODULE_DEFAULTS, type ModuleHeadingKey } from '@/components/branch-modules';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
-import { getAdminSections, getSectionMeta, SERVICE_TEASER_LIMIT, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, fieldHint } from './admin-sections';
+import { getAdminSections, getSectionMeta, SERVICE_TEASER_LIMIT, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, fieldHint, type AdminSectionKey, type PageKey } from './admin-sections';
+import { adminKeyForCatalog, CROSS_PAGE_TARGETS } from '@/lib/section-registry';
 
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
@@ -558,7 +559,8 @@ function AddSectionRow({ pageKey, data, setData, tpl }: {
   };
   return (
     <div className="border border-dashed border-line rounded-2xl p-5 bg-[#fafaf7]">
-      <p className="text-xs uppercase tracking-widest text-muted mb-3">Entfernte Sektion wieder hinzufügen</p>
+      <p className="text-xs uppercase tracking-widest text-muted mb-1">Sektion hinzufügen</p>
+      <p className="text-xs text-muted mb-3">Verfügbare Sektionen für diese Branche und diesen Stil. Du kannst sie danach mit den ↑↓-Pfeilen verschieben.</p>
       <div className="flex flex-wrap gap-2">
         {remaining.map((s) => (
           <button key={s.key} type="button" onClick={() => onAdd(s.key)} className="text-xs px-3 py-1.5 rounded-full border border-line bg-white hover:bg-brand hover:text-white transition" title={s.description}>
@@ -569,6 +571,110 @@ function AddSectionRow({ pageKey, data, setData, tpl }: {
     </div>
   );
 }
+
+/**
+ * Resolve catalog keys from `content.sectionOrder.{page}` that the admin
+ * doesn't already render via its static `getAdminSections()` list — these
+ * are sections the tenant added via "+ Sektion hinzufügen" whose data
+ * lives on a different admin page (e.g. `menu` added to Home → editor on
+ * Speisekarte). For each one, we render a deep-link card.
+ */
+function getExtraCrossPageSections(
+  data: SiteContent,
+  pageKey: PageKey,
+  staticAdminOrder: AdminSectionKey[],
+): { catalogKey: string; adminKey: AdminSectionKey }[] {
+  const order = ((data as any).sectionOrder ?? {}) as Record<string, string[]>;
+  const catalogOrder = order[pageKey];
+  if (!Array.isArray(catalogOrder) || catalogOrder.length === 0) return [];
+  const adminSet = new Set(staticAdminOrder);
+  const seen = new Set<AdminSectionKey>();
+  const out: { catalogKey: string; adminKey: AdminSectionKey }[] = [];
+  for (const cat of catalogOrder) {
+    const adminKey = adminKeyForCatalog(pageKey, cat);
+    if (!adminKey) continue;
+    if (adminSet.has(adminKey)) continue;
+    if (seen.has(adminKey)) continue;
+    seen.add(adminKey);
+    out.push({ catalogKey: cat, adminKey });
+  }
+  return out;
+}
+
+/**
+ * Card shown when a tenant has added a section to a page whose editor
+ * actually lives elsewhere. Tells them what the section does, what data
+ * it shares, and links to the editor.
+ */
+function DeepLinkSectionCard({
+  adminKey,
+  catalogKey,
+  pageKey,
+  data,
+  setData,
+  badge,
+}: {
+  adminKey: AdminSectionKey;
+  catalogKey: string;
+  pageKey: PageKey;
+  data: SiteContent;
+  setData: (d: SiteContent) => void;
+  badge: string;
+}) {
+  const target = CROSS_PAGE_TARGETS[adminKey];
+  const meta = (() => {
+    try {
+      return getSectionMeta(adminKey, ((data.brand as any)?.variant ?? 'restaurant') as TemplateKey, (_ctx.style ?? 'classic'));
+    } catch {
+      return { title: adminKey, description: '' };
+    }
+  })();
+  const targetPageLabel = target?.page ? PAGE_KEY_LABEL[target.page] : 'andere Seite';
+  const targetLabel = (() => {
+    if (!target) return targetPageLabel;
+    return typeof target.label === 'function' ? target.label('restaurant') : target.label;
+  })();
+  return (
+    <SectionCard
+      title={meta.title}
+      description={meta.description}
+      badge={badge}
+      pageKey={pageKey}
+      sectionKey={catalogKey}
+      data={data}
+      setData={setData}
+    >
+      <div className="rounded-xl border border-line bg-[#fafaf7] p-5 space-y-3">
+        <p className="text-sm text-slate-700">
+          <span aria-hidden className="mr-1.5">ℹ</span>
+          Diese Sektion erscheint zusätzlich auf dieser Seite. Inhalte werden dort gepflegt, wo sie ursprünglich definiert sind:
+        </p>
+        {target?.description && (
+          <p className="text-xs text-muted">{target.description}</p>
+        )}
+        <p className="text-xs text-muted">
+          Die ↑↓-Pfeile oben verschieben die Position auf der Seite, das ✕ entfernt die Sektion wieder.
+        </p>
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full bg-white border border-line px-3 py-1.5 text-xs font-medium">
+            Inhalt bearbeiten:
+            <span className="text-brand">{targetLabel}</span>
+            <span aria-hidden>↗</span>
+          </span>
+        </div>
+      </div>
+    </SectionCard>
+  );
+}
+
+/** Human-readable label for an admin page (used inside DeepLinkSectionCard). */
+const PAGE_KEY_LABEL: Record<PageKey, string> = {
+  home: 'Startseite',
+  services: 'Leistungs-Seite',
+  gallery: 'Galerie-Seite',
+  about: 'Über-uns-Seite',
+  contact: 'Kontakt-Seite',
+};
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
@@ -922,9 +1028,21 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
     }
   };
 
+  const extras = getExtraCrossPageSections(data, 'home', sectionOrder);
   return (
     <>
       {sectionOrder.map((key, idx) => renderSection(key, idx))}
+      {extras.map((e, i) => (
+        <DeepLinkSectionCard
+          key={`xp-home-${e.adminKey}`}
+          adminKey={e.adminKey}
+          catalogKey={e.catalogKey}
+          pageKey="home"
+          data={data}
+          setData={setData}
+          badge={`${sectionOrder.length + i + 1}`}
+        />
+      ))}
       <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
     </>
   );
@@ -1141,9 +1259,21 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
     }
   };
 
+  const extras = getExtraCrossPageSections(data, 'services', sectionOrder);
   return (
     <>
       {sectionOrder.map((key, idx) => renderSection(key, idx))}
+      {extras.map((e, i) => (
+        <DeepLinkSectionCard
+          key={`xp-services-${e.adminKey}`}
+          adminKey={e.adminKey}
+          catalogKey={e.catalogKey}
+          pageKey="services"
+          data={data}
+          setData={setData}
+          badge={`${sectionOrder.length + i + 1}`}
+        />
+      ))}
       <AddSectionRow pageKey="services" data={data} setData={setData} tpl={tpl} />
     </>
   );
@@ -1267,9 +1397,21 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
     }
   };
 
+  const extras = getExtraCrossPageSections(data, 'gallery', sectionOrder);
   return (
     <>
       {sectionOrder.map((key, idx) => renderSection(key, idx))}
+      {extras.map((e, i) => (
+        <DeepLinkSectionCard
+          key={`xp-gallery-${e.adminKey}`}
+          adminKey={e.adminKey}
+          catalogKey={e.catalogKey}
+          pageKey="gallery"
+          data={data}
+          setData={setData}
+          badge={`${sectionOrder.length + i + 1}`}
+        />
+      ))}
       <AddSectionRow pageKey="gallery" data={data} setData={setData} tpl={tpl} />
     </>
   );
@@ -1380,9 +1522,21 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
     }
   };
 
+  const extras = getExtraCrossPageSections(data, 'about', sectionOrder);
   return (
     <>
       {sectionOrder.map((key, idx) => renderSection(key, idx))}
+      {extras.map((e, i) => (
+        <DeepLinkSectionCard
+          key={`xp-about-${e.adminKey}`}
+          adminKey={e.adminKey}
+          catalogKey={e.catalogKey}
+          pageKey="about"
+          data={data}
+          setData={setData}
+          badge={`${sectionOrder.length + i + 1}`}
+        />
+      ))}
       <AddSectionRow pageKey="about" data={data} setData={setData} tpl={tpl} />
     </>
   );
@@ -1466,9 +1620,21 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
     }
   };
 
+  const extras = getExtraCrossPageSections(data, 'contact', sectionOrder);
   return (
     <>
       {sectionOrder.map((key, idx) => renderSection(key, idx))}
+      {extras.map((e, i) => (
+        <DeepLinkSectionCard
+          key={`xp-contact-${e.adminKey}`}
+          adminKey={e.adminKey}
+          catalogKey={e.catalogKey}
+          pageKey="contact"
+          data={data}
+          setData={setData}
+          badge={`${sectionOrder.length + i + 1}`}
+        />
+      ))}
       <AddSectionRow pageKey="contact" data={data} setData={setData} tpl={tpl} />
     </>
   );

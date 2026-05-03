@@ -1,6 +1,8 @@
 /**
  * Section registry — single source of truth for what every UI section
- * reads from / writes to `SiteContent`.
+ * reads from / writes to `SiteContent`, plus how the catalog keys
+ * (used by `SECTION_CATALOG` + `sectionOrder.{page}`) map to the admin
+ * section keys.
  *
  * Both the admin and the frontend reference this file via the drift-coverage
  * test (`scripts/check-coverage.ts`). When a renderer adds a new field, the
@@ -13,7 +15,8 @@
  * match — divergence is exactly the drift we are guarding against.
  */
 
-import type { AdminSectionKey } from '@/admin/admin-sections';
+import type { AdminSectionKey, PageKey } from '@/admin/admin-sections';
+import type { TemplateKey } from './types';
 
 /** A path inside `SiteContent`, e.g. `'hero.title'`, `'branchText.heroEyebrow'`. */
 export type DataPath = string;
@@ -161,4 +164,202 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
   arrival: { key: 'arrival', dataKeys: ['arrival', 'arrivalSection'] },
   contactCta: { key: 'contactCta', dataKeys: ['ctaBandOverrides.contact'] },
 };
+
+/* ═══════════════════════════════════════════════════════════════════
+   CATALOG ↔ ADMIN mapping
+   ═══════════════════════════════════════════════════════════════════
+
+   The frontend section-order arrays (`BRANCH_STYLE_ORDER`,
+   `EXTRA_HOME_ORDER`, `getDefaultSubpageOrder`) and the tenant override
+   `content.sectionOrder.{page}` use SHORT catalog keys ('action',
+   'chips', 'process', 'cta', 'module' …). The admin uses LONG
+   admin-section keys ('actionStrip', 'branchChips', 'serviceProcess',
+   'softCta', 'menu' / 'rooms' / …).
+
+   The admin reads `sectionOrder.{page}` (catalog keys) and translates
+   each entry through `CATALOG_TO_ADMIN[page]` to render the matching
+   editor card. `null` = the catalog key is intentionally not editable
+   on this page (e.g. `branchModules` on home is split into per-module
+   editors on the Service page; `contact` on home pulls from the global
+   Kontaktdaten page).
+
+   When a catalog key has an admin section that doesn't naturally live
+   on this page (e.g. `menu` on home — its editor lives on the Service
+   page), `CROSS_PAGE_TARGET[adminKey]` declares where the editor
+   actually lives so the admin can render a deep-link card. ─────────── */
+
+export type CatalogKey = string;
+
+/** Canonical catalog → admin-section translation, per admin page. */
+export const CATALOG_TO_ADMIN: Record<PageKey, Record<CatalogKey, AdminSectionKey | null>> = {
+  home: {
+    action:        'actionStrip',
+    chips:         'branchChips',
+    marquee:       'marquee',
+    signature:     'signature',
+    services:      'services',
+    menu:          'menu',
+    rooms:         'rooms',
+    tours:         'tours',
+    treatments:    'treatments',
+    funding:       'funding',
+    spotlight:     'spotlight',
+    branchModules: null, // edited per-module on the Service page
+    team:          'team',
+    about:         'about',
+    gallery:       'gallery',
+    numbers:       'numbers',
+    testimonials:  'testimonials',
+    logos:         'logos',
+    faq:           'faq',
+    news:          'news',
+    softCta:       'softCta',
+    contact:       null, // global Kontaktdaten page
+  },
+  services: {
+    highlights:    'highlights',
+    list:          null, // services list itself — edited via Home > Leistungs-Teaser
+    module:        null, // resolved per-branch via cfg.services.modules → menu/rooms/etc.
+    process:       'serviceProcess',
+    testimonials:  'aboutTestimonials',
+    gallery:       'galleryGrid',
+    faq:           'faq',
+    cta:           'servicesCta',
+  },
+  gallery: {
+    story:         'galleryStory',
+    grid:          'galleryGrid',
+    categories:    'galleryCategories',
+    testimonials:  'aboutTestimonials',
+    cta:           'galleryCta',
+  },
+  about: {
+    intro:          'aboutIntro',
+    values:         'values',
+    timeline:       'timeline',
+    team:           'team',
+    numbers:        'aboutNumbers',
+    certifications: 'certifications',
+    press:          'press',
+    testimonials:   'aboutTestimonials',
+    faq:            'faq',
+    cta:            'aboutCta',
+  },
+  contact: {
+    block:         'contactDetails',
+    locations:     'locations',
+    arrival:       'arrival',
+    faq:           'faq',
+    cta:           'contactCta',
+  },
+};
+
+/**
+ * For admin sections whose actual editor lives on a DIFFERENT admin page
+ * than the one currently being edited (e.g. when a tenant adds `menu` to
+ * the Home page via "+ Sektion hinzufügen", the menu data is edited on
+ * the Speisekarten admin page — we render a deep-link card on Home).
+ *
+ * Maps `adminKey → { page: <PageKey>, label: string, perBranch?: …}`.
+ */
+export interface DeepLinkTarget {
+  /** Which admin page the editor lives on. */
+  page: PageKey;
+  /** Translated to a sentence: "Inhalt bearbeiten unter [{label}]" */
+  label: string | ((tpl: TemplateKey) => string);
+  /** Optional explanation shown in the card body. */
+  description?: string;
+}
+
+export const CROSS_PAGE_TARGETS: Partial<Record<AdminSectionKey, DeepLinkTarget>> = {
+  // When added to Home, these editors actually live on the Services page.
+  menu: {
+    page: 'services',
+    label: 'Speisekarte',
+    description: 'Die Speisekarte wird auf der Startseite und auf der Speisekarten-Seite angezeigt — dieselben Daten, andere Darstellung.',
+  },
+  rooms: {
+    page: 'services',
+    label: 'Zimmer',
+    description: 'Zimmer werden auf der Startseite und auf der Zimmer-Seite angezeigt — gleiche Daten, andere Darstellung.',
+  },
+  tours: {
+    page: 'services',
+    label: 'Touren',
+    description: 'Touren werden auf der Startseite und auf der Touren-Seite angezeigt — gleiche Daten, andere Darstellung.',
+  },
+  treatments: {
+    page: 'services',
+    label: 'Behandlungen',
+    description: 'Behandlungen werden auf der Startseite und auf der Leistungs-Seite angezeigt — gleiche Daten, andere Darstellung.',
+  },
+  // Modules used on extras' Home spotlight — admin lives on Services.
+  processSteps: {
+    page: 'services',
+    label: 'Prozess-Schritte',
+    description: 'Die Prozess-Schritte werden auf der Startseite und auf der Leistungs-Seite verwendet.',
+  },
+  packages: {
+    page: 'services',
+    label: 'Pakete',
+    description: 'Pakete werden auf der Startseite und auf der Leistungs-Seite angezeigt.',
+  },
+  programs: {
+    page: 'services',
+    label: 'Programme',
+    description: 'Programme werden auf der Startseite und auf der Leistungs-Seite angezeigt.',
+  },
+  doctors: {
+    page: 'services',
+    label: 'Ärzte & Team',
+    description: 'Ärzte/Team werden auf der Startseite und auf der Leistungs-Seite angezeigt.',
+  },
+  booking: {
+    page: 'services',
+    label: 'Online-Buchung',
+    description: 'Online-Buchung wird auf der Startseite und auf der Leistungs-Seite angezeigt.',
+  },
+  // Team admin lives on About.
+  team: {
+    page: 'about',
+    label: 'Team (Über uns)',
+    description: 'Die Team-Mitglieder werden auf der Startseite und auf der Über-uns-Seite angezeigt.',
+  },
+  // FAQ is shared between Services / About / Contact — primary editor on Services.
+  faq: {
+    page: 'services',
+    label: 'FAQ (Service-Seite)',
+    description: 'FAQs werden seitenübergreifend verwendet. Der primäre Editor lebt auf der Leistungs-Seite.',
+  },
+  // Course schedule (fitness) — edited on Services.
+  courses: {
+    page: 'services',
+    label: 'Kursplan',
+    description: 'Kurse werden auf der Startseite und auf der Leistungs-Seite angezeigt.',
+  },
+  // Testimonials primary editor lives on the About page; can also appear
+  // as a teaser on Services or Gallery via "+ Sektion hinzufügen".
+  aboutTestimonials: {
+    page: 'about',
+    label: 'Bewertungen (Über-uns-Seite)',
+    description: 'Alle Kundenstimmen werden auf der Über-uns-Seite gepflegt — sie können zusätzlich auf weiteren Seiten eingeblendet werden.',
+  },
+  // Gallery grid primary editor lives on the Gallery page; can be
+  // re-used as a section on Services etc.
+  galleryGrid: {
+    page: 'gallery',
+    label: 'Galerie (Galerie-Seite)',
+    description: 'Die komplette Bildergalerie wird auf der Galerie-Seite gepflegt — sie kann zusätzlich auf weiteren Seiten eingeblendet werden.',
+  },
+};
+
+/**
+ * Convert a frontend catalog key to its matching admin section key for
+ * the given page. Returns `null` if the catalog entry is intentionally
+ * not editable from any admin page (data lives in a global section).
+ */
+export function adminKeyForCatalog(page: PageKey, catalogKey: string): AdminSectionKey | null {
+  return CATALOG_TO_ADMIN[page]?.[catalogKey] ?? null;
+}
+
 

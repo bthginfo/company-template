@@ -231,62 +231,61 @@ interface SectionMeta {
 
 type MetaResolver = (tpl: TemplateKey, style: TemplateStyle) => SectionMeta;
 
-const serviceLabel = (tpl: TemplateKey) =>
-  tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen';
+/*
+ * Section labels are deliberately data-driven (what the tenant edits)
+ * rather than presentation-driven (how the frontend renders it). The same
+ * "Branchen-Highlight" data renders as "Empfehlungen vom Haus" in
+ * Restaurant-Modern and as a numbered list in Restaurant-Bold; the admin
+ * shouldn't pretend those are different sections.
+ */
 
 const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   // ─── Home ─────────────────────────────────────────────────
   announcements: () => ({
-    title: 'Lauftext-Banner',
-    description: 'Die kleine Marquee-Zeile ganz oben über dem Hero.',
+    title: 'Hinweis-Banner (oben)',
+    description: 'Kurze Hinweis-Zeilen die ganz oben über dem Hero laufen — z. B. Öffnungszeit-Info, aktuelle Aktionen.',
   }),
   hero: (_tpl, style) => ({
     title: 'Hero (Startbereich)',
     description: style === 'bold'
-      ? 'Erster Eindruck – großer Titel, Eyebrow, Hero-Bild, CTA-Buttons.'
+      ? 'Erster Eindruck — großer Titel, Eyebrow, Hero-Bild, CTA-Buttons.'
       : style === 'modern'
-        ? 'Erster Eindruck – Titel, Untertitel, Beschreibung, Bild rechts, CTA-Buttons.'
-        : 'Erster Eindruck – Titel, Untertitel, Hintergrundbild, CTA-Buttons.',
+        ? 'Erster Eindruck — Titel, Untertitel, Beschreibung, Bild rechts, CTA-Buttons.'
+        : 'Erster Eindruck — Titel, Untertitel, Hintergrundbild, CTA-Buttons.',
   }),
   actionStrip: () => ({
     title: 'Aktionsleiste',
-    description: 'Schmaler Streifen direkt unter dem Hero (z. B. „Heute geöffnet · Tisch reservieren").',
+    description: 'Schmaler Streifen direkt unter dem Hero mit Quick-Infos (Öffnungs­status, Telefonnummer, Tagesinfo).',
   }),
   branchChips: () => ({
-    title: 'Branchen-Stichworte & Badge',
-    description: 'Kurze Schlagwörter die der Variante ein klares Profil geben, plus Google-Badge.',
+    title: 'Schlagwort-Chips & Bewertungs-Badge',
+    description: 'Kurze Schlagwörter die das Profil der Marke schärfen, plus optionales Google-Bewertungs-Badge.',
   }),
   marquee: () => ({
     title: 'Schlagwort-Band',
-    description: 'Großes animiertes Wortband direkt unter dem Hero.',
+    description: 'Großes animiertes Wortband — fließende Bewegungs-Akzent.',
   }),
-  services: (tpl, style) => ({
-    title: `${serviceLabel(tpl)}-Teaser`,
-    description: `Die ersten ${SERVICE_TEASER_LIMIT[style]} Einträge erscheinen hier auf der Startseite.`,
+  services: (_tpl, style) => ({
+    title: 'Leistungs-Teaser',
+    description: `Die ersten ${SERVICE_TEASER_LIMIT[style]} Einträge aus deiner Leistungs-/Speisekarten-Liste erscheinen auf der Startseite. Vollständige Pflege auf der Service-Seite.`,
   }),
-  signature: (tpl, style) => ({
-    title: tpl === 'restaurant'
-      ? (style === 'bold' ? 'Auf dem Tisch' : style === 'modern' ? 'Empfehlungen vom Haus' : 'Heute auf der Karte')
-      : tpl === 'salon' ? 'Aktuelle Looks'
-      : tpl === 'hotel' ? 'Zimmer-Vorschau'
-      : 'Angebot / Highlights',
-    description: tpl === 'restaurant'
-      ? (style === 'bold' ? 'Große Nummern-Liste mit Gerichten.' : 'Empfehlungen / Tagesangebot.')
-      : 'Aktuelle Highlights im Fokus.',
+  signature: () => ({
+    title: 'Branchen-Highlight',
+    description: 'Hervorgehobener Block mit kuratierten Inhalten. Das Frontend rendert ihn je nach Branche/Stil als Empfehlungs-Liste, Manifest oder Item-Showcase.',
   }),
   about: (_tpl, style) => ({
     title: 'Über-uns-Teaser',
     description: style === 'bold'
       ? 'Manifest-Block: Eyebrow, große Überschrift, kurzer Text.'
-      : 'Kurzer Auszug mit Bild, der auf die Über-uns-Seite verweist.',
+      : 'Kurzer Text-/Bild-Block, der auf die Über-uns-Seite verweist.',
   }),
   gallery: (_tpl, style) => ({
     title: 'Galerie-Teaser',
-    description: `Die ersten ${GALLERY_TEASER_LIMIT[style]} Bilder erscheinen auf der Startseite.`,
+    description: `Die ersten ${GALLERY_TEASER_LIMIT[style]} Bilder aus deiner Galerie erscheinen auf der Startseite. Vollständige Pflege auf der Galerie-Seite.`,
   }),
   numbers: () => ({
-    title: 'Zahlen-Band',
-    description: 'Vier Eckdaten (z. B. „Seit 1998 · 64 Plätze · 4,9 Sterne").',
+    title: 'Eckdaten-Band',
+    description: 'Vier Eckdaten in einer Reihe (z. B. „Seit 1998 · 64 Plätze · 4,9 Sterne").',
   }),
   logos: () => ({
     title: 'Logo-Strip',
@@ -294,27 +293,27 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
   testimonials: () => ({
     title: 'Bewertungen-Teaser',
-    description: 'Die ersten drei Stimmen erscheinen auf der Startseite.',
+    description: 'Die ersten drei Kundenstimmen erscheinen auf der Startseite. Vollständige Pflege auf der Über-uns-Seite.',
   }),
   news: () => ({
     title: 'News-Teaser',
-    description: 'Die 3 neuesten Beiträge erscheinen auf der Startseite.',
+    description: 'Die drei neuesten Beiträge aus dem News-Bereich. Pflege unter „News & Blog" in der Seitenleiste.',
   }),
   softCta: () => ({
     title: 'Abschluss-Aufruf (CTA)',
-    description: 'Der große Aufruf zur Aktion am Ende der Startseite.',
+    description: 'Der große Aufruf zur Aktion am Ende der Startseite — Eyebrow, Headline, Untertitel, Button.',
   }),
   funding: () => ({
-    title: 'Förder-Kalkulator',
-    description: 'Interaktiver Rechner für Förderprogramme (KfW, BAFA etc.).',
+    title: 'Förder-Rechner',
+    description: 'Interaktiver Slider mit Förderprogramm-Liste. Investment-Bereich + Programme im Admin pflegbar.',
   }),
   spotlight: () => ({
-    title: 'Spotlight-Sektion',
-    description: 'Branchenspezifische Highlight-Sektion (Vorgehen / Info / Programme).',
+    title: 'Branchen-Spotlight',
+    description: 'Branchenspezifischer Hervorhebungs-Block (Vorgehen / Service-Info / Programme — abhängig von Branche).',
   }),
   heroBadge: () => ({
     title: 'Hero-Badge',
-    description: 'Das kleine Bewertungs-Badge neben dem Hero-Bild.',
+    description: 'Das kleine Bewertungs-Badge neben dem Hero-Bild (nur in einigen Stilen sichtbar).',
   }),
 
   // ─── Services ─────────────────────────────────────────────
@@ -442,8 +441,8 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     description: 'Alle Team-Mitglieder (werden auf der Seite komplett gezeigt).',
   }),
   aboutNumbers: () => ({
-    title: 'Zahlen-Band',
-    description: 'Eckdaten/Statistiken auf der Über-uns-Seite.',
+    title: 'Eckdaten-Band (Über-uns)',
+    description: 'Eigene Eckdaten/Statistiken für die Über-uns-Seite. Leer lassen = Home-Eckdaten werden übernommen.',
   }),
   certifications: () => ({
     title: 'Qualifikationen & Zertifizierungen',
@@ -463,11 +462,9 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
 
   // ─── Contact ──────────────────────────────────────────────
-  contactHeader: (tpl) => ({
+  contactHeader: () => ({
     title: 'Seiten-Header',
-    description: tpl === 'restaurant' ? 'Überschrift: „Reservieren oder einfach vorbeikommen."'
-      : tpl === 'tradesman' ? 'Überschrift: „Anfrage senden oder Notdienst rufen."'
-      : 'Überschrift oben auf der Kontakt-Seite.',
+    description: 'Überschrift oben auf der Kontakt-Seite (Eyebrow, Titel, Untertitel).',
   }),
   contactDetails: () => ({
     title: 'Kontaktdaten & Karte',
