@@ -3970,21 +3970,53 @@ function BookingEditor({ data, setData }: SetterProps) {
 /* ───── Tradesman: funding items ───── */
 type FundingItem = { title: string; description?: string; percent?: string; program?: string };
 
+type FundingCalc = { minInvest?: number; maxInvest?: number; stepInvest?: number; defaultInvest?: number };
+
 function FundingEditor({ data, setData }: SetterProps) {
   const list = ((data as any).fundingItems as FundingItem[] | undefined) ?? [];
   const setList = (next: FundingItem[]) => setData({ ...(data as any), fundingItems: next } as SiteContent);
+  const calc: FundingCalc = ((data as any).fundingCalc as FundingCalc | undefined) ?? {};
+  const setCalc = (next: FundingCalc) => setData({ ...(data as any), fundingCalc: next } as SiteContent);
+  const num = (v: string): number | undefined => {
+    if (!v.trim()) return undefined;
+    const n = parseInt(v.replace(/[^0-9-]/g, ''), 10);
+    return Number.isFinite(n) ? n : undefined;
+  };
   return (
-    <RepeatableList items={list} onChange={setList} addLabel="+ Förderung hinzufügen"
-      newItem={() => ({ title: '', description: '', percent: '', program: '' })}
-      render={(v, _i, set) => (
-        <div className="grid sm:grid-cols-2 gap-2 flex-1">
-          <input className={inputCls} placeholder="Titel (z. B. Heizungstausch)" value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} />
-          <input className={inputCls} placeholder="Programm (z. B. KfW 458)" value={v.program || ''} onChange={(e) => set({ ...v, program: e.target.value })} />
-          <input className={inputCls} placeholder="Prozent (z. B. 35 %)" value={v.percent || ''} onChange={(e) => set({ ...v, percent: e.target.value })} />
-          <input className={inputCls} placeholder="Beschreibung" value={v.description || ''} onChange={(e) => set({ ...v, description: e.target.value })} />
+    <div className="space-y-5">
+      <div>
+        <p className="text-xs font-medium text-muted mb-2">Programme</p>
+        <RepeatableList items={list} onChange={setList} addLabel="+ Förderung hinzufügen"
+          newItem={() => ({ title: '', description: '', percent: '', program: '' })}
+          render={(v, _i, set) => (
+            <div className="grid sm:grid-cols-2 gap-2 flex-1">
+              <input className={inputCls} placeholder="Titel (z. B. Heizungstausch)" value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} />
+              <input className={inputCls} placeholder="Programm (z. B. KfW 458)" value={v.program || ''} onChange={(e) => set({ ...v, program: e.target.value })} />
+              <input className={inputCls} placeholder="Prozent (z. B. 35 %)" value={v.percent || ''} onChange={(e) => set({ ...v, percent: e.target.value })} />
+              <input className={inputCls} placeholder="Beschreibung" value={v.description || ''} onChange={(e) => set({ ...v, description: e.target.value })} />
+            </div>
+          )}
+        />
+      </div>
+      <div className="rounded-xl border border-line bg-[#fafaf7] p-4 space-y-3">
+        <p className="text-xs font-medium text-muted">Rechner-Bereich (Investment-Slider)</p>
+        <p className="text-[11px] text-muted leading-relaxed">Standard: 5.000–150.000 € in 1.000er-Schritten, Voreinstellung 25.000 €. Wenn deine Kunden andere Größenordnungen haben, hier anpassen.</p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <Field label="Minimum (€)" hint="Untere Grenze des Sliders">
+            <input className={inputCls} type="number" inputMode="numeric" placeholder="5000" value={calc.minInvest ?? ''} onChange={(e) => setCalc({ ...calc, minInvest: num(e.target.value) })} />
+          </Field>
+          <Field label="Maximum (€)" hint="Obere Grenze des Sliders">
+            <input className={inputCls} type="number" inputMode="numeric" placeholder="150000" value={calc.maxInvest ?? ''} onChange={(e) => setCalc({ ...calc, maxInvest: num(e.target.value) })} />
+          </Field>
+          <Field label="Schrittweite (€)" hint="Wie fein der Slider rastet">
+            <input className={inputCls} type="number" inputMode="numeric" placeholder="1000" value={calc.stepInvest ?? ''} onChange={(e) => setCalc({ ...calc, stepInvest: num(e.target.value) })} />
+          </Field>
+          <Field label="Voreinstellung (€)" hint="Anfangswert beim Seitenaufruf">
+            <input className={inputCls} type="number" inputMode="numeric" placeholder="25000" value={calc.defaultInvest ?? ''} onChange={(e) => setCalc({ ...calc, defaultInvest: num(e.target.value) })} />
+          </Field>
         </div>
-      )}
-    />
+      </div>
+    </div>
   );
 }
 

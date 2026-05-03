@@ -213,6 +213,10 @@
     "_servicesAllLabel_help": "Button-Text zu allen Services, z.B. 'Zur Speisekarte'",
     "servicesAllHref": "",
 
+    "serviceCardNote": "",
+    "_serviceCardNote_max": 60,
+    "_serviceCardNote_help": "Fußnote unter jeder Service-Karte (nur consulting/medical/fitness im modern-Stil), z.B. 'Inkl. Beratung', 'Termin online buchbar', 'Buchbar ab 1 Person'",
+
     "aboutTeaserEyebrow": "",
     "_aboutTeaserEyebrow_max": 40,
     "_aboutTeaserEyebrow_help": "Eyebrow über About-Teaser (classic+modern), z.B. 'Über uns'",
@@ -546,6 +550,19 @@
           "_program_help": "z.B. 'KfW 458'"
         }
       ]
+    },
+
+    "fundingCalc": {
+      "_branch": "tradesman",
+      "_help": "Slider-Bereich des Förderrechners. Nur für tradesman. Standard 5000–150000 € in 1000er-Schritten.",
+      "minInvest": 5000,
+      "_minInvest_help": "Untere Grenze in €",
+      "maxInvest": 150000,
+      "_maxInvest_help": "Obere Grenze in €",
+      "stepInvest": 1000,
+      "_stepInvest_help": "Schrittweite in €",
+      "defaultInvest": 25000,
+      "_defaultInvest_help": "Anfangswert beim Seitenaufruf"
     },
 
     "processSteps": {

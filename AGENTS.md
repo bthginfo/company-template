@@ -18,6 +18,7 @@ For ops procedures (rollback, key rotation, incident response), see
 | Add tenant with custom pw     | `npm run tenant:new -- -Slug <s> -Name "<n>" -Template <t> -Style <st> -Password <pw> -NonInteractive` |
 | Re-seed an existing tenant    | Same as above, plus `-Reseed`                                        |
 | Type-check the codebase       | `npm run lint`                                                       |
+| Audit admin↔frontend drift    | `npm run check:drift`                                                |
 | Build (must pass before push) | `npm run build`                                                      |
 | Run the dev server            | `npm run dev`                                                        |
 | Hash a password               | `npm run hash` then enter password                                   |
@@ -34,6 +35,14 @@ you exactly what to fix. Do **not** improvise.
    tenant projects.
 2. **`tsc --noEmit` must pass** before every commit. The build runs it
    first; if it fails, the deployment fails.
+2a. **`npm run check:drift` must pass** — `npm run build` invokes it
+   automatically. The script audits, for each (branch × style × page)
+   combination, that the admin only exposes editors for fields the
+   frontend actually renders, and that every frontend-rendered field
+   has a matching admin editor. See `scripts/check-coverage.ts` and
+   `src/lib/section-registry.ts`. **When you add a new editable field
+   or section, update `section-registry.ts` first**, otherwise the
+   build fails.
 3. **No `any` types** in new code. If unavoidable, leave a TODO and reason.
 4. **Per-tenant content lives in one row** (`siteContent.data` jsonb).
    Schema changes must keep the existing rows readable (additive only).
@@ -214,12 +223,46 @@ When asked to fix a bug or add a feature:
 - Adding a new section to an existing template's editor.
 - Updating copy, translations, or visual constants.
 
+### Adding a new editable field (drift-safe procedure)
+
+When you need to introduce a new content field that the frontend reads
+**and** the admin should let tenants edit, follow this exact order so
+`npm run check:drift` keeps passing:
+
+1. **Update the schema** in [src/lib/types.ts](src/lib/types.ts) —
+   add the field to `SiteContentSchema` (always optional with default).
+2. **Update the section registry** in
+   [src/lib/section-registry.ts](src/lib/section-registry.ts) — add the
+   new dotted path to the `dataKeys` of the matching `SECTION_CONTRACTS`
+   entry. If you're introducing a brand-new section, add a new contract
+   plus a renderer case in
+   [src/admin/AdminEditorBody.tsx](src/admin/AdminEditorBody.tsx) and a
+   new entry in `HANDLED_SECTIONS_BY_PAGE`
+   ([src/admin/admin-sections.ts](src/admin/admin-sections.ts)).
+3. **Branch visibility** — in
+   [src/lib/branch-config.ts](src/lib/branch-config.ts), set the right
+   `PerStyle` flag (or `show*` boolean) so the field is only offered for
+   branch×style combos that actually render it.
+4. **Frontend renderer + admin editor** — wire the read in the renderer
+   and the write in the admin editor. The grep-based drift check
+   verifies that every dataKey appears in BOTH the renderer source and
+   the admin source.
+5. **Demo content + Perplexity prompt** — add the field to
+   [src/lib/demo-content.ts](src/lib/demo-content.ts) (or
+   `extra-demo-content.ts` if applicable),
+   [docs/content-template.json](docs/content-template.json), and
+   [docs/perplexity-prompt.md](docs/perplexity-prompt.md) so new
+   tenants get a reasonable seed value and the AI knows to fill it in.
+6. **Run `npm run build`** — it runs `check:drift` automatically. Fix
+   any drift reports before committing.
+
 ### Output expectations
 
 After completing a task, report:
 - Files changed (with line counts if non-trivial)
 - The git commit hash you produced (if you committed)
 - The result of `npm run lint` (must be clean)
+- The result of `npm run check:drift` (must be clean)
 - Any TODOs you left and why
 
 Do not produce a separate markdown summary file unless explicitly asked.
@@ -232,6 +275,12 @@ Do not produce a separate markdown summary file unless explicitly asked.
 | ------------------------------------------------- | ----------------------------------------------------------------- |
 | Slug → template/style routing                     | [src/SiteRouter.tsx](src/SiteRouter.tsx)                          |
 | Top-level routes (/admin etc.)                    | [src/App.tsx](src/App.tsx)                                        |
+| Branch×style field/section visibility (SoT)       | [src/lib/branch-config.ts](src/lib/branch-config.ts)              |
+| Admin section registry + section ordering         | [src/admin/admin-sections.ts](src/admin/admin-sections.ts)        |
+| Frontend home order (core 5)                      | [src/lib/template-orders.ts](src/lib/template-orders.ts)          |
+| Frontend home order (extras) + section catalog    | [src/lib/page-layout.ts](src/lib/page-layout.ts)                  |
+| Section dataKeys (admin↔frontend contract)        | [src/lib/section-registry.ts](src/lib/section-registry.ts)        |
+| Drift coverage script                             | [scripts/check-coverage.ts](scripts/check-coverage.ts)            |
 | Default content per template                      | [src/lib/demo-content.ts](src/lib/demo-content.ts)                |
 | Default content for consulting/medical/fitness    | [src/lib/extra-demo-content.ts](src/lib/extra-demo-content.ts)    |
 | HTML sanitizer (allowlist)                        | [src/lib/sanitize-html.ts](src/lib/sanitize-html.ts)              |

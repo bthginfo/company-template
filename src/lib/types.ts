@@ -440,6 +440,14 @@ export const SiteContentSchema = z.object({
     program: z.string().optional().default(''), // "KfW 458"
   })).optional().default([]),
 
+  /** Tradesman — funding calculator slider bounds (admin-editable). */
+  fundingCalc: z.object({
+    minInvest: z.number().optional().default(5000),
+    maxInvest: z.number().optional().default(150000),
+    stepInvest: z.number().optional().default(1000),
+    defaultInvest: z.number().optional().default(25000),
+  }).optional().default({}),
+
   /** Tradesman — sticky emergency banner. */
   emergencyBanner: z.object({
     enabled: z.boolean().optional().default(false),

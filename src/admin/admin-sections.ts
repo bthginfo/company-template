@@ -114,7 +114,7 @@ const HOME_ORDER: Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>> 
 /* ─── Services page section orders ──────────────────────────────── */
 
 /** Map ServiceModule enum values to AdminSectionKey */
-const MODULE_TO_KEY: Partial<Record<ServiceModule, AdminSectionKey>> = {
+export const MODULE_TO_KEY: Record<ServiceModule, AdminSectionKey> = {
   menu: 'menu', rooms: 'rooms', tours: 'tours',
   treatments: 'treatments', courses: 'courses', packages: 'packages',
   processSteps: 'processSteps', doctors: 'doctors', booking: 'booking',
@@ -184,14 +184,43 @@ function contactOrder(tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey[
 /* ─── Public API ────────────────────────────────────────────────── */
 
 export function getAdminSections(page: PageKey, tpl: TemplateKey, style: TemplateStyle): AdminSectionKey[] {
+  // Return a copy (HOME_ORDER values are readonly arrays / shared arrays).
   switch (page) {
-    case 'home': return HOME_ORDER[tpl][style];
+    case 'home': return [...HOME_ORDER[tpl][style]];
     case 'services': return servicesOrder(tpl, style);
     case 'gallery': return galleryOrder(tpl, style);
     case 'about': return aboutOrder(tpl, style);
     case 'contact': return contactOrder(tpl, style);
   }
 }
+
+/**
+ * Section keys that the corresponding page editor in `AdminEditorBody.tsx`
+ * has a `case` for. The drift-coverage test asserts every key returned by
+ * `getAdminSections` is in the matching set, so a typo / missing case is
+ * caught at build time instead of silently rendering nothing.
+ */
+export const HANDLED_SECTIONS_BY_PAGE: Record<PageKey, readonly AdminSectionKey[]> = {
+  home: [
+    'announcements', 'hero', 'actionStrip', 'branchChips', 'marquee',
+    'services', 'signature', 'about', 'gallery', 'numbers',
+    'logos', 'testimonials', 'news', 'softCta',
+    'funding', 'spotlight',
+  ],
+  services: [
+    'servicesHeader', 'highlights',
+    'menu', 'rooms', 'tours', 'treatments', 'courses', 'packages',
+    'processSteps', 'doctors', 'booking', 'fundingModule', 'emergencyBanner',
+    'programs', 'medicalNotice',
+    'serviceProcess', 'faq', 'servicesCta',
+  ],
+  gallery: ['galleryHeader', 'galleryStory', 'galleryUpload', 'galleryGrid', 'galleryCategories', 'galleryCta'],
+  about: [
+    'aboutHeader', 'aboutIntro', 'values', 'timeline', 'team', 'aboutNumbers',
+    'certifications', 'press', 'aboutTestimonials', 'aboutCta',
+  ],
+  contact: ['contactHeader', 'contactDetails', 'contactForm', 'locations', 'arrival', 'contactCta'],
+};
 
 /* ─── Section metadata (titles, descriptions) per branch×style ─── */
 

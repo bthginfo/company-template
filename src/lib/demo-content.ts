@@ -707,6 +707,13 @@ export const EXTRA_DEMO_CONTENT = {
   { title: 'Regional-Programm Bayern', percent: '5 %', program: '10.000-Häuser', description: 'Zusätzlich für Bayern – kombinierbar mit Bundesförderung.' },
 ];
 
+(DEMO_CONTENT.tradesman as any).fundingCalc = {
+  minInvest: 5000,
+  maxInvest: 150000,
+  stepInvest: 1000,
+  defaultInvest: 25000,
+};
+
 (DEMO_CONTENT.tradesman as any).emergencyBanner = {
   enabled: true,
   text: 'Rohrbruch oder Heizung aus? Wir kommen sofort.',

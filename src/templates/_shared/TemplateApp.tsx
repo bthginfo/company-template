@@ -25,6 +25,7 @@ import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getOpenStatus } from '@/lib/open-hours';
 import { isSectionEnabled, getEffectivePageOrder } from '@/lib/page-layout';
+import { BRANCH_STYLE_ORDER as SHARED_BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 import { BranchSignature } from './BranchSignature';
 import {
   MenuCategoriesModule,
@@ -313,37 +314,10 @@ function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galle
 }
 
 /**
- * BRANCH_STYLE_ORDER — full 5×3 = 15 distinct section flows.
- * Each (variant, style) tells a different narrative arc, so Restaurant/Classic
- * does NOT look like Restaurant/Modern, and Hotel/Bold does NOT look like Hotel/Classic.
+ * BRANCH_STYLE_ORDER lives in `@/lib/template-orders` so the drift-coverage
+ * test can import it without pulling the renderer.
  */
-const BRANCH_STYLE_ORDER: Record<TemplateVariant, Record<TemplateStyle, string[]>> = {
-  restaurant: {
-    classic: ['action', 'signature', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
-    modern:  ['action', 'services', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
-    bold:    ['action', 'signature', 'numbers', 'gallery', 'about', 'testimonials', 'news'],
-  },
-  hotel: {
-    classic: ['action', 'signature', 'about', 'gallery', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news'],
-    bold:    ['action', 'gallery', 'signature', 'numbers', 'about', 'testimonials', 'news'],
-  },
-  tradesman: {
-    classic: ['action', 'services', 'funding', 'numbers', 'gallery', 'signature', 'testimonials', 'about', 'news'],
-    modern:  ['action', 'numbers', 'services', 'funding', 'signature', 'gallery', 'about', 'testimonials', 'news'],
-    bold:    ['action', 'services', 'funding', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
-  },
-  salon: {
-    classic: ['action', 'signature', 'gallery', 'about', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'signature', 'gallery', 'testimonials', 'about', 'numbers', 'news'],
-    bold:    ['action', 'gallery', 'signature', 'about', 'numbers', 'testimonials', 'news'],
-  },
-  tourism: {
-    classic: ['action', 'gallery', 'signature', 'about', 'testimonials', 'numbers', 'news'],
-    modern:  ['action', 'signature', 'gallery', 'numbers', 'about', 'testimonials', 'news'],
-    bold:    ['action', 'gallery', 'numbers', 'signature', 'about', 'testimonials', 'news'],
-  },
-};
+const BRANCH_STYLE_ORDER = SHARED_BRANCH_STYLE_ORDER as Record<TemplateVariant, Record<TemplateStyle, readonly string[]>>;
 
 function HomePageClassic({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];

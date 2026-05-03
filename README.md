@@ -19,6 +19,7 @@ and edits content via an in-browser admin.
 | Local dev (UI only)       | `npm run dev:vite`                                                 |
 | Type-check + build        | `npm run build`                                                    |
 | Type-check only           | `npm run lint`                                                     |
+| Audit admin↔frontend drift| `npm run check:drift`                                              |
 | Generate DB migration     | `npm run db:generate`                                              |
 | Apply DB schema           | `npm run db:push`                                                  |
 | Hash a password (one-off) | `npm run hash`                                                     |

@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vercel dev",
     "dev:vite": "vite",
-    "build": "tsc -b --noEmit && vite build && tsx scripts/postbuild-prerender.ts",
+    "build": "tsc -b --noEmit && tsx scripts/check-coverage.ts && vite build && tsx scripts/postbuild-prerender.ts",
     "preview": "vite preview",
     "lint": "tsc -b --noEmit",
+    "check:drift": "tsx scripts/check-coverage.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "tenant:create": "tsx scripts/create-tenant.ts",

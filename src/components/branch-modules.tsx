@@ -517,7 +517,12 @@ export function OnlineBookingModule({ content }: { content: SiteContent }) {
  * ─────────────────────────────────────────────────────────────── */
 export function FundingCalculatorModule({ content }: { content: SiteContent }) {
   const items = ((content as any).fundingItems || []) as NonNullable<SiteContent['fundingItems']>;
-  const [total, setTotal] = useState(25000);
+  const calc = ((content as any).fundingCalc || {}) as NonNullable<SiteContent['fundingCalc']>;
+  const minInvest = Math.max(0, calc.minInvest ?? 5000);
+  const maxInvest = Math.max(minInvest + 1000, calc.maxInvest ?? 150000);
+  const stepInvest = Math.max(1, calc.stepInvest ?? 1000);
+  const defaultInvest = Math.min(maxInvest, Math.max(minInvest, calc.defaultInvest ?? 25000));
+  const [total, setTotal] = useState(defaultInvest);
   if (!items || !items.length) return null;
   const maxPercent = items.reduce((acc, it) => Math.max(acc, parseFloat((it.percent || '0').replace(/[^0-9.,]/g, '').replace(',', '.')) || 0), 0);
   const saving = Math.round(total * (maxPercent / 100));
@@ -540,16 +545,16 @@ export function FundingCalculatorModule({ content }: { content: SiteContent }) {
             </div>
             <input
               type="range"
-              min={5000}
-              max={150000}
-              step={1000}
+              min={minInvest}
+              max={maxInvest}
+              step={stepInvest}
               value={total}
               onChange={(e) => setTotal(parseInt(e.target.value, 10))}
               className="mt-5 w-full accent-[var(--accent-color)]"
             />
             <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted mt-2">
-              <span>5.000 €</span>
-              <span>150.000 €</span>
+              <span>{minInvest.toLocaleString('de-DE')} €</span>
+              <span>{maxInvest.toLocaleString('de-DE')} €</span>
             </div>
           </label>
           <div className="mt-8 grid sm:grid-cols-3 gap-4">

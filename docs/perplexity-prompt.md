@@ -30,11 +30,16 @@ Stil: `classic` (traditionell, seriös, Familienbetrieb), `modern` (zeitgemäß,
 
 **Stil-Regeln:**
 - bold: Kein `hero.subtitle`. Stattdessen `branchText.heroEyebrow` + `branchText.marqueeWords` (4-8 Wörter).
-- classic: `homeSignature.intro` ausfüllen, kein `metaLabel`.
+- classic: `homeSignature.intro` ausfüllen, kein `metaLabel`. `hero.body` darf befüllt werden (wird im Classic-Hero unter dem Untertitel angezeigt).
 - modern: `homeSignature.metaLabel` ausfüllen, kein `intro`. `hero.body` ausfüllen.
 - `branchText.galleryTeaserTitle`: Letztes Wort wird automatisch kursiv.
+- `branchText.serviceCardNote`: nur für consulting/medical/fitness im modern-Stil — eine kleine Fußnote unter jeder Service-Karte (z.B. "Inkl. Beratung", "Termin online buchbar").
+- `heroCta.secondaryLabel/Href`: zweiter Hero-Button. Bei extras (consulting/medical/fitness) wird er auf allen drei Stilen jetzt vom Frontend gelesen.
+- Subseiten-Hero: `servicesHeader.subtitle`, `galleryHeader.subtitle`, `aboutHeader.subtitle`, `contactPageHeader.subtitle` werden jetzt im Frontend (unter dem Titel) gerendert — Perplexity kann optional einen 1-2-Satz-Untertitel einfüllen.
 
-**Branchenmodule:** Nur passende Module ausfüllen: `menu` (restaurant), `treatments` (salon), `rooms` (hotel), `tours` (tourism), `fundingItems`+`emergencyBanner` (tradesman), `processSteps`+`packages` (consulting), `doctors`+`booking` (medical), `courses`+`packages` (fitness). `branchChips` nur consulting/medical/fitness. `certifications` nur tradesman. `press` nur restaurant.
+**Branchenmodule:** Nur passende Module ausfüllen: `menu` (restaurant), `treatments` (salon), `rooms` (hotel), `tours` (tourism), `fundingItems`+`fundingCalc`+`emergencyBanner` (tradesman), `processSteps`+`packages` (consulting), `doctors`+`booking` (medical), `courses`+`packages` (fitness). `branchChips` nur consulting/medical/fitness. `certifications` nur tradesman. `press` nur restaurant.
+
+**Förderrechner (`fundingCalc`, nur tradesman):** Slider-Bereich für die Investment-Höhe im Förderrechner. Default 5.000–150.000 € passt für die meisten Handwerker. Spezialfälle: Heizung/Sanierung kleiner (5.000–80.000 €), Großsanierung höher (20.000–300.000 €). Felder: `minInvest`, `maxInvest`, `stepInvest`, `defaultInvest` (alle in €, ganzzahlig).
 
 **Navigation:** Passende Labels verwenden: Restaurant→"Speisekarte"/"Reservieren", Salon→"Looks"/"Termin", Hotel→"Zimmer"/"Haus & Spa"/"Reservieren", Tradesman→"Referenzen"/"Betrieb"/"Anfrage", Tourism→"Touren"/"Eindrücke"/"Buchen". Pfade fix: `/`, `/speisekarte` (oder `/leistungen`/`/zimmer`/`/touren`), `/galerie`, `/ueber-uns`, `/kontakt`.
 
