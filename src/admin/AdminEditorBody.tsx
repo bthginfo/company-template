@@ -64,6 +64,8 @@ export type AdminEditorBodyProps = {
 type Ctx = {
   uploadImage?: UploadImageFn;
   style?: TemplateStyle;
+  /** Active tenant template — used for layout/order logic (not persisted on `brand`). */
+  tpl?: TemplateKey;
 };
 const noCtx: Ctx = {};
 let _ctx: Ctx = noCtx; // module-scoped for the simple atoms below
@@ -83,7 +85,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     onDiscard,
   } = props;
 
-  _ctx = { uploadImage, style: tplStyle };
+  _ctx = { uploadImage, style: tplStyle, tpl: tplKey };
 
   const [pageId, setPageId] = useState<PageId>('home');
   const pages = pagesFor(tplKey);
@@ -488,7 +490,7 @@ function SectionInlineControls({ pageKey, sectionKey, data, setData }: {
   data: SiteContent;
   setData: (d: SiteContent) => void;
 }) {
-  const variant = (data.brand as any)?.variant as any;
+  const variant = (_ctx.tpl ?? (data.brand as { variant?: TemplateKey }).variant ?? 'restaurant') as TemplateKey;
   const visibility = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
   const order = ((data as any).sectionOrder ?? {}) as Record<string, string[]>;
   const effective = getEffectivePageOrder(data as any, pageKey, variant);
@@ -639,7 +641,7 @@ function DeepLinkSectionCard({
   const target = CROSS_PAGE_TARGETS[adminKey];
   const meta = (() => {
     try {
-      return getSectionMeta(adminKey, ((data.brand as any)?.variant ?? 'restaurant') as TemplateKey, (_ctx.style ?? 'classic'));
+      return getSectionMeta(adminKey, (_ctx.tpl ?? (data.brand as { variant?: TemplateKey }).variant ?? 'restaurant') as TemplateKey, (_ctx.style ?? 'classic'));
     } catch {
       return { title: adminKey, description: '' };
     }
