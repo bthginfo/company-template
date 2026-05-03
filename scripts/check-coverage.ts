@@ -17,6 +17,48 @@
  *     the admin (either in HOME_ORDER or as global data).
  *
  * Exit code: 0 = all green, 1 = drift detected. Wired into `npm run build`.
+ *
+ * ─── What this script does *not* guarantee (read before trusting “120/120”) ───
+ *
+ * • **Section cards, not fields.** It knows admin *sections* (hero, gallery, …)
+ *   and `SECTION_CONTRACTS` *data paths*, not whether every sub-field inside
+ *   `AdminEditorBody` is shown for a given (branch, style). Visibility via
+ *   `$s(cfg…)`, `fieldVisible`, or inline `style === 'modern'` is **never**
+ *   checked here.
+ *
+ * • **Registry-driven paths only.** A new `SiteContent` field rendered in JSX
+ *   but never added to `section-registry.ts` produces **no failure** — the
+ *   contract list is the source of the grep, not the schema.
+ *
+ * • **Pragmatic grep (`mentions`).** Step 4 matches literal substrings (and a
+ *   few tail/prefix heuristics). It can **false-pass** (e.g. another symbol
+ *   shares the same tail word) or **false-fail** (dynamic keys, re-exports).
+ *   It is not an AST/data-flow analysis.
+ *
+ * • **Fixed frontend file list.** Only `FRONTEND_SOURCES` (see below) are
+ *   searched. Components outside that list that read the same contract paths
+ *   do not help step 4; new render files must be added to that list or the
+ *   check becomes blind.
+ *
+ * • **Sub-pages ignore style.** `getAdminSections('services'|'gallery'|…)`
+ *   currently does not vary by `TemplateStyle` (parameter exists but is
+ *   unused for those pages). The 120 loop still runs three identical lists
+ *   for those pages — it does **not** assert “style A shows fewer editors”.
+ *
+ * • **Home parity is order keys, not layout.** Step 6 maps admin keys ↔
+ *   `BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER` *block ids*. It does not prove
+ *   that every pixel of the hero (e.g. stats tucked under buttons in Modern)
+ *   has a dedicated card; that requires human review or richer contracts.
+ *
+ * • **“Only relevant admin”.** Nothing here removes irrelevant cards for a
+ *   combo. Keeping `HOME_ORDER` aligned with real frontend order is a manual
+ *   discipline; this test flags **overshoot** (admin section whose mapped
+ *   block is absent from that combo’s order) and **undershoot** (frontend
+ *   block with no mapped admin section), not “this field is hidden for Bold”.
+ *
+ * To tighten coverage: add per-(branch, style) optional contracts, wire
+ * `FIELD_CONFIG` / branch-config into a new check, or replace grep with
+ * structured extraction — see README / AGENTS discussion when extending.
  */
 
 import { readFileSync } from 'node:fs';
