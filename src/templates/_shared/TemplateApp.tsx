@@ -37,7 +37,7 @@ import {
   BranchModulesInline,
   moduleHeading,
 } from '@/components/branch-modules';
-import { normaliseArrivalList, normaliseFaqList, normalisePressList, type PressCard } from '@/lib/content-field-aliases';
+import { mergedServiceHighlights, normaliseArrivalList, normaliseFaqList, normalisePressList, normaliseTdList, normaliseTeamList, type PressCard } from '@/lib/content-field-aliases';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
@@ -1207,7 +1207,8 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
 }
 
 function ServiceHighlights({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
-  const overlay = (content as any).serviceHighlights as { t: string; d: string }[] | undefined;
+  const c = content as unknown as Record<string, unknown>;
+  const overlay = mergedServiceHighlights(c.serviceHighlights, c.highlights);
   const fallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Saisonale Karte', d: 'Wechselt mit den Jahreszeiten – schauen Sie immer wieder rein.' },
@@ -1240,7 +1241,7 @@ function ServiceHighlights({ variant, content }: { variant: TemplateVariant; con
       { t: 'Wetterbedingt flexibel', d: 'Bei Tour-Absage durch uns volle Erstattung oder Verschiebung.' },
     ],
   };
-  const list = overlay && overlay.length ? overlay.filter((it) => it.t || it.d) : fallbacks[variant];
+  const list = overlay.length ? overlay.filter((it) => it.t || it.d) : fallbacks[variant];
   if (!list.length) return null;
   return (
     <section className="py-10 surface border-y border-line">
@@ -1257,7 +1258,7 @@ function ServiceHighlights({ variant, content }: { variant: TemplateVariant; con
 }
 
 function ServiceProcess({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
-  const overlay = (content as any).serviceProcess as { t: string; d: string }[] | undefined;
+  const overlay = normaliseTdList((content as unknown as { serviceProcess?: unknown }).serviceProcess ?? []);
   const fallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Reservieren', d: 'Online oder per Telefon – wir bestätigen sofort.' },
@@ -1290,7 +1291,7 @@ function ServiceProcess({ variant, content }: { variant: TemplateVariant; conten
       { t: 'Erinnerung', d: 'Fotos und Tour-Rückblick per Mail im Nachgang.' },
     ],
   };
-  const list = overlay && overlay.length ? overlay.filter((s) => s.t || s.d) : fallbacks[variant];
+  const list = overlay.length ? overlay.filter((s) => s.t || s.d) : fallbacks[variant];
   if (!list.length) return null;
   return (
     <Section eyebrow={effectiveBranchText(variant, content).processEyebrow || 'So läuft es ab'} title={<>{splitTitle(effectiveBranchText(variant, content).processTitle || 'In vier Schritten.')}</>}>
@@ -1427,7 +1428,13 @@ function GalleryStorySection({ variant, content }: { variant: TemplateVariant; c
     },
   };
   const overlay = (content as any).galleryStory as Story | undefined;
-  const story: Story = overlay && (overlay.title || overlay.body) ? { ...fallbacks[variant], ...overlay } : fallbacks[variant];
+  const storyBase: Story =
+    overlay && (overlay.title || overlay.body) ? { ...fallbacks[variant], ...overlay } : fallbacks[variant];
+  const captionsNorm = normaliseTdList(storyBase.captions ?? []);
+  const story: Story = {
+    ...storyBase,
+    captions: captionsNorm.length ? captionsNorm : normaliseTdList(fallbacks[variant].captions),
+  };
   if (!story.title && !story.body && !(story.captions && story.captions.length)) return null;
   return (
     <Section eyebrow={story.eyebrow} title={splitTitle(story.title)} className="surface">
@@ -1480,8 +1487,8 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
       { t: 'Privat & Maßgeschneidert', d: 'Eigene Gruppen, Firmen-Events und individuelle Tour-Konzepte.' },
     ],
   };
-  const overlay = (content as any).galleryCategories as Cat[] | undefined;
-  const list = overlay && overlay.length ? overlay.filter((c) => c.t || c.d) : fallbacks[variant];
+  const overlay = normaliseTdList((content as unknown as { galleryCategories?: unknown }).galleryCategories ?? []);
+  const list = overlay.length ? overlay.filter((c) => c.t || c.d) : fallbacks[variant];
   if (!list.length) return null;
   return (
     <Section eyebrow={effectiveBranchText(variant, content).galleryCategoriesEyebrow || 'Kategorien'} title={<>{splitTitle(effectiveBranchText(variant, content).galleryCategoriesTitle || 'Was Sie bei uns erwartet.')}</>}>
@@ -1587,7 +1594,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
 }
 
 function ValuesSection({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
-  const overlay = (content as any).values as { t: string; d: string }[] | undefined;
+  const overlay = normaliseTdList((content as unknown as { values?: unknown }).values ?? []);
   const fallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Saisonal & ehrlich.', d: 'Wir kaufen, was gerade Saison hat. Lieber weniger Karte, dafür perfekt – als Nudeln aus der Tüte das ganze Jahr.' },
@@ -1615,7 +1622,7 @@ function ValuesSection({ variant, content }: { variant: TemplateVariant; content
       { t: 'Lokal verwurzelt.', d: 'Wir leben hier. Sie bekommen die Tour, die wir Freund:innen empfehlen würden.' },
     ],
   };
-  const list = overlay && overlay.length ? overlay.filter((v) => v.t || v.d) : fallbacks[variant];
+  const list = overlay.length ? overlay.filter((v) => v.t || v.d) : fallbacks[variant];
   if (!list?.length) return null;
   return (
     <Section eyebrow={effectiveBranchText(variant, content).valuesEyebrow || 'Was uns wichtig ist'} title={<>{splitTitle(effectiveBranchText(variant, content).valuesTitle || 'Drei Grundsätze.')}</>} className="surface">
@@ -1633,7 +1640,7 @@ function ValuesSection({ variant, content }: { variant: TemplateVariant; content
 }
 
 function TeamSection({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
-  const overlay = (content as any).team as { n: string; r: string; img: string; bio: string }[] | undefined;
+  const overlay = normaliseTeamList((content as unknown as { team?: unknown }).team ?? []);
   const fallbacks: Record<TemplateVariant, { n: string; r: string; img: string; bio: string }[]> = {
     restaurant: [
       { n: 'Giulia Conti', r: 'Küchenchefin & Inhaberin', img: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&w=900&q=80', bio: 'Lernte bei den Großeltern, kochte in Bologna und Wien, kam 2018 zurück in den Familienbetrieb.' },
@@ -1662,7 +1669,7 @@ function TeamSection({ variant, content }: { variant: TemplateVariant; content: 
       { n: 'Jakob Pichler', r: 'Foto & Outdoor', img: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=900&q=80', bio: 'Outdoor-Fotograf und Wanderführer. Spezialist für Sonnenaufgangs- und Sterne-Touren.' },
     ],
   };
-  const list = overlay && overlay.length ? overlay.filter((m) => m.n || m.r) : fallbacks[variant];
+  const list = overlay.length ? overlay.filter((m) => m.n || m.r) : fallbacks[variant];
   if (!list?.length) return null;
   return (
     <Section eyebrow={effectiveBranchText(variant, content).teamEyebrow || 'Team'} title={<>{splitTitle(effectiveBranchText(variant, content).teamTitle || 'Menschen hinter dem Betrieb.')}</>}>
@@ -1694,8 +1701,8 @@ function CertificationsSection({ variant, content }: { variant: TemplateVariant;
     { t: 'Förder-Partner BAFA', d: 'Anträge beim BAFA für Heizungsförderung schreiben wir mit Ihnen gemeinsam.' },
     { t: 'Photovoltaik-Fachpartner', d: 'Komplettpaket inkl. Anmeldung beim Netzbetreiber und Steuerformular.' },
   ];
-  const overlay = content ? ((content as any).certifications as { t: string; d: string }[] | undefined) : undefined;
-  const items = overlay && overlay.length ? overlay : fallback;
+  const overlay = normaliseTdList((content as unknown as { certifications?: unknown }).certifications ?? []);
+  const items = overlay.length ? overlay : fallback;
   return (
     <Section eyebrow={(content && effectiveBranchText(variant, content).certsEyebrow) || 'Qualifikationen'} title={<>{splitTitle((content && effectiveBranchText(variant, content).certsTitle) || 'Geprüft & zertifiziert.')}</>} className="surface">
       <div className="grid md:grid-cols-3 gap-4 reveal-stagger">

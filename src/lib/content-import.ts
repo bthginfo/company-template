@@ -36,6 +36,7 @@ export async function importContentJson(
   applyContentFieldAliases(merged);
   ensureIds(merged, 'faq');
   ensureIds(merged, 'press');
+  ensureIds(merged, 'team');
 
   const parse = SiteContentSchema.safeParse(merged);
   if (!parse.success) {
