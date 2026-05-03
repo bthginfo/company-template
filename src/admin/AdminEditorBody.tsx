@@ -2917,7 +2917,7 @@ function NewsPage({ data, setData }: SetterProps) {
         ) : (
           <div className="space-y-4 mt-2">
             {list.map((p, i) => (
-              <details key={p.id} className="border border-line rounded-2xl overflow-hidden bg-white" open={i === 0}>
+              <details key={p.id} className="border border-line rounded-2xl overflow-hidden bg-white">
                 <summary className="cursor-pointer px-5 py-4 bg-[#fafaf7] flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-3 min-w-0">
                     <span className={`inline-flex items-center justify-center w-2 h-2 rounded-full ${p.published ? 'bg-emerald-500' : 'bg-amber-400'}`} aria-hidden />
@@ -3105,7 +3105,7 @@ function ServicesListEditor({ data, setData }: SetterProps) {
   return (
     <div className="space-y-3">
       {data.services.map((s, i) => (
-        <details key={keys[i]} className="border border-line rounded-xl bg-[#fafaf7] open:bg-white" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-xl bg-[#fafaf7] open:bg-white">
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             <span className="font-mono text-xs text-muted w-8">{String(i + 1).padStart(2, '0')}</span>
             {s.imageUrl ? <img src={s.imageUrl} alt="" className="h-9 w-9 object-cover rounded" /> : <div className="h-9 w-9 rounded bg-[#eaeae3]" />}
@@ -3657,7 +3657,7 @@ function TeamEditor({ data, setData, defaults }: SetterProps & { defaults: { n: 
   return (
     <div className="space-y-3">
       {list.map((m, i) => (
-        <details key={keys[i]} className="border border-line rounded-xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-xl bg-[#fafaf7]">
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             {m.img ? <img src={m.img} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
@@ -4172,7 +4172,7 @@ function MenuEditor({ data, setData }: SetterProps) {
   return (
     <div className="space-y-4">
       {list.map((cat, i) => (
-        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]">
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
             <div className="flex-1 min-w-0">
@@ -4236,7 +4236,7 @@ function RoomsEditor({ data, setData }: SetterProps) {
   return (
     <div className="space-y-3">
       {list.map((r, i) => (
-        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]">
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             {r.imageUrl ? <img src={r.imageUrl} alt="" className="h-9 w-12 rounded object-cover" /> : <div className="h-9 w-12 rounded bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
@@ -4277,7 +4277,7 @@ function ToursEditor({ data, setData }: SetterProps) {
   return (
     <div className="space-y-3">
       {list.map((t, i) => (
-        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]">
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             {t.imageUrl ? <img src={t.imageUrl} alt="" className="h-9 w-12 rounded object-cover" /> : <div className="h-9 w-12 rounded bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">
@@ -4365,7 +4365,7 @@ function PackagesEditor({ data, setData }: SetterProps) {
   return (
     <div className="space-y-3">
       {list.map((p, i) => (
-        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]">
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
             <div className="flex-1 min-w-0">
@@ -4432,7 +4432,7 @@ function DoctorsEditor({ data, setData }: SetterProps) {
   return (
     <div className="space-y-3">
       {list.map((d, i) => (
-        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]" open={i === 0}>
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]">
           <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
             {d.imageUrl ? <img src={d.imageUrl} alt="" className="h-9 w-9 rounded-full object-cover" /> : <div className="h-9 w-9 rounded-full bg-[#eaeae3]" />}
             <div className="flex-1 min-w-0">

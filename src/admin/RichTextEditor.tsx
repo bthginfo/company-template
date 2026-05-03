@@ -56,6 +56,9 @@ export function RichTextEditor({ value, onChange, placeholder, className, rows =
   // Initial fill + external value changes.
   useEffect(() => {
     if (!ref.current) return;
+    // Avoid resetting innerHTML while the user is typing — controlled parents
+    // re-render on every keystroke and would otherwise drop caret/focus.
+    if (document.activeElement === ref.current) return;
     const incoming = value || '';
     if (ref.current.innerHTML !== incoming && incoming !== lastValue.current) {
       ref.current.innerHTML = incoming || '<p><br></p>';

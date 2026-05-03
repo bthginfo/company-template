@@ -479,7 +479,8 @@ export function ContactBlock({ content, showForm = true, showMap = true, formTen
 }
 
 /* ─── Safe map embed ─────────────────────────────────────────────── */
-export function SafeMapEmbed({ mapsUrl, address, city, className = '' }: { mapsUrl?: string; address?: string; city?: string; className?: string }) {
+/** Resolves a Google/OSM maps URL or street address into an iframe-safe `src`, or `''`. */
+export function resolveMapIframeSrc(mapsUrl: string | undefined, address: string | undefined, city: string | undefined): string {
   const explicit = (mapsUrl || '').trim();
 
   // Already a usable embed URL?
@@ -526,6 +527,13 @@ export function SafeMapEmbed({ mapsUrl, address, city, className = '' }: { mapsU
       ? `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`
       : '';
   }
+
+  return src;
+}
+
+export function SafeMapEmbed({ mapsUrl, address, city, className = '' }: { mapsUrl?: string; address?: string; city?: string; className?: string }) {
+  const explicit = (mapsUrl || '').trim();
+  const src = resolveMapIframeSrc(mapsUrl, address, city);
 
   if (!src) return <div className={`w-full rounded-3xl bg-black/5 ${className}`} />;
   const fullAddress = [address, city].filter(Boolean).join(', ');

@@ -3,7 +3,7 @@ import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import type { SiteContent, PageId } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/components/fx';
 import Seo from '@/components/Seo';
-import { BasePathProvider, useBasePath, withBase, SafeMapEmbed, Section } from '@/components/site-blocks';
+import { BasePathProvider, useBasePath, withBase, resolveMapIframeSrc, SafeMapEmbed, Section } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
@@ -1130,25 +1130,29 @@ function contactAddressOneLine(c: SiteContent['contact']): string {
   return parts.join(', ');
 }
 
-function contactMapQuery(c: SiteContent['contact']): string {
-  const line = contactAddressOneLine(c);
-  return line || c.city?.trim() || '';
+/** Classic contact H2 historically always ended with a full stop unless already punctuated. */
+function extraClassicContactHeadline(cbTitle: string | undefined, ctaLabel: string | undefined): string {
+  const raw = (cbTitle && cbTitle.trim()) || (ctaLabel && ctaLabel.trim()) || 'Termin vereinbaren';
+  return /[.!?…]$/.test(raw) ? raw : `${raw}.`;
 }
 
 function ContactSection({ content, variant }: { content: SiteContent; variant: ExtraStyle }) {
-  const mapQ = contactMapQuery(content.contact);
-  const mapSrc = mapQ
-    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQ)}&output=embed`
-    : '';
+  const cb = content.contactBlock ?? { eyebrow: '', title: '', subtitle: '' };
+  const mapSrc = resolveMapIframeSrc(content.contact.mapsUrl, content.contact.address, content.contact.city);
 
   if (variant === 'bold') {
+    const boldIndex = cb.eyebrow?.trim() || '04';
+    const boldTitleRaw = cb.title?.trim() || 'Reden wir';
+    const boldTitleLine = /[.!?…]$/.test(boldTitleRaw) ? boldTitleRaw : `${boldTitleRaw}.`;
+    const boldEmRaw = cb.subtitle?.trim() || 'Gleich jetzt';
+    const boldEm = /[.!?…]$/.test(boldEmRaw) ? boldEmRaw : `${boldEmRaw}.`;
     return (
       <section id="kontakt" className="py-24 md:py-40">
         <div className="container-x grid md:grid-cols-12 gap-8 mb-12 reveal">
-          <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">04</p>
+          <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">{boldIndex}</p>
           <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">
-            Reden wir.<br />
-            <em className="italic-pop">Gleich jetzt.</em>
+            {boldTitleLine}<br />
+            <em className="italic-pop">{boldEm}</em>
           </h2>
         </div>
         <div className="container-x grid md:grid-cols-2 gap-8">
@@ -1181,8 +1185,9 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
       <section id="kontakt" className="py-24 md:py-32 surface">
         <div className="container-x grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5 reveal">
-            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">Kontakt</p>
-            <h2 className="font-display text-4xl md:text-5xl mb-8">Sprechen wir.</h2>
+            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{cb.eyebrow?.trim() || 'Kontakt'}</p>
+            <h2 className="font-display text-4xl md:text-5xl mb-8">{cb.title?.trim() || 'Sprechen wir.'}</h2>
+            {cb.subtitle?.trim() ? <p className="text-muted text-base -mt-4 mb-8 max-w-prose">{cb.subtitle.trim()}</p> : null}
             <div className="space-y-6 text-base">
               {content.contact.phone && (
                 <div className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-line">
@@ -1238,8 +1243,9 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
     <section id="kontakt" className="py-24 md:py-32 surface">
       <div className="container-x grid md:grid-cols-12 gap-10">
         <div className="md:col-span-5 reveal">
-          <p className="eyebrow mb-5">Kontakt</p>
-          <h2 className="headline-lg">{content.hero.ctaLabel || 'Termin vereinbaren'}.</h2>
+          <p className="eyebrow mb-5">{cb.eyebrow?.trim() || 'Kontakt'}</p>
+          <h2 className="headline-lg">{extraClassicContactHeadline(cb.title, content.hero.ctaLabel)}</h2>
+          {cb.subtitle?.trim() ? <p className="mt-4 text-muted text-base max-w-prose">{cb.subtitle.trim()}</p> : null}
           <ul className="mt-10 space-y-3 text-base">
             {content.contact.phone && <li className="font-mono">{content.contact.phone}</li>}
             {content.contact.email && <li className="font-mono">{content.contact.email}</li>}
