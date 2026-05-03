@@ -89,7 +89,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     return () => cancelAnimationFrame(id);
   }, [pageId]);
 
-  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news' || pageId === 'navigation' || pageId === 'mail' || pageId === 'legal';
+  const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news' || pageId === 'navigation' || pageId === 'mail' || pageId === 'legal' || pageId === 'security';
 
   return (
     <div className="min-h-screen bg-[#f6f6f3]">
@@ -153,6 +153,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
               <option value="scripts">Skripte & Tracking</option>
               <option value="mail">Mail-Server</option>
               <option value="legal">Impressum & Datenschutz</option>
+              <option value="security">Passwort & Zugang</option>
             </optgroup>
           </select>
         </div>
@@ -788,11 +789,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="chips" data={data} setData={setData}>
             <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
-            {/* Extra branches show heroBadge fields inline (badge is rendered inside the chips block) */}
-            {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && (
+            {/* Hero badge (Google rating) — only rendered by frontend in extras-modern hero. */}
+            {$s(cfg.home.hero.heroBadge) && (
               <>
                 <hr className="my-4 border-line" />
-                <p className="text-xs font-medium text-muted mb-2">Google-Badge (wird im Hero / Chip-Bereich angezeigt)</p>
+                <p className="text-xs font-medium text-muted mb-2">Google-Badge (erscheint nur im Modern-Hero)</p>
                 <HeroBadgeEditor data={data} setData={setData} />
               </>
             )}
@@ -810,16 +811,22 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             <NumbersEditor data={data} setData={setData} tpl={tpl} />
           </SectionCard>
         );
-      case 'services':
+      case 'services': {
+        const isExtraTpl = (['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl);
+        const baseKeys: BranchTextKey[] = ['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle'];
+        // serviceCardNote only renders in extras-modern services cards.
+        if (isExtraTpl) baseKeys.push('serviceCardNote');
+        baseKeys.push('servicesAllLabel', 'servicesAllHref');
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="services" data={data} setData={setData}>
-            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle', 'servicesAllLabel', 'servicesAllHref']} />
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={baseKeys} />
             <p className="text-xs text-muted">
               Reihenfolge per Drag & Drop. <strong>Die ersten {SERVICE_TEASER_LIMIT[style]} Einträge</strong> erscheinen auf der Startseite, alle auf der Unterseite.
             </p>
             <ServicesListEditor data={data} setData={setData} />
           </SectionCard>
         );
+      }
       case 'signature':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="signature" data={data} setData={setData}>
@@ -910,12 +917,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           </SectionCard>
         );
         return null;
-      case 'heroBadge':
-        return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="heroBadge" data={data} setData={setData}>
-            <HeroBadgeEditor data={data} setData={setData} />
-          </SectionCard>
-        );
       default:
         return null;
     }
@@ -2056,6 +2057,7 @@ type BranchTextKey =
   | 'servicesTeaserTitle'
   | 'servicesAllLabel'
   | 'servicesAllHref'
+  | 'serviceCardNote'
   | 'heroEyebrow';
 
 const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; rows?: number }> = {
@@ -2096,6 +2098,7 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   servicesTeaserTitle: { label: 'Leistungen-Teaser Titel', hint: 'Z. B. „Aus der Küche." oder „Ihre Behandlungen."' },
   servicesAllLabel: { label: 'Button-Text', hint: 'z. B. „Alle Gerichte", „Zur Speisekarte"' },
   servicesAllHref: { label: 'Button-Ziel', hint: 'z. B. /speisekarte, /leistungen oder #kontakt' },
+  serviceCardNote: { label: 'Service-Karte: Fußnote', hint: 'Modern-Style: kleine Zeile am Ende jeder Service-Karte (z. B. „Inkl. Beratung").' },
   heroEyebrow: { label: 'Hero Eyebrow (Bold)', hint: 'Bold-Style: kleine Zeile direkt über dem riesigen Titel.' },
 };
 

@@ -530,7 +530,17 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           ))}
         </div>
         <div className="mt-10 reveal">
-          <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="btn-outline">Alles ansehen <span aria-hidden>→</span></TLink>
+          <TLink
+            to={
+              variant === 'tradesman' ? '/referenzen'
+              : variant === 'hotel' ? '/zimmer'
+              : variant === 'tourism' ? '/touren'
+              : '/galerie'
+            }
+            className="btn-outline"
+          >
+            {effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span>
+          </TLink>
         </div>
       </Section>
     ) : null,
@@ -689,7 +699,17 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
               <p className="eyebrow mb-4">{effectiveBranchText(variant, content).galleryTeaserEyebrow}</p>
               <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, content)}</h2>
             </div>
-            <TLink to={variant === 'tradesman' ? '/referenzen' : '/galerie'} className="link-underline hidden md:inline-flex">{effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span></TLink>
+            <TLink
+              to={
+                variant === 'tradesman' ? '/referenzen'
+                : variant === 'hotel' ? '/zimmer'
+                : variant === 'tourism' ? '/touren'
+                : '/galerie'
+              }
+              className="link-underline hidden md:inline-flex"
+            >
+              {effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span>
+            </TLink>
           </div>
           <MasonryGrid images={featuredGallery} />
         </div>

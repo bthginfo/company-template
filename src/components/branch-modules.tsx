@@ -79,7 +79,7 @@ export function BranchModulesInline({ variant, content }: { variant: Variant; co
   if (variant === 'tradesman') return <FundingCalculatorModule content={content} />;
   if (variant === 'consulting') return <><ProcessStepsModule content={content} /><PricePackagesModule content={content} /></>;
   if (variant === 'medical') return <><DoctorTeamModule content={content} /><OnlineBookingModule content={content} /></>;
-  if (variant === 'fitness') return <><CourseScheduleModule content={content} /><PricePackagesModule content={content} eyebrow="Mitgliedschaft" title={<>Pakete & <em className="italic-pop">Preise.</em></>} /></>;
+  if (variant === 'fitness') return <><CourseScheduleModule content={content} /><PricePackagesModule content={content} /></>;
   return null;
 }
 

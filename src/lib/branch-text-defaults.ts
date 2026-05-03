@@ -49,6 +49,7 @@ export type BranchTextDefaults = {
   servicesTeaserTitle: string;
   servicesAllLabel: string;
   servicesAllHref: string;
+  serviceCardNote: string;
   heroEyebrow: string;
   heroImageUrl: string;
   servicesPageImageUrl: string;
@@ -94,6 +95,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesTeaserTitle: 'Aus der Küche.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/speisekarte',
+    serviceCardNote: '',
     heroEyebrow: '',
     heroImageUrl: '',
     servicesPageImageUrl: '',
@@ -138,6 +140,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesTeaserTitle: 'Ihre Behandlungen.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
+    serviceCardNote: '',
     heroEyebrow: '',
     heroImageUrl: '',
     servicesPageImageUrl: '',
@@ -182,6 +185,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesTeaserTitle: 'Was wir können.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
+    serviceCardNote: '',
     heroEyebrow: '',
     heroImageUrl: '',
     servicesPageImageUrl: '',
@@ -226,6 +230,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesTeaserTitle: 'Ihr Zuhause auf Zeit.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/zimmer',
+    serviceCardNote: '',
     heroEyebrow: '',
     heroImageUrl: '',
     servicesPageImageUrl: '',
@@ -270,6 +275,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesTeaserTitle: 'Unser Programm.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/touren',
+    serviceCardNote: '',
     heroEyebrow: '',
     heroImageUrl: '',
     servicesPageImageUrl: '',
@@ -314,6 +320,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesTeaserTitle: 'Leistungen.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
+    serviceCardNote: 'Inkl. Vorgespräch & Folge-Session',
     heroEyebrow: '',
     heroImageUrl: '',
     servicesPageImageUrl: '',
@@ -358,6 +365,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesTeaserTitle: 'Leistungen.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
+    serviceCardNote: 'Termin online buchbar',
     heroEyebrow: '',
     heroImageUrl: '',
     servicesPageImageUrl: '',
@@ -402,6 +410,7 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesTeaserTitle: 'Klassen & Programme.',
     servicesAllLabel: 'Alle anzeigen',
     servicesAllHref: '/leistungen',
+    serviceCardNote: 'Buchbar ab 1 Person',
     heroEyebrow: '',
     heroImageUrl: '',
     servicesPageImageUrl: '',

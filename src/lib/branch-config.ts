@@ -1,19 +1,17 @@
 /**
  * Declarative branch configuration — single source of truth.
  *
- * For each branch (8 total) this file declares:
- *  - which hero fields exist per style
- *  - which home-page sections appear per style
- *  - which services-page modules are available
- *  - which about-page extras exist
- *  - BranchTextFields that are filtered by style
+ * For each branch (8 total) this file declares which fields/sections
+ * the frontend actually renders per (branch, style). The admin reads this
+ * config and shows EXACTLY those fields/sections — no more, no less.
  *
- * The admin reads this config to decide field/section visibility.
- * The frontend renders the same set — keeping them in sync means
- * zero drift between admin and live site.
+ * Two directions of contract:
+ *  1. Admin-undershoot prevention: every editable thing in the frontend
+ *     has a flag here that admin can read.
+ *  2. Admin-overshoot prevention: admin only renders sections/fields
+ *     for which the corresponding (branch, style) frontend renders them.
  *
- * When adding a NEW field to the frontend, add it here first.
- * When adding a branch-specific module, declare it below.
+ * When adding a NEW field/section to the frontend, add the flag here first.
  */
 
 import type { TemplateKey } from './types';
@@ -25,6 +23,7 @@ export type TemplateStyle = 'classic' | 'modern' | 'bold';
 export type PerStyle = { classic: boolean; modern: boolean; bold: boolean };
 
 const NONE: PerStyle    = { classic: false, modern: false, bold: false };
+const ALL: PerStyle     = { classic: true,  modern: true,  bold: true  };
 const CLASSIC: PerStyle = { classic: true,  modern: false, bold: false };
 const MODERN: PerStyle  = { classic: false, modern: true,  bold: false };
 const BOLD: PerStyle    = { classic: false, modern: false, bold: true  };
@@ -84,6 +83,11 @@ export type BranchConfig = {
       bgImage: PerStyle;
       /** Modern/Bold card-style hero image */
       cardImage: PerStyle;
+      /** Hero CTAs (primary + secondary) actually wired to the rendered hero. */
+      primaryCta: PerStyle;
+      secondaryCta: PerStyle;
+      /** Floating heroBadge (Google rating block) — extras-modern only. */
+      heroBadge: PerStyle;
     };
     /** Branch-keyword chips below hero (extra branches) */
     branchChips: boolean;
@@ -111,11 +115,52 @@ export type BranchConfig = {
     headerImage: PerStyle;
     /** Modules shown on this branch's services page */
     modules: ServiceModule[];
+    /** Whether the highlights ribbon (4 short USPs) renders */
+    showHighlights: boolean;
+    /** Whether the "So läuft es ab" 4-step block renders */
+    showProcess: boolean;
+    /** Whether the FAQ block renders */
+    showFaq: boolean;
+    /** Whether the closing CTA band renders */
+    showCta: boolean;
   };
 
-  /** About page optional extras */
+  /** Gallery page field visibility */
+  gallery: {
+    /** Galerie-Story (story copy with captions) */
+    showStory: boolean;
+    /** Gallery upload widget (admin-only convenience) */
+    showUpload: boolean;
+    /** Categories card row below grid */
+    showCategories: boolean;
+    /** Closing CTA band */
+    showCta: boolean;
+  };
+
+  /** About page field visibility */
   about: {
+    /** Optional extras (certifications / press) */
     extras: AboutExtra[];
+    /** Values block (3 principles) */
+    showValues: boolean;
+    /** Timeline / milestones */
+    showTimeline: boolean;
+    /** Numbers / aboutNumbers band */
+    showNumbers: boolean;
+    /** Testimonials section on the about page */
+    showTestimonials: boolean;
+    /** Closing CTA band */
+    showCta: boolean;
+  };
+
+  /** Contact page field visibility */
+  contact: {
+    /** Inline contact form */
+    showForm: boolean;
+    /** Arrival / Wegbeschreibung block */
+    showArrival: boolean;
+    /** Closing CTA band */
+    showCta: boolean;
   };
 };
 
@@ -128,6 +173,7 @@ export type BranchTextStyleFilter = {
   marqueeWords: PerStyle;
   manifestEyebrow: PerStyle;
   manifestTitle: PerStyle;
+  serviceCardNote: PerStyle;
 };
 
 /**
@@ -140,11 +186,20 @@ export const BRANCH_TEXT_STYLE_FILTERS: BranchTextStyleFilter = {
   marqueeWords: BOLD,
   manifestEyebrow: BOLD,
   manifestTitle: BOLD,
+  serviceCardNote: MODERN,
 };
 
 /* ═══════════════════════════════════════════════════════════════════
    8 BRANCH CONFIGS — one per branch, exhaustive
    ═══════════════════════════════════════════════════════════════════ */
+
+/** Default subpage flags for the "core 5" branches (all sections rendered). */
+const CORE_SUBPAGES = {
+  services: { showHighlights: true, showProcess: true, showFaq: true, showCta: true },
+  gallery:  { showStory: true, showUpload: true, showCategories: true, showCta: true },
+  about:    { showValues: true, showTimeline: true, showNumbers: true, showTestimonials: true, showCta: true },
+  contact:  { showForm: true, showArrival: true, showCta: true },
+} as const;
 
 const restaurant: BranchConfig = {
   label: 'Restaurant',
@@ -154,9 +209,12 @@ const restaurant: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
+      body: NOT_BOLD,    // classic Hero + modern hero both render `(hero as any).body`
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: NONE,
     },
     branchChips: false,
     marqueeWords: BOLD,
@@ -168,8 +226,11 @@ const restaurant: BranchConfig = {
   services: {
     headerImage: MODERN,
     modules: ['menu'],
+    ...CORE_SUBPAGES.services,
   },
-  about: { extras: ['press'] },
+  gallery: { ...CORE_SUBPAGES.gallery },
+  about: { extras: ['press'], ...CORE_SUBPAGES.about },
+  contact: { ...CORE_SUBPAGES.contact },
 };
 
 const salon: BranchConfig = {
@@ -180,9 +241,12 @@ const salon: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
+      body: NOT_BOLD,
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: NONE,
     },
     branchChips: false,
     marqueeWords: BOLD,
@@ -194,8 +258,11 @@ const salon: BranchConfig = {
   services: {
     headerImage: MODERN,
     modules: ['treatments'],
+    ...CORE_SUBPAGES.services,
   },
-  about: { extras: [] },
+  gallery: { ...CORE_SUBPAGES.gallery },
+  about: { extras: [], ...CORE_SUBPAGES.about },
+  contact: { ...CORE_SUBPAGES.contact },
 };
 
 const tradesman: BranchConfig = {
@@ -206,9 +273,12 @@ const tradesman: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
+      body: NOT_BOLD,
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: NONE,
     },
     branchChips: false,
     marqueeWords: BOLD,
@@ -220,8 +290,11 @@ const tradesman: BranchConfig = {
   services: {
     headerImage: MODERN,
     modules: ['funding', 'emergencyBanner'],
+    ...CORE_SUBPAGES.services,
   },
-  about: { extras: ['certifications'] },
+  gallery: { ...CORE_SUBPAGES.gallery },
+  about: { extras: ['certifications'], ...CORE_SUBPAGES.about },
+  contact: { ...CORE_SUBPAGES.contact },
 };
 
 const hotel: BranchConfig = {
@@ -232,9 +305,12 @@ const hotel: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
+      body: NOT_BOLD,
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: NONE,
     },
     branchChips: false,
     marqueeWords: BOLD,
@@ -246,8 +322,11 @@ const hotel: BranchConfig = {
   services: {
     headerImage: MODERN,
     modules: ['rooms'],
+    ...CORE_SUBPAGES.services,
   },
-  about: { extras: [] },
+  gallery: { ...CORE_SUBPAGES.gallery },
+  about: { extras: [], ...CORE_SUBPAGES.about },
+  contact: { ...CORE_SUBPAGES.contact },
 };
 
 const tourism: BranchConfig = {
@@ -258,9 +337,12 @@ const tourism: BranchConfig = {
     hero: {
       tagline: NOT_BOLD,
       subtitle: NOT_BOLD,
-      body: MODERN,    // only Modern renders heroBodyFor(); Classic Hero ignores body
+      body: NOT_BOLD,
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: NONE,
     },
     branchChips: false,
     marqueeWords: BOLD,
@@ -272,14 +354,35 @@ const tourism: BranchConfig = {
   services: {
     headerImage: MODERN,
     modules: ['tours'],
+    ...CORE_SUBPAGES.services,
   },
-  about: { extras: [] },
+  gallery: { ...CORE_SUBPAGES.gallery },
+  about: { extras: [], ...CORE_SUBPAGES.about },
+  contact: { ...CORE_SUBPAGES.contact },
 };
+
+/* ─── Extras: compact subpages ─────────────────────────────────────
+ * The extras template (consulting / medical / fitness) intentionally
+ * uses a compact subpage layout. Each extra subpage renders only:
+ *  - services: PageHero + service grid + spotlight + branchModules
+ *  - gallery: PageHero + grid
+ *  - about: PageHero + about + team + timeline + testimonials
+ *  - contact: PageHero + ContactSection + LocationsBlock
+ *
+ * Admin therefore only exposes those sections (plus serviceProcess for
+ * consulting because it drives the spotlight data).
+ * ────────────────────────────────────────────────────────────────── */
+const EXTRA_SUBPAGES = {
+  services: { showHighlights: false, showProcess: false, showFaq: false, showCta: false },
+  gallery:  { showStory: false, showUpload: true, showCategories: false, showCta: false },
+  about:    { showValues: false, showTimeline: true, showNumbers: false, showTestimonials: true, showCta: false },
+  contact:  { showForm: false, showArrival: false, showCta: false },
+} as const;
 
 const consulting: BranchConfig = {
   label: 'Beratung',
   pages: { services: 'Leistungen', gallery: 'Galerie', about: 'Über uns', contact: 'Kontakt' },
-  paths: { services: '#leistungen', gallery: '#galerie', about: '#about', contact: '#kontakt' },
+  paths: { services: '/leistungen', gallery: '/galerie', about: '/ueber-uns', contact: '/kontakt' },
   home: {
     hero: {
       tagline: NOT_BOLD,
@@ -287,25 +390,37 @@ const consulting: BranchConfig = {
       body: NONE,         // extra branches don't render hero body
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: MODERN,  // floating badge only in modern extras hero
     },
     branchChips: true,
     marqueeWords: BOLD,
-    logoStrip: MODERN,
+    logoStrip: NONE,      // extras don't render logo strip
     aboutImage: NOT_BOLD,
-    softCtaFields: MODERN_BOLD,
-    aboutTeaserMode: 'auto',
+    softCtaFields: NONE,  // extras have no softCta — they use ContactSection
+    aboutTeaserMode: 'standard',
   },
   services: {
-    headerImage: MODERN,
+    headerImage: NONE,
     modules: ['processSteps', 'packages'],
+    showHighlights: false,
+    // consulting spotlight reads from `serviceProcess` data, so admin keeps
+    // the editor (under Services → "Ablauf-Schritte"). Frontend doesn't
+    // render a separate process strip on /leistungen.
+    showProcess: true,
+    showFaq: false,
+    showCta: false,
   },
-  about: { extras: [] },
+  gallery: { ...EXTRA_SUBPAGES.gallery },
+  about: { extras: [], ...EXTRA_SUBPAGES.about },
+  contact: { ...EXTRA_SUBPAGES.contact },
 };
 
 const medical: BranchConfig = {
   label: 'Praxis',
   pages: { services: 'Leistungen', gallery: 'Galerie', about: 'Über uns', contact: 'Kontakt' },
-  paths: { services: '#leistungen', gallery: '#galerie', about: '#about', contact: '#kontakt' },
+  paths: { services: '/leistungen', gallery: '/galerie', about: '/ueber-uns', contact: '/kontakt' },
   home: {
     hero: {
       tagline: NOT_BOLD,
@@ -313,25 +428,31 @@ const medical: BranchConfig = {
       body: NONE,
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: MODERN,
     },
     branchChips: true,
     marqueeWords: BOLD,
-    logoStrip: MODERN,
+    logoStrip: NONE,
     aboutImage: NOT_BOLD,
-    softCtaFields: MODERN_BOLD,
-    aboutTeaserMode: 'auto',
+    softCtaFields: NONE,
+    aboutTeaserMode: 'standard',
   },
   services: {
-    headerImage: MODERN,
+    headerImage: NONE,
     modules: ['medicalNotice', 'doctors', 'booking'],
+    ...EXTRA_SUBPAGES.services,
   },
-  about: { extras: [] },
+  gallery: { ...EXTRA_SUBPAGES.gallery },
+  about: { extras: [], ...EXTRA_SUBPAGES.about },
+  contact: { ...EXTRA_SUBPAGES.contact },
 };
 
 const fitness: BranchConfig = {
   label: 'Studio',
   pages: { services: 'Leistungen', gallery: 'Galerie', about: 'Über uns', contact: 'Kontakt' },
-  paths: { services: '#leistungen', gallery: '#galerie', about: '#about', contact: '#kontakt' },
+  paths: { services: '/leistungen', gallery: '/galerie', about: '/ueber-uns', contact: '/kontakt' },
   home: {
     hero: {
       tagline: NOT_BOLD,
@@ -339,19 +460,25 @@ const fitness: BranchConfig = {
       body: NONE,
       bgImage: CLASSIC,
       cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: MODERN,
     },
     branchChips: true,
     marqueeWords: BOLD,
-    logoStrip: MODERN,
+    logoStrip: NONE,
     aboutImage: NOT_BOLD,
-    softCtaFields: MODERN_BOLD,
-    aboutTeaserMode: 'auto',
+    softCtaFields: NONE,
+    aboutTeaserMode: 'standard',
   },
   services: {
-    headerImage: MODERN,
+    headerImage: NONE,
     modules: ['programs', 'courses', 'packages'],
+    ...EXTRA_SUBPAGES.services,
   },
-  about: { extras: [] },
+  gallery: { ...EXTRA_SUBPAGES.gallery },
+  about: { extras: [], ...EXTRA_SUBPAGES.about },
+  contact: { ...EXTRA_SUBPAGES.contact },
 };
 
 /* ─── Registry ───────────────────────────────────────────────────── */
@@ -387,4 +514,9 @@ export function isBranchTextKeyVisible(key: string, style: TemplateStyle | undef
   const filter = (BRANCH_TEXT_STYLE_FILTERS as Record<string, PerStyle | undefined>)[key];
   if (!filter) return true; // not filtered → visible in all styles
   return isActiveForStyle(filter, style);
+}
+
+/** Convenience: is this template one of the three "extra" branches? */
+export function isExtraBranch(tpl: TemplateKey): boolean {
+  return tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
 }

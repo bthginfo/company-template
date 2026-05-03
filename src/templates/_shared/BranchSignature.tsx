@@ -272,6 +272,9 @@ function TradesmanSignature({ style, content }: { style: TemplateStyle; content:
   const recent = content.gallery.slice(0, 1)[0];
   const services = content.services.slice(0, 4);
   const t = resolveSignature('tradesman', style, content);
+  // Hide the section entirely when there is no phone and no service to show —
+  // otherwise the layout renders empty placeholders.
+  if (!phone && services.length === 0) return null;
 
   if (style === 'bold') {
     return (

@@ -55,6 +55,29 @@ function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galle
   return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || '') };
 }
 
+/** Resolve the hero primary + secondary CTA from `heroCta` overrides + base hero fields. */
+function resolveHeroCta(content: SiteContent) {
+  const hc = ((content as any).heroCta ?? {}) as {
+    primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string;
+  };
+  const primaryLabel = hc.primaryLabel || content.hero.ctaLabel || 'Termin anfragen';
+  const primaryHref = hc.primaryHref || content.hero.ctaHref || '#kontakt';
+  const secondaryLabel = hc.secondaryLabel ?? 'Leistungen ansehen';
+  const secondaryHref = hc.secondaryHref || '#leistungen';
+  return { primaryLabel, primaryHref, secondaryLabel, secondaryHref };
+}
+
+/** Smart link that uses anchor-jump for `#…` and React-Router NavLink for routes. */
+function ExtraHeroLink({ href, className, children }: { href: string; className?: string; children: React.ReactNode }) {
+  const basePath = useBasePath();
+  const isAnchor = href.startsWith('#');
+  const isExternal = /^https?:\/\//.test(href) || href.startsWith('mailto:') || href.startsWith('tel:');
+  if (isAnchor || isExternal) {
+    return <a href={href} className={className}>{children}</a>;
+  }
+  return <NavLink to={withBase(basePath, href)} className={className}>{children}</NavLink>;
+}
+
 export type ExtraStyle = 'classic' | 'modern' | 'bold';
 export type ExtraPage = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
@@ -139,12 +162,15 @@ export default function ExtraBranchTemplate({
 }
 
 /* ─── Compact page hero used on subpages ─────────────────────────── */
-function PageHero({ eyebrow, title, style }: { eyebrow: string; title: string; style: ExtraStyle }) {
+function PageHero({ eyebrow, title, subtitle, style }: { eyebrow: string; title: string; subtitle?: string; style: ExtraStyle }) {
   return (
     <section className="pt-32 md:pt-40 pb-12 md:pb-16 surface">
       <div className="container-x">
         {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
         <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9] break-words [overflow-wrap:anywhere] [hyphens:auto]' : 'headline-xl'}`}>{title}</h1>
+        {subtitle && (
+          <p className="mt-5 max-w-3xl text-lg md:text-xl text-muted reveal">{subtitle}</p>
+        )}
       </div>
     </section>
   );
@@ -168,9 +194,10 @@ function SubPage({ content, branch, page, style, eyebrow }: {
   const bt = effectiveBranchText(branch, content);
   const title = ho?.title || PAGE_TITLES[page];
   const heroEyebrow = ho?.eyebrow || eyebrow;
+  const heroSubtitle = ho?.subtitle || '';
   return (
     <>
-      <PageHero eyebrow={heroEyebrow} title={title} style={style} />
+      <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
 
       {page === 'services' && (
         <>
@@ -362,6 +389,8 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
     contact: <ContactSection content={content} variant="classic" />,
   };
 
+  const cta = resolveHeroCta(content);
+
   return (
     <>
       {/* Hero — always first */}
@@ -377,8 +406,10 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
           <h1 className="headline-xl max-w-5xl reveal"><SplitText>{content.hero.title}</SplitText></h1>
           <p className="mt-8 text-lg md:text-2xl text-muted max-w-3xl reveal">{content.hero.subtitle}</p>
           <div className="mt-12 flex flex-wrap gap-3 reveal">
-            <a href="#kontakt" className="btn-primary">{content.hero.ctaLabel || 'Termin anfragen'} <span aria-hidden>→</span></a>
-            <a href="#leistungen" className="btn-outline">Leistungen ansehen</a>
+            <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel} <span aria-hidden>→</span></ExtraHeroLink>
+            {cta.secondaryLabel && (
+              <ExtraHeroLink href={cta.secondaryHref} className="btn-outline">{cta.secondaryLabel}</ExtraHeroLink>
+            )}
           </div>
         </div>
       </section>
@@ -450,7 +481,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
                 <h3 className="font-display text-2xl md:text-3xl mb-3">{s.title}</h3>
                 {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
                 <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
-                  <span className="text-muted">{((content as any).branchText?.serviceCardNote as string) || 'Inkl. Beratung & Briefing'}</span>
+                  <span className="text-muted">{(bt as any).serviceCardNote || ''}</span>
                   <span className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition">Mehr erfahren →</span>
                 </div>
               </article>
@@ -510,6 +541,8 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
     contact: <ContactSection content={content} variant="modern" />,
   };
 
+  const cta = resolveHeroCta(content);
+
   return (
     <>
       {/* Hero — split: text left / image card right with floating badge */}
@@ -526,8 +559,10 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted max-w-xl">{content.hero.subtitle}</p>
             <div className="mt-10 flex flex-wrap gap-3">
-              <a href="#kontakt" className="btn-primary">{content.hero.ctaLabel || 'Termin anfragen'}</a>
-              <a href="#leistungen" className="btn-ghost">Mehr erfahren →</a>
+              <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel}</ExtraHeroLink>
+              {cta.secondaryLabel && (
+                <ExtraHeroLink href={cta.secondaryHref} className="btn-ghost">{cta.secondaryLabel} →</ExtraHeroLink>
+              )}
             </div>
             <dl className="mt-14 grid grid-cols-3 gap-6 max-w-md">
               {stats.map((s, i) => (
@@ -575,16 +610,23 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
 
   const blocks: Record<string, JSX.Element | null> = {
     chips: <BranchHeroBadges branch={branch} style="bold" content={content} />,
-    marquee: (
-      <div className="border-y border-line py-8 overflow-hidden">
-        <div className="flex gap-12 whitespace-nowrap animate-[marquee_25s_linear_infinite] font-display text-4xl md:text-6xl">
-          {Array.from({ length: 6 }).flatMap((_, i) => [
-            <span key={`a${i}`}>{content.brand.name}</span>,
-            <span key={`b${i}`} className="text-[var(--accent-color)]">✦</span>,
-          ])}
+    marquee: (() => {
+      const words = (Array.isArray(bt.marqueeWords) && bt.marqueeWords.length > 0)
+        ? (bt.marqueeWords as string[])
+        : [content.brand.name];
+      return (
+        <div className="border-y border-line py-8 overflow-hidden">
+          <div className="flex gap-12 whitespace-nowrap animate-[marquee_25s_linear_infinite] font-display text-4xl md:text-6xl">
+            {Array.from({ length: 3 }).flatMap((_, lap) =>
+              words.flatMap((w, i) => [
+                <span key={`w-${lap}-${i}`}>{w}</span>,
+                <span key={`s-${lap}-${i}`} className="text-[var(--accent-color)]">✦</span>,
+              ]),
+            )}
+          </div>
         </div>
-      </div>
-    ),
+      );
+    })(),
     about: content.about ? (
       <section id="about" className="py-24 md:py-40">
         <div className="container-x grid md:grid-cols-12 gap-10">
@@ -608,7 +650,12 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         <div className="container-x">
           <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
             <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">02</p>
-            <h2 className="md:col-span-10 font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">Leistungen.</h2>
+            <div className="md:col-span-10">
+              {bt.servicesTeaserEyebrow && (
+                <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-3">{bt.servicesTeaserEyebrow}</p>
+              )}
+              <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">{bt.servicesTeaserTitle || 'Leistungen.'}</h2>
+            </div>
           </div>
           <ul className="reveal-stagger">
             {content.services.map((s, i) => (
@@ -635,7 +682,12 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         <div className="container-x">
           <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
             <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">03</p>
-            <h2 className="md:col-span-10 font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">Bilder.</h2>
+            <div className="md:col-span-10">
+              {bt.galleryTeaserEyebrow && (
+                <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-3">{bt.galleryTeaserEyebrow}</p>
+              )}
+              <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">{bt.galleryTeaserTitle || 'Bilder.'}</h2>
+            </div>
           </div>
           <ExtraMasonry images={content.gallery} />
         </div>
@@ -661,12 +713,15 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
     contact: <ContactSection content={content} variant="bold" />,
   };
 
+  const heroEyebrow = bt.heroEyebrow || eyebrow;
+  const cta = resolveHeroCta(content);
+
   return (
     <>
       {/* Hero — oversized headline overlapping image */}
       <section className="relative pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="container-x">
-          {eyebrow && <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-8 reveal">— {eyebrow} —</p>}
+          {heroEyebrow && <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-8 reveal">— {heroEyebrow} —</p>}
           <h1 className="font-display text-[clamp(2.5rem,11vw,11rem)] leading-[0.88] md:leading-[0.85] tracking-tight reveal break-words [overflow-wrap:anywhere] [hyphens:auto]">
             <SplitText>{content.hero.title}</SplitText>
           </h1>
@@ -678,8 +733,11 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         )}
         <div className="container-x mt-12 grid md:grid-cols-12 gap-8 reveal">
           <p className="md:col-span-7 text-2xl md:text-3xl leading-tight">{content.hero.subtitle}</p>
-          <div className="md:col-span-5 md:text-right">
-            <a href="#kontakt" className="btn-primary text-base">{content.hero.ctaLabel || 'Termin anfragen'} <span aria-hidden>→</span></a>
+          <div className="md:col-span-5 md:text-right flex flex-wrap gap-3 md:justify-end">
+            <ExtraHeroLink href={cta.primaryHref} className="btn-primary text-base">{cta.primaryLabel} <span aria-hidden>→</span></ExtraHeroLink>
+            {cta.secondaryLabel && (
+              <ExtraHeroLink href={cta.secondaryHref} className="btn-outline text-base">{cta.secondaryLabel}</ExtraHeroLink>
+            )}
           </div>
         </div>
       </section>
@@ -881,13 +939,20 @@ function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraSty
   }, []);
   useEffect(() => { setMobile(false); }, [pathname]);
   const isBold = style === 'bold';
-  const NAV: { to: string; label: string }[] = [
+  const DEFAULT_NAV: { to: string; label: string }[] = [
     { to: '/', label: 'Start' },
     { to: '/leistungen', label: 'Leistungen' },
     { to: '/galerie', label: 'Galerie' },
     { to: '/ueber-uns', label: 'Über uns' },
     { to: '/kontakt', label: 'Kontakt' },
   ];
+  // Honor `navItems` from the admin (NavigationPage). Falls back to defaults.
+  const customNav = ((content as any).navItems as Array<{ label?: string; path?: string; visible?: boolean }> | undefined);
+  const NAV: { to: string; label: string }[] = Array.isArray(customNav) && customNav.length
+    ? customNav
+        .filter((n) => n && n.visible !== false && (n.label?.trim()) && (n.path?.trim()))
+        .map((n) => ({ to: n.path!.trim(), label: n.label!.trim() }))
+    : DEFAULT_NAV;
   return (
     <>
       <header

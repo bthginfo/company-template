@@ -124,7 +124,8 @@ const MODULE_TO_KEY: Partial<Record<ServiceModule, AdminSectionKey>> = {
 
 function servicesOrder(tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey[] {
   const cfg = getBranchConfig(tpl);
-  const base: AdminSectionKey[] = ['servicesHeader', 'highlights'];
+  const base: AdminSectionKey[] = ['servicesHeader'];
+  if (cfg.services.showHighlights) base.push('highlights');
 
   // Derive module sections from branch config — single source of truth
   for (const mod of cfg.services.modules) {
@@ -132,32 +133,52 @@ function servicesOrder(tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey
     if (key) base.push(key);
   }
 
-  base.push('serviceProcess', 'faq', 'servicesCta');
+  if (cfg.services.showProcess) base.push('serviceProcess');
+  if (cfg.services.showFaq) base.push('faq');
+  if (cfg.services.showCta) base.push('servicesCta');
   return base;
 }
 
 /* ─── Gallery page section orders ───────────────────────────────── */
 
-function galleryOrder(_tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey[] {
-  return ['galleryHeader', 'galleryStory', 'galleryUpload', 'galleryGrid', 'galleryCategories', 'galleryCta'];
+function galleryOrder(tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey[] {
+  const cfg = getBranchConfig(tpl);
+  const base: AdminSectionKey[] = ['galleryHeader'];
+  if (cfg.gallery.showStory) base.push('galleryStory');
+  if (cfg.gallery.showUpload) base.push('galleryUpload');
+  base.push('galleryGrid');
+  if (cfg.gallery.showCategories) base.push('galleryCategories');
+  if (cfg.gallery.showCta) base.push('galleryCta');
+  return base;
 }
 
 /* ─── About page section orders ─────────────────────────────────── */
 
 function aboutOrder(tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey[] {
   const cfg = getBranchConfig(tpl);
-  const base: AdminSectionKey[] = ['aboutHeader', 'aboutIntro', 'values', 'timeline', 'team', 'aboutNumbers'];
+  const base: AdminSectionKey[] = ['aboutHeader', 'aboutIntro'];
+  if (cfg.about.showValues) base.push('values');
+  if (cfg.about.showTimeline) base.push('timeline');
+  base.push('team');
+  if (cfg.about.showNumbers) base.push('aboutNumbers');
   // Derive extra sections from branch config
   if (cfg.about.extras.includes('certifications')) base.push('certifications');
   if (cfg.about.extras.includes('press')) base.push('press');
-  base.push('aboutTestimonials', 'aboutCta');
+  if (cfg.about.showTestimonials) base.push('aboutTestimonials');
+  if (cfg.about.showCta) base.push('aboutCta');
   return base;
 }
 
 /* ─── Contact page section orders ───────────────────────────────── */
 
-function contactOrder(_tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey[] {
-  return ['contactHeader', 'contactDetails', 'contactForm', 'locations', 'arrival', 'contactCta'];
+function contactOrder(tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey[] {
+  const cfg = getBranchConfig(tpl);
+  const base: AdminSectionKey[] = ['contactHeader', 'contactDetails'];
+  if (cfg.contact.showForm) base.push('contactForm');
+  base.push('locations');
+  if (cfg.contact.showArrival) base.push('arrival');
+  if (cfg.contact.showCta) base.push('contactCta');
+  return base;
 }
 
 /* ─── Public API ────────────────────────────────────────────────── */
@@ -468,7 +489,6 @@ export const FIELD_CONFIG = {
   /** HOME: About teaser */
   homeAbout: {
     aboutTeaserEyebrow: { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
-    manifestFields:     { classic: false, modern: false, bold: true  } as Record<TemplateStyle, FieldVis>,
     aboutImage:         { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
     bodyHint: {
       classic: 'Alle Absätze werden auf der Startseite angezeigt.',
