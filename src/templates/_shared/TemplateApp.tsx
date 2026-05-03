@@ -23,7 +23,7 @@ import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
-import { getOpenStatus } from '@/lib/open-hours';
+import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { isSectionEnabled, getEffectivePageOrder } from '@/lib/page-layout';
 import { BRANCH_STYLE_ORDER as SHARED_BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 import { BranchSignature } from './BranchSignature';
@@ -908,29 +908,38 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
   const phone = content.contact.phone || '';
   const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
   const def = defaultHomeStrip(variant);
+  const rawStrip = ((content as any).homeStrip || {}) as Record<string, unknown>;
+  const auto = rawStrip.eyebrowAuto !== false;
+  // When auto-eyebrow is on, ignore any saved manual `eyebrow` so old copy cannot "win"
+  // over the live Heute-geöffnet/geschlossen line when hours parsing is partial.
+  const stripForMerge = Object.fromEntries(
+    Object.entries(rawStrip).filter(([key]) => !auto || key !== 'eyebrow'),
+  );
   // Strip empty-string overrides so the per-variant default keeps winning.
   const overlay = Object.fromEntries(
-    Object.entries(((content as any).homeStrip || {}) as Record<string, unknown>)
-      .filter(([, val]) => (typeof val === 'string' ? val.trim() !== '' : val != null))
+    Object.entries(stripForMerge).filter(([, val]) => (typeof val === 'string' ? val.trim() !== '' : val != null)),
   );
   const cfg = { ...def, ...overlay } as ReturnType<typeof defaultHomeStrip> & { eyebrowAuto?: boolean };
 
-  // Auto-eyebrow: when enabled (default) and we can parse opening hours,
-  // override the eyebrow with a live "Heute geöffnet · HH:MM – HH:MM"
-  // indicator. Falls back silently to the manual eyebrow on parse failure.
-  const auto = (content as any).homeStrip?.eyebrowAuto !== false;
+  // Auto-eyebrow: when enabled (default), derive from contact.hours only — not from stale manual text.
   let liveEyebrow: string | null = null;
   let liveIsOpen = false;
   if (auto) {
     try {
-      const status = getOpenStatus(content.contact?.hours);
-      if (status.todayFull) {
+      const rows = content.contact?.hours;
+      const status = getOpenStatus(rows);
+      const slot = status.todayFull ?? status.todayLabel;
+      if (slot) {
         liveEyebrow = status.isOpen
-          ? `Heute geöffnet · ${status.todayFull}`
+          ? `Heute geöffnet · ${slot}`
           : 'Heute geschlossen';
         liveIsOpen = status.isOpen;
+      } else if (rows?.length && parseHours(rows).length > 0) {
+        // Parsed week has slots but none for today (e.g. Ruhetag) — still show closed, not old manual eyebrow.
+        liveEyebrow = 'Heute geschlossen';
+        liveIsOpen = false;
       }
-    } catch { /* ignore — fall back to manual eyebrow */ }
+    } catch { /* ignore — fall back to template default eyebrow */ }
   }
   const eyebrowText = liveEyebrow ?? cfg.eyebrow;
 

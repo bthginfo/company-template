@@ -3261,7 +3261,15 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
             type="checkbox"
             className="mt-1"
             checked={auto}
-            onChange={(e) => set({ ...v, eyebrowAuto: e.target.checked })}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              set({
+                ...v,
+                eyebrowAuto: checked,
+                // Clear stored manual eyebrow when switching to auto so the site cannot keep showing old copy.
+                ...(checked ? { eyebrow: '' } : {}),
+              });
+            }}
           />
           <span>
             <span className="text-sm font-medium">Eyebrow automatisch aus Öffnungszeiten</span>
