@@ -21,5 +21,14 @@
     },
     "types": ["node", "vite/client"]
   },
-  "include": ["src", "api", "scripts", "drizzle.config.ts", "vite.config.ts", "tailwind.config.ts"]
+  "include": [
+    "src",
+    "api",
+    "scripts",
+    "e2e",
+    "playwright.config.ts",
+    "drizzle.config.ts",
+    "vite.config.ts",
+    "tailwind.config.ts"
+  ]
 }

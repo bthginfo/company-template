@@ -10,6 +10,9 @@
     "preview": "vite preview",
     "lint": "tsc -b --noEmit",
     "check:drift": "tsx scripts/check-coverage.ts",
+    "test:e2e": "npm run build && playwright test",
+    "test:e2e:ui": "npm run build && playwright test --ui",
+    "audit:surface": "tsx scripts/surface-audit-content-as-any.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "tenant:create": "tsx scripts/create-tenant.ts",
@@ -39,6 +42,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^22.9.0",

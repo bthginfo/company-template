@@ -9,3 +9,6 @@ dist
 .env*.local
 .tenant-credentials.txt
 .tenant-provision-*.log
+playwright-report/
+test-results/
+playwright/.cache/
