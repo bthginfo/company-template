@@ -191,12 +191,25 @@ function RestaurantSignature({ style, content }: { style: TemplateStyle; content
   );
 }
 
+type HomeSignatureItem = NonNullable<SiteContent['homeSignatureItems']>[number];
+
+/** Image for a signature row: explicit URL, else gallery slot (same contract as restaurant signature). */
+function signatureItemImage(d: HomeSignatureItem, i: number, gallery: readonly string[]): string | undefined {
+  const u = d.imageUrl?.trim();
+  if (u) return u;
+  if (!gallery.length) return undefined;
+  return gallery[i] ?? gallery[i % gallery.length];
+}
+
 /* ═══════════════════════════════════════════════════════════════════
  * SALON — "Looks der Woche"
  * ═══════════════════════════════════════════════════════════════════ */
 function SalonSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
-  const looks = content.gallery.slice(0, 4);
-  if (!looks.length) return null;
+  const gallery = content.gallery.slice(0, 6);
+  const items = content.homeSignatureItems && content.homeSignatureItems.length > 0
+    ? content.homeSignatureItems
+    : null;
+  if (!items && !gallery.length) return null;
   const t = resolveSignature('salon', style, content);
 
   if (style === 'bold') {
@@ -206,11 +219,29 @@ function SalonSignature({ style, content }: { style: TemplateStyle; content: Sit
           {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
           <Title style={style}>{t.titleA}<br/>{t.titleB}</Title>
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-2">
-            {looks.map((src, i) => (
-              <figure key={i} className="aspect-[3/4] overflow-hidden border-4 border-brand">
-                <img src={src} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-700" />
-              </figure>
-            ))}
+            {items
+              ? items.map((d, i) => {
+                const src = signatureItemImage(d, i, gallery);
+                return (
+                  <figure key={i} className="relative aspect-[3/4] overflow-hidden border-4 border-brand group">
+                    {src ? (
+                      <img src={src} alt={d.title || ''} className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-700" loading="lazy" />
+                    ) : (
+                      <div className="absolute inset-0 bg-brand/20" aria-hidden />
+                    )}
+                    <figcaption className="absolute bottom-0 left-0 right-0 p-4 bg-black/55 text-[var(--accent-fg)]">
+                      {d.title && <p className="font-display text-lg md:text-xl uppercase tracking-tight leading-tight">{d.title}</p>}
+                      {d.description && <p className="mt-1 text-xs text-white/85 leading-relaxed line-clamp-3">{d.description}</p>}
+                      {d.price && <p className="mt-2 font-mono text-sm text-[var(--accent-color)]">{d.price}</p>}
+                    </figcaption>
+                  </figure>
+                );
+              })
+              : gallery.slice(0, 4).map((src, i) => (
+                <figure key={i} className="aspect-[3/4] overflow-hidden border-4 border-brand">
+                  <img src={src} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-700" />
+                </figure>
+              ))}
           </div>
         </div>
       </section>
@@ -232,22 +263,46 @@ function SalonSignature({ style, content }: { style: TemplateStyle; content: Sit
               </span>
             )}
           </div>
-          <div className="mt-12 grid md:grid-cols-4 gap-4 reveal-stagger">
-            {looks.map((src, i) => (
-              <figure key={i} className="bg-white rounded-2xl overflow-hidden border border-line p-3 shadow-sm hover-lift">
-                <div className="aspect-[3/4] overflow-hidden rounded-xl">
-                  <img src={src} alt="" className="w-full h-full object-cover" />
-                </div>
-                <figcaption className="mt-3 text-center text-xs font-mono uppercase tracking-widest text-muted">N° {String(i + 1).padStart(2, '0')}</figcaption>
-              </figure>
-            ))}
-          </div>
+          {items ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal-stagger">
+              {items.map((d, i) => {
+                const img = signatureItemImage(d, i, gallery);
+                return (
+                  <article key={i} className="bg-white border border-line rounded-2xl overflow-hidden hover-lift">
+                    {img && (
+                      <div className="aspect-[3/4] overflow-hidden">
+                        <img src={img} alt={d.title || ''} className="w-full h-full object-cover" loading="lazy" />
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <h3 className="font-display text-xl">{d.title}</h3>
+                        {d.price && <span className="font-mono text-xs bg-[var(--accent-color)]/15 text-brand px-2 py-1 rounded-full whitespace-nowrap">{d.price}</span>}
+                      </div>
+                      {d.description && <p className="mt-3 text-sm text-muted leading-relaxed">{d.description}</p>}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-12 grid md:grid-cols-4 gap-4 reveal-stagger">
+              {gallery.slice(0, 4).map((src, i) => (
+                <figure key={i} className="bg-white rounded-2xl overflow-hidden border border-line p-3 shadow-sm hover-lift">
+                  <div className="aspect-[3/4] overflow-hidden rounded-xl">
+                    <img src={src} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <figcaption className="mt-3 text-center text-xs font-mono uppercase tracking-widest text-muted">N° {String(i + 1).padStart(2, '0')}</figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     );
   }
 
-  // classic — polaroid-style look book
+  // classic — polaroid-style look book (or item cards when homeSignatureItems are set)
   return (
     <section className="py-24 md:py-32">
       <div className="container-x">
@@ -259,14 +314,35 @@ function SalonSignature({ style, content }: { style: TemplateStyle; content: Sit
           {t.intro && <p className="md:col-span-6 text-muted">{t.intro}</p>}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {looks.map((src, i) => (
-            <figure key={i} className="bg-white shadow-md p-3 pb-12 transition-transform hover:-rotate-1" style={{ transform: 'rotate(' + (i % 2 === 0 ? -1 : 1) + 'deg)' }}>
-              <div className="aspect-square overflow-hidden">
-                <img src={src} alt="" className="w-full h-full object-cover" />
-              </div>
-              <figcaption className="mt-3 text-center font-display italic text-sm">— Look N° {i + 1}</figcaption>
-            </figure>
-          ))}
+          {items
+            ? items.map((d, i) => {
+              const src = signatureItemImage(d, i, gallery);
+              const rot = i % 2 === 0 ? -1 : 1;
+              return (
+                <figure key={i} className="bg-white shadow-md p-3 pb-12 transition-transform hover:-rotate-1 flex flex-col" style={{ transform: `rotate(${rot}deg)` }}>
+                  {src ? (
+                    <div className="aspect-square overflow-hidden">
+                      <img src={src} alt={d.title || ''} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                  ) : (
+                    <div className="aspect-square bg-[#f0f0ec] border border-dashed border-line" aria-hidden />
+                  )}
+                  <figcaption className="mt-3 text-center flex flex-col gap-1 grow">
+                    {d.title && <span className="font-display italic text-sm">{d.title}</span>}
+                    {d.description && <span className="text-xs text-muted leading-snug">{d.description}</span>}
+                    {d.price && <span className="font-mono text-xs text-brand">{d.price}</span>}
+                  </figcaption>
+                </figure>
+              );
+            })
+            : gallery.slice(0, 4).map((src, i) => (
+              <figure key={i} className="bg-white shadow-md p-3 pb-12 transition-transform hover:-rotate-1" style={{ transform: 'rotate(' + (i % 2 === 0 ? -1 : 1) + 'deg)' }}>
+                <div className="aspect-square overflow-hidden">
+                  <img src={src} alt="" className="w-full h-full object-cover" />
+                </div>
+                <figcaption className="mt-3 text-center font-display italic text-sm">— Look N° {i + 1}</figcaption>
+              </figure>
+            ))}
         </div>
       </div>
     </section>
