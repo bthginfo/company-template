@@ -12,6 +12,7 @@ import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { isSectionEnabled, EXTRA_HOME_ORDER } from '@/lib/page-layout';
+import { normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -1105,8 +1106,8 @@ const BRANCH_TEAM_DEFAULT: Record<ExtraBranchKey, TeamMember[]> = {
   ],
 };
 function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember[] {
-  const overlay = (content as any).team as TeamMember[] | undefined;
-  if (overlay && overlay.length > 0) return overlay.filter((m) => m && (m.n || m.r));
+  const overlay = normaliseTeamList((content as unknown as { team?: unknown }).team ?? []);
+  if (overlay.length > 0) return overlay.filter((m) => m && (m.n || m.r));
   return BRANCH_TEAM_DEFAULT[branch];
 }
 function BranchTeam({ branch, style, content }: { branch: ExtraBranchKey; style: ExtraStyle; content: SiteContent }) {
@@ -1270,8 +1271,8 @@ const CONSULTING_STEPS_DEFAULT: Array<{ k: string; t: string; d: string }> = [
   { k: '04', t: 'Umsetzung',    d: 'Begleitung in der Implementierung, Reviews und Sparring auf Augenhöhe.' },
 ];
 function useConsultingSteps(content: SiteContent) {
-  const overlay = (content as any).serviceProcess as Array<{ t: string; d: string }> | undefined;
-  if (!overlay || overlay.length === 0) return CONSULTING_STEPS_DEFAULT;
+  const overlay = normaliseTdList((content as unknown as { serviceProcess?: unknown }).serviceProcess ?? []);
+  if (overlay.length === 0) return CONSULTING_STEPS_DEFAULT;
   return overlay.map((s, i) => ({ k: String(i + 1).padStart(2, '0'), t: s.t, d: s.d }));
 }
 function ConsultingProcess({ style, content }: { style: ExtraStyle; content: SiteContent }) {
@@ -1458,8 +1459,8 @@ const FITNESS_PROGRAMS_DEFAULT: Array<{ k: string; t: string; d: string; meta: s
 ];
 function FitnessPrograms({ style, content }: { style: ExtraStyle; content: SiteContent }) {
   const h = moduleHeading(content, 'fitnessSpotlight');
-  const overlayPrograms = (content as any).programs as Array<{ k: string; t: string; d: string; meta: string }> | undefined;
-  const PROGRAMS = overlayPrograms && overlayPrograms.length > 0 ? overlayPrograms : FITNESS_PROGRAMS_DEFAULT;
+  const resolvedPrograms = normaliseProgramList((content as unknown as { programs?: unknown }).programs ?? []);
+  const PROGRAMS = resolvedPrograms.length > 0 ? resolvedPrograms : FITNESS_PROGRAMS_DEFAULT;
   const overlayNumbers = (content as any).numbers as Array<{ value: string; label: string }> | undefined;
   const stats = (overlayNumbers && overlayNumbers.length > 0
     ? overlayNumbers.slice(0, 3).map((n) => ({ raw: n.value, l: n.label }))

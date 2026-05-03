@@ -44,6 +44,35 @@ export function normaliseTeamList(raw: unknown): TeamCard[] {
   return raw.map(normaliseTeamItem).filter((m) => m.n || m.r || m.bio);
 }
 
+/** Fitness / extra template — programs grid expects `k`/`t`/`d`/`meta`; AI often sends title/description + subtitle. */
+export type ProgramCard = { k: string; t: string; d: string; meta: string };
+
+export function normaliseProgramItem(raw: unknown, index: number): ProgramCard {
+  const fallbackK = String(index + 1).padStart(2, '0');
+  if (!raw || typeof raw !== 'object') {
+    return { k: fallbackK, t: '', d: '', meta: '' };
+  }
+  const o = raw as Record<string, unknown>;
+  const kCand =
+    (typeof o.k === 'string' && o.k.trim()) ||
+    (typeof o.key === 'string' && o.key.trim()) ||
+    (typeof o.code === 'string' && o.code.trim()) ||
+    (typeof o.slug === 'string' && o.slug.trim()) ||
+    '';
+  const k = kCand || fallbackK;
+  const { t, d } = normaliseTdItem(raw);
+  const metaRaw = o.meta ?? o.subtitle ?? o.schedule ?? o.duration ?? o.detail ?? '';
+  const meta = typeof metaRaw === 'string' ? metaRaw.trim() : '';
+  return { k, t, d, meta };
+}
+
+export function normaliseProgramList(raw: unknown): ProgramCard[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item, i) => normaliseProgramItem(item, i))
+    .filter((p) => p.t || p.d || p.meta);
+}
+
 export function normaliseFaqItem(raw: unknown): FaqPair {
   if (!raw || typeof raw !== 'object') return { q: '', a: '' };
   const o = raw as Record<string, unknown>;
@@ -148,5 +177,15 @@ export function applyContentFieldAliases(obj: Record<string, unknown>): void {
   }
   if (Array.isArray(obj.arrival)) {
     obj.arrival = normaliseArrivalList(obj.arrival);
+  }
+  if (Array.isArray(obj.programs)) {
+    obj.programs = (obj.programs as unknown[]).flatMap((raw, i) => {
+      const card = normaliseProgramItem(raw, i);
+      if (!card.t && !card.d && !card.meta) return [];
+      if (raw && typeof raw === 'object' && 'id' in raw && typeof (raw as { id: unknown }).id === 'string') {
+        return [{ id: (raw as { id: string }).id, ...card }];
+      }
+      return [card];
+    });
   }
 }

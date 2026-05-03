@@ -37,6 +37,7 @@ export async function importContentJson(
   ensureIds(merged, 'faq');
   ensureIds(merged, 'press');
   ensureIds(merged, 'team');
+  ensureIds(merged, 'programs');
 
   const parse = SiteContentSchema.safeParse(merged);
   if (!parse.success) {
@@ -149,6 +150,7 @@ const ARRAY_FIELDS = [
   'processSteps', 'doctors', 'fundingItems', 'services', 'testimonials',
   'posts', 'timeline', 'highlights', 'faq', 'team', 'values',
   'certifications', 'press', 'announcements', 'numbers', 'homeSignatureItems',
+  'programs',
 ];
 function coerceArrayFields(obj: Record<string, unknown>) {
   for (const field of ARRAY_FIELDS) {
