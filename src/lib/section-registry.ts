@@ -51,7 +51,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
       'branchText.heroEyebrow', 'branchText.heroImageUrl',
     ],
   },
-  actionStrip: { key: 'actionStrip', dataKeys: ['homeStrip', 'contact.phone', 'contact.hours'] },
+  actionStrip: { key: 'actionStrip', dataKeys: ['homeStrip'] },
   branchChips: { key: 'branchChips', dataKeys: ['branchChips', 'heroBadge'] },
   marquee: { key: 'marquee', dataKeys: ['branchText.marqueeWords'] },
   services: {

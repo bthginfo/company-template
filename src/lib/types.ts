@@ -1,5 +1,18 @@
 import { z } from 'zod';
 
+/** Reusable page-hero / block heading (eyebrow + title + subtitle). */
+const pageHeaderBlock = z.object({
+  eyebrow: z.string().optional().default(''),
+  title: z.string().optional().default(''),
+  subtitle: z.string().optional().default(''),
+});
+
+/** Title + body pairs (`t`/`d`) used for highlights, process lists, values, etc. */
+const tdPair = z.object({
+  t: z.string().optional().default(''),
+  d: z.string().optional().default(''),
+});
+
 /** Tenant-owned named palette; referenced by `brand.themePresetId` as `custom:<id>`. */
 export const TenantCustomThemeSchema = z.object({
   id: z.string().min(1),
@@ -328,6 +341,8 @@ export const SiteContentSchema = z.object({
     titleA: z.string().optional().default(''),
     titleB: z.string().optional().default(''),
     intro: z.string().optional().default(''),
+    /** Modern signature layout — label next to the title (e.g. “Saisonal”). */
+    metaLabel: z.string().optional().default(''),
   }).optional().default({}),
 
   /**
@@ -491,6 +506,84 @@ export const SiteContentSchema = z.object({
     autoReply: z.boolean().optional().default(true),
   }).optional().default({}),
 
+  /** Home ticker / announcement lines. */
+  announcements: z.array(z.string()).optional().default([]),
+  /** Hero statistic chips (label + value). */
+  numbers: z.array(z.object({
+    label: z.string().optional().default(''),
+    value: z.string().optional().default(''),
+  })).optional().default([]),
+  /** Extras / modern hero — floating rating pill. */
+  heroBadge: z.object({
+    text: z.string().optional().default(''),
+    label: z.string().optional().default(''),
+  }).optional().default({}),
+  /** Extra branches — keyword chips under the hero. */
+  branchChips: z.array(z.string()).optional().default([]),
+  /** Services page USP ribbon. */
+  serviceHighlights: z.array(tdPair).optional().default([]),
+  /** Consulting process steps / spotlight source (same shape as highlights). */
+  serviceProcess: z.array(tdPair).optional().default([]),
+  faq: z.array(z.object({
+    q: z.string().optional().default(''),
+    a: z.string().optional().default(''),
+  })).optional().default([]),
+  values: z.array(tdPair).optional().default([]),
+  team: z.array(z.object({
+    n: z.string().optional().default(''),
+    r: z.string().optional().default(''),
+    img: z.string().optional().default(''),
+    bio: z.string().optional().default(''),
+  })).optional().default([]),
+  aboutNumbers: z.array(z.object({
+    label: z.string().optional().default(''),
+    value: z.string().optional().default(''),
+  })).optional().default([]),
+  servicesHeader: pageHeaderBlock.optional().default({}),
+  galleryHeader: pageHeaderBlock.optional().default({}),
+  aboutHeader: pageHeaderBlock.optional().default({}),
+  contactPageHeader: pageHeaderBlock.optional().default({}),
+  galleryStory: z.object({
+    eyebrow: z.string().optional().default(''),
+    title: z.string().optional().default(''),
+    body: z.string().optional().default(''),
+    captions: z.array(tdPair).optional().default([]),
+  }).optional().default({}),
+  galleryCategories: z.array(tdPair).optional().default([]),
+  formFields: z.array(z.object({
+    key: z.string().optional().default(''),
+    label: z.string().optional().default(''),
+    required: z.boolean().optional().default(false),
+    type: z.enum(['text', 'email', 'tel', 'textarea', 'date']).optional().default('text'),
+  })).optional().default([]),
+  contactBlock: pageHeaderBlock.optional().default({}),
+  arrival: z.array(tdPair).optional().default([]),
+  arrivalSection: pageHeaderBlock.optional().default({}),
+  certifications: z.array(tdPair).optional().default([]),
+  press: z.array(z.object({
+    src: z.string().optional().default(''),
+    q: z.string().optional().default(''),
+    y: z.string().optional().default(''),
+    url: z.string().optional().default(''),
+  })).optional().default([]),
+  /** Per-module heading overrides (see `branch-modules.tsx`). */
+  moduleHeadings: z.record(z.string(), z.object({
+    eyebrow: z.string().optional().default(''),
+    titleA: z.string().optional().default(''),
+    titleB: z.string().optional().default(''),
+    subtitle: z.string().optional().default(''),
+  })).optional().default({}),
+  programs: z.array(z.object({
+    k: z.string().optional().default(''),
+    t: z.string().optional().default(''),
+    d: z.string().optional().default(''),
+    meta: z.string().optional().default(''),
+  })).optional().default([]),
+  medicalNotice: z.object({
+    online: z.string().optional().default(''),
+    emergency: z.string().optional().default(''),
+  }).optional().default({}),
+
   /**
    * Per-section visibility. Keys are namespaced by page:
    *   home.<key>      → home page sections (action, signature, services, …)
@@ -512,10 +605,8 @@ export const SiteContentSchema = z.object({
    */
   sectionOrder: z.record(z.array(z.string())).optional().default({}),
 }).passthrough();
-// `.passthrough()` keeps any extra admin-saved fields (announcements, values,
-// team, faq, highlights, process, certifications, press, etc.) intact — the
-// admin editor already persists them, and templates read them via
-// `(content as any).field ?? hardcodedDefault`.
+// `.passthrough()` keeps rare forward-compatible keys intact; drift coverage
+// requires every `SECTION_CONTRACTS` dataKey root to exist in this Zod object.
 
 export type SiteContent = z.infer<typeof SiteContentSchema>;
 

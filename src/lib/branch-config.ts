@@ -504,6 +504,17 @@ export function isActiveForStyle(flag: PerStyle, style: TemplateStyle | undefine
   return flag[style];
 }
 
+/** Runtime guard for `PerStyle` objects (used by drift scripts). */
+export function isPerStyleFlag(v: unknown): v is PerStyle {
+  if (!v || typeof v !== 'object') return false;
+  const o = v as Record<string, unknown>;
+  return (
+    typeof o.classic === 'boolean' &&
+    typeof o.modern === 'boolean' &&
+    typeof o.bold === 'boolean'
+  );
+}
+
 /** Check if this branch has a specific service module. */
 export function hasModule(tpl: TemplateKey, mod: ServiceModule): boolean {
   return BRANCH_CONFIGS[tpl].services.modules.includes(mod);

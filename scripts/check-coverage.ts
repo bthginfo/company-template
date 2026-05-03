@@ -17,6 +17,10 @@
  *     the admin (either in HOME_ORDER or as global data).
  *  6b. Every home-flow block id maps via `HOME_CATALOG_BLOCK_TO_ADMIN`;
  *     `getAdminSections("home")` matches `buildHomeAdminOrderFromFrontend`.
+ *  7–9. See `drift-machine.ts`: schema roots for contract dataKeys, stricter
+ *     path matching over all template/component sources, branch-config home
+ *     PerStyle ↔ data paths, subpage cfg flags ↔ admin order + frontend,
+ *     and every `FIELD_CONFIG` leaf referenced from the page editor.
  *
  * Exit code: 0 = all green, 1 = drift detected. Wired into `npm run build`.
  *
@@ -28,19 +32,21 @@
  *   `$s(cfg…)`, `fieldVisible`, or inline `style === 'modern'` is **never**
  *   checked here.
  *
- * • **Registry-driven paths only.** A new `SiteContent` field rendered in JSX
- *   but never added to `section-registry.ts` produces **no failure** — the
- *   contract list is the source of the grep, not the schema.
+ * • **Registry is the contract list.** A new `SiteContent` field rendered in JSX
+ *   but never added to `section-registry.ts` still produces **no failure** for
+ *   that field alone — add it to the matching `SECTION_CONTRACTS` entry so
+ *   step 4 runs. Conversely, every contract `dataKey` root must exist on
+ *   `SiteContentSchema` in `types.ts` (step 4a).
  *
- * • **Pragmatic grep (`mentions`).** Step 4 matches literal substrings (and a
- *   few tail/prefix heuristics). It can **false-pass** (e.g. another symbol
- *   shares the same tail word) or **false-fail** (dynamic keys, re-exports).
- *   It is not an AST/data-flow analysis.
+ * • **Structured text match, not AST.** Step 4 uses literal substrings plus
+ *   small role-specific rules (`branchText.*` → `effectiveBranchText` / quoted
+ *   keys, `moduleHeadings.*` → `mKey="…"`, `contact.*` → `c.phone` patterns, …)
+ *   implemented in `scripts/drift-machine.ts`. It is not a TypeScript AST or
+ *   data-flow proof.
  *
- * • **Fixed frontend file list.** Only `FRONTEND_SOURCES` (see below) are
- *   searched. Components outside that list that read the same contract paths
- *   do not help step 4; new render files must be added to that list or the
- *   check becomes blind.
+ * • **Frontend search scope.** Step 4 scans all `src/templates/**` and
+ *   `src/components/**` (`.ts`/`.tsx`). Logic under other folders is invisible
+ *   unless those files import into scanned modules.
  *
  * • **Sub-pages ignore style.** `getAdminSections('services'|'gallery'|…)`
  *   currently does not vary by `TemplateStyle` (parameter exists but is
@@ -58,9 +64,9 @@
  *   block is absent from that combo’s order) and **undershoot** (frontend
  *   block with no mapped admin section), not “this field is hidden for Bold”.
  *
- * To tighten coverage: add per-(branch, style) optional contracts, wire
- * `FIELD_CONFIG` / branch-config into a new check, or replace grep with
- * structured extraction — see README / AGENTS discussion when extending.
+ * To tighten coverage further: add per-(branch, style) field-level contracts,
+ * TypeScript AST matching for property reads, or runtime visual regression —
+ * see README / AGENTS when extending.
  */
 
 import { readFileSync } from 'node:fs';
@@ -82,6 +88,14 @@ import {
 import { SECTION_CONTRACTS, CATALOG_TO_ADMIN, CROSS_PAGE_TARGETS } from '../src/lib/section-registry';
 import { BRANCH_STYLE_ORDER } from '../src/lib/template-orders';
 import { EXTRA_HOME_ORDER, SECTION_CATALOG } from '../src/lib/page-layout';
+import {
+  branchHomeStyleBindingIssues,
+  collectDirSources,
+  contractDataKeyRootsMissingFromSchema,
+  fieldConfigEditorReferenceIssues,
+  strictDataKeyMention,
+  subpageBranchFlagIssues,
+} from './drift-machine';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
@@ -140,57 +154,28 @@ for (const tpl of TEMPLATES) {
  *  pragmatic check (not AST), but it catches every "field renamed in
  *  one place but not the other" drift case.
  * ───────────────────────────────────────────────────────────────── */
-const FRONTEND_SOURCES = [
-  'src/templates/_shared/TemplateApp.tsx',
-  'src/templates/_shared/BranchSignature.tsx',
-  'src/templates/extra/index.tsx',
-  'src/components/branch-modules.tsx',
-  'src/components/site-blocks.tsx',
-  'src/components/News.tsx',
-  'src/components/Timeline.tsx',
-].map((p) => readFileSync(join(repoRoot, p), 'utf8')).join('\n');
+const FRONTEND_SOURCES = collectDirSources(repoRoot, ['src/templates', 'src/components']);
 
-const ADMIN_SOURCES = [
-  'src/admin/AdminEditorBody.tsx',
-].map((p) => readFileSync(join(repoRoot, p), 'utf8')).join('\n');
+const ADMIN_SOURCES = readFileSync(join(repoRoot, 'src/admin/AdminEditorBody.tsx'), 'utf8');
 
-/**
- * Some dataKeys are aggregate concepts that are actually written via a
- * sub-key in the editor (e.g. the editor writes `ctaBandOverrides` then
- * indexes by page; we accept any mention of the prefix). Some are
- * dynamically constructed (e.g. `${field}Header` so `contactPageHeader`
- * never appears literally — only `contactPage` does). Allow a path to
- * be matched as either the literal path OR its tail OR its
- * suffix-stripped prefix for common patterns.
- */
-function mentions(haystack: string, path: string): boolean {
-  if (haystack.includes(path)) return true;
-  // Accept mentions of the leading object, e.g. `branchText.foo` is OK if
-  // the file references the destructured `foo` from a `bt` alias.
-  const tail = path.split('.').pop();
-  if (tail && haystack.includes(tail)) return true;
-  // Dynamic construction patterns: `${field}Header` / `${prefix}Override` /
-  // `${section}Eyebrow` etc. — strip a known camelcase suffix and match
-  // the prefix.
-  for (const suffix of ['Header', 'Override', 'Overrides']) {
-    if (tail && tail.endsWith(suffix) && tail.length > suffix.length) {
-      const prefix = tail.slice(0, -suffix.length);
-      if (haystack.includes(prefix)) return true;
-    }
-  }
-  return false;
+for (const root of contractDataKeyRootsMissingFromSchema()) {
+  note(`[schema-root] SECTION_CONTRACTS references root "${root}" which is missing from SiteContentSchema — add it to src/lib/types.ts`);
 }
 
 for (const contract of Object.values(SECTION_CONTRACTS)) {
   for (const path of contract.dataKeys) {
-    if (!mentions(FRONTEND_SOURCES, path)) {
-      note(`[orphan-frontend] section "${contract.key}" declares dataKey "${path}" but no frontend source references it`);
+    if (!strictDataKeyMention(FRONTEND_SOURCES, path, 'frontend')) {
+      note(`[orphan-frontend] section "${contract.key}" declares dataKey "${path}" but no frontend source references it (strict match)`);
     }
-    if (!mentions(ADMIN_SOURCES, path)) {
-      note(`[orphan-admin] section "${contract.key}" declares dataKey "${path}" but the admin editor source does not reference it`);
+    if (!strictDataKeyMention(ADMIN_SOURCES, path, 'admin')) {
+      note(`[orphan-admin] section "${contract.key}" declares dataKey "${path}" but AdminEditorBody does not reference it (strict match)`);
     }
   }
 }
+
+for (const msg of branchHomeStyleBindingIssues(ADMIN_SOURCES, FRONTEND_SOURCES)) note(msg);
+for (const msg of subpageBranchFlagIssues(FRONTEND_SOURCES)) note(msg);
+for (const msg of fieldConfigEditorReferenceIssues(ADMIN_SOURCES)) note(msg);
 
 /* ─────────────────────────────────────────────────────────────────
  *  5: Branch invariants — extras compact, core 5 full

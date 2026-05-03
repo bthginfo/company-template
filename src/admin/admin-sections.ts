@@ -543,12 +543,6 @@ export const FIELD_CONFIG = {
     metaLabel: { classic: false, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
   },
 
-  /** HOME: About teaser */
-  homeAbout: {
-    aboutTeaserEyebrow: { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
-    aboutImage:         { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
-  },
-
   /** CTA fields — differ between HOME softCta and subpage CtaBand */
   cta: {
     /** HOME softCta: classic uses CtaBand (all), modern SoftCta (no leadAccent), bold SoftCta (no eyebrow/leadAccent) */
