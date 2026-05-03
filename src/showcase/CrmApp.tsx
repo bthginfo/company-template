@@ -579,7 +579,7 @@ export default function CrmApp() {
 
       {crmTab === 'prospects' ? (
       <section className="mx-auto w-full max-w-[1600px] px-4 py-4 sm:py-6 grid lg:grid-cols-[minmax(280px,320px),minmax(0,1fr)] gap-4 sm:gap-6">
-        <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm h-fit lg:sticky lg:top-32 lg:p-4">
+        <aside className="min-w-0 rounded-2xl border border-slate-200 bg-white shadow-sm h-fit lg:sticky lg:top-32 lg:p-4">
           <button
             type="button"
             onClick={() => setFormOpen((v) => !v)}
@@ -646,16 +646,18 @@ export default function CrmApp() {
               ) : null}
             </div>
 
-            <div className="pt-3 border-t border-slate-200">
+            <div className="pt-3 border-t border-slate-200 min-w-0">
               <p className="text-sm font-medium text-slate-700">Kategorien</p>
-              <div className="mt-2 flex gap-2">
+              <div className="mt-2 flex min-w-0 flex-wrap gap-2 items-center">
                 <input
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="flex-1 rounded-xl border border-slate-300 px-3 py-2 bg-white"
+                  className="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2 bg-white"
                   placeholder="Neue Kategorie anlegen"
                 />
-                <button onClick={() => void addCategory()} className="btn-ghost !px-3 !py-2 text-sm">Anlegen</button>
+                <button type="button" onClick={() => void addCategory()} className="btn-ghost shrink-0 !px-3 !py-2 text-sm whitespace-nowrap">
+                  Anlegen
+                </button>
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {categories.map((c) => (
