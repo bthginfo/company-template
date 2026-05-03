@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, Fragment, type ReactNode } from '
 import { toast } from 'sonner';
 import type { SiteContent, TemplateKey, TenantCustomTheme } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
-import { getBranchConfig, isActiveForStyle, isBranchTextKeyVisible, type TemplateStyle } from '@/lib/branch-config';
+import { getBranchConfig, isActiveForStyle, isBranchTextKeyVisible, isExtraBranch, type TemplateStyle } from '@/lib/branch-config';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
 import { getEffectivePageOrder, getRemainingSections, isSectionEnabled, type PageId as LayoutPageId } from '@/lib/page-layout';
 import { RichTextEditor } from './RichTextEditor';
@@ -868,135 +868,6 @@ function homeSectionsFor(t: TemplateKey) {
    PAGE EDITORS
    ═══════════════════════════════════════════════════════════════════ */
 
-/** Same visibility keys as `SectionInlineControls` / Layout (home.<section>). */
-function setHomeSectionVisible(data: SiteContent, setData: (d: SiteContent) => void, sectionKey: string, visible: boolean) {
-  const visibility = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
-  const fullKey = `home.${sectionKey}`;
-  const next = { ...visibility };
-  if (visible) {
-    delete next[fullKey];
-    if (Object.prototype.hasOwnProperty.call(visibility, sectionKey)) {
-      delete next[sectionKey];
-    }
-  } else {
-    next[fullKey] = false;
-    if (Object.prototype.hasOwnProperty.call(visibility, sectionKey)) {
-      next[sectionKey] = false;
-    }
-  }
-  setData({ ...data, sectionVisibility: next } as SiteContent);
-}
-
-const HINT_HOME_SECTION_LABEL: Record<string, string> = {
-  branchModules: 'Branchen-Module',
-  team: 'Team',
-  contact: 'Kontakt',
-};
-
-function AdminLinkedHintTile({
-  title,
-  children,
-  data,
-  setData,
-  homeSectionKey,
-}: {
-  title: string;
-  children: ReactNode;
-  data: SiteContent;
-  setData: (d: SiteContent) => void;
-  homeSectionKey: string;
-}) {
-  const on = isSectionEnabled(data, 'home', homeSectionKey);
-  const sectionLabel = HINT_HOME_SECTION_LABEL[homeSectionKey] ?? homeSectionKey;
-  if (!on) {
-    return (
-      <div className="mt-3 rounded-2xl border border-dashed border-line bg-[#fafaf7] p-4 text-sm text-muted">
-        <span>
-          Die Sektion „{sectionLabel}“ ist auf der <span className="font-medium text-ink">Startseite</span> ausgeblendet (wie im Sektions-Header oben).
-        </span>{' '}
-        <button
-          type="button"
-          className="text-brand underline font-medium"
-          onClick={() => setHomeSectionVisible(data, setData, homeSectionKey, true)}
-        >
-          Wieder einblenden
-        </button>
-      </div>
-    );
-  }
-  return (
-    <div className="rounded-2xl border border-brand/25 bg-[#f0faf9] p-4 space-y-2 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium text-brand pr-2">{title}</p>
-        <button
-          type="button"
-          onClick={() => setHomeSectionVisible(data, setData, homeSectionKey, false)}
-          className="text-xs text-muted hover:text-ink whitespace-nowrap shrink-0 rounded-lg px-2 py-1 hover:bg-white/80 border border-transparent hover:border-line transition"
-        >
-          Auf Startseite ausblenden
-        </button>
-      </div>
-      <div className="text-sm text-muted leading-relaxed">{children}</div>
-    </div>
-  );
-}
-
-function renderExtraHomeLinkedHintsAfter(
-  sectionKey: string,
-  tpl: TemplateKey,
-  data: SiteContent,
-  setData: (d: SiteContent) => void,
-  onGo: (p: PageId) => void,
-): ReactNode {
-  if (tpl !== 'consulting' && tpl !== 'medical' && tpl !== 'fitness') return null;
-
-  const wrap = (homeKey: string, title: string, body: ReactNode) => (
-    <div className="mt-3" key={`hint-${homeKey}`}>
-      <AdminLinkedHintTile title={title} data={data} setData={setData} homeSectionKey={homeKey}>
-        {body}
-      </AdminLinkedHintTile>
-    </div>
-  );
-
-  if (sectionKey === 'branchModules' && tpl === 'medical') {
-    return wrap('branchModules', 'Ärzt:innen & Online-Termin', (
-      <>
-        <span className="font-medium text-ink">Ärzt:innen-Karten &amp; Online-Termin (Doctolib)</span>{' '}
-        auf der Startseite stammen von den Modulen auf der Seite{' '}
-        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
-      </>
-    ));
-  }
-  if (sectionKey === 'team' && tpl === 'medical') {
-    return wrap('team', 'Team-Sektion', (
-      <>
-        <span className="font-medium text-ink">Team-Sektion</span> (Karten mit Name, Rolle, Bild, Bio) bearbeitest du unter{' '}
-        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('about')}>Über uns</button>
-        {' '}→ Team — unabhängig von den Ärzt:innen-Profilen auf Leistungen.
-      </>
-    ));
-  }
-  if (sectionKey === 'branchModules' && (tpl === 'consulting' || tpl === 'fitness')) {
-    return wrap('branchModules', 'Branchen-Module', (
-      <>
-        <span className="font-medium text-ink">Branchen-Module</span> auf der Startseite entsprechen den Blöcken auf{' '}
-        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
-      </>
-    ));
-  }
-  if (sectionKey === 'contact') {
-    return wrap('contact', 'Kontakt auf der Startseite', (
-      <>
-        <span className="font-medium text-ink">Kontakt-Sektion</span> am Seitenende:{' '}
-        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contactPage')}>Kontakt-Seite</button>
-        {' '}und globale{' '}
-        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contact')}>Kontaktdaten</button>.
-      </>
-    ));
-  }
-  return null;
-}
-
 function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onGoToPage?: (p: PageId) => void }) {
   const set = (patch: Partial<SiteContent>) => setData({ ...data, ...patch });
   const cfg = getBranchConfig(tpl);
@@ -1163,6 +1034,112 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
           </SectionCard>
         );
         return null;
+      case 'branchModules': {
+        if (!isExtraBranch(tpl)) return null;
+        const linkServices = onGoToPage ? (
+          <p className="text-xs text-muted mb-4 max-w-prose">
+            Dieselben Daten wie unter{' '}
+            <button type="button" className="text-brand underline font-medium" onClick={() => onGoToPage('services')}>Leistungen</button>.
+          </p>
+        ) : null;
+        if (tpl === 'medical') {
+          return (
+            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
+              {linkServices}
+              <ModuleHeadingFields data={data} setData={setData} mKey="doctors" />
+              <DoctorsEditor data={data} setData={setData} />
+              <hr className="my-4 border-line" />
+              <ModuleHeadingFields data={data} setData={setData} mKey="booking" />
+              <BookingEditor data={data} setData={setData} />
+            </SectionCard>
+          );
+        }
+        if (tpl === 'consulting') {
+          return (
+            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
+              {linkServices}
+              <ModuleHeadingFields data={data} setData={setData} mKey="process" />
+              <ProcessStepsEditor data={data} setData={setData} />
+              <hr className="my-4 border-line" />
+              <ModuleHeadingFields data={data} setData={setData} mKey="packages" />
+              <PackagesEditor data={data} setData={setData} />
+            </SectionCard>
+          );
+        }
+        if (tpl === 'fitness') {
+          return (
+            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
+              {linkServices}
+              <ModuleHeadingFields data={data} setData={setData} mKey="courses" />
+              <CoursesEditor data={data} setData={setData} />
+              <hr className="my-4 border-line" />
+              <ModuleHeadingFields data={data} setData={setData} mKey="packages" />
+              <PackagesEditor data={data} setData={setData} />
+            </SectionCard>
+          );
+        }
+        return null;
+      }
+      case 'team':
+        if (!isExtraBranch(tpl)) return null;
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="team" data={data} setData={setData}>
+            {onGoToPage ? (
+              <p className="text-xs text-muted mb-4 max-w-prose">
+                Team-Karten und Modul-Überschriften entsprechen{' '}
+                <button type="button" className="text-brand underline font-medium" onClick={() => onGoToPage('about')}>Über uns → Team</button>
+                {' '}— hier steuern Sie die Startseiten-Sichtbarkeit und die Teaser-Zeilen oben.
+              </p>
+            ) : null}
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teamEyebrow', 'teamTitle']} />
+            <ModuleHeadingFields data={data} setData={setData} mKey={tpl === 'fitness' ? 'teamFitness' : tpl === 'medical' ? 'teamMedical' : 'teamConsulting'} />
+            <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
+          </SectionCard>
+        );
+      case 'contact': {
+        if (!isExtraBranch(tpl)) return null;
+        const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+        const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="contact" data={data} setData={setData}>
+            {onGoToPage ? (
+              <p className="text-xs text-muted mb-4 max-w-prose">
+                Kontakt-Band am Seitenende. Vollständige Seite:{' '}
+                <button type="button" className="text-brand underline font-medium" onClick={() => onGoToPage('contactPage')}>Kontakt & Anfahrt</button>.
+              </p>
+            ) : null}
+            <ContactFields data={data} setData={setData} />
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-widest text-muted mb-2">Öffnungszeiten</p>
+              <HoursEditor data={data} setData={setData} />
+            </div>
+            <div className="mt-4 pt-4 border-t border-line">
+              <p className="text-sm font-medium mb-1">Text über den Kontaktdaten</p>
+              <Field label="Eyebrow">
+                <input className={inputCls} value={cb.eyebrow || ''} onChange={(e) => setCb({ eyebrow: e.target.value })} placeholder="Kontakt" />
+              </Field>
+              <Field label="Überschrift">
+                <input className={inputCls} value={cb.title || ''} onChange={(e) => setCb({ title: e.target.value })} placeholder="Wir freuen uns auf Sie." />
+              </Field>
+              <Field label="Untertitel">
+                <textarea className={inputCls} rows={2} value={cb.subtitle || ''} onChange={(e) => setCb({ subtitle: e.target.value })} placeholder="Anruf, Mail oder vor Ort." />
+              </Field>
+            </div>
+            <div className="mt-4 pt-4 border-t border-line">
+              <p className="text-sm font-medium mb-1">Google-Maps-Karte</p>
+              <Field label="Google-Maps-URL">
+                <input className={inputCls} value={data.contact.mapsUrl || ''} onChange={(e) => setData({ ...data, contact: { ...data.contact, mapsUrl: e.target.value } })} placeholder="https://maps.google.com/..." />
+              </Field>
+            </div>
+            <div className="mt-4 pt-4 border-t border-line">
+              <p className="text-xs text-muted mb-2">Classic: Fallback für die Kontakt-Hauptzeile, wenn die Überschrift oben leer ist.</p>
+              <Field label="Hero CTA-Label (Fallback)">
+                <input className={inputCls} value={data.hero.ctaLabel || ''} onChange={(e) => set({ hero: { ...data.hero, ctaLabel: e.target.value } })} />
+              </Field>
+            </div>
+          </SectionCard>
+        );
+      }
       default:
         return null;
     }
@@ -1174,9 +1151,6 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       {sectionOrder.map((key, idx) => (
         <Fragment key={key}>
           {renderSection(key, idx)}
-          {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && onGoToPage
-            ? renderExtraHomeLinkedHintsAfter(key, tpl, data, setData, onGoToPage)
-            : null}
         </Fragment>
       ))}
       {extras.map((e, i) => (

@@ -24,6 +24,7 @@ export type AdminSectionKey =
   | 'services' | 'signature' | 'about' | 'gallery' | 'numbers'
   | 'logos' | 'testimonials' | 'news' | 'softCta'
   | 'funding' | 'spotlight'
+  | 'branchModules' | 'team' | 'contact'
   // Services sections
   | 'servicesHeader' | 'extraServiceCards' | 'highlights' | 'menu' | 'rooms'
   | 'tours' | 'treatments' | 'courses' | 'packages' | 'processSteps'
@@ -74,8 +75,8 @@ export const HOME_CATALOG_BLOCK_TO_ADMIN: Record<string, AdminSectionKey | null>
   treatments: 'treatments',
   funding: 'funding',
   spotlight: 'spotlight',
-  branchModules: null,
-  team: null,
+  branchModules: 'branchModules',
+  team: 'team',
   about: 'about',
   gallery: 'gallery',
   numbers: 'numbers',
@@ -83,7 +84,8 @@ export const HOME_CATALOG_BLOCK_TO_ADMIN: Record<string, AdminSectionKey | null>
   testimonials: 'testimonials',
   faq: 'faq',
   news: 'news',
-  contact: null,
+  softCta: 'softCta',
+  contact: 'contact',
 };
 
 /**
@@ -238,7 +240,7 @@ export const HANDLED_SECTIONS_BY_PAGE: Record<PageKey, readonly AdminSectionKey[
     'announcements', 'hero', 'actionStrip', 'branchChips', 'marquee',
     'services', 'signature', 'about', 'gallery', 'numbers',
     'logos', 'testimonials', 'news', 'softCta',
-    'funding', 'spotlight',
+    'funding', 'spotlight', 'branchModules', 'team', 'contact',
   ],
   services: [
     'servicesHeader', 'extraServiceCards', 'highlights',
@@ -346,6 +348,14 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   spotlight: () => ({
     title: 'Branchen-Spotlight',
     description: 'Hervorgehobener Branchen-Block.',
+  }),
+  branchModules: (tpl) => ({
+    title: tpl === 'medical' ? 'Branchen-Module (Ärzte & Buchung)' : tpl === 'consulting' ? 'Branchen-Module (Prozess & Pakete)' : 'Branchen-Module (Kurse & Pakete)',
+    description: 'Blöcke in der Mitte der Startseite — dieselben Daten wie unter „Leistungen“.',
+  }),
+  contact: () => ({
+    title: 'Kontakt (Startseiten-Sektion)',
+    description: 'Bereich am Seitenende; nutzt die Kontakt-Seite und die globalen Kontaktdaten.',
   }),
 
   // ─── Services ─────────────────────────────────────────────
@@ -474,7 +484,7 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
   team: () => ({
     title: 'Team',
-    description: 'Team-Mitglieder.',
+    description: 'Personen-Karten (Extras: Startseite; Kern-5: meist nur Über uns).',
   }),
   aboutNumbers: () => ({
     title: 'Eckdaten-Band (Über-uns)',

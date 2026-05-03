@@ -239,6 +239,9 @@ const ADMIN_TO_FRONTEND_HOME: Record<AdminSectionKey, string | null> = {
   about: 'about', gallery: 'gallery', logos: 'logos',
   testimonials: 'testimonials', news: 'news',
   funding: 'funding', spotlight: 'spotlight',
+  branchModules: 'branchModules',
+  team: 'team',
+  contact: 'contact',
   // not used on home — keep them mapped so TS exhaustiveness is happy
   servicesHeader: null, extraServiceCards: null, highlights: null, menu: null, rooms: null,
   tours: null, treatments: null, courses: null, packages: null,
@@ -248,17 +251,14 @@ const ADMIN_TO_FRONTEND_HOME: Record<AdminSectionKey, string | null> = {
   galleryHeader: null, galleryStory: null, galleryUpload: null,
   galleryGrid: null, galleryCategories: null, galleryCta: null,
   aboutHeader: null, aboutIntro: null, values: null, timeline: null,
-  team: null, aboutNumbers: null, certifications: null, press: null,
+  aboutNumbers: null, certifications: null, press: null,
   aboutTestimonials: null, aboutCta: null,
   contactHeader: null, contactDetails: null, contactForm: null,
   locations: null, arrival: null, contactCta: null,
 };
 
-/** Frontend keys that are intentionally edited elsewhere than the home admin. */
+/** Frontend keys whose data is not a discrete home block (inlined or cross-page only). */
 const FRONTEND_HOME_KEYS_EDITED_ELSEWHERE = new Set([
-  'branchModules', // edited via Services-Page module editors
-  'team',          // edited via About-Page team editor
-  'contact',       // edited via global Kontaktdaten page
   // `marquee` is a separate block in extras-bold but inlined into the
   // hero in core-5-bold. The marquee admin card edits the data either
   // way; the dataKey check verifies frontend consumption.

@@ -32,11 +32,6 @@ export interface SectionContract {
   dataKeys: readonly DataPath[];
 }
 
-/**
- * Sections that don't appear in any admin page editor (e.g. globally-edited
- * data) are intentionally excluded — `branchModules`, `team` (extras-home),
- * `contact`-section data is reached via the global Kontaktdaten page.
- */
 export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
   /* ─── Home ─────────────────────────────────────────────────────── */
   announcements: { key: 'announcements', dataKeys: ['announcements'] },
@@ -95,6 +90,31 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
   spotlight: {
     key: 'spotlight',
     dataKeys: ['moduleHeadings.consultingSpotlight', 'moduleHeadings.medicalInfo', 'moduleHeadings.fitnessSpotlight'],
+  },
+  /** Home `branchModules` catalog block — `BranchModulesInline` (all core variants + extras). */
+  branchModules: {
+    key: 'branchModules',
+    dataKeys: [
+      'menu', 'moduleHeadings.menu',
+      'rooms', 'services', 'moduleHeadings.rooms',
+      'tours', 'moduleHeadings.tours',
+      'treatments', 'moduleHeadings.treatments',
+      'courses', 'moduleHeadings.courses',
+      'packages', 'moduleHeadings.packages',
+      'processSteps', 'moduleHeadings.process',
+      'doctors', 'moduleHeadings.doctors',
+      'booking', 'moduleHeadings.booking',
+      'fundingItems', 'fundingCalc', 'moduleHeadings.funding',
+    ],
+  },
+  /** Extras home footer contact band (`ContactSection` in `extra/index.tsx`). */
+  contact: {
+    key: 'contact',
+    dataKeys: [
+      'contact.phone', 'contact.email', 'contact.address', 'contact.city', 'contact.hours', 'contact.mapsUrl',
+      'contactBlock',
+      'hero.ctaLabel',
+    ],
   },
 
   /* ─── Services ─────────────────────────────────────────────────── */
@@ -190,9 +210,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
    The admin reads `sectionOrder.{page}` (catalog keys) and translates
    each entry through `CATALOG_TO_ADMIN[page]` to render the matching
    editor card. `null` = the catalog key is intentionally not editable
-   on this page (e.g. `branchModules` on home is split into per-module
-   editors on the Service page; `contact` on home pulls from the global
-   Kontaktdaten page).
+   on this page.
 
    When a catalog key has an admin section that doesn't naturally live
    on this page (e.g. `menu` on home — its editor lives on the Service
@@ -215,7 +233,7 @@ export const CATALOG_TO_ADMIN: Record<PageKey, Record<CatalogKey, AdminSectionKe
     treatments:    'treatments',
     funding:       'funding',
     spotlight:     'spotlight',
-    branchModules: null, // edited per-module on the Service page
+    branchModules: 'branchModules',
     team:          'team',
     about:         'about',
     gallery:       'gallery',
@@ -225,7 +243,7 @@ export const CATALOG_TO_ADMIN: Record<PageKey, Record<CatalogKey, AdminSectionKe
     faq:           'faq',
     news:          'news',
     softCta:       'softCta',
-    contact:       null, // global Kontaktdaten page
+    contact:       'contact',
   },
   services: {
     highlights:    'highlights',
