@@ -476,7 +476,7 @@ export default function CrmApp() {
       <Seo title="Flamingo CRM" description="Interner CRM-Bereich" noindex />
 
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 py-3 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
+        <div className="mx-auto w-full max-w-[1600px] px-4 py-3 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Interner Admin</p>
@@ -506,7 +506,7 @@ export default function CrmApp() {
       </header>
 
       {crmTab === 'prospects' ? (
-      <section className="mx-auto max-w-7xl px-4 py-4 sm:py-6 grid lg:grid-cols-[380px,1fr] gap-4 sm:gap-6">
+      <section className="mx-auto w-full max-w-[1600px] px-4 py-4 sm:py-6 grid lg:grid-cols-[minmax(280px,320px),minmax(0,1fr)] gap-4 sm:gap-6">
         <aside className="rounded-2xl border border-slate-200 bg-white shadow-sm h-fit lg:sticky lg:top-32 lg:p-4">
           <button
             type="button"
@@ -597,7 +597,7 @@ export default function CrmApp() {
           </div>
         </aside>
 
-        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="px-3 sm:px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-2 flex-wrap">
             <h2 className="font-semibold">Prospects ({filtered.length})</h2>
             <div className="flex items-center gap-2 flex-wrap">
@@ -649,7 +649,7 @@ export default function CrmApp() {
           </div>
 
           {/* Desktop table (md+) */}
-          <div className="hidden md:block overflow-auto">
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
@@ -682,12 +682,12 @@ export default function CrmApp() {
                     <Td>{p.email || '-'}</Td>
                     <Td>{p.lastEmailedAt ? formatDate(p.lastEmailedAt) : '-'}</Td>
                     <Td>
-                      <div className="flex flex-wrap gap-1.5">
-                        <button onClick={() => setDetailsModal({ open: true, p })} className="btn-ghost !px-2.5 !py-1.5">Öffnen</button>
-                        <button onClick={() => startEdit(p)} className="btn-ghost !px-2.5 !py-1.5">Edit</button>
-                        <button onClick={() => openEmail(p)} className="btn-ghost !px-2.5 !py-1.5">Mail</button>
-                        <button onClick={() => openProvision(p)} className="btn-ghost !px-2.5 !py-1.5">Provision</button>
-                        <button onClick={() => void removeProspect(p)} className="btn-ghost !px-2.5 !py-1.5 text-rose-700">Löschen</button>
+                      <div className="flex flex-nowrap gap-1.5">
+                        <button onClick={() => setDetailsModal({ open: true, p })} className="btn-ghost shrink-0 !px-2.5 !py-1.5">Öffnen</button>
+                        <button onClick={() => startEdit(p)} className="btn-ghost shrink-0 !px-2.5 !py-1.5">Edit</button>
+                        <button onClick={() => openEmail(p)} className="btn-ghost shrink-0 !px-2.5 !py-1.5">Mail</button>
+                        <button onClick={() => openProvision(p)} className="btn-ghost shrink-0 !px-2.5 !py-1.5">Provision</button>
+                        <button onClick={() => void removeProspect(p)} className="btn-ghost shrink-0 !px-2.5 !py-1.5 text-rose-700">Löschen</button>
                       </div>
                     </Td>
                   </tr>
@@ -705,7 +705,7 @@ export default function CrmApp() {
       ) : null}
 
       {crmTab === 'tenants' ? (
-      <section className="mx-auto max-w-7xl px-4 py-4 sm:py-6">
+      <section className="mx-auto w-full max-w-[1600px] px-4 py-4 sm:py-6">
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="px-3 sm:px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
             <h2 className="font-semibold">Tenants ({filteredTenants.length})</h2>
