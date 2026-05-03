@@ -16,6 +16,13 @@ import { adminKeyForCatalog, CROSS_PAGE_TARGETS } from '@/lib/section-registry';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
+/** Public site path; when there is an unpublished draft, append preview=1 (session cookie loads draft from /api/content). */
+function hrefDraftPreview(path: string, hasDraft?: boolean): string {
+  const p = path && path.length > 0 ? path : '/';
+  if (!hasDraft) return p;
+  return p.includes('?') ? `${p}&preview=1` : `${p}?preview=1`;
+}
+
 /**
  * AdminEditorBody — the rich page-grouped editor shared by:
  *  - the showcase AdminDemo (localStorage-backed, no real save)
@@ -122,8 +129,8 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
               </select>
             )}
             {previewUrlBase !== undefined && (
-              <a href={previewUrlBase || '/'} target="_blank" rel="noreferrer" className="text-sm text-slate-600 hover:text-slate-900 hidden md:inline">
-                Website ansehen ↗
+              <a href={hrefDraftPreview(previewUrlBase || '/', hasDraft)} target="_blank" rel="noreferrer" className="text-sm text-slate-600 hover:text-slate-900 hidden md:inline">
+                {hasDraft ? 'Website (Entwurf) ↗' : 'Website ansehen ↗'}
               </a>
             )}
           </div>
@@ -197,8 +204,13 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
               )}
             </div>
             {!isGlobal && previewUrlBase !== undefined && (
-              <a href={`${previewUrlBase}${activePage?.previewPath || ''}`} target="_blank" rel="noreferrer" className="text-sm text-slate-600 hover:text-slate-900 underline underline-offset-2">
-                Live ansehen ↗
+              <a
+                href={hrefDraftPreview(((previewUrlBase || '') + (activePage?.previewPath || '')) || '/', hasDraft)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-slate-600 hover:text-slate-900 underline underline-offset-2"
+              >
+                {hasDraft ? 'Live (Entwurf) ↗' : 'Live ansehen ↗'}
               </a>
             )}
           </div>
@@ -935,6 +947,10 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="signature" data={data} setData={setData}>
             <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
             <p className="text-xs font-medium text-muted mt-6 mb-3">Zusätzliche Highlight-Einträge</p>
+            <p className="text-xs text-muted mb-3 max-w-prose leading-relaxed">
+              Auf der Live-Startseite erst nach <strong className="font-medium text-brand">Veröffentlichen</strong> sichtbar — „Speichern“ legt nur einen Entwurf ab.
+              Zum Prüfen: im neuen Tab <strong className="font-medium">Website (Entwurf)</strong> oben oder Startseite mit <code className="rounded bg-[#f0f0ec] px-1 py-0.5 text-[11px]">/?preview=1</code> (eingeloggt).
+            </p>
             <HomeSignatureItemsEditor data={data} setData={setData} />
           </SectionCard>
         );
