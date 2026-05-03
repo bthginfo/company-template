@@ -66,6 +66,9 @@ export const SiteContentSchema = z.object({
       description: z.string().optional().default(''),
       price: z.string().optional().default(''),
       imageUrl: z.string().url().optional().or(z.literal('')).default(''),
+      /** Optional per-card override; falls back to `branchText.learnMoreLabel` / `learnMoreHref`. */
+      learnMoreLabel: z.string().optional().default(''),
+      learnMoreHref: z.string().optional().default(''),
     })
   ).default([]),
   gallery: z.array(z.string().url()).default([]),
@@ -583,6 +586,12 @@ export const SiteContentSchema = z.object({
     online: z.string().optional().default(''),
     emergency: z.string().optional().default(''),
   }).optional().default({}),
+
+  /**
+   * Admin UI only: ids of contextual hint tiles hidden by the operator
+   * (e.g. `extra-home-hint-contact`). Does not affect the public website.
+   */
+  adminHintsHidden: z.array(z.string()).optional().default([]),
 
   /**
    * Per-section visibility. Keys are namespaced by page:

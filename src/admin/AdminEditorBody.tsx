@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, Fragment, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import type { SiteContent, TemplateKey, TenantCustomTheme } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
@@ -868,41 +868,106 @@ function homeSectionsFor(t: TemplateKey) {
    PAGE EDITORS
    ═══════════════════════════════════════════════════════════════════ */
 
-function ExtraHomeLinkedDataHints({ tpl, onGo }: { tpl: TemplateKey; onGo: (p: PageId) => void }) {
-  if (tpl !== 'consulting' && tpl !== 'medical' && tpl !== 'fitness') return null;
+const EXTRA_HOME_HINT_IDS = {
+  medicalDoctors: 'extra-home-hint-medical-doctors',
+  medicalTeam: 'extra-home-hint-medical-team',
+  extraModules: 'extra-home-hint-extra-modules',
+  contact: 'extra-home-hint-contact',
+} as const;
+
+function isAdminHintHidden(data: SiteContent, id: string): boolean {
+  return ((data as unknown as { adminHintsHidden?: string[] }).adminHintsHidden ?? []).includes(id);
+}
+
+function AdminLinkedHintTile({
+  title,
+  hidden,
+  onHide,
+  children,
+}: {
+  title: string;
+  hidden: boolean;
+  onHide: () => void;
+  children: ReactNode;
+}) {
+  if (hidden) return null;
   return (
-    <div className="rounded-2xl border border-brand/25 bg-[#f0faf9] p-6 space-y-4">
-      <p className="text-sm font-medium text-brand">Startseite: wo die Inhalte herkommen</p>
-      <ul className="text-sm text-muted space-y-3 list-disc pl-5">
-        {tpl === 'medical' && (
-          <>
-            <li>
-              <span className="font-medium text-ink">Ärzt:innen-Karten &amp; Online-Termin (Doctolib)</span>{' '}
-              auf der Startseite stammen von den Modulen auf der Seite{' '}
-              <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
-            </li>
-            <li>
-              <span className="font-medium text-ink">Team-Sektion</span> (Karten mit n/r/img/bio) bearbeitest du unter{' '}
-              <button type="button" className="text-brand underline font-medium" onClick={() => onGo('about')}>Über uns</button>
-              {' '}→ Team — unabhängig von den Ärzt:innen-Profilen auf Leistungen.
-            </li>
-          </>
-        )}
-        {(tpl === 'consulting' || tpl === 'fitness') && (
-          <li>
-            <span className="font-medium text-ink">Branchen-Module</span> auf der Startseite entsprechen den Blöcken auf{' '}
-            <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
-          </li>
-        )}
-        <li>
-          <span className="font-medium text-ink">Kontakt-Sektion</span> am Seitenende:{' '}
-          <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contactPage')}>Kontakt-Seite</button>
-          {' '}und globale{' '}
-          <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contact')}>Kontaktdaten</button>.
-        </li>
-      </ul>
+    <div className="rounded-2xl border border-brand/25 bg-[#f0faf9] p-4 space-y-2 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-medium text-brand pr-2">{title}</p>
+        <button
+          type="button"
+          onClick={onHide}
+          className="text-xs text-muted hover:text-ink whitespace-nowrap shrink-0 rounded-lg px-2 py-1 hover:bg-white/80 border border-transparent hover:border-line transition"
+        >
+          Ausblenden
+        </button>
+      </div>
+      <div className="text-sm text-muted leading-relaxed">{children}</div>
     </div>
   );
+}
+
+function renderExtraHomeLinkedHintsAfter(
+  sectionKey: string,
+  tpl: TemplateKey,
+  data: SiteContent,
+  setData: (d: SiteContent) => void,
+  onGo: (p: PageId) => void,
+): ReactNode {
+  if (tpl !== 'consulting' && tpl !== 'medical' && tpl !== 'fitness') return null;
+
+  const hide = (id: string) => {
+    const cur = ((data as unknown as { adminHintsHidden?: string[] }).adminHintsHidden ?? []).slice();
+    if (cur.includes(id)) return;
+    setData({ ...data, adminHintsHidden: [...cur, id] });
+  };
+
+  const wrap = (id: string, title: string, body: ReactNode) => (
+    <div className="mt-3" key={`hint-${id}`}>
+      <AdminLinkedHintTile title={title} hidden={isAdminHintHidden(data, id)} onHide={() => hide(id)}>
+        {body}
+      </AdminLinkedHintTile>
+    </div>
+  );
+
+  if (sectionKey === 'branchModules' && tpl === 'medical') {
+    return wrap(EXTRA_HOME_HINT_IDS.medicalDoctors, 'Ärzt:innen & Online-Termin', (
+      <>
+        <span className="font-medium text-ink">Ärzt:innen-Karten &amp; Online-Termin (Doctolib)</span>{' '}
+        auf der Startseite stammen von den Modulen auf der Seite{' '}
+        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
+      </>
+    ));
+  }
+  if (sectionKey === 'team' && tpl === 'medical') {
+    return wrap(EXTRA_HOME_HINT_IDS.medicalTeam, 'Team-Sektion', (
+      <>
+        <span className="font-medium text-ink">Team-Sektion</span> (Karten mit Name, Rolle, Bild, Bio) bearbeitest du unter{' '}
+        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('about')}>Über uns</button>
+        {' '}→ Team — unabhängig von den Ärzt:innen-Profilen auf Leistungen.
+      </>
+    ));
+  }
+  if (sectionKey === 'branchModules' && (tpl === 'consulting' || tpl === 'fitness')) {
+    return wrap(EXTRA_HOME_HINT_IDS.extraModules, 'Branchen-Module', (
+      <>
+        <span className="font-medium text-ink">Branchen-Module</span> auf der Startseite entsprechen den Blöcken auf{' '}
+        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
+      </>
+    ));
+  }
+  if (sectionKey === 'contact') {
+    return wrap(EXTRA_HOME_HINT_IDS.contact, 'Kontakt auf der Startseite', (
+      <>
+        <span className="font-medium text-ink">Kontakt-Sektion</span> am Seitenende:{' '}
+        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contactPage')}>Kontakt-Seite</button>
+        {' '}und globale{' '}
+        <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contact')}>Kontaktdaten</button>.
+      </>
+    ));
+  }
+  return null;
 }
 
 function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onGoToPage?: (p: PageId) => void }) {
@@ -970,7 +1035,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         const isExtraTpl = (['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl);
         const baseKeys: BranchTextKey[] = ['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle'];
         // serviceCardNote only renders in extras-modern services cards.
-        if (isExtraTpl) baseKeys.push('serviceCardNote');
+        if (isExtraTpl) baseKeys.push('serviceCardNote', 'learnMoreLabel', 'learnMoreHref');
         baseKeys.push('servicesAllLabel', 'servicesAllHref');
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="services" data={data} setData={setData}>
@@ -1077,9 +1142,28 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
   };
 
   const extras = getExtraCrossPageSections(data, 'home', sectionOrder);
+  const hiddenHintCount = ((data as unknown as { adminHintsHidden?: string[] }).adminHintsHidden ?? []).length;
   return (
     <>
-      {sectionOrder.map((key, idx) => renderSection(key, idx))}
+      {sectionOrder.map((key, idx) => (
+        <Fragment key={key}>
+          {renderSection(key, idx)}
+          {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && onGoToPage
+            ? renderExtraHomeLinkedHintsAfter(key, tpl, data, setData, onGoToPage)
+            : null}
+        </Fragment>
+      ))}
+      {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && hiddenHintCount > 0 && (
+        <div className="flex justify-end pt-2">
+          <button
+            type="button"
+            className="text-sm text-brand underline"
+            onClick={() => setData({ ...data, adminHintsHidden: [] } as SiteContent)}
+          >
+            Alle Hinweis-Kacheln wieder anzeigen ({hiddenHintCount})
+          </button>
+        </div>
+      )}
       {extras.map((e, i) => (
         <DeepLinkSectionCard
           key={`xp-home-${e.adminKey}`}
@@ -1092,11 +1176,6 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         />
       ))}
       <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
-      {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && onGoToPage && (
-        <div className="pt-6">
-          <ExtraHomeLinkedDataHints tpl={tpl} onGo={onGoToPage} />
-        </div>
-      )}
     </>
   );
 }
@@ -3100,7 +3179,7 @@ function ServicesListEditor({ data, setData }: SetterProps) {
     const j = i + dir; if (j < 0 || j >= data.services.length) return;
     const next = [...data.services]; [next[i], next[j]] = [next[j], next[i]]; setData({ ...data, services: next });
   };
-  const add = () => setData({ ...data, services: [...data.services, { title: 'Neuer Eintrag', description: '', price: '', imageUrl: '' }] });
+  const add = () => setData({ ...data, services: [...data.services, { title: 'Neuer Eintrag', description: '', price: '', imageUrl: '', learnMoreLabel: '', learnMoreHref: '' }] });
   const keys = useListKeys(data.services);
   return (
     <div className="space-y-3">
@@ -3120,6 +3199,14 @@ function ServicesListEditor({ data, setData }: SetterProps) {
             </div>
             <textarea className={inputCls} rows={2} placeholder="Beschreibung" value={s.description || ''} onChange={(e) => update(i, { description: e.target.value })} />
             <ImagePickerField label="Bild" value={s.imageUrl || ''} onChange={(v) => update(i, { imageUrl: v })} />
+            <div className="grid sm:grid-cols-2 gap-3 pt-1 border-t border-line">
+              <Field label="„Mehr erfahren“-Text (optional)" hint="Leer = Wert aus Branchentext unten.">
+                <input className={inputCls} value={s.learnMoreLabel || ''} onChange={(e) => update(i, { learnMoreLabel: e.target.value })} placeholder="z. B. Details" />
+              </Field>
+              <Field label="„Mehr erfahren“-Ziel (optional)" hint="Leer = Branchentext-Ziel; z. B. /leistungen oder #kontakt">
+                <input className={inputCls} value={s.learnMoreHref || ''} onChange={(e) => update(i, { learnMoreHref: e.target.value })} placeholder="/ueber-uns" />
+              </Field>
+            </div>
             <div className="flex justify-between items-center">
               <div className="flex gap-1">
                 <button type="button" onClick={() => move(i, -1)} className="text-xs px-3 py-1.5 rounded-md hover:bg-[#f6f6f3] border border-line">↑ hoch</button>

@@ -201,6 +201,18 @@ function PageHero({ eyebrow, title, subtitle, style }: { eyebrow: string; title:
   );
 }
 
+/** Per-service „Mehr erfahren“ — card fields override `branchText` defaults. */
+function extraServiceLearnMore(
+  s: SiteContent['services'][number],
+  bt: ReturnType<typeof effectiveBranchText>,
+): { label: string; href: string } {
+  const g = bt as unknown as Record<string, string | undefined>;
+  const base = (s.learnMoreLabel ?? '').trim() || (g.learnMoreLabel ?? '').trim() || 'Mehr erfahren';
+  const label = `${base.replace(/\s*→\s*$/u, '').trim()} →`;
+  const href = (s.learnMoreHref ?? '').trim() || (g.learnMoreHref ?? '').trim() || '#leistungen';
+  return { label, href };
+}
+
 /* ─── Sub-page renderer (services / gallery / about / contact) ──── */
 const PAGE_HEADER_KEY: Record<Exclude<ExtraPage, 'home'>, 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader'> = {
   services: 'servicesHeader',
@@ -288,7 +300,14 @@ function ExtraLeistungenServiceCards({
           {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
           <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
             <span className="text-muted">{cardNote}</span>
-            <span className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition">Mehr erfahren →</span>
+            {(() => {
+              const lm = extraServiceLearnMore(s, bt);
+              return (
+                <ExtraHeroLink href={lm.href} className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition no-underline hover:underline">
+                  {lm.label}
+                </ExtraHeroLink>
+              );
+            })()}
           </div>
         </article>
       ))}
@@ -841,7 +860,14 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
                 {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
                 <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
                   <span className="text-muted">{(bt as any).serviceCardNote || ''}</span>
-                  <span className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition">Mehr erfahren →</span>
+                  {(() => {
+                    const lm = extraServiceLearnMore(s, bt);
+                    return (
+                      <ExtraHeroLink href={lm.href} className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition no-underline hover:underline">
+                        {lm.label}
+                      </ExtraHeroLink>
+                    );
+                  })()}
                 </div>
               </article>
             ))}
@@ -1831,7 +1857,13 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
   if (style === 'modern') {
     return (
       <section className="py-24 md:py-32">
-        <div className="container-x grid lg:grid-cols-3 gap-4 reveal-stagger">
+        <div className="container-x">
+          <div className="max-w-2xl reveal mb-14">
+            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{h.eyebrow}</p>
+            <h2 className="font-display text-4xl md:text-5xl">{h.title}</h2>
+            {h.subtitle ? <p className="mt-4 text-lg text-muted">{h.subtitle}</p> : null}
+          </div>
+          <div className="grid lg:grid-cols-3 gap-4 reveal-stagger">
           <article className="bg-white border border-line rounded-2xl p-6">
             <div className="w-10 h-10 rounded-full bg-[var(--accent-color)]/20 grid place-items-center mb-4">⏱</div>
             <h3 className="font-display text-2xl mb-3">Sprechzeiten</h3>
@@ -1850,6 +1882,7 @@ function MedicalServiceInfo({ style, content }: { style: ExtraStyle; content: Si
             <h3 className="font-display text-2xl mb-3 text-rose-700">Notfall</h3>
             <p className="text-sm leading-relaxed text-rose-900/80">{emergencyText}</p>
           </article>
+        </div>
         </div>
       </section>
     );

@@ -111,7 +111,7 @@ export function AnimatedCounter({
       };
       raf = requestAnimationFrame(tick);
       io.disconnect();
-    }, { threshold: 0.4 });
+    }, { threshold: 0, rootMargin: '0px 0px 25% 0px' });
     io.observe(el);
     return () => { cancelAnimationFrame(raf); io.disconnect(); };
   }, [to, duration]);
