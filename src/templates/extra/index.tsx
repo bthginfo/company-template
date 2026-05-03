@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import type { SiteContent, PageId } from '@/lib/types';
-import { SplitText, useReveal, ParallaxImage, AnimatedCounter } from '@/components/fx';
+import { SplitText, useReveal, ParallaxImage, AnimatedCounter, Accordion } from '@/components/fx';
 import Seo from '@/components/Seo';
-import { BasePathProvider, useBasePath, withBase, resolveMapIframeSrc, SafeMapEmbed, Section } from '@/components/site-blocks';
+import { BasePathProvider, useBasePath, withBase, resolveMapIframeSrc, SafeMapEmbed, Section, ContactBlock } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
@@ -11,8 +11,10 @@ import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
-import { isSectionEnabled, EXTRA_HOME_ORDER } from '@/lib/page-layout';
-import { normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
+import { isSectionEnabled, getEffectivePageOrder, EXTRA_HOME_ORDER, type PageId as LayoutPageId } from '@/lib/page-layout';
+import { getBranchConfig } from '@/lib/branch-config';
+import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
+import { mergedServiceHighlights, normaliseArrivalList, normaliseFaqList, normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -489,8 +491,8 @@ function ExtraGalleryTestimonials({ content, branch }: { content: SiteContent; b
   );
 }
 
-/** Schließt-CTA für Galerie/Über-uns — `page="gallery"` / `page="about"` für Drift-Subpage-Flags. */
-function ExtraSubpageCta({ content, page }: { content: SiteContent; page: 'gallery' | 'about' }) {
+/** Schließt-CTA für Unterseiten — `page` steuert `ctaBandOverrides.{page}` (Drift-Subpage-Flags). */
+function ExtraSubpageCta({ content, page }: { content: SiteContent; page: 'gallery' | 'about' | 'services' | 'contact' }) {
   const perPage = ((content as unknown as { ctaBandOverrides?: Record<string, Record<string, string | undefined>> }).ctaBandOverrides ?? {})[page] ?? {};
   const global = (content as unknown as { ctaBandOverride?: Record<string, string | undefined> }).ctaBandOverride ?? {};
   const pick = (field: 'lead' | 'sub' | 'cta' | 'ctaHref' | 'eyebrow' | 'leadAccent') =>
@@ -498,7 +500,11 @@ function ExtraSubpageCta({ content, page }: { content: SiteContent; page: 'galle
   const def =
     page === 'gallery'
       ? { eyebrow: 'Mehr gesehen als genug?', lead: 'Nächster Schritt', sub: 'Schreiben Sie uns – wir antworten persönlich, meist innerhalb eines Werktags.', cta: 'Kontakt aufnehmen', ctaHref: '/kontakt' }
-      : { eyebrow: 'Persönlich weiter?', lead: 'Wir freuen uns auf Sie', sub: 'Ein kurzes Gespräch reicht, um zu klären, ob wir zusammenpassen.', cta: 'Kontakt aufnehmen', ctaHref: '/kontakt' };
+      : page === 'services'
+        ? { eyebrow: 'Nächster Schritt', lead: 'Projekt besprechen?', sub: 'Wir melden uns persönlich – meist innerhalb eines Werktags.', cta: 'Kontakt aufnehmen', ctaHref: '/kontakt' }
+        : page === 'contact'
+          ? { eyebrow: 'Noch Fragen?', lead: 'Wir sind für Sie da', sub: 'Schreiben Sie uns – wir antworten direkt und unkompliziert.', cta: 'Zurück zur Startseite', ctaHref: '/' }
+          : { eyebrow: 'Persönlich weiter?', lead: 'Wir freuen uns auf Sie', sub: 'Ein kurzes Gespräch reicht, um zu klären, ob wir zusammenpassen.', cta: 'Kontakt aufnehmen', ctaHref: '/kontakt' };
   const eyebrow = pick('eyebrow') || def.eyebrow;
   const lead = pick('lead') || def.lead;
   const sub = pick('sub') || def.sub;
@@ -551,21 +557,180 @@ function ExtraAboutNumbersBand({ content }: { content: SiteContent }) {
   );
 }
 
-function ExtraGallerySubpage({ branch, content }: { branch: ExtraBranchKey; content: SiteContent }) {
+function extraSubpageOrder(content: SiteContent, page: LayoutPageId, branch: ExtraBranchKey): string[] {
+  return getEffectivePageOrder(content, page, branch).filter((k) => isSectionEnabled(content, page, k));
+}
+
+function resolveExtraFaq(branch: ExtraBranchKey, content: SiteContent): { q: string; a: string }[] {
+  const mapped = normaliseFaqList((content as unknown as { faq?: unknown }).faq ?? []);
+  if (mapped.length > 0) return mapped;
+  return FAQ_DEFAULTS[branch] ?? [];
+}
+
+function ExtraServicesHighlightsRibbon({ content }: { content: SiteContent }) {
+  const c = content as unknown as Record<string, unknown>;
+  const list = mergedServiceHighlights(c.serviceHighlights, c.highlights).filter((it) => it.t || it.d);
+  if (!list.length) return null;
   return (
-    <>
-      <ExtraGalleryStorySection branch={branch} content={content} />
-      {content.gallery.length > 0 && (
-        <section className="py-16 md:py-24">
-          <div className="container-x">
-            <ExtraMasonry images={content.gallery} />
+    <section className="py-10 surface border-y border-line">
+      <div className="container-x grid grid-cols-2 md:grid-cols-4 gap-5">
+        {list.map((it, i) => (
+          <div key={i} className="reveal">
+            <p className="font-display text-xl">{it.t}</p>
+            <p className="mt-1 text-sm text-muted leading-relaxed">{it.d}</p>
           </div>
-        </section>
-      )}
-      <ExtraGalleryCategoriesSection branch={branch} content={content} />
-      <ExtraGalleryTestimonials content={content} branch={branch} />
-      <ExtraSubpageCta content={content} page="gallery" />
-    </>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ExtraServicesGalleryTeaser({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
+  if (content.gallery.length === 0) return null;
+  const bt = effectiveBranchText(branch, content);
+  const slice = content.gallery.slice(0, 8);
+  return (
+    <section className="py-16 md:py-24 surface">
+      <div className="container-x">
+        <div className="mb-10 reveal">
+          <p className="eyebrow mb-3">{bt.galleryTeaserEyebrow || 'Eindrücke'}</p>
+          <h2 className="headline-lg">{bt.galleryTeaserTitle || 'Aus unserem Alltag.'}</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 reveal-stagger">
+          {slice.map((src, i) => (
+            <div key={i} className="aspect-square rounded-2xl overflow-hidden img-zoom border border-line">
+              <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExtraServicesTestimonialsBand({ content, branch, style }: { content: SiteContent; branch: ExtraBranchKey; style: ExtraStyle }) {
+  if (content.testimonials.length === 0) return null;
+  const bt = effectiveBranchText(branch, content);
+  const band = style === 'bold' ? 'py-24 md:py-40 bg-[var(--text-color)] text-[var(--bg-color)]' : 'py-16 md:py-24 surface';
+  return (
+    <section className={band}>
+      <div className="container-x">
+        <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{bt.testimonialsEyebrow || 'Stimmen'}</p>
+        <h2 className={`${style === 'bold' ? 'font-display text-4xl md:text-6xl max-w-4xl' : 'headline-lg max-w-3xl'} reveal mb-12`}>{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
+        <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+          {content.testimonials.map((t, i) => (
+            <figure key={i} className={`rounded-3xl p-7 md:p-8 ${style === 'bold' ? 'bg-white/5 border border-white/10' : 'bg-white border border-line'}`}>
+              <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
+              <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExtraAboutIntroBlock({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
+  if (!content.about) return null;
+  const bt = effectiveBranchText(branch, content);
+  return (
+    <section className="py-16 md:py-24">
+      <div className="container-x grid md:grid-cols-12 gap-10 items-center">
+        <div className="md:col-span-5 reveal">
+          {(content.about.imageUrl || content.gallery[0]) && (
+            <img src={content.about.imageUrl || content.gallery[0]} alt={content.about.title} className="rounded-3xl w-full aspect-[4/5] object-cover" loading="lazy" />
+          )}
+        </div>
+        <div className="md:col-span-7 reveal">
+          <p className="eyebrow mb-5">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
+          <h2 className="headline-lg">{content.about.title}</h2>
+          <div className="mt-6 text-lg text-muted leading-relaxed space-y-5">
+            {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExtraAboutValuesBlock({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
+  const rows = normaliseTdList((content as unknown as { values?: unknown }).values ?? []).filter((v) => v.t || v.d);
+  const bt = effectiveBranchText(branch, content);
+  if (!rows.length) return null;
+  return (
+    <Section eyebrow={bt.valuesEyebrow || 'Was uns wichtig ist'} title={bt.valuesTitle || 'Drei Grundsätze.'} spacing="lg" className="surface">
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {rows.map((v, i) => (
+          <article key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+            <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+            <h3 className="font-display text-2xl mt-4">{v.t}</h3>
+            <p className="mt-4 text-muted leading-relaxed">{v.d}</p>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function ExtraAboutTestimonialsBlock({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
+  if (content.testimonials.length === 0) return null;
+  const bt = effectiveBranchText(branch, content);
+  return (
+    <section className="py-16 md:py-24 surface">
+      <div className="container-x">
+        <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
+        <h2 className="headline-lg max-w-3xl reveal mb-12">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
+        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+          {content.testimonials.map((t, i) => (
+            <figure key={i} className="bg-white border border-line rounded-3xl p-7">
+              <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
+              <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExtraFaqSection({ branch, content }: { branch: ExtraBranchKey; content: SiteContent }) {
+  const bt = effectiveBranchText(branch, content);
+  const items = resolveExtraFaq(branch, content);
+  if (!items.length) return null;
+  return (
+    <Section eyebrow={bt.faqEyebrow || 'Häufig gefragt'} title={bt.faqTitle || 'Antworten auf Ihre Fragen.'} spacing="lg" className="surface">
+      <Accordion items={items.map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+    </Section>
+  );
+}
+
+function ExtraArrivalSection({ content }: { content: SiteContent }) {
+  const rows = normaliseArrivalList((content as unknown as { arrival?: unknown }).arrival ?? []).filter((a) => a.t || a.d);
+  if (!rows.length) return null;
+  const ov = ((content as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+  return (
+    <Section eyebrow={ov.eyebrow || 'Wegbeschreibung'} title={ov.title || 'So finden Sie uns.'} subtitle={ov.subtitle} spacing="lg" className="surface">
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {rows.map((a, i) => (
+          <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
+            <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+            <h3 className="font-display text-2xl mt-3">{a.t}</h3>
+            <p className="mt-3 text-muted leading-relaxed">{a.d}</p>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function ExtraGalleryGridSection({ content }: { content: SiteContent }) {
+  if (content.gallery.length === 0) return null;
+  return (
+    <section className="py-16 md:py-24">
+      <div className="container-x">
+        <ExtraMasonry images={content.gallery} />
+      </div>
+    </section>
   );
 }
 
@@ -577,83 +742,87 @@ function SubPage({ content, branch, page, style, eyebrow }: {
   eyebrow: string;
 }) {
   const ho = pageHeaderOverride(content, PAGE_HEADER_KEY[page]);
-  const bt = effectiveBranchText(branch, content);
   const title = ho?.title || PAGE_TITLES[page];
   const heroEyebrow = ho?.eyebrow || eyebrow;
   const heroSubtitle = ho?.subtitle || '';
+  const cfg = getBranchConfig(branch);
+  const pageKey = page as LayoutPageId;
+  const order = extraSubpageOrder(content, pageKey, branch);
+
+  if (page === 'services') {
+    const blocks: Record<string, React.ReactNode> = {
+      highlights: <ExtraServicesHighlightsRibbon content={content} />,
+      list: <ExtraLeistungenServiceCards content={content} branch={branch} style={style} />,
+      process: <BranchSpotlight branch={branch} style={style} content={content} />,
+      module: <BranchModulesInline variant={branch} content={content} />,
+      testimonials: <ExtraServicesTestimonialsBand content={content} branch={branch} style={style} />,
+      gallery: <ExtraServicesGalleryTeaser content={content} branch={branch} />,
+      faq: <ExtraFaqSection branch={branch} content={content} />,
+      cta: <ExtraSubpageCta content={content} page="services" />,
+    };
+    return (
+      <>
+        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
+        {order.map((k) => (
+          <Fragment key={k}>{blocks[k] ?? null}</Fragment>
+        ))}
+      </>
+    );
+  }
+
+  if (page === 'gallery') {
+    const blocks: Record<string, React.ReactNode> = {
+      story: <ExtraGalleryStorySection branch={branch} content={content} />,
+      grid: <ExtraGalleryGridSection content={content} />,
+      categories: <ExtraGalleryCategoriesSection branch={branch} content={content} />,
+      testimonials: <ExtraGalleryTestimonials content={content} branch={branch} />,
+      cta: <ExtraSubpageCta content={content} page="gallery" />,
+    };
+    return (
+      <>
+        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
+        {order.map((k) => (
+          <Fragment key={k}>{blocks[k] ?? null}</Fragment>
+        ))}
+      </>
+    );
+  }
+
+  if (page === 'about') {
+    const blocks: Record<string, React.ReactNode> = {
+      intro: <ExtraAboutIntroBlock content={content} branch={branch} />,
+      values: <ExtraAboutValuesBlock content={content} branch={branch} />,
+      team: <BranchTeam branch={branch} style={style} content={content} suppressMedicalWhenNamedDoctors={false} />,
+      timeline: <Timeline content={content} />,
+      numbers: <ExtraAboutNumbersBand content={content} />,
+      testimonials: <ExtraAboutTestimonialsBlock content={content} branch={branch} />,
+      faq: <ExtraFaqSection branch={branch} content={content} />,
+      cta: <ExtraSubpageCta content={content} page="about" />,
+    };
+    return (
+      <>
+        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
+        {order.map((k) => (
+          <Fragment key={k}>{blocks[k] ?? null}</Fragment>
+        ))}
+      </>
+    );
+  }
+
+  /* contact */
+  const blocks: Record<string, React.ReactNode> = {
+    block: <ContactBlock content={content} showForm={cfg.contact.showForm} showMap />,
+    locations: <LocationsBlock content={content} />,
+    arrival: <ExtraArrivalSection content={content} />,
+    faq: <ExtraFaqSection branch={branch} content={content} />,
+    cta: <ExtraSubpageCta content={content} page="contact" />,
+  };
   return (
     <>
       <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-
-      {page === 'services' && (
-        <>
-          {branch === 'medical' ? (
-            <>
-              <BranchSpotlight branch={branch} style={style} content={content} />
-              <ExtraLeistungenServiceCards content={content} branch={branch} style={style} />
-              <BranchModulesInline variant={branch} content={content} />
-            </>
-          ) : (
-            <>
-              <ExtraLeistungenServiceCards content={content} branch={branch} style={style} />
-              <BranchSpotlight branch={branch} style={style} content={content} />
-              <BranchModulesInline variant={branch} content={content} />
-            </>
-          )}
-        </>
-      )}
-
-      {page === 'gallery' && <ExtraGallerySubpage branch={branch} content={content} />}
-
-      {page === 'about' && (
-        <>
-          {content.about && (
-            <section className="py-16 md:py-24">
-              <div className="container-x grid md:grid-cols-12 gap-10 items-center">
-                <div className="md:col-span-5 reveal">
-                  {(content.about.imageUrl || content.gallery[0]) && (
-                    <img src={content.about.imageUrl || content.gallery[0]} alt={content.about.title} className="rounded-3xl w-full aspect-[4/5] object-cover" loading="lazy" />
-                  )}
-                </div>
-                <div className="md:col-span-7 reveal">
-                  <p className="eyebrow mb-5">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
-                  <h2 className="headline-lg">{content.about.title}</h2>
-                  <div className="mt-6 text-lg text-muted leading-relaxed space-y-5">
-                    {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-          <BranchTeam branch={branch} style={style} content={content} suppressMedicalWhenNamedDoctors={false} />
-          <Timeline content={content} />
-          <ExtraAboutNumbersBand content={content} />
-          {content.testimonials.length > 0 && (
-            <section className="py-16 md:py-24 surface">
-              <div className="container-x">
-                <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
-                <h2 className="headline-lg max-w-3xl reveal mb-12">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
-                <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-                  {content.testimonials.map((t, i) => (
-                    <figure key={i} className="bg-white border border-line rounded-3xl p-7">
-                      <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
-                      <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
-                    </figure>
-                  ))}
-                </div>
-              </div>
-            </section>
-          )}
-          <ExtraSubpageCta content={content} page="about" />
-        </>
-      )}
-
-      {page === 'contact' && (
-        <>
-          <ContactSection content={content} variant={style} />
-          <LocationsBlock content={content} />
-        </>
-      )}
+      {order.map((k) => (
+        <Fragment key={k}>{blocks[k] ?? null}</Fragment>
+      ))}
     </>
   );
 }

@@ -186,13 +186,24 @@ for (const tpl of TEMPLATES) {
     ['about', 'showValues'], ['about', 'showNumbers'], ['about', 'showCta'],
     ['contact', 'showForm'], ['contact', 'showArrival'], ['contact', 'showCta'],
   ];
-  /** Extra-branch gallery/about are allowed fuller subpages than the legacy “all false” rule. */
+  /** Extra-branch subpages match core section flags (full services/gallery/about/contact). */
   const extraAllowsTrue = new Set<string>([
+    'services.showHighlights',
+    'services.showProcess',
+    'services.showFaq',
+    'services.showCta',
     'gallery.showStory',
+    'gallery.showUpload',
     'gallery.showCategories',
     'gallery.showCta',
+    'about.showValues',
+    'about.showTimeline',
     'about.showNumbers',
+    'about.showTestimonials',
     'about.showCta',
+    'contact.showForm',
+    'contact.showArrival',
+    'contact.showCta',
   ]);
   for (const [section, flag] of flagPaths) {
     const value = (cfg[section] as Record<string, unknown>)[flag];

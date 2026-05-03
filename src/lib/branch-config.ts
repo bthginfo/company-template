@@ -361,22 +361,15 @@ const tourism: BranchConfig = {
   contact: { ...CORE_SUBPAGES.contact },
 };
 
-/* ─── Extras: compact subpages ─────────────────────────────────────
- * The extras template (consulting / medical / fitness) intentionally
- * uses a compact subpage layout. Each extra subpage renders only:
- *  - services: PageHero + service grid + spotlight + branchModules
- *  - gallery: PageHero + story + grid + categories + testimonials + CTA
- *  - about: PageHero + about + team + timeline + Zahlen + testimonials + CTA
- *  - contact: PageHero + ContactSection + LocationsBlock
- *
- * Admin therefore only exposes those sections (plus serviceProcess for
- * consulting because it drives the spotlight data).
+/* ─── Extras: subpages (same section catalog as core) ───────────────
+ * Extras use the same subpage section catalog plus sectionOrder /
+ * visibility as the core five; only home layout stays branch-specific.
  * ────────────────────────────────────────────────────────────────── */
 const EXTRA_SUBPAGES = {
-  services: { showHighlights: false, showProcess: false, showFaq: false, showCta: false },
+  services: { showHighlights: true, showProcess: true, showFaq: true, showCta: true },
   gallery:  { showStory: true, showUpload: true, showCategories: true, showCta: true },
-  about:    { showValues: false, showTimeline: true, showNumbers: true, showTestimonials: true, showCta: true },
-  contact:  { showForm: false, showArrival: false, showCta: false },
+  about:    { showValues: true, showTimeline: true, showNumbers: true, showTestimonials: true, showCta: true },
+  contact:  { showForm: true, showArrival: true, showCta: true },
 } as const;
 
 const consulting: BranchConfig = {
@@ -404,13 +397,8 @@ const consulting: BranchConfig = {
   services: {
     headerImage: NONE,
     modules: ['processSteps', 'packages'],
-    showHighlights: false,
-    // consulting spotlight reads from `serviceProcess` data, so admin keeps
-    // the editor (under Services → "Ablauf-Schritte"). Frontend doesn't
-    // render a separate process strip on /leistungen.
+    ...EXTRA_SUBPAGES.services,
     showProcess: true,
-    showFaq: false,
-    showCta: false,
   },
   gallery: { ...EXTRA_SUBPAGES.gallery },
   about: { extras: [], ...EXTRA_SUBPAGES.about },

@@ -114,12 +114,33 @@ const DEFAULT_SUBPAGE_ORDERS: Record<Exclude<PageId, 'home'>, string[]> = {
   contact:  ['block', 'locations', 'arrival', 'cta'],
 };
 
+function isExtraThree(variant: Variant | undefined): variant is 'consulting' | 'medical' | 'fitness' {
+  return variant === 'consulting' || variant === 'medical' || variant === 'fitness';
+}
+
 export function getDefaultSubpageOrder(page: Exclude<PageId, 'home'>, variant?: Variant): string[] {
   // Restaurant has a dedicated, full Speisekarte module ("module") so the
   // generic services "list" duplicate (RestaurantMenu rendered from
   // content.services) is removed by default. Tenants can re-enable it.
   if (page === 'services' && variant === 'restaurant') {
     return ['highlights', 'module', 'process', 'faq', 'cta'];
+  }
+  // Extra branches — same catalog keys as core; order mirrors the previous
+  // hard-coded SubPage flows (e.g. medical: spotlight before service cards).
+  if (page === 'services' && isExtraThree(variant)) {
+    if (variant === 'medical') {
+      return ['highlights', 'process', 'list', 'module', 'testimonials', 'gallery', 'faq', 'cta'];
+    }
+    return ['highlights', 'list', 'process', 'module', 'testimonials', 'gallery', 'faq', 'cta'];
+  }
+  if (page === 'about' && isExtraThree(variant)) {
+    return ['intro', 'values', 'team', 'timeline', 'numbers', 'testimonials', 'faq', 'cta'];
+  }
+  if (page === 'gallery' && isExtraThree(variant)) {
+    return ['story', 'grid', 'categories', 'testimonials', 'cta'];
+  }
+  if (page === 'contact' && isExtraThree(variant)) {
+    return ['block', 'locations', 'arrival', 'faq', 'cta'];
   }
   return [...DEFAULT_SUBPAGE_ORDERS[page]];
 }

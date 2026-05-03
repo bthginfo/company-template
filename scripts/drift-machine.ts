@@ -366,7 +366,12 @@ const SUBPAGE_FLAG_CHECKS: readonly SubpageCheck[] = [
     adminSection: 'serviceProcess',
     frontendNeedles: ['serviceProcess'],
   },
-  { page: 'services', when: (c) => c.services.showFaq, adminSection: 'faq', frontendNeedles: ['resolveFaq'] },
+  {
+    page: 'services',
+    when: (c) => c.services.showFaq,
+    adminSection: 'faq',
+    frontendNeedles: ['resolveFaq', 'normaliseFaqList'],
+  },
   {
     page: 'services',
     when: (c) => c.services.showCta,
@@ -397,7 +402,12 @@ const SUBPAGE_FLAG_CHECKS: readonly SubpageCheck[] = [
     adminSection: 'galleryCta',
     frontendNeedles: ['page="gallery"'],
   },
-  { page: 'about', when: (c) => c.about.showValues, adminSection: 'values', frontendNeedles: ['ValuesSection'] },
+  {
+    page: 'about',
+    when: (c) => c.about.showValues,
+    adminSection: 'values',
+    frontendNeedles: ['ValuesSection', 'valuesEyebrow', 'branchText.valuesEyebrow'],
+  },
   {
     page: 'about',
     when: (c) => c.about.showTimeline,
