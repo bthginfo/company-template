@@ -46,6 +46,43 @@ type ProvisioningResponse = {
 
 type CrmTab = 'prospects' | 'tenants';
 
+type ProvJsonMode = 'file' | 'paste';
+
+const TEMPLATE_KEYS: readonly TemplateKey[] = [
+  'restaurant',
+  'salon',
+  'tradesman',
+  'hotel',
+  'tourism',
+  'consulting',
+  'medical',
+  'fitness',
+];
+const STYLE_KEYS: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
+
+/** Empty trimmed string → no import; invalid JSON → error. */
+function parseImportObjectFromText(raw: string): { kind: 'empty' } | { kind: 'ok'; value: Record<string, unknown> } | { kind: 'error'; message: string } {
+  const trimmed = raw.trim();
+  if (!trimmed) return { kind: 'empty' };
+  try {
+    const parsed: unknown = JSON.parse(trimmed);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { kind: 'error', message: 'JSON muss ein Objekt sein (kein Array).' };
+    }
+    return { kind: 'ok', value: parsed as Record<string, unknown> };
+  } catch {
+    return { kind: 'error', message: 'Ungültiges JSON.' };
+  }
+}
+
+function templateFromImport(branch: unknown): TemplateKey | null {
+  return typeof branch === 'string' && (TEMPLATE_KEYS as readonly string[]).includes(branch) ? (branch as TemplateKey) : null;
+}
+
+function styleFromImport(style: unknown): TemplateStyle | null {
+  return typeof style === 'string' && (STYLE_KEYS as readonly string[]).includes(style) ? (style as TemplateStyle) : null;
+}
+
 type TenantRow = {
   id: string;
   slug: string;
@@ -118,6 +155,9 @@ export default function CrmApp() {
   const [provPassword, setProvPassword] = useState('');
   const [provContentJson, setProvContentJson] = useState<Record<string, unknown> | null>(null);
   const [provContentName, setProvContentName] = useState('');
+  const [provJsonMode, setProvJsonMode] = useState<ProvJsonMode>('file');
+  const [provPasteText, setProvPasteText] = useState('');
+  const [provFileInputKey, setProvFileInputKey] = useState(0);
   const [provResult, setProvResult] = useState<ProvisioningResponse['provisioning'] | null>(null);
 
   // Tenants tab state
@@ -154,6 +194,11 @@ export default function CrmApp() {
     const q = tenantSearch.toLowerCase();
     return tenants.filter((t) => t.name.toLowerCase().includes(q) || t.slug.toLowerCase().includes(q) || t.template.includes(q));
   }, [tenants, tenantSearch]);
+
+  const pasteImportPreview = useMemo(() => {
+    if (provJsonMode !== 'paste') return null;
+    return parseImportObjectFromText(provPasteText);
+  }, [provJsonMode, provPasteText]);
 
   useEffect(() => {
     void (async () => {
@@ -300,11 +345,36 @@ export default function CrmApp() {
     setProvPassword('');
     setProvContentJson(null);
     setProvContentName('');
+    setProvJsonMode('file');
+    setProvPasteText('');
+    setProvFileInputKey((k) => k + 1);
     setProvisionModal({ open: true, p });
   };
 
   const runProvision = async () => {
     if (!provisionModal.p) return;
+
+    let templateToUse = provTemplate;
+    let styleToUse = provStyle;
+    let importPayload: Record<string, unknown> | null = null;
+
+    if (provJsonMode === 'file') {
+      importPayload = provContentJson;
+    } else {
+      const parsed = parseImportObjectFromText(provPasteText);
+      if (parsed.kind === 'error') {
+        alert(parsed.message);
+        return;
+      }
+      if (parsed.kind === 'ok') {
+        importPayload = parsed.value;
+        const tBranch = templateFromImport(parsed.value.branch);
+        const tStyle = styleFromImport(parsed.value.style);
+        if (tBranch) templateToUse = tBranch;
+        if (tStyle) styleToUse = tStyle;
+      }
+    }
+
     setBusy(true);
     try {
       const data = await req<ProvisioningResponse>(`/api/prospects/provision?id=${encodeURIComponent(provisionModal.p.id)}`, {
@@ -313,18 +383,20 @@ export default function CrmApp() {
           id: provisionModal.p.id,
           slug: provSlug,
           name: provName,
-          template: provTemplate,
-          style: provStyle,
+          template: templateToUse,
+          style: styleToUse,
           ...(provPassword.trim().length >= 8 ? { password: provPassword.trim() } : {}),
         }),
       });
+      setProvTemplate(templateToUse);
+      setProvStyle(styleToUse);
       setProvResult(data.provisioning);
       // Auto-import content JSON if provided
-      if (provContentJson) {
+      if (importPayload) {
         try {
           await req(`/api/admin/import-content?slug=${encodeURIComponent(provSlug)}`, {
             method: 'POST',
-            body: JSON.stringify(provContentJson),
+            body: JSON.stringify(importPayload),
           });
         } catch (e: any) {
           alert(`Tenant erstellt, aber Content-Import fehlgeschlagen: ${e?.message}`);
@@ -918,24 +990,95 @@ export default function CrmApp() {
               <input type="text" value={provPassword} onChange={(e) => setProvPassword(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 bg-white font-mono" placeholder="Leer = wird automatisch generiert" />
             </div>
             <div>
-              <label className="text-sm text-slate-600">Content-JSON (Perplexity-Export)</label>
-              <input type="file" accept=".json" className="mt-1 w-full text-sm" onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) { setProvContentJson(null); setProvContentName(''); return; }
-                setProvContentName(file.name);
-                const reader = new FileReader();
-                reader.onload = () => {
-                  try {
-                    const json = JSON.parse(reader.result as string);
-                    setProvContentJson(json);
-                    // Auto-set branch + style from JSON if present
-                    if (json.branch) setProvTemplate(json.branch);
-                    if (json.style) setProvStyle(json.style);
-                  } catch { alert('Ungültiges JSON'); setProvContentJson(null); }
-                };
-                reader.readAsText(file);
-              }} />
-              {provContentName && provContentJson ? <p className="text-xs text-emerald-600 mt-1">✓ {provContentName} geladen{provContentJson.branch ? ` (${provContentJson.branch}/${(provContentJson as any).style || '?'})` : ''}</p> : null}
+              <label className="text-sm text-slate-600">Content-JSON (Perplexity-Export, optional)</label>
+              <div className="mt-2 inline-flex rounded-lg border border-slate-300 bg-slate-50 p-0.5 gap-0.5">
+                <button
+                  type="button"
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${provJsonMode === 'file' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  onClick={() => setProvJsonMode('file')}
+                >
+                  Datei
+                </button>
+                <button
+                  type="button"
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${provJsonMode === 'paste' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  onClick={() => setProvJsonMode('paste')}
+                >
+                  JSON einfügen
+                </button>
+              </div>
+
+              {provJsonMode === 'file' ? (
+                <div className="mt-2">
+                  <input
+                    key={provFileInputKey}
+                    type="file"
+                    accept=".json,application/json"
+                    className="w-full text-sm"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) {
+                        setProvContentJson(null);
+                        setProvContentName('');
+                        return;
+                      }
+                      setProvContentName(file.name);
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        const parsed = parseImportObjectFromText(reader.result as string);
+                        if (parsed.kind === 'error') {
+                          alert(parsed.message);
+                          setProvContentJson(null);
+                          return;
+                        }
+                        if (parsed.kind === 'empty') {
+                          setProvContentJson(null);
+                          return;
+                        }
+                        const json = parsed.value;
+                        setProvContentJson(json);
+                        const tBranch = templateFromImport(json.branch);
+                        const tStyle = styleFromImport(json.style);
+                        if (tBranch) setProvTemplate(tBranch);
+                        if (tStyle) setProvStyle(tStyle);
+                      };
+                      reader.readAsText(file);
+                    }}
+                  />
+                  {provContentName && provContentJson ? (
+                    <p className="text-xs text-emerald-600 mt-1">
+                      ✓ {provContentName} geladen
+                      {provContentJson.branch !== undefined && provContentJson.branch !== null && String(provContentJson.branch) !== ''
+                        ? ` (${String(provContentJson.branch)}/${typeof provContentJson.style === 'string' ? provContentJson.style : '?'})`
+                        : ''}
+                    </p>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="mt-2 space-y-1">
+                  <textarea
+                    value={provPasteText}
+                    onChange={(e) => setProvPasteText(e.target.value)}
+                    rows={10}
+                    spellCheck={false}
+                    placeholder={'{\n  "branch": "restaurant",\n  …\n}'}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs leading-relaxed bg-white"
+                  />
+                  {pasteImportPreview?.kind === 'ok' ? (
+                    <p className="text-xs text-emerald-600">
+                      ✓ JSON gültig
+                      {pasteImportPreview.value.branch !== undefined &&
+                      pasteImportPreview.value.branch !== null &&
+                      String(pasteImportPreview.value.branch) !== ''
+                        ? ` (${String(pasteImportPreview.value.branch)}/${typeof pasteImportPreview.value.style === 'string' ? pasteImportPreview.value.style : '?'})`
+                        : ''}
+                    </p>
+                  ) : null}
+                  {pasteImportPreview?.kind === 'error' ? (
+                    <p className="text-xs text-rose-600">{pasteImportPreview.message}</p>
+                  ) : null}
+                </div>
+              )}
             </div>
             <div className="grid sm:grid-cols-2 gap-2">
               <div>
@@ -970,7 +1113,14 @@ export default function CrmApp() {
             </div>
             <div className="flex justify-end gap-2">
               <button className="btn-ghost !px-4 !py-2" onClick={() => setProvisionModal({ open: false, p: null })}>Schließen</button>
-              <button className="rounded-xl bg-slate-900 text-white px-4 py-2 hover:bg-slate-700" onClick={() => void runProvision()}>
+              <button
+                className="rounded-xl bg-slate-900 text-white px-4 py-2 hover:bg-slate-700 disabled:opacity-50 disabled:pointer-events-none"
+                disabled={
+                  busy ||
+                  (provJsonMode === 'paste' && !!provPasteText.trim() && pasteImportPreview?.kind === 'error')
+                }
+                onClick={() => void runProvision()}
+              >
                 Provision starten
               </button>
             </div>
