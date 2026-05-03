@@ -52,22 +52,22 @@ const SIGNATURE_DEFAULTS: Record<TemplateVariant, Record<TemplateStyle, Signatur
   },
   salon: {
     classic: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten — frisch aus dem Studio.' },
-    modern:  { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '' },
+    modern:  { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '', metaLabel: '' },
     bold:    { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: '' },
   },
   tradesman: {
     classic: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt — handwerklich sauber, mit Liebe zum Detail.' },
-    modern:  { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '' },
+    modern:  { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '', metaLabel: '' },
     bold:    { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: '' },
   },
   hotel: {
     classic: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders — wählen Sie, was zu Ihrer Reise passt.' },
-    modern:  { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '' },
+    modern:  { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '', metaLabel: '' },
     bold:    { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: '' },
   },
   tourism: {
     classic: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse — unsere Guides kennen jeden Pfad.' },
-    modern:  { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '' },
+    modern:  { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '', metaLabel: '' },
     bold:    { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: '' },
   },
 };
@@ -221,8 +221,17 @@ function SalonSignature({ style, content }: { style: TemplateStyle; content: Sit
     return (
       <section className="py-24 md:py-32 surface">
         <div className="container-x">
-          {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
-          <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+              {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
+              <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
+            </div>
+            {t.metaLabel && (
+              <span className="text-xs font-mono uppercase tracking-widest text-muted">
+                {t.metaLabel} · {new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long' })}
+              </span>
+            )}
+          </div>
           <div className="mt-12 grid md:grid-cols-4 gap-4 reveal-stagger">
             {looks.map((src, i) => (
               <figure key={i} className="bg-white rounded-2xl overflow-hidden border border-line p-3 shadow-sm hover-lift">
@@ -307,6 +316,11 @@ function TradesmanSignature({ style, content }: { style: TemplateStyle; content:
           <div className="md:col-span-5">
             {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
             <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
+            {t.metaLabel && (
+              <p className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">
+                {t.metaLabel} · {new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long' })}
+              </p>
+            )}
             <div className="mt-8 bg-white border border-line rounded-2xl p-6">
               <p className="text-xs font-mono uppercase tracking-widest text-muted">Direktwahl</p>
               {phone && <a href={'tel:' + phone.replace(/\s/g, '')} className="block mt-2 font-display text-3xl text-brand">{phone}</a>}
@@ -395,7 +409,14 @@ function HotelSignature({ style, content }: { style: TemplateStyle; content: Sit
               {t.eyebrow && <Eyebrow style={style}>{t.eyebrow}</Eyebrow>}
               <Title style={style}>{t.titleA} <em className="italic-pop">{t.titleB}</em></Title>
             </div>
-            <TLink to="/kontakt" className="btn-primary">Verfügbarkeit prüfen <span aria-hidden>→</span></TLink>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4 shrink-0">
+              {t.metaLabel && (
+                <span className="text-xs font-mono uppercase tracking-widest text-muted">
+                  {t.metaLabel} · {new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long' })}
+                </span>
+              )}
+              <TLink to="/kontakt" className="btn-primary">Verfügbarkeit prüfen <span aria-hidden>→</span></TLink>
+            </div>
           </div>
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
             {rooms.map((r, i) => (
@@ -492,7 +513,15 @@ function TourismSignature({ style, content }: { style: TemplateStyle; content: S
               {sig.eyebrow && <Eyebrow style={style}>{sig.eyebrow}</Eyebrow>}
               <Title style={style}>{sig.titleA} <em className="italic-pop">{sig.titleB}</em></Title>
             </div>
-            <span className="text-xs font-mono uppercase tracking-widest text-muted">Auswahl · {new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}</span>
+            {sig.metaLabel ? (
+              <span className="text-xs font-mono uppercase tracking-widest text-muted">
+                {sig.metaLabel} · {new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long' })}
+              </span>
+            ) : (
+              <span className="text-xs font-mono uppercase tracking-widest text-muted">
+                Auswahl · {new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+              </span>
+            )}
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 reveal-stagger">
             {tours.map((t, i) => (
