@@ -1193,6 +1193,21 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
             )}
           </SectionCard>
         );
+      case 'extraServiceCards': {
+        if (!(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl)) return null;
+        const baseKeys: BranchTextKey[] = ['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle'];
+        baseKeys.push('serviceCardNote');
+        baseKeys.push('servicesAllLabel', 'servicesAllHref');
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="list" data={data} setData={setData}>
+            <p className="text-xs text-muted mb-4 max-w-prose leading-relaxed">
+              Diese Karten erscheinen auf <strong className="font-medium text-brand">/leistungen</strong> und als Teaser auf der Startseite — ein gemeinsamer Datensatz.
+            </p>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={baseKeys} />
+            <ServicesListEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      }
       case 'highlights':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="highlights" data={data} setData={setData}>
@@ -1284,6 +1299,13 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
       case 'medicalNotice':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+            {tpl === 'medical' && (
+              <>
+                <p className="text-xs font-medium text-muted mb-2">Überschrift „Service & Info“ (Eyebrow, Titel, Untertitel)</p>
+                <ModuleHeadingFields data={data} setData={setData} mKey="medicalInfo" />
+                <hr className="my-4 border-line" />
+              </>
+            )}
             <MedicalNoticeEditor data={data} setData={setData} />
           </SectionCard>
         );

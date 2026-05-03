@@ -25,7 +25,7 @@ export type AdminSectionKey =
   | 'logos' | 'testimonials' | 'news' | 'softCta'
   | 'funding' | 'spotlight'
   // Services sections
-  | 'servicesHeader' | 'highlights' | 'menu' | 'rooms'
+  | 'servicesHeader' | 'extraServiceCards' | 'highlights' | 'menu' | 'rooms'
   | 'tours' | 'treatments' | 'courses' | 'packages' | 'processSteps'
   | 'doctors' | 'booking' | 'fundingModule' | 'emergencyBanner'
   | 'programs' | 'medicalNotice' | 'serviceProcess' | 'faq' | 'servicesCta'
@@ -157,6 +157,7 @@ export const MODULE_TO_KEY: Record<ServiceModule, AdminSectionKey> = {
 function servicesOrder(tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey[] {
   const cfg = getBranchConfig(tpl);
   const base: AdminSectionKey[] = ['servicesHeader'];
+  if (isExtraBranch(tpl)) base.push('extraServiceCards');
   if (cfg.services.showHighlights) base.push('highlights');
 
   // Derive module sections from branch config — single source of truth
@@ -240,7 +241,7 @@ export const HANDLED_SECTIONS_BY_PAGE: Record<PageKey, readonly AdminSectionKey[
     'funding', 'spotlight',
   ],
   services: [
-    'servicesHeader', 'highlights',
+    'servicesHeader', 'extraServiceCards', 'highlights',
     'menu', 'rooms', 'tours', 'treatments', 'courses', 'packages',
     'processSteps', 'doctors', 'booking', 'fundingModule', 'emergencyBanner',
     'programs', 'medicalNotice',
@@ -352,6 +353,11 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     title: 'Seiten-Header',
     description: 'Titelzeile dieser Seite.',
   }),
+  extraServiceCards: () => ({
+    title: 'Leistungs-Karten',
+    description:
+      'Teaser-Überschrift und Kartenliste für /leistungen — dieselben Einträge wie auf der Startseiten-Leistungen.',
+  }),
   highlights: () => ({
     title: 'Highlights-Leiste',
     description: 'Kurze Info-Kacheln unter dem Header.',
@@ -407,7 +413,8 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
   medicalNotice: () => ({
     title: 'Hinweise (Online-Termin & Notfall)',
-    description: 'Kurz-Hinweise für Service-Karten.',
+    description:
+      'Kurz-Hinweise im Block „Service & Info“ (Sprechzeiten-Karte). Überschrift des Blocks hier mitbearbeiten.',
   }),
   serviceProcess: () => ({
     title: 'Ablauf-Schritte',

@@ -98,6 +98,16 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
 
   /* ─── Services ─────────────────────────────────────────────────── */
   servicesHeader: { key: 'servicesHeader', dataKeys: ['servicesHeader', 'branchText.servicesPageImageUrl'] },
+  extraServiceCards: {
+    key: 'extraServiceCards',
+    dataKeys: [
+      'services',
+      'branchText.servicesTeaserEyebrow', 'branchText.servicesTeaserTitle',
+      'branchText.teaserSubtitle',
+      'branchText.servicesAllLabel', 'branchText.servicesAllHref',
+      'branchText.serviceCardNote',
+    ],
+  },
   highlights: { key: 'highlights', dataKeys: ['serviceHighlights'] },
   menu: { key: 'menu', dataKeys: ['menu', 'moduleHeadings.menu'] },
   rooms: { key: 'rooms', dataKeys: ['rooms', 'services', 'moduleHeadings.rooms'] },
@@ -111,7 +121,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
   fundingModule: { key: 'fundingModule', dataKeys: ['fundingItems', 'fundingCalc', 'moduleHeadings.funding'] },
   emergencyBanner: { key: 'emergencyBanner', dataKeys: ['emergencyBanner'] },
   programs: { key: 'programs', dataKeys: ['programs'] },
-  medicalNotice: { key: 'medicalNotice', dataKeys: ['medicalNotice'] },
+  medicalNotice: { key: 'medicalNotice', dataKeys: ['medicalNotice', 'moduleHeadings.medicalInfo'] },
   serviceProcess: { key: 'serviceProcess', dataKeys: ['serviceProcess', 'branchText.processEyebrow', 'branchText.processTitle'] },
   faq: { key: 'faq', dataKeys: ['faq', 'branchText.faqEyebrow', 'branchText.faqTitle'] },
   servicesCta: { key: 'servicesCta', dataKeys: ['ctaBandOverrides.services'] },

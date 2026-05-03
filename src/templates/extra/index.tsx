@@ -208,6 +208,130 @@ const PAGE_HEADER_KEY: Record<Exclude<ExtraPage, 'home'>, 'servicesHeader' | 'ga
   about: 'aboutHeader',
   contact: 'contactPageHeader',
 };
+
+/** /leistungen — same `content.services` + teaser copy as home; optional „Alle“-Link via branchText. */
+function ExtraLeistungenServiceCards({
+  content,
+  branch,
+  style,
+}: {
+  content: SiteContent;
+  branch: ExtraBranchKey;
+  style: ExtraStyle;
+}) {
+  if (content.services.length === 0) return null;
+  const bt = effectiveBranchText(branch, content);
+  const allLabel = (bt.servicesAllLabel ?? '').trim();
+  const allHref = (bt.servicesAllHref ?? '').trim();
+  const showAll = allLabel.length > 0 && allHref.length > 0;
+  const cardNote = (bt.serviceCardNote ?? '').trim();
+
+  const teaserClassic = (
+    <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
+      <div className="md:col-span-7 reveal">
+        <p className="eyebrow mb-5">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
+        <h2 className="headline-lg">{bt.servicesTeaserTitle || <>Was wir<br /><em className="italic-pop">für Sie tun.</em></>}</h2>
+      </div>
+      <p className="md:col-span-5 text-lg text-muted reveal">
+        {bt.teaserSubtitle || 'Eine Auswahl aus unserem Repertoire. Mehr im persönlichen Gespräch.'}
+      </p>
+    </div>
+  );
+  const teaserModern = (
+    <div className="max-w-2xl reveal mb-16">
+      <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
+      <h2 className="font-display text-4xl md:text-5xl">{bt.servicesTeaserTitle || 'Was Sie bekommen.'}</h2>
+      <p className="mt-4 text-lg text-muted">{bt.teaserSubtitle || 'Klar definierte Pakete – keine versteckten Kosten.'}</p>
+    </div>
+  );
+  const teaserBold = (
+    <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
+      <p className="md:col-span-2 font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">02</p>
+      <div className="md:col-span-10">
+        {bt.servicesTeaserEyebrow && (
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-3">{bt.servicesTeaserEyebrow}</p>
+        )}
+        <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">{bt.servicesTeaserTitle || 'Leistungen.'}</h2>
+      </div>
+    </div>
+  );
+
+  const gridClassic = (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+      {content.services.map((s, i) => (
+        <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
+          {s.imageUrl && (
+            <div className="aspect-[4/3] overflow-hidden img-zoom">
+              <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          )}
+          <div className="p-6">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="font-display text-2xl">{s.title}</h3>
+              {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
+            </div>
+            {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+  const gridModern = (
+    <div className="grid md:grid-cols-2 gap-4 reveal-stagger">
+      {content.services.map((s, i) => (
+        <article key={i} className="group bg-white border border-line rounded-2xl p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+            {s.price && <span className="font-display text-lg">{s.price}</span>}
+          </div>
+          <h3 className="font-display text-2xl md:text-3xl mb-3">{s.title}</h3>
+          {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
+          <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
+            <span className="text-muted">{cardNote}</span>
+            <span className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition">Mehr erfahren →</span>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+  const gridBold = (
+    <ul className="reveal-stagger">
+      {content.services.map((s, i) => (
+        <li key={i} className="group border-t border-line last:border-b py-8 md:py-12 hover:bg-white/30 transition-colors">
+          <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
+            <span className="md:col-span-1 font-mono text-sm text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+            <h3 className="md:col-span-6 font-display text-3xl md:text-5xl leading-tight transition-transform group-hover:translate-x-2">
+              {s.title}
+            </h3>
+            <p className="md:col-span-4 text-muted leading-relaxed">{s.description}</p>
+            {s.price && <span className="md:col-span-1 md:text-right font-display text-2xl">{s.price}</span>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+
+  const teaser = style === 'modern' ? teaserModern : style === 'bold' ? teaserBold : teaserClassic;
+  const grid = style === 'modern' ? gridModern : style === 'bold' ? gridBold : gridClassic;
+
+  return (
+    <section id="leistungen-karten" className={style === 'bold' ? 'py-24 md:py-40 surface' : 'py-24 md:py-32'}>
+      <div className="container-x">
+        {teaser}
+        {grid}
+        {style !== 'modern' && cardNote.length > 0 && (
+          <p className="mt-10 text-sm text-muted max-w-2xl reveal">{cardNote}</p>
+        )}
+        {showAll && (
+          <div className="mt-12 flex justify-end reveal">
+            <ExtraHeroLink href={allHref} className="btn-outline">{allLabel} <span aria-hidden>→</span></ExtraHeroLink>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function SubPage({ content, branch, page, style, eyebrow }: {
   content: SiteContent;
   branch: ExtraBranchKey;
@@ -226,32 +350,19 @@ function SubPage({ content, branch, page, style, eyebrow }: {
 
       {page === 'services' && (
         <>
-          {content.services.length > 0 && (
-            <section className="py-16 md:py-24">
-              <div className="container-x">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-                  {content.services.map((s, i) => (
-                    <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
-                      {s.imageUrl && (
-                        <div className="aspect-[4/3] overflow-hidden img-zoom">
-                          <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
-                        </div>
-                      )}
-                      <div className="p-6">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="font-display text-2xl">{s.title}</h3>
-                          {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
-                        </div>
-                        {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            </section>
+          {branch === 'medical' ? (
+            <>
+              <BranchSpotlight branch={branch} style={style} content={content} />
+              <ExtraLeistungenServiceCards content={content} branch={branch} style={style} />
+              <BranchModulesInline variant={branch} content={content} />
+            </>
+          ) : (
+            <>
+              <ExtraLeistungenServiceCards content={content} branch={branch} style={style} />
+              <BranchSpotlight branch={branch} style={style} content={content} />
+              <BranchModulesInline variant={branch} content={content} />
+            </>
           )}
-          <BranchSpotlight branch={branch} style={style} content={content} />
-          <BranchModulesInline variant={branch} content={content} />
         </>
       )}
 

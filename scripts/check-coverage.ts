@@ -231,7 +231,7 @@ const ADMIN_TO_FRONTEND_HOME: Record<AdminSectionKey, string | null> = {
   testimonials: 'testimonials', news: 'news',
   funding: 'funding', spotlight: 'spotlight',
   // not used on home — keep them mapped so TS exhaustiveness is happy
-  servicesHeader: null, highlights: null, menu: null, rooms: null,
+  servicesHeader: null, extraServiceCards: null, highlights: null, menu: null, rooms: null,
   tours: null, treatments: null, courses: null, packages: null,
   processSteps: null, doctors: null, booking: null, fundingModule: null,
   emergencyBanner: null, programs: null, medicalNotice: null,
