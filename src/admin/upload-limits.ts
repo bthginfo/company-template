@@ -17,7 +17,7 @@ export const ALLOWED_IMAGE_TYPES = [
 
 export const ALLOWED_IMAGE_EXT_LABEL = 'JPG, PNG, WebP, GIF oder SVG';
 
-export const UPLOAD_HINT = `Erlaubt: ${ALLOWED_IMAGE_EXT_LABEL} · max. ${MAX_UPLOAD_LABEL} pro Bild. Größere Bilder verlangsamen die Seite und werden nicht akzeptiert — bitte vorher verkleinern (z. B. mit squoosh.app oder tinypng.com).`;
+export const UPLOAD_HINT = `${ALLOWED_IMAGE_EXT_LABEL}, max. ${MAX_UPLOAD_LABEL} pro Bild.`;
 
 function formatMb(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(2).replace('.', ',') + ' MB';

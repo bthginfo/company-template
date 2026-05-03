@@ -11,7 +11,7 @@ import { scrollToTop } from '@/lib/scroll';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import { MODULE_DEFAULTS, type ModuleHeadingKey } from '@/components/branch-modules';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
-import { getAdminSections, getSectionMeta, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, fieldHint, type AdminSectionKey, type PageKey } from './admin-sections';
+import { getAdminSections, getSectionMeta, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, type AdminSectionKey, type PageKey } from './admin-sections';
 import { adminKeyForCatalog, CROSS_PAGE_TARGETS } from '@/lib/section-registry';
 
 /**
@@ -560,7 +560,7 @@ function AddSectionRow({ pageKey, data, setData, tpl }: {
   return (
     <div className="border border-dashed border-line rounded-2xl p-5 bg-[#fafaf7]">
       <p className="text-xs uppercase tracking-widest text-muted mb-1">Sektion hinzufügen</p>
-      <p className="text-xs text-muted mb-3">Passende Zusatz-Sektionen für deine Branche und diesen Stil. Nach dem Einfügen die Position mit den ↑↓-Pfeilen in der Seitenleiste anpassen.</p>
+      <p className="text-xs text-muted mb-3">Zusätzliche Sektionen — Platzierung danach mit ↑↓.</p>
       <div className="flex flex-wrap gap-2">
         {remaining.map((s) => (
           <button key={s.key} type="button" onClick={() => onAdd(s.key)} className="text-xs px-3 py-1.5 rounded-full border border-line bg-white hover:bg-brand hover:text-white transition" title={s.description}>
@@ -647,14 +647,12 @@ function DeepLinkSectionCard({
       <div className="rounded-xl border border-line bg-[#fafaf7] p-5 space-y-3">
         <p className="text-sm text-slate-700">
           <span aria-hidden className="mr-1.5">ℹ</span>
-          Diese Sektion erscheint zusätzlich auf dieser Seite. Inhalte werden dort gepflegt, wo sie ursprünglich definiert sind:
+          Inhalt liegt auf einer anderen Admin-Seite:
         </p>
         {target?.description && (
           <p className="text-xs text-muted">{target.description}</p>
         )}
-        <p className="text-xs text-muted">
-          Die ↑↓-Pfeile oben verschieben die Position auf der Seite, das ✕ entfernt die Sektion wieder.
-        </p>
+        <p className="text-xs text-muted">↑↓ = Reihenfolge hier · ✕ = von dieser Seite nehmen</p>
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-white border border-line px-3 py-1.5 text-xs font-medium">
             Inhalt bearbeiten:
@@ -694,7 +692,7 @@ function ModuleHeadingFields({ data, setData, mKey }: SetterProps & { mKey: Modu
   };
   return (
     <div className="rounded-xl border border-line bg-[#fafaf7] p-4 mb-4 space-y-3">
-      <div className="text-[10px] uppercase tracking-widest text-muted">Modul-Überschrift (leer lassen = Default)</div>
+      <div className="text-[10px] uppercase tracking-widest text-muted">Modul-Überschrift</div>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Eyebrow"><input className={inputCls} value={cur.eyebrow || ''} placeholder={def.eyebrow} onChange={(e) => update({ eyebrow: e.target.value })} /></Field>
         <Field label="Untertitel"><input className={inputCls} value={cur.subtitle || ''} placeholder={def.subtitle} onChange={(e) => update({ subtitle: e.target.value })} /></Field>
@@ -750,7 +748,7 @@ function ImagePickerField({ label, value, onChange, ratio = 'aspect-[4/3]' }: { 
   };
 
   return (
-    <Field label={label} hint={_ctx.uploadImage ? UPLOAD_HINT : 'In der Demo wird das Bild nur lokal angezeigt.'}>
+    <Field label={label} hint={_ctx.uploadImage ? UPLOAD_HINT : 'Demo: nur lokal.'}>
       <div className="grid sm:grid-cols-[180px_1fr] gap-3 items-start">
         <div className={`${ratio} rounded-xl overflow-hidden bg-[#f6f6f3] border border-line grid place-items-center`}>
           {value ? <img src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Kein Bild</span>}
@@ -781,7 +779,7 @@ function LinkTargetField({ label, value, onChange, sections }: { label: string; 
   const isExternal = !!value && !sections.some((s) => s.id === value) && value !== '__custom__';
   const [mode, setMode] = useState<'section' | 'external'>(isExternal ? 'external' : 'section');
   return (
-    <Field label={label} hint="Wohin soll der Button verlinken?">
+    <Field label={label}>
       <div className="flex gap-2 mb-2">
         <button type="button" onClick={() => setMode('section')} className={`px-3 py-1.5 text-xs rounded-full border ${mode === 'section' ? 'bg-brand text-white border-brand' : 'bg-white border-line text-slate-600'}`}>
           Sektion auf der Seite
@@ -899,7 +897,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             {$s(cfg.home.hero.heroBadge) && (
               <>
                 <hr className="my-4 border-line" />
-                <p className="text-xs font-medium text-muted mb-2">Google-Badge (erscheint nur im Modern-Hero)</p>
+                <p className="text-xs font-medium text-muted mb-2">Google-Badge (nur Modern)</p>
                 <HeroBadgeEditor data={data} setData={setData} />
               </>
             )}
@@ -934,7 +932,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="signature" data={data} setData={setData}>
             <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
-            <p className="text-xs font-medium text-muted mt-6 mb-3">Highlight-Einträge nur für diesen Block (nicht die Leistungsliste darüber)</p>
+            <p className="text-xs font-medium text-muted mt-6 mb-3">Zusätzliche Highlight-Einträge</p>
             <HomeSignatureItemsEditor data={data} setData={setData} />
           </SectionCard>
         );
@@ -947,7 +945,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
             <Field label="Überschrift">
               <input className={inputCls} value={data.about?.title || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), title: e.target.value } })} />
             </Field>
-            <Field label="Text" hint={fieldHint(FIELD_CONFIG.homeAbout.bodyHint, style)}>
+            <Field label="Text">
               <textarea className={inputCls} rows={5} value={data.about?.body || ''} onChange={(e) => setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), body: e.target.value } })} />
             </Field>
             {$s(cfg.home.aboutImage) && (
@@ -959,9 +957,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="gallery" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserEyebrow', 'galleryTeaserTitle', 'galleryAllLabel']} />
-            <p className="text-xs text-muted">
-              Bilder hochladen und Reihenfolge festlegen unter <strong>Galerie</strong> (↑↓ bei jedem Bild). Die ersten <strong>{GALLERY_TEASER_LIMIT[style]}</strong> Bilder dieser Liste erscheinen im Teaser — unten eine Vorschau.
-            </p>
             <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
               {data.gallery.slice(0, GALLERY_TEASER_LIMIT[style]).map((src, i) => (
                 <div key={`${i}_${src}`} className="aspect-square rounded-lg overflow-hidden bg-[#f6f6f3]">
@@ -988,7 +983,6 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="news" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['newsEyebrow', 'newsTitle']} />
-            <p className="text-xs text-muted">Beiträge anlegen unter <strong>News &amp; Blog</strong> in der Seitenleiste.</p>
             <NewsHomePreview data={data} />
           </SectionCard>
         );
@@ -1007,17 +1001,17 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'spotlight':
         if (tpl === 'consulting') return (
-          <SectionCard key={key} title="Spotlight: Vorgehen" description="Überschrift für die „Wie wir arbeiten“-Sektion." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+          <SectionCard key={key} title="Spotlight: Vorgehen" description="Modul-Überschrift." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="consultingSpotlight" />
           </SectionCard>
         );
         if (tpl === 'medical') return (
-          <SectionCard key={key} title="Spotlight: Service & Info" description="Überschrift der Service-Kacheln." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+          <SectionCard key={key} title="Spotlight: Service & Info" description="Modul-Überschrift." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="medicalInfo" />
           </SectionCard>
         );
         if (tpl === 'fitness') return (
-          <SectionCard key={key} title="Spotlight: Programme" description="Überschrift für die Programm-Sektion." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+          <SectionCard key={key} title="Spotlight: Programme" description="Modul-Überschrift." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="fitnessSpotlight" />
           </SectionCard>
         );
@@ -1058,7 +1052,7 @@ function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge }: {
     <SectionCard title={meta.title} description={meta.description} badge={badge}>
       <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
       {$s(cfg.home.hero.tagline) && (
-        <Field label="Slogan / Eyebrow" hint="Kurzer Slogan über der Hauptzeile — nur sichtbar, wenn diese Variante ihn vorsieht.">
+        <Field label="Slogan / Eyebrow">
           <input className={inputCls} value={data.brand.tagline || ''} onChange={(e) => set({ brand: { ...data.brand, tagline: e.target.value } })} />
         </Field>
       )}
@@ -1066,12 +1060,12 @@ function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge }: {
         <input className={inputCls} value={data.hero.title} onChange={(e) => set({ hero: { ...data.hero, title: e.target.value } })} />
       </Field>
       {$s(cfg.home.hero.subtitle) && (
-        <Field label="Untertitel" hint="Kurze Zeile direkt unter dem Titel.">
+        <Field label="Untertitel">
           <input className={inputCls} value={data.hero.subtitle || ''} onChange={(e) => set({ hero: { ...data.hero, subtitle: e.target.value } })} />
         </Field>
       )}
       {$s(cfg.home.hero.body) && (
-        <Field label="Beschreibungstext" hint="Längerer Fließtext – beschreibt das Angebot in 1–3 Sätzen.">
+        <Field label="Beschreibungstext">
           <textarea className={inputCls} rows={3} value={(data.hero as any).body || ''} onChange={(e) => set({ hero: { ...data.hero, body: e.target.value } as any })} />
         </Field>
       )}
@@ -1100,7 +1094,7 @@ function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge }: {
             </div>
             <p className="text-xs font-medium text-muted mt-4">Sekundär-Button (optional)</p>
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Button-Text" hint="Leer lassen, um den zweiten Button auszublenden.">
+              <Field label="Button-Text">
                 <input className={inputCls} value={heroCta.secondaryLabel || ''} onChange={(e) => setHeroCta({ secondaryLabel: e.target.value })} placeholder="Speisekarte ansehen" />
               </Field>
               <LinkTargetField label="Button-Ziel" value={heroCta.secondaryHref || ''} onChange={(v) => setHeroCta({ secondaryHref: v })} sections={homeSectionsFor(tpl)} />
@@ -1568,20 +1562,18 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
             <HoursEditor data={data} setData={setData} />
             <div className="mt-4 pt-4 border-t border-line">
               <p className="text-sm font-medium mb-1">Kontakt-Block (Text über den Kontaktdaten)</p>
-              <p className="text-xs text-muted mb-3">Steuert auf /kontakt und im Kontaktbereich der Startseite: Eyebrow, Überschrift und Untertitel über Telefon/E-Mail/Adresse.</p>
-              <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Kontakt">
+              <Field label="Eyebrow">
                 <input className={inputCls} value={cb.eyebrow || ''} onChange={(e) => setCb({ eyebrow: e.target.value })} placeholder="Kontakt" />
               </Field>
-              <Field label="Überschrift" hint="Standard: Wir freuen uns auf Sie.">
+              <Field label="Überschrift">
                 <input className={inputCls} value={cb.title || ''} onChange={(e) => setCb({ title: e.target.value })} placeholder="Wir freuen uns auf Sie." />
               </Field>
-              <Field label="Untertitel" hint="Leer lassen, um ihn auszublenden.">
+              <Field label="Untertitel">
                 <textarea className={inputCls} rows={2} value={cb.subtitle || ''} onChange={(e) => setCb({ subtitle: e.target.value })} placeholder="Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da." />
               </Field>
             </div>
             <div className="mt-4 pt-4 border-t border-line">
               <p className="text-sm font-medium mb-1">Google-Maps-Karte</p>
-              <p className="text-xs text-muted mb-3">Erscheint unter dem Kontaktformular. Am besten die volle URL aus der Browser-Adressleiste einfügen (nicht den kurzen maps.app.goo.gl-Link).</p>
               <Field label="Google-Maps-URL">
                 <input className={inputCls} value={data.contact.mapsUrl || ''} onChange={(e) => setData({ ...data, contact: { ...data.contact, mapsUrl: e.target.value } })} placeholder="https://maps.google.com/..." />
               </Field>
@@ -1837,19 +1829,19 @@ function BrandPage({ data, setData, tpl, style, onStyleChange }: SectionProps & 
         )}
       </SectionCard>
       {onStyleChange && (
-        <SectionCard title="Design-Stil" description="Das Layout und die Optik wechseln sofort. Alle Inhalte bleiben erhalten.">
+        <SectionCard title="Design-Stil" description="Layout & Optik.">
           <StyleSwitcher current={style || 'classic'} onChange={onStyleChange} inline />
         </SectionCard>
       )}
-      <SectionCard title="Eigene Farbe (Fallback)" description="Wird verwendet, wenn kein Schema gewählt ist – sonst überschreibt das Schema oben.">
-        <Field label="Hauptfarbe" hint="Wird für Buttons und Akzente verwendet.">
+      <SectionCard title="Eigene Farbe (Fallback)" description="Wenn kein Farbschema gewählt ist.">
+        <Field label="Hauptfarbe">
           <div className="flex items-center gap-3">
             <input type="color" value={data.brand.primaryColor} onChange={(e) => setData({ ...data, brand: { ...data.brand, primaryColor: e.target.value } })} className="h-10 w-16 rounded-lg border border-line" />
             <input className={inputCls} value={data.brand.primaryColor} onChange={(e) => setData({ ...data, brand: { ...data.brand, primaryColor: e.target.value } })} />
           </div>
         </Field>
         <ImagePickerField label="Logo (optional)" value={data.brand.logoUrl || ''} onChange={(v) => setData({ ...data, brand: { ...data.brand, logoUrl: v } })} ratio="aspect-[3/1]" />
-        <Field label="Markenname neben Logo ausblenden" hint="Wenn aktiviert und ein Logo hochgeladen ist, wird der Markenname-Text neben dem Logo ausgeblendet (nur Logo).">
+        <Field label="Markenname neben Logo ausblenden">
           <label className="inline-flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -1873,15 +1865,15 @@ function ContactGlobal({ data, setData }: SetterProps) {
       <SectionCard title="Öffnungszeiten"><HoursEditor data={data} setData={setData} /></SectionCard>
       <SectionCard
         title="Kontakt-Block (Überschrift)"
-        description="Erscheint im Kontakt-Bereich auf der Startseite und auf /kontakt – über Telefon, E-Mail und Adresse."
+        description="Überschrift über Kontaktdaten (Home & Kontakt)."
       >
-        <Field label="Eyebrow (kleine Zeile darüber)" hint="Standard: Kontakt">
+        <Field label="Eyebrow">
           <input className={inputCls} value={cb.eyebrow || ''} onChange={(e) => setCb({ eyebrow: e.target.value })} placeholder="Kontakt" />
         </Field>
-        <Field label="Überschrift" hint="Standard: Wir freuen uns auf Sie.">
+        <Field label="Überschrift">
           <input className={inputCls} value={cb.title || ''} onChange={(e) => setCb({ title: e.target.value })} placeholder="Wir freuen uns auf Sie." />
         </Field>
-        <Field label="Untertitel" hint="Leer lassen, um ihn auszublenden.">
+        <Field label="Untertitel">
           <textarea className={inputCls} rows={2} value={cb.subtitle || ''} onChange={(e) => setCb({ subtitle: e.target.value })} placeholder="Anruf, Mail oder Kaffee vor Ort – wir sind für Sie da." />
         </Field>
       </SectionCard>
@@ -1892,7 +1884,7 @@ function SocialPage({ data, setData }: SetterProps) {
   const s = data.social ?? { instagram: '', facebook: '', whatsapp: '', linkedin: '', youtube: '', tiktok: '', x: '' };
   const set = (patch: Partial<typeof s>) => setData({ ...data, social: { ...s, ...patch } });
   return (
-    <SectionCard title="Profile" description="Links erscheinen im Footer.">
+    <SectionCard title="Profile" description="Footer-Links.">
       <Field label="Instagram"><input className={inputCls} value={s.instagram || ''} onChange={(e) => set({ instagram: e.target.value })} placeholder="https://instagram.com/..." /></Field>
       <Field label="Facebook"><input className={inputCls} value={s.facebook || ''} onChange={(e) => set({ facebook: e.target.value })} placeholder="https://facebook.com/..." /></Field>
       <Field label="WhatsApp"><input className={inputCls} value={s.whatsapp || ''} onChange={(e) => set({ whatsapp: e.target.value })} placeholder="https://wa.me/..." /></Field>
@@ -1920,12 +1912,12 @@ function SeoPage({ data, setData }: SetterProps) {
   ];
   return (
     <>
-      <SectionCard title="Globale Meta-Daten" description="Standard-Werte – werden verwendet, solange eine Seite keine eigenen Werte hat." badge="Sektion 1">
-        <Field label="Site-Titel" hint="Max. 60 Zeichen. Wird automatisch um Markenname ergänzt."><input className={inputCls} value={seo.title || ''} onChange={(e) => set({ title: e.target.value })} placeholder={data.brand.name} /></Field>
-        <Field label="Standard-Beschreibung" hint="Max. 160 Zeichen."><textarea className={inputCls} rows={3} value={seo.description || ''} onChange={(e) => set({ description: e.target.value })} /></Field>
-        <Field label="Schlüsselwörter" hint="Komma-getrennt. Auch für AI-/LLM-Crawler relevant."><input className={inputCls} value={seo.keywords || ''} onChange={(e) => set({ keywords: e.target.value })} /></Field>
+      <SectionCard title="Globale Meta-Daten" description="SEO-Standard." badge="Sektion 1">
+        <Field label="Site-Titel"><input className={inputCls} value={seo.title || ''} onChange={(e) => set({ title: e.target.value })} placeholder={data.brand.name} /></Field>
+        <Field label="Standard-Beschreibung"><textarea className={inputCls} rows={3} value={seo.description || ''} onChange={(e) => set({ description: e.target.value })} /></Field>
+        <Field label="Schlüsselwörter"><input className={inputCls} value={seo.keywords || ''} onChange={(e) => set({ keywords: e.target.value })} /></Field>
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Canonical-URL" hint="Optional – nur wenn die Domain abweicht."><input className={inputCls} value={seo.canonical || ''} onChange={(e) => set({ canonical: e.target.value })} placeholder="https://www.beispiel.at" /></Field>
+          <Field label="Canonical-URL"><input className={inputCls} value={seo.canonical || ''} onChange={(e) => set({ canonical: e.target.value })} placeholder="https://www.beispiel.at" /></Field>
           <Field label="Sprache / Locale">
             <select className={inputCls} value={seo.locale || 'de_AT'} onChange={(e) => set({ locale: e.target.value })}>
               <option value="de_AT">Deutsch (Österreich)</option>
@@ -1936,24 +1928,21 @@ function SeoPage({ data, setData }: SetterProps) {
           </Field>
         </div>
       </SectionCard>
-      <SectionCard title="Vorschau-Bild" description="Erscheint beim Teilen in WhatsApp, Instagram, Facebook, LinkedIn." badge="Sektion 2">
+      <SectionCard title="Vorschau-Bild" description="Social-Sharing." badge="Sektion 2">
         <ImagePickerField label="OG-Bild (1200×630 empfohlen)" value={seo.ogImage || ''} onChange={(v) => set({ ogImage: v })} ratio="aspect-[1200/630]" />
-        <p className="text-xs text-muted leading-relaxed">
-          Lassen Sie das Feld leer, wird automatisch ein gebrandetes Vorschau-Bild
-          aus Markenname, Slogan und Hauptfarbe erzeugt – ideal für jeden Tenant ohne eigenes Asset.
-        </p>
+        <p className="text-xs text-muted leading-relaxed">Leer = automatisches Bild aus Marke.</p>
       </SectionCard>
-      <SectionCard title="Schema.org-Details" description="Optionale Strukturdaten für Google Rich Results & KI-Crawler." badge="Sektion 2b">
+      <SectionCard title="Schema.org-Details" description="Optional für Google." badge="Sektion 2b">
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Preisniveau" hint={'Schema.org priceRange. z. B. „$", „$$" oder „€10–25". Leer lassen für „nicht angegeben".'}>
+          <Field label="Preisniveau">
             <input className={inputCls} value={seo.priceRange || ''} onChange={(e) => set({ priceRange: e.target.value })} placeholder="z. B. €€" />
           </Field>
-          <Field label="Küche / servesCuisine" hint="Nur für Restaurants. z. B. Italienisch, Mediterran, Tirolerisch.">
+          <Field label="Küche / servesCuisine">
             <input className={inputCls} value={seo.cuisine || ''} onChange={(e) => set({ cuisine: e.target.value })} placeholder="z. B. Italienisch" />
           </Field>
         </div>
       </SectionCard>
-      <SectionCard title="Pro Seite" description="Wenn eine Seite eigene Meta-Daten haben soll – z. B. eigene Beschreibung für die Speisekarte – hier eintragen." badge="Sektion 3">
+      <SectionCard title="Pro Seite" description="Meta je Unterseite überschreiben." badge="Sektion 3">
         <div className="space-y-6">
           {PAGES.map((p) => {
             const v = pageSeo[p.id] || {};
@@ -2226,45 +2215,45 @@ type BranchTextKey =
   | 'heroEyebrow';
 
 const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; rows?: number }> = {
-  teaserSubtitle: { label: 'Untertitel (unter der Überschrift)', hint: 'Kurzer Text unter dem Teaser-Titel. Leer lassen = Hero-Untertitel wird verwendet.', rows: 2 },
-  marqueeWords: { label: 'Marquee / Laufband-Wörter (komma-getrennt)', hint: 'Mit Kommas trennen — die Wörter erscheinen nacheinander im animierten Band.' },
-  galleryTeaserTitle: { label: 'Galerie-Teaser-Titel', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  teaserSubtitle: { label: 'Untertitel (unter der Überschrift)', rows: 2 },
+  marqueeWords: { label: 'Marquee-Wörter (Kommas)' },
+  galleryTeaserTitle: { label: 'Galerie-Teaser-Titel' },
   galleryTeaserEyebrow: { label: 'Galerie-Teaser-Eyebrow' },
   aboutTeaserEyebrow: { label: 'Über-uns-Teaser-Eyebrow' },
   faqEyebrow: { label: 'FAQ – Eyebrow' },
-  faqTitle: { label: 'FAQ – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  faqTitle: { label: 'FAQ – Überschrift' },
   learnMoreLabel: { label: '"Mehr erfahren"-Button-Text' },
-  learnMoreHref: { label: '"Mehr erfahren"-Button-Ziel', hint: 'z. B. /ueber-uns oder /kontakt' },
-  galleryAllLabel: { label: 'Galerie-"Alle anzeigen"-Button-Text' },
+  learnMoreHref: { label: '"Mehr erfahren"-Button-Ziel' },
+  galleryAllLabel: { label: 'Galerie-„Alle anzeigen"-Button' },
   testimonialsEyebrow: { label: 'Eyebrow' },
   testimonialsTitle: { label: 'Überschrift' },
   manifestEyebrow: { label: 'Manifest – Eyebrow' },
   manifestTitle: { label: 'Manifest – Überschrift' },
-  softCtaEyebrow: { label: 'Eyebrow (kleine Zeile darüber)', hint: 'Fallback für den unteren CTA, wenn dort keine Eyebrow gesetzt ist.' },
-  softCtaTitle: { label: 'Überschrift', hint: 'Fallback für die große CTA-Zeile, wenn der Hauptblock unten leer bleibt.' },
-  softCtaText: { label: 'Untertitel', hint: 'Fallback für den erklärenden Text unter der CTA-Überschrift.' },
-  softCtaButton: { label: 'Button-Beschriftung', hint: 'Fallback für den Text auf dem CTA-Button.' },
+  softCtaEyebrow: { label: 'Eyebrow (CTA)' },
+  softCtaTitle: { label: 'Überschrift (CTA)' },
+  softCtaText: { label: 'Untertitel (CTA)' },
+  softCtaButton: { label: 'Button (CTA)' },
   processEyebrow: { label: 'Prozess – Eyebrow' },
-  processTitle: { label: 'Prozess – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  processTitle: { label: 'Prozess – Überschrift' },
   galleryCategoriesEyebrow: { label: 'Galerie-Kategorien – Eyebrow' },
-  galleryCategoriesTitle: { label: 'Galerie-Kategorien – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  galleryCategoriesTitle: { label: 'Galerie-Kategorien – Überschrift' },
   valuesEyebrow: { label: 'Werte – Eyebrow' },
-  valuesTitle: { label: 'Werte – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  valuesTitle: { label: 'Werte – Überschrift' },
   teamEyebrow: { label: 'Team – Eyebrow' },
-  teamTitle: { label: 'Team – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  teamTitle: { label: 'Team – Überschrift' },
   certsEyebrow: { label: 'Qualifikationen – Eyebrow' },
-  certsTitle: { label: 'Qualifikationen – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  certsTitle: { label: 'Qualifikationen – Überschrift' },
   pressEyebrow: { label: 'Presse – Eyebrow' },
-  pressTitle: { label: 'Presse – Überschrift', hint: 'Die zweite Hälfte wird automatisch kursiv.' },
+  pressTitle: { label: 'Presse – Überschrift' },
   newsEyebrow: { label: 'Eyebrow' },
   newsTitle: { label: 'Überschrift' },
-  aboutSidebarEyebrow: { label: 'Über-uns-Sidebar Eyebrow', hint: 'Modern-Style: kleine Überschrift in der Sidebar („Auf einen Blick“).' },
-  servicesTeaserEyebrow: { label: 'Leistungen-Teaser — Eyebrow', hint: 'Kleine Zeile über der Liste im Startseiten-Teaser.' },
-  servicesTeaserTitle: { label: 'Leistungen-Teaser — Überschrift', hint: 'Z. B. „Aus der Küche." oder „Ihre Behandlungen." (je nach Branche).' },
-  servicesAllLabel: { label: 'Button-Text', hint: 'z. B. „Alle Gerichte", „Zur Speisekarte"' },
-  servicesAllHref: { label: 'Button-Ziel', hint: 'z. B. /speisekarte, /leistungen oder #kontakt' },
-  serviceCardNote: { label: 'Service-Karte: Fußnote', hint: 'Modern-Style: kleine Zeile am Ende jeder Service-Karte (z. B. „Inkl. Beratung").' },
-  heroEyebrow: { label: 'Hero Eyebrow (Bold)', hint: 'Bold-Style: kleine Zeile direkt über dem riesigen Titel.' },
+  aboutSidebarEyebrow: { label: 'Über-uns-Sidebar Eyebrow' },
+  servicesTeaserEyebrow: { label: 'Leistungen-Teaser Eyebrow' },
+  servicesTeaserTitle: { label: 'Leistungen-Teaser Titel' },
+  servicesAllLabel: { label: 'Button-Text' },
+  servicesAllHref: { label: 'Button-Ziel' },
+  serviceCardNote: { label: 'Service-Karte Fußnote' },
+  heroEyebrow: { label: 'Hero Eyebrow (Bold)' },
 };
 
 /** Local-state wrapper so commas and spaces aren't stripped on every keystroke. */
@@ -2357,7 +2346,7 @@ function NewsHomePreview({ data }: { data: SiteContent }) {
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
     .slice(0, 3);
   if (list.length === 0) {
-    return <p className="text-xs text-muted">Aktuell keine veröffentlichten Beiträge – die Sektion bleibt auf der Website ausgeblendet.</p>;
+    return <p className="text-xs text-muted">Keine veröffentlichten Beiträge.</p>;
   }
   return (
     <ul className="grid sm:grid-cols-3 gap-3">
@@ -3524,24 +3513,24 @@ function CtaBandEditor({ data, setData, tpl, page }: SectionProps & { page?: str
     <>
       {showEyebrow && showLeadAccent && (
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline. Leer = Standard (Bereit?).'}>
+          <Field label="Eyebrow">
             <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
           </Field>
-          <Field label="Akzent-Zeile (kursiv unter der Headline)" hint="Erscheint kursiv unter der Headline.">
+          <Field label="Akzent-Zeile (kursiv)">
             <input className={inputCls} value={v.leadAccent || ''} onChange={(e) => set({ ...v, leadAccent: e.target.value })} placeholder={homeOv?.leadAccent || 'Schreiben Sie uns.'} />
           </Field>
         </div>
       )}
       {showEyebrow && !showLeadAccent && (
-        <Field label="Eyebrow (kleine Zeile darüber)" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Kleine Zeile über der Headline.'}>
+        <Field label="Eyebrow">
           <input className={inputCls} value={v.eyebrow || ''} onChange={(e) => set({ ...v, eyebrow: e.target.value })} placeholder={homeOv?.eyebrow || 'Bereit?'} />
         </Field>
       )}
       
-      <Field label="Headline" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : 'Große Hauptzeile (z. B. Hunger?, Termin?, Auftrag?).'}>
+      <Field label="Headline">
         <input className={inputCls} value={v.lead} onChange={(e) => set({ ...v, lead: e.target.value })} placeholder={homeOv?.lead || def.lead} />
       </Field>
-      <Field label="Untertitel" hint={isSubpage ? 'Leer = Fallback auf Home-CTA.' : undefined}>
+      <Field label="Untertitel">
         <textarea className={inputCls} rows={2} value={v.sub} onChange={(e) => set({ ...v, sub: e.target.value })} placeholder={homeOv?.sub || def.sub} />
       </Field>
       <div className="grid sm:grid-cols-2 gap-4">

@@ -45,13 +45,6 @@ export interface AdminSection {
 
 export type PageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
-/* ─── Service teaser limits per style ───────────────────────────── */
-export const SERVICE_TEASER_LIMIT: Record<TemplateStyle, number> = {
-  classic: 3,
-  modern: 6,
-  bold: 8,
-};
-
 export const GALLERY_TEASER_LIMIT: Record<TemplateStyle, number> = {
   classic: 7,
   modern: 6,
@@ -243,254 +236,246 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   // ─── Home ─────────────────────────────────────────────────
   announcements: () => ({
     title: 'Hinweis-Banner (oben)',
-    description: 'Laufzeile direkt über dem Hero — z. B. Öffnungsstatus oder kurze Aktionen (ein Hinweis pro Zeile).',
+    description: 'Ticker-Zeilen über dem Hero.',
   }),
-  hero: (_tpl, style) => ({
+  hero: () => ({
     title: 'Hero (Startbereich)',
-    description: style === 'bold'
-      ? 'Erster Eindruck — großer Titel, Eyebrow, Hero-Bild, CTA-Buttons.'
-      : style === 'modern'
-        ? 'Erster Eindruck — Titel, Untertitel, Beschreibung, Bild rechts, CTA-Buttons.'
-        : 'Erster Eindruck — Titel, Untertitel, Hintergrundbild, CTA-Buttons.',
+    description: 'Großer Einstieg: Titel, Text, Bild, Buttons.',
   }),
   actionStrip: () => ({
     title: 'Aktionsleiste',
-    description: 'Schmaler Streifen direkt unter dem Hero mit Quick-Infos (Öffnungs­status, Telefonnummer, Tagesinfo).',
+    description: 'Infostreifen direkt unter dem Hero.',
   }),
   branchChips: () => ({
     title: 'Schlagwort-Chips & Bewertungs-Badge',
-    description: 'Kurze Schlagwörter die das Profil der Marke schärfen, plus optionales Google-Bewertungs-Badge.',
+    description: 'Stichwörter und optionales Bewertungs-Badge.',
   }),
   marquee: () => ({
     title: 'Schlagwort-Band',
-    description: 'Großes animiertes Wortband — fließende Bewegungs-Akzent.',
+    description: 'Animiertes Wortband (Bold).',
   }),
-  services: (tpl, style) => ({
+  services: (tpl) => ({
     title: 'Leistungs-Teaser',
     description:
       tpl === 'restaurant'
-        ? `Gerichte und Leistungen legst du hier an und sortierst sie mit „↑ hoch“ / „↓ runter“ unter jedem Eintrag. Die obersten ${SERVICE_TEASER_LIMIT[style]} erscheinen im Startseiten-Teaser; dieselbe Liste wird vollständig auf der Speise-/Leistungsseite gezeigt. Die Menükarte mit Kategorien pflegst du zusätzlich unter „Menü“ auf der Service-Seite.`
-        : `Einträge legst du hier an und sortierst sie mit „↑ hoch“ / „↓ runter“. Die obersten ${SERVICE_TEASER_LIMIT[style]} erscheinen im Startseiten-Teaser; dieselbe Liste wird vollständig auf der Leistungs-/Service-Seite gezeigt.`,
+        ? 'Liste für Gerichte/Leistungen (↑↓). Kategorie-Karte = eigene Sektion „Menü“.'
+        : 'Liste für Leistungen/Gerichte (↑↓).',
   }),
   signature: () => ({
     title: 'Branchen-Highlight',
-    description: 'Hervorgehobener Block mit kuratierten Inhalten. Das Frontend rendert ihn je nach Branche/Stil als Empfehlungs-Liste, Manifest oder Item-Showcase.',
+    description: 'Branchen-spezifischer Highlight-Block.',
   }),
-  about: (_tpl, style) => ({
+  about: () => ({
     title: 'Über-uns-Teaser',
-    description: style === 'bold'
-      ? 'Manifest-Block: Eyebrow, große Überschrift, kurzer Text.'
-      : 'Kurzer Text-/Bild-Block, der auf die Über-uns-Seite verweist.',
+    description: 'Kurzer Über-uns-Abschnitt auf der Startseite.',
   }),
-  gallery: (_tpl, style) => ({
+  gallery: () => ({
     title: 'Galerie-Teaser',
-    description: `Überschriften und Button hier; Bilder inklusive Reihenfolge unter „Galerie“ (↑↓ je Bild). Die obersten ${GALLERY_TEASER_LIMIT[style]} dieser Liste erscheinen im Startseiten-Teaser.`,
+    description: 'Teaser-Texte; Bilder unter „Galerie“.',
   }),
   numbers: () => ({
     title: 'Eckdaten-Band',
-    description: 'Zahl plus Kurz-Label pro Eintrag (typisch vier Stück; Layout ordnet mehr oder weniger automatisch).',
+    description: 'Zahlen-Leiste mit Kurz-Labels.',
   }),
   logos: () => ({
     title: 'Logo-Strip',
-    description: 'Partner / Presse / Auszeichnungen als Wortmarken-Band.',
+    description: 'Partner-/Logo-Zeile.',
   }),
   testimonials: (tpl) => ({
     title: 'Bewertungen-Teaser',
     description:
       tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness'
-        ? 'Alle Zitate teilen sich eine Liste mit „Über uns → Bewertungen“. Auf dieser Branche wird die Startseite nicht auf drei Zitate gekürzt — Reihenfolge mit „↑ hoch“ / „↓ runter“ unter jedem Eintrag.'
-        : 'Alle Zitate teilen sich eine Liste mit „Über uns → Bewertungen“. Hier oder dort pflegen; nur die ersten drei erscheinen auf der Startseite — Reihenfolge mit „↑ hoch“ / „↓ runter“.',
+        ? 'Kundenstimmen auf der Startseite.'
+        : 'Kundenstimmen (auf der Startseite oft drei).',
   }),
   news: () => ({
     title: 'News-Teaser',
-    description: 'Zeigt die drei neuesten veröffentlichten Beiträge (nach Datum). Beiträge anlegen unter „News & Blog“ in der Seitenleiste.',
+    description: 'Neueste Blog-Beiträge.',
   }),
   softCta: () => ({
     title: 'Abschluss-Aufruf (CTA)',
-    description: 'Der große Aufruf zur Aktion am Ende der Startseite — Eyebrow, Headline, Untertitel, Button.',
+    description: 'Call-to-Action am Ende der Startseite.',
   }),
   funding: () => ({
     title: 'Förder-Rechner',
-    description: 'Slider mit konfigurierbarem Investitionsbereich plus Liste der Förderungen — Bereiche und Programme hier pflegen.',
+    description: 'Förder-Rechner (Handwerk).',
   }),
   spotlight: () => ({
     title: 'Branchen-Spotlight',
-    description: 'Branchenspezifischer Hervorhebungs-Block (Vorgehen / Service-Info / Programme — abhängig von Branche).',
+    description: 'Hervorgehobener Branchen-Block.',
   }),
   heroBadge: () => ({
     title: 'Hero-Badge',
-    description: 'Das kleine Bewertungs-Badge neben dem Hero-Bild (nur in einigen Stilen sichtbar).',
+    description: 'Kleines Bewertungs-Badge am Hero.',
   }),
 
   // ─── Services ─────────────────────────────────────────────
   servicesHeader: () => ({
     title: 'Seiten-Header',
-    description: 'Überschrift oben auf der Seite.',
+    description: 'Titelzeile dieser Seite.',
   }),
   highlights: () => ({
     title: 'Highlights-Leiste',
-    description: 'Kompakte Info-Karten direkt unter dem Seiten-Header (Überschrift + kurzer Text pro Eintrag).',
+    description: 'Kurze Info-Kacheln unter dem Header.',
   }),
 
   menu: () => ({
     title: 'Speisekarte (Kategorien & Gerichte)',
-    description: 'Vollständige Karte mit Kategorien, Allergenen und Tags.',
+    description: 'Menü mit Kategorien.',
   }),
   rooms: () => ({
     title: 'Zimmer-Showcase',
-    description: 'Detaillierte Zimmer mit Größe, Bett, Preis & Ausstattung.',
+    description: 'Zimmer-Karten.',
   }),
   tours: () => ({
     title: 'Tour-Karten',
-    description: 'Touren mit Schwierigkeit, Dauer, Sprachen und Preis.',
+    description: 'Tour-Angebote.',
   }),
   treatments: () => ({
     title: 'Behandlungen (kategorisiert)',
-    description: 'Kategorisierte Behandlungsliste mit Dauer & Preis.',
+    description: 'Behandlungen nach Kategorie.',
   }),
   courses: () => ({
     title: 'Kursplan',
-    description: 'Kursliste mit Zeitplan, Level, Trainer und Preis.',
+    description: 'Kurs-/Stundenliste.',
   }),
   packages: () => ({
     title: 'Preis-Pakete',
-    description: 'Drei-Stufen-Pakete mit Highlight-Karte.',
+    description: 'Preis-Pakete.',
   }),
   processSteps: () => ({
     title: 'Prozess-Schritte',
-    description: 'Horizontale Timeline mit 3–6 Stationen Ihres Vorgehens.',
+    description: 'Schrittfolge / Timeline.',
   }),
   doctors: () => ({
     title: 'Ärzte & Team',
-    description: 'Profile der behandelnden Ärztinnen und Ärzte.',
+    description: 'Ärzte-Profile.',
   }),
   booking: () => ({
     title: 'Online-Terminbuchung',
-    description: 'Doctolib / jameda / TIMIFY-Anbindung.',
+    description: 'Terminbuchungs-Links.',
   }),
   fundingModule: () => ({
     title: 'Förder-Übersicht',
-    description: 'Liste der Förderprogramme mit Prozent-Quote.',
+    description: 'Förderprogramm-Liste.',
   }),
   emergencyBanner: () => ({
     title: 'Notdienst-Banner',
-    description: 'Sticky-Banner unten rechts mit 24/7-Hotline.',
+    description: 'Notfall-Hinweis-Banner.',
   }),
   programs: () => ({
     title: 'Programme',
-    description: 'Kurse / Trainings im Programm-Spotlight.',
+    description: 'Programm-/Kurs-Spotlight.',
   }),
   medicalNotice: () => ({
     title: 'Hinweise (Online-Termin & Notfall)',
-    description: 'Texte für die Service-Karten.',
+    description: 'Kurz-Hinweise für Service-Karten.',
   }),
   serviceProcess: () => ({
     title: 'Ablauf-Schritte',
-    description: 'Die vier Schritte „So läuft es ab".',
+    description: 'Schritt-für-Schritt-Ablauf.',
   }),
   faq: () => ({
     title: 'FAQ',
-    description: 'Häufig gestellte Fragen.',
+    description: 'Fragen & Antworten.',
   }),
   servicesCta: () => ({
     title: 'Abschluss-Aufruf (CTA)',
-    description: 'Aufruf zur Aktion am Ende der Seite.',
+    description: 'CTA am Seitenende.',
   }),
 
   // ─── Gallery ──────────────────────────────────────────────
   galleryHeader: () => ({
     title: 'Seiten-Header',
-    description: 'Überschrift oben auf der Galerie-Seite.',
+    description: 'Titel dieser Galerie-Seite.',
   }),
   galleryStory: () => ({
     title: 'Galerie-Einleitung',
-    description: 'Kurzer Text mit drei Captions über den Bildern.',
+    description: 'Einleitungstext zur Galerie.',
   }),
   galleryUpload: () => ({
     title: 'Bilder hochladen',
-    description: 'Vom Computer wählen oder per URL.',
+    description: 'Upload oder URL.',
   }),
   galleryGrid: () => ({
     title: 'Alle Bilder',
-    description: 'Komplette Bildergalerie — alle Bilder werden auf der Seite gezeigt.',
+    description: 'Die Bildergalerie.',
   }),
   galleryCategories: () => ({
     title: 'Kategorien-Übersicht',
-    description: 'Optionale Kategorie-Karten (z. B. „Küche", „Saal", „Terrasse").',
+    description: 'Optionale Galerie-Kategorien.',
   }),
   galleryCta: () => ({
     title: 'Abschluss-Aufruf (CTA)',
-    description: 'Aufruf zur Aktion am Ende der Galerie.',
+    description: 'CTA unter der Galerie.',
   }),
 
   // ─── About ────────────────────────────────────────────────
   aboutHeader: () => ({
     title: 'Seiten-Header',
-    description: 'Überschrift oben auf der Über-uns-Seite.',
+    description: 'Titel der Über-uns-Seite.',
   }),
-  aboutIntro: (_tpl, style) => ({
-    title: style === 'modern' ? 'Einleitung & Sidebar' : 'Geschichte / Intro',
-    description: style === 'modern'
-      ? 'Einleitungstext links + Sidebar mit Metadaten rechts (sticky).'
-      : 'Einleitungstext mit großem Bild.',
+  aboutIntro: () => ({
+    title: 'Geschichte / Intro',
+    description: 'Haupttext und Bild.',
   }),
   values: () => ({
     title: 'Werte / Prinzipien',
-    description: 'Drei Kernwerte als Karten mit Icons.',
+    description: 'Werte-Karten.',
   }),
   timeline: () => ({
     title: 'Timeline / Meilensteine',
-    description: 'Chronologische Meilensteine des Unternehmens.',
+    description: 'Zeitleiste.',
   }),
   team: () => ({
     title: 'Team',
-    description: 'Alle Team-Mitglieder (werden auf der Seite komplett gezeigt).',
+    description: 'Team-Mitglieder.',
   }),
   aboutNumbers: () => ({
     title: 'Eckdaten-Band (Über-uns)',
-    description: 'Optionales Zahlen-Band nur für die Über-uns-Seite. Leer lassen = dieselben Eckdaten wie auf der Startseite.',
+    description: 'Zahlen-Band (optional statt Startseiten-Zahlen).',
   }),
   certifications: () => ({
     title: 'Qualifikationen & Zertifizierungen',
-    description: 'Meisterbrief, Zulassungen, Partner-Logos.',
+    description: 'Nachweise / Auszeichnungen.',
   }),
   press: () => ({
     title: 'Presse-Stimmen',
-    description: 'Zitate aus Presseberichten.',
+    description: 'Presse-Zitate.',
   }),
   aboutTestimonials: () => ({
     title: 'Bewertungen',
-    description: 'Alle Stimmen (werden auf der Über-uns-Seite komplett gezeigt).',
+    description: 'Kundenstimmen.',
   }),
   aboutCta: () => ({
     title: 'Abschluss-Aufruf (CTA)',
-    description: 'Aufruf zur Aktion am Ende der Über-uns-Seite.',
+    description: 'CTA am Seitenende.',
   }),
 
   // ─── Contact ──────────────────────────────────────────────
   contactHeader: () => ({
     title: 'Seiten-Header',
-    description: 'Überschrift oben auf der Kontakt-Seite (Eyebrow, Titel, Untertitel).',
+    description: 'Titel der Kontaktseite.',
   }),
   contactDetails: () => ({
     title: 'Kontaktdaten & Karte',
-    description: 'Telefon, E-Mail, Adresse, Öffnungszeiten, Google Maps.',
+    description: 'Erreichbarkeit und Karte.',
   }),
   contactForm: () => ({
     title: 'Kontakt-Formular',
-    description: 'Felder und Konfiguration des Kontaktformulars.',
+    description: 'Formularfelder.',
   }),
   locations: () => ({
     title: 'Weitere Standorte',
-    description: 'Zusätzliche Standorte / Filialen (alle werden gezeigt).',
+    description: 'Weitere Filialen.',
   }),
   arrival: () => ({
     title: 'Wegbeschreibung / Anreise',
-    description: 'Drei Karten mit Anreise-Tipps (Auto, Bahn, etc.).',
+    description: 'Anreise-Hinweise.',
   }),
   contactCta: () => ({
     title: 'Abschluss-Aufruf (CTA)',
-    description: 'Aufruf zur Aktion am Ende der Kontakt-Seite.',
+    description: 'CTA am Seitenende.',
   }),
 };
 
@@ -505,9 +490,7 @@ export function getSectionMeta(key: AdminSectionKey, tpl: TemplateKey, style: Te
  * Only sections with style-dependent field differences are listed.
  * Sections not listed here show all their fields on all styles.
  *
- * true  = visible (no special hint)
- * false = hidden (frontend doesn't render this field for this style)
- * string = visible, with that string as hint text
+ * true = visible · false = ausgeblendet
  */
 type FieldVis = boolean | string;
 
@@ -522,11 +505,6 @@ export const FIELD_CONFIG = {
   homeAbout: {
     aboutTeaserEyebrow: { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
     aboutImage:         { classic: true, modern: true,  bold: false } as Record<TemplateStyle, FieldVis>,
-    bodyHint: {
-      classic: 'Alle Absätze erscheinen im Über-uns-Teaser auf der Startseite.',
-      modern:  'Zwei bis drei kurze Absätze wirken auf der Startseite am ruhigsten.',
-      bold:    'Zwei kurze Absätze für den Bold-„Manifest"-Teaser.',
-    } as Record<TemplateStyle, string>,
   },
 
   /** CTA fields — differ between HOME softCta and subpage CtaBand */
@@ -543,10 +521,4 @@ export const FIELD_CONFIG = {
 /** Check if a field should be shown for the current style */
 export function fieldVisible(vis: Record<TemplateStyle, FieldVis>, style: TemplateStyle): boolean {
   return vis[style] !== false;
-}
-
-/** Get hint text (returns the string value, or undefined if boolean) */
-export function fieldHint(vis: Record<TemplateStyle, FieldVis>, style: TemplateStyle): string | undefined {
-  const v = vis[style];
-  return typeof v === 'string' ? v : undefined;
 }

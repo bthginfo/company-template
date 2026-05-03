@@ -276,80 +276,80 @@ export const CROSS_PAGE_TARGETS: Partial<Record<AdminSectionKey, DeepLinkTarget>
   menu: {
     page: 'services',
     label: 'Speisekarte',
-    description: 'Die Speisekarte wird auf der Startseite und auf der Speisekarten-Seite angezeigt — dieselben Daten, andere Darstellung.',
+    description: 'Daten wie im Menü-Editor auf „Leistung/Speisekarte“.',
   },
   rooms: {
     page: 'services',
     label: 'Zimmer',
-    description: 'Zimmer werden auf der Startseite und auf der Zimmer-Seite angezeigt — gleiche Daten, andere Darstellung.',
+    description: 'Daten wie im Zimmer-Editor.',
   },
   tours: {
     page: 'services',
     label: 'Touren',
-    description: 'Touren werden auf der Startseite und auf der Touren-Seite angezeigt — gleiche Daten, andere Darstellung.',
+    description: 'Daten wie im Touren-Editor.',
   },
   treatments: {
     page: 'services',
     label: 'Behandlungen',
-    description: 'Behandlungen werden auf der Startseite und auf der Leistungs-Seite angezeigt — gleiche Daten, andere Darstellung.',
+    description: 'Daten wie im Behandlungs-Editor.',
   },
   // Modules used on extras' Home spotlight — admin lives on Services.
   processSteps: {
     page: 'services',
     label: 'Prozess-Schritte',
-    description: 'Die Prozess-Schritte werden auf der Startseite und auf der Leistungs-Seite verwendet.',
+    description: 'Wie auf der Leistungsseite.',
   },
   packages: {
     page: 'services',
     label: 'Pakete',
-    description: 'Pakete werden auf der Startseite und auf der Leistungs-Seite angezeigt.',
+    description: 'Wie auf der Leistungsseite.',
   },
   programs: {
     page: 'services',
     label: 'Programme',
-    description: 'Programme werden auf der Startseite und auf der Leistungs-Seite angezeigt.',
+    description: 'Wie auf der Leistungsseite.',
   },
   doctors: {
     page: 'services',
     label: 'Ärzte & Team',
-    description: 'Ärzte/Team werden auf der Startseite und auf der Leistungs-Seite angezeigt.',
+    description: 'Wie auf der Leistungsseite.',
   },
   booking: {
     page: 'services',
     label: 'Online-Buchung',
-    description: 'Online-Buchung wird auf der Startseite und auf der Leistungs-Seite angezeigt.',
+    description: 'Wie auf der Leistungsseite.',
   },
   // Team admin lives on About.
   team: {
     page: 'about',
     label: 'Team (Über uns)',
-    description: 'Die Team-Mitglieder werden auf der Startseite und auf der Über-uns-Seite angezeigt.',
+    description: 'Wie unter Über uns.',
   },
   // FAQ is shared between Services / About / Contact — primary editor on Services.
   faq: {
     page: 'services',
     label: 'FAQ (Service-Seite)',
-    description: 'FAQs werden seitenübergreifend verwendet. Der primäre Editor lebt auf der Leistungs-Seite.',
+    description: 'FAQ-Schwerpunk auf der Leistungsseite.',
   },
   // Course schedule (fitness) — edited on Services.
   courses: {
     page: 'services',
     label: 'Kursplan',
-    description: 'Kurse werden auf der Startseite und auf der Leistungs-Seite angezeigt.',
+    description: 'Wie auf der Leistungsseite.',
   },
   // Testimonials primary editor lives on the About page; can also appear
   // as a teaser on Services or Gallery via "+ Sektion hinzufügen".
   aboutTestimonials: {
     page: 'about',
     label: 'Bewertungen (Über-uns-Seite)',
-    description: 'Es gibt nur eine gemeinsame Bewertungsliste — auch unter „Startseite → Bewertungen“. Reihenfolge gilt überall.',
+    description: 'Gemeinsame Liste wie auf der Startseite.',
   },
   // Gallery grid primary editor lives on the Gallery page; can be
   // re-used as a section on Services etc.
   galleryGrid: {
     page: 'gallery',
     label: 'Galerie (Galerie-Seite)',
-    description: 'Die komplette Bildergalerie wird auf der Galerie-Seite gepflegt — sie kann zusätzlich auf weiteren Seiten eingeblendet werden.',
+    description: 'Alle Bilder unter „Galerie“.',
   },
 };
 
