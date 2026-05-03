@@ -588,12 +588,6 @@ export const SiteContentSchema = z.object({
   }).optional().default({}),
 
   /**
-   * Admin UI only: ids of contextual hint tiles hidden by the operator
-   * (e.g. `extra-home-hint-contact`). Does not affect the public website.
-   */
-  adminHintsHidden: z.array(z.string()).optional().default([]),
-
-  /**
    * Per-section visibility. Keys are namespaced by page:
    *   home.<key>      → home page sections (action, signature, services, …)
    *   services.<key>  → services / Speisekarte page

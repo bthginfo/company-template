@@ -868,39 +868,72 @@ function homeSectionsFor(t: TemplateKey) {
    PAGE EDITORS
    ═══════════════════════════════════════════════════════════════════ */
 
-const EXTRA_HOME_HINT_IDS = {
-  medicalDoctors: 'extra-home-hint-medical-doctors',
-  medicalTeam: 'extra-home-hint-medical-team',
-  extraModules: 'extra-home-hint-extra-modules',
-  contact: 'extra-home-hint-contact',
-} as const;
-
-function isAdminHintHidden(data: SiteContent, id: string): boolean {
-  return ((data as unknown as { adminHintsHidden?: string[] }).adminHintsHidden ?? []).includes(id);
+/** Same visibility keys as `SectionInlineControls` / Layout (home.<section>). */
+function setHomeSectionVisible(data: SiteContent, setData: (d: SiteContent) => void, sectionKey: string, visible: boolean) {
+  const visibility = ((data as any).sectionVisibility ?? {}) as Record<string, boolean>;
+  const fullKey = `home.${sectionKey}`;
+  const next = { ...visibility };
+  if (visible) {
+    delete next[fullKey];
+    if (Object.prototype.hasOwnProperty.call(visibility, sectionKey)) {
+      delete next[sectionKey];
+    }
+  } else {
+    next[fullKey] = false;
+    if (Object.prototype.hasOwnProperty.call(visibility, sectionKey)) {
+      next[sectionKey] = false;
+    }
+  }
+  setData({ ...data, sectionVisibility: next } as SiteContent);
 }
+
+const HINT_HOME_SECTION_LABEL: Record<string, string> = {
+  branchModules: 'Branchen-Module',
+  team: 'Team',
+  contact: 'Kontakt',
+};
 
 function AdminLinkedHintTile({
   title,
-  hidden,
-  onHide,
   children,
+  data,
+  setData,
+  homeSectionKey,
 }: {
   title: string;
-  hidden: boolean;
-  onHide: () => void;
   children: ReactNode;
+  data: SiteContent;
+  setData: (d: SiteContent) => void;
+  homeSectionKey: string;
 }) {
-  if (hidden) return null;
+  const on = isSectionEnabled(data, 'home', homeSectionKey);
+  const sectionLabel = HINT_HOME_SECTION_LABEL[homeSectionKey] ?? homeSectionKey;
+  if (!on) {
+    return (
+      <div className="mt-3 rounded-2xl border border-dashed border-line bg-[#fafaf7] p-4 text-sm text-muted">
+        <span>
+          Die Sektion „{sectionLabel}“ ist auf der <span className="font-medium text-ink">Startseite</span> ausgeblendet (wie im Sektions-Header oben).
+        </span>{' '}
+        <button
+          type="button"
+          className="text-brand underline font-medium"
+          onClick={() => setHomeSectionVisible(data, setData, homeSectionKey, true)}
+        >
+          Wieder einblenden
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="rounded-2xl border border-brand/25 bg-[#f0faf9] p-4 space-y-2 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-medium text-brand pr-2">{title}</p>
         <button
           type="button"
-          onClick={onHide}
+          onClick={() => setHomeSectionVisible(data, setData, homeSectionKey, false)}
           className="text-xs text-muted hover:text-ink whitespace-nowrap shrink-0 rounded-lg px-2 py-1 hover:bg-white/80 border border-transparent hover:border-line transition"
         >
-          Ausblenden
+          Auf Startseite ausblenden
         </button>
       </div>
       <div className="text-sm text-muted leading-relaxed">{children}</div>
@@ -917,22 +950,16 @@ function renderExtraHomeLinkedHintsAfter(
 ): ReactNode {
   if (tpl !== 'consulting' && tpl !== 'medical' && tpl !== 'fitness') return null;
 
-  const hide = (id: string) => {
-    const cur = ((data as unknown as { adminHintsHidden?: string[] }).adminHintsHidden ?? []).slice();
-    if (cur.includes(id)) return;
-    setData({ ...data, adminHintsHidden: [...cur, id] });
-  };
-
-  const wrap = (id: string, title: string, body: ReactNode) => (
-    <div className="mt-3" key={`hint-${id}`}>
-      <AdminLinkedHintTile title={title} hidden={isAdminHintHidden(data, id)} onHide={() => hide(id)}>
+  const wrap = (homeKey: string, title: string, body: ReactNode) => (
+    <div className="mt-3" key={`hint-${homeKey}`}>
+      <AdminLinkedHintTile title={title} data={data} setData={setData} homeSectionKey={homeKey}>
         {body}
       </AdminLinkedHintTile>
     </div>
   );
 
   if (sectionKey === 'branchModules' && tpl === 'medical') {
-    return wrap(EXTRA_HOME_HINT_IDS.medicalDoctors, 'Ärzt:innen & Online-Termin', (
+    return wrap('branchModules', 'Ärzt:innen & Online-Termin', (
       <>
         <span className="font-medium text-ink">Ärzt:innen-Karten &amp; Online-Termin (Doctolib)</span>{' '}
         auf der Startseite stammen von den Modulen auf der Seite{' '}
@@ -941,7 +968,7 @@ function renderExtraHomeLinkedHintsAfter(
     ));
   }
   if (sectionKey === 'team' && tpl === 'medical') {
-    return wrap(EXTRA_HOME_HINT_IDS.medicalTeam, 'Team-Sektion', (
+    return wrap('team', 'Team-Sektion', (
       <>
         <span className="font-medium text-ink">Team-Sektion</span> (Karten mit Name, Rolle, Bild, Bio) bearbeitest du unter{' '}
         <button type="button" className="text-brand underline font-medium" onClick={() => onGo('about')}>Über uns</button>
@@ -950,7 +977,7 @@ function renderExtraHomeLinkedHintsAfter(
     ));
   }
   if (sectionKey === 'branchModules' && (tpl === 'consulting' || tpl === 'fitness')) {
-    return wrap(EXTRA_HOME_HINT_IDS.extraModules, 'Branchen-Module', (
+    return wrap('branchModules', 'Branchen-Module', (
       <>
         <span className="font-medium text-ink">Branchen-Module</span> auf der Startseite entsprechen den Blöcken auf{' '}
         <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
@@ -958,7 +985,7 @@ function renderExtraHomeLinkedHintsAfter(
     ));
   }
   if (sectionKey === 'contact') {
-    return wrap(EXTRA_HOME_HINT_IDS.contact, 'Kontakt auf der Startseite', (
+    return wrap('contact', 'Kontakt auf der Startseite', (
       <>
         <span className="font-medium text-ink">Kontakt-Sektion</span> am Seitenende:{' '}
         <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contactPage')}>Kontakt-Seite</button>
@@ -1142,7 +1169,6 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
   };
 
   const extras = getExtraCrossPageSections(data, 'home', sectionOrder);
-  const hiddenHintCount = ((data as unknown as { adminHintsHidden?: string[] }).adminHintsHidden ?? []).length;
   return (
     <>
       {sectionOrder.map((key, idx) => (
@@ -1153,17 +1179,6 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
             : null}
         </Fragment>
       ))}
-      {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && hiddenHintCount > 0 && (
-        <div className="flex justify-end pt-2">
-          <button
-            type="button"
-            className="text-sm text-brand underline"
-            onClick={() => setData({ ...data, adminHintsHidden: [] } as SiteContent)}
-          >
-            Alle Hinweis-Kacheln wieder anzeigen ({hiddenHintCount})
-          </button>
-        </div>
-      )}
       {extras.map((e, i) => (
         <DeepLinkSectionCard
           key={`xp-home-${e.adminKey}`}
