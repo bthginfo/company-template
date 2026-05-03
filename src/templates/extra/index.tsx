@@ -68,6 +68,30 @@ function resolveHeroCta(content: SiteContent) {
   return { primaryLabel, primaryHref, secondaryLabel, secondaryHref };
 }
 
+/** Optional intro lines above the hero title (admin „Hinweis-Banner“). */
+function ExtraAnnouncementsRibbon({ content }: { content: SiteContent }) {
+  const lines = (content.announcements ?? []).map((s) => String(s).trim()).filter(Boolean);
+  if (lines.length === 0) return null;
+  return (
+    <div className="mb-8 rounded-2xl border border-amber-200/80 bg-amber-50 px-4 py-3 text-amber-950">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm leading-snug text-center">
+        {lines.map((line, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span className="hidden sm:inline text-amber-300 select-none" aria-hidden>|</span>}
+            <span>{line}</span>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function heroBodyParagraphs(content: SiteContent): string[] {
+  const raw = ((content.hero as { body?: string }).body ?? '').trim();
+  if (!raw) return [];
+  return raw.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
+}
+
 /** Smart link that uses anchor-jump for `#…` and React-Router NavLink for routes. */
 function ExtraHeroLink({ href, className, children }: { href: string; className?: string; children: React.ReactNode }) {
   const basePath = useBasePath();
@@ -403,9 +427,17 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--bg-color) 0%, color-mix(in oklab, var(--bg-color), transparent 25%) 40%, var(--bg-color) 100%)' }} />
         </div>
         <div className="container-x">
+          <ExtraAnnouncementsRibbon content={content} />
           {eyebrow && <p className="eyebrow mb-6 reveal">{eyebrow}</p>}
           <h1 className="headline-xl max-w-5xl reveal"><SplitText>{content.hero.title}</SplitText></h1>
           <p className="mt-8 text-lg md:text-2xl text-muted max-w-3xl reveal">{content.hero.subtitle}</p>
+          {heroBodyParagraphs(content).length > 0 && (
+            <div className="mt-6 max-w-3xl text-base md:text-lg text-muted leading-relaxed space-y-4 reveal">
+              {heroBodyParagraphs(content).map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          )}
           <div className="mt-12 flex flex-wrap gap-3 reveal">
             <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel} <span aria-hidden>→</span></ExtraHeroLink>
             {cta.secondaryLabel && (
@@ -550,6 +582,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
       <section className="relative pt-32 md:pt-40 pb-20 md:pb-28">
         <div className="container-x grid lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 reveal">
+            <ExtraAnnouncementsRibbon content={content} />
             {eyebrow && (
               <p className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full bg-[var(--surface-color)] border border-line text-xs font-mono uppercase tracking-widest">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)]" /> {eyebrow}
@@ -559,6 +592,13 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
               {content.hero.title}
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted max-w-xl">{content.hero.subtitle}</p>
+            {heroBodyParagraphs(content).length > 0 && (
+              <div className="mt-5 max-w-xl text-base text-muted leading-relaxed space-y-3">
+                {heroBodyParagraphs(content).map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
             <div className="mt-10 flex flex-wrap gap-3">
               <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel}</ExtraHeroLink>
               {cta.secondaryLabel && (
@@ -722,6 +762,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
       {/* Hero — oversized headline overlapping image */}
       <section className="relative pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="container-x">
+          <ExtraAnnouncementsRibbon content={content} />
           {heroEyebrow && <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-8 reveal">— {heroEyebrow} —</p>}
           <h1 className="font-display text-[clamp(2.5rem,11vw,11rem)] leading-[0.88] md:leading-[0.85] tracking-tight reveal break-words [overflow-wrap:anywhere] [hyphens:auto]">
             <SplitText>{content.hero.title}</SplitText>
@@ -733,7 +774,16 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
           </div>
         )}
         <div className="container-x mt-12 grid md:grid-cols-12 gap-8 reveal">
-          <p className="md:col-span-7 text-2xl md:text-3xl leading-tight">{content.hero.subtitle}</p>
+          <div className="md:col-span-7 space-y-5">
+            <p className="text-2xl md:text-3xl leading-tight">{content.hero.subtitle}</p>
+            {heroBodyParagraphs(content).length > 0 && (
+              <div className="text-lg text-muted leading-relaxed space-y-3 max-w-3xl">
+                {heroBodyParagraphs(content).map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="md:col-span-5 md:text-right flex flex-wrap gap-3 md:justify-end">
             <ExtraHeroLink href={cta.primaryHref} className="btn-primary text-base">{cta.primaryLabel} <span aria-hidden>→</span></ExtraHeroLink>
             {cta.secondaryLabel && (
@@ -749,8 +799,21 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
 }
 
 /* ─── Shared contact section (3 layout variants) ──────────────────── */
+function contactAddressOneLine(c: SiteContent['contact']): string {
+  const parts = [c.address?.trim(), c.city?.trim()].filter(Boolean) as string[];
+  return parts.join(', ');
+}
+
+function contactMapQuery(c: SiteContent['contact']): string {
+  const line = contactAddressOneLine(c);
+  return line || c.city?.trim() || '';
+}
+
 function ContactSection({ content, variant }: { content: SiteContent; variant: ExtraStyle }) {
-  const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(`${content.contact.address}, ${content.contact.city}`)}&output=embed`;
+  const mapQ = contactMapQuery(content.contact);
+  const mapSrc = mapQ
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQ)}&output=embed`
+    : '';
 
   if (variant === 'bold') {
     return (
@@ -767,11 +830,20 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
             {content.contact.phone && <p><span className="text-muted text-base font-mono uppercase tracking-widest block mb-2">Telefon</span>{content.contact.phone}</p>}
             {content.contact.email && <p><span className="text-muted text-base font-mono uppercase tracking-widest block mb-2">E-Mail</span>{content.contact.email}</p>}
             {(content.contact.address || content.contact.city) && (
-              <p><span className="text-muted text-base font-mono uppercase tracking-widest block mb-2">Adresse</span>{content.contact.address}<br />{content.contact.city}</p>
+              <p>
+                <span className="text-muted text-base font-mono uppercase tracking-widest block mb-2">Adresse</span>
+                {contactAddressOneLine(content.contact)}
+              </p>
             )}
           </div>
           <div className="reveal">
-            <iframe src={mapSrc} title="Karte" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="block w-full aspect-square border-0" allow="fullscreen" />
+            {mapSrc ? (
+              <iframe src={mapSrc} title="Karte" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="block w-full aspect-square border-0" allow="fullscreen" />
+            ) : (
+              <div className="aspect-square rounded-2xl border border-dashed border-line bg-white/50 grid place-items-center text-sm text-muted p-6 text-center">
+                Adresse oder Ort eintragen — dann erscheint hier die Karte.
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -801,7 +873,7 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
               {(content.contact.address || content.contact.city) && (
                 <div className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-line">
                   <div className="w-10 h-10 rounded-full bg-[var(--accent-color)]/20 grid place-items-center">⌖</div>
-                  <div><p className="font-mono text-[11px] uppercase tracking-widest text-muted">Adresse</p><p className="font-display text-lg">{content.contact.address}{content.contact.city ? `, ${content.contact.city}` : ''}</p></div>
+                  <div><p className="font-mono text-[11px] uppercase tracking-widest text-muted">Adresse</p><p className="font-display text-lg">{contactAddressOneLine(content.contact)}</p></div>
                 </div>
               )}
             </div>
@@ -821,7 +893,13 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
           </div>
           <div className="lg:col-span-7 reveal">
             <div className="rounded-2xl overflow-hidden border border-line shadow-xl">
-              <iframe src={mapSrc} title="Karte" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="block w-full aspect-[16/14] border-0" allow="fullscreen" />
+              {mapSrc ? (
+                <iframe src={mapSrc} title="Karte" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="block w-full aspect-[16/14] border-0" allow="fullscreen" />
+              ) : (
+                <div className="aspect-[16/14] grid place-items-center text-sm text-muted p-6 text-center bg-white">
+                  Adresse oder Ort eintragen — dann erscheint hier die Karte.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -840,7 +918,7 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
             {content.contact.phone && <li className="font-mono">{content.contact.phone}</li>}
             {content.contact.email && <li className="font-mono">{content.contact.email}</li>}
             {(content.contact.address || content.contact.city) && (
-              <li className="text-muted">{content.contact.address}{content.contact.city ? `, ${content.contact.city}` : ''}</li>
+              <li className="text-muted">{contactAddressOneLine(content.contact)}</li>
             )}
           </ul>
           {content.contact.hours.length > 0 && (
@@ -859,7 +937,13 @@ function ContactSection({ content, variant }: { content: SiteContent; variant: E
         </div>
         <div className="md:col-span-7 reveal">
           <div className="rounded-3xl overflow-hidden border border-line">
-            <iframe src={mapSrc} title="Karte" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="block w-full aspect-[16/12] border-0" allow="fullscreen" />
+            {mapSrc ? (
+              <iframe src={mapSrc} title="Karte" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="block w-full aspect-[16/12] border-0" allow="fullscreen" />
+            ) : (
+              <div className="aspect-[16/12] grid place-items-center text-sm text-muted p-6 text-center bg-white">
+                Adresse oder Ort eintragen — dann erscheint hier die Karte.
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1112,6 +1196,11 @@ function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember
 }
 function BranchTeam({ branch, style, content }: { branch: ExtraBranchKey; style: ExtraStyle; content: SiteContent }) {
   const team = useBranchTeam(content, branch);
+  if (branch === 'medical') {
+    const docs = ((content as unknown as { doctors?: { name?: string }[] }).doctors) ?? [];
+    const hasNamedDoctor = docs.some((d) => d && String(d.name ?? '').trim().length > 0);
+    if (hasNamedDoctor) return null;
+  }
   if (team.length === 0) return null;
   const teamKey: ModuleHeadingKey = branch === 'fitness' ? 'teamFitness' : branch === 'medical' ? 'teamMedical' : 'teamConsulting';
   const h = moduleHeading(content, teamKey);

@@ -226,7 +226,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'legal' && <LegalPage data={data} setData={setData} />}
             {pageId === 'security' && <SecurityPage />}
             {pageId === 'news' && <NewsPage data={data} setData={setData} />}
-            {pageId === 'home' && <HomePageEditor data={data} setData={setData} tpl={tplKey} />}
+            {pageId === 'home' && <HomePageEditor data={data} setData={setData} tpl={tplKey} onGoToPage={setPageId} />}
             {pageId === 'services' && <ServicesPageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'gallery' && <GalleryPageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'about' && <AboutPageEditor data={data} setData={setData} tpl={tplKey} />}
@@ -868,7 +868,44 @@ function homeSectionsFor(t: TemplateKey) {
    PAGE EDITORS
    ═══════════════════════════════════════════════════════════════════ */
 
-function HomePageEditor({ data, setData, tpl }: SectionProps) {
+function ExtraHomeLinkedDataHints({ tpl, onGo }: { tpl: TemplateKey; onGo: (p: PageId) => void }) {
+  if (tpl !== 'consulting' && tpl !== 'medical' && tpl !== 'fitness') return null;
+  return (
+    <div className="rounded-2xl border border-brand/25 bg-[#f0faf9] p-6 space-y-4">
+      <p className="text-sm font-medium text-brand">Startseite: wo die Inhalte herkommen</p>
+      <ul className="text-sm text-muted space-y-3 list-disc pl-5">
+        {tpl === 'medical' && (
+          <>
+            <li>
+              <span className="font-medium text-ink">Ärzt:innen-Karten &amp; Online-Termin (Doctolib)</span>{' '}
+              auf der Startseite stammen von den Modulen auf der Seite{' '}
+              <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
+            </li>
+            <li>
+              <span className="font-medium text-ink">Team-Sektion</span> (Karten mit n/r/img/bio) bearbeitest du unter{' '}
+              <button type="button" className="text-brand underline font-medium" onClick={() => onGo('about')}>Über uns</button>
+              {' '}→ Team — unabhängig von den Ärzt:innen-Profilen auf Leistungen.
+            </li>
+          </>
+        )}
+        {(tpl === 'consulting' || tpl === 'fitness') && (
+          <li>
+            <span className="font-medium text-ink">Branchen-Module</span> auf der Startseite entsprechen den Blöcken auf{' '}
+            <button type="button" className="text-brand underline font-medium" onClick={() => onGo('services')}>Leistungen</button>.
+          </li>
+        )}
+        <li>
+          <span className="font-medium text-ink">Kontakt-Sektion</span> am Seitenende:{' '}
+          <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contactPage')}>Kontakt-Seite</button>
+          {' '}und globale{' '}
+          <button type="button" className="text-brand underline font-medium" onClick={() => onGo('contact')}>Kontaktdaten</button>.
+        </li>
+      </ul>
+    </div>
+  );
+}
+
+function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onGoToPage?: (p: PageId) => void }) {
   const set = (patch: Partial<SiteContent>) => setData({ ...data, ...patch });
   const cfg = getBranchConfig(tpl);
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
@@ -1055,6 +1092,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
         />
       ))}
       <AddSectionRow pageKey="home" data={data} setData={setData} tpl={tpl} />
+      {(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl) && onGoToPage && (
+        <div className="pt-6">
+          <ExtraHomeLinkedDataHints tpl={tpl} onGo={onGoToPage} />
+        </div>
+      )}
     </>
   );
 }
