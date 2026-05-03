@@ -103,7 +103,7 @@ Intro, values, team, timeline, numbers, testimonials, FAQ, CTA — gemäß Order
 ### Frontend Kern → `ContactPage`
 
 - **Order:** `getEffectivePageOrder` + `isSectionEnabled`.
-- **Blocks:** `block` (= `ContactBlock` **ohne** `showForm={cfg.contact.showForm}` — **immer** Default `showForm=true`), `locations` (nur wenn `locs.length`), `arrival`, **`faq`**, `cta`.
+- **Blocks:** `block` (= `ContactBlock` **mit** `showForm={getBranchConfig(variant).contact.showForm}`), `locations` (nur wenn `locs.length`), `arrival`, **`faq`**, `cta`.
 - **Default-Order (Kern):** `page-layout` `contact`: `block`, `locations`, `arrival`, `cta` — **ohne** `faq`; `faq` nur nach **manueller** Erweiterung der Order / Katalog.
 
 ### Frontend Extras → `SubPage` contact
@@ -112,11 +112,10 @@ Intro, values, team, timeline, numbers, testimonials, FAQ, CTA — gemäß Order
 
 ### Bekannte Lücken / QA-Punkte (wichtig)
 
-1. **Kern — `showForm`:** Admin kann `contactForm` ausblenden (`showForm: false`), **`ContactBlock` im Kern ignoriert das** weiterhin (Formular bleibt sichtbar, solange `block` in der Order ist). **Extras** respektieren das Flag. → **Gap:** Konfiguration „Formular aus“ für **Kern**-Tenants nicht durchgängig.
-2. **FAQ auf Kontakt (Kern):** Frontend kann `faq` rendern; **feste** `contactOrder` listet **kein** eigenes FAQ — Bearbeitung läuft über **Deep-Link** „FAQ (Leistungsseite)“ (`CROSS_PAGE_TARGETS.faq`), wenn die Sektion per Layout hinzugefügt wurde. → **Kein Bug**, aber **UX:** Betriebe müssen wissen, wo die FAQ-Texte gepflegt werden.
-3. **`locations`:** Frontend zeigt Section nur bei `locs.length` — Admin-Karte kann trotzdem da sein.
+1. **FAQ auf Kontakt (Kern):** Frontend kann `faq` rendern; **feste** `contactOrder` listet **kein** eigenes FAQ — Bearbeitung läuft über **Deep-Link** „FAQ (Leistungsseite)“ (`CROSS_PAGE_TARGETS.faq`), wenn die Sektion per Layout hinzugefügt wurde. → **Kein Bug**, aber **UX:** Betriebe müssen wissen, wo die FAQ-Texte gepflegt werden.
+2. **`locations`:** Frontend zeigt Section nur bei `locs.length` — Admin-Karte kann trotzdem da sein.
 
-**Manuelle QA:** ein Kern-Template mit `contact.showForm: false` (DB/Seed) — prüfen, ob Formular noch erscheint; Extras mit gleichem Flag vergleichen.
+**Hinweis:** Kern-`showForm` (Admin `contactForm` ↔ `ContactBlock`) ist in `TemplateApp.tsx` an `getBranchConfig` angebunden; bei QA weiterhin `contact.showForm` an/aus prüfen.
 
 ---
 
@@ -133,6 +132,5 @@ Intro, values, team, timeline, numbers, testimonials, FAQ, CTA — gemäß Order
 
 ## Optional: nächste technische Schritte (nicht umgesetzt)
 
-1. **`contactOrder` + `ContactPage` (Kern):** `ContactBlock` mit `showForm={getBranchConfig(variant).contact.showForm}`.
-2. **`servicesOrder` / … / `(tpl, style)`:** wenn gewünscht, Sektionen pro Style aus `branch-config` ableiten (neue `PerStyle`-Struktur oder Ableitung aus bestehenden Home-Flags — **Designentscheidung** nötig).
-3. **`getEffectivePageOrder` für `home` ohne Override:** an `BRANCH_STYLE_ORDER[tpl][style]` angleichen (aktuell Katalog-Reihenfolge; siehe QA-Hinweise in früheren Diskussionen).
+1. **`servicesOrder` / … / `(tpl, style)`:** wenn gewünscht, Sektionen pro Style aus `branch-config` ableiten (neue `PerStyle`-Struktur oder Ableitung aus bestehenden Home-Flags — **Designentscheidung** nötig).
+2. **`getEffectivePageOrder` für `home` ohne Override:** an `BRANCH_STYLE_ORDER[tpl][style]` angleichen (aktuell Katalog-Reihenfolge; siehe QA-Hinweise in früheren Diskussionen).

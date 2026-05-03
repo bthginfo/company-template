@@ -38,7 +38,7 @@ import {
   moduleHeading,
 } from '@/components/branch-modules';
 import { mergedServiceHighlights, normaliseArrivalList, normaliseFaqList, normalisePressList, normaliseTdList, normaliseTeamList, type PressCard } from '@/lib/content-field-aliases';
-import { isExtraBranch } from '@/lib/branch-config';
+import { getBranchConfig, isExtraBranch } from '@/lib/branch-config';
 import ExtraBranchTemplate, { type ExtraBranchKey } from './extra';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
@@ -1780,6 +1780,7 @@ function PressSection({ variant, content }: { variant: TemplateVariant; content?
 
 /* ─── Contact ────────────────────────────────────────────────────── */
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
+  const cfg = getBranchConfig(variant);
   const arrivalFallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
       { t: 'Mit dem Auto', d: 'Parkmöglichkeiten in unmittelbarer Nähe. Gerne bei Reservierung anfragen.' },
@@ -1814,7 +1815,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   const arrivalOv = ((content as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const locs = content.locations ?? [];
   const blocks: Record<string, JSX.Element | null> = {
-    block: <ContactBlock content={content} />,
+    block: <ContactBlock content={content} showForm={cfg.contact.showForm} />,
     locations: locs.length ? (
       <Section eyebrow={moduleHeading(content, 'locations').eyebrow} title={moduleHeading(content, 'locations').title}>
         <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
