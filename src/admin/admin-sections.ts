@@ -3,7 +3,7 @@
  *
  * For each (branch, style, page) this file declares the EXACT sections
  * that appear in the admin. **Home** order is derived from the same
- * `BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER` as the live site, with small
+ * `BRANCH_STYLE_ORDER` (all eight templates) as the live site, with small
  * editor-UX tweaks (see `buildHomeAdminOrderFromFrontend`).
  *
  * This eliminates drift between admin and frontend.
@@ -13,8 +13,7 @@
 import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle, ServiceModule } from '@/lib/branch-config';
 import { getBranchConfig, isExtraBranch } from '@/lib/branch-config';
-import { BRANCH_STYLE_ORDER, type CoreVariant } from '@/lib/template-orders';
-import { EXTRA_HOME_ORDER } from '@/lib/page-layout';
+import { BRANCH_STYLE_ORDER, type Style } from '@/lib/template-orders';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 
@@ -60,7 +59,7 @@ export const GALLERY_TEASER_LIMIT: Record<TemplateStyle, number> = {
 
 /**
  * Maps default home `sectionOrder` block ids (see `SECTION_CATALOG.home` /
- * `BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER`) to admin section keys.
+ * `BRANCH_STYLE_ORDER`) to admin section keys.
  * `null` = no dedicated admin card on the home page (edited elsewhere).
  */
 export const HOME_CATALOG_BLOCK_TO_ADMIN: Record<string, AdminSectionKey | null> = {
@@ -90,50 +89,33 @@ export const HOME_CATALOG_BLOCK_TO_ADMIN: Record<string, AdminSectionKey | null>
 
 /**
  * Builds the home admin sidebar order from the same canonical block order the
- * frontend uses (`BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER`).
+ * frontend uses (`BRANCH_STYLE_ORDER`).
  *
  * Editor tweaks (intentionally not identical to scroll order):
  *  - **`numbers` immediately after `hero`** — shares `content.numbers` with the
  *    hero meta / modern hero tiles so operators find it next to the hero editor.
- *  - **Core Bold: `marquee` right after `hero`** — `BRANCH_STYLE_ORDER` omits a
- *    separate `marquee` key for core-5 bold, but the admin still edits it here.
+ *  - **Bold + no `marquee` in flow** — core five bold omits a separate `marquee`
+ *    block id, but the admin still surfaces the marquee card after the hero.
  */
 export function buildHomeAdminOrderFromFrontend(tpl: TemplateKey, style: TemplateStyle): AdminSectionKey[] {
-  if (isExtraBranch(tpl)) {
-    const front = EXTRA_HOME_ORDER[tpl as 'consulting' | 'medical' | 'fitness'][style];
-    const out: AdminSectionKey[] = ['announcements', 'hero'];
-    for (const block of front) {
-      const adminKey = HOME_CATALOG_BLOCK_TO_ADMIN[block];
-      if (adminKey && !out.includes(adminKey)) out.push(adminKey);
-    }
-    return out;
-  }
-  const front = BRANCH_STYLE_ORDER[tpl as CoreVariant][style];
+  const front = BRANCH_STYLE_ORDER[tpl][style as Style];
   const out: AdminSectionKey[] = ['announcements', 'hero'];
-  if (style === 'bold') out.push('marquee');
+  if (style === 'bold' && !front.includes('marquee')) out.push('marquee');
   if (front.includes('numbers')) out.push('numbers');
   for (const block of front) {
     if (block === 'numbers') continue;
     const adminKey = HOME_CATALOG_BLOCK_TO_ADMIN[block];
     if (adminKey && !out.includes(adminKey)) out.push(adminKey);
   }
-  out.push('softCta');
+  if (!isExtraBranch(tpl)) out.push('softCta');
   return out;
 }
 
-const HOME_ORDER_CORE: readonly CoreVariant[] = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism'];
-const HOME_ORDER_EXTRAS: readonly ('consulting' | 'medical' | 'fitness')[] = ['consulting', 'medical', 'fitness'];
 const HOME_STYLES: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
 
 function buildAllHomeOrders(): Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>> {
   const acc = {} as Record<TemplateKey, Record<TemplateStyle, AdminSectionKey[]>>;
-  for (const tpl of HOME_ORDER_CORE) {
-    acc[tpl] = {} as Record<TemplateStyle, AdminSectionKey[]>;
-    for (const style of HOME_STYLES) {
-      acc[tpl][style] = buildHomeAdminOrderFromFrontend(tpl, style);
-    }
-  }
-  for (const tpl of HOME_ORDER_EXTRAS) {
+  for (const tpl of Object.keys(BRANCH_STYLE_ORDER) as TemplateKey[]) {
     acc[tpl] = {} as Record<TemplateStyle, AdminSectionKey[]>;
     for (const style of HOME_STYLES) {
       acc[tpl][style] = buildHomeAdminOrderFromFrontend(tpl, style);

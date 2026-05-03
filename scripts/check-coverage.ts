@@ -19,7 +19,7 @@
  *      `sectionOrder`, `footer.tagline`) ↔ full templates+components + admin.
  *  5. Branch invariants: extras have compact subpages disabled, core 5
  *     have them all enabled.
- *  6. Frontend home order (`BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER`) ↔
+ *  6. Frontend home order (`BRANCH_STYLE_ORDER` for all templates) ↔
  *     admin home order parity. Every frontend section is reachable in
  *     the admin (either in HOME_ORDER or as global data).
  *  6b. Every home-flow block id maps via `HOME_CATALOG_BLOCK_TO_ADMIN`;
@@ -60,7 +60,7 @@
  *   for those pages — it does **not** assert “style A shows fewer editors”.
  *
  * • **Home parity is order keys, not layout.** Step 6 maps admin keys ↔
- *   `BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER` *block ids*. It does not prove
+ *   `BRANCH_STYLE_ORDER` *block ids*. It does not prove
  *   that every pixel of the hero (e.g. stats tucked under buttons in Modern)
  *   has a dedicated card; that requires human review or richer contracts.
  *
@@ -93,7 +93,7 @@ import {
 } from '../src/admin/admin-sections';
 import { SECTION_CONTRACTS, CATALOG_TO_ADMIN, CROSS_PAGE_TARGETS } from '../src/lib/section-registry';
 import { BRANCH_STYLE_ORDER } from '../src/lib/template-orders';
-import { EXTRA_HOME_ORDER, SECTION_CATALOG } from '../src/lib/page-layout';
+import { SECTION_CATALOG } from '../src/lib/page-layout';
 import {
   branchHomeStyleBindingIssues,
   collectDirSources,
@@ -233,10 +233,10 @@ for (const tpl of TEMPLATES) {
 /* ─────────────────────────────────────────────────────────────────
  *  6: Frontend home order ↔ admin HOME_ORDER parity
  *
- *  Mapping admin section key → frontend section key (in BRANCH_STYLE_ORDER /
- *  EXTRA_HOME_ORDER). `null` = the admin section drives no frontend block
- *  in the order array (e.g. `announcements`, `hero`, `softCta` are rendered
- *  outside the order; `heroBadge` content is edited under `branchChips`).
+ *  Mapping admin section key → frontend section key (in `BRANCH_STYLE_ORDER`).
+ *  `null` = the admin section drives no frontend block in the order array
+ *  (e.g. `announcements`, `hero`, `softCta` are rendered outside the order;
+ *  `heroBadge` content is edited under `branchChips`).
  * ───────────────────────────────────────────────────────────────── */
 const ADMIN_TO_FRONTEND_HOME: Record<AdminSectionKey, string | null> = {
   // null = the admin card edits data that the frontend consumes somewhere
@@ -280,9 +280,7 @@ const FRONTEND_HOME_KEYS_EDITED_ELSEWHERE = new Set([
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     const adminOrder = getAdminSections('home', tpl, style);
-    const frontendOrder: readonly string[] = isExtraBranch(tpl)
-      ? EXTRA_HOME_ORDER[tpl as 'consulting' | 'medical' | 'fitness'][style]
-      : BRANCH_STYLE_ORDER[tpl as 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism'][style];
+    const frontendOrder: readonly string[] = BRANCH_STYLE_ORDER[tpl][style];
 
     // Admin shows X => frontend should render X
     for (const adminKey of adminOrder) {
@@ -312,16 +310,10 @@ for (const tpl of TEMPLATES) {
 /* ─────────────────────────────────────────────────────────────────
  *  6b: Home block keys ↔ admin map; derived home order is the only source
  * ───────────────────────────────────────────────────────────────── */
-const CORE_VARIANTS = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism'] as const;
 const allHomeFrontKeys = new Set<string>();
-for (const tpl of CORE_VARIANTS) {
+for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     for (const k of BRANCH_STYLE_ORDER[tpl][style]) allHomeFrontKeys.add(k);
-  }
-}
-for (const tpl of ['consulting', 'medical', 'fitness'] as const) {
-  for (const style of STYLES) {
-    for (const k of EXTRA_HOME_ORDER[tpl][style]) allHomeFrontKeys.add(k);
   }
 }
 for (const k of allHomeFrontKeys) {

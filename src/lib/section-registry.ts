@@ -201,7 +201,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
    ═══════════════════════════════════════════════════════════════════
 
    The frontend section-order arrays (`BRANCH_STYLE_ORDER`,
-   `EXTRA_HOME_ORDER`, `getDefaultSubpageOrder`) and the tenant override
+   `getDefaultSubpageOrder`) and the tenant override
    `content.sectionOrder.{page}` use SHORT catalog keys ('action',
    'chips', 'process', 'cta', 'module' …). The admin uses LONG
    admin-section keys ('actionStrip', 'branchChips', 'serviceProcess',

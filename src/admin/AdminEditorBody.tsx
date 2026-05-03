@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState, Fragment, type ReactNode } from '
 import { toast } from 'sonner';
 import type { SiteContent, TemplateKey, TenantCustomTheme } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
-import { getBranchConfig, isActiveForStyle, isBranchTextKeyVisible, isExtraBranch, type TemplateStyle } from '@/lib/branch-config';
+import { getBranchConfig, isActiveForStyle, isBranchTextKeyVisible, type TemplateStyle } from '@/lib/branch-config';
+import { catalogSectionApplies } from '@/lib/page-layout';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
 import { getEffectivePageOrder, getRemainingSections, isSectionEnabled, type PageId as LayoutPageId } from '@/lib/page-layout';
 import { RichTextEditor } from './RichTextEditor';
@@ -1018,6 +1019,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
           </SectionCard>
         );
       case 'spotlight':
+        if (!catalogSectionApplies('home', 'spotlight', tpl, style)) return null;
         if (tpl === 'consulting') return (
           <SectionCard key={key} title="Spotlight: Vorgehen" description="Modul-Überschrift." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="consultingSpotlight" />
@@ -1035,7 +1037,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         );
         return null;
       case 'branchModules': {
-        if (!isExtraBranch(tpl)) return null;
+        if (!catalogSectionApplies('home', 'branchModules', tpl, style)) return null;
         const linkServices = onGoToPage ? (
           <p className="text-xs text-muted mb-4 max-w-prose">
             Dieselben Daten wie unter{' '}
@@ -1081,7 +1083,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         return null;
       }
       case 'team':
-        if (!isExtraBranch(tpl)) return null;
+        if (!catalogSectionApplies('home', 'team', tpl, style)) return null;
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="team" data={data} setData={setData}>
             {onGoToPage ? (
@@ -1097,7 +1099,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
           </SectionCard>
         );
       case 'contact': {
-        if (!isExtraBranch(tpl)) return null;
+        if (!catalogSectionApplies('home', 'contact', tpl, style)) return null;
         const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
         const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
         return (

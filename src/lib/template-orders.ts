@@ -1,27 +1,25 @@
 /**
- * Default frontend section orders for the home page, per (variant, style).
+ * Default frontend section orders for the home page, per (template, style).
  *
- * Two surfaces share these:
- *  - the renderer in `src/templates/_shared/TemplateApp.tsx` for all eight
- *    branches (core five + extras; extras live in `_shared/extra`).
- *    `EXTRA_HOME_ORDER` exported from `src/lib/page-layout.ts`)
+ * All eight branches (`TemplateKey`) share this table. The renderer in
+ * `TemplateApp.tsx` (core five) and `_shared/extra/ExtraBranchTemplate.tsx`
+ * (consulting / medical / fitness) read from here unless the tenant set
+ * `content.sectionOrder.home`.
  *
- * The drift-coverage script in `scripts/check-coverage.ts` imports the same
- * data from here so the test can compare admin section orders against the
- * frontend's truth without re-typing the table.
+ * The drift-coverage script imports the same data so admin home order stays
+ * aligned with the live site.
  */
+
+import type { TemplateKey } from './types';
 
 export type CoreVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type Style = 'classic' | 'modern' | 'bold';
 
 /**
- * BRANCH_STYLE_ORDER — full 5×3 = 15 distinct section flows for core branches.
- * Each (variant, style) tells a different narrative arc, so Restaurant/Classic
- * does NOT look like Restaurant/Modern, and Hotel/Bold does NOT look like
- * Hotel/Classic. The frontend renders `BRANCH_STYLE_ORDER[variant][style]`
- * unless the tenant has set a custom `content.sectionOrder.home`.
+ * BRANCH_STYLE_ORDER — 8 branches × 3 styles = 24 default home flows.
+ * Each (template, style) may differ; tenants override via `sectionOrder.home`.
  */
-export const BRANCH_STYLE_ORDER: Record<CoreVariant, Record<Style, readonly string[]>> = {
+export const BRANCH_STYLE_ORDER: Record<TemplateKey, Record<Style, readonly string[]>> = {
   restaurant: {
     classic: ['action', 'signature', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
     modern:  ['action', 'services', 'signature', 'about', 'gallery', 'logos', 'testimonials', 'numbers', 'news'],
@@ -46,5 +44,20 @@ export const BRANCH_STYLE_ORDER: Record<CoreVariant, Record<Style, readonly stri
     classic: ['action', 'gallery', 'signature', 'about', 'testimonials', 'numbers', 'news'],
     modern:  ['action', 'signature', 'gallery', 'logos', 'numbers', 'about', 'testimonials', 'news'],
     bold:    ['action', 'gallery', 'numbers', 'signature', 'about', 'testimonials', 'news'],
+  },
+  consulting: {
+    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+  },
+  medical: {
+    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+  },
+  fitness: {
+    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
+    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
   },
 };

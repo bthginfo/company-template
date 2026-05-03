@@ -101,10 +101,25 @@ export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
   ],
 };
 
+/**
+ * Whether a catalog section applies to this template (and optional style).
+ * Aligns admin editors with `SECTION_CATALOG` instead of ad-hoc branch checks.
+ */
+export function catalogSectionApplies(page: PageId, key: string, tpl: Variant, style?: Style): boolean {
+  const def = SECTION_CATALOG[page].find((s) => s.key === key);
+  if (!def) return false;
+  if (def.variants?.length && !def.variants.includes(tpl)) return false;
+  if (def.styles?.length) {
+    if (!style || !def.styles.includes(style)) return false;
+  }
+  return true;
+}
+
 /* ─────────────────────────────────────────────────────────────────
  * DEFAULT ORDERS — what gets rendered when sectionOrder is unset.
- * Home keeps the existing BRANCH_STYLE_ORDER (in TemplateApp.tsx); the
- * subpages are simpler and share defaults across styles.
+ * Home defaults live in `@/lib/template-orders` (`BRANCH_STYLE_ORDER`); the
+ * subpages use the defaults below (plus per-variant tweaks in
+ * `getDefaultSubpageOrder`).
  * ────────────────────────────────────────────────────────────────── */
 
 const DEFAULT_SUBPAGE_ORDERS: Record<Exclude<PageId, 'home'>, string[]> = {
@@ -144,28 +159,6 @@ export function getDefaultSubpageOrder(page: Exclude<PageId, 'home'>, variant?: 
   }
   return [...DEFAULT_SUBPAGE_ORDERS[page]];
 }
-
-/* ─────────────────────────────────────────────────────────────────
- * EXTRA HOME ORDERS — 3 extra branches × 3 styles = 9 flows.
- * Used by extra/index.tsx when no custom sectionOrder is set.
- * ────────────────────────────────────────────────────────────────── */
-export const EXTRA_HOME_ORDER: Record<'consulting' | 'medical' | 'fitness', Record<Style, string[]>> = {
-  consulting: {
-    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-  },
-  medical: {
-    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-  },
-  fitness: {
-    classic: ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    modern:  ['chips', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-    bold:    ['chips', 'marquee', 'about', 'services', 'spotlight', 'branchModules', 'team', 'gallery', 'testimonials', 'news', 'contact'],
-  },
-};
 
 /* ─────────────────────────────────────────────────────────────────
  * Helpers used by the renderer + admin

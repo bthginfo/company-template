@@ -11,7 +11,8 @@ import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
-import { isSectionEnabled, getEffectivePageOrder, EXTRA_HOME_ORDER, type PageId as LayoutPageId } from '@/lib/page-layout';
+import { isSectionEnabled, getEffectivePageOrder, type PageId as LayoutPageId } from '@/lib/page-layout';
+import { BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 import { getBranchConfig } from '@/lib/branch-config';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import { mergedServiceHighlights, normaliseArrivalList, normaliseFaqList, normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
@@ -45,10 +46,10 @@ function $vis(content: SiteContent, key: string): boolean {
 function extraHomeOrder(content: SiteContent, branch: ExtraBranchKey, style: ExtraStyle): string[] {
   const custom = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
   if (Array.isArray(custom) && custom.length) {
-    const validKeys = new Set(EXTRA_HOME_ORDER[branch]?.[style] ?? EXTRA_HOME_ORDER.consulting.classic);
+    const validKeys = new Set(BRANCH_STYLE_ORDER[branch][style] ?? BRANCH_STYLE_ORDER.consulting.classic);
     return custom.filter((k) => validKeys.has(k));
   }
-  return EXTRA_HOME_ORDER[branch]?.[style] ?? EXTRA_HOME_ORDER.consulting.classic;
+  return [...(BRANCH_STYLE_ORDER[branch][style] ?? BRANCH_STYLE_ORDER.consulting.classic)];
 }
 
 /** Pull a per-page header override from content extras (set by admin's PageHeaderEditor). */
