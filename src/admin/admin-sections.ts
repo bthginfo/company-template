@@ -316,7 +316,7 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     title: 'Eckdaten-Band',
     description:
       style === 'modern'
-        ? 'Vier Kennzahlen: im Modern-Layout direkt unter den Hero-Buttons und erneut im farbigen Zahlen-Band weiter unten (wenn aktiv). Werte bearbeiten Sie im Abschnitt „Hero“ unter „Kennzahlen unter den Hero-Buttons“.'
+        ? 'Vier Kennzahlen (Label + Wert): erscheinen unter den Hero-Buttons und im farbigen Zahlen-Band weiter unten — hier bearbeiten.'
         : 'Zahlen-Leiste mit Kurz-Labels (und auf der Startseite die Kennzahlen neben dem Hero, wo angezeigt).',
   }),
   logos: () => ({

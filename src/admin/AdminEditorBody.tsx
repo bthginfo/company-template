@@ -884,7 +884,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
           </SectionCard>
         );
       case 'hero':
-        return <HomeSectionHero key={key} data={data} setData={setData} set={set} tpl={tpl} cfg={cfg} $s={$s} meta={meta} badge={badge} style={style} />;
+        return <HomeSectionHero key={key} data={data} setData={setData} set={set} tpl={tpl} cfg={cfg} $s={$s} meta={meta} badge={badge} />;
       case 'actionStrip':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="action" data={data} setData={setData}>
@@ -914,16 +914,7 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
       case 'numbers':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="numbers" data={data} setData={setData}>
-            {style === 'modern' ? (
-              <div className="rounded-xl border border-amber-100 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
-                <span className="font-medium">Hinweis (Design-Stil Modern):</span>{' '}
-                Die vier Werte bearbeiten Sie direkt im Abschnitt <strong className="font-semibold">Hero</strong> weiter oben
-                unter „Kennzahlen unter den Hero-Buttons“. Hier steuern Sie nur noch <strong className="font-semibold">Sichtbarkeit und Reihenfolge</strong> des
-                farbigen Zahlen-Bands weiter unten auf der Seite.
-              </div>
-            ) : (
-              <NumbersEditor data={data} setData={setData} tpl={tpl} />
-            )}
+            <NumbersEditor data={data} setData={setData} tpl={tpl} />
           </SectionCard>
         );
       case 'services': {
@@ -1053,12 +1044,11 @@ function HomePageEditor({ data, setData, tpl }: SectionProps) {
 }
 
 /** Hero section (extracted for readability) */
-function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge, style }: {
+function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge }: {
   data: SiteContent; setData: (d: SiteContent) => void;
   set: (patch: Partial<SiteContent>) => void;
   tpl: TemplateKey; cfg: any; $s: (flag: any) => boolean;
   meta: { title: string; description: string }; badge: string;
-  style: import('@/lib/branch-config').TemplateStyle;
 }) {
   return (
     <SectionCard title={meta.title} description={meta.description} badge={badge}>
@@ -1114,17 +1104,6 @@ function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge, style 
           </>
         );
       })()}
-      {style === 'modern' && (
-        <>
-          <hr className="my-6 border-line" />
-          <p className="text-xs font-semibold text-slate-800">Kennzahlen unter den Hero-Buttons</p>
-          <p className="text-xs text-muted mt-1 mb-4">
-            Vier kurze Werte (kleines Label + größerer Text), wie auf der Live-Seite unter den Buttons. Dieselben Daten werden für das farbige Eckdaten-Band
-            weiter unten verwendet (wenn diese Sektion in der Reihenfolge sichtbar ist).
-          </p>
-          <NumbersEditor data={data} setData={setData} tpl={tpl} />
-        </>
-      )}
     </SectionCard>
   );
 }
