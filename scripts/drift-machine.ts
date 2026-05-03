@@ -66,6 +66,10 @@ const DATA_KEY_ALTERNATES: Record<string, { admin?: readonly string[]; frontend?
     admin: ['page="contact"'],
     frontend: ['page="contact"'],
   },
+  'footer.tagline': {
+    admin: ['footer.tagline'],
+    frontend: ['footer?.tagline', '(content as any).footer'],
+  },
 };
 
 export type HaystackRole = 'admin' | 'frontend';
@@ -137,6 +141,35 @@ export function strictDataKeyMention(haystack: string, path: string, role: Hayst
   }
 
   return false;
+}
+
+/**
+ * `SiteContent` paths used from templates/components but edited outside the
+ * per-page section sidebar (Navigation, Skripte & DSGVO, section layout).
+ * Keeps QA parity beyond `SECTION_CONTRACTS` + `getAdminSections`.
+ */
+const GLOBAL_LAYOUT_FIELD_PATHS = [
+  'navItems',
+  'navCta',
+  'customScripts',
+  'sectionOrder',
+  'footer.tagline',
+] as const;
+
+export function globalLayoutFieldDriftIssues(
+  adminHaystack: string,
+  frontendHaystack: string,
+): string[] {
+  const out: string[] = [];
+  for (const p of GLOBAL_LAYOUT_FIELD_PATHS) {
+    if (!strictDataKeyMention(adminHaystack, p, 'admin')) {
+      out.push(`[global-field-admin] "${p}" must be editable in AdminEditorBody (Navigation / Skripte / Layout / Footer).`);
+    }
+    if (!strictDataKeyMention(frontendHaystack, p, 'frontend')) {
+      out.push(`[global-field-frontend] "${p}" must appear in src/templates or src/components (strict match).`);
+    }
+  }
+  return out;
 }
 
 /** Every first segment of `SECTION_CONTRACTS` dataKeys must exist on `SiteContentSchema`. */

@@ -14,6 +14,8 @@
  *     the three extras) plus `_shared` + `components`, and in
  *     `AdminEditorBody.tsx`. Orphan `SECTION_CONTRACTS` keys (never listed by
  *     `getAdminSections`) fail. Optional omits: `src/lib/combo-drift-omissions.ts`.
+ *  4b. Global layout fields (`navItems`, `navCta`, `customScripts`,
+ *      `sectionOrder`, `footer.tagline`) ↔ full templates+components + admin.
  *  5. Branch invariants: extras have compact subpages disabled, core 5
  *     have them all enabled.
  *  6. Frontend home order (`BRANCH_STYLE_ORDER` / `EXTRA_HOME_ORDER`) ↔
@@ -97,6 +99,7 @@ import {
   comboScopedDataKeyIssues,
   contractDataKeyRootsMissingFromSchema,
   fieldConfigEditorReferenceIssues,
+  globalLayoutFieldDriftIssues,
   subpageBranchFlagIssues,
 } from './drift-machine';
 
@@ -162,6 +165,7 @@ for (const root of contractDataKeyRootsMissingFromSchema()) {
 }
 
 for (const msg of comboScopedDataKeyIssues(repoRoot, ADMIN_SOURCES, TEMPLATES, STYLES, PAGES)) note(msg);
+for (const msg of globalLayoutFieldDriftIssues(ADMIN_SOURCES, FRONTEND_SOURCES)) note(msg);
 
 for (const msg of branchHomeStyleBindingIssues(ADMIN_SOURCES, FRONTEND_SOURCES)) note(msg);
 for (const msg of subpageBranchFlagIssues(FRONTEND_SOURCES)) note(msg);
