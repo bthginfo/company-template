@@ -34,6 +34,8 @@ type ProvisioningResponse = {
   ok: true;
   provisioning: {
     slug: string;
+    /** Vercel project name when it differs from tenant slug (auto-suffix). */
+    vercelProjectName?: string;
     tenantId: string;
     tenantWasNew: boolean;
     password: string | null;
@@ -1134,6 +1136,12 @@ export default function CrmApp() {
                 <p><strong>Admin:</strong> <a href={provResult.loginUrl} target="_blank" rel="noreferrer" className="text-rose-600 underline">{provResult.loginUrl}</a></p>
                 <p><strong>Status:</strong> {provResult.deploymentState}</p>
                 <p><strong>Passwort:</strong> {provResult.password || '(bestehender Tenant - kein neues Passwort)'}</p>
+                {provResult.vercelProjectName && provResult.vercelProjectName !== provResult.slug ? (
+                  <p className="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 leading-snug">
+                    Vercel hat den Projektnamen angepasst (<strong>{provResult.vercelProjectName}</strong> statt <strong>{provResult.slug}</strong>).
+                    Die URLs oben sind die gültigen Adressen. Beim Admin-Login bleibt der Benutzername der <strong>Tenant-Slug</strong> ({provResult.slug}).
+                  </p>
+                ) : null}
               </div>
             ) : null}
           </div>

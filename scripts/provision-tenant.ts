@@ -142,6 +142,9 @@ async function main() {
   console.log('\n──────────────────────────────────────────');
   console.log(`  Tenant:        ${result.name}`);
   console.log(`  Slug:          ${result.slug}`);
+  if (result.vercelProjectName !== result.slug) {
+    console.log(`  Vercel-Projekt: ${result.vercelProjectName} (von Vercel vergeben — URLs nutzen diesen Namen)`);
+  }
   console.log(`  Template:      ${result.template}`);
   console.log(`  Style:         ${result.style}`);
   if (PRESET_OVERRIDE) console.log(`  Preset:        ${PRESET_OVERRIDE}`);

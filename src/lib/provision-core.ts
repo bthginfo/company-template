@@ -64,6 +64,8 @@ export type ProvisionInput = {
 
 export type ProvisionResult = {
   slug: string;
+  /** Vercel project name (production host is `<this>.vercel.app`). May differ from `slug` when Vercel auto-suffixes. */
+  vercelProjectName: string;
   name: string;
   template: AnyTemplate;
   style: AnyStyle;
@@ -297,6 +299,15 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
       });
     }
 
+    /** Vercel may suffix the project name when the requested name is taken (e.g. `foo` → `foo-abc12`). */
+    const vercelProjectName =
+      project && typeof project.name === 'string' && project.name.trim()
+        ? project.name.trim()
+        : projectName;
+    if (vercelProjectName !== projectName) {
+      log(`  ℹ Vercel-Projektname: “${vercelProjectName}” (Wunsch: “${projectName}”) — URLs folgen Vercel.`);
+    }
+
     // 4. Set env vars
     const tenantEnv: Record<string, string> = {
       ...Object.fromEntries(envMap),
@@ -305,18 +316,18 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
       VITE_TEMPLATE: template,
       VITE_STYLE: style,
     };
-    log(`→ Setting ${Object.keys(tenantEnv).length} env vars on '${projectName}'`);
-    const existingEnv = await vercel(`/v9/projects/${projectName}/env`);
+    log(`→ Setting ${Object.keys(tenantEnv).length} env vars on '${vercelProjectName}'`);
+    const existingEnv = await vercel(`/v9/projects/${vercelProjectName}/env`);
     const byKey = new Map<string, string>();
     for (const e of existingEnv.envs as Array<{ id: string; key: string }>) byKey.set(e.key, e.id);
     for (const [key, value] of Object.entries(tenantEnv)) {
       if (byKey.has(key)) {
-        await vercel(`/v9/projects/${projectName}/env/${byKey.get(key)}`, {
+        await vercel(`/v9/projects/${vercelProjectName}/env/${byKey.get(key)}`, {
           method: 'PATCH',
           body: JSON.stringify({ value, target: ['production', 'preview', 'development'], type: 'encrypted' }),
         });
       } else {
-        await vercel(`/v10/projects/${projectName}/env`, {
+        await vercel(`/v10/projects/${vercelProjectName}/env`, {
           method: 'POST',
           body: JSON.stringify({ key, value, target: ['production', 'preview', 'development'], type: 'encrypted' }),
         });
@@ -325,7 +336,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
     log('  ✓ Env vars set');
 
     // 5. Disable SSO
-    await vercel(`/v9/projects/${projectName}`, {
+    await vercel(`/v9/projects/${vercelProjectName}`, {
       method: 'PATCH',
       body: JSON.stringify({ ssoProtection: null }),
     });
@@ -336,7 +347,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
     const deployment = await vercel('/v13/deployments', {
       method: 'POST',
       body: JSON.stringify({
-        name: projectName,
+        name: vercelProjectName,
         target: 'production',
         project: project.id,
         gitSource: { type: 'github', repoId: project.link?.repoId, ref: 'main' },
@@ -354,7 +365,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
           const status = await vercel(`/v13/deployments/${deployId}`);
           lastState = status.readyState || status.state || lastState;
           if (lastState === 'ERROR' || lastState === 'CANCELED') {
-            throw new Error(`Deployment ${lastState}: see https://vercel.com/${TEAM}/${projectName}/deployments/${deployId}`);
+            throw new Error(`Deployment ${lastState}: see https://vercel.com/${TEAM}/${vercelProjectName}/deployments/${deployId}`);
           }
           if (lastState === 'BUILDING' || lastState === 'READY') break;
         } catch (e: any) {
@@ -368,14 +379,15 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
 
     return {
       slug,
+      vercelProjectName,
       name,
       template,
       style,
       tenantId,
       tenantWasNew,
       password: tenantWasNew ? password : null,
-      projectUrl: `https://${projectName}.vercel.app`,
-      loginUrl: `https://${projectName}.vercel.app/admin/login`,
+      projectUrl: `https://${vercelProjectName}.vercel.app`,
+      loginUrl: `https://${vercelProjectName}.vercel.app/admin/login`,
       deploymentState: lastState,
       deploymentUrl: `https://${deployment.url}`,
     };
