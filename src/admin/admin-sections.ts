@@ -273,9 +273,12 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     title: 'Galerie-Teaser',
     description: 'Teaser-Texte; Bilder unter „Galerie“.',
   }),
-  numbers: () => ({
+  numbers: (_tpl, style) => ({
     title: 'Eckdaten-Band',
-    description: 'Zahlen-Leiste mit Kurz-Labels.',
+    description:
+      style === 'modern'
+        ? 'Vier Kennzahlen: im Modern-Layout direkt unter den Hero-Buttons und erneut im farbigen Zahlen-Band weiter unten (wenn aktiv). Werte bearbeiten Sie im Abschnitt „Hero“ unter „Kennzahlen unter den Hero-Buttons“.'
+        : 'Zahlen-Leiste mit Kurz-Labels (und auf der Startseite die Kennzahlen neben dem Hero, wo angezeigt).',
   }),
   logos: () => ({
     title: 'Logo-Strip',
