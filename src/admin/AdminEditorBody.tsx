@@ -28,6 +28,8 @@ import {
   ModularHotelActivationPanel,
   hasHotelModularPage,
 } from './ModularHotelEditor';
+import { ModularSpecPageEditor, ModularSpecActivationPanel } from './ModularSpecPageEditor';
+import { getModularBranchSpecEditorConfig } from './modular-branch-spec-config';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
@@ -906,6 +908,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
   const announcements = (data as any).announcements as string[] | undefined;
   const style = _ctx.style || 'classic';
+  const modularBranchSpecCfg = getModularBranchSpecEditorConfig(tpl);
 
   const sectionOrder = getAdminSections('home', tpl, style);
 
@@ -1202,10 +1205,16 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       </>
     );
   }
+  if (modularBranchSpecCfg && modularBranchSpecCfg.hasPage(data, style, 'home')) {
+    return <ModularSpecPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" cfg={modularBranchSpecCfg} />;
+  }
   return (
     <>
       {tpl === 'restaurant' ? <ModularRestaurantActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
       {tpl === 'hotel' ? <ModularHotelActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
+      {modularBranchSpecCfg ? (
+        <ModularSpecActivationPanel data={data} setData={setData} tpl={tpl} style={style} cfg={modularBranchSpecCfg} />
+      ) : null}
       {sectionOrder.map((key, idx) => (
         <Fragment key={key}>
           {renderSection(key, idx)}
@@ -1298,11 +1307,15 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   const cfg = getBranchConfig(tpl);
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
   const style = _ctx.style || 'classic';
+  const modularBranchSpecCfg = getModularBranchSpecEditorConfig(tpl);
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'services')) {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'services')) {
     return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+  }
+  if (modularBranchSpecCfg && modularBranchSpecCfg.hasPage(data, style, 'services')) {
+    return <ModularSpecPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" cfg={modularBranchSpecCfg} />;
   }
   const sectionOrder = getAdminSections('services', tpl, style);
 
@@ -1537,11 +1550,15 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   const style = _ctx.style || 'classic';
+  const modularBranchSpecCfg = getModularBranchSpecEditorConfig(tpl);
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'gallery')) {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'gallery')) {
     return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+  }
+  if (modularBranchSpecCfg && modularBranchSpecCfg.hasPage(data, style, 'gallery')) {
+    return <ModularSpecPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" cfg={modularBranchSpecCfg} />;
   }
   const sectionOrder = getAdminSections('gallery', tpl, style);
 
@@ -1658,11 +1675,15 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   const isModern = _ctx.style === 'modern';
   const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
   const style = _ctx.style || 'classic';
+  const modularBranchSpecCfg = getModularBranchSpecEditorConfig(tpl);
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'about')) {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'about')) {
     return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+  }
+  if (modularBranchSpecCfg && modularBranchSpecCfg.hasPage(data, style, 'about')) {
+    return <ModularSpecPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" cfg={modularBranchSpecCfg} />;
   }
   const sectionOrder = getAdminSections('about', tpl, style);
   const aboutPatch = (patch: Partial<NonNullable<typeof data.about>>) =>
@@ -1790,11 +1811,15 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
   const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
   const style = _ctx.style || 'classic';
+  const modularBranchSpecCfg = getModularBranchSpecEditorConfig(tpl);
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'contact')) {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'contact')) {
     return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+  }
+  if (modularBranchSpecCfg && modularBranchSpecCfg.hasPage(data, style, 'contact')) {
+    return <ModularSpecPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" cfg={modularBranchSpecCfg} />;
   }
   const sectionOrder = getAdminSections('contact', tpl, style);
 

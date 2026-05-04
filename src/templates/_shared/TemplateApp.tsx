@@ -28,6 +28,12 @@ import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { isSectionEnabled, getEffectivePageOrder } from '@/lib/page-layout';
 import { applyRestaurantModularOverlay } from '@/lib/modular-restaurant';
 import { applyHotelModularOverlay } from '@/lib/modular-hotel';
+import { applyTourismModularOverlay } from '@/lib/modular-tourism';
+import { applySalonModularOverlay } from '@/lib/modular-salon';
+import { applyTradesmanModularOverlay } from '@/lib/modular-tradesman';
+import { applyConsultingModularOverlay } from '@/lib/modular-consulting';
+import { applyMedicalModularOverlay } from '@/lib/modular-medical';
+import { applyFitnessModularOverlay } from '@/lib/modular-fitness';
 import { BRANCH_STYLE_ORDER as SHARED_BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 import { BranchSignature } from './BranchSignature';
 import {
@@ -47,9 +53,15 @@ import ExtraBranchTemplate, { type ExtraBranchKey } from './extra';
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
 
-function withModularSiteContent(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): SiteContent {
+function withModularSiteContent(content: SiteContent, variant: TemplateKey, style: TemplateStyle): SiteContent {
   let c = applyRestaurantModularOverlay(content, variant, style);
   c = applyHotelModularOverlay(c, variant, style);
+  c = applyTourismModularOverlay(c, variant, style);
+  c = applySalonModularOverlay(c, variant, style);
+  c = applyTradesmanModularOverlay(c, variant, style);
+  c = applyConsultingModularOverlay(c, variant, style);
+  c = applyMedicalModularOverlay(c, variant, style);
+  c = applyFitnessModularOverlay(c, variant, style);
   return c;
 }
 
@@ -206,9 +218,10 @@ export default function TemplateApp({
   eyebrow?: string;
 }) {
   if (isExtraBranch(variant)) {
+    const resolvedExtras = withModularSiteContent(content, variant, style);
     return (
       <ExtraBranchTemplate
-        content={content}
+        content={resolvedExtras}
         style={style}
         branch={variant as ExtraBranchKey}
         basePath={basePath}
