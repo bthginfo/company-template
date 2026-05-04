@@ -13,7 +13,16 @@ import { PRESETS, applyTheme, CUSTOM_THEME_PREFIX, customThemeToPreset, resolveT
 import { MODULE_DEFAULTS, type ModuleHeadingKey } from '@/components/branch-modules';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import { getAdminSections, getSectionMeta, GALLERY_TEASER_LIMIT, FIELD_CONFIG, fieldVisible, type AdminSectionKey, type PageKey } from './admin-sections';
+import { formatBranchStyleLine } from './format-combo-context';
+import { restaurantSpecType } from './specs/restaurant-spec-types';
+import { hotelSpecType } from './specs/hotel-spec-types';
+import { tourismSpecType } from './specs/tourism-spec-types';
 import { adminKeyForCatalog, CROSS_PAGE_TARGETS } from '@/lib/section-registry';
+import {
+  ModularRestaurantPageEditor,
+  ModularRestaurantActivationPanel,
+  hasRestaurantModularPage,
+} from './ModularHomeEditor';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
@@ -149,15 +158,8 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             onChange={(e) => setPageId(e.target.value as PageId)}
             className="w-full bg-white border border-line rounded-xl px-4 py-3 text-sm font-medium"
           >
-            <optgroup label="Seiten">
-              {pages.map((p) => (
-                <option key={p.id} value={p.id}>{p.label}</option>
-              ))}
-            </optgroup>
-            <optgroup label="Inhalte">
+            <optgroup label="Workspace (global)">
               <option value="news">News & Blog</option>
-            </optgroup>
-            <optgroup label="Global">
               <option value="navigation">Navigation & Footer</option>
               <option value="brand">Marke & Design</option>
               <option value="contact">Kontaktdaten</option>
@@ -168,22 +170,18 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
               <option value="legal">Impressum & Datenschutz</option>
               <option value="security">Passwort & Zugang</option>
             </optgroup>
+            <optgroup label="Website-Seiten">
+              {pages.map((p) => (
+                <option key={p.id} value={p.id}>{p.label}</option>
+              ))}
+            </optgroup>
           </select>
         </div>
 
         {/* DESKTOP: pages + global sidebar */}
         <aside className="hidden md:block space-y-6 md:sticky md:top-24 h-fit">
-          <SidebarGroup label="Seiten">
-            {pages.map((p) => (
-              <SidebarItem key={p.id} active={p.id === pageId} onClick={() => setPageId(p.id)} icon={p.icon}>
-                {p.label}
-              </SidebarItem>
-            ))}
-          </SidebarGroup>
-          <SidebarGroup label="Inhalte">
+          <SidebarGroup label="Workspace (global)">
             <SidebarItem active={pageId === 'news'} onClick={() => setPageId('news')} icon="✎">News & Blog</SidebarItem>
-          </SidebarGroup>
-          <SidebarGroup label="Global">
             <SidebarItem active={pageId === 'navigation'} onClick={() => setPageId('navigation')} icon="≣">Navigation & Footer</SidebarItem>
             <SidebarItem active={pageId === 'brand'} onClick={() => setPageId('brand')} icon="✦">Marke & Design</SidebarItem>
             <SidebarItem active={pageId === 'contact'} onClick={() => setPageId('contact')} icon="✉">Kontaktdaten</SidebarItem>
@@ -191,8 +189,15 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             <SidebarItem active={pageId === 'seo'} onClick={() => setPageId('seo')} icon="◎">SEO & Sichtbarkeit</SidebarItem>
             <SidebarItem active={pageId === 'scripts'} onClick={() => setPageId('scripts')} icon="〈">Skripte & Tracking</SidebarItem>
             <SidebarItem active={pageId === 'mail'} onClick={() => setPageId('mail')} icon="M">Mail-Server</SidebarItem>
-            <SidebarItem active={pageId === 'legal'} onClick={() => setPageId('legal')} icon="§">Impressum & Datenschutz</SidebarItem>
+            <SidebarItem active={pageId === 'legal'} onClick={() => setPageId('legal')} icon="ℹ">Impressum & Datenschutz</SidebarItem>
             <SidebarItem active={pageId === 'security'} onClick={() => setPageId('security')} icon="⚿">Passwort & Zugang</SidebarItem>
+          </SidebarGroup>
+          <SidebarGroup label="Website-Seiten">
+            {pages.map((p) => (
+              <SidebarItem key={p.id} active={p.id === pageId} onClick={() => setPageId(p.id)} icon={p.icon}>
+                {p.label}
+              </SidebarItem>
+            ))}
           </SidebarGroup>
         </aside>
 
@@ -200,8 +205,11 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
         <div className="bg-white rounded-2xl shadow-sm min-w-0 overflow-hidden">
           <div className="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-line flex items-start justify-between gap-4 flex-wrap min-w-0">
             <div className="min-w-0">
-              <p className="text-xs uppercase tracking-widest text-muted">{isGlobal ? 'Global' : 'Seite'}</p>
+              <p className="text-xs uppercase tracking-widest text-muted">{isGlobal ? 'Workspace' : 'Seiten-Editor'}</p>
               <h1 className="font-display text-3xl mt-1">{activePage?.label || labelForGlobal(pageId)}</h1>
+              {!isGlobal && (
+                <p className="text-xs font-mono text-muted mt-1">{formatBranchStyleLine(tplKey, tplStyle)}</p>
+              )}
               {!isGlobal && (
                 <p className="text-sm text-muted mt-1">Jede Sektion auf dieser Seite ist hier einzeln pflegbar.</p>
               )}
@@ -451,10 +459,22 @@ type SetterProps = { data: SiteContent; setData: (d: SiteContent) => void };
 type SectionProps = SetterProps & { tpl: TemplateKey };
 const inputCls = 'w-full bg-[#f6f6f3] rounded-xl px-4 py-2.5 border border-line focus:border-brand focus:bg-white outline-none transition text-sm';
 
-function SectionCard({ title, description, badge, children, pageKey, sectionKey, data, setData }: {
+/** CMS spec `type` line on section cards (Restaurant, Hotel, Tourismus …). */
+function pageSpecType(tpl: TemplateKey, page: PageKey, adminKey: string, style: TemplateStyle | undefined): string | undefined {
+  const s = style ?? 'classic';
+  const key = adminKey as AdminSectionKey;
+  if (tpl === 'restaurant') return restaurantSpecType(page, key, s);
+  if (tpl === 'hotel') return hotelSpecType(page, key, s);
+  if (tpl === 'tourism') return tourismSpecType(page, key, s);
+  return undefined;
+}
+
+function SectionCard({ title, description, badge, specType, children, pageKey, sectionKey, data, setData }: {
   title: string;
   description?: string;
   badge?: string;
+  /** CMS spec block `type` (Restaurant phased rollout). */
+  specType?: string;
   children: React.ReactNode;
   pageKey?: LayoutPageId;
   sectionKey?: string;
@@ -467,6 +487,9 @@ function SectionCard({ title, description, badge, children, pageKey, sectionKey,
       <header className="px-5 py-4 bg-[#fafaf7] border-b border-line flex items-center justify-between gap-3 flex-wrap">
         <div className="min-w-0">
           <h2 className="font-display text-xl">{title}</h2>
+          {specType && (
+            <p className="font-mono text-[10px] uppercase tracking-wider text-brand mt-1">type = {specType}</p>
+          )}
           {description && <p className="text-xs text-muted mt-0.5">{description}</p>}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -884,10 +907,11 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
   const renderSection = (key: string, idx: number) => {
     const meta = getSectionMeta(key as any, tpl, style);
     const badge = `${idx + 1}`;
+    const specT = pageSpecType(tpl, 'home', key, style);
     switch (key) {
       case 'announcements':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT}>
             <RepeatableList
               items={announcements ?? defaultAnnouncements(tpl)}
               onChange={(arr: string[]) => setData({ ...(data as any), announcements: arr } as SiteContent)}
@@ -900,16 +924,16 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
           </SectionCard>
         );
       case 'hero':
-        return <HomeSectionHero key={key} data={data} setData={setData} set={set} tpl={tpl} cfg={cfg} $s={$s} meta={meta} badge={badge} />;
+        return <HomeSectionHero key={key} data={data} setData={setData} set={set} tpl={tpl} cfg={cfg} $s={$s} meta={meta} badge={badge} specType={specT} />;
       case 'actionStrip':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="action" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="action" data={data} setData={setData}>
             <HomeStripEditor data={data} setData={setData} tpl={tpl} />
           </SectionCard>
         );
       case 'branchChips':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="chips" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="chips" data={data} setData={setData}>
             <BranchChipsEditor data={data} setData={setData} tpl={tpl} />
             {/* Hero badge (Google rating) — only rendered by frontend in extras-modern hero. */}
             {$s(cfg.home.hero.heroBadge) && (
@@ -923,13 +947,13 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         );
       case 'marquee':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="marquee" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="marquee" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['marqueeWords']} />
           </SectionCard>
         );
       case 'numbers':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="numbers" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="numbers" data={data} setData={setData}>
             <NumbersEditor data={data} setData={setData} tpl={tpl} />
           </SectionCard>
         );
@@ -940,7 +964,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         if (isExtraTpl) baseKeys.push('serviceCardNote', 'learnMoreLabel', 'learnMoreHref');
         baseKeys.push('servicesAllLabel', 'servicesAllHref');
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="services" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="services" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={baseKeys} />
             <ServicesListEditor data={data} setData={setData} />
           </SectionCard>
@@ -948,7 +972,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       }
       case 'signature':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="signature" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="signature" data={data} setData={setData}>
             <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
             <p className="text-xs font-medium text-muted mt-6 mb-3">Zusätzliche Highlight-Einträge</p>
             <p className="text-xs text-muted mb-3 max-w-prose leading-relaxed">
@@ -960,7 +984,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         );
       case 'about':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="about" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="about" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={style === 'bold'
               ? ['manifestEyebrow', 'manifestTitle', 'learnMoreLabel', 'learnMoreHref']
               : ['aboutTeaserEyebrow', 'learnMoreLabel', 'learnMoreHref']} />
@@ -977,7 +1001,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         );
       case 'gallery':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="gallery" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="gallery" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserEyebrow', 'galleryTeaserTitle', 'galleryAllLabel']} />
             <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
               {data.gallery.slice(0, GALLERY_TEASER_LIMIT[style]).map((src, i) => (
@@ -990,20 +1014,20 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         );
       case 'logos':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="logos" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="logos" data={data} setData={setData}>
             <LogosEditor data={data} setData={setData} tpl={tpl} />
           </SectionCard>
         );
       case 'testimonials':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="testimonials" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['testimonialsEyebrow', 'testimonialsTitle']} />
             <TestimonialsEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'news':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="news" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="news" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['newsEyebrow', 'newsTitle']} />
             <NewsHomePreview data={data} />
           </SectionCard>
@@ -1011,20 +1035,20 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       case 'faq':
         if (!catalogSectionApplies('home', 'faq', tpl, style)) return null;
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="faq" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="faq" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['faqEyebrow', 'faqTitle']} />
             <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
           </SectionCard>
         );
       case 'softCta':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="softCta" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="softCta" data={data} setData={setData}>
             <CtaBandEditor data={data} setData={setData} tpl={tpl} />
           </SectionCard>
         );
       case 'funding':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="funding" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="funding" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="funding" />
             <FundingEditor data={data} setData={setData} />
           </SectionCard>
@@ -1032,17 +1056,17 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       case 'spotlight':
         if (!catalogSectionApplies('home', 'spotlight', tpl, style)) return null;
         if (tpl === 'consulting') return (
-          <SectionCard key={key} title="Spotlight: Vorgehen" description="Modul-Überschrift." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+          <SectionCard key={key} title="Spotlight: Vorgehen" description="Modul-Überschrift." badge={badge} specType={specT} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="consultingSpotlight" />
           </SectionCard>
         );
         if (tpl === 'medical') return (
-          <SectionCard key={key} title="Spotlight: Service & Info" description="Modul-Überschrift." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+          <SectionCard key={key} title="Spotlight: Service & Info" description="Modul-Überschrift." badge={badge} specType={specT} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="medicalInfo" />
           </SectionCard>
         );
         if (tpl === 'fitness') return (
-          <SectionCard key={key} title="Spotlight: Programme" description="Modul-Überschrift." badge={badge} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+          <SectionCard key={key} title="Spotlight: Programme" description="Modul-Überschrift." badge={badge} specType={specT} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="fitnessSpotlight" />
           </SectionCard>
         );
@@ -1057,7 +1081,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         ) : null;
         if (tpl === 'medical') {
           return (
-            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
+            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
               {linkServices}
               <ModuleHeadingFields data={data} setData={setData} mKey="doctors" />
               <DoctorsEditor data={data} setData={setData} />
@@ -1069,7 +1093,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         }
         if (tpl === 'consulting') {
           return (
-            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
+            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
               {linkServices}
               <ModuleHeadingFields data={data} setData={setData} mKey="process" />
               <ProcessStepsEditor data={data} setData={setData} />
@@ -1081,7 +1105,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         }
         if (tpl === 'fitness') {
           return (
-            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
+            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
               {linkServices}
               <ModuleHeadingFields data={data} setData={setData} mKey="courses" />
               <CoursesEditor data={data} setData={setData} />
@@ -1096,7 +1120,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       case 'team':
         if (!catalogSectionApplies('home', 'team', tpl, style)) return null;
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="team" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="team" data={data} setData={setData}>
             {onGoToPage ? (
               <p className="text-xs text-muted mb-4 max-w-prose">
                 Team-Karten und Modul-Überschriften entsprechen{' '}
@@ -1114,7 +1138,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
         const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
         const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="contact" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="contact" data={data} setData={setData}>
             {onGoToPage ? (
               <p className="text-xs text-muted mb-4 max-w-prose">
                 Kontakt-Band am Seitenende. Vollständige Seite:{' '}
@@ -1159,8 +1183,16 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
   };
 
   const extras = getExtraCrossPageSections(data, 'home', sectionOrder);
+  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'home')) {
+    return (
+      <>
+        <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />
+      </>
+    );
+  }
   return (
     <>
+      <ModularRestaurantActivationPanel data={data} setData={setData} tpl={tpl} style={style} />
       {sectionOrder.map((key, idx) => (
         <Fragment key={key}>
           {renderSection(key, idx)}
@@ -1183,14 +1215,15 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
 }
 
 /** Hero section (extracted for readability) */
-function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge }: {
+function HomeSectionHero({ data, setData, set, tpl, cfg, $s, meta, badge, specType }: {
   data: SiteContent; setData: (d: SiteContent) => void;
   set: (patch: Partial<SiteContent>) => void;
   tpl: TemplateKey; cfg: any; $s: (flag: any) => boolean;
   meta: { title: string; description: string }; badge: string;
+  specType?: string;
 }) {
   return (
-    <SectionCard title={meta.title} description={meta.description} badge={badge}>
+    <SectionCard title={meta.title} description={meta.description} badge={badge} specType={specType}>
       <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['heroEyebrow']} />
       {$s(cfg.home.hero.tagline) && (
         <Field label="Slogan / Eyebrow">
@@ -1252,15 +1285,19 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   const cfg = getBranchConfig(tpl);
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
   const style = _ctx.style || 'classic';
+  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'services')) {
+    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+  }
   const sectionOrder = getAdminSections('services', tpl, style);
 
   const renderSection = (key: string, idx: number) => {
     const meta = getSectionMeta(key as any, tpl, style);
     const badge = `Sektion ${idx + 1}`;
+    const specT = pageSpecType(tpl, 'services', key, style);
     switch (key) {
       case 'servicesHeader':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT}>
             <PageHeaderEditor data={data} setData={setData} field="services" defaults={{
               eyebrow: tpl === 'restaurant' ? 'Speisekarte' : 'Leistungen',
               title: tpl === 'restaurant' ? 'Aus der Küche.' : tpl === 'salon' ? 'Ihre Behandlungen.' : 'Was wir können.',
@@ -1280,7 +1317,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
         baseKeys.push('serviceCardNote');
         baseKeys.push('servicesAllLabel', 'servicesAllHref');
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="list" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="services" sectionKey="list" data={data} setData={setData}>
             <p className="text-xs text-muted mb-4 max-w-prose leading-relaxed">
               Diese Karten erscheinen auf <strong className="font-medium text-brand">/leistungen</strong> und als Teaser auf der Startseite — ein gemeinsamer Datensatz.
             </p>
@@ -1291,7 +1328,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
       }
       case 'highlights':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="highlights" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="services" sectionKey="highlights" data={data} setData={setData}>
             <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
           </SectionCard>
         );
@@ -1299,7 +1336,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
         if ((['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl)) return null;
         const listKeys: BranchTextKey[] = ['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle'];
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="list" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="services" sectionKey="list" data={data} setData={setData}>
             <p className="text-xs text-muted mb-4 max-w-prose leading-relaxed">
               Diese Liste erscheint im Hauptblock auf <strong className="font-medium text-brand">/leistungen</strong> — dieselben Einträge wie im Startseiten-Leistungs-Teaser.
             </p>
@@ -1318,21 +1355,21 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
       }
       case 'menu':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Speisekarte" pageKey="services" sectionKey="module" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Speisekarte" specType={specT} pageKey="services" sectionKey="module" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="menu" />
             <MenuEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'rooms':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Zimmer" pageKey="services" sectionKey="module" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Zimmer" specType={specT} pageKey="services" sectionKey="module" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="rooms" />
             <RoomsEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'tours':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Touren" pageKey="services" sectionKey="module" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Touren" specType={specT} pageKey="services" sectionKey="module" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="tours" />
             <ToursEditor data={data} setData={setData} />
           </SectionCard>
@@ -1413,21 +1450,21 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'serviceProcess':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="process" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="services" sectionKey="process" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['processEyebrow', 'processTitle']} />
             <StepsEditor data={data} setData={setData} field="serviceProcess" defaults={defaultProcess(tpl)} />
           </SectionCard>
         );
       case 'faq':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="faq" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="services" sectionKey="faq" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['faqEyebrow', 'faqTitle']} />
             <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
           </SectionCard>
         );
       case 'servicesCta':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="cta" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="services" sectionKey="cta" data={data} setData={setData}>
             <CtaBandEditor data={data} setData={setData} tpl={tpl} page="services" />
           </SectionCard>
         );
@@ -1484,6 +1521,9 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   const style = _ctx.style || 'classic';
+  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'gallery')) {
+    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+  }
   const sectionOrder = getAdminSections('gallery', tpl, style);
 
   const onFiles = async (files: FileList | null) => {
@@ -1505,22 +1545,23 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   const renderSection = (key: string, idx: number) => {
     const meta = getSectionMeta(key as any, tpl, style);
     const badge = `Sektion ${idx + 1}`;
+    const specT = pageSpecType(tpl, 'gallery', key, style);
     switch (key) {
       case 'galleryHeader':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT}>
             <PageHeaderEditor data={data} setData={setData} field="gallery" defaults={galleryHeaderDefaults(tpl)} />
           </SectionCard>
         );
       case 'galleryStory':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="gallery" sectionKey="story" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="gallery" sectionKey="story" data={data} setData={setData}>
             <GalleryStoryEditor data={data} setData={setData} defaults={defaultGalleryStory(tpl)} />
           </SectionCard>
         );
       case 'galleryUpload':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT}>
             <div className="border-2 border-dashed border-line rounded-2xl p-7 text-center bg-[#fafaf7]">
               <p className="text-2xl mb-2" aria-hidden>↥</p>
               <p className="font-medium text-sm">Bilder auswählen</p>
@@ -1538,7 +1579,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'galleryGrid':
         return (
-          <SectionCard key={key} title={`${meta.title} (${data.gallery.length})`} description={meta.description} badge={badge} pageKey="gallery" sectionKey="grid" data={data} setData={setData}>
+          <SectionCard key={key} title={`${meta.title} (${data.gallery.length})`} description={meta.description} badge={badge} specType={specT} pageKey="gallery" sectionKey="grid" data={data} setData={setData}>
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {data.gallery.map((src, i) => (
                 <div key={`${i}_${src}`} className="relative group aspect-square overflow-hidden rounded-xl border border-line">
@@ -1558,14 +1599,14 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'galleryCategories':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="gallery" sectionKey="categories" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="gallery" sectionKey="categories" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryCategoriesEyebrow', 'galleryCategoriesTitle']} />
             <GalleryCategoriesEditor data={data} setData={setData} defaults={defaultGalleryCategories(tpl)} />
           </SectionCard>
         );
       case 'galleryCta':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="gallery" sectionKey="cta" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="gallery" sectionKey="cta" data={data} setData={setData}>
             <CtaBandEditor data={data} setData={setData} tpl={tpl} page="gallery" />
           </SectionCard>
         );
@@ -1598,6 +1639,9 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   const isModern = _ctx.style === 'modern';
   const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
   const style = _ctx.style || 'classic';
+  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'about')) {
+    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+  }
   const sectionOrder = getAdminSections('about', tpl, style);
   const aboutPatch = (patch: Partial<NonNullable<typeof data.about>>) =>
     setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), ...patch } });
@@ -1605,10 +1649,11 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   const renderSection = (key: string, idx: number) => {
     const meta = getSectionMeta(key as any, tpl, style);
     const badge = `Sektion ${idx + 1}`;
+    const specT = pageSpecType(tpl, 'about', key, style);
     switch (key) {
       case 'aboutHeader':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT}>
             <PageHeaderEditor data={data} setData={setData} field="about" defaults={{ eyebrow: 'Über uns', title: data.about?.title || 'Unsere Geschichte.', subtitle: '' }} />
             {isModern && !isExtra && (
               <ImagePickerField label="Header-Bild" value={data.about?.imageUrl || ''} onChange={(v) => aboutPatch({ imageUrl: v })} />
@@ -1617,7 +1662,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'aboutIntro':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="intro" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="intro" data={data} setData={setData}>
             {isModern && !isExtra && <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />}
             {isExtra && (
               <Field label="Überschrift" hint="Erscheint als Zwischenüberschrift neben dem Bild.">
@@ -1641,20 +1686,20 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'values':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="values" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="values" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['valuesEyebrow', 'valuesTitle']} />
             <ValuesEditor data={data} setData={setData} defaults={defaultValues(tpl)} />
           </SectionCard>
         );
       case 'timeline':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="timeline" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="timeline" data={data} setData={setData}>
             <TimelineEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'team':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="team" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="team" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teamEyebrow', 'teamTitle']} />
             {isExtra && (
               <ModuleHeadingFields data={data} setData={setData} mKey={tpl === 'fitness' ? 'teamFitness' : tpl === 'medical' ? 'teamMedical' : 'teamConsulting'} />
@@ -1664,33 +1709,33 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'aboutNumbers':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="numbers" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="numbers" data={data} setData={setData}>
             <NumbersEditor data={data} setData={setData} tpl={tpl} />
           </SectionCard>
         );
       case 'certifications':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="certifications" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="certifications" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['certsEyebrow', 'certsTitle']} />
             <CertificationsEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'press':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="press" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="press" data={data} setData={setData}>
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['pressEyebrow', 'pressTitle']} />
             <PressEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'aboutTestimonials':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="testimonials" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="testimonials" data={data} setData={setData}>
             <TestimonialsEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'aboutCta':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="about" sectionKey="cta" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="cta" data={data} setData={setData}>
             <CtaBandEditor data={data} setData={setData} tpl={tpl} page="about" />
           </SectionCard>
         );
@@ -1723,15 +1768,19 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
   const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
   const style = _ctx.style || 'classic';
+  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'contact')) {
+    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+  }
   const sectionOrder = getAdminSections('contact', tpl, style);
 
   const renderSection = (key: string, idx: number) => {
     const meta = getSectionMeta(key as any, tpl, style);
     const badge = `Sektion ${idx + 1}`;
+    const specT = pageSpecType(tpl, 'contact', key, style);
     switch (key) {
       case 'contactHeader':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT}>
             <PageHeaderEditor data={data} setData={setData} field="contactPage" defaults={{
               eyebrow: 'Kontakt',
               title: tpl === 'restaurant' ? 'Reservieren oder einfach vorbeikommen.' : tpl === 'salon' ? 'Termin vereinbaren oder kurz fragen.' : 'Anfrage senden oder Notdienst rufen.',
@@ -1741,7 +1790,7 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'contactDetails':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="contact" sectionKey="block" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="contact" sectionKey="block" data={data} setData={setData}>
             <ContactFields data={data} setData={setData} />
             <HoursEditor data={data} setData={setData} />
             <div className="mt-4 pt-4 border-t border-line">
@@ -1766,27 +1815,27 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
         );
       case 'contactForm':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT}>
             <FormFieldsEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'locations':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="contact" sectionKey="locations" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="contact" sectionKey="locations" data={data} setData={setData}>
             <ModuleHeadingFields data={data} setData={setData} mKey="locations" />
             <LocationsEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'arrival':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
             <ArrivalSectionHeader data={data} setData={setData} />
             <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(tpl)} />
           </SectionCard>
         );
       case 'contactCta':
         return (
-          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="contact" sectionKey="cta" data={data} setData={setData}>
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="contact" sectionKey="cta" data={data} setData={setData}>
             <CtaBandEditor data={data} setData={setData} tpl={tpl} page="contact" />
           </SectionCard>
         );
@@ -2933,7 +2982,7 @@ function LegalPage({ data, setData }: SetterProps) {
     <>
       <SectionCard
         title="Impressum"
-        description="Pflichtangaben gemäß §§ 5 ECG, 14 UGB, 25 MedienG. Wird auf /impressum angezeigt."
+        description="Pflichtangaben gemäß ECG, UGB und MedienG (Impressum). Wird auf /impressum angezeigt."
         badge="Pflicht"
       >
         <div className="grid sm:grid-cols-2 gap-4">

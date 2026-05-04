@@ -23,6 +23,43 @@ const tdPair = z.object({
   d: z.string().optional().default(''),
 });
 
+const templateKeyZ = z.enum(['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness']);
+const templateStyleZ = z.enum(['classic', 'modern', 'bold']);
+
+/**
+ * Spec-first modular page block (v1). `type` matches CMS spec block ids
+ * (e.g. `noticeBanner`, `hero`, `featuredDishesGrid`). `data` holds fields per spec.
+ */
+export const ModularSectionV1Schema = z.object({
+  id: z.string(),
+  type: z.string(),
+  isVisible: z.boolean().optional().default(true),
+  data: z.record(z.string(), z.unknown()).optional().default({}),
+});
+export type ModularSectionV1 = z.infer<typeof ModularSectionV1Schema>;
+
+const ModularPageV1Schema = z.object({
+  sections: z.array(ModularSectionV1Schema).optional().default([]),
+});
+
+/**
+ * Optional modular page tree. When present for the active tenant template+style,
+ * editors and (progressively) renderers merge these blocks into legacy `SiteContent`
+ * fields so existing templates keep working during migration.
+ */
+export const ModularPagesV1Schema = z.object({
+  combo: z.object({
+    template: templateKeyZ,
+    style: templateStyleZ,
+  }),
+  home: ModularPageV1Schema.optional(),
+  services: ModularPageV1Schema.optional(),
+  gallery: ModularPageV1Schema.optional(),
+  about: ModularPageV1Schema.optional(),
+  contact: ModularPageV1Schema.optional(),
+});
+export type ModularPagesV1 = z.infer<typeof ModularPagesV1Schema>;
+
 /** Tenant-owned named palette; referenced by `brand.themePresetId` as `custom:<id>`. */
 export const TenantCustomThemeSchema = z.object({
   id: z.string().min(1),
@@ -622,6 +659,12 @@ export const SiteContentSchema = z.object({
    * (variant, style) combination.
    */
   sectionOrder: z.record(z.array(z.string())).optional().default({}),
+
+  /**
+   * Spec-first modular pages (v1). Scoped to `combo` (template × style).
+   * Shared/global admin (SEO, Skripte, …) stays on legacy top-level keys.
+   */
+  modularPagesV1: ModularPagesV1Schema.optional(),
 }).passthrough();
 // `.passthrough()` keeps rare forward-compatible keys intact; drift coverage
 // requires every `SECTION_CONTRACTS` dataKey root to exist in this Zod object.

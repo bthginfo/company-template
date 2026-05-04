@@ -26,6 +26,7 @@ import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { isSectionEnabled, getEffectivePageOrder } from '@/lib/page-layout';
+import { applyRestaurantModularOverlay } from '@/lib/modular-restaurant';
 import { BRANCH_STYLE_ORDER as SHARED_BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 import { BranchSignature } from './BranchSignature';
 import {
@@ -335,9 +336,10 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
 
 /* ─── Home ─────────────────────────────────────────────────────────── */
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  if (style === 'modern') return <HomePageModern variant={variant} content={content} />;
-  if (style === 'bold') return <HomePageBold variant={variant} content={content} />;
-  return <HomePageClassic variant={variant} content={content} />;
+  const resolved = applyRestaurantModularOverlay(content, variant, style);
+  if (style === 'modern') return <HomePageModern variant={variant} content={resolved} />;
+  if (style === 'bold') return <HomePageBold variant={variant} content={resolved} />;
+  return <HomePageClassic variant={variant} content={resolved} />;
 }
 
 /** Per-tenant visibility check. Defaults to true when no flag is set. */
@@ -1243,36 +1245,37 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
 
 /* ─── Services / Speisekarte / Leistungen ────────────────────────── */
 function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  const resolved = applyRestaurantModularOverlay(content, variant, style);
   const cfg = NAV_BY_VARIANT[variant];
-  const order = getEffectivePageOrder(content, 'services', variant).filter((k) => isSectionEnabled(content, 'services', k));
+  const order = getEffectivePageOrder(resolved, 'services', variant).filter((k) => isSectionEnabled(resolved, 'services', k));
   const blocks: Record<string, JSX.Element | null> = {
-    highlights: <ServiceHighlights variant={variant} content={content} />,
+    highlights: <ServiceHighlights variant={variant} content={resolved} />,
     list: (
       <Section spacing="lg" className={style === 'modern' ? 'surface' : ''}>
         {style === 'bold' ? (
-          <BoldServicesList services={content.services} variant={variant} />
+          <BoldServicesList services={resolved.services} variant={variant} />
         ) : style === 'modern' ? (
-          <ModernServicesGrid services={content.services} variant={variant} />
+          <ModernServicesGrid services={resolved.services} variant={variant} />
         ) : (
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
             <div className="lg:col-span-4 reveal">
-              <p className="eyebrow mb-5">{effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
-              <h2 className="font-display text-5xl md:text-6xl leading-[0.95]">{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</h2>
-              <p className="mt-8 text-lg text-muted leading-relaxed">{subtitleFor(variant, content)}</p>
+              <p className="eyebrow mb-5">{effectiveBranchText(variant, resolved).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
+              <h2 className="font-display text-5xl md:text-6xl leading-[0.95]">{splitTitle(effectiveBranchText(variant, resolved).servicesTeaserTitle || cfg.servicesHeadline)}</h2>
+              <p className="mt-8 text-lg text-muted leading-relaxed">{subtitleFor(variant, resolved)}</p>
             </div>
             <div className="lg:col-span-8">
-              <ServicesShowcase variant={variant} services={content.services} />
+              <ServicesShowcase variant={variant} services={resolved.services} />
             </div>
           </div>
         )}
       </Section>
     ),
-    module: <BranchModulesInline variant={variant} content={content} />,
-    process: <ServiceProcess variant={variant} content={content} />,
-    testimonials: visibleTestimonials(content).length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
+    module: <BranchModulesInline variant={variant} content={resolved} />,
+    process: <ServiceProcess variant={variant} content={resolved} />,
+    testimonials: visibleTestimonials(resolved).length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, resolved).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {visibleTestimonials(content).map((t, i) => (
+          {visibleTestimonials(resolved).map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
               <p className="text-lg leading-relaxed">{t.text}</p>
@@ -1282,32 +1285,32 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         </div>
       </Section>
     ) : null,
-    gallery: content.gallery.length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, content).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, content)}>
+    gallery: resolved.gallery.length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, resolved).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, resolved)}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 reveal-stagger">
-          {content.gallery.slice(0, 8).map((src, i) => (
+          {resolved.gallery.slice(0, 8).map((src, i) => (
             <div key={i} className="aspect-square rounded-2xl overflow-hidden img-zoom">
-              <img src={src} alt={`${content.brand.name} – Bild ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+              <img src={src} alt={`${resolved.brand.name} – Bild ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
             </div>
           ))}
         </div>
       </Section>
     ) : null,
     faq: (
-      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)} className="surface">
-        <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      <Section eyebrow={effectiveBranchText(variant, resolved).faqEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).faqTitle)} className="surface">
+        <Accordion items={resolveFaq(variant, resolved).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
-    cta: <CtaBand variant={variant} content={content} page="services" />,
+    cta: <CtaBand variant={variant} content={resolved} page="services" />,
   };
-  const headerOverride = pageHeaderOverride(content, 'servicesHeader');
-  const servicesImg = effectiveBranchText(variant, content).servicesPageImageUrl || content.gallery[2] || content.gallery[0];
+  const headerOverride = pageHeaderOverride(resolved, 'servicesHeader');
+  const servicesImg = effectiveBranchText(variant, resolved).servicesPageImageUrl || resolved.gallery[2] || resolved.gallery[0];
   return (
     <>
       <PageHero
         eyebrow={(headerOverride?.eyebrow || cfg.servicesEyebrow)}
         title={headerOverride?.title || cfg.servicesHeadline}
-        subtitle={headerOverride?.subtitle || subtitleFor(variant, content)}
+        subtitle={headerOverride?.subtitle || subtitleFor(variant, resolved)}
         style={style}
         image={style === 'modern' ? servicesImg : undefined}
       />
@@ -1425,7 +1428,8 @@ function ServiceProcess({ variant, content }: { variant: TemplateVariant; conten
 function GalleryPage({
   content, variant, title, eyebrow, style,
 }: { content: SiteContent; variant: TemplateVariant; title?: string; eyebrow?: string; style: TemplateStyle }) {
-  const headerOverride = pageHeaderOverride(content, 'galleryHeader');
+  const resolved = applyRestaurantModularOverlay(content, variant, style);
+  const headerOverride = pageHeaderOverride(resolved, 'galleryHeader');
   return (
     <>
       <PageHero
@@ -1450,25 +1454,25 @@ function GalleryPage({
       />
 
       {(() => {
-        const order = getEffectivePageOrder(content, 'gallery', variant).filter((k) => isSectionEnabled(content, 'gallery', k));
+        const order = getEffectivePageOrder(resolved, 'gallery', variant).filter((k) => isSectionEnabled(resolved, 'gallery', k));
         const blocks: Record<string, JSX.Element | null> = {
-          story: <GalleryStorySection variant={variant} content={content} />,
+          story: <GalleryStorySection variant={variant} content={resolved} />,
           grid: (
             <Section spacing="lg">
               {style === 'bold' ? (
-                <MasonryGrid images={content.gallery} />
+                <MasonryGrid images={resolved.gallery} />
               ) : style === 'modern' ? (
-                <ModernGalleryGrid images={content.gallery} />
+                <ModernGalleryGrid images={resolved.gallery} />
               ) : (
-                <GalleryShowcase variant={variant} images={content.gallery} mode="full" />
+                <GalleryShowcase variant={variant} images={resolved.gallery} mode="full" />
               )}
             </Section>
           ),
-          categories: <GalleryCategoriesSection variant={variant} content={content} />,
-          testimonials: visibleTestimonials(content).length > 0 ? (
-            <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow || 'Stimmen'} title={<>{splitTitle(effectiveBranchText(variant, content).testimonialsTitle || 'Was unsere Gäste sagen.')}</>} className="surface">
+          categories: <GalleryCategoriesSection variant={variant} content={resolved} />,
+          testimonials: visibleTestimonials(resolved).length > 0 ? (
+            <Section eyebrow={effectiveBranchText(variant, resolved).testimonialsEyebrow || 'Stimmen'} title={<>{splitTitle(effectiveBranchText(variant, resolved).testimonialsTitle || 'Was unsere Gäste sagen.')}</>} className="surface">
               <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-                {visibleTestimonials(content).map((t, i) => (
+                {visibleTestimonials(resolved).map((t, i) => (
                   <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
                     <p className="text-lg leading-relaxed">{t.text}</p>
                     <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
@@ -1477,7 +1481,7 @@ function GalleryPage({
               </div>
             </Section>
           ) : null,
-          cta: <CtaBand variant={variant} content={content} page="gallery" />,
+          cta: <CtaBand variant={variant} content={resolved} page="gallery" />,
         };
         return order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>);
       })()}
@@ -1620,20 +1624,21 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
 
 /* ─── About ──────────────────────────────────────────────────────── */
 function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const order = getEffectivePageOrder(content, 'about', variant).filter((k) => isSectionEnabled(content, 'about', k));
+  const resolved = applyRestaurantModularOverlay(content, variant, style);
+  const order = getEffectivePageOrder(resolved, 'about', variant).filter((k) => isSectionEnabled(resolved, 'about', k));
   const introBlock = style !== 'modern' ? (
     <Section spacing="lg">
       <div className={`grid lg:grid-cols-12 gap-10 items-start ${style === 'bold' ? '' : ''}`}>
         <div className="lg:col-span-5">
           <ParallaxImage
-            src={content.about?.imageUrl || content.gallery[0]}
-            alt={content.brand.name}
+            src={resolved.about?.imageUrl || resolved.gallery[0]}
+            alt={resolved.brand.name}
             className={`${style === 'bold' ? 'rounded-none' : 'rounded-3xl'} aspect-[4/5] reveal`}
           />
         </div>
         <div className="lg:col-span-7 lg:pl-4">
           <div className="reveal">
-            {(content.about?.body || '').split('\n\n').map((p, i) => (
+            {(resolved.about?.body || '').split('\n\n').map((p, i) => (
               <p key={i} className={`leading-relaxed mb-6 ${style === 'bold' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl text-muted'}`}>{p}</p>
             ))}
           </div>
@@ -1644,15 +1649,15 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
     <Section spacing="lg">
       <div className="grid lg:grid-cols-12 gap-10">
         <div className="lg:col-span-7 lg:col-start-1 reveal">
-          {(content.about?.body || '').split('\n\n').map((p, i) => (
+          {(resolved.about?.body || '').split('\n\n').map((p, i) => (
             <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
           ))}
         </div>
         <aside className="lg:col-span-4 lg:col-start-9 reveal">
           <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
-            <p className="eyebrow mb-4">{effectiveBranchText(variant, content).aboutSidebarEyebrow}</p>
+            <p className="eyebrow mb-4">{effectiveBranchText(variant, resolved).aboutSidebarEyebrow}</p>
             <dl className="space-y-3 text-sm">
-              {resolveAboutMeta(variant, content).map((m, i) => (
+              {resolveAboutMeta(variant, resolved).map((m, i) => (
                 <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
                   <dt className="text-muted">{m.label}</dt>
                   <dd className="font-display">{m.value}</dd>
@@ -1666,16 +1671,16 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
   );
   const blocks: Record<string, JSX.Element | null> = {
     intro: introBlock,
-    values: <ValuesSection variant={variant} content={content} />,
-    timeline: <Timeline content={content} />,
-    team: <TeamSection variant={variant} content={content} />,
-    numbers: <NumbersBand variant={variant} content={content} />,
-    certifications: variant === 'tradesman' ? <CertificationsSection variant={variant} content={content} /> : null,
-    press: variant === 'restaurant' ? <PressSection variant={variant} content={content} /> : null,
-    testimonials: visibleTestimonials(content).length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
+    values: <ValuesSection variant={variant} content={resolved} />,
+    timeline: <Timeline content={resolved} />,
+    team: <TeamSection variant={variant} content={resolved} />,
+    numbers: <NumbersBand variant={variant} content={resolved} />,
+    certifications: variant === 'tradesman' ? <CertificationsSection variant={variant} content={resolved} /> : null,
+    press: variant === 'restaurant' ? <PressSection variant={variant} content={resolved} /> : null,
+    testimonials: visibleTestimonials(resolved).length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, resolved).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {visibleTestimonials(content).map((t, i) => (
+          {visibleTestimonials(resolved).map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
               <p className="text-lg leading-relaxed">{t.text}</p>
@@ -1686,20 +1691,20 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
       </Section>
     ) : null,
     faq: (
-      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)} className="surface">
-        <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      <Section eyebrow={effectiveBranchText(variant, resolved).faqEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).faqTitle)} className="surface">
+        <Accordion items={resolveFaq(variant, resolved).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
-    cta: <CtaBand variant={variant} content={content} page="about" />,
+    cta: <CtaBand variant={variant} content={resolved} page="about" />,
   };
   return (
     <>
       <PageHero
-        eyebrow={pageHeaderOverride(content, 'aboutHeader')?.eyebrow || (style === 'bold' ? 'Wer wir sind' : 'Über uns')}
-        title={pageHeaderOverride(content, 'aboutHeader')?.title || content.about?.title || 'Unsere Geschichte.'}
-        subtitle={pageHeaderOverride(content, 'aboutHeader')?.subtitle || (style === 'modern' ? 'Wer wir sind, wie wir denken, was uns wichtig ist.' : undefined)}
+        eyebrow={pageHeaderOverride(resolved, 'aboutHeader')?.eyebrow || (style === 'bold' ? 'Wer wir sind' : 'Über uns')}
+        title={pageHeaderOverride(resolved, 'aboutHeader')?.title || resolved.about?.title || 'Unsere Geschichte.'}
+        subtitle={pageHeaderOverride(resolved, 'aboutHeader')?.subtitle || (style === 'modern' ? 'Wer wir sind, wie wir denken, was uns wichtig ist.' : undefined)}
         style={style}
-        image={style === 'modern' ? content.about?.imageUrl || content.gallery[0] : undefined}
+        image={style === 'modern' ? resolved.about?.imageUrl || resolved.gallery[0] : undefined}
       />
       {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
     </>
@@ -1868,6 +1873,7 @@ function PressSection({ variant, content }: { variant: TemplateVariant; content?
 
 /* ─── Contact ────────────────────────────────────────────────────── */
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
+  const resolved = applyRestaurantModularOverlay(content, variant, style);
   const cfg = getBranchConfig(variant);
   const arrivalFallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [
@@ -1896,16 +1902,16 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
       { t: 'Beratung', d: 'Sie wissen nicht, welche Tour passt? Wir telefonieren gerne 15 Minuten unverbindlich.' },
     ],
   };
-  const rawArrival = (content as unknown as { arrival?: unknown }).arrival;
+  const rawArrival = (resolved as unknown as { arrival?: unknown }).arrival;
   const mappedArrival = normaliseArrivalList(rawArrival ?? []);
   const arrival = mappedArrival.length > 0 ? mappedArrival : arrivalFallbacks[variant];
-  const order = getEffectivePageOrder(content, 'contact', variant).filter((k) => isSectionEnabled(content, 'contact', k));
-  const arrivalOv = ((content as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
-  const locs = content.locations ?? [];
+  const order = getEffectivePageOrder(resolved, 'contact', variant).filter((k) => isSectionEnabled(resolved, 'contact', k));
+  const arrivalOv = ((resolved as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+  const locs = resolved.locations ?? [];
   const blocks: Record<string, JSX.Element | null> = {
-    block: <ContactBlock content={content} showForm={cfg.contact.showForm} />,
+    block: <ContactBlock content={resolved} showForm={cfg.contact.showForm} />,
     locations: locs.length ? (
-      <Section eyebrow={moduleHeading(content, 'locations').eyebrow} title={moduleHeading(content, 'locations').title}>
+      <Section eyebrow={moduleHeading(resolved, 'locations').eyebrow} title={moduleHeading(resolved, 'locations').title}>
         <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
           {locs.map((loc, i) => (
             <article key={i} className="border border-line rounded-3xl p-7 hover-lift bg-white">
@@ -1972,25 +1978,25 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
       </Section>
     ),
     faq: (
-      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)}>
-        <Accordion items={resolveFaq(variant, content).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      <Section eyebrow={effectiveBranchText(variant, resolved).faqEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).faqTitle)}>
+        <Accordion items={resolveFaq(variant, resolved).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
-    cta: <CtaBand variant={variant} content={content} page="contact" />,
+    cta: <CtaBand variant={variant} content={resolved} page="contact" />,
   };
   return (
     <>
       <PageHero
-        eyebrow={pageHeaderOverride(content, 'contactPageHeader')?.eyebrow || 'Kontakt'}
+        eyebrow={pageHeaderOverride(resolved, 'contactPageHeader')?.eyebrow || 'Kontakt'}
         title={
-          pageHeaderOverride(content, 'contactPageHeader')?.title || (
+          pageHeaderOverride(resolved, 'contactPageHeader')?.title || (
             variant === 'restaurant'
               ? 'Reservieren oder einfach vorbeikommen.'
               : variant === 'salon'
                 ? 'Termin vereinbaren oder kurz fragen.'
                 : 'Anfrage senden oder Notdienst rufen.')
         }
-        subtitle={pageHeaderOverride(content, 'contactPageHeader')?.subtitle || undefined}
+        subtitle={pageHeaderOverride(resolved, 'contactPageHeader')?.subtitle || undefined}
         style={style}
       />
       {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
