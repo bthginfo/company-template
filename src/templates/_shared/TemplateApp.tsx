@@ -20,6 +20,7 @@ import { TLink } from '@/components/site-blocks';
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
+import { CatalogItemDetailPage } from '@/components/CatalogItemDetailPage';
 import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
@@ -204,6 +205,7 @@ export default function TemplateApp({
 
   const coreVariant = variant as TemplateVariant;
   const cfg = NAV_BY_VARIANT[coreVariant];
+  const catalogSvcSeg = getBranchConfig(variant).paths.services.replace(/^\//, '');
   const announcements = announcementsFor(coreVariant, content);
   useReveal();
 
@@ -222,6 +224,15 @@ export default function TemplateApp({
           <ScrollToTopOnRoute />
           <Routes>
             <Route index element={<><PageSeo page="home" variant={coreVariant} content={content} /><HomePage variant={coreVariant} content={content} style={style} /></>} />
+            <Route
+              path={`${catalogSvcSeg}/:catalogSlug`}
+              element={(
+                <>
+                  <PageSeo page="services" variant={coreVariant} content={content} />
+                  <CatalogItemDetailPage content={content} template={variant} style={style} />
+                </>
+              )}
+            />
             <Route path={cfg.servicesPath.replace(/^\//, '')} element={<><PageSeo page="services" variant={coreVariant} content={content} /><ServicesPage variant={coreVariant} content={content} style={style} /></>} />
             <Route path="galerie" element={<><PageSeo page="gallery" variant={coreVariant} content={content} /><GalleryPage content={content} variant={coreVariant} style={style} /></>} />
             <Route path="referenzen" element={<><PageSeo page="gallery" variant={coreVariant} content={content} /><GalleryPage content={content} variant={coreVariant} style={style} title="Referenzen" eyebrow="Projekte" /></>} />
@@ -342,6 +353,7 @@ const BRANCH_STYLE_ORDER = SHARED_BRANCH_STYLE_ORDER as Record<TemplateVariant, 
 
 function HomePageClassic({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
+  const itemLinkPrefix = getBranchConfig(variant).paths.services;
   const featuredServices = content.services.slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = resolveHeroMeta(variant, content);
@@ -355,11 +367,11 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
     numbers: <NumbersBand variant={variant} content={content} />,
     news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'News & Notizen.'} />,
     // branch-specific modules
-    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} /> : null,
-    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} /> : null,
-    tours: variant === 'tourism' ? <TourCardsModule content={content} /> : null,
-    treatments: variant === 'salon' ? <TreatmentListModule content={content} /> : null,
-    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
+    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    tours: variant === 'tourism' ? <TourCardsModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    treatments: variant === 'salon' ? <TreatmentListModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
     about: content.about?.body ? (
       <Section
         eyebrow={effectiveBranchText(variant, content).aboutTeaserEyebrow}
@@ -388,7 +400,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
         subtitle={subtitleFor(variant, content)}
         className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
       >
-        <ClassicServicesGrid services={featuredServices} />
+        <ClassicServicesGrid services={featuredServices} variant={variant} />
         <div className="mt-12 reveal">
           <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>{effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
         </div>
@@ -431,6 +443,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
 /* ─── Home: Modern (SaaS-clean) ──────────────────────────────────── */
 function HomePageModern({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
+  const itemLinkPrefix = getBranchConfig(variant).paths.services;
   const featuredServices = content.services.slice(0, 6);
   const featuredGallery = content.gallery.slice(0, 6);
   const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.gallery[0] || content.about?.imageUrl;
@@ -445,11 +458,11 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
     signature: <BranchSignature variant={variant} style="modern" content={content} />,
     numbers: <NumbersBand variant={variant} content={content} />,
     news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'News & Notizen.'} />,
-    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} /> : null,
-    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} /> : null,
-    tours: variant === 'tourism' ? <TourCardsModule content={content} /> : null,
-    treatments: variant === 'salon' ? <TreatmentListModule content={content} /> : null,
-    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
+    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    tours: variant === 'tourism' ? <TourCardsModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    treatments: variant === 'salon' ? <TreatmentListModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
     services: featuredServices.length > 0 ? (
       <SpotlightSection as="div" color="rgba(242,65,113,0.16)" size={620} className="surface">
         <Section eyebrow={effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow} title={<>{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
@@ -627,6 +640,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
 /* ─── Home: Bold (magazine/poster) ───────────────────────────────── */
 function HomePageBold({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
+  const itemLinkPrefix = getBranchConfig(variant).paths.services;
   const featuredServices = content.services.slice(0, 8);
   const featuredGallery = content.gallery.slice(0, 12);
   const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.hero?.imageUrl || content.gallery[0];
@@ -640,11 +654,11 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
     signature: <BranchSignature variant={variant} style="bold" content={content} />,
     numbers: <NumbersBand variant={variant} content={content} />,
     news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'Notizen.'} />,
-    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} /> : null,
-    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} /> : null,
-    tours: variant === 'tourism' ? <TourCardsModule content={content} /> : null,
-    treatments: variant === 'salon' ? <TreatmentListModule content={content} /> : null,
-    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} /> : null,
+    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    tours: variant === 'tourism' ? <TourCardsModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    treatments: variant === 'salon' ? <TreatmentListModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
+    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
     about: (
       <section className="py-24 md:py-36">
         <div className="container-x grid md:grid-cols-12 gap-10">
@@ -798,28 +812,43 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
 }
 
 /* ─── Style-specific service layouts ─────────────────────────────── */
+function catalogDetailHref(variant: TemplateVariant, slug: string): string {
+  return `${getBranchConfig(variant).paths.services}/${slug.trim()}`;
+}
+
 /** Modern: glass-tilt cards with cursor-following pink glow + 3D depth on hover. */
-function ModernServicesGrid({ services }: { services: SiteContent['services'] }) {
+function ModernServicesGrid({ services, variant }: { services: SiteContent['services']; variant: TemplateVariant }) {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-      {services.map((s, i) => (
-        <Tilt3DCard key={i} max={6} className="rounded-2xl">
-          <HoverGlow className="bg-white border border-line rounded-2xl p-7 h-full" color="rgba(242,65,113,0.12)">
-            {s.imageUrl ? (
-              <div className="-mx-7 -mt-7 mb-5 aspect-[4/3] overflow-hidden rounded-t-2xl">
-                <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
-              </div>
-            ) : (
-              <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
-                <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
-              </div>
-            )}
-            <h3 className="font-display text-2xl mt-5">{s.title}</h3>
-            {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
-            {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
-          </HoverGlow>
-        </Tilt3DCard>
-      ))}
+      {services.map((s, i) => {
+        const slug = (s.detailSlug ?? '').trim();
+        const linked = !!(slug && s.detailPublished !== false);
+        const title = <h3 className="font-display text-2xl mt-5">{s.title}</h3>;
+        return (
+          <Tilt3DCard key={i} max={6} className="rounded-2xl">
+            <HoverGlow className="bg-white border border-line rounded-2xl p-7 h-full" color="rgba(242,65,113,0.12)">
+              {s.imageUrl ? (
+                <div className="-mx-7 -mt-7 mb-5 aspect-[4/3] overflow-hidden rounded-t-2xl">
+                  {linked ? (
+                    <TLink to={catalogDetailHref(variant, slug)} className="block h-full">
+                      <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                    </TLink>
+                  ) : (
+                    <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                  )}
+                </div>
+              ) : (
+                <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+                  <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+                </div>
+              )}
+              {linked ? <TLink to={catalogDetailHref(variant, slug)} className="text-inherit no-underline hover:underline">{title}</TLink> : title}
+              {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+              {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
+            </HoverGlow>
+          </Tilt3DCard>
+        );
+      })}
     </div>
   );
 }
@@ -827,33 +856,47 @@ function ModernServicesGrid({ services }: { services: SiteContent['services'] })
 /** Bold: editorial numbered list, but each row has a hard-offset shadow tile
  *  on hover-state — explicit Neubrutalism cue (skill #38, #77).
  */
-function BoldServicesList({ services }: { services: SiteContent['services'] }) {
+function BoldServicesList({ services, variant }: { services: SiteContent['services']; variant: TemplateVariant }) {
   return (
     <ol className="divide-y divide-line reveal-stagger">
-      {services.map((s, i) => (
-        <li
-          key={i}
-          className="grid md:grid-cols-12 gap-6 py-8 items-center group transition-transform hover:translate-x-1"
-        >
-          <span className="md:col-span-1 font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-          {s.imageUrl ? (
-            <div className="md:col-span-2 aspect-[4/3] overflow-hidden rounded-xl">
-              <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-          ) : (
-            <span className="hidden md:block md:col-span-2" aria-hidden />
-          )}
-          <h3 className="md:col-span-4 font-display text-3xl md:text-5xl leading-[0.95] tracking-tight uppercase">
-            {s.title}
-          </h3>
-          {s.description && <p className="md:col-span-4 text-muted text-base">{s.description}</p>}
-          {s.price && (
-            <span className="md:col-span-1 font-mono text-sm md:text-right inline-block px-2 py-1 bg-[var(--accent-color)] text-[var(--accent-fg)]">
-              {s.price}
-            </span>
-          )}
-        </li>
-      ))}
+      {services.map((s, i) => {
+        const slug = (s.detailSlug ?? '').trim();
+        const linked = !!(slug && s.detailPublished !== false);
+        return (
+          <li
+            key={i}
+            className="grid md:grid-cols-12 gap-6 py-8 items-center group transition-transform hover:translate-x-1"
+          >
+            <span className="md:col-span-1 font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+            {s.imageUrl ? (
+              <div className="md:col-span-2 aspect-[4/3] overflow-hidden rounded-xl">
+                {linked ? (
+                  <TLink to={catalogDetailHref(variant, slug)} className="block h-full">
+                    <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                  </TLink>
+                ) : (
+                  <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                )}
+              </div>
+            ) : (
+              <span className="hidden md:block md:col-span-2" aria-hidden />
+            )}
+            {linked ? (
+              <TLink to={catalogDetailHref(variant, slug)} className="md:col-span-4 text-inherit no-underline hover:underline">
+                <h3 className="font-display text-3xl md:text-5xl leading-[0.95] tracking-tight uppercase">{s.title}</h3>
+              </TLink>
+            ) : (
+              <h3 className="md:col-span-4 font-display text-3xl md:text-5xl leading-[0.95] tracking-tight uppercase">{s.title}</h3>
+            )}
+            {s.description && <p className="md:col-span-4 text-muted text-base">{s.description}</p>}
+            {s.price && (
+              <span className="md:col-span-1 font-mono text-sm md:text-right inline-block px-2 py-1 bg-[var(--accent-color)] text-[var(--accent-fg)]">
+                {s.price}
+              </span>
+            )}
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -864,30 +907,43 @@ function BoldServicesList({ services }: { services: SiteContent['services'] }) {
  *  that have no branch-specific layout — referenced lazily by ServicesShowcase.
  */
 const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
-export function ClassicServicesGrid({ services }: { services: SiteContent['services'] }) {
+export function ClassicServicesGrid({ services, variant }: { services: SiteContent['services']; variant: TemplateVariant }) {
   return (
     <div className="grid md:grid-cols-2 gap-x-12 gap-y-14 reveal-stagger">
-      {services.map((s, i) => (
-        <article key={i} className="border-t border-line pt-8 group">
-          {s.imageUrl ? (
-            <div className="aspect-[4/3] overflow-hidden rounded-2xl mb-6">
-              <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-          ) : null}
-          <div className="flex items-baseline justify-between mb-5">
-            <span className="font-display italic text-3xl text-[var(--accent-color)]">
-              {ROMAN_NUMERALS[i] || String(i + 1)}
-            </span>
-            {s.price && <span className="font-mono text-xs text-muted">{s.price}</span>}
-          </div>
+      {services.map((s, i) => {
+        const slug = (s.detailSlug ?? '').trim();
+        const linked = !!(slug && s.detailPublished !== false);
+        const h = (
           <h3 className="font-display text-3xl md:text-4xl leading-tight">{s.title}</h3>
-          {s.description && (
-            <p className="mt-4 text-base text-muted leading-relaxed first-letter:font-display first-letter:italic first-letter:text-5xl first-letter:float-left first-letter:mr-2 first-letter:leading-none first-letter:text-[var(--accent-color)]">
-              {s.description}
-            </p>
-          )}
-        </article>
-      ))}
+        );
+        return (
+          <article key={i} className="border-t border-line pt-8 group">
+            {s.imageUrl ? (
+              <div className="aspect-[4/3] overflow-hidden rounded-2xl mb-6">
+                {linked ? (
+                  <TLink to={catalogDetailHref(variant, slug)} className="block h-full">
+                    <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                  </TLink>
+                ) : (
+                  <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                )}
+              </div>
+            ) : null}
+            <div className="flex items-baseline justify-between mb-5">
+              <span className="font-display italic text-3xl text-[var(--accent-color)]">
+                {ROMAN_NUMERALS[i] || String(i + 1)}
+              </span>
+              {s.price && <span className="font-mono text-xs text-muted">{s.price}</span>}
+            </div>
+            {linked ? <TLink to={catalogDetailHref(variant, slug)} className="text-inherit no-underline hover:underline">{h}</TLink> : h}
+            {s.description && (
+              <p className="mt-4 text-base text-muted leading-relaxed first-letter:font-display first-letter:italic first-letter:text-5xl first-letter:float-left first-letter:mr-2 first-letter:leading-none first-letter:text-[var(--accent-color)]">
+                {s.description}
+              </p>
+            )}
+          </article>
+        );
+      })}
     </div>
   );
 }
@@ -1168,9 +1224,9 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
     list: (
       <Section spacing="lg" className={style === 'modern' ? 'surface' : ''}>
         {style === 'bold' ? (
-          <BoldServicesList services={content.services} />
+          <BoldServicesList services={content.services} variant={variant} />
         ) : style === 'modern' ? (
-          <ModernServicesGrid services={content.services} />
+          <ModernServicesGrid services={content.services} variant={variant} />
         ) : (
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
             <div className="lg:col-span-4 reveal">
@@ -2027,14 +2083,14 @@ function ServicesShowcase({
   services: SiteContent['services'];
   compact?: boolean;
 }) {
-  if (variant === 'restaurant') return <RestaurantMenu services={services} compact={compact} />;
-  if (variant === 'salon') return <SalonPriceList services={services} compact={compact} />;
-  if (variant === 'hotel') return <HotelRoomCards services={services} compact={compact} />;
-  if (variant === 'tourism') return <TourismTourCards services={services} compact={compact} />;
-  return <TradesmanServiceTiles services={services} compact={compact} />;
+  if (variant === 'restaurant') return <RestaurantMenu services={services} compact={compact} variant={variant} />;
+  if (variant === 'salon') return <SalonPriceList services={services} compact={compact} variant={variant} />;
+  if (variant === 'hotel') return <HotelRoomCards services={services} compact={compact} variant={variant} />;
+  if (variant === 'tourism') return <TourismTourCards services={services} compact={compact} variant={variant} />;
+  return <TradesmanServiceTiles services={services} compact={compact} variant={variant} />;
 }
 
-function RestaurantMenu({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+function RestaurantMenu({ services, compact, variant }: { services: SiteContent['services']; compact?: boolean; variant: TemplateVariant }) {
   // Editorial menu card: 2 columns of items with dotted leaders – no images on items
   const items = compact ? services.slice(0, 6) : services;
   const half = Math.ceil(items.length / 2);
@@ -2042,21 +2098,32 @@ function RestaurantMenu({ services, compact }: { services: SiteContent['services
   const right = items.slice(half);
   const Col = ({ list }: { list: SiteContent['services'] }) => (
     <ul className="space-y-7">
-      {list.map((s, i) => (
-        <li key={i} className="reveal">
-          <div className="flex items-baseline gap-3">
-            <h3 className="font-display text-2xl md:text-3xl">{s.title}</h3>
-            <span className="flex-1 h-px border-b border-dotted border-current opacity-30 mb-2" aria-hidden />
-            {s.price && <span className="font-mono text-base whitespace-nowrap">{s.price}</span>}
-          </div>
-          {s.imageUrl && (
-            <div className="mt-3 aspect-[16/9] overflow-hidden rounded-xl">
-              <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+      {list.map((s, i) => {
+        const slug = (s.detailSlug ?? '').trim();
+        const linked = !!(slug && s.detailPublished !== false);
+        const title = <h3 className="font-display text-2xl md:text-3xl">{s.title}</h3>;
+        return (
+          <li key={i} className="reveal">
+            <div className="flex items-baseline gap-3">
+              {linked ? <TLink to={catalogDetailHref(variant, slug)} className="text-inherit no-underline hover:underline">{title}</TLink> : title}
+              <span className="flex-1 h-px border-b border-dotted border-current opacity-30 mb-2" aria-hidden />
+              {s.price && <span className="font-mono text-base whitespace-nowrap">{s.price}</span>}
             </div>
-          )}
-          {s.description && <p className="mt-2 text-sm md:text-base text-muted italic leading-relaxed max-w-prose">{s.description}</p>}
-        </li>
-      ))}
+            {s.imageUrl && (
+              <div className="mt-3 aspect-[16/9] overflow-hidden rounded-xl">
+                {linked ? (
+                  <TLink to={catalogDetailHref(variant, slug)} className="block h-full">
+                    <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                  </TLink>
+                ) : (
+                  <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                )}
+              </div>
+            )}
+            {s.description && <p className="mt-2 text-sm md:text-base text-muted italic leading-relaxed max-w-prose">{s.description}</p>}
+          </li>
+        );
+      })}
     </ul>
   );
   return (
@@ -2067,47 +2134,64 @@ function RestaurantMenu({ services, compact }: { services: SiteContent['services
   );
 }
 
-function SalonPriceList({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+function SalonPriceList({ services, compact, variant }: { services: SiteContent['services']; compact?: boolean; variant: TemplateVariant }) {
   // Elegant price list: single column rows with hover, divider lines, no card boxes
   const items = compact ? services.slice(0, 5) : services;
   return (
     <div className="max-w-3xl mx-auto reveal-stagger">
       <ul className="divide-y divide-line">
-        {items.map((s, i) => (
-          <li key={i} className="py-7 grid grid-cols-[1fr_auto] gap-x-6 gap-y-2 items-baseline group">
+        {items.map((s, i) => {
+          const slug = (s.detailSlug ?? '').trim();
+          const linked = !!(slug && s.detailPublished !== false);
+          const title = (
             <h3 className="font-display text-2xl md:text-3xl group-hover:text-[var(--accent-color)] transition-colors">
               {s.title}
             </h3>
-            {s.price && <span className="font-mono text-base text-muted whitespace-nowrap">{s.price}</span>}
-            {s.description && (
-              <p className="col-span-2 text-sm md:text-base text-muted leading-relaxed max-w-2xl">{s.description}</p>
-            )}
-          </li>
-        ))}
+          );
+          return (
+            <li key={i} className="py-7 grid grid-cols-[1fr_auto] gap-x-6 gap-y-2 items-baseline group">
+              {linked ? <TLink to={catalogDetailHref(variant, slug)} className="text-inherit no-underline">{title}</TLink> : title}
+              {s.price && <span className="font-mono text-base text-muted whitespace-nowrap">{s.price}</span>}
+              {s.description && (
+                <p className="col-span-2 text-sm md:text-base text-muted leading-relaxed max-w-2xl">{s.description}</p>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
 }
 
-function TradesmanServiceTiles({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+function TradesmanServiceTiles({ services, compact, variant }: { services: SiteContent['services']; compact?: boolean; variant: TemplateVariant }) {
   // Numbered tile grid – technical, blocky
   const items = compact ? services.slice(0, 3) : services;
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line rounded-2xl overflow-hidden reveal-stagger">
-      {items.map((s, i) => (
-        <article key={i} className="bg-white p-7 md:p-8 flex flex-col gap-3 group hover:bg-[#fafaf7] transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-xs text-muted">{String(i + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}</span>
-            {s.price && <span className="font-mono text-xs uppercase tracking-widest text-brand">{s.price}</span>}
-          </div>
-          <h3 className="font-display text-2xl leading-tight">{s.title}</h3>
-          {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
-          <div className="mt-auto pt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-muted group-hover:text-brand transition-colors">
-            <span>Anfrage stellen</span>
-            <span aria-hidden>→</span>
-          </div>
-        </article>
-      ))}
+      {items.map((s, i) => {
+        const slug = (s.detailSlug ?? '').trim();
+        const linked = !!(slug && s.detailPublished !== false);
+        return (
+          <article key={i} className="bg-white p-7 md:p-8 flex flex-col gap-3 group hover:bg-[#fafaf7] transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-mono text-xs text-muted">{String(i + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}</span>
+              {s.price && <span className="font-mono text-xs uppercase tracking-widest text-brand">{s.price}</span>}
+            </div>
+            {linked ? (
+              <TLink to={catalogDetailHref(variant, slug)} className="text-inherit no-underline hover:underline">
+                <h3 className="font-display text-2xl leading-tight">{s.title}</h3>
+              </TLink>
+            ) : (
+              <h3 className="font-display text-2xl leading-tight">{s.title}</h3>
+            )}
+            {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
+            <div className="mt-auto pt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-muted group-hover:text-brand transition-colors">
+              <span>{linked ? 'Details ansehen' : 'Anfrage stellen'}</span>
+              <span aria-hidden>→</span>
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }
@@ -2128,43 +2212,59 @@ function GalleryShowcase({
 
 
 /* --- Hotel-specific service & gallery layouts ------------------------ */
-function HotelRoomCards({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+function HotelRoomCards({ services, compact, variant }: { services: SiteContent['services']; compact?: boolean; variant: TemplateVariant }) {
   // Hotel rooms: large hero photo, rate badge top-right, perk-tags
   const items = compact ? services.slice(0, 3) : services;
   return (
     <div className="grid md:grid-cols-2 gap-6 reveal-stagger">
-      {items.map((s, i) => (
-        <article key={i} className="group bg-white border border-line rounded-3xl overflow-hidden hover-lift flex flex-col">
-          <div className="relative aspect-[4/3] overflow-hidden">
-            {s.imageUrl ? (
-              <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover img-zoom" loading="lazy" />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[var(--surface-color,#fce7ef)] to-[var(--accent-color,#F24171)]/30" />
-            )}
-            {s.price && (
-              <span className="absolute top-4 right-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-widest shadow">
-                ab {s.price}
+      {items.map((s, i) => {
+        const slug = (s.detailSlug ?? '').trim();
+        const linked = !!(slug && s.detailPublished !== false);
+        return (
+          <article key={i} className="group bg-white border border-line rounded-3xl overflow-hidden hover-lift flex flex-col">
+            <div className="relative aspect-[4/3] overflow-hidden">
+              {s.imageUrl ? (
+                linked ? (
+                  <TLink to={catalogDetailHref(variant, slug)} className="block w-full h-full">
+                    <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover img-zoom" loading="lazy" />
+                  </TLink>
+                ) : (
+                  <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover img-zoom" loading="lazy" />
+                )
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[var(--surface-color,#fce7ef)] to-[var(--accent-color,#F24171)]/30" />
+              )}
+              {s.price && (
+                <span className="absolute top-4 right-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-widest shadow">
+                  ab {s.price}
+                </span>
+              )}
+              <span className="absolute top-4 left-4 text-[10px] font-mono uppercase tracking-[0.2em] text-white/95 bg-black/30 backdrop-blur px-2.5 py-1 rounded">
+                Zimmer {String(i + 1).padStart(2, '0')}
               </span>
-            )}
-            <span className="absolute top-4 left-4 text-[10px] font-mono uppercase tracking-[0.2em] text-white/95 bg-black/30 backdrop-blur px-2.5 py-1 rounded">
-              Zimmer {String(i + 1).padStart(2, '0')}
-            </span>
-          </div>
-          <div className="p-7 flex flex-col gap-4 flex-1">
-            <h3 className="font-display text-3xl">{s.title}</h3>
-            {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
-            <div className="mt-auto pt-4 border-t border-line flex items-center justify-between text-xs uppercase tracking-widest text-muted">
-              <span className="font-mono">Bergblick · Eigenes Bad · WLAN</span>
-            <span className="text-brand">Anfragen →</span>
             </div>
-          </div>
-        </article>
-      ))}
+            <div className="p-7 flex flex-col gap-4 flex-1">
+              {linked ? (
+                <TLink to={catalogDetailHref(variant, slug)} className="text-inherit no-underline hover:underline">
+                  <h3 className="font-display text-3xl">{s.title}</h3>
+                </TLink>
+              ) : (
+                <h3 className="font-display text-3xl">{s.title}</h3>
+              )}
+              {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
+              <div className="mt-auto pt-4 border-t border-line flex items-center justify-between text-xs uppercase tracking-widest text-muted">
+                <span className="font-mono">Bergblick · Eigenes Bad · WLAN</span>
+                <span className="text-brand">{linked ? 'Details →' : 'Anfragen →'}</span>
+              </div>
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }
 
-function TourismTourCards({ services, compact }: { services: SiteContent['services']; compact?: boolean }) {
+function TourismTourCards({ services, compact, variant }: { services: SiteContent['services']; compact?: boolean; variant: TemplateVariant }) {
   // Tour cards: vertical photo, route ribbon, duration / difficulty / group meta
   const items = compact ? services.slice(0, 3) : services;
   const meta = [
@@ -2179,17 +2279,31 @@ function TourismTourCards({ services, compact }: { services: SiteContent['servic
     <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
       {items.map((s, i) => {
         const m = meta[i % meta.length];
+        const slug = (s.detailSlug ?? '').trim();
+        const linked = !!(slug && s.detailPublished !== false);
         return (
           <article key={i} className="group bg-white border border-line rounded-2xl overflow-hidden hover-lift">
             <div className="relative aspect-[3/4] overflow-hidden">
               {s.imageUrl ? (
-                <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover img-zoom" loading="lazy" />
+                linked ? (
+                  <TLink to={catalogDetailHref(variant, slug)} className="block w-full h-full">
+                    <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover img-zoom" loading="lazy" />
+                  </TLink>
+                ) : (
+                  <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover img-zoom" loading="lazy" />
+                )
               ) : (
                 <div className="w-full h-full bg-gradient-to-b from-sky-300/40 via-emerald-200/30 to-stone-100" />
               )}
               <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/80 to-transparent text-white">
                 <p className="text-[10px] font-mono uppercase tracking-[0.25em] opacity-80">Tour · {String(i + 1).padStart(2, '0')}</p>
-                <h3 className="font-display text-2xl mt-1 leading-tight">{s.title}</h3>
+                {linked ? (
+                  <TLink to={catalogDetailHref(variant, slug)} className="text-white no-underline hover:underline">
+                    <h3 className="font-display text-2xl mt-1 leading-tight">{s.title}</h3>
+                  </TLink>
+                ) : (
+                  <h3 className="font-display text-2xl mt-1 leading-tight">{s.title}</h3>
+                )}
               </div>
             </div>
             <div className="p-5">

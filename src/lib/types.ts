@@ -7,6 +7,16 @@ const pageHeaderBlock = z.object({
   subtitle: z.string().optional().default(''),
 });
 
+/** Rich detail subpage under the branch services URL (e.g. /zimmer/suite). */
+const catalogItemDetailSchema = z.object({
+  detailSlug: z.string().optional().default(''),
+  detailPublished: z.boolean().optional().default(true),
+  detailSubtitle: z.string().optional().default(''),
+  detailBody: z.string().optional().default(''),
+  detailBodyHtml: z.string().optional().default(''),
+  detailGallery: z.array(z.string()).optional().default([]),
+});
+
 /** Title + body pairs (`t`/`d`) used for highlights, process lists, values, etc. */
 const tdPair = z.object({
   t: z.string().optional().default(''),
@@ -69,7 +79,7 @@ export const SiteContentSchema = z.object({
       /** Optional per-card override; falls back to `branchText.learnMoreLabel` / `learnMoreHref`. */
       learnMoreLabel: z.string().optional().default(''),
       learnMoreHref: z.string().optional().default(''),
-    })
+    }).merge(catalogItemDetailSchema),
   ).default([]),
   gallery: z.array(z.string().url()).default([]),
   testimonials: z.array(
@@ -386,7 +396,7 @@ export const SiteContentSchema = z.object({
       allergens: z.string().optional().default(''),
       tags: z.array(z.string()).optional().default([]),
       imageUrl: z.string().optional().default(''),
-    })).default([]),
+    }).merge(catalogItemDetailSchema)).default([]),
   })).optional().default([]),
 
   /** Hotel — Zimmer-Showcase with features. */
@@ -398,7 +408,7 @@ export const SiteContentSchema = z.object({
     price: z.string().optional().default(''),
     imageUrl: z.string().optional().default(''),
     features: z.array(z.string()).optional().default([]),
-  })).optional().default([]),
+  }).merge(catalogItemDetailSchema)).optional().default([]),
 
   /** Tourism — Tour-Cards with difficulty level. */
   tours: z.array(z.object({
@@ -410,7 +420,7 @@ export const SiteContentSchema = z.object({
     price: z.string().optional().default(''),
     imageUrl: z.string().optional().default(''),
     languages: z.array(z.string()).optional().default([]),
-  })).optional().default([]),
+  }).merge(catalogItemDetailSchema)).optional().default([]),
 
   /** Salon — Treatment list with duration + price. */
   treatments: z.array(z.object({
@@ -419,7 +429,8 @@ export const SiteContentSchema = z.object({
     duration: z.string().optional().default(''),
     price: z.string().optional().default(''),
     category: z.string().optional().default(''),
-  })).optional().default([]),
+    imageUrl: z.string().url().optional().or(z.literal('')).default(''),
+  }).merge(catalogItemDetailSchema)).optional().default([]),
 
   /** Fitness — courses & schedule. */
   courses: z.array(z.object({
@@ -430,7 +441,8 @@ export const SiteContentSchema = z.object({
     duration: z.string().optional().default(''),
     trainer: z.string().optional().default(''),
     price: z.string().optional().default(''),
-  })).optional().default([]),
+    imageUrl: z.string().url().optional().or(z.literal('')).default(''),
+  }).merge(catalogItemDetailSchema)).optional().default([]),
 
   /** Fitness/Consulting — Pricing packages (3-tier compare). */
   packages: z.array(z.object({
@@ -442,14 +454,16 @@ export const SiteContentSchema = z.object({
     highlight: z.boolean().optional().default(false),
     ctaLabel: z.string().optional().default(''),
     ctaHref: z.string().optional().default(''),
-  })).optional().default([]),
+    imageUrl: z.string().url().optional().or(z.literal('')).default(''),
+  }).merge(catalogItemDetailSchema)).optional().default([]),
 
   /** Consulting — process / engagement steps. */
   processSteps: z.array(z.object({
     title: z.string().default(''),
     description: z.string().optional().default(''),
     duration: z.string().optional().default(''),
-  })).optional().default([]),
+    imageUrl: z.string().url().optional().or(z.literal('')).default(''),
+  }).merge(catalogItemDetailSchema)).optional().default([]),
 
   /** Medical — doctors / specialists. */
   doctors: z.array(z.object({
@@ -458,7 +472,7 @@ export const SiteContentSchema = z.object({
     specialty: z.string().optional().default(''),
     imageUrl: z.string().optional().default(''),
     bio: z.string().optional().default(''),
-  })).optional().default([]),
+  }).merge(catalogItemDetailSchema)).optional().default([]),
 
   /** Medical — online booking (Doctolib / jameda etc.) */
   booking: z.object({
@@ -475,7 +489,8 @@ export const SiteContentSchema = z.object({
     description: z.string().optional().default(''),
     percent: z.string().optional().default(''), // "35 %"
     program: z.string().optional().default(''), // "KfW 458"
-  })).optional().default([]),
+    imageUrl: z.string().url().optional().or(z.literal('')).default(''),
+  }).merge(catalogItemDetailSchema)).optional().default([]),
 
   /** Tradesman — funding calculator slider bounds (admin-editable). */
   fundingCalc: z.object({

@@ -7,6 +7,7 @@ import { BasePathProvider, useBasePath, withBase, resolveMapIframeSrc, SafeMapEm
 import { ConsentScripts } from '@/components/ConsentScripts';
 import { Timeline } from '@/components/Timeline';
 import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
+import { CatalogItemDetailPage } from '@/components/CatalogItemDetailPage';
 import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
@@ -172,6 +173,15 @@ export default function ExtraBranchTemplate({
           <ScrollToTopOnRoute />
           <Routes>
             <Route index element={<><PageSeoExtra content={content} branch={branch} page="home" /><Layout content={content} eyebrow={eb} branch={branch} page="home" /></>} />
+            <Route
+              path="leistungen/:catalogSlug"
+              element={(
+                <>
+                  <PageSeoExtra content={content} branch={branch} page="services" />
+                  <CatalogItemDetailPage content={content} template={branch} style={style} />
+                </>
+              )}
+            />
             <Route path="leistungen" element={<><PageSeoExtra content={content} branch={branch} page="services" /><SubPage content={content} branch={branch} page="services" style={style} eyebrow={eb} /></>} />
             <Route path="galerie" element={<><PageSeoExtra content={content} branch={branch} page="gallery" /><SubPage content={content} branch={branch} page="gallery" style={style} eyebrow={eb} /></>} />
             <Route path="ueber-uns" element={<><PageSeoExtra content={content} branch={branch} page="about" /><SubPage content={content} branch={branch} page="about" style={style} eyebrow={eb} /></>} />
@@ -204,14 +214,25 @@ function PageHero({ eyebrow, title, subtitle, style }: { eyebrow: string; title:
   );
 }
 
-/** Per-service „Mehr erfahren“ — card fields override `branchText` defaults. */
+/** Detail-URL unter dem jeweiligen Leistungen-Pfad (extras: immer `/leistungen/…`). */
+function serviceDetailHref(branch: ExtraBranchKey, s: SiteContent['services'][number]): string | null {
+  const slug = (s.detailSlug ?? '').trim();
+  if (!slug || s.detailPublished === false) return null;
+  const base = getBranchConfig(branch).paths.services;
+  return `${base}/${slug}`;
+}
+
+/** Per-service „Mehr erfahren“ — bei gesetztem `detailSlug` zur Detailseite, sonst Overrides / Anker. */
 function extraServiceLearnMore(
   s: SiteContent['services'][number],
   bt: ReturnType<typeof effectiveBranchText>,
+  branch: ExtraBranchKey,
 ): { label: string; href: string } {
   const g = bt as unknown as Record<string, string | undefined>;
   const base = (s.learnMoreLabel ?? '').trim() || (g.learnMoreLabel ?? '').trim() || 'Mehr erfahren';
   const label = `${base.replace(/\s*→\s*$/u, '').trim()} →`;
+  const detail = serviceDetailHref(branch, s);
+  if (detail) return { label, href: detail };
   const href = (s.learnMoreHref ?? '').trim() || (g.learnMoreHref ?? '').trim() || '#leistungen';
   return { label, href };
 }
@@ -273,63 +294,94 @@ function ExtraLeistungenServiceCards({
 
   const gridClassic = (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-      {content.services.map((s, i) => (
-        <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
-          {s.imageUrl && (
-            <div className="aspect-[4/3] overflow-hidden img-zoom">
-              <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+      {content.services.map((s, i) => {
+        const dHref = serviceDetailHref(branch, s);
+        return (
+          <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
+            {s.imageUrl && (
+              <div className="aspect-[4/3] overflow-hidden img-zoom">
+                {dHref ? (
+                  <ExtraHeroLink href={dHref} className="block w-full h-full">
+                    <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  </ExtraHeroLink>
+                ) : (
+                  <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                )}
+              </div>
+            )}
+            <div className="p-6">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="font-display text-2xl">
+                  {dHref ? (
+                    <ExtraHeroLink href={dHref} className="text-inherit no-underline hover:underline">{s.title}</ExtraHeroLink>
+                  ) : (
+                    s.title
+                  )}
+                </h3>
+                {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
+              </div>
+              {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
             </div>
-          )}
-          <div className="p-6">
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="font-display text-2xl">{s.title}</h3>
-              {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
-            </div>
-            {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
-          </div>
-        </article>
-      ))}
+          </article>
+        );
+      })}
     </div>
   );
   const gridModern = (
     <div className="grid md:grid-cols-2 gap-4 reveal-stagger">
-      {content.services.map((s, i) => (
-        <article key={i} className="group bg-white border border-line rounded-2xl p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-            {s.price && <span className="font-display text-lg">{s.price}</span>}
-          </div>
-          <h3 className="font-display text-2xl md:text-3xl mb-3">{s.title}</h3>
-          {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
-          <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
-            <span className="text-muted">{cardNote}</span>
-            {(() => {
-              const lm = extraServiceLearnMore(s, bt);
-              return (
-                <ExtraHeroLink href={lm.href} className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition no-underline hover:underline">
-                  {lm.label}
-                </ExtraHeroLink>
-              );
-            })()}
-          </div>
-        </article>
-      ))}
+      {content.services.map((s, i) => {
+        const dHref = serviceDetailHref(branch, s);
+        return (
+          <article key={i} className="group bg-white border border-line rounded-2xl p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+              {s.price && <span className="font-display text-lg">{s.price}</span>}
+            </div>
+            <h3 className="font-display text-2xl md:text-3xl mb-3">
+              {dHref ? (
+                <ExtraHeroLink href={dHref} className="text-inherit no-underline hover:underline">{s.title}</ExtraHeroLink>
+              ) : (
+                s.title
+              )}
+            </h3>
+            {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
+            <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
+              <span className="text-muted">{cardNote}</span>
+              {(() => {
+                const lm = extraServiceLearnMore(s, bt, branch);
+                return (
+                  <ExtraHeroLink href={lm.href} className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition no-underline hover:underline">
+                    {lm.label}
+                  </ExtraHeroLink>
+                );
+              })()}
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
   const gridBold = (
     <ul className="reveal-stagger">
-      {content.services.map((s, i) => (
-        <li key={i} className="group border-t border-line last:border-b py-8 md:py-12 hover:bg-white/30 transition-colors">
-          <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
-            <span className="md:col-span-1 font-mono text-sm text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-            <h3 className="md:col-span-6 font-display text-3xl md:text-5xl leading-tight transition-transform group-hover:translate-x-2">
-              {s.title}
-            </h3>
-            <p className="md:col-span-4 text-muted leading-relaxed">{s.description}</p>
-            {s.price && <span className="md:col-span-1 md:text-right font-display text-2xl">{s.price}</span>}
-          </div>
-        </li>
-      ))}
+      {content.services.map((s, i) => {
+        const dHref = serviceDetailHref(branch, s);
+        return (
+          <li key={i} className="group border-t border-line last:border-b py-8 md:py-12 hover:bg-white/30 transition-colors">
+            <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
+              <span className="md:col-span-1 font-mono text-sm text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+              <h3 className="md:col-span-6 font-display text-3xl md:text-5xl leading-tight transition-transform group-hover:translate-x-2">
+                {dHref ? (
+                  <ExtraHeroLink href={dHref} className="text-inherit no-underline hover:underline">{s.title}</ExtraHeroLink>
+                ) : (
+                  s.title
+                )}
+              </h3>
+              <p className="md:col-span-4 text-muted leading-relaxed">{s.description}</p>
+              {s.price && <span className="md:col-span-1 md:text-right font-display text-2xl">{s.price}</span>}
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 
@@ -866,22 +918,37 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-            {content.services.map((s, i) => (
-              <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
-                {s.imageUrl && (
-                  <div className="aspect-[4/3] overflow-hidden img-zoom">
-                    <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+            {content.services.map((s, i) => {
+              const dHref = serviceDetailHref(branch, s);
+              return (
+                <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
+                  {s.imageUrl && (
+                    <div className="aspect-[4/3] overflow-hidden img-zoom">
+                      {dHref ? (
+                        <ExtraHeroLink href={dHref} className="block w-full h-full">
+                          <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        </ExtraHeroLink>
+                      ) : (
+                        <img src={s.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      )}
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-display text-2xl">
+                        {dHref ? (
+                          <ExtraHeroLink href={dHref} className="text-inherit no-underline hover:underline">{s.title}</ExtraHeroLink>
+                        ) : (
+                          s.title
+                        )}
+                      </h3>
+                      {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
+                    </div>
+                    {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
                   </div>
-                )}
-                <div className="p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-display text-2xl">{s.title}</h3>
-                    {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
-                  </div>
-                  {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1020,27 +1087,36 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
             <p className="mt-4 text-lg text-muted">{bt.teaserSubtitle || 'Klar definierte Pakete – keine versteckten Kosten.'}</p>
           </div>
           <div className="grid md:grid-cols-2 gap-4 reveal-stagger">
-            {content.services.map((s, i) => (
-              <article key={i} className="group bg-white border border-line rounded-2xl p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-                  {s.price && <span className="font-display text-lg">{s.price}</span>}
-                </div>
-                <h3 className="font-display text-2xl md:text-3xl mb-3">{s.title}</h3>
-                {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
-                <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
-                  <span className="text-muted">{(bt as any).serviceCardNote || ''}</span>
-                  {(() => {
-                    const lm = extraServiceLearnMore(s, bt);
-                    return (
-                      <ExtraHeroLink href={lm.href} className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition no-underline hover:underline">
-                        {lm.label}
-                      </ExtraHeroLink>
-                    );
-                  })()}
-                </div>
-              </article>
-            ))}
+            {content.services.map((s, i) => {
+              const dHref = serviceDetailHref(branch, s);
+              return (
+                <article key={i} className="group bg-white border border-line rounded-2xl p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+                    {s.price && <span className="font-display text-lg">{s.price}</span>}
+                  </div>
+                  <h3 className="font-display text-2xl md:text-3xl mb-3">
+                    {dHref ? (
+                      <ExtraHeroLink href={dHref} className="text-inherit no-underline hover:underline">{s.title}</ExtraHeroLink>
+                    ) : (
+                      s.title
+                    )}
+                  </h3>
+                  {s.description && <p className="text-muted leading-relaxed mb-6">{s.description}</p>}
+                  <div className="pt-4 border-t border-line flex items-center justify-between text-sm">
+                    <span className="text-muted">{(bt as any).serviceCardNote || ''}</span>
+                    {(() => {
+                      const lm = extraServiceLearnMore(s, bt, branch);
+                      return (
+                        <ExtraHeroLink href={lm.href} className="text-[var(--accent-color)] font-medium opacity-0 group-hover:opacity-100 transition no-underline hover:underline">
+                          {lm.label}
+                        </ExtraHeroLink>
+                      );
+                    })()}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1221,18 +1297,25 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
             </div>
           </div>
           <ul className="reveal-stagger">
-            {content.services.map((s, i) => (
-              <li key={i} className="group border-t border-line last:border-b py-8 md:py-12 hover:bg-white/30 transition-colors">
-                <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
-                  <span className="md:col-span-1 font-mono text-sm text-muted">/ {String(i + 1).padStart(2, '0')}</span>
-                  <h3 className="md:col-span-6 font-display text-3xl md:text-5xl leading-tight transition-transform group-hover:translate-x-2">
-                    {s.title}
-                  </h3>
-                  <p className="md:col-span-4 text-muted leading-relaxed">{s.description}</p>
-                  {s.price && <span className="md:col-span-1 md:text-right font-display text-2xl">{s.price}</span>}
-                </div>
-              </li>
-            ))}
+            {content.services.map((s, i) => {
+              const dHref = serviceDetailHref(branch, s);
+              return (
+                <li key={i} className="group border-t border-line last:border-b py-8 md:py-12 hover:bg-white/30 transition-colors">
+                  <div className="container-x grid md:grid-cols-12 gap-6 items-baseline">
+                    <span className="md:col-span-1 font-mono text-sm text-muted">/ {String(i + 1).padStart(2, '0')}</span>
+                    <h3 className="md:col-span-6 font-display text-3xl md:text-5xl leading-tight transition-transform group-hover:translate-x-2">
+                      {dHref ? (
+                        <ExtraHeroLink href={dHref} className="text-inherit no-underline hover:underline">{s.title}</ExtraHeroLink>
+                      ) : (
+                        s.title
+                      )}
+                    </h3>
+                    <p className="md:col-span-4 text-muted leading-relaxed">{s.description}</p>
+                    {s.price && <span className="md:col-span-1 md:text-right font-display text-2xl">{s.price}</span>}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </section>

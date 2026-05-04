@@ -21,6 +21,16 @@ import type { TemplateKey } from './types';
 /** A path inside `SiteContent`, e.g. `'hero.title'`, `'branchText.heroEyebrow'`. */
 export type DataPath = string;
 
+/** Catalog item detail subpages — drift-checked on both admin and site. */
+const CAT_DETAIL_KEYS: readonly DataPath[] = [
+  'detailSlug',
+  'detailPublished',
+  'detailSubtitle',
+  'detailBody',
+  'detailBodyHtml',
+  'detailGallery',
+];
+
 export interface SectionContract {
   /** Stable id; matches the admin section registry key. */
   key: AdminSectionKey;
@@ -58,6 +68,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
       'branchText.servicesAllLabel', 'branchText.servicesAllHref',
       'branchText.serviceCardNote',
       'branchText.learnMoreLabel', 'branchText.learnMoreHref',
+      ...CAT_DETAIL_KEYS,
     ],
   },
   signature: { key: 'signature', dataKeys: ['homeSignature', 'homeSignatureItems'] },
@@ -105,6 +116,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
       'doctors', 'moduleHeadings.doctors',
       'booking', 'moduleHeadings.booking',
       'fundingItems', 'fundingCalc', 'moduleHeadings.funding',
+      ...CAT_DETAIL_KEYS,
     ],
   },
   /** Extras home footer contact band (`ContactSection` in `extra/index.tsx`). */
@@ -128,19 +140,20 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
       'branchText.servicesAllLabel', 'branchText.servicesAllHref',
       'branchText.serviceCardNote',
       'branchText.learnMoreLabel', 'branchText.learnMoreHref',
+      ...CAT_DETAIL_KEYS,
     ],
   },
   highlights: { key: 'highlights', dataKeys: ['serviceHighlights'] },
-  menu: { key: 'menu', dataKeys: ['menu', 'moduleHeadings.menu'] },
-  rooms: { key: 'rooms', dataKeys: ['rooms', 'services', 'moduleHeadings.rooms'] },
-  tours: { key: 'tours', dataKeys: ['tours', 'services', 'moduleHeadings.tours'] },
-  treatments: { key: 'treatments', dataKeys: ['treatments', 'services', 'moduleHeadings.treatments'] },
-  courses: { key: 'courses', dataKeys: ['courses', 'moduleHeadings.courses'] },
-  packages: { key: 'packages', dataKeys: ['packages', 'moduleHeadings.packages'] },
-  processSteps: { key: 'processSteps', dataKeys: ['processSteps', 'moduleHeadings.process'] },
-  doctors: { key: 'doctors', dataKeys: ['doctors', 'moduleHeadings.doctors'] },
+  menu: { key: 'menu', dataKeys: ['menu', 'moduleHeadings.menu', ...CAT_DETAIL_KEYS] },
+  rooms: { key: 'rooms', dataKeys: ['rooms', 'services', 'moduleHeadings.rooms', ...CAT_DETAIL_KEYS] },
+  tours: { key: 'tours', dataKeys: ['tours', 'services', 'moduleHeadings.tours', ...CAT_DETAIL_KEYS] },
+  treatments: { key: 'treatments', dataKeys: ['treatments', 'services', 'moduleHeadings.treatments', ...CAT_DETAIL_KEYS] },
+  courses: { key: 'courses', dataKeys: ['courses', 'moduleHeadings.courses', ...CAT_DETAIL_KEYS] },
+  packages: { key: 'packages', dataKeys: ['packages', 'moduleHeadings.packages', ...CAT_DETAIL_KEYS] },
+  processSteps: { key: 'processSteps', dataKeys: ['processSteps', 'moduleHeadings.process', ...CAT_DETAIL_KEYS] },
+  doctors: { key: 'doctors', dataKeys: ['doctors', 'moduleHeadings.doctors', ...CAT_DETAIL_KEYS] },
   booking: { key: 'booking', dataKeys: ['booking', 'moduleHeadings.booking'] },
-  fundingModule: { key: 'fundingModule', dataKeys: ['fundingItems', 'fundingCalc', 'moduleHeadings.funding'] },
+  fundingModule: { key: 'fundingModule', dataKeys: ['fundingItems', 'fundingCalc', 'moduleHeadings.funding', ...CAT_DETAIL_KEYS] },
   emergencyBanner: { key: 'emergencyBanner', dataKeys: ['emergencyBanner'] },
   programs: { key: 'programs', dataKeys: ['programs'] },
   medicalNotice: { key: 'medicalNotice', dataKeys: ['medicalNotice', 'moduleHeadings.medicalInfo'] },

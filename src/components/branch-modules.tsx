@@ -8,10 +8,11 @@
  * decides which keys are passed in for which branch.
  */
 import React, { useEffect, useState } from 'react';
-import type { SiteContent } from '@/lib/types';
+import type { SiteContent, TemplateKey } from '@/lib/types';
 import { Section, TLink } from '@/components/site-blocks';
+import { getBranchConfig } from '@/lib/branch-config';
 
-type Variant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'consulting' | 'medical' | 'fitness';
+type Variant = TemplateKey;
 
 /**
  * Per-module heading override.
@@ -72,21 +73,22 @@ export function moduleHeading(content: SiteContent, key: ModuleHeadingKey): { ey
  * variant so it's safe to mount unconditionally.
  */
 export function BranchModulesInline({ variant, content }: { variant: Variant; content: SiteContent }) {
-  if (variant === 'restaurant') return <MenuCategoriesModule content={content} />;
-  if (variant === 'hotel') return <RoomShowcaseModule content={content} />;
-  if (variant === 'tourism') return <TourCardsModule content={content} />;
-  if (variant === 'salon') return <TreatmentListModule content={content} />;
-  if (variant === 'tradesman') return <FundingCalculatorModule content={content} />;
-  if (variant === 'consulting') return <><ProcessStepsModule content={content} /><PricePackagesModule content={content} /></>;
-  if (variant === 'medical') return <><DoctorTeamModule content={content} /><OnlineBookingModule content={content} /></>;
-  if (variant === 'fitness') return <><CourseScheduleModule content={content} /><PricePackagesModule content={content} /></>;
+  const itemLinkPrefix = getBranchConfig(variant).paths.services;
+  if (variant === 'restaurant') return <MenuCategoriesModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+  if (variant === 'hotel') return <RoomShowcaseModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+  if (variant === 'tourism') return <TourCardsModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+  if (variant === 'salon') return <TreatmentListModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+  if (variant === 'tradesman') return <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+  if (variant === 'consulting') return <><ProcessStepsModule content={content} itemLinkPrefix={itemLinkPrefix} /><PricePackagesModule content={content} itemLinkPrefix={itemLinkPrefix} /></>;
+  if (variant === 'medical') return <><DoctorTeamModule content={content} itemLinkPrefix={itemLinkPrefix} /><OnlineBookingModule content={content} /></>;
+  if (variant === 'fitness') return <><CourseScheduleModule content={content} itemLinkPrefix={itemLinkPrefix} /><PricePackagesModule content={content} itemLinkPrefix={itemLinkPrefix} /></>;
   return null;
 }
 
 /* ─────────────────────────────────────────────────────────────────
  * RESTAURANT — Speisekarte mit Kategorien & Allergenen
  * ─────────────────────────────────────────────────────────────── */
-export function MenuCategoriesModule({ content }: { content: SiteContent }) {
+export function MenuCategoriesModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const menu = ((content as any).menu || []) as NonNullable<SiteContent['menu']>;
   const [active, setActive] = useState(0);
   if (!menu || !menu.length) return null;
@@ -127,24 +129,36 @@ export function MenuCategoriesModule({ content }: { content: SiteContent }) {
         <ul className="space-y-6">
           {cat.items.map((it, j) => {
             const img = (it as any).imageUrl as string | undefined;
+            const slug = ((it as any).detailSlug as string | undefined)?.trim();
+            const pub = (it as any).detailPublished !== false;
+            const linked = !!(itemLinkPrefix && slug && pub);
+            const nameEl = (
+              <p className="font-display text-lg leading-tight">
+                {it.name}
+                {it.tags && it.tags.length > 0 && (
+                  <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
+                    {it.tags.map((t, k) => (
+                      <span key={k} className="text-[10px] uppercase tracking-widest font-mono bg-[var(--accent-color)]/15 text-brand px-1.5 py-0.5 rounded">{t}</span>
+                    ))}
+                  </span>
+                )}
+              </p>
+            );
             return (
               <li key={j} className="grid grid-cols-[auto_1fr_auto] gap-x-4 items-start">
                 {img ? (
-                  <img src={img} alt={it.name} className="h-16 w-16 rounded-xl object-cover border border-line" loading="lazy" />
+                  linked ? (
+                    <TLink to={`${itemLinkPrefix}/${slug}`} className="h-16 w-16 shrink-0">
+                      <img src={img} alt={it.name} className="h-16 w-16 rounded-xl object-cover border border-line" loading="lazy" />
+                    </TLink>
+                  ) : (
+                    <img src={img} alt={it.name} className="h-16 w-16 rounded-xl object-cover border border-line" loading="lazy" />
+                  )
                 ) : (
                   <span className="h-16 w-16" aria-hidden />
                 )}
                 <div className="min-w-0 self-center">
-                  <p className="font-display text-lg leading-tight">
-                    {it.name}
-                    {it.tags && it.tags.length > 0 && (
-                      <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
-                        {it.tags.map((t, k) => (
-                          <span key={k} className="text-[10px] uppercase tracking-widest font-mono bg-[var(--accent-color)]/15 text-brand px-1.5 py-0.5 rounded">{t}</span>
-                        ))}
-                      </span>
-                    )}
-                  </p>
+                  {linked ? <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">{nameEl}</TLink> : nameEl}
                   {it.description && <p className="mt-1 text-sm text-muted leading-relaxed">{it.description}</p>}
                   {it.allergens && <p className="mt-1 text-[10px] uppercase tracking-widest text-muted">Allergene: {it.allergens}</p>}
                 </div>
@@ -161,7 +175,7 @@ export function MenuCategoriesModule({ content }: { content: SiteContent }) {
 /* ─────────────────────────────────────────────────────────────────
  * HOTEL — Zimmer-Showcase
  * ─────────────────────────────────────────────────────────────── */
-export function RoomShowcaseModule({ content }: { content: SiteContent }) {
+export function RoomShowcaseModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const rooms = ((content as any).rooms || []) as NonNullable<SiteContent['rooms']>;
   if (!rooms || !rooms.length) return null;
   const h = moduleHeading(content, 'rooms');
@@ -172,18 +186,33 @@ export function RoomShowcaseModule({ content }: { content: SiteContent }) {
       subtitle={h.subtitle}
     >
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
-        {rooms.map((room, i) => (
-          <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift flex flex-col">
-            {room.imageUrl && (
-              <div className="aspect-[4/3] img-zoom">
-                <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" loading="lazy" />
-              </div>
-            )}
-            <div className="p-6 flex-1 flex flex-col">
-              <header className="flex items-baseline justify-between gap-3 mb-3">
-                <h3 className="font-display text-2xl leading-tight">{room.name}</h3>
-                {room.price && <span className="font-mono text-xs text-brand whitespace-nowrap">{room.price}</span>}
-              </header>
+        {rooms.map((room, i) => {
+          const slug = (room.detailSlug ?? '').trim();
+          const linked = !!(itemLinkPrefix && slug && room.detailPublished !== false);
+          return (
+            <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift flex flex-col">
+              {room.imageUrl && (
+                <div className="aspect-[4/3] img-zoom">
+                  {linked ? (
+                    <TLink to={`${itemLinkPrefix}/${slug}`} className="block w-full h-full">
+                      <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" loading="lazy" />
+                    </TLink>
+                  ) : (
+                    <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" loading="lazy" />
+                  )}
+                </div>
+              )}
+              <div className="p-6 flex-1 flex flex-col">
+                <header className="flex items-baseline justify-between gap-3 mb-3">
+                  {linked ? (
+                    <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">
+                      <h3 className="font-display text-2xl leading-tight">{room.name}</h3>
+                    </TLink>
+                  ) : (
+                    <h3 className="font-display text-2xl leading-tight">{room.name}</h3>
+                  )}
+                  {room.price && <span className="font-mono text-xs text-brand whitespace-nowrap">{room.price}</span>}
+                </header>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] uppercase tracking-widest text-muted mb-3">
                 {room.size && <span>{room.size}</span>}
                 {room.beds && <span>· {room.beds}</span>}
@@ -202,7 +231,8 @@ export function RoomShowcaseModule({ content }: { content: SiteContent }) {
               <TLink to="/kontakt" className="btn-outline mt-5 !py-2 !px-4 !text-xs">Anfragen →</TLink>
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </Section>
   );
@@ -211,7 +241,7 @@ export function RoomShowcaseModule({ content }: { content: SiteContent }) {
 /* ─────────────────────────────────────────────────────────────────
  * TOURISM — Tour-Cards mit Schwierigkeit
  * ─────────────────────────────────────────────────────────────── */
-export function TourCardsModule({ content }: { content: SiteContent }) {
+export function TourCardsModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const tours = ((content as any).tours || []) as NonNullable<SiteContent['tours']>;
   if (!tours || !tours.length) return null;
   const h = moduleHeading(content, 'tours');
@@ -223,31 +253,47 @@ export function TourCardsModule({ content }: { content: SiteContent }) {
       className="surface"
     >
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
-        {tours.map((tour, i) => (
-          <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift flex flex-col">
-            {tour.imageUrl && (
-              <div className="aspect-[16/10] img-zoom relative">
-                <img src={tour.imageUrl} alt={tour.name} className="w-full h-full object-cover" loading="lazy" />
-                {tour.level && (
-                  <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-brand/95 backdrop-blur text-white px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-mono">
-                    <LevelDots level={tour.level} /> {tour.level}
-                  </span>
+        {tours.map((tour, i) => {
+          const slug = (tour.detailSlug ?? '').trim();
+          const linked = !!(itemLinkPrefix && slug && tour.detailPublished !== false);
+          return (
+            <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift flex flex-col">
+              {tour.imageUrl && (
+                <div className="aspect-[16/10] img-zoom relative">
+                  {linked ? (
+                    <TLink to={`${itemLinkPrefix}/${slug}`} className="block w-full h-full">
+                      <img src={tour.imageUrl} alt={tour.name} className="w-full h-full object-cover" loading="lazy" />
+                    </TLink>
+                  ) : (
+                    <img src={tour.imageUrl} alt={tour.name} className="w-full h-full object-cover" loading="lazy" />
+                  )}
+                  {tour.level && (
+                    <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-brand/95 backdrop-blur text-white px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-mono">
+                      <LevelDots level={tour.level} /> {tour.level}
+                    </span>
+                  )}
+                </div>
+              )}
+              <div className="p-6 flex-1 flex flex-col">
+                {linked ? (
+                  <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">
+                    <h3 className="font-display text-2xl leading-tight">{tour.name}</h3>
+                  </TLink>
+                ) : (
+                  <h3 className="font-display text-2xl leading-tight">{tour.name}</h3>
                 )}
+                {tour.description && <p className="mt-3 text-sm text-muted leading-relaxed">{tour.description}</p>}
+                <dl className="mt-5 grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
+                  {tour.duration && <><dt className="text-muted uppercase tracking-widest text-[10px]">Dauer</dt><dd className="font-display">{tour.duration}</dd></>}
+                  {tour.groupSize && <><dt className="text-muted uppercase tracking-widest text-[10px]">Gruppe</dt><dd className="font-display">{tour.groupSize}</dd></>}
+                  {tour.languages && tour.languages.length > 0 && <><dt className="text-muted uppercase tracking-widest text-[10px]">Sprachen</dt><dd className="font-display">{tour.languages.join(' · ')}</dd></>}
+                  {tour.price && <><dt className="text-muted uppercase tracking-widest text-[10px]">Preis</dt><dd className="font-mono text-brand">{tour.price}</dd></>}
+                </dl>
+                <TLink to="/kontakt" className="btn-primary mt-6 !py-2 !px-4 !text-xs">Tour buchen →</TLink>
               </div>
-            )}
-            <div className="p-6 flex-1 flex flex-col">
-              <h3 className="font-display text-2xl leading-tight">{tour.name}</h3>
-              {tour.description && <p className="mt-3 text-sm text-muted leading-relaxed">{tour.description}</p>}
-              <dl className="mt-5 grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
-                {tour.duration && <><dt className="text-muted uppercase tracking-widest text-[10px]">Dauer</dt><dd className="font-display">{tour.duration}</dd></>}
-                {tour.groupSize && <><dt className="text-muted uppercase tracking-widest text-[10px]">Gruppe</dt><dd className="font-display">{tour.groupSize}</dd></>}
-                {tour.languages && tour.languages.length > 0 && <><dt className="text-muted uppercase tracking-widest text-[10px]">Sprachen</dt><dd className="font-display">{tour.languages.join(' · ')}</dd></>}
-                {tour.price && <><dt className="text-muted uppercase tracking-widest text-[10px]">Preis</dt><dd className="font-mono text-brand">{tour.price}</dd></>}
-              </dl>
-              <TLink to="/kontakt" className="btn-primary mt-6 !py-2 !px-4 !text-xs">Tour buchen →</TLink>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </Section>
   );
@@ -269,7 +315,7 @@ function LevelDots({ level }: { level: string }) {
 /* ─────────────────────────────────────────────────────────────────
  * SALON — Treatment-Liste mit Dauer & Preis (kategorisiert)
  * ─────────────────────────────────────────────────────────────── */
-export function TreatmentListModule({ content }: { content: SiteContent }) {
+export function TreatmentListModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const treatments = ((content as any).treatments || []) as NonNullable<SiteContent['treatments']>;
   if (!treatments || !treatments.length) return null;
   // group by category
@@ -295,16 +341,21 @@ export function TreatmentListModule({ content }: { content: SiteContent }) {
               <span className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</span>
             </header>
             <ul className="divide-y divide-line">
-              {byCat[cat].map((t, j) => (
-                <li key={j} className="py-4 grid grid-cols-[1fr_auto_auto] gap-x-5 items-baseline">
-                  <div>
-                    <p className="font-display text-lg leading-tight">{t.name}</p>
-                    {t.description && <p className="text-sm text-muted mt-0.5 leading-relaxed">{t.description}</p>}
-                  </div>
-                  {t.duration && <span className="font-mono text-xs text-muted whitespace-nowrap">{t.duration}</span>}
-                  {t.price && <span className="font-mono text-sm text-brand whitespace-nowrap">{t.price}</span>}
-                </li>
-              ))}
+              {byCat[cat].map((t, j) => {
+                const slug = (t.detailSlug ?? '').trim();
+                const linked = !!(itemLinkPrefix && slug && t.detailPublished !== false);
+                const name = <p className="font-display text-lg leading-tight">{t.name}</p>;
+                return (
+                  <li key={j} className="py-4 grid grid-cols-[1fr_auto_auto] gap-x-5 items-baseline">
+                    <div>
+                      {linked ? <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">{name}</TLink> : name}
+                      {t.description && <p className="text-sm text-muted mt-0.5 leading-relaxed">{t.description}</p>}
+                    </div>
+                    {t.duration && <span className="font-mono text-xs text-muted whitespace-nowrap">{t.duration}</span>}
+                    {t.price && <span className="font-mono text-sm text-brand whitespace-nowrap">{t.price}</span>}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
@@ -319,7 +370,7 @@ export function TreatmentListModule({ content }: { content: SiteContent }) {
 /* ─────────────────────────────────────────────────────────────────
  * FITNESS — Kursplan / Schedule
  * ─────────────────────────────────────────────────────────────── */
-export function CourseScheduleModule({ content }: { content: SiteContent }) {
+export function CourseScheduleModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const courses = ((content as any).courses || []) as NonNullable<SiteContent['courses']>;
   if (!courses || !courses.length) return null;
   const h = moduleHeading(content, 'courses');
@@ -343,19 +394,24 @@ export function CourseScheduleModule({ content }: { content: SiteContent }) {
             </tr>
           </thead>
           <tbody>
-            {courses.map((c, i) => (
-              <tr key={i} className="border-b border-line group hover:bg-white transition-colors">
-                <td className="py-5 pr-4">
-                  <p className="font-display text-lg">{c.name}</p>
-                  {c.description && <p className="text-xs text-muted mt-0.5">{c.description}</p>}
-                </td>
-                <td className="py-5 pr-4 font-mono text-xs">{c.schedule}</td>
-                <td className="py-5 pr-4 text-xs">{c.level}</td>
-                <td className="py-5 pr-4 font-mono text-xs">{c.duration}</td>
-                <td className="py-5 pr-4 text-sm">{c.trainer}</td>
-                <td className="py-5 font-mono text-sm text-brand text-right">{c.price}</td>
-              </tr>
-            ))}
+            {courses.map((c, i) => {
+              const slug = (c.detailSlug ?? '').trim();
+              const linked = !!(itemLinkPrefix && slug && c.detailPublished !== false);
+              const name = <p className="font-display text-lg">{c.name}</p>;
+              return (
+                <tr key={i} className="border-b border-line group hover:bg-white transition-colors">
+                  <td className="py-5 pr-4">
+                    {linked ? <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">{name}</TLink> : name}
+                    {c.description && <p className="text-xs text-muted mt-0.5">{c.description}</p>}
+                  </td>
+                  <td className="py-5 pr-4 font-mono text-xs">{c.schedule}</td>
+                  <td className="py-5 pr-4 text-xs">{c.level}</td>
+                  <td className="py-5 pr-4 font-mono text-xs">{c.duration}</td>
+                  <td className="py-5 pr-4 text-sm">{c.trainer}</td>
+                  <td className="py-5 font-mono text-sm text-brand text-right">{c.price}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -369,7 +425,17 @@ export function CourseScheduleModule({ content }: { content: SiteContent }) {
 /* ─────────────────────────────────────────────────────────────────
  * FITNESS / CONSULTING — Pricing Packages (3-tier)
  * ─────────────────────────────────────────────────────────────── */
-export function PricePackagesModule({ content, eyebrow, title }: { content: SiteContent; eyebrow?: string; title?: React.ReactNode }) {
+export function PricePackagesModule({
+  content,
+  eyebrow,
+  title,
+  itemLinkPrefix = '',
+}: {
+  content: SiteContent;
+  eyebrow?: string;
+  title?: React.ReactNode;
+  itemLinkPrefix?: string;
+}) {
   const packages = ((content as any).packages || []) as NonNullable<SiteContent['packages']>;
   if (!packages || !packages.length) return null;
   const h = moduleHeading(content, 'packages');
@@ -380,12 +446,16 @@ export function PricePackagesModule({ content, eyebrow, title }: { content: Site
       subtitle={h.subtitle}
     >
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-        {packages.map((p, i) => (
-          <article key={i} className={`relative rounded-3xl border p-8 flex flex-col hover-lift ${p.highlight ? 'bg-brand text-white border-brand shadow-2xl' : 'bg-white border-line'}`}>
-            {p.highlight && (
-              <span className="absolute -top-3 left-8 bg-[var(--accent-color)] text-brand font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full">Empfohlen</span>
-            )}
-            <h3 className="font-display text-2xl">{p.name}</h3>
+        {packages.map((p, i) => {
+          const slug = (p.detailSlug ?? '').trim();
+          const linked = !!(itemLinkPrefix && slug && p.detailPublished !== false);
+          const titleEl = <h3 className="font-display text-2xl">{p.name}</h3>;
+          return (
+            <article key={i} className={`relative rounded-3xl border p-8 flex flex-col hover-lift ${p.highlight ? 'bg-brand text-white border-brand shadow-2xl' : 'bg-white border-line'}`}>
+              {p.highlight && (
+                <span className="absolute -top-3 left-8 bg-[var(--accent-color)] text-brand font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full">Empfohlen</span>
+              )}
+              {linked ? <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">{titleEl}</TLink> : titleEl}
             <div className="mt-5 flex items-baseline gap-2">
               <span className={`font-display text-5xl ${p.highlight ? 'text-white' : 'text-brand'}`}>{p.price}</span>
               {p.period && <span className={`text-sm ${p.highlight ? 'text-white/70' : 'text-muted'}`}>{p.period}</span>}
@@ -403,7 +473,8 @@ export function PricePackagesModule({ content, eyebrow, title }: { content: Site
             )}
             <TLink to={p.ctaHref || '/kontakt'} className={`mt-8 ${p.highlight ? 'btn-accent' : 'btn-outline'}`}>{p.ctaLabel || 'Wählen'} →</TLink>
           </article>
-        ))}
+          );
+        })}
       </div>
     </Section>
   );
@@ -412,7 +483,7 @@ export function PricePackagesModule({ content, eyebrow, title }: { content: Site
 /* ─────────────────────────────────────────────────────────────────
  * CONSULTING — Process / Engagement Steps
  * ─────────────────────────────────────────────────────────────── */
-export function ProcessStepsModule({ content }: { content: SiteContent }) {
+export function ProcessStepsModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const steps = ((content as any).processSteps || []) as NonNullable<SiteContent['processSteps']>;
   if (!steps || !steps.length) return null;
   const h = moduleHeading(content, 'process');
@@ -424,15 +495,20 @@ export function ProcessStepsModule({ content }: { content: SiteContent }) {
       className="surface"
     >
       <ol className="grid md:grid-cols-2 lg:grid-cols-4 gap-0 lg:gap-0 reveal-stagger">
-        {steps.map((s, i) => (
-          <li key={i} className="relative lg:border-l border-t lg:border-t-0 border-line p-7 bg-white">
-            <span className="absolute -left-1.5 -top-1.5 lg:left-[-7px] lg:top-7 h-3 w-3 rounded-full bg-brand" style={{ boxShadow: '0 0 0 6px white' }} />
-            <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
-            <h3 className="font-display text-2xl mt-3">{s.title}</h3>
-            {s.duration && <p className="mt-1 text-[10px] uppercase tracking-widest text-[var(--accent-color)]">{s.duration}</p>}
-            {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
-          </li>
-        ))}
+        {steps.map((s, i) => {
+          const slug = (s.detailSlug ?? '').trim();
+          const linked = !!(itemLinkPrefix && slug && s.detailPublished !== false);
+          const titleEl = <h3 className="font-display text-2xl mt-3">{s.title}</h3>;
+          return (
+            <li key={i} className="relative lg:border-l border-t lg:border-t-0 border-line p-7 bg-white">
+              <span className="absolute -left-1.5 -top-1.5 lg:left-[-7px] lg:top-7 h-3 w-3 rounded-full bg-brand" style={{ boxShadow: '0 0 0 6px white' }} />
+              <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+              {linked ? <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">{titleEl}</TLink> : titleEl}
+              {s.duration && <p className="mt-1 text-[10px] uppercase tracking-widest text-[var(--accent-color)]">{s.duration}</p>}
+              {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+            </li>
+          );
+        })}
       </ol>
     </Section>
   );
@@ -441,7 +517,7 @@ export function ProcessStepsModule({ content }: { content: SiteContent }) {
 /* ─────────────────────────────────────────────────────────────────
  * MEDICAL — Doctors / Specialists
  * ─────────────────────────────────────────────────────────────── */
-export function DoctorTeamModule({ content }: { content: SiteContent }) {
+export function DoctorTeamModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const doctors = ((content as any).doctors || []) as NonNullable<SiteContent['doctors']>;
   if (!doctors || !doctors.length) return null;
   const h = moduleHeading(content, 'doctors');
@@ -452,21 +528,37 @@ export function DoctorTeamModule({ content }: { content: SiteContent }) {
       subtitle={h.subtitle}
     >
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger">
-        {doctors.map((d, i) => (
-          <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
-            {d.imageUrl && (
-              <div className="aspect-[4/5] img-zoom">
-                <img src={d.imageUrl} alt={d.name} className="w-full h-full object-cover" loading="lazy" />
+        {doctors.map((d, i) => {
+          const slug = (d.detailSlug ?? '').trim();
+          const linked = !!(itemLinkPrefix && slug && d.detailPublished !== false);
+          return (
+            <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift">
+              {d.imageUrl && (
+                <div className="aspect-[4/5] img-zoom">
+                  {linked ? (
+                    <TLink to={`${itemLinkPrefix}/${slug}`} className="block w-full h-full">
+                      <img src={d.imageUrl} alt={d.name} className="w-full h-full object-cover" loading="lazy" />
+                    </TLink>
+                  ) : (
+                    <img src={d.imageUrl} alt={d.name} className="w-full h-full object-cover" loading="lazy" />
+                  )}
+                </div>
+              )}
+              <div className="p-6">
+                {linked ? (
+                  <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">
+                    <h3 className="font-display text-xl">{d.name}</h3>
+                  </TLink>
+                ) : (
+                  <h3 className="font-display text-xl">{d.name}</h3>
+                )}
+                {d.role && <p className="text-sm text-muted mt-0.5">{d.role}</p>}
+                {d.specialty && <p className="mt-3 text-[10px] uppercase tracking-widest text-[var(--accent-color)]">{d.specialty}</p>}
+                {d.bio && <p className="mt-3 text-sm leading-relaxed">{d.bio}</p>}
               </div>
-            )}
-            <div className="p-6">
-              <h3 className="font-display text-xl">{d.name}</h3>
-              {d.role && <p className="text-sm text-muted mt-0.5">{d.role}</p>}
-              {d.specialty && <p className="mt-3 text-[10px] uppercase tracking-widest text-[var(--accent-color)]">{d.specialty}</p>}
-              {d.bio && <p className="mt-3 text-sm leading-relaxed">{d.bio}</p>}
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </Section>
   );
@@ -515,7 +607,7 @@ export function OnlineBookingModule({ content }: { content: SiteContent }) {
 /* ─────────────────────────────────────────────────────────────────
  * TRADESMAN — Funding Calculator
  * ─────────────────────────────────────────────────────────────── */
-export function FundingCalculatorModule({ content }: { content: SiteContent }) {
+export function FundingCalculatorModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const items = ((content as any).fundingItems || []) as NonNullable<SiteContent['fundingItems']>;
   const calc = ((content as any).fundingCalc || {}) as NonNullable<SiteContent['fundingCalc']>;
   const minInvest = Math.max(0, calc.minInvest ?? 5000);
@@ -578,15 +670,25 @@ export function FundingCalculatorModule({ content }: { content: SiteContent }) {
         <div className="lg:col-span-5 reveal">
           <p className="eyebrow mb-4">Mögliche Programme</p>
           <ul className="space-y-3">
-            {items.map((it, i) => (
-              <li key={i} className="rounded-2xl border border-line bg-white p-5 flex items-start gap-4">
-                {it.percent && <span className="font-display text-2xl text-[var(--accent-color)] whitespace-nowrap">{it.percent}</span>}
-                <div className="flex-1">
-                  <p className="font-display text-base">{it.title}{it.program && <span className="ml-2 text-[10px] uppercase tracking-widest text-muted">{it.program}</span>}</p>
-                  {it.description && <p className="mt-1 text-xs text-muted leading-relaxed">{it.description}</p>}
-                </div>
-              </li>
-            ))}
+            {items.map((it, i) => {
+              const slug = (it.detailSlug ?? '').trim();
+              const linked = !!(itemLinkPrefix && slug && it.detailPublished !== false);
+              const titleLine = (
+                <p className="font-display text-base">
+                  {it.title}
+                  {it.program && <span className="ml-2 text-[10px] uppercase tracking-widest text-muted">{it.program}</span>}
+                </p>
+              );
+              return (
+                <li key={i} className="rounded-2xl border border-line bg-white p-5 flex items-start gap-4">
+                  {it.percent && <span className="font-display text-2xl text-[var(--accent-color)] whitespace-nowrap">{it.percent}</span>}
+                  <div className="flex-1">
+                    {linked ? <TLink to={`${itemLinkPrefix}/${slug}`} className="text-inherit no-underline hover:underline">{titleLine}</TLink> : titleLine}
+                    {it.description && <p className="mt-1 text-xs text-muted leading-relaxed">{it.description}</p>}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
           <TLink to="/kontakt" className="btn-primary mt-6">Förder-Beratung anfragen →</TLink>
         </div>

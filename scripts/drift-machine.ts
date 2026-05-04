@@ -173,6 +173,15 @@ export function globalLayoutFieldDriftIssues(
 }
 
 /** Every first segment of `SECTION_CONTRACTS` dataKeys must exist on `SiteContentSchema`. */
+const CONTRACT_NESTED_ONLY_ROOTS = new Set([
+  'detailSlug',
+  'detailPublished',
+  'detailSubtitle',
+  'detailBody',
+  'detailBodyHtml',
+  'detailGallery',
+]);
+
 export function contractDataKeyRootsMissingFromSchema(): string[] {
   const schema = SiteContentSchema;
   if (!(schema instanceof z.ZodObject)) {
@@ -183,6 +192,7 @@ export function contractDataKeyRootsMissingFromSchema(): string[] {
   for (const c of Object.values(SECTION_CONTRACTS)) {
     for (const dk of c.dataKeys) {
       const root = dk.split('.')[0];
+      if (CONTRACT_NESTED_ONLY_ROOTS.has(root)) continue;
       if (!roots.has(root)) missing.add(root);
     }
   }
