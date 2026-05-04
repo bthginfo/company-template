@@ -389,9 +389,9 @@ const consulting: BranchConfig = {
     },
     branchChips: true,
     marqueeWords: BOLD,
-    logoStrip: NONE,      // extras don't render logo strip
+    logoStrip: MODERN,
     aboutImage: NOT_BOLD,
-    softCtaFields: NONE,  // extras have no softCta — they use ContactSection
+    softCtaFields: MODERN_BOLD,
     aboutTeaserMode: 'standard',
   },
   services: {
@@ -422,9 +422,9 @@ const medical: BranchConfig = {
     },
     branchChips: true,
     marqueeWords: BOLD,
-    logoStrip: NONE,
+    logoStrip: MODERN,
     aboutImage: NOT_BOLD,
-    softCtaFields: NONE,
+    softCtaFields: MODERN_BOLD,
     aboutTeaserMode: 'standard',
   },
   services: {
@@ -454,9 +454,9 @@ const fitness: BranchConfig = {
     },
     branchChips: true,
     marqueeWords: BOLD,
-    logoStrip: NONE,
+    logoStrip: MODERN,
     aboutImage: NOT_BOLD,
-    softCtaFields: NONE,
+    softCtaFields: MODERN_BOLD,
     aboutTeaserMode: 'standard',
   },
   services: {

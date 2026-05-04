@@ -12,7 +12,8 @@ import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
-import { isSectionEnabled, getEffectivePageOrder, type PageId as LayoutPageId } from '@/lib/page-layout';
+import { isSectionEnabled, getEffectivePageOrder, getCatalogForVariant, type PageId as LayoutPageId } from '@/lib/page-layout';
+import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 import { getBranchConfig } from '@/lib/branch-config';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
@@ -45,12 +46,14 @@ function $vis(content: SiteContent, key: string): boolean {
 
 /** Resolve effective section order for extra-branch home page. */
 function extraHomeOrder(content: SiteContent, branch: ExtraBranchKey, style: ExtraStyle): string[] {
+  const defaults = [...(BRANCH_STYLE_ORDER[branch][style] ?? BRANCH_STYLE_ORDER.consulting.classic)];
+  const catalogKeys = getCatalogForVariant('home', branch, style).map((s) => s.key);
+  const allowed = new Set([...defaults, ...catalogKeys]);
   const custom = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
   if (Array.isArray(custom) && custom.length) {
-    const validKeys = new Set(BRANCH_STYLE_ORDER[branch][style] ?? BRANCH_STYLE_ORDER.consulting.classic);
-    return custom.filter((k) => validKeys.has(k));
+    return custom.filter((k) => allowed.has(k));
   }
-  return [...(BRANCH_STYLE_ORDER[branch][style] ?? BRANCH_STYLE_ORDER.consulting.classic)];
+  return defaults;
 }
 
 /** Pull a per-page header override from content extras (set by admin's PageHeaderEditor). */
@@ -105,6 +108,235 @@ function ExtraHeroLink({ href, className, children }: { href: string; className?
     return <a href={href} className={className}>{children}</a>;
   }
   return <NavLink to={withBase(basePath, href)} className={className}>{children}</NavLink>;
+}
+
+/** Same parsing as core `NumbersBand` — keeps counter / suffix behaviour aligned. */
+function parseNumberValue(raw: string): { v: number; s?: string; raw?: boolean } {
+  const m = String(raw).match(/^(-?\d+(?:[.,]\d+)?)(.*)$/);
+  if (!m) return { v: 0, s: String(raw), raw: true };
+  const [, num, rest] = m;
+  const hasComma = num.includes(',');
+  const hasDot = num.includes('.');
+  const intPart = hasComma ? num.split(',')[0] : hasDot ? num.split('.')[0] : num;
+  const frac = hasComma ? ',' + num.split(',')[1] : hasDot ? '.' + num.split('.')[1] : '';
+  const suffix = (frac || '') + (rest || '');
+  return { v: Number(intPart) || 0, s: suffix || undefined };
+}
+
+function defaultExtraHomeStrip(): {
+  tone: 'light' | 'dark';
+  eyebrow: string;
+  hint: string;
+  primaryLabel: string;
+  primaryHref: string;
+  secondaryLabel: string;
+  secondaryHref: string;
+} {
+  return {
+    tone: 'light',
+    eyebrow: 'Jetzt Kontakt aufnehmen',
+    hint: 'Wir freuen uns auf Ihre Nachricht.',
+    primaryLabel: '',
+    primaryHref: 'tel:',
+    secondaryLabel: 'Anfrage senden',
+    secondaryHref: '/kontakt',
+  };
+}
+
+/** Home Aktions-Leiste — mirrors core `BranchActionStrip` without importing `TemplateApp` (cycle). */
+function ExtraHomeActionStrip({ content }: { content: SiteContent }) {
+  const phone = content.contact.phone || '';
+  const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
+  const def = defaultExtraHomeStrip();
+  const rawStrip = ((content as any).homeStrip || {}) as Record<string, unknown>;
+  const auto = rawStrip.eyebrowAuto !== false;
+  const stripForMerge = Object.fromEntries(
+    Object.entries(rawStrip).filter(([key]) => !auto || key !== 'eyebrow'),
+  );
+  const overlay = Object.fromEntries(
+    Object.entries(stripForMerge).filter(([, val]) => (typeof val === 'string' ? val.trim() !== '' : val != null)),
+  );
+  const cfg = { ...def, ...overlay } as ReturnType<typeof defaultExtraHomeStrip> & { eyebrowAuto?: boolean };
+
+  let liveEyebrow: string | null = null;
+  let liveIsOpen = false;
+  if (auto) {
+    try {
+      const rows = content.contact?.hours;
+      const status = getOpenStatus(rows);
+      const slot = status.todayFull ?? status.todayLabel;
+      if (slot) {
+        liveEyebrow = status.isOpen ? `Heute geöffnet · ${slot}` : 'Heute geschlossen';
+        liveIsOpen = status.isOpen;
+      } else if (rows?.length && parseHours(rows).length > 0) {
+        liveEyebrow = 'Heute geschlossen';
+        liveIsOpen = false;
+      }
+    } catch { /* ignore */ }
+  }
+  const eyebrowText = liveEyebrow ?? cfg.eyebrow;
+  const resolveHref = (href: string) => (href === 'tel:' ? phoneHref : href);
+  if (!eyebrowText && !cfg.hint && !cfg.primaryLabel && !cfg.secondaryLabel && !phone) return null;
+
+  const tone = cfg.tone === 'dark' ? 'bg-brand text-white border-white/10' : 'bg-white border-line';
+  const dotColor = cfg.tone === 'dark'
+    ? 'bg-[var(--accent-color)]'
+    : (liveEyebrow && !liveIsOpen ? 'bg-stone-400' : 'bg-emerald-500');
+  const hintColor = cfg.tone === 'dark' ? 'text-white/70' : 'text-muted';
+  const eyebrowColor = cfg.tone === 'dark' ? 'text-white' : 'text-brand';
+
+  return (
+    <section className={`border-y ${tone}`}>
+      <div className="container-x py-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
+        {eyebrowText && (
+          <span className={`inline-flex items-center gap-2 font-mono uppercase tracking-widest text-xs ${eyebrowColor}`}>
+            <span className={`h-2 w-2 rounded-full ${dotColor} ${liveIsOpen ? 'animate-pulse' : ''}`} /> {eyebrowText}
+          </span>
+        )}
+        {cfg.hint && <span className={`hidden md:inline ${hintColor}`}>{cfg.hint}</span>}
+        <span className="ml-auto flex flex-wrap gap-3 items-center">
+          {phone && cfg.primaryHref === 'tel:' && (
+            <a href={phoneHref} className="btn-outline !py-2 !px-4 !text-xs">
+              {cfg.primaryLabel ? `${cfg.primaryLabel} ${phone}` : phone}
+            </a>
+          )}
+          {cfg.primaryLabel && cfg.primaryHref !== 'tel:' && (
+            <a href={resolveHref(cfg.primaryHref)} className="btn-outline !py-2 !px-4 !text-xs">{cfg.primaryLabel}</a>
+          )}
+          {cfg.secondaryLabel && (
+            <ExtraHeroLink href={resolveHref(cfg.secondaryHref)} className={cfg.tone === 'dark' ? 'btn-accent !py-2 !px-4 !text-xs' : 'btn-primary !py-2 !px-4 !text-xs'}>
+              {cfg.secondaryLabel}
+            </ExtraHeroLink>
+          )}
+        </span>
+      </div>
+    </section>
+  );
+}
+
+/** Full-width Zahlen-Band from `content.numbers` (admin „Zahlen-Band“). */
+function ExtraHomeNumbersBand({ content }: { content: SiteContent }) {
+  const overlay = ((content as unknown as { numbers?: { value: string; label: string }[] }).numbers ?? []).filter(
+    (n) => n && (String(n.value ?? '').trim() || String(n.label ?? '').trim()),
+  );
+  if (!overlay.length) return null;
+  const stats = overlay.map((n) => ({ ...parseNumberValue(String(n.value)), l: n.label }));
+  return (
+    <section className="py-20 md:py-28 bg-brand text-white grain relative overflow-hidden">
+      <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
+      <div className="container-x relative">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 md:gap-y-0 reveal-stagger">
+          {stats.map((m, i) => (
+            <div key={i} className="md:border-l border-white/15 md:pl-8">
+              <p className="num-display text-5xl md:text-7xl leading-none">
+                {m.raw ? (
+                  <>{m.s}</>
+                ) : m.s && m.s.startsWith(',') ? (
+                  <>{m.v}{m.s}</>
+                ) : (
+                  <AnimatedCounter to={m.v} suffix={m.s || ''} />
+                )}
+              </p>
+              <p className="mt-3 text-xs uppercase tracking-widest text-white/60">{m.l}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExtraHomeLogosStrip({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
+  const overlay = ((content as any).logos as string[] | undefined)?.filter((s) => s && s.trim());
+  const fallback: Record<ExtraBranchKey, string[]> = {
+    consulting: ['ISO 9001', 'IHK', 'TÜV', 'DSGVO', 'Partnernetzwerk'],
+    medical: ['KBV', 'Qualitätsmanagement', 'Doctolib', 'Fachgesellschaft', 'Zertifiziert'],
+    fitness: ['EHFA', 'IHRS', 'Verbandsmitglied', 'Zertifizierte Trainer:innen', 'Partner'],
+  };
+  const list = overlay && overlay.length ? overlay : fallback[branch];
+  if (!list.length) return null;
+  return (
+    <section className="py-14 border-y border-line">
+      <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+        {list.map((n) => (
+          <span key={n} className="font-display text-2xl tracking-wide">{n}</span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** Soft-CTA for extra home — classic uses `ctaBandOverride` + branch soft-CTA copy; modern/bold match core styling. */
+function ExtraHomeSoftCta({ branch, content, layoutStyle }: { branch: ExtraBranchKey; content: SiteContent; layoutStyle: ExtraStyle }) {
+  const ov = (content as any)?.ctaBandOverride as {
+    lead?: string; sub?: string; cta?: string; ctaHref?: string; eyebrow?: string; leadAccent?: string;
+  } | undefined;
+  const rawBt = ((content as any)?.branchText ?? {}) as Record<string, string>;
+  const bt = effectiveBranchText(branch, content);
+  const hrefDefault = (ov?.ctaHref && ov.ctaHref.trim()) || '/kontakt';
+
+  const eyebrow = (ov?.eyebrow && ov.eyebrow.trim()) || (rawBt.softCtaEyebrow && rawBt.softCtaEyebrow.trim()) || bt.softCtaEyebrow || '';
+  const title = (ov?.lead && ov.lead.trim()) || (rawBt.softCtaTitle && rawBt.softCtaTitle.trim()) || bt.softCtaTitle || '';
+  const sub = (ov?.sub && ov.sub.trim()) || (rawBt.softCtaText && rawBt.softCtaText.trim()) || bt.softCtaText || '';
+  const cta = (ov?.cta && ov.cta.trim()) || (rawBt.softCtaButton && rawBt.softCtaButton.trim()) || bt.softCtaButton || '';
+
+  if (layoutStyle === 'classic') {
+    const pick = (field: 'lead' | 'sub' | 'cta' | 'ctaHref' | 'eyebrow' | 'leadAccent') =>
+      (ov?.[field] && String(ov[field]).trim()) || '';
+    const resolvedLeadAccent = pick('leadAccent');
+    const t = {
+      eyebrow: pick('eyebrow') || bt.softCtaEyebrow || 'Bereit?',
+      lead: pick('lead') || bt.softCtaTitle,
+      leadAccent: resolvedLeadAccent,
+      sub: pick('sub') || bt.softCtaText,
+      cta: pick('cta') || bt.softCtaButton,
+      ctaHref: pick('ctaHref') || hrefDefault,
+    };
+    return (
+      <section className="py-32 md:py-44 surface relative overflow-hidden">
+        <div className="container-x text-center max-w-3xl mx-auto reveal">
+          {t.eyebrow ? <p className="eyebrow mb-5 justify-center">{t.eyebrow}</p> : null}
+          <h2 className="headline-xl">
+            {t.lead}{t.leadAccent ? <><br /><em className="italic-pop">{t.leadAccent}</em></> : null}
+          </h2>
+          <p className="mt-8 text-lg md:text-xl text-muted">{t.sub}</p>
+          <div className="mt-12">
+            <ExtraHeroLink href={t.ctaHref} className="btn-primary">{t.cta} <span aria-hidden>→</span></ExtraHeroLink>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (layoutStyle === 'modern') {
+    return (
+      <section className="py-24 surface">
+        <div className="container-x">
+          <div className="rounded-3xl bg-white border border-line p-10 md:p-14 text-center reveal">
+            {eyebrow ? <p className="eyebrow justify-center mb-4">{eyebrow}</p> : null}
+            <h2 className="headline-lg">{title}</h2>
+            {sub ? <p className="mt-5 text-muted max-w-xl mx-auto">{sub}</p> : null}
+            {cta ? (
+              <ExtraHeroLink href={hrefDefault} className="btn-primary mt-8">{cta} <span aria-hidden>→</span></ExtraHeroLink>
+            ) : null}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const boldFallbackTitle =
+    branch === 'consulting' ? 'Nächster Schritt?' : branch === 'medical' ? 'Termin?' : 'Startklar?';
+
+  return (
+    <section className="py-32 md:py-44 bg-[var(--accent-color)] text-[var(--accent-fg)] grain">
+      <div className="container-x text-center reveal">
+        <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">{title || boldFallbackTitle}</h2>
+        <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto opacity-80">{sub || 'Schreiben Sie uns. Wir antworten.'}</p>
+        <ExtraHeroLink href={hrefDefault} className="btn-primary mt-10">{(cta || 'Jetzt Kontakt')} <span aria-hidden>→</span></ExtraHeroLink>
+      </div>
+    </section>
+  );
 }
 
 export type ExtraStyle = 'classic' | 'modern' | 'bold';
@@ -888,6 +1120,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
   const order = extraHomeOrder(content, branch, 'classic').filter((k) => $vis(content, k));
 
   const blocks: Record<string, JSX.Element | null> = {
+    action: <ExtraHomeActionStrip content={content} />,
     chips: <BranchHeroBadges branch={branch} style="classic" content={content} />,
     about: content.about ? (
       <section id="about" className="py-24 md:py-32 surface">
@@ -992,7 +1225,11 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         </div>
       </section>
     ) : null,
+    numbers: <ExtraHomeNumbersBand content={content} />,
+    faq: <ExtraFaqSection branch={branch} content={content} />,
+    logos: <ExtraHomeLogosStrip content={content} branch={branch} />,
     news: <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
+    softCta: <ExtraHomeSoftCta branch={branch} content={content} layoutStyle="classic" />,
     contact: <ContactSection content={content} variant="classic" />,
   };
 
@@ -1057,6 +1294,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
   const order = extraHomeOrder(content, branch, 'modern').filter((k) => $vis(content, k));
 
   const blocks: Record<string, JSX.Element | null> = {
+    action: <ExtraHomeActionStrip content={content} />,
     chips: <BranchHeroBadges branch={branch} style="modern" content={content} />,
     about: content.about ? (
       <section id="about" className="py-24 md:py-32 surface">
@@ -1168,7 +1406,11 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
         </div>
       </section>
     ) : null,
+    numbers: <ExtraHomeNumbersBand content={content} />,
+    faq: <ExtraFaqSection branch={branch} content={content} />,
+    logos: <ExtraHomeLogosStrip content={content} branch={branch} />,
     news: <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
+    softCta: <ExtraHomeSoftCta branch={branch} content={content} layoutStyle="modern" />,
     contact: <ContactSection content={content} variant="modern" />,
   };
 
@@ -1248,6 +1490,7 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
   const order = extraHomeOrder(content, branch, 'bold').filter((k) => $vis(content, k));
 
   const blocks: Record<string, JSX.Element | null> = {
+    action: <ExtraHomeActionStrip content={content} />,
     chips: <BranchHeroBadges branch={branch} style="bold" content={content} />,
     marquee: (() => {
       const words = (Array.isArray(bt.marqueeWords) && bt.marqueeWords.length > 0)
@@ -1355,7 +1598,11 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         </div>
       </section>
     ) : null,
+    numbers: <ExtraHomeNumbersBand content={content} />,
+    faq: <ExtraFaqSection branch={branch} content={content} />,
+    logos: <ExtraHomeLogosStrip content={content} branch={branch} />,
     news: <NewsPreview content={content} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />,
+    softCta: <ExtraHomeSoftCta branch={branch} content={content} layoutStyle="bold" />,
     contact: <ContactSection content={content} variant="bold" />,
   };
 
@@ -1802,8 +2049,8 @@ const BRANCH_TEAM_DEFAULT: Record<ExtraBranchKey, TeamMember[]> = {
 };
 function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember[] {
   const overlay = normaliseTeamList((content as unknown as { team?: unknown }).team ?? []);
-  if (overlay.length > 0) return overlay.filter((m) => m && (m.n || m.r));
-  return BRANCH_TEAM_DEFAULT[branch];
+  const filtered = overlay.filter((m) => m && (m.n || m.r));
+  return filtered.length ? filtered : BRANCH_TEAM_DEFAULT[branch];
 }
 function BranchTeam({
   branch,
@@ -1930,8 +2177,8 @@ const BRANCH_LABEL: Record<ExtraBranchKey, string> = {
 };
 function useBranchChips(content: SiteContent, branch: ExtraBranchKey): string[] {
   const overlay = (content as any).branchChips as string[] | undefined;
-  if (overlay && overlay.length > 0) return overlay.filter(Boolean);
-  return BRANCH_CHIPS_DEFAULT[branch];
+  const trimmed = (overlay ?? []).map((s) => String(s).trim()).filter(Boolean);
+  return trimmed.length > 0 ? trimmed : BRANCH_CHIPS_DEFAULT[branch];
 }
 function BranchHeroBadges({ branch, style, content }: { branch: ExtraBranchKey; style: ExtraStyle; content: SiteContent }) {
   const chips = useBranchChips(content, branch);
@@ -1983,8 +2230,9 @@ const CONSULTING_STEPS_DEFAULT: Array<{ k: string; t: string; d: string }> = [
 ];
 function useConsultingSteps(content: SiteContent) {
   const overlay = normaliseTdList((content as unknown as { serviceProcess?: unknown }).serviceProcess ?? []);
-  if (overlay.length === 0) return CONSULTING_STEPS_DEFAULT;
-  return overlay.map((s, i) => ({ k: String(i + 1).padStart(2, '0'), t: s.t, d: s.d }));
+  const filtered = overlay.filter((s) => String(s.t ?? '').trim() || String(s.d ?? '').trim());
+  if (filtered.length === 0) return CONSULTING_STEPS_DEFAULT;
+  return filtered.map((s, i) => ({ k: String(i + 1).padStart(2, '0'), t: s.t, d: s.d }));
 }
 function ConsultingProcess({ style, content }: { style: ExtraStyle; content: SiteContent }) {
   const h = moduleHeading(content, 'consultingSpotlight');

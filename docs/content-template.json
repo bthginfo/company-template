@@ -621,6 +621,21 @@
       ]
     },
 
+    "programs": {
+      "_branch": "fitness",
+      "_help": "Programm-Kacheln im Startseiten-Spotlight (fitness). Kurz-Code, Titel, Text, Meta (z.B. Zeiten).",
+      "items": [
+        {
+          "k": "",
+          "_k_help": "z.B. YOGA, PIL, PT",
+          "t": "",
+          "d": "",
+          "meta": "",
+          "_meta_help": "z.B. '75 min · Mo / Mi / Fr'"
+        }
+      ]
+    },
+
     "emergencyBanner": {
       "_branch": "tradesman",
       "_help": "Notdienst-Banner. Nur für tradesman.",

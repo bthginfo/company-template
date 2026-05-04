@@ -93,7 +93,7 @@ import {
 } from '../src/admin/admin-sections';
 import { SECTION_CONTRACTS, CATALOG_TO_ADMIN, CROSS_PAGE_TARGETS } from '../src/lib/section-registry';
 import { BRANCH_STYLE_ORDER } from '../src/lib/template-orders';
-import { SECTION_CATALOG } from '../src/lib/page-layout';
+import { SECTION_CATALOG, getCatalogForVariant } from '../src/lib/page-layout';
 import {
   branchHomeStyleBindingIssues,
   collectDirSources,
@@ -216,27 +216,16 @@ for (const tpl of TEMPLATES) {
       note(`[invariant] ${tpl}: cfg.${String(section)}.${flag} should be false for extra branches (got ${value})`);
     }
   }
-
-  // Extras don't render the softCta band or the modern logo strip.
-  if (isExtra) {
-    const allFalse = (s: { classic: boolean; modern: boolean; bold: boolean }) =>
-      !s.classic && !s.modern && !s.bold;
-    if (!allFalse(cfg.home.softCtaFields)) {
-      note(`[invariant] ${tpl}: cfg.home.softCtaFields should be NONE for extras`);
-    }
-    if (!allFalse(cfg.home.logoStrip)) {
-      note(`[invariant] ${tpl}: cfg.home.logoStrip should be NONE for extras`);
-    }
-  }
 }
 
 /* ─────────────────────────────────────────────────────────────────
  *  6: Frontend home order ↔ admin HOME_ORDER parity
  *
- *  Mapping admin section key → frontend section key (in `BRANCH_STYLE_ORDER`).
- *  `null` = the admin section drives no frontend block in the order array
- *  (e.g. `announcements`, `hero`, `softCta` are rendered outside the order;
- *  `heroBadge` content is edited under `branchChips`).
+ *  Mapping admin section key → frontend section key (in `BRANCH_STYLE_ORDER`,
+ *  plus for extras any `getCatalogForVariant('home', …)` keys merged at runtime).
+ *  `null` = the admin card drives no discrete order entry on that combo
+ *  (e.g. `announcements`, `hero`; `heroBadge` under `branchChips`).
+ *  `softCta` is null for core (rendered outside order) but mapped for extras.
  * ───────────────────────────────────────────────────────────────── */
 const ADMIN_TO_FRONTEND_HOME: Record<AdminSectionKey, string | null> = {
   // null = the admin card edits data that the frontend consumes somewhere
@@ -255,11 +244,11 @@ const ADMIN_TO_FRONTEND_HOME: Record<AdminSectionKey, string | null> = {
   team: 'team',
   contact: 'contact',
   // not used on home — keep them mapped so TS exhaustiveness is happy
-  servicesHeader: null, extraServiceCards: null, highlights: null, menu: null, rooms: null,
+  servicesHeader: null, extraServiceCards: null, highlights: null, servicesList: null, menu: null, rooms: null,
   tours: null, treatments: null, courses: null, packages: null,
   processSteps: null, doctors: null, booking: null, fundingModule: null,
   emergencyBanner: null, programs: null, medicalNotice: null,
-  serviceProcess: null, faq: null, servicesCta: null,
+  serviceProcess: null, faq: 'faq', servicesCta: null,
   galleryHeader: null, galleryStory: null, galleryUpload: null,
   galleryGrid: null, galleryCategories: null, galleryCta: null,
   aboutHeader: null, aboutIntro: null, values: null, timeline: null,
@@ -280,11 +269,19 @@ const FRONTEND_HOME_KEYS_EDITED_ELSEWHERE = new Set([
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     const adminOrder = getAdminSections('home', tpl, style);
-    const frontendOrder: readonly string[] = BRANCH_STYLE_ORDER[tpl][style];
+    const baseOrder = BRANCH_STYLE_ORDER[tpl][style];
+    const frontendOrder: readonly string[] = isExtraBranch(tpl)
+      ? Array.from(new Set([...baseOrder, ...getCatalogForVariant('home', tpl, style).map((s) => s.key)]))
+      : baseOrder;
+
+    const adminKeyToFrontendBlock = (adminKey: AdminSectionKey): string | null => {
+      if (adminKey === 'softCta' && isExtraBranch(tpl)) return 'softCta';
+      return ADMIN_TO_FRONTEND_HOME[adminKey];
+    };
 
     // Admin shows X => frontend should render X
     for (const adminKey of adminOrder) {
-      const frontKey = ADMIN_TO_FRONTEND_HOME[adminKey];
+      const frontKey = adminKeyToFrontendBlock(adminKey);
       if (frontKey === null) continue;
       if (!frontendOrder.includes(frontKey)) {
         note(`[admin-overshoot] ${tpl}/${style}: admin shows "${adminKey}" but frontend home order doesn't include "${frontKey}"`);
@@ -294,8 +291,9 @@ for (const tpl of TEMPLATES) {
     // Frontend renders X => admin should let user edit X
     for (const frontKey of frontendOrder) {
       if (FRONTEND_HOME_KEYS_EDITED_ELSEWHERE.has(frontKey)) continue;
-      const adminKey = (Object.entries(ADMIN_TO_FRONTEND_HOME) as [AdminSectionKey, string | null][])
+      let adminKey = (Object.entries(ADMIN_TO_FRONTEND_HOME) as [AdminSectionKey, string | null][])
         .find(([, v]) => v === frontKey)?.[0];
+      if (!adminKey && frontKey === 'softCta' && isExtraBranch(tpl)) adminKey = 'softCta';
       if (!adminKey) {
         note(`[admin-undershoot] ${tpl}/${style}: frontend renders "${frontKey}" but no admin section maps to it`);
         continue;
@@ -314,6 +312,9 @@ const allHomeFrontKeys = new Set<string>();
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     for (const k of BRANCH_STYLE_ORDER[tpl][style]) allHomeFrontKeys.add(k);
+    if (isExtraBranch(tpl)) {
+      for (const { key } of getCatalogForVariant('home', tpl, style)) allHomeFrontKeys.add(key);
+    }
   }
 }
 for (const k of allHomeFrontKeys) {
@@ -375,8 +376,9 @@ for (const [adminKey, target] of Object.entries(CROSS_PAGE_TARGETS)) {
     note(`[cross-page-bad-target] "${adminKey}": target page "${target.page}" is not a real admin page`);
     continue;
   }
-  if (!HANDLED_SECTIONS_BY_PAGE[target.page].includes(adminKey as AdminSectionKey)) {
-    note(`[cross-page-no-editor] "${adminKey}": CROSS_PAGE_TARGETS points to "${target.page}" but no editor case for it on that page`);
+  const resolved = (target.editorSectionKey ?? adminKey) as AdminSectionKey;
+  if (!HANDLED_SECTIONS_BY_PAGE[target.page].includes(resolved)) {
+    note(`[cross-page-no-editor] "${adminKey}": CROSS_PAGE_TARGETS points to "${target.page}" (section "${resolved}") but no editor case for it on that page`);
   }
 }
 

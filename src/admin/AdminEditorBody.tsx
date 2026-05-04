@@ -639,9 +639,10 @@ function DeepLinkSectionCard({
   badge: string;
 }) {
   const target = CROSS_PAGE_TARGETS[adminKey];
+  const tplKey = (_ctx.tpl ?? (data.brand as { variant?: TemplateKey }).variant ?? 'restaurant') as TemplateKey;
   const meta = (() => {
     try {
-      return getSectionMeta(adminKey, (_ctx.tpl ?? (data.brand as { variant?: TemplateKey }).variant ?? 'restaurant') as TemplateKey, (_ctx.style ?? 'classic'));
+      return getSectionMeta(adminKey, tplKey, (_ctx.style ?? 'classic'));
     } catch {
       return { title: adminKey, description: '' };
     }
@@ -649,7 +650,7 @@ function DeepLinkSectionCard({
   const targetPageLabel = target?.page ? PAGE_KEY_LABEL[target.page] : 'andere Seite';
   const targetLabel = (() => {
     if (!target) return targetPageLabel;
-    return typeof target.label === 'function' ? target.label('restaurant') : target.label;
+    return typeof target.label === 'function' ? target.label(tplKey) : target.label;
   })();
   return (
     <SectionCard
@@ -1007,6 +1008,14 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
             <NewsHomePreview data={data} />
           </SectionCard>
         );
+      case 'faq':
+        if (!catalogSectionApplies('home', 'faq', tpl, style)) return null;
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="faq" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['faqEyebrow', 'faqTitle']} />
+            <FaqEditor data={data} setData={setData} defaults={defaultFaq(tpl)} />
+          </SectionCard>
+        );
       case 'softCta':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="home" sectionKey="softCta" data={data} setData={setData}>
@@ -1286,6 +1295,27 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
             <HighlightsEditor data={data} setData={setData} field="serviceHighlights" defaults={defaultHighlights(tpl)} />
           </SectionCard>
         );
+      case 'servicesList': {
+        if ((['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl)) return null;
+        const listKeys: BranchTextKey[] = ['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle'];
+        return (
+          <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} pageKey="services" sectionKey="list" data={data} setData={setData}>
+            <p className="text-xs text-muted mb-4 max-w-prose leading-relaxed">
+              Diese Liste erscheint im Hauptblock auf <strong className="font-medium text-brand">/leistungen</strong> — dieselben Einträge wie im Startseiten-Leistungs-Teaser.
+            </p>
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={listKeys} />
+            <Field label="Untertitel (Fallback: Hero-Untertitel)">
+              <input
+                className={inputCls}
+                value={data.hero?.subtitle || ''}
+                onChange={(e) => setData({ ...data, hero: { ...data.hero, subtitle: e.target.value } })}
+                placeholder="Kurzer Begleittext neben der Überschrift"
+              />
+            </Field>
+            <ServicesListEditor data={data} setData={setData} />
+          </SectionCard>
+        );
+      }
       case 'menu':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge="Modul · Speisekarte" pageKey="services" sectionKey="module" data={data} setData={setData}>

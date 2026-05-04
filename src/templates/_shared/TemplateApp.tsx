@@ -149,13 +149,19 @@ const VARIANT_HERO_META: Record<TemplateVariant, { label: string; value: string 
 /* Resolve numbers/faq overlays from admin content. */
 function resolveHeroMeta(variant: TemplateVariant, content: SiteContent): { label: string; value: string }[] {
   const overlay = (content as any).numbers as { value: string; label: string }[] | undefined;
-  if (overlay && overlay.length) return overlay.map((n) => ({ label: n.label, value: n.value }));
+  const filtered = (overlay ?? []).filter(
+    (n) => n && (String(n.label ?? '').trim() || String(n.value ?? '').trim()),
+  );
+  if (filtered.length > 0) return filtered.map((n) => ({ label: n.label, value: n.value }));
   return VARIANT_HERO_META[variant];
 }
 /** About-sidebar stats: uses aboutNumbers if set, else falls back to global numbers/defaults. */
 function resolveAboutMeta(variant: TemplateVariant, content: SiteContent): { label: string; value: string }[] {
   const about = (content as any).aboutNumbers as { value: string; label: string }[] | undefined;
-  if (about && about.length) return about.map((n) => ({ label: n.label, value: n.value }));
+  const filtered = (about ?? []).filter(
+    (n) => n && (String(n.label ?? '').trim() || String(n.value ?? '').trim()),
+  );
+  if (filtered.length > 0) return filtered.map((n) => ({ label: n.label, value: n.value }));
   return resolveHeroMeta(variant, content);
 }
 function resolveFaq(variant: TemplateVariant, content: SiteContent): { q: string; a: string }[] {
@@ -300,8 +306,9 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
   // 1. Tenant override (admin-saved) wins.
   const overlay = (content as any).announcements as string[] | undefined;
   let base: string[];
-  if (overlay && overlay.length) {
-    base = overlay.filter((s) => s && s.trim());
+  const overlayFiltered = overlay?.length ? overlay.filter((s) => s && s.trim()) : [];
+  if (overlayFiltered.length) {
+    base = overlayFiltered;
   } else if (v === 'restaurant') base = ['Heute geöffnet', 'Tisch online reservieren', 'Saisonale Karte', 'Reservierung empfohlen'];
   else if (v === 'salon') base = ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Premium-Pflegepartner', 'Termin online buchen'];
   else if (v === 'hotel') base = ['Zimmer verfügbar', 'Spa & Sauna inklusive', 'Familienbetrieb', 'Direktbuchung mit Bestpreis'];
@@ -427,6 +434,11 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
         </div>
       </Section>
     ) : null,
+    faq: (
+      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)}>
+        <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      </Section>
+    ),
   };
 
   return (
@@ -755,6 +767,11 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         </section>
       </>
     ) : null,
+    faq: (
+      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)}>
+        <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      </Section>
+    ),
   };
 
   return (
@@ -1104,9 +1121,13 @@ function NumbersBand({ variant, content }: { variant: TemplateVariant; content?:
     ],
   };
   const overlay = content && ((content as any).numbers as { value: string; label: string }[] | undefined);
-  const stats: { v: number; s?: string; l: string; raw?: boolean }[] = overlay && overlay.length
-    ? overlay.map((n) => ({ ...parseNumberValue(n.value), l: n.label }))
-    : defaults[variant];
+  const mapped =
+    overlay && overlay.length
+      ? overlay
+          .filter((n) => n && String(n.label ?? '').trim() && String(n.value ?? '').trim())
+          .map((n) => ({ ...parseNumberValue(n.value), l: n.label }))
+      : [];
+  const stats: { v: number; s?: string; l: string; raw?: boolean }[] = mapped.length ? mapped : defaults[variant];
   return (
     <section className="py-20 md:py-28 bg-brand text-white grain relative overflow-hidden">
       <div className="blob -top-40 -left-40 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)', opacity: 0.18 }} />
@@ -1231,7 +1252,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
             <div className="lg:col-span-4 reveal">
               <p className="eyebrow mb-5">{effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
-              <h2 className="font-display text-5xl md:text-6xl leading-[0.95]">{splitTitle(cfg.servicesHeadline)}</h2>
+              <h2 className="font-display text-5xl md:text-6xl leading-[0.95]">{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</h2>
               <p className="mt-8 text-lg text-muted leading-relaxed">{subtitleFor(variant, content)}</p>
             </div>
             <div className="lg:col-span-8">
@@ -1325,7 +1346,8 @@ function ServiceHighlights({ variant, content }: { variant: TemplateVariant; con
       { t: 'Wetterbedingt flexibel', d: 'Bei Tour-Absage durch uns volle Erstattung oder Verschiebung.' },
     ],
   };
-  const list = overlay.length ? overlay.filter((it) => it.t || it.d) : fallbacks[variant];
+  const filtered = overlay.filter((it) => it.t || it.d);
+  const list = filtered.length ? filtered : fallbacks[variant];
   if (!list.length) return null;
   return (
     <section className="py-10 surface border-y border-line">
@@ -1375,7 +1397,8 @@ function ServiceProcess({ variant, content }: { variant: TemplateVariant; conten
       { t: 'Erinnerung', d: 'Fotos und Tour-Rückblick per Mail im Nachgang.' },
     ],
   };
-  const list = overlay.length ? overlay.filter((s) => s.t || s.d) : fallbacks[variant];
+  const filtered = overlay.filter((s) => s.t || s.d);
+  const list = filtered.length ? filtered : fallbacks[variant];
   if (!list.length) return null;
   return (
     <Section eyebrow={effectiveBranchText(variant, content).processEyebrow || 'So läuft es ab'} title={<>{splitTitle(effectiveBranchText(variant, content).processTitle || 'In vier Schritten.')}</>}>
@@ -1572,7 +1595,8 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
     ],
   };
   const overlay = normaliseTdList((content as unknown as { galleryCategories?: unknown }).galleryCategories ?? []);
-  const list = overlay.length ? overlay.filter((c) => c.t || c.d) : fallbacks[variant];
+  const filtered = overlay.filter((c) => c.t || c.d);
+  const list = filtered.length ? filtered : fallbacks[variant];
   if (!list.length) return null;
   return (
     <Section eyebrow={effectiveBranchText(variant, content).galleryCategoriesEyebrow || 'Kategorien'} title={<>{splitTitle(effectiveBranchText(variant, content).galleryCategoriesTitle || 'Was Sie bei uns erwartet.')}</>}>
@@ -1706,7 +1730,8 @@ function ValuesSection({ variant, content }: { variant: TemplateVariant; content
       { t: 'Lokal verwurzelt.', d: 'Wir leben hier. Sie bekommen die Tour, die wir Freund:innen empfehlen würden.' },
     ],
   };
-  const list = overlay.length ? overlay.filter((v) => v.t || v.d) : fallbacks[variant];
+  const filtered = overlay.filter((v) => v.t || v.d);
+  const list = filtered.length ? filtered : fallbacks[variant];
   if (!list?.length) return null;
   return (
     <Section eyebrow={effectiveBranchText(variant, content).valuesEyebrow || 'Was uns wichtig ist'} title={<>{splitTitle(effectiveBranchText(variant, content).valuesTitle || 'Drei Grundsätze.')}</>} className="surface">
@@ -1753,7 +1778,8 @@ function TeamSection({ variant, content }: { variant: TemplateVariant; content: 
       { n: 'Jakob Pichler', r: 'Foto & Outdoor', img: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=900&q=80', bio: 'Outdoor-Fotograf und Wanderführer. Spezialist für Sonnenaufgangs- und Sterne-Touren.' },
     ],
   };
-  const list = overlay.length ? overlay.filter((m) => m.n || m.r) : fallbacks[variant];
+  const filtered = overlay.filter((m) => m.n || m.r);
+  const list = filtered.length ? filtered : fallbacks[variant];
   if (!list?.length) return null;
   return (
     <Section eyebrow={effectiveBranchText(variant, content).teamEyebrow || 'Team'} title={<>{splitTitle(effectiveBranchText(variant, content).teamTitle || 'Menschen hinter dem Betrieb.')}</>}>
@@ -1786,7 +1812,8 @@ function CertificationsSection({ variant, content }: { variant: TemplateVariant;
     { t: 'Photovoltaik-Fachpartner', d: 'Komplettpaket inkl. Anmeldung beim Netzbetreiber und Steuerformular.' },
   ];
   const overlay = normaliseTdList((content as unknown as { certifications?: unknown }).certifications ?? []);
-  const items = overlay.length ? overlay : fallback;
+  const filtered = overlay.filter((it) => it.t || it.d);
+  const items = filtered.length ? filtered : fallback;
   return (
     <Section eyebrow={(content && effectiveBranchText(variant, content).certsEyebrow) || 'Qualifikationen'} title={<>{splitTitle((content && effectiveBranchText(variant, content).certsTitle) || 'Geprüft & zertifiziert.')}</>} className="surface">
       <div className="grid md:grid-cols-3 gap-4 reveal-stagger">
@@ -2065,7 +2092,8 @@ function heroBodyFor(v: TemplateVariant, content: SiteContent): string {
 
 function marqueeWordsFor(v: TemplateVariant, content?: SiteContent): string[] {
   const override = (content as any)?.branchText?.marqueeWords as string[] | undefined;
-  if (override && override.filter(Boolean).length > 0) return override.filter(Boolean);
+  const trimmed = (override ?? []).map((s) => String(s).trim()).filter(Boolean);
+  if (trimmed.length > 0) return trimmed;
   return branchTextDefaults(v).marqueeWords;
 }
 

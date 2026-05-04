@@ -13,6 +13,7 @@
 import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle, ServiceModule } from '@/lib/branch-config';
 import { getBranchConfig, isExtraBranch } from '@/lib/branch-config';
+import { getCatalogForVariant } from '@/lib/page-layout';
 import { BRANCH_STYLE_ORDER, type Style } from '@/lib/template-orders';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
@@ -25,7 +26,7 @@ export type AdminSectionKey =
   | 'funding' | 'spotlight'
   | 'branchModules' | 'team' | 'contact'
   // Services sections
-  | 'servicesHeader' | 'extraServiceCards' | 'highlights' | 'menu' | 'rooms'
+  | 'servicesHeader' | 'extraServiceCards' | 'highlights' | 'servicesList' | 'menu' | 'rooms'
   | 'tours' | 'treatments' | 'courses' | 'packages' | 'processSteps'
   | 'doctors' | 'booking' | 'fundingModule' | 'emergencyBanner'
   | 'programs' | 'medicalNotice' | 'serviceProcess' | 'faq' | 'servicesCta'
@@ -107,7 +108,14 @@ export function buildHomeAdminOrderFromFrontend(tpl: TemplateKey, style: Templat
     const adminKey = HOME_CATALOG_BLOCK_TO_ADMIN[block];
     if (adminKey && !out.includes(adminKey)) out.push(adminKey);
   }
-  if (!isExtraBranch(tpl)) out.push('softCta');
+  if (isExtraBranch(tpl)) {
+    for (const def of getCatalogForVariant('home', tpl, style)) {
+      const adminKey = HOME_CATALOG_BLOCK_TO_ADMIN[def.key];
+      if (adminKey && !out.includes(adminKey)) out.push(adminKey);
+    }
+  } else {
+    out.push('softCta');
+  }
   return out;
 }
 
@@ -143,6 +151,7 @@ function servicesOrder(tpl: TemplateKey, _style: TemplateStyle): AdminSectionKey
   const base: AdminSectionKey[] = ['servicesHeader'];
   if (isExtraBranch(tpl)) base.push('extraServiceCards');
   if (cfg.services.showHighlights) base.push('highlights');
+  if (!isExtraBranch(tpl)) base.push('servicesList');
 
   // Derive module sections from branch config — single source of truth
   for (const mod of cfg.services.modules) {
@@ -221,11 +230,11 @@ export const HANDLED_SECTIONS_BY_PAGE: Record<PageKey, readonly AdminSectionKey[
   home: [
     'announcements', 'hero', 'actionStrip', 'branchChips', 'marquee',
     'services', 'signature', 'about', 'gallery', 'numbers',
-    'logos', 'testimonials', 'news', 'softCta',
+    'logos', 'testimonials', 'news', 'softCta', 'faq',
     'funding', 'spotlight', 'branchModules', 'team', 'contact',
   ],
   services: [
-    'servicesHeader', 'extraServiceCards', 'highlights',
+    'servicesHeader', 'extraServiceCards', 'highlights', 'servicesList',
     'menu', 'rooms', 'tours', 'treatments', 'courses', 'packages',
     'processSteps', 'doctors', 'booking', 'fundingModule', 'emergencyBanner',
     'programs', 'medicalNotice',
@@ -354,6 +363,10 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     title: 'Highlights-Leiste',
     description: 'Kurze Info-Kacheln unter dem Header.',
   }),
+  servicesList: () => ({
+    title: 'Katalog-Liste',
+    description: 'Hauptliste auf dieser Seite (Karten, Preise, Detail-Seiten) — dieselben Einträge wie im Startseiten-Leistungs-Teaser.',
+  }),
 
   menu: () => ({
     title: 'Speisekarte (Kategorien & Gerichte)',
@@ -397,7 +410,8 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
   }),
   emergencyBanner: () => ({
     title: 'Notdienst-Banner',
-    description: 'Notfall-Hinweis-Banner.',
+    description:
+      'Mit „Sticky“: schwebendes Banner auf allen Seiten. Ohne „Sticky“: derselbe Hinweis erscheint im Seitenfluss unter dem Förderrechner auf der Leistungs-Seite.',
   }),
   programs: () => ({
     title: 'Programme',

@@ -144,6 +144,15 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
     ],
   },
   highlights: { key: 'highlights', dataKeys: ['serviceHighlights'] },
+  servicesList: {
+    key: 'servicesList',
+    dataKeys: [
+      'services',
+      'branchText.servicesTeaserEyebrow', 'branchText.servicesTeaserTitle', 'branchText.teaserSubtitle',
+      'hero.subtitle',
+      ...CAT_DETAIL_KEYS,
+    ],
+  },
   menu: { key: 'menu', dataKeys: ['menu', 'moduleHeadings.menu', ...CAT_DETAIL_KEYS] },
   rooms: { key: 'rooms', dataKeys: ['rooms', 'services', 'moduleHeadings.rooms', ...CAT_DETAIL_KEYS] },
   tours: { key: 'tours', dataKeys: ['tours', 'services', 'moduleHeadings.tours', ...CAT_DETAIL_KEYS] },
@@ -260,7 +269,7 @@ export const CATALOG_TO_ADMIN: Record<PageKey, Record<CatalogKey, AdminSectionKe
   },
   services: {
     highlights:    'highlights',
-    list:          null, // services list itself — edited via Home > Leistungs-Teaser
+    list:          'servicesList',
     module:        null, // resolved per-branch via cfg.services.modules → menu/rooms/etc.
     process:       'serviceProcess',
     testimonials:  'aboutTestimonials',
@@ -311,10 +320,24 @@ export interface DeepLinkTarget {
   label: string | ((tpl: TemplateKey) => string);
   /** Optional explanation shown in the card body. */
   description?: string;
+  /**
+   * When the catalog/admin map key (e.g. `services` on Home) differs from the
+   * section key handled on `page` (e.g. `servicesList` on Services), set this so
+   * `check-coverage` can still verify a real editor exists.
+   */
+  editorSectionKey?: AdminSectionKey;
 }
 
 export const CROSS_PAGE_TARGETS: Partial<Record<AdminSectionKey, DeepLinkTarget>> = {
   // When added to Home, these editors actually live on the Services page.
+  // Home teaser + services page list share `content.services` and teaser branchText.
+  services: {
+    page: 'services',
+    label: 'Teaser & Katalog',
+    description:
+      'Startseiten-Leistungs-Teaser und die Hauptliste nutzen dieselben Einträge und Texte wie der Block „Katalog-Liste“ auf der Leistungs-Seite.',
+    editorSectionKey: 'servicesList',
+  },
   menu: {
     page: 'services',
     label: 'Speisekarte',

@@ -11,7 +11,10 @@ const DEFAULT_TIMELINE: TimelineItem[] = [
 
 export function useTimeline(content: SiteContent): TimelineItem[] {
   const overlay = (content as any).timeline as TimelineItem[] | undefined;
-  if (overlay && overlay.length > 0) return overlay.filter((t) => t && (t.year || t.title || t.description));
+  const filtered = Array.isArray(overlay)
+    ? overlay.filter((t) => t && (String(t.year ?? '').trim() || String(t.title ?? '').trim() || String(t.description ?? '').trim()))
+    : [];
+  if (filtered.length > 0) return filtered;
   return DEFAULT_TIMELINE;
 }
 

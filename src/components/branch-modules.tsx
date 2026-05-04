@@ -78,7 +78,14 @@ export function BranchModulesInline({ variant, content }: { variant: Variant; co
   if (variant === 'hotel') return <RoomShowcaseModule content={content} itemLinkPrefix={itemLinkPrefix} />;
   if (variant === 'tourism') return <TourCardsModule content={content} itemLinkPrefix={itemLinkPrefix} />;
   if (variant === 'salon') return <TreatmentListModule content={content} itemLinkPrefix={itemLinkPrefix} />;
-  if (variant === 'tradesman') return <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+  if (variant === 'tradesman') {
+    return (
+      <>
+        <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} />
+        <EmergencyBannerServicesSection content={content} />
+      </>
+    );
+  }
   if (variant === 'consulting') return <><ProcessStepsModule content={content} itemLinkPrefix={itemLinkPrefix} /><PricePackagesModule content={content} itemLinkPrefix={itemLinkPrefix} /></>;
   if (variant === 'medical') return <><DoctorTeamModule content={content} itemLinkPrefix={itemLinkPrefix} /><OnlineBookingModule content={content} /></>;
   if (variant === 'fitness') return <><CourseScheduleModule content={content} itemLinkPrefix={itemLinkPrefix} /><PricePackagesModule content={content} itemLinkPrefix={itemLinkPrefix} /></>;
@@ -698,6 +705,36 @@ export function FundingCalculatorModule({ content, itemLinkPrefix }: { content: 
 }
 
 /* ─────────────────────────────────────────────────────────────────
+ * TRADESMAN — In-flow emergency (when sticky banner is turned off)
+ * ─────────────────────────────────────────────────────────────── */
+export function EmergencyBannerServicesSection({ content }: { content: SiteContent }) {
+  const b = ((content as any).emergencyBanner || {}) as NonNullable<SiteContent['emergencyBanner']>;
+  if (!b?.enabled || b.sticky !== false) return null;
+  const phone = b.phone || content.contact?.phone || '';
+  const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
+  return (
+    <Section spacing="lg" className="surface">
+      <div className="rounded-2xl bg-brand text-white border border-white/10 px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4">
+        <span className="relative inline-flex h-11 w-11 rounded-full bg-[var(--accent-color)] items-center justify-center shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-brand">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0 1 22 16.92z" />
+          </svg>
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-white/70">Notdienst</p>
+          <p className="font-display text-lg leading-tight">{b.text || 'Wir kommen schnell.'}</p>
+        </div>
+        {phone ? (
+          <a href={phoneHref} className="font-display text-base bg-[var(--accent-color)] text-brand rounded-full px-5 py-2.5 whitespace-nowrap text-center hover:opacity-95 transition-opacity">
+            {phone}
+          </a>
+        ) : null}
+      </div>
+    </Section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────
  * TRADESMAN — Sticky Emergency Banner
  * ─────────────────────────────────────────────────────────────── */
 export function EmergencyStickyBanner({ content }: { content: SiteContent }) {
@@ -706,14 +743,14 @@ export function EmergencyStickyBanner({ content }: { content: SiteContent }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!b || !b.enabled) return;
+    if (!b || !b.enabled || b.sticky === false) return;
     const onScroll = () => setVisible(window.scrollY > 600);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [b]);
 
-  if (!b || !b.enabled || hidden) return null;
+  if (!b || !b.enabled || hidden || b.sticky === false) return null;
   const phone = b.phone || content.contact?.phone || '';
   const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
 
