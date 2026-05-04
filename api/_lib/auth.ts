@@ -4,6 +4,9 @@ import { SignJWT, jwtVerify } from 'jose';
 const COOKIE = 'bth_session';
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
+/** `Secure` breaks http://localhost (vercel dev); production/preview use HTTPS. */
+const SECURE_ATTR = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+
 function secret() {
   const s = process.env.AUTH_SECRET;
   if (!s) throw new Error('AUTH_SECRET is not set');
@@ -22,11 +25,11 @@ export async function createSessionCookie(session: Session): Promise<string> {
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE}s`)
     .sign(secret());
-  return `${COOKIE}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${MAX_AGE}`;
+  return `${COOKIE}=${token}; HttpOnly${SECURE_ATTR}; SameSite=Lax; Path=/; Max-Age=${MAX_AGE}`;
 }
 
 export function clearCookie(): string {
-  return `${COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+  return `${COOKIE}=; HttpOnly${SECURE_ATTR}; SameSite=Lax; Path=/; Max-Age=0`;
 }
 
 export async function getSession(req: VercelRequest): Promise<Session | null> {

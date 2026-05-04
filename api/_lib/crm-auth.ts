@@ -12,6 +12,8 @@ import { SignJWT, jwtVerify } from 'jose';
 const COOKIE = 'bth_crm';
 const MAX_AGE = 60 * 60 * 24 * 14; // 14 days — sales work is bursty, force re-auth periodically
 
+const SECURE_ATTR = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+
 function secret() {
   const s = process.env.AUTH_SECRET;
   if (!s) throw new Error('AUTH_SECRET is not set');
@@ -26,11 +28,11 @@ export async function createCrmCookie(): Promise<string> {
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE}s`)
     .sign(secret());
-  return `${COOKIE}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${MAX_AGE}`;
+  return `${COOKIE}=${token}; HttpOnly${SECURE_ATTR}; SameSite=Lax; Path=/; Max-Age=${MAX_AGE}`;
 }
 
 export function clearCrmCookie(): string {
-  return `${COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+  return `${COOKIE}=; HttpOnly${SECURE_ATTR}; SameSite=Lax; Path=/; Max-Age=0`;
 }
 
 export async function getCrmSession(req: VercelRequest): Promise<CrmSession | null> {
