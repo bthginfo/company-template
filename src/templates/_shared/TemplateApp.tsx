@@ -27,6 +27,7 @@ import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { isSectionEnabled, getEffectivePageOrder } from '@/lib/page-layout';
 import { applyRestaurantModularOverlay } from '@/lib/modular-restaurant';
+import { applyHotelModularOverlay } from '@/lib/modular-hotel';
 import { BRANCH_STYLE_ORDER as SHARED_BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 import { BranchSignature } from './BranchSignature';
 import {
@@ -45,6 +46,12 @@ import ExtraBranchTemplate, { type ExtraBranchKey } from './extra';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
+
+function withModularSiteContent(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): SiteContent {
+  let c = applyRestaurantModularOverlay(content, variant, style);
+  c = applyHotelModularOverlay(c, variant, style);
+  return c;
+}
 
 const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLabel: string; nav: NavItem[]; servicesEyebrow: string; servicesHeadline: string }> = {
   restaurant: {
@@ -336,7 +343,7 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
 
 /* ─── Home ─────────────────────────────────────────────────────────── */
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const resolved = applyRestaurantModularOverlay(content, variant, style);
+  const resolved = withModularSiteContent(content, variant, style);
   if (style === 'modern') return <HomePageModern variant={variant} content={resolved} />;
   if (style === 'bold') return <HomePageBold variant={variant} content={resolved} />;
   return <HomePageClassic variant={variant} content={resolved} />;
@@ -1245,7 +1252,7 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
 
 /* ─── Services / Speisekarte / Leistungen ────────────────────────── */
 function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const resolved = applyRestaurantModularOverlay(content, variant, style);
+  const resolved = withModularSiteContent(content, variant, style);
   const cfg = NAV_BY_VARIANT[variant];
   const order = getEffectivePageOrder(resolved, 'services', variant).filter((k) => isSectionEnabled(resolved, 'services', k));
   const blocks: Record<string, JSX.Element | null> = {
@@ -1428,7 +1435,7 @@ function ServiceProcess({ variant, content }: { variant: TemplateVariant; conten
 function GalleryPage({
   content, variant, title, eyebrow, style,
 }: { content: SiteContent; variant: TemplateVariant; title?: string; eyebrow?: string; style: TemplateStyle }) {
-  const resolved = applyRestaurantModularOverlay(content, variant, style);
+  const resolved = withModularSiteContent(content, variant, style);
   const headerOverride = pageHeaderOverride(resolved, 'galleryHeader');
   return (
     <>
@@ -1624,7 +1631,7 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
 
 /* ─── About ──────────────────────────────────────────────────────── */
 function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const resolved = applyRestaurantModularOverlay(content, variant, style);
+  const resolved = withModularSiteContent(content, variant, style);
   const order = getEffectivePageOrder(resolved, 'about', variant).filter((k) => isSectionEnabled(resolved, 'about', k));
   const introBlock = style !== 'modern' ? (
     <Section spacing="lg">
@@ -1873,7 +1880,7 @@ function PressSection({ variant, content }: { variant: TemplateVariant; content?
 
 /* ─── Contact ────────────────────────────────────────────────────── */
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
-  const resolved = applyRestaurantModularOverlay(content, variant, style);
+  const resolved = withModularSiteContent(content, variant, style);
   const cfg = getBranchConfig(variant);
   const arrivalFallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [

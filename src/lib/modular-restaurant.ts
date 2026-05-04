@@ -275,7 +275,7 @@ function importServicesSections(content: SiteContent, sections: ModularSectionV1
   }
 }
 
-function importGallerySections(content: SiteContent, sections: ModularSectionV1[]): void {
+export function importGallerySections(content: SiteContent, sections: ModularSectionV1[]): void {
   const by = (t: string) => sections.find((s) => s.type === t);
   const nb = by('noticeBanner');
   if (nb) {
@@ -323,7 +323,7 @@ function importGallerySections(content: SiteContent, sections: ModularSectionV1[
   }
 }
 
-function importAboutSections(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): void {
+export function importAboutSections(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): void {
   const by = (t: string) => sections.find((s) => s.type === t);
   const nb = by('noticeBanner');
   if (nb) {
@@ -411,7 +411,7 @@ function importAboutSections(content: SiteContent, sections: ModularSectionV1[],
   void style;
 }
 
-function importContactSections(content: SiteContent, sections: ModularSectionV1[]): void {
+export function importContactSections(content: SiteContent, sections: ModularSectionV1[]): void {
   const by = (t: string) => sections.find((s) => s.type === t);
   const nb = by('noticeBanner');
   if (nb) {
@@ -496,12 +496,12 @@ export function importRestaurantModularFromLegacy(content: SiteContent, style: T
   };
 }
 
-function mergeNoticeBanner(next: SiteContent, d: Record<string, unknown>): SiteContent {
+export function mergeNoticeBanner(next: SiteContent, d: Record<string, unknown>): SiteContent {
   const lines = readItems(d).map((x) => x.text);
   return lines.length ? { ...next, announcements: lines } : next;
 }
 
-function mergeHeroToPageHeader(
+export function mergeHeroToPageHeader(
   next: SiteContent,
   d: Record<string, unknown>,
   headerKey: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader',
@@ -521,7 +521,8 @@ function mergeHeroToPageHeader(
   return o;
 }
 
-function mergeHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
+/** Shared home merge for section types also used by Hotel modular (v1). */
+export function mergeHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
   let next: SiteContent = { ...content };
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
@@ -804,7 +805,7 @@ function mergeServicesIntoLegacy(content: SiteContent, sections: ModularSectionV
   return next;
 }
 
-function mergeGalleryIntoLegacy(content: SiteContent, sections: ModularSectionV1[]): SiteContent {
+export function mergeGalleryIntoLegacy(content: SiteContent, sections: ModularSectionV1[]): SiteContent {
   let next: SiteContent = { ...content };
   let teaserIdx = 0;
   for (const sec of sections) {
@@ -866,7 +867,7 @@ function mergeGalleryIntoLegacy(content: SiteContent, sections: ModularSectionV1
   return next;
 }
 
-function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSectionV1[]): SiteContent {
+export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSectionV1[]): SiteContent {
   let next: SiteContent = { ...content };
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
@@ -991,7 +992,7 @@ function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSectionV1[]
   return next;
 }
 
-function mergeContactIntoLegacy(content: SiteContent, sections: ModularSectionV1[]): SiteContent {
+export function mergeContactIntoLegacy(content: SiteContent, sections: ModularSectionV1[]): SiteContent {
   let next: SiteContent = { ...content };
   for (const sec of sections) {
     if (sec.isVisible === false) continue;

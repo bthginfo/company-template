@@ -23,6 +23,11 @@ import {
   ModularRestaurantActivationPanel,
   hasRestaurantModularPage,
 } from './ModularHomeEditor';
+import {
+  ModularHotelPageEditor,
+  ModularHotelActivationPanel,
+  hasHotelModularPage,
+} from './ModularHotelEditor';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
@@ -1190,9 +1195,17 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       </>
     );
   }
+  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'home')) {
+    return (
+      <>
+        <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />
+      </>
+    );
+  }
   return (
     <>
-      <ModularRestaurantActivationPanel data={data} setData={setData} tpl={tpl} style={style} />
+      {tpl === 'restaurant' ? <ModularRestaurantActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
+      {tpl === 'hotel' ? <ModularHotelActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
       {sectionOrder.map((key, idx) => (
         <Fragment key={key}>
           {renderSection(key, idx)}
@@ -1287,6 +1300,9 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   const style = _ctx.style || 'classic';
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'services')) {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+  }
+  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'services')) {
+    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
   }
   const sectionOrder = getAdminSections('services', tpl, style);
 
@@ -1524,6 +1540,9 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'gallery')) {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
   }
+  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'gallery')) {
+    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+  }
   const sectionOrder = getAdminSections('gallery', tpl, style);
 
   const onFiles = async (files: FileList | null) => {
@@ -1641,6 +1660,9 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   const style = _ctx.style || 'classic';
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'about')) {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+  }
+  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'about')) {
+    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
   }
   const sectionOrder = getAdminSections('about', tpl, style);
   const aboutPatch = (patch: Partial<NonNullable<typeof data.about>>) =>
@@ -1770,6 +1792,9 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
   const style = _ctx.style || 'classic';
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'contact')) {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+  }
+  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'contact')) {
+    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
   }
   const sectionOrder = getAdminSections('contact', tpl, style);
 
