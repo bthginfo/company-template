@@ -17,7 +17,7 @@ import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 import { getBranchConfig } from '@/lib/branch-config';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
-import { mergedServiceHighlights, normaliseArrivalList, normaliseFaqList, normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
+import { mergedServiceHighlights, meaningfulTestimonials, normaliseArrivalList, normaliseFaqList, normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
@@ -756,7 +756,8 @@ function ExtraGalleryCategoriesSection({ branch, content }: { branch: ExtraBranc
 }
 
 function ExtraGalleryTestimonials({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
-  if (content.testimonials.length === 0) return null;
+  const rows = meaningfulTestimonials(content.testimonials);
+  if (rows.length === 0) return null;
   const bt = effectiveBranchText(branch, content);
   return (
     <section className="py-24 md:py-32 surface">
@@ -764,7 +765,7 @@ function ExtraGalleryTestimonials({ content, branch }: { content: SiteContent; b
         <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
         <h2 className="headline-lg max-w-3xl reveal mb-12">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {content.testimonials.map((t, i) => (
+          {rows.map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <p className="text-lg leading-relaxed">„{t.text}"</p>
               <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">— {t.author}</footer>
@@ -894,7 +895,8 @@ function ExtraServicesGalleryTeaser({ content, branch }: { content: SiteContent;
 }
 
 function ExtraServicesTestimonialsBand({ content, branch, style }: { content: SiteContent; branch: ExtraBranchKey; style: ExtraStyle }) {
-  if (content.testimonials.length === 0) return null;
+  const rows = meaningfulTestimonials(content.testimonials);
+  if (rows.length === 0) return null;
   const bt = effectiveBranchText(branch, content);
   const band = style === 'bold' ? 'py-24 md:py-40 bg-[var(--text-color)] text-[var(--bg-color)]' : 'py-16 md:py-24 surface';
   return (
@@ -903,7 +905,7 @@ function ExtraServicesTestimonialsBand({ content, branch, style }: { content: Si
         <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{bt.testimonialsEyebrow || 'Stimmen'}</p>
         <h2 className={`${style === 'bold' ? 'font-display text-4xl md:text-6xl max-w-4xl' : 'headline-lg max-w-3xl'} reveal mb-12`}>{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {content.testimonials.map((t, i) => (
+          {rows.map((t, i) => (
             <figure key={i} className={`rounded-3xl p-7 md:p-8 ${style === 'bold' ? 'bg-white/5 border border-white/10' : 'bg-white border border-line'}`}>
               <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
               <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
@@ -958,7 +960,8 @@ function ExtraAboutValuesBlock({ content, branch }: { content: SiteContent; bran
 }
 
 function ExtraAboutTestimonialsBlock({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
-  if (content.testimonials.length === 0) return null;
+  const rows = meaningfulTestimonials(content.testimonials);
+  if (rows.length === 0) return null;
   const bt = effectiveBranchText(branch, content);
   return (
     <section className="py-16 md:py-24 surface">
@@ -966,7 +969,7 @@ function ExtraAboutTestimonialsBlock({ content, branch }: { content: SiteContent
         <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
         <h2 className="headline-lg max-w-3xl reveal mb-12">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {content.testimonials.map((t, i) => (
+          {rows.map((t, i) => (
             <figure key={i} className="bg-white border border-line rounded-3xl p-7">
               <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
               <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
@@ -1118,6 +1121,7 @@ function SubPage({ content, branch, page, style, eyebrow }: {
 function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const bt = effectiveBranchText(branch, content);
   const order = extraHomeOrder(content, branch, 'classic').filter((k) => $vis(content, k));
+  const homeT = meaningfulTestimonials(content.testimonials);
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <ExtraHomeActionStrip content={content} />,
@@ -1209,13 +1213,13 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
         </div>
       </section>
     ) : null,
-    testimonials: content.testimonials.length > 0 ? (
+    testimonials: homeT.length > 0 ? (
       <section className="py-24 md:py-32">
         <div className="container-x">
           <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
-          <h2 className="headline-lg max-w-3xl reveal">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
+          <h2 className="headline-lg max-w-3xl reveal mb-12">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
           <div className="mt-14 grid md:grid-cols-3 gap-5 reveal-stagger">
-            {content.testimonials.map((t, i) => (
+            {homeT.map((t, i) => (
               <figure key={i} className="bg-[var(--surface-color)] border border-line rounded-3xl p-7">
                 <blockquote className="text-lg leading-relaxed">„{t.text}"</blockquote>
                 <figcaption className="mt-6 font-mono text-xs uppercase tracking-widest text-muted">— {t.author}</figcaption>
@@ -1277,6 +1281,7 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
  * ──────────────────────────────────────────────────────────────────── */
 function ModernLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const bt = effectiveBranchText(branch, content);
+  const homeT = meaningfulTestimonials(content.testimonials);
   const numbersOverlay = (content as any).numbers as Array<{ value: string; label: string }> | undefined;
   const stats = numbersOverlay && numbersOverlay.length >= 3
     ? numbersOverlay.slice(0, 3).map((n) => {
@@ -1284,7 +1289,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
         return { value: m ? parseInt(m[1].replace(/\D/g, ''), 10) || 0 : 0, suffix: m ? m[2] : '', label: n.label };
       })
     : [
-        { value: content.testimonials.length || 50, suffix: '+', label: 'Kund:innen' },
+        { value: homeT.length || 50, suffix: '+', label: 'Kund:innen' },
         { value: content.services.length || 6, suffix: '', label: 'Leistungen' },
         { value: 24, suffix: 'h', label: 'Antwortzeit' },
       ];
@@ -1385,17 +1390,17 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
         </div>
       </section>
     ) : null,
-    testimonials: content.testimonials.length > 0 ? (
+    testimonials: homeT.length > 0 ? (
       <section className="py-24 md:py-32">
         <div className="container-x max-w-4xl mx-auto text-center reveal">
           <p className="text-xs font-mono uppercase tracking-widest text-muted mb-6">{bt.testimonialsEyebrow || 'Stimmen'}</p>
           <blockquote className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight">
-            „{content.testimonials[0].text}"
+            „{homeT[0].text}"
           </blockquote>
-          <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
-          {content.testimonials.length > 1 && (
+          <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {homeT[0].author}</p>
+          {homeT.length > 1 && (
             <div className="mt-16 grid md:grid-cols-2 gap-4 text-left">
-              {content.testimonials.slice(1).map((t, i) => (
+              {homeT.slice(1).map((t, i) => (
                 <figure key={i} className="bg-[var(--surface-color)] border border-line rounded-2xl p-6">
                   <p className="text-base leading-relaxed">„{t.text}"</p>
                   <p className="mt-4 font-mono text-[11px] uppercase tracking-widest text-muted">— {t.author}</p>
@@ -1488,6 +1493,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
 function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const bt = effectiveBranchText(branch, content);
   const order = extraHomeOrder(content, branch, 'bold').filter((k) => $vis(content, k));
+  const homeT = meaningfulTestimonials(content.testimonials);
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <ExtraHomeActionStrip content={content} />,
@@ -1582,12 +1588,12 @@ function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteCo
         </div>
       </section>
     ) : null,
-    testimonials: content.testimonials.length > 0 ? (
+    testimonials: homeT.length > 0 ? (
       <section className="py-24 md:py-40 bg-brand text-white grain">
         <div className="container-x">
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-white/60 mb-10 reveal">— {bt.testimonialsEyebrow || 'Stimmen'} —</p>
           <div className="grid md:grid-cols-2 gap-12 reveal-stagger">
-            {content.testimonials.map((t, i) => (
+            {homeT.map((t, i) => (
               <figure key={i} className="space-y-6">
                 <span className="font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)] block">"</span>
                 <blockquote className="font-display text-3xl md:text-4xl leading-tight">{t.text}</blockquote>

@@ -122,6 +122,46 @@ export function mergedServiceHighlights(serviceHighlights: unknown, highlights: 
   return sh.length ? sh : normaliseTdList(highlights ?? []);
 }
 
+/** Service / homeSignature row: at least one field worth rendering. */
+export function isMeaningfulServiceCard(d: { title?: string; description?: string; price?: string; imageUrl?: string } | null | undefined): boolean {
+  if (!d || typeof d !== 'object') return false;
+  return !!(
+    String(d.title ?? '').trim() ||
+    String(d.description ?? '').trim() ||
+    String(d.price ?? '').trim() ||
+    String(d.imageUrl ?? '').trim()
+  );
+}
+
+/**
+ * Home signature: use non-empty `homeSignatureItems`, pad from `services` up to `max`.
+ * If every overlay row is empty, falls back to the first services only.
+ */
+export function effectiveSignatureServiceRows<S extends { title?: string; description?: string; price?: string; imageUrl?: string }>(
+  homeSignatureItems: readonly S[] | undefined,
+  services: readonly S[],
+  max: number,
+): S[] {
+  const fromOverlay = (homeSignatureItems ?? []).filter(isMeaningfulServiceCard);
+  const fromSvc = services.filter(isMeaningfulServiceCard);
+  if (fromOverlay.length === 0) return fromSvc.slice(0, max);
+  const out: S[] = [...fromOverlay];
+  const seen = new Set(out.map((d) => String(d.title ?? '').trim().toLowerCase()).filter(Boolean));
+  for (const s of fromSvc) {
+    if (out.length >= max) break;
+    const k = String(s.title ?? '').trim().toLowerCase();
+    if (k && seen.has(k)) continue;
+    if (!isMeaningfulServiceCard(s)) continue;
+    if (k) seen.add(k);
+    out.push(s);
+  }
+  return out.slice(0, max);
+}
+
+export function meaningfulTestimonials<T extends { author?: string; text?: string }>(list: readonly T[] | undefined): T[] {
+  return (list ?? []).filter((t) => t && (String(t.text ?? '').trim() || String(t.author ?? '').trim()));
+}
+
 /**
  * Mutates merged site content before Zod parse: rewrite AI aliases to canonical keys.
  * Run after `coerceArrayFields` so array shapes are stable; preserves `id` on FAQ rows when present.

@@ -38,7 +38,7 @@ import {
   BranchModulesInline,
   moduleHeading,
 } from '@/components/branch-modules';
-import { mergedServiceHighlights, normaliseArrivalList, normaliseFaqList, normalisePressList, normaliseTdList, normaliseTeamList, type PressCard } from '@/lib/content-field-aliases';
+import { mergedServiceHighlights, meaningfulTestimonials, normaliseArrivalList, normaliseFaqList, normalisePressList, normaliseTdList, normaliseTeamList, isMeaningfulServiceCard, type PressCard } from '@/lib/content-field-aliases';
 import { getBranchConfig, isExtraBranch } from '@/lib/branch-config';
 import ExtraBranchTemplate, { type ExtraBranchKey } from './extra';
 
@@ -358,10 +358,14 @@ function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galle
  */
 const BRANCH_STYLE_ORDER = SHARED_BRANCH_STYLE_ORDER as Record<TemplateVariant, Record<TemplateStyle, readonly string[]>>;
 
+function visibleTestimonials(content: SiteContent) {
+  return meaningfulTestimonials(content.testimonials);
+}
+
 function HomePageClassic({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const itemLinkPrefix = getBranchConfig(variant).paths.services;
-  const featuredServices = content.services.slice(0, 3);
+  const featuredServices = content.services.filter(isMeaningfulServiceCard).slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = resolveHeroMeta(variant, content);
   const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
@@ -421,10 +425,10 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
         </div>
       </Section>
     ) : null,
-    testimonials: content.testimonials.length > 0 ? (
+    testimonials: visibleTestimonials(content).length > 0 ? (
       <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {content.testimonials.slice(0, 3).map((t, i) => (
+          {visibleTestimonials(content).slice(0, 3).map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
               <p className="text-lg leading-relaxed">{t.text}</p>
@@ -456,7 +460,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
 function HomePageModern({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const itemLinkPrefix = getBranchConfig(variant).paths.services;
-  const featuredServices = content.services.slice(0, 6);
+  const featuredServices = content.services.filter(isMeaningfulServiceCard).slice(0, 6);
   const featuredGallery = content.gallery.slice(0, 6);
   const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.gallery[0] || content.about?.imageUrl;
   const meta = resolveHeroMeta(variant, content);
@@ -569,10 +573,10 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
         <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
-    testimonials: content.testimonials.length > 0 ? (
+    testimonials: visibleTestimonials(content).length > 0 ? (
       <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {content.testimonials.slice(0, 3).map((t, i) => (
+          {visibleTestimonials(content).slice(0, 3).map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
               <p className="text-lg leading-relaxed">{t.text}</p>
@@ -653,9 +657,10 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
 function HomePageBold({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const itemLinkPrefix = getBranchConfig(variant).paths.services;
-  const featuredServices = content.services.slice(0, 8);
+  const featuredServices = content.services.filter(isMeaningfulServiceCard).slice(0, 8);
   const featuredGallery = content.gallery.slice(0, 12);
   const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.hero?.imageUrl || content.gallery[0];
+  const boldTestimonials = visibleTestimonials(content);
 
   const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
   const baseOrder = customHomeOrder && customHomeOrder.length ? customHomeOrder : BRANCH_STYLE_ORDER[variant].bold;
@@ -736,7 +741,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         </div>
       </section>
     ) : null,
-    testimonials: content.testimonials.length > 0 ? (
+    testimonials: boldTestimonials.length > 0 ? (
       <>
         <div className="py-8 bg-[var(--accent-color)] text-[var(--accent-fg)] border-y border-brand/20">
           <MarqueeTrack speed={50}>
@@ -752,11 +757,11 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           <div className="container-x grid md:grid-cols-12 gap-10">
             <div className="md:col-span-7 reveal">
               <span className="font-display text-[140px] md:text-[200px] leading-[0.6] text-[var(--accent-color)] block">&ldquo;</span>
-              <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{content.testimonials[0].text}</p>
-              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {content.testimonials[0].author}</p>
+              <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{boldTestimonials[0].text}</p>
+              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {boldTestimonials[0].author}</p>
             </div>
             <div className="md:col-span-5 space-y-5">
-              {content.testimonials.slice(1, 4).map((t, i) => (
+              {boldTestimonials.slice(1, 4).map((t, i) => (
                 <HardShadowCard key={i} className="bg-white border border-brand rounded-none p-6 reveal" offset={6}>
                   <p className="text-base leading-relaxed">{t.text}</p>
                   <footer className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">— {t.author}</footer>
@@ -1264,10 +1269,10 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
     ),
     module: <BranchModulesInline variant={variant} content={content} />,
     process: <ServiceProcess variant={variant} content={content} />,
-    testimonials: content.testimonials.length > 0 ? (
+    testimonials: visibleTestimonials(content).length > 0 ? (
       <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {content.testimonials.map((t, i) => (
+          {visibleTestimonials(content).map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
               <p className="text-lg leading-relaxed">{t.text}</p>
@@ -1460,10 +1465,10 @@ function GalleryPage({
             </Section>
           ),
           categories: <GalleryCategoriesSection variant={variant} content={content} />,
-          testimonials: content.testimonials.length > 0 ? (
+          testimonials: visibleTestimonials(content).length > 0 ? (
             <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow || 'Stimmen'} title={<>{splitTitle(effectiveBranchText(variant, content).testimonialsTitle || 'Was unsere Gäste sagen.')}</>} className="surface">
               <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-                {content.testimonials.map((t, i) => (
+                {visibleTestimonials(content).map((t, i) => (
                   <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
                     <p className="text-lg leading-relaxed">{t.text}</p>
                     <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
@@ -1667,10 +1672,10 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
     numbers: <NumbersBand variant={variant} content={content} />,
     certifications: variant === 'tradesman' ? <CertificationsSection variant={variant} content={content} /> : null,
     press: variant === 'restaurant' ? <PressSection variant={variant} content={content} /> : null,
-    testimonials: content.testimonials.length > 0 ? (
+    testimonials: visibleTestimonials(content).length > 0 ? (
       <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {content.testimonials.map((t, i) => (
+          {visibleTestimonials(content).map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
               <p className="text-lg leading-relaxed">{t.text}</p>

@@ -11,6 +11,7 @@ import type { SiteContent } from '@/lib/types';
 import type { TemplateVariant, TemplateStyle } from './TemplateApp';
 import { TLink } from '@/components/site-blocks';
 import { HardShadowCard } from '@/components/motion-fx';
+import { effectiveSignatureServiceRows, isMeaningfulServiceCard } from '@/lib/content-field-aliases';
 
 /* ─────────── shared helpers ─────────── */
 const Eyebrow = ({ style, children }: { style: TemplateStyle; children: React.ReactNode }) => (
@@ -92,7 +93,7 @@ function resolveSignature(variant: TemplateVariant, style: TemplateStyle, conten
  * RESTAURANT — "Heute auf der Karte" / Menu spotlight
  * ═══════════════════════════════════════════════════════════════════ */
 function RestaurantSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
-  const dishes = (content as any).homeSignatureItems?.length > 0 ? (content as any).homeSignatureItems : content.services.slice(0, 3);
+  const dishes = effectiveSignatureServiceRows(content.homeSignatureItems, content.services, 3);
   const photos = content.gallery.slice(0, 3);
   if (!dishes.length) return null;
   const t = resolveSignature('restaurant', style, content);
@@ -206,9 +207,8 @@ function signatureItemImage(d: HomeSignatureItem, i: number, gallery: readonly s
  * ═══════════════════════════════════════════════════════════════════ */
 function SalonSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
   const gallery = content.gallery.slice(0, 6);
-  const items = content.homeSignatureItems && content.homeSignatureItems.length > 0
-    ? content.homeSignatureItems
-    : null;
+  const sigFiltered = (content.homeSignatureItems ?? []).filter(isMeaningfulServiceCard);
+  const items = sigFiltered.length > 0 ? sigFiltered : null;
   if (!items && !gallery.length) return null;
   const t = resolveSignature('salon', style, content);
 
@@ -447,7 +447,7 @@ function TradesmanSignature({ style, content }: { style: TemplateStyle; content:
  * HOTEL — Stay / Suites
  * ═══════════════════════════════════════════════════════════════════ */
 function HotelSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
-  const rooms = content.services.slice(0, 3);
+  const rooms = effectiveSignatureServiceRows(undefined, content.services, 3);
   const photos = content.gallery.slice(0, 3);
   if (!rooms.length) return null;
   const t = resolveSignature('hotel', style, content);
@@ -547,7 +547,7 @@ function HotelSignature({ style, content }: { style: TemplateStyle; content: Sit
  * TOURISM — Next Tours
  * ═══════════════════════════════════════════════════════════════════ */
 function TourismSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
-  const tours = content.services.slice(0, 4);
+  const tours = effectiveSignatureServiceRows(undefined, content.services, 4);
   if (!tours.length) return null;
   const sig = resolveSignature('tourism', style, content);
 
