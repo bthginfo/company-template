@@ -1,25 +1,15 @@
 import { Link, useParams, Navigate } from 'react-router-dom';
 import type { SiteContent } from '@/lib/types';
 import { sanitizeHtml } from '@/lib/sanitize-html';
+import { DEMO_NEWS_POSTS } from '@/lib/demo-content';
+import { isShowcaseMode } from '@/lib/tenant';
 
 type Post = NonNullable<SiteContent['posts']>[number];
 
-const DEFAULT_POSTS: Post[] = [
-  {
-    id: 'demo-1',
-    title: 'Saisonkarte überarbeitet.',
-    slug: 'saisonkarte-fruehling',
-    date: '2025-03-15',
-    excerpt: 'Frische Zutaten der Saison – wir haben die Karte komplett neu gedacht.',
-    body: 'Wir haben unsere Karte für den Frühling überarbeitet.\n\nIm Mittelpunkt: heimische Spargel-Variationen, frische Wildkräuter und neue vegetarische Hauptgerichte. Reservieren Sie gerne online oder per Telefon.',
-    bodyHtml: '',
-    imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1600&q=80',
-    published: true,
-  },
-];
-
 export function usePublishedPosts(content: SiteContent): Post[] {
-  const list = ((content as any).posts as Post[] | undefined) ?? DEFAULT_POSTS;
+  const raw = (content as { posts?: Post[] }).posts;
+  const list =
+    raw && raw.length > 0 ? raw : isShowcaseMode() ? DEMO_NEWS_POSTS : [];
   return list
     .filter((p) => p && p.published !== false && (p.title || p.body))
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
