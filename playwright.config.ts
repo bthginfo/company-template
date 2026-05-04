@@ -1,7 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * E2E smoke: `vite preview` + mocked `/api/content` (no DB/Vercel).
+ * E2E: `vite preview` + mocked `/api/content` (no DB/Vercel).
+ * - `smoke.spec.ts` — Home je Template×Style
+ * - `subpages.spec.ts` — alle routierten Unterseiten + News + Rechtliches
  * Run: `npm run test:e2e` (builds dist first).
  */
 export default defineConfig({
