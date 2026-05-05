@@ -281,6 +281,7 @@ Do not produce a separate markdown summary file unless explicitly asked.
 | Frontend home order (extras) + section catalog    | [src/lib/page-layout.ts](src/lib/page-layout.ts)                  |
 | Section dataKeys (admin↔frontend contract)        | [src/lib/section-registry.ts](src/lib/section-registry.ts)        |
 | Drift coverage script                             | [scripts/check-coverage.ts](scripts/check-coverage.ts)            |
+| Spec-modular (Markdown ↔ Blueprint ↔ Merge)       | [docs/spec-modular-abgleich.md](docs/spec-modular-abgleich.md)   |
 | Default content per template                      | [src/lib/demo-content.ts](src/lib/demo-content.ts)                |
 | Default content for consulting/medical/fitness    | [src/lib/extra-demo-content.ts](src/lib/extra-demo-content.ts)    |
 | HTML sanitizer (allowlist)                        | [src/lib/sanitize-html.ts](src/lib/sanitize-html.ts)              |
