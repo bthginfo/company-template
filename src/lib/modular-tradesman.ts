@@ -21,6 +21,7 @@ import {
   mergeContactIntoLegacy,
   mergeNoticeBanner,
   mergeHeroToPageHeader,
+  hasModularSectionData,
   importGallerySections,
   importAboutSections,
   importContactSections,
@@ -121,6 +122,7 @@ function mergeTradesmanGalleryExtras(content: SiteContent, sections: ModularSect
   for (const sec of sections) {
     if (sec.isVisible === false || sec.type !== 'categoryCards') continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     const raw = (d as { items?: unknown }).items;
     const rows = Array.isArray(raw)
       ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
@@ -143,6 +145,7 @@ function mergeTradesmanAboutExtras(content: SiteContent, sections: ModularSectio
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     if (sec.type === 'storyImageSplit') {
       const prevAbout = next.about ?? { title: '', body: '', imageUrl: '' };
       next = {
@@ -181,6 +184,7 @@ function mergeTradesmanHomeSupplements(content: SiteContent, sections: ModularSe
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     if (sec.type === 'stickyEmergencyBanner') {
       next = mergeStickyEmergency(next, { ...(d as Record<string, unknown>), isVisible: true });
     } else if (sec.type === 'fundingCalculator') {
@@ -311,6 +315,7 @@ function mergeTradesmanServicesIntoLegacy(content: SiteContent, sections: Modula
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'noticeBanner':
         next = mergeNoticeBanner(next, d as Record<string, unknown>);

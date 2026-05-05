@@ -22,6 +22,7 @@ import {
   mergeContactIntoLegacy,
   mergeNoticeBanner,
   mergeHeroToPageHeader,
+  hasModularSectionData,
   importGallerySections,
   importAboutSections,
   importContactSections,
@@ -291,6 +292,7 @@ function mergeHotelHomeSupplements(content: SiteContent, sections: ModularSectio
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     if (sec.type === 'featuredAreas' || sec.type === 'roomSelection') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -444,6 +446,7 @@ function mergeHotelServicesIntoLegacy(content: SiteContent, sections: ModularSec
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'noticeBanner':
         next = mergeNoticeBanner(next, d as Record<string, unknown>);

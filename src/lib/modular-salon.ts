@@ -20,6 +20,7 @@ import {
   mergeContactIntoLegacy,
   mergeNoticeBanner,
   mergeHeroToPageHeader,
+  hasModularSectionData,
   importGallerySections,
   importAboutSections,
   importContactSections,
@@ -133,6 +134,7 @@ function mergeSalonHomeSupplements(content: SiteContent, sections: ModularSectio
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     const mergeTreatmentsFromItems = (raw: unknown) => {
       if (!Array.isArray(raw)) return;
       const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToTreatment);
@@ -557,6 +559,7 @@ function mergeSalonServicesIntoLegacy(content: SiteContent, sections: ModularSec
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'noticeBanner':
         next = mergeNoticeBanner(next, d as Record<string, unknown>);

@@ -104,6 +104,7 @@ function ProcessColumnsForm({ data, onChange }: Pick<ModularSectionDataFormProps
 
 function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSectionDataFormProps) {
   const showTags = tpl === 'salon' || tpl === 'tourism';
+  const showItemButton = tpl !== 'salon' && tpl !== 'tourism' && tpl !== 'fitness';
   const items = Array.isArray(data.items)
     ? (data.items as unknown[]).map((x) => {
         if (!x || typeof x !== 'object') return { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '' };
@@ -128,12 +129,16 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
         description: r.description,
         ...(showTags ? { tags: r.tags } : {}),
         image: { image: r.image, alt: r.title },
-        button: {
-          label: r.btnLabel,
-          linkType: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? 'external' : 'internal',
-          internalPage: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? '' : r.btnHref,
-          externalUrl: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? r.btnHref : '',
-        },
+        ...(showItemButton
+          ? {
+              button: {
+                label: r.btnLabel,
+                linkType: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? 'external' : 'internal',
+                internalPage: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? '' : r.btnHref,
+                externalUrl: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? r.btnHref : '',
+              },
+            }
+          : {}),
       })),
     });
   return (
@@ -163,15 +168,19 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
             </ModField>
           ) : null}
           <ModImagePick label="Bild" value={row.image} onChange={(url) => set(items.map((x, j) => (j === i ? { ...x, image: url } : x)))} uploadImage={uploadImage} />
-          <ModField label="Button-Text">
-            <input className={modularInputCls} value={row.btnLabel} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, btnLabel: e.target.value } : x)))} />
-          </ModField>
-          <ModLinkTarget
-            label="Button-Ziel"
-            tpl={tpl}
-            value={row.btnHref}
-            onChange={(v) => set(items.map((x, j) => (j === i ? { ...x, btnHref: v } : x)))}
-          />
+          {showItemButton ? (
+            <>
+              <ModField label="Button-Text">
+                <input className={modularInputCls} value={row.btnLabel} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, btnLabel: e.target.value } : x)))} />
+              </ModField>
+              <ModLinkTarget
+                label="Button-Ziel"
+                tpl={tpl}
+                value={row.btnHref}
+                onChange={(v) => set(items.map((x, j) => (j === i ? { ...x, btnHref: v } : x)))}
+              />
+            </>
+          ) : null}
           <button type="button" className="text-xs text-rose-600" onClick={() => set(items.filter((_, j) => j !== i))}>
             Entfernen
           </button>

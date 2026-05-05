@@ -2,6 +2,7 @@
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
 import { SiteContentSchema } from '../src/lib/types.js';
+import { defaultsFor } from '../src/lib/provision-core.js';
 import { getSession, unauthorized } from './_lib/auth.js';
 
 /**
@@ -84,10 +85,16 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
   });
 
   if (!existing) {
+    const liveSeed = defaultsFor(
+      tenant.template as Parameters<typeof defaultsFor>[0],
+      tenant.name,
+      undefined,
+      tenant.style as Parameters<typeof defaultsFor>[3],
+    );
     await db.insert(schema.siteContent).values({
       tenantId: tenant.id,
-      data: parse.data,
-      draft: null,
+      data: liveSeed,
+      draft: parse.data,
     });
   } else {
     await db

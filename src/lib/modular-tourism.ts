@@ -21,6 +21,7 @@ import {
   mergeContactIntoLegacy,
   mergeNoticeBanner,
   mergeHeroToPageHeader,
+  hasModularSectionData,
   importGallerySections,
   importAboutSections,
   importContactSections,
@@ -306,6 +307,7 @@ function mergeTourismHomeSupplements(content: SiteContent, sections: ModularSect
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     if (sec.type === 'tourSchedule' || sec.type === 'tourSelection') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -488,6 +490,7 @@ function mergeTourismServicesIntoLegacy(content: SiteContent, sections: ModularS
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'noticeBanner':
         next = mergeNoticeBanner(next, d as Record<string, unknown>);

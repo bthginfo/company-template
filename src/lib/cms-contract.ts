@@ -110,6 +110,57 @@ export const CMS_SECTION_FIELD_CONTRACTS = {
   processCards: ['eyebrow', 'headline', 'description', 'items'],
 } as const satisfies Record<string, readonly string[]>;
 
+const CMS_REPEATABLE_SECTION_TYPES = new Set<string>([
+  'marqueeBand',
+  'keywordBand',
+  'testimonialMarquee',
+  'statsBand',
+  'testimonials',
+  'labelBand',
+  'highlightsBar',
+  'steps',
+  'faq',
+  'teaserList',
+  'timeline',
+  'team',
+  'trainers',
+  'expertQuotes',
+  'storyFacts',
+  'galleryPreview',
+  'featuredDishesGrid',
+  'featuredDishes',
+  'featuredItems',
+  'gallery',
+  'directions',
+  'serviceCards',
+  'featuredServices',
+  'serviceList',
+  'featuredLooks',
+  'featuredLooksBand',
+  'tourOverviewCards',
+  'tourOverviewList',
+  'serviceOverviewCards',
+  'serviceOverviewList',
+  'featuredAreas',
+  'roomSelection',
+  'tourSchedule',
+  'tourSelection',
+  'classCards',
+  'accommodationsGrid',
+  'accommodationList',
+  'roomCards',
+  'tourCards',
+  'pricingPackages',
+  'brandLogos',
+  'quoteWall',
+  'categoryCards',
+  'topicCards',
+  'programTable',
+  'qualifications',
+  'processTextColumns',
+  'processCards',
+]);
+
 export function getCmsSectionFieldKeys(sectionType: string): readonly string[] {
   return CMS_SECTION_FIELD_CONTRACTS[sectionType as keyof typeof CMS_SECTION_FIELD_CONTRACTS] ?? [];
 }
@@ -139,11 +190,13 @@ export function getCmsAddableSectionTypes(
   }
 
   const offeredCounts = new Map<string, number>();
+  const seen = new Set<string>();
   const out: string[] = [];
   for (const type of getCmsSectionTypes(template, style, page)) {
     const offered = offeredCounts.get(type) ?? 0;
     offeredCounts.set(type, offered + 1);
-    if ((existingCounts.get(type) ?? 0) <= offered) out.push(type);
+    if ((existingCounts.get(type) ?? 0) <= offered || (CMS_REPEATABLE_SECTION_TYPES.has(type) && !seen.has(type))) out.push(type);
+    seen.add(type);
   }
   return out;
 }

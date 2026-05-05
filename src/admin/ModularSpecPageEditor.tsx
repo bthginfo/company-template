@@ -98,7 +98,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
       {
         id: `${page}-${type}-${sameTypeCount}-${Date.now().toString(36)}`,
         type,
-        isVisible: true,
+        isVisible: false,
         data: {},
       },
     ]);

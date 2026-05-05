@@ -548,6 +548,15 @@ export function mergeNoticeBanner(next: SiteContent, d: Record<string, unknown>)
   return { ...next, announcements: lines };
 }
 
+export function hasModularSectionData(data: unknown): boolean {
+  if (data == null) return false;
+  if (typeof data === 'string') return true;
+  if (typeof data === 'number' || typeof data === 'boolean') return true;
+  if (Array.isArray(data)) return true;
+  if (typeof data === 'object') return Object.keys(data as Record<string, unknown>).length > 0;
+  return false;
+}
+
 export function mergeHeroToPageHeader(
   next: SiteContent,
   d: Record<string, unknown>,
@@ -580,6 +589,7 @@ export function mergeHomeIntoLegacy(
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'noticeBanner':
         next = mergeNoticeBanner(next, d as Record<string, unknown>);
@@ -815,6 +825,7 @@ function mergeServicesIntoLegacy(content: SiteContent, sections: ModularSectionV
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'hero':
         next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'servicesHeader', 'servicesPageImageUrl');
@@ -909,6 +920,7 @@ export function mergeGalleryIntoLegacy(content: SiteContent, sections: ModularSe
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     if (sec.type === 'hero') next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'galleryHeader');
     else if (sec.type === 'teaserList') {
       if (teaserIdx === 0) {
@@ -972,6 +984,7 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'hero': {
         const im = (d as { image?: unknown }).image;
@@ -1114,6 +1127,7 @@ export function mergeContactIntoLegacy(content: SiteContent, sections: ModularSe
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'hero':
         next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'contactPageHeader');

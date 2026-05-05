@@ -185,6 +185,11 @@ const MODULAR_FORM_SOURCES = [
   readFileSync(join(repoRoot, 'src/admin/ModularSectionDataForm.tsx'), 'utf8'),
   readFileSync(join(repoRoot, 'src/admin/modular-extended-section-forms.tsx'), 'utf8'),
 ].join('\n\n');
+const MODULAR_EXTENDED_FORM_SOURCE = readFileSync(join(repoRoot, 'src/admin/modular-extended-section-forms.tsx'), 'utf8');
+const MODULAR_SPEC_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularSpecPageEditor.tsx'), 'utf8');
+const CMS_CONTRACT_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-contract.ts'), 'utf8');
+const PAGE_BLOCKS_MERGE_SOURCE = readFileSync(join(repoRoot, 'src/lib/page-blocks-v1-page-merge.ts'), 'utf8');
+const CONTENT_API_SOURCE = readFileSync(join(repoRoot, 'api/content.ts'), 'utf8');
 
 const MODULAR_SHARED_SOURCE = readFileSync(join(repoRoot, 'src/lib/modular-restaurant.ts'), 'utf8');
 const MODULAR_SOURCE_BY_TEMPLATE = Object.fromEntries(
@@ -255,6 +260,25 @@ for (const msg of modularMissing) note(`[modular-no-form] ${msg}`);
 for (const msg of modularUnmerged) note(`[modular-no-merge] ${msg}`);
 for (const msg of modularFieldMissingInAdmin) note(`[modular-field-no-form] ${msg}`);
 for (const msg of modularFieldMissingInMerge) note(`[modular-field-no-merge] ${msg}`);
+
+if (!MODULAR_EXTENDED_FORM_SOURCE.includes('const showItemButton =') || !MODULAR_EXTENDED_FORM_SOURCE.includes('showItemButton ?')) {
+  note('[modular-admin-extra-field] Generic service-card editors must gate per-item button fields to templates whose frontend merge uses them.');
+}
+if (MODULAR_FORM_SOURCES.includes('label="Max. Beiträge"') || MODULAR_FORM_SOURCES.includes('lightboxEnabled')) {
+  note('[modular-admin-extra-field] Admin contains known fields without modular frontend effect (postLimit/lightboxEnabled).');
+}
+if (!MODULAR_SPEC_EDITOR_SOURCE.includes('isVisible: false')) {
+  note('[modular-add-default] Newly added modular sections must start hidden so empty data cannot overwrite live content.');
+}
+if (!CMS_CONTRACT_SOURCE.includes('CMS_REPEATABLE_SECTION_TYPES')) {
+  note('[modular-add-repeatable] CMS add-flow must allow repeatable safe section types beyond only restoring removed blueprint slots.');
+}
+if (!PAGE_BLOCKS_MERGE_SOURCE.includes('content.modularPagesV1?.combo')) {
+  note('[pageblocks-shadow] pageBlocksV1 merge must be disabled for modular tenants so hidden legacy blocks cannot shadow the CMS.');
+}
+if (!CONTENT_API_SOURCE.includes('draft: parse.data')) {
+  note('[draft-only-save] PUT /api/content must write submitted content to draft, including first-row recovery paths.');
+}
 
 /* ─────────────────────────────────────────────────────────────────
  *  5: Branch invariants — extras compact, core 5 full

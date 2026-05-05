@@ -65,6 +65,7 @@ export function mergePageBlocksIntoSiteContentForPage(
   content: SiteContent,
   page: PageKey,
 ): SiteContent {
+  if (content.modularPagesV1?.combo) return content;
   const list = content.pageBlocksV1?.[page];
   if (!list?.length || !blockListHasDataPatches(page, list)) return content;
 
@@ -88,6 +89,7 @@ export function mergePageBlocksIntoSiteContentForPagePrefix(
   page: PageKey,
   endExclusive: number,
 ): SiteContent {
+  if (content.modularPagesV1?.combo) return content;
   const list = content.pageBlocksV1?.[page];
   if (!list?.length || endExclusive <= 0) return content;
 

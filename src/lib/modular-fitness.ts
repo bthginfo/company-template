@@ -19,6 +19,7 @@ import {
   mergeContactIntoLegacy,
   mergeNoticeBanner,
   mergeHeroToPageHeader,
+  hasModularSectionData,
   importGallerySections,
   importAboutSections,
   importContactSections,
@@ -118,6 +119,7 @@ function mergeFitnessGalleryExtras(content: SiteContent, sections: ModularSectio
   for (const sec of sections) {
     if (sec.isVisible === false || sec.type !== 'categoryCards') continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     const raw = (d as { items?: unknown }).items;
     const rows = Array.isArray(raw)
       ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
@@ -140,6 +142,7 @@ function mergeFitnessHomeSupplements(content: SiteContent, sections: ModularSect
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     if (sec.type === 'keywordBand') {
       const raw = (d as { items?: unknown }).items;
       if (Array.isArray(raw)) {
@@ -207,6 +210,7 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
+    if (!hasModularSectionData(d)) continue;
     switch (sec.type) {
       case 'noticeBanner':
         next = mergeNoticeBanner(next, d as Record<string, unknown>);
