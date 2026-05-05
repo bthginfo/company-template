@@ -69,7 +69,7 @@ export function projectSiteContentToBlockData(
 }
 
 export function bootstrapPageBlocksV1FromContent(
-  content: SiteContent,
+  _content: SiteContent,
   tpl: TemplateKey,
   style: TemplateStyle,
 ): PageBlocksV1 {
@@ -80,7 +80,7 @@ export function bootstrapPageBlocksV1FromContent(
       id: newPageBlockInstanceId(),
       type,
       isVisible: true,
-      data: projectSiteContentToBlockData(content, type),
+      data: {},
     }));
   }
   return out;
@@ -110,7 +110,7 @@ export function rebootstrapPageBlocksForSinglePage(
     id: newPageBlockInstanceId(),
     type,
     isVisible: true,
-    data: projectSiteContentToBlockData(content, type),
+    data: {},
   }));
   return SiteContentSchema.parse({
     ...content,
@@ -119,4 +119,31 @@ export function rebootstrapPageBlocksForSinglePage(
       [page]: nextList,
     },
   });
+}
+
+/**
+ * Pre-save sync: for every block whose `data` is non-empty, re-project the
+ * current `SiteContent` field values into it so stale overrides can't shadow
+ * section-editor changes. Blocks with `data: {}` are left untouched (they
+ * don't override anything).
+ */
+export function syncNonEmptyBlockDataFromContent(content: SiteContent): SiteContent {
+  const pbv1 = content.pageBlocksV1;
+  if (!pbv1) return content;
+  let changed = false;
+  const next: PageBlocksV1 = {};
+  for (const page of PAGE_KEYS) {
+    const list = pbv1[page];
+    if (!list?.length) { next[page] = list; continue; }
+    next[page] = list.map((b) => {
+      if (!b.data || typeof b.data !== 'object' || Object.keys(b.data).length === 0) return b;
+      const fresh = projectSiteContentToBlockData(content, b.type as AdminSectionKey);
+      if (JSON.stringify(b.data) === JSON.stringify(fresh)) return b;
+      changed = true;
+      return { ...b, data: fresh };
+    });
+  }
+  if (!changed) return content;
+  const parsed = SiteContentSchema.safeParse({ ...content, pageBlocksV1: next });
+  return parsed.success ? parsed.data : content;
 }

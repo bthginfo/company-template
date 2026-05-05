@@ -180,10 +180,10 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
       id: newPageBlockInstanceId(),
       type: t,
       isVisible: true,
-      data: projectSiteContentToBlockData(data, t),
+      data: {},
     };
     applyList([...list, inst]);
-    setJsonDraft((prev) => ({ ...prev, [inst.id]: JSON.stringify(inst.data ?? {}, null, 2) }));
+    setJsonDraft((prev) => ({ ...prev, [inst.id]: JSON.stringify(inst.data, null, 2) }));
     toast.success('Block hinzugefügt', { description: getSectionMeta(t, tplKey, style).title });
   };
 

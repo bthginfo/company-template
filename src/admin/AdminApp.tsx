@@ -8,6 +8,7 @@ import { assertValidUpload, humanizeUploadError } from './upload-limits';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
 import { applyTheme, resolveThemePreset } from '@/lib/theme';
+import { bootstrapPageBlocksV1FromContent, syncNonEmptyBlockDataFromContent } from '@/lib/page-blocks-v1-bootstrap';
 
 type Session = { role: 'super' | 'tenant'; tenantId: string | null; slug: string | null } | null;
 
@@ -64,9 +65,16 @@ export function AdminApp() {
     if (state.status === 'ready') {
       setTenant(state.tenant as any);
       if (draft === null || justSaved || justDiscarded) {
-        // Initial load, post-save, or post-discard: sync draft with fresh server data
-        setDraft(state.content);
-        setPristine(JSON.stringify(state.content));
+        let content = state.content;
+        const t = state.tenant as any;
+        const tpl = asTemplateKey(t?.template);
+        const sty = (t?.style as TemplateStyle) || 'classic';
+        const hasBlocks = content?.pageBlocksV1 && Object.values(content.pageBlocksV1).some((l: any) => l?.length);
+        if (content && !hasBlocks) {
+          content = { ...content, pageBlocksV1: bootstrapPageBlocksV1FromContent(content, tpl, sty) };
+        }
+        setDraft(content);
+        setPristine(JSON.stringify(content));
         setJustSaved(false);
         setJustDiscarded(false);
       }
@@ -114,7 +122,9 @@ export function AdminApp() {
     try {
       setSaving(true);
       setJustSaved(true);
-      await save(draft);
+      const synced = syncNonEmptyBlockDataFromContent(draft);
+      if (synced !== draft) setDraft(synced);
+      await save(synced);
       const ts = new Date().toLocaleTimeString('de-DE');
       setSavedAt(ts);
       setTimeout(() => setSavedAt(null), 5000);
