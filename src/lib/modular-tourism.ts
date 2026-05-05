@@ -31,6 +31,77 @@ export { TOURISM_SECTION_LABEL_DE, type TourismModularPageKey };
 
 type TourRow = NonNullable<SiteContent['tours']>[number];
 
+const DEFAULT_TOUR_ROW: TourRow = {
+  name: '',
+  description: '',
+  duration: '',
+  level: '',
+  groupSize: '',
+  price: '',
+  imageUrl: '',
+  languages: [],
+  detailSlug: '',
+  detailPublished: true,
+  detailSubtitle: '',
+  detailBody: '',
+  detailBodyHtml: '',
+  detailGallery: [],
+};
+
+type TourismServiceRow = NonNullable<SiteContent['services']>[number];
+
+const DEFAULT_TOURISM_SERVICE_ROW: TourismServiceRow = {
+  title: '',
+  description: '',
+  price: '',
+  imageUrl: '',
+  learnMoreLabel: '',
+  learnMoreHref: '',
+  detailSlug: '',
+  detailPublished: true,
+  detailSubtitle: '',
+  detailBody: '',
+  detailBodyHtml: '',
+  detailGallery: [],
+};
+
+/** `/leistungen` uses `services` (TourismTourCards); keep aligned with `tours` from modular. */
+function tourRowToServiceRow(tour: TourRow): TourismServiceRow {
+  const meta = [str(tour.duration), str(tour.level), str(tour.groupSize)].filter(Boolean).join(' · ');
+  const body = str(tour.description);
+  const description = meta ? (body ? `${body} (${meta})` : meta) : body;
+  return {
+    title: str(tour.name),
+    description,
+    price: str(tour.price),
+    imageUrl: str(tour.imageUrl),
+    learnMoreLabel: '',
+    learnMoreHref: '',
+    detailSlug: str(tour.detailSlug),
+    detailPublished: tour.detailPublished ?? true,
+    detailSubtitle: str(tour.detailSubtitle),
+    detailBody: str(tour.detailBody),
+    detailBodyHtml: str(tour.detailBodyHtml),
+    detailGallery: [...(tour.detailGallery ?? [])],
+  };
+}
+
+/** Import / services modular: use `tours`; if empty, lift home teaser (`homeSignatureItems`). */
+function toursForTourismModularImport(content: SiteContent): NonNullable<SiteContent['tours']> {
+  const tours = content.tours ?? [];
+  if (tours.length) return tours;
+  const sig = content.homeSignatureItems ?? [];
+  return sig
+    .filter((r) => String(r.title ?? '').trim() || String(r.description ?? '').trim() || String(r.price ?? '').trim())
+    .map((r) => ({
+      ...DEFAULT_TOUR_ROW,
+      name: str(r.title),
+      description: str(r.description),
+      price: str(r.price),
+      imageUrl: str(r.imageUrl),
+    }));
+}
+
 export function hasTourismModularPage(
   content: SiteContent,
   _style: TemplateStyle,
@@ -238,19 +309,29 @@ function mergeTourismHomeSupplements(content: SiteContent, sections: ModularSect
     if (sec.type === 'tourSchedule' || sec.type === 'tourSelection') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
-      const rows = raw
-        .filter((it): it is Record<string, unknown> => !!it && typeof it === 'object')
-        .map((it) => {
-          const im = it.image as Record<string, unknown> | undefined;
-          return {
-            title: str(it.title),
-            description: str(it.description),
-            price: str(it.meta) || str(it.price),
-            imageUrl: im ? str(im.image) : '',
-          };
-        })
-        .filter((r) => r.title || r.description || r.price || r.imageUrl);
+      const objs = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object');
+      const rows: { title: string; description: string; price: string; imageUrl: string }[] = [];
+      const curTours = [...(next.tours ?? [])];
+      objs.forEach((it) => {
+        const im = it.image as Record<string, unknown> | undefined;
+        const row = {
+          title: str(it.title),
+          description: str(it.description),
+          price: str(it.meta) || str(it.price),
+          imageUrl: im ? str(im.image) : '',
+        };
+        if (!(row.title || row.description || row.price || row.imageUrl)) return;
+        const i = rows.length;
+        rows.push(row);
+        const tr = mapModularItemToTour(it);
+        curTours[i] = { ...(curTours[i] ?? DEFAULT_TOUR_ROW), ...tr };
+      });
       if (rows.length) {
+        const curSvc = [...(next.services ?? [])];
+        for (let i = 0; i < rows.length; i++) {
+          const t = curTours[i];
+          if (t) curSvc[i] = { ...(curSvc[i] ?? DEFAULT_TOURISM_SERVICE_ROW), ...tourRowToServiceRow(t) };
+        }
         next = {
           ...next,
           homeSignature: {
@@ -260,6 +341,8 @@ function mergeTourismHomeSupplements(content: SiteContent, sections: ModularSect
             titleB: next.homeSignature?.titleB,
           },
           homeSignatureItems: rows,
+          tours: curTours,
+          services: curSvc,
         };
       }
     } else if (sec.type === 'brandLogos') {
@@ -315,7 +398,7 @@ function importTourismServicesSections(content: SiteContent, sections: ModularSe
       items: (content.serviceHighlights ?? []).map((x) => ({ title: str(x.t), description: str(x.d) })),
     };
   }
-  const tours = content.tours ?? [];
+  const tours = toursForTourismModularImport(content);
   const toc = by('tourOverviewCards');
   if (toc) {
     const slice = tours.slice(0, 3);
@@ -465,7 +548,10 @@ function mergeTourismServicesIntoLegacy(content: SiteContent, sections: ModularS
         break;
     }
   }
-  if (toursOverride) next = { ...next, tours: toursOverride };
+  if (toursOverride) {
+    const svc = toursOverride.map((t) => tourRowToServiceRow(t));
+    next = { ...next, tours: toursOverride, services: svc };
+  }
   return next;
 }
 

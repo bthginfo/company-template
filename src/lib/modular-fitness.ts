@@ -27,6 +27,56 @@ import { mapModularItemToCourse, mapModularItemToPackage, mapModularTeamToLegacy
 
 export { FITNESS_SECTION_LABEL_DE, type FitnessModularPageKey };
 
+type CourseRow = NonNullable<SiteContent['courses']>[number];
+type ProgramRow = NonNullable<SiteContent['programs']>[number];
+
+const DEFAULT_COURSE_ROW: CourseRow = {
+  name: '',
+  description: '',
+  schedule: '',
+  level: '',
+  duration: '',
+  trainer: '',
+  price: '',
+  imageUrl: '',
+  detailSlug: '',
+  detailPublished: true,
+  detailSubtitle: '',
+  detailBody: '',
+  detailBodyHtml: '',
+  detailGallery: [],
+};
+
+/** Maps a legacy `courses` row to the `programs` shape used by admin + `FitnessPrograms`. */
+function courseRowToProgram(row: CourseRow): ProgramRow {
+  const metaParts = [row.schedule, row.level, row.duration, row.trainer, row.price].map((s) => str(s)).filter(Boolean);
+  return {
+    k: '',
+    t: str(row.name),
+    d: str(row.description),
+    meta: metaParts.join(' · '),
+  };
+}
+
+/**
+ * Modular import reads `courses` for classCards/programTable/trainingPlanOverview.
+ * When tenants only filled `programs` (classic admin), still hydrate modular from that.
+ */
+function coursesForFitnessModularImport(content: SiteContent): NonNullable<SiteContent['courses']> {
+  const courses = content.courses ?? [];
+  if (courses.length) return courses;
+  const raw = content.programs as unknown[] | undefined;
+  return (raw ?? [])
+    .filter((p): p is Record<string, unknown> => !!p && typeof p === 'object')
+    .map((pr) => ({
+      ...DEFAULT_COURSE_ROW,
+      name: str(pr.t ?? pr.title),
+      description: str(pr.d ?? pr.description),
+      schedule: str(pr.meta ?? pr.subtitle),
+    }))
+    .filter((c) => c.name || c.description || c.schedule);
+}
+
 export function hasFitnessModularPage(content: SiteContent, _style: TemplateStyle, page: FitnessModularPageKey): boolean {
   const m = content.modularPagesV1;
   if (!modularComboTemplateMatches(m, 'fitness') || !m) return false;
@@ -90,11 +140,15 @@ function mergeFitnessHomeSupplements(content: SiteContent, sections: ModularSect
       if (!Array.isArray(raw)) continue;
       const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToCourse);
       if (mapped.length) {
-        const cur = [...(next.courses ?? [])];
+        const curC = [...(next.courses ?? [])];
+        const curP = [...(next.programs ?? [])];
+        const emptyProg: ProgramRow = { k: '', t: '', d: '', meta: '' };
         mapped.forEach((row, i) => {
-          cur[i] = { ...(cur[i] ?? { name: '', description: '', schedule: '', level: '', duration: '', trainer: '', price: '', imageUrl: '' }), ...row };
+          const mergedC = { ...(curC[i] ?? DEFAULT_COURSE_ROW), ...row };
+          curC[i] = mergedC;
+          curP[i] = { ...(curP[i] ?? emptyProg), ...courseRowToProgram(mergedC) };
         });
-        next = { ...next, courses: cur };
+        next = { ...next, courses: curC, programs: curP };
       }
     } else if (sec.type === 'trainingPlanOverview') {
       const statsRaw = (d as { stats?: unknown }).stats;
@@ -217,7 +271,13 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
         break;
     }
   }
-  if (coursesOverride) next = { ...next, courses: coursesOverride };
+  if (coursesOverride) {
+    next = {
+      ...next,
+      courses: coursesOverride,
+      programs: coursesOverride.map((c) => courseRowToProgram(c)),
+    };
+  }
   return next;
 }
 
@@ -264,11 +324,12 @@ function importFitnessHome(content: SiteContent, sections: ModularSectionV1[], s
   }
   const cc = by('classCards');
   if (cc) {
+    const srcCourses = coursesForFitnessModularImport(content);
     cc.data = {
       eyebrow: '',
       headline: 'Klassen & Programme',
       description: '',
-      items: (content.courses ?? []).map((c) => ({
+      items: srcCourses.map((c) => ({
         title: str(c.name),
         description: str(c.description),
         image: { image: str(c.imageUrl), alt: str(c.name) },
@@ -289,7 +350,9 @@ function importFitnessHome(content: SiteContent, sections: ModularSectionV1[], s
       headline: 'Trainingsplan',
       description: '',
       stats: (content.numbers ?? []).slice(0, 3).map((n) => ({ value: str(n.value), description: str(n.label) })),
-      items: (content.courses ?? []).slice(0, 4).map((c) => ({
+      items: coursesForFitnessModularImport(content)
+        .slice(0, 4)
+        .map((c) => ({
         title: str(c.name),
         description: str(c.description),
         goal: '',
@@ -311,7 +374,7 @@ function importFitnessHome(content: SiteContent, sections: ModularSectionV1[], s
         { label: 'Level', key: 'level' },
         { label: 'Zeit', key: 'time' },
       ],
-      rows: (content.courses ?? []).map((c) => ({
+      rows: coursesForFitnessModularImport(content).map((c) => ({
         programTitle: str(c.name),
         focus: str(c.description).slice(0, 80),
         level: str(c.level),
@@ -422,11 +485,12 @@ function importFitnessServices(content: SiteContent, sections: ModularSectionV1[
   }
   const cc = by('classCards');
   if (cc) {
+    const srcCoursesSvc = coursesForFitnessModularImport(content);
     cc.data = {
       eyebrow: '',
       headline: '',
       description: '',
-      items: (content.courses ?? []).map((c) => ({
+      items: srcCoursesSvc.map((c) => ({
         title: str(c.name),
         description: str(c.description),
         image: { image: str(c.imageUrl), alt: str(c.name) },
@@ -447,7 +511,9 @@ function importFitnessServices(content: SiteContent, sections: ModularSectionV1[
       headline: '',
       description: '',
       stats: (content.numbers ?? []).slice(0, 3).map((n) => ({ value: str(n.value), description: str(n.label) })),
-      items: (content.courses ?? []).slice(0, 4).map((c) => ({
+      items: coursesForFitnessModularImport(content)
+        .slice(0, 4)
+        .map((c) => ({
         title: str(c.name),
         description: str(c.description),
         goal: '',
@@ -469,7 +535,7 @@ function importFitnessServices(content: SiteContent, sections: ModularSectionV1[
         { label: 'Level', key: 'level' },
         { label: 'Zeit', key: 'time' },
       ],
-      rows: (content.courses ?? []).map((c) => ({
+      rows: coursesForFitnessModularImport(content).map((c) => ({
         programTitle: str(c.name),
         focus: '',
         level: str(c.level),

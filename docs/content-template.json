@@ -306,10 +306,22 @@
       "description": "",
       "_description_max": 200,
       "price": "",
-      "_price_max": 20
+      "_price_max": 20,
+      "imageUrl": "",
+      "_imageUrl_help": "Optional. Karten-Bild (HTTPS-URL).",
+      "detailSlug": "",
+      "_detailSlug_help": "Optional. URL-Segment für Katalog-Detailseite (z.B. tagliatelle-al-tartufo). Kleinbuchstaben, Bindestriche. Nur wenn Unterseite gewünscht.",
+      "detailPublished": true,
+      "_detailPublished_help": "false = Detailseite aus, keine Links.",
+      "detailSubtitle": "",
+      "detailBody": "",
+      "_detailBody_help": "Optional. Fließtext für Detailseite; Absätze mit doppeltem Zeilenumbruch (\\n\\n).",
+      "detailGallery": [],
+      "_detailGallery_help": "Optional. 2+ Bild-URLs für Galerie auf der Detailseite."
     }
   ],
   "_services_help": "Hauptleistungen / Angebote. 4-8 Einträge. Ohne Bilder.",
+  "_catalog_detail_help": "Katalog-Detailseiten: Unter …/speisekarte|/leistungen|/zimmer|/touren + /{detailSlug}. Gleiche Felder wie bei services gelten für menu.items, rooms, tours, treatments, courses, packages, processSteps, doctors, fundingItems (jeweils slug + Text + Galerie optional).",
 
   "testimonials": [
     {

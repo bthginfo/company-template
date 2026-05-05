@@ -30,6 +30,43 @@ import {
 export { HOTEL_SECTION_LABEL_DE, type HotelModularPageKey };
 
 type HotelRoom = NonNullable<SiteContent['rooms']>[number];
+type HotelServiceRow = NonNullable<SiteContent['services']>[number];
+
+const DEFAULT_HOTEL_SERVICE_ROW: HotelServiceRow = {
+  title: '',
+  description: '',
+  price: '',
+  imageUrl: '',
+  learnMoreLabel: '',
+  learnMoreHref: '',
+  detailSlug: '',
+  detailPublished: true,
+  detailSubtitle: '',
+  detailBody: '',
+  detailBodyHtml: '',
+  detailGallery: [],
+};
+
+/** `/zimmer` uses `services` (HotelRoomCards); modular merges Zimmer → `rooms` — keep both in sync. */
+function roomRowToServiceRow(room: HotelRoom): HotelServiceRow {
+  const extras = [str(room.size), str(room.beds)].filter(Boolean).join(' · ');
+  const body = str(room.description);
+  const description = extras ? (body ? `${body} (${extras})` : extras) : body;
+  return {
+    title: str(room.name),
+    description,
+    price: str(room.price),
+    imageUrl: str(room.imageUrl),
+    learnMoreLabel: '',
+    learnMoreHref: '',
+    detailSlug: str(room.detailSlug),
+    detailPublished: room.detailPublished ?? true,
+    detailSubtitle: str(room.detailSubtitle),
+    detailBody: str(room.detailBody),
+    detailBodyHtml: str(room.detailBodyHtml),
+    detailGallery: [...(room.detailGallery ?? [])],
+  };
+}
 
 export function hasHotelModularPage(
   content: SiteContent,
@@ -260,10 +297,13 @@ function mergeHotelHomeSupplements(content: SiteContent, sections: ModularSectio
       const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToRoom);
       if (!mapped.length) continue;
       const cur = [...(next.rooms ?? [])];
+      const curSvc = [...(next.services ?? [])];
       mapped.forEach((row, i) => {
-        cur[i] = { ...(cur[i] ?? { name: '', description: '', size: '', beds: '', price: '', imageUrl: '', features: [] }), ...row };
+        const mergedR = { ...(cur[i] ?? { name: '', description: '', size: '', beds: '', price: '', imageUrl: '', features: [] }), ...row };
+        cur[i] = mergedR;
+        curSvc[i] = { ...(curSvc[i] ?? DEFAULT_HOTEL_SERVICE_ROW), ...roomRowToServiceRow(mergedR) };
       });
-      next = { ...next, rooms: cur };
+      next = { ...next, rooms: cur, services: curSvc };
     } else if (sec.type === 'brandLogos') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -462,7 +502,10 @@ function mergeHotelServicesIntoLegacy(content: SiteContent, sections: ModularSec
         break;
     }
   }
-  if (roomsOverride) next = { ...next, rooms: roomsOverride };
+  if (roomsOverride) {
+    const servicesFromRooms = roomsOverride.map((r) => roomRowToServiceRow(r));
+    next = { ...next, rooms: roomsOverride, services: servicesFromRooms };
+  }
   return next;
 }
 

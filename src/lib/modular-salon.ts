@@ -29,6 +29,58 @@ import { mapModularItemToTreatment } from '@/lib/modular-catalog-mappers';
 export { SALON_SECTION_LABEL_DE, type SalonModularPageKey };
 
 type TreatmentRow = NonNullable<SiteContent['treatments']>[number];
+type SalonServiceRow = NonNullable<SiteContent['services']>[number];
+
+const DEFAULT_TREATMENT_ROW: TreatmentRow = {
+  name: '',
+  description: '',
+  duration: '',
+  price: '',
+  category: '',
+  imageUrl: '',
+  detailSlug: '',
+  detailPublished: true,
+  detailSubtitle: '',
+  detailBody: '',
+  detailBodyHtml: '',
+  detailGallery: [],
+};
+
+const DEFAULT_SALON_SERVICE_ROW: SalonServiceRow = {
+  title: '',
+  description: '',
+  price: '',
+  imageUrl: '',
+  learnMoreLabel: '',
+  learnMoreHref: '',
+  detailSlug: '',
+  detailPublished: true,
+  detailSubtitle: '',
+  detailBody: '',
+  detailBodyHtml: '',
+  detailGallery: [],
+};
+
+/** `/leistungen` uses `services` (SalonPriceList); modular maps → `treatments` — keep both aligned. */
+function treatmentRowToServiceRow(tr: TreatmentRow): SalonServiceRow {
+  const meta = [str(tr.duration), str(tr.category)].filter(Boolean).join(' · ');
+  const body = str(tr.description);
+  const description = meta ? (body ? `${body} (${meta})` : meta) : body;
+  return {
+    title: str(tr.name),
+    description,
+    price: str(tr.price),
+    imageUrl: str(tr.imageUrl),
+    learnMoreLabel: '',
+    learnMoreHref: '',
+    detailSlug: str(tr.detailSlug),
+    detailPublished: tr.detailPublished ?? true,
+    detailSubtitle: str(tr.detailSubtitle),
+    detailBody: str(tr.detailBody),
+    detailBodyHtml: str(tr.detailBodyHtml),
+    detailGallery: [...(tr.detailGallery ?? [])],
+  };
+}
 
 export function hasSalonModularPage(content: SiteContent, _style: TemplateStyle, page: SalonModularPageKey): boolean {
   const m = content.modularPagesV1;
@@ -86,10 +138,13 @@ function mergeSalonHomeSupplements(content: SiteContent, sections: ModularSectio
       const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToTreatment);
       if (!mapped.length) return;
       const cur = [...(next.treatments ?? [])];
+      const curSvc = [...(next.services ?? [])];
       mapped.forEach((row, i) => {
-        cur[i] = { ...(cur[i] ?? { name: '', description: '', duration: '', price: '', category: '', imageUrl: '' }), ...row };
+        const mergedT = { ...(cur[i] ?? DEFAULT_TREATMENT_ROW), ...row };
+        cur[i] = mergedT;
+        curSvc[i] = { ...(curSvc[i] ?? DEFAULT_SALON_SERVICE_ROW), ...treatmentRowToServiceRow(mergedT) };
       });
-      next = { ...next, treatments: cur };
+      next = { ...next, treatments: cur, services: curSvc };
     };
     if (sec.type === 'featuredServices' || sec.type === 'serviceCards') {
       mergeTreatmentsFromItems((d as { items?: unknown }).items);
@@ -562,7 +617,10 @@ function mergeSalonServicesIntoLegacy(content: SiteContent, sections: ModularSec
         break;
     }
   }
-  if (treatmentsOverride) next = { ...next, treatments: treatmentsOverride };
+  if (treatmentsOverride) {
+    const svc = treatmentsOverride.map((t) => treatmentRowToServiceRow(t));
+    next = { ...next, treatments: treatmentsOverride, services: svc };
+  }
   return next;
 }
 

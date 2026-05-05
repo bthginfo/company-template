@@ -192,7 +192,21 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&w=1400&q=80',
     },
     services: [
-      { title: 'Notdienst & Reparaturen', description: 'Rohrbruch, Heizungsausfall, verstopfte Leitung – wir sind in 60 Minuten bei Ihnen. 24/7, auch am Wochenende.', price: 'ab 79 €', imageUrl: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80' },
+      {
+        title: 'Notdienst & Reparaturen',
+        description: 'Rohrbruch, Heizungsausfall, verstopfte Leitung – wir sind in 60 Minuten bei Ihnen. 24/7, auch am Wochenende.',
+        price: 'ab 79 €',
+        imageUrl: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80',
+        detailSlug: 'notdienst-reparaturen',
+        detailPublished: true,
+        detailSubtitle: '24/7 · Festpreis nach Absprache',
+        detailBody:
+          'Unser Notdienst-Team ist in Ingolstadt und Umland in der Regel innerhalb von 60 Minuten vor Ort. Wir sichern Schäden, dokumentieren für die Versicherung und reparieren fachgerecht.\n\nTransparente Preisinfo vor Arbeitsbeginn – keine Überraschungen auf der Rechnung.',
+        detailGallery: [
+          'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1200&q=80',
+        ],
+      },
       { title: 'Badsanierung', description: 'Komplettsanierung mit eigener Planung, 3D-Visualisierung und Festpreis-Garantie. Inkl. Bodenleger & Fliesenleger.', price: 'auf Anfrage', imageUrl: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=80' },
       { title: 'Heizungsmodernisierung', description: 'Wärmepumpe, Pellets, Hybrid, Brennwert. Wir beraten Sie ehrlich zu Förderungen (KfW & BAFA).', price: 'auf Anfrage', imageUrl: 'https://images.unsplash.com/photo-1604061986761-d9d0cc41b0d1?auto=format&fit=crop&w=900&q=80' },
       { title: 'Solarthermie & Photovoltaik', description: 'Komplettpaket inkl. Anmeldung beim Netzbetreiber, Inbetriebnahme und 2 Jahre Wartung.', price: 'auf Anfrage', imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80' },
@@ -551,8 +565,39 @@ export const EXTRA_DEMO_CONTENT = {
     category: 'Antipasti',
     description: 'Zum Ankommen, zum Teilen, zum Zeit nehmen.',
     items: [
-      { name: 'Bruschetta al Pomodoro', description: 'Hausgebackenes Sauerteigbrot, San-Marzano-Tomaten, Basilikum, Knoblauch.', price: '8,90 €', allergens: 'A, G', tags: ['vegan'] },
-      { name: 'Burrata di Andria', description: 'Cremige Burrata DOP, eingelegte Tomaten, Basilikum-Öl, Sauerteigcrostini.', price: '14,50 €', allergens: 'A, G' },
+      {
+        name: 'Bruschetta al Pomodoro',
+        description: 'Hausgebackenes Sauerteigbrot, San-Marzano-Tomaten, Basilikum, Knoblauch.',
+        price: '8,90 €',
+        allergens: 'A, G',
+        tags: ['vegan'],
+        imageUrl: 'https://images.unsplash.com/photo-1572695157366-3e47b1b7059d?auto=format&fit=crop&w=900&q=80',
+        detailSlug: 'bruschetta-al-pomodoro',
+        detailPublished: true,
+        detailSubtitle: 'Vegan · täglich frisch geröstet',
+        detailBody:
+          'Unser Sauerteig reift 48 Stunden, wird dann knusprig gebacken und mit San-Marzano-Tomaten, frischem Basilikum und kaltgepresstem Olivenöl serviert.\n\nPerfekt zum Aperitivo oder zum Teilen am Tisch.',
+        detailGallery: [
+          'https://images.unsplash.com/photo-1572695157366-3e47b1b7059d?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80',
+        ],
+      },
+      {
+        name: 'Burrata di Andria',
+        description: 'Cremige Burrata DOP, eingelegte Tomaten, Basilikum-Öl, Sauerteigcrostini.',
+        price: '14,50 €',
+        allergens: 'A, G',
+        imageUrl: 'https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&w=900&q=80',
+        detailSlug: 'burrata-di-andria',
+        detailPublished: true,
+        detailSubtitle: 'DOP · aus Apulien',
+        detailBody:
+          'Die Burrata kommt wöchentlich frisch aus Andria. Wir servieren sie mit lang eingelegten Tomaten, Basilikumöl und warmem Crostini.\n\nEin Klassiker, den unsere Gäste am häufigsten bestellen.',
+        detailGallery: [
+          'https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=1200&q=80',
+        ],
+      },
       { name: 'Vitello Tonnato', description: 'Rosa gebratenes Kalb, Thunfisch-Kapern-Creme, Rauke, Zitrone.', price: '16,90 €', allergens: 'D, G, M' },
       { name: 'Antipasti della Casa', description: 'Auswahl aus dem Markt – Parmaschinken, Burrata, Crostini, eingelegtes Gemüse.', price: '18,50 €', allergens: 'A, G' },
     ],
@@ -561,7 +606,23 @@ export const EXTRA_DEMO_CONTENT = {
     category: 'Pasta & Risotto',
     description: 'Hausgemacht, täglich frisch aufgezogen.',
     items: [
-      { name: 'Tagliatelle al Tartufo', description: 'Frische Tagliatelle, schwarzer Sommertrüffel aus Umbrien, Parmigiano 24 Mesi.', price: '24,90 €', allergens: 'A, C, G', tags: ['Signature'] },
+      {
+        name: 'Tagliatelle al Tartufo',
+        description: 'Frische Tagliatelle, schwarzer Sommertrüffel aus Umbrien, Parmigiano 24 Mesi.',
+        price: '24,90 €',
+        allergens: 'A, C, G',
+        tags: ['Signature'],
+        imageUrl: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=900&q=80',
+        detailSlug: 'tagliatelle-al-tartufo',
+        detailPublished: true,
+        detailSubtitle: 'Signature · frische Pasta',
+        detailBody:
+          'Die Tagliatelle wird morgens aufgezogen und zum Service blanchiert. Der Trüffel wird am Tisch gehobelt – Intensität nach Wunsch.\n\nParmigiano Reggiano 24 Monate, etwas braune Butter, keine Kompromisse.',
+        detailGallery: [
+          'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=1200&q=80',
+        ],
+      },
       { name: 'Spaghetti alle Vongole', description: 'Venusmuscheln, Knoblauch, Petersilie, Vermentino.', price: '22,50 €', allergens: 'A, B, R' },
       { name: 'Risotto ai Funghi', description: 'Carnaroli aus dem Piemont, Steinpilze, Trüffelöl, Pecorino-Crème.', price: '22,50 €', allergens: 'G, L', tags: ['vegetarisch'] },
       { name: 'Pasta del Giorno', description: 'Tagesempfehlung aus der Pasta-Manufaktur. Karte am Eingang.', price: '19,80 €', allergens: 'A, C' },
@@ -606,6 +667,15 @@ export const EXTRA_DEMO_CONTENT = {
     price: 'ab 189 € / Nacht',
     imageUrl: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=80',
     features: ['Balkon mit Bergblick', 'Regendusche & Wanne', 'Frühstück inklusive', 'Espressomaschine'],
+    detailSlug: 'doppelzimmer-almblick',
+    detailPublished: true,
+    detailSubtitle: '24 m² · Balkon Nordkette',
+    detailBody:
+      'Massivholzbett, hochwertige Matratze, Schreibtisch und Sitzecke. Das Bad verfügt über Regendusche und freistehende Badewanne.\n\nFrühstücksbuffet von 7:00 bis 11:00 inklusive.',
+    detailGallery: [
+      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=80',
+    ],
   },
   {
     name: 'Junior Suite Zirbe',
@@ -615,6 +685,15 @@ export const EXTRA_DEMO_CONTENT = {
     price: 'ab 269 € / Nacht',
     imageUrl: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=80',
     features: ['Wohnbereich mit Kamin', 'Whirlwanne', 'Spa-Zugang inklusive', 'Lokale Mini-Bar'],
+    detailSlug: 'junior-suite-zirbe',
+    detailPublished: true,
+    detailSubtitle: '38 m² · Zirbe & Kamin',
+    detailBody:
+      'Die Suite ist komplett in Zirbenholz gehalten – beruhigend für Allergiker und wohltuend für die Nachtruhe. Wohnbereich mit Kaminofen und Blick ins Tal.\n\nSpa-Bereich inklusive: Pool, Sauna und Ruheraum.',
+    detailGallery: [
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80',
+    ],
   },
   {
     name: 'Panorama-Suite Bergkristall',
@@ -665,6 +744,15 @@ export const EXTRA_DEMO_CONTENT = {
     price: 'ab 89 €',
     imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80',
     languages: ['DE', 'EN'],
+    detailSlug: 'achensee-umrundung',
+    detailPublished: true,
+    detailSubtitle: 'Tagestour · max. 12 Personen',
+    detailBody:
+      'Wir wandern den Achensee auf gut ausgebauten Wegen, mit Pausen an Fotospots und einer ausführlichen Mittagseinkehr in der Gaisalm.\n\nLeichte Anstiege, festes Schuhwerk empfohlen. Lunchpaket vom Hofladen inklusive.',
+    detailGallery: [
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=1400&q=80',
+    ],
   },
   {
     name: 'Dolomiten-Trekking 3 Tage',
@@ -675,6 +763,15 @@ export const EXTRA_DEMO_CONTENT = {
     price: 'ab 690 €',
     imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80',
     languages: ['DE', 'EN', 'IT'],
+    detailSlug: 'dolomiten-trekking-3-tage',
+    detailPublished: true,
+    detailSubtitle: 'Hütten · kleine Gruppe',
+    detailBody:
+      'Drei Tage durch die Südtiroler Dolomiten mit IFMGA-erfahrenen Guides. Übernachtung in ausgewählten Hütten, Halbpension, Gepäcktransfer wo möglich.\n\nFitness: 5–7 h Gehzeit pro Tag. Technische Ausrüstung wird vorab besprochen.',
+    detailGallery: [
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1400&q=80',
+    ],
   },
   {
     name: 'Wein-Tour Vinschgau',
@@ -721,8 +818,40 @@ export const EXTRA_DEMO_CONTENT = {
 // SALON — Treatments
 (DEMO_CONTENT.salon as any).treatments = [
   // Hair
-  { category: 'Haar · Schnitt', name: 'Damen-Schnitt inkl. Wäsche & Styling', description: 'Persönliche Beratung, individueller Schnitt, Styling-Tipps für zuhause.', duration: '60 min', price: '65 €' },
-  { category: 'Haar · Schnitt', name: 'Herren-Schnitt', description: 'Klassisch oder modern. Bartpflege auf Wunsch.', duration: '45 min', price: '38 €' },
+  {
+    category: 'Haar · Schnitt',
+    name: 'Damen-Schnitt inkl. Wäsche & Styling',
+    description: 'Persönliche Beratung, individueller Schnitt, Styling-Tipps für zuhause.',
+    duration: '60 min',
+    price: '65 €',
+    imageUrl: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&w=900&q=80',
+    detailSlug: 'damen-schnitt',
+    detailPublished: true,
+    detailSubtitle: 'Inkl. Wäsche & Finish',
+    detailBody:
+      'Wir starten mit einem ausführlichen Beratungsgespräch, analysieren Struktur und Wuchs und schneiden trocken oder nass – je nach Haar.\n\nNach der Wäsche zeigen wir Ihnen ein einfaches Styling für zuhause.',
+    detailGallery: [
+      'https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80',
+    ],
+  },
+  {
+    category: 'Haar · Schnitt',
+    name: 'Herren-Schnitt',
+    description: 'Klassisch oder modern. Bartpflege auf Wunsch.',
+    duration: '45 min',
+    price: '38 €',
+    imageUrl: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=900&q=80',
+    detailSlug: 'herren-schnitt',
+    detailPublished: true,
+    detailSubtitle: 'inkl. Bartpflege auf Wunsch',
+    detailBody:
+      'Präziser Schnitt mit Maschine und Schere, Konturen sauber gesetzt. Auf Wunsch Bart trimmen, einreiben und stylen.\n\nIdeal zwischen zwei größeren Terminen: schnell, sauber, gepflegt.',
+    detailGallery: [
+      'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=80',
+    ],
+  },
   { category: 'Haar · Schnitt', name: 'Kinder-Schnitt (bis 12 J.)', duration: '30 min', price: '24 €' },
   { category: 'Haar · Schnitt', name: 'Pony-Korrektur (zwischen Terminen)', duration: '15 min', price: '12 €' },
   // Color
@@ -745,7 +874,22 @@ export const EXTRA_DEMO_CONTENT = {
 
 // TRADESMAN — Funding & Emergency
 (DEMO_CONTENT.tradesman as any).fundingItems = [
-  { title: 'KfW Heizungsförderung', percent: '35 %', program: 'KfW 458', description: 'Grundförderung für hocheffiziente Heizsysteme – Wärmepumpe, Solarthermie, Biomasse.' },
+  {
+    title: 'KfW Heizungsförderung',
+    percent: '35 %',
+    program: 'KfW 458',
+    description: 'Grundförderung für hocheffiziente Heizsysteme – Wärmepumpe, Solarthermie, Biomasse.',
+    imageUrl: 'https://images.unsplash.com/photo-1604061986761-d9d0cc41b0d1?auto=format&fit=crop&w=900&q=80',
+    detailSlug: 'kfw-heizungsfoerderung',
+    detailPublished: true,
+    detailSubtitle: 'KfW 458 · Kombinierbar',
+    detailBody:
+      'Die KfW-Programme ändern sich regelmäßig. Wir prüfen für Ihr Objekt die aktuelle Förderfähigkeit und begleiten Antrag und Nachweis.\n\nKombination mit regionalen Programmen ist oft möglich – fragen Sie uns.',
+    detailGallery: [
+      'https://images.unsplash.com/photo-1604061986761-d9d0cc41b0d1?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1200&q=80',
+    ],
+  },
   { title: 'Klima-Geschwindigkeits-Bonus', percent: '20 %', program: 'KfW 458', description: 'Zusätzlicher Bonus für selbstnutzende Eigentümer:innen bei früher Modernisierung.' },
   { title: 'Einkommens-Bonus', percent: '30 %', program: 'KfW', description: 'Für Haushalte unter 40.000 € zu versteuerndem Einkommen kombinierbar.' },
   { title: 'BEG Einzelmaßnahmen', percent: '15 %', program: 'BAFA', description: 'Dämmung, Fenster, Tür-Erneuerung – staatlich gefördert.' },
@@ -937,3 +1081,240 @@ const extraGalleryStoryConsulting = {
   },
 };
 
+// ─── Showcase: exemplarische Katalog-Detailseiten (Slug + Galerie) ──
+(() => {
+  const c = EXTRA_DEMO_CONTENT.consulting;
+  const g2 = (a: string, b: string) => [a, b];
+  const ph = (eyebrow: string, title: string, subtitle: string) => ({ eyebrow, title, subtitle });
+  Object.assign(c, {
+    servicesHeader: ph('Leistungen', 'Was wir für Sie tun', 'Strategie, Steuern, Recht — aus einer Hand.'),
+    galleryHeader: ph('Einblicke', 'Galerie', 'Projekte, Workshops und Momente aus der Zusammenarbeit.'),
+    aboutHeader: ph('Über uns', 'Hofer & Partner', 'Team, Geschichte und Werte der Kanzlei.'),
+    contactPageHeader: ph('Kontakt', 'Erstgespräch', 'Adresse, Erreichbarkeit und nächste Schritte.'),
+  });
+  Object.assign(c.services[0], {
+    detailSlug: 'strategie-geschaeftsmodell',
+    detailPublished: true,
+    detailSubtitle: 'Workshops · KPIs · Umsetzung',
+    detailBody:
+      'Wir analysieren Markt, Wettbewerb und interne Stärken, entwickeln Szenarien und begleiten die Entscheidung bis zur Roadmap.\n\nTypischerweise 6–12 Wochen, abhängig von Komplexität und Datenlage.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80',
+    ),
+  });
+  Object.assign(c.services[1], {
+    detailSlug: 'steuerberatung-jahresabschluss',
+    detailPublished: true,
+    detailSubtitle: 'Digital · transparent',
+    detailBody:
+      'Laufende Buchführung, Jahresabschluss, Steuererklärungen und Betriebsprüfungs-Vorbereitung – alles in einem Team.\n\nSie sehen jederzeit den Stand im Mandantenportal.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
+    ),
+  });
+  const pk = (c as { packages?: Array<Record<string, unknown>> }).packages;
+  if (pk?.[0]) {
+    Object.assign(pk[0], {
+      detailSlug: 'paket-diagnose',
+      detailPublished: true,
+      detailSubtitle: 'Einstieg · Festpreis',
+      detailBody:
+        'Die Diagnose-Pauschale umfasst Datenanalyse, drei Stakeholder-Interviews und einen schriftlichen Bericht mit Handlungsempfehlungen.\n\nAbschluss in einem 90-Minuten-Ergebnis-Workshop mit Ihrem Kernteam.',
+      detailGallery: g2(
+        'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80',
+      ),
+    });
+  }
+  const ps = (c as { processSteps?: Array<Record<string, unknown>> }).processSteps;
+  if (ps?.[0]) {
+    Object.assign(ps[0], {
+      detailSlug: 'erstgespraech',
+      detailPublished: true,
+      detailSubtitle: '60 Minuten · kostenfrei',
+      detailBody:
+        'Wir lernen Ihr Unternehmen kennen, klären Erwartungen und prüfen, ob die Chemie für eine Zusammenarbeit passt.\n\nSie erhalten keine Verkaufspräsentation, sondern ehrliches Feedback und eine erste Orientierung.',
+      detailGallery: g2(
+        'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1200&q=80',
+      ),
+    });
+  }
+
+  const m = EXTRA_DEMO_CONTENT.medical;
+  Object.assign(m, {
+    servicesHeader: ph('Leistungen', 'Medizinische Angebote', 'Hausarzt, Vorsorge und komplementäre Verfahren.'),
+    galleryHeader: ph('Praxis', 'Galerie', 'Räume, Team und Atmosphäre der Praxis Dr. Lindner.'),
+    aboutHeader: ph('Über uns', 'Die Praxis', 'Philosophie, Team und Qualitätssicherung.'),
+    contactPageHeader: ph('Termine', 'Kontakt', 'Online-Buchung, Telefon und Wegbeschreibung.'),
+  });
+  Object.assign(m.services[0], {
+    detailSlug: 'hausarztliche-versorgung',
+    detailPublished: true,
+    detailSubtitle: '30 Min. Termin · DMP',
+    detailBody:
+      'Hausärztliche Versorgung mit Zeit: Vorsorge, Akutsprechstunde, chronische Erkrankungen und DMP-Programme.\n\nWir koordinieren Facharzttermine und halten Ihre Medikation im Blick.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1666214280391-8ff5bd3c0bf0?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80',
+    ),
+  });
+  const docs = (m as { doctors?: Array<Record<string, unknown>> }).doctors;
+  if (docs?.[0]) {
+    Object.assign(docs[0], {
+      detailSlug: 'dr-lena-lindner',
+      detailPublished: true,
+      detailSubtitle: 'Allgemeinmedizin · Naturheilverfahren',
+      detailBody:
+        'Fachärztin mit Zusatzbezeichnung Naturheilverfahren. Schwerpunkte: Prävention, chronische Beschwerden, Akupunktur und Mikronährstoff-Therapie.\n\nErstgespräch ausführlich – nach vorheriger Terminbuchung.',
+      detailGallery: g2(
+        'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80',
+      ),
+    });
+  }
+
+  const f = EXTRA_DEMO_CONTENT.fitness;
+  Object.assign(f, {
+    servicesHeader: ph('Angebote', 'Kurse & Training', 'Yoga, Pilates und Personal Training im Studio.'),
+    galleryHeader: ph('Studio', 'Galerie', 'Räume, Kurse und Community bei Studio Anima.'),
+    aboutHeader: ph('Über uns', 'Studio Anima', 'Geschichte, Team und Qualität im kleinen Format.'),
+    contactPageHeader: ph('Probetraining', 'Kontakt', 'Adresse, Kursplan und erste Fragen — wir helfen gern.'),
+  });
+  const fc = (f as { courses?: Array<Record<string, unknown>> }).courses;
+  if (fc?.[0]) {
+    Object.assign(fc[0], {
+      detailSlug: 'kurs-vinyasa-flow',
+      detailPublished: true,
+      detailSubtitle: '75 Min · alle Levels',
+      detailBody:
+        'Dynamische Reihen im Rhythmus des Atems. Wir arbeiten mit Optionen für Knie und Schultern – jede Session endet mit kurzer Meditation.\n\nMatten und Props sind im Studio vorhanden.',
+      detailGallery: g2(
+        'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1200&q=80',
+      ),
+    });
+  }
+  const fpk = (f as { packages?: Array<Record<string, unknown>> }).packages;
+  if (fpk?.[0]) {
+    Object.assign(fpk[0], {
+      detailSlug: 'probetraining-paket',
+      detailPublished: true,
+      detailSubtitle: 'Einmalig · ohne Verpflichtung',
+      detailBody:
+        'Eine Klasse Ihrer Wahl, persönliche Begrüßung und ein kurzes Beratungsgespräch zu Format und Mitgliedschaft.\n\nBitte bequeme Kleidung mitbringen; Matten und Tee gibt es bei uns.',
+      detailGallery: g2(
+        'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1200&q=80',
+      ),
+    });
+  }
+  Object.assign(f.services[0], {
+    detailSlug: 'angebot-vinyasa-flow',
+    detailPublished: true,
+    detailSubtitle: '75 Min · ab 22 €',
+    detailBody:
+      'Unser meistgebuchtes Format: fließende Übergänge, klare Ansagen, Musik die trägt. Für Einsteiger:innen mit Grundfitness geeignet.\n\nAnmeldung über den Kursplan oder Probetraining.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=800&q=80',
+    ),
+  });
+
+  const Tr = DEMO_CONTENT.tradesman;
+  Object.assign(Tr, {
+    servicesHeader: ph('Leistungen', 'Sanitär & Heizung', 'Notdienst, Sanierung und Energie — Meisterbetrieb Mayer & Söhne.'),
+    galleryHeader: ph('Referenzen', 'Galerie', 'Baustellen, Team und fertige Projekte aus Ingolstadt.'),
+    aboutHeader: ph('Betrieb', 'Über uns', 'Geschichte, Team und Qualität im Meisterbetrieb.'),
+    contactPageHeader: ph('Anfrage', 'Kontakt', 'Festpreis-Anfrage, Notdienst und Erreichbarkeit.'),
+  });
+
+  const R = DEMO_CONTENT.restaurant;
+  Object.assign(R, {
+    servicesHeader: ph('Aus der Küche', 'Speisekarte', 'Auszug aus der Karte — Pasta, Pizza, Dolci.'),
+    galleryHeader: ph('Stimmung', 'Galerie', 'Einblicke in Küche und Gastraum.'),
+    aboutHeader: ph('Familie', 'Über uns', 'Geschichte und Team der Trattoria.'),
+    contactPageHeader: ph('Reservierung', 'Kontakt', 'Adresse, Zeiten und Nachricht — wir antworten schnell.'),
+  });
+  Object.assign(R.services[0], {
+    detailSlug: 'tagliatelle-speisekarte',
+    detailPublished: true,
+    detailSubtitle: 'Hausgemacht · Trüffel',
+    detailBody:
+      'Unsere Tagliatelle wird täglich frisch aufgezogen. Der schwarze Sommertrüffel kommt aus Umbrien, der Parmigiano 24 Monate aus Emilia-Romagna.\n\nAls Ergänzung empfehlen wir ein Glas Barolo.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=1200&q=80',
+    ),
+  });
+
+  const S = DEMO_CONTENT.salon;
+  Object.assign(S, {
+    servicesHeader: ph('Treatments', 'Leistungen', 'Schnitt, Color, Spa und Beauty — auf einen Blick.'),
+    galleryHeader: ph('Looks', 'Galerie', 'Arbeiten, Räume und Stimmung im Studio Lumière.'),
+    aboutHeader: ph('Über uns', 'Studio Lumière', 'Marie Hofer und das Team — Ausbildung und Philosophie.'),
+    contactPageHeader: ph('Termin', 'Kontakt', 'Buchung, Adresse und Anfahrt nach Schwabing.'),
+  });
+  Object.assign(S.services[0], {
+    detailSlug: 'damen-schnitt-leistung',
+    detailPublished: true,
+    detailSubtitle: '60 Min · inkl. Styling',
+    detailBody:
+      'Ausführliche Beratung, Schnitt und Finish – inklusive Tipps für die tägliche Routine zuhause.\n\nWir arbeiten mit Kérastase und Olaplex nach Bedarf.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80',
+    ),
+  });
+  Object.assign(S.services[1], {
+    detailSlug: 'herren-schnitt-leistung',
+    detailPublished: true,
+    detailSubtitle: '45 Min',
+    detailBody:
+      'Klassischer oder moderner Herrenschnitt mit Konturen und optionaler Bartpflege.\n\nTermin auch kurzfristig möglich.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=80',
+    ),
+  });
+
+  const T = DEMO_CONTENT.tourism;
+  Object.assign(T, {
+    servicesHeader: ph('Programm', 'Touren & Erlebnisse', 'Tagestouren, Mehrtagestrips und Workshops in Tirol.'),
+    galleryHeader: ph('Eindrücke', 'Galerie', 'Berge, Gruppen und Momente unterwegs mit Alpenroute.'),
+    aboutHeader: ph('Team', 'Über uns', 'Guides, Philosophie und Qualität bei Alpenroute Tirol.'),
+    contactPageHeader: ph('Buchung', 'Kontakt', 'Fragen zur Tour — wir melden uns mit konkreten Terminen.'),
+  });
+  Object.assign(T.services[0], {
+    detailSlug: 'tagestouren-tirol',
+    detailPublished: true,
+    detailSubtitle: 'Ab 89 € · kleine Gruppe',
+    detailBody:
+      'Geführte Tagestouren mit lokalem Guide, Lunchpaket und klaren Pausen. Maximale Gruppengröße 12.\n\nSchwierigkeit und Ausrüstung besprechen wir vorab per Mail.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=1200&q=80',
+    ),
+  });
+
+  const H = DEMO_CONTENT.hotel;
+  Object.assign(H, {
+    servicesHeader: ph('Zimmer & Haus', 'Unser Angebot', 'Zimmerkategorien, Spa und Kulinarik im Bergkristall.'),
+    galleryHeader: ph('Impressionen', 'Galerie', 'Zimmer, Spa, Natur und kulinarische Momente.'),
+    aboutHeader: ph('Familie', 'Über uns', 'Drei Generationen Gastgeber in den Tiroler Bergen.'),
+    contactPageHeader: ph('Anfrage', 'Kontakt', 'Reservierung, Anreise und persönliche Wünsche.'),
+  });
+  Object.assign(H.services[0], {
+    detailSlug: 'zimmer-suiten-uebersicht',
+    detailPublished: true,
+    detailSubtitle: '18 Zimmer · 12 Junior-Suiten',
+    detailBody:
+      'Überblick über unsere Zimmerkategorien – von kompakt bis Panorama. Alle Zimmer mit Balkon oder Loggia, Massivholzböden und hochwertiger Bettware.\n\nFrühstück und Spa-Zugang in allen Kategorien inklusive.',
+    detailGallery: g2(
+      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1200&q=80',
+    ),
+  });
+})();
