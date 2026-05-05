@@ -15,7 +15,7 @@
  * match — divergence is exactly the drift we are guarding against.
  */
 
-import type { AdminSectionKey, PageKey } from '@/admin/admin-sections';
+import type { AdminSectionKey, PageKey } from '../admin/admin-sections';
 import type { TemplateKey } from './types';
 
 /** A path inside `SiteContent`, e.g. `'hero.title'`, `'branchText.heroEyebrow'`. */

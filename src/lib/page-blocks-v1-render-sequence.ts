@@ -6,11 +6,11 @@
  * (same length / order) so `mergeEndExclusive` indices match the full merge.
  */
 
-import type { PageKey } from '@/admin/admin-sections';
+import type { PageKey } from '../admin/admin-sections';
 import type { ReactNode } from 'react';
-import type { SiteContent } from '@/lib/types';
-import { mergePageBlocksIntoSiteContentForPagePrefix } from '@/lib/page-blocks-v1-page-merge';
-import { buildPageBlockSlotPlan, resolveLayoutSlotOrder } from '@/lib/page-blocks-v1-slot-order';
+import type { SiteContent } from './types';
+import { mergePageBlocksIntoSiteContentForPagePrefix } from './page-blocks-v1-page-merge';
+import { buildPageBlockSlotPlan, resolveLayoutSlotOrder } from './page-blocks-v1-slot-order';
 
 export type SlotRenderInstruction = {
   key: string;

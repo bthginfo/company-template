@@ -3,9 +3,9 @@
  * (`getAdminSections`). Block `data` is a projection of `SECTION_CONTRACTS[type].dataKeys`.
  */
 
-import { getAdminSections, type AdminSectionKey, type PageKey } from '@/admin/admin-sections';
-import { SECTION_CONTRACTS } from '@/lib/section-registry';
-import type { TemplateStyle } from '@/lib/branch-config';
+import { getAdminSections, type AdminSectionKey, type PageKey } from '../admin/admin-sections';
+import { SECTION_CONTRACTS } from './section-registry';
+import type { TemplateStyle } from './branch-config';
 import {
   SiteContentSchema,
   type PageBlocksV1,

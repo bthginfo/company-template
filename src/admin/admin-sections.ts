@@ -10,11 +10,11 @@
  * When adding a section to the frontend, add it here. Period.
  */
 
-import type { TemplateKey } from '@/lib/types';
-import type { TemplateStyle, ServiceModule } from '@/lib/branch-config';
-import { getBranchConfig, isExtraBranch } from '@/lib/branch-config';
-import { getCatalogForVariant } from '@/lib/page-layout';
-import { BRANCH_STYLE_ORDER, type Style } from '@/lib/template-orders';
+import type { TemplateKey } from '../lib/types';
+import type { TemplateStyle, ServiceModule } from '../lib/branch-config';
+import { getBranchConfig, isExtraBranch } from '../lib/branch-config';
+import { getCatalogForVariant } from '../lib/page-layout';
+import { BRANCH_STYLE_ORDER, type Style } from '../lib/template-orders';
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 

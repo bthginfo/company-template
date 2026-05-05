@@ -4,8 +4,8 @@
  * a prefix merge (see `mergePageBlocksIntoSiteContentForPagePrefix`) so repeated slots differ.
  */
 
-import type { PageKey } from '@/admin/admin-sections';
-import { SiteContentSchema, type PageBlockInstanceV1, type SiteContent } from '@/lib/types.js';
+import type { PageKey } from '../admin/admin-sections';
+import { SiteContentSchema, type PageBlockInstanceV1, type SiteContent } from './types.js';
 
 function isPlainRecord(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === 'object' && !Array.isArray(v);
