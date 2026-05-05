@@ -408,7 +408,7 @@ export const RESTAURANT_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'ctaBand',
 ]);
 
-export const HOTEL_V2_RENDERED_HOME_SECTION_TYPES = new Set<string>([
+export const HOTEL_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'noticeBanner',
   'hero',
   'actionBar',
@@ -423,6 +423,20 @@ export const HOTEL_V2_RENDERED_HOME_SECTION_TYPES = new Set<string>([
   'brandLogos',
   'roomSelection',
   'testimonialMarquee',
+  'highlightsBar',
+  'accommodationsGrid',
+  'accommodationList',
+  'roomCards',
+  'steps',
+  'faq',
+  'teaserList',
+  'gallery',
+  'timeline',
+  'team',
+  'storyFacts',
+  'contactDetails',
+  'locations',
+  'directions',
 ]);
 
 function shouldUseCmsV2Frontend(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): boolean {
@@ -508,6 +522,31 @@ function cmsV2HotelSectionContent(content: SiteContent, section: ModularSectionV
         },
       };
     }
+    case 'accommodationsGrid':
+    case 'accommodationList':
+    case 'roomCards': {
+      const rooms = cmsV2HotelRoomItems(data.items);
+      return {
+        ...content,
+        rooms,
+        services: cmsV2HotelServicesFromRooms(rooms),
+        moduleHeadings: {
+          ...content.moduleHeadings,
+          rooms: {
+            eyebrow: cmsV2Text(data.eyebrow),
+            titleA: cmsV2Text(data.headline),
+            titleB: '',
+            subtitle: cmsV2Text(data.description),
+          },
+        },
+      };
+    }
+    case 'highlightsBar':
+      return { ...content, serviceHighlights: cmsV2TextPairs(data.items) };
+    case 'steps':
+      return { ...content, serviceProcess: cmsV2TextPairs(data.items) };
+    case 'faq':
+      return { ...content, faq: cmsV2FaqItems(data.items) };
     case 'brandLogos':
       return {
         ...content,
@@ -907,6 +946,46 @@ function HotelV2HomePage({ content, style }: { content: SiteContent; style: Temp
   );
 }
 
+function HotelV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey; content: SiteContent; style: TemplateStyle }) {
+  const sections = restaurantV2SubpageSections(content, page);
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const heroContent = heroSection ? cmsV2RestaurantSubpageContent(content, heroSection, page) : content;
+  const fallback = NAV_BY_VARIANT.hotel;
+  const headerKey: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' =
+    page === 'services' ? 'servicesHeader'
+      : page === 'gallery' ? 'galleryHeader'
+        : page === 'about' ? 'aboutHeader'
+          : 'contactPageHeader';
+  const header = pageHeaderOverride(heroContent, headerKey);
+  const defaultTitle =
+    page === 'services' ? fallback.servicesHeadline
+      : page === 'gallery' ? 'Haus & Spa.'
+        : page === 'about' ? 'Geschichte & Gastgeber.'
+          : 'Reservieren.';
+  const defaultEyebrow =
+    page === 'services' ? fallback.servicesEyebrow
+      : page === 'gallery' ? 'Galerie'
+        : page === 'about' ? 'Geschichte'
+          : 'Kontakt';
+
+  return (
+    <>
+      <PageHero
+        eyebrow={header?.eyebrow || defaultEyebrow}
+        title={header?.title || defaultTitle}
+        subtitle={header?.subtitle || ''}
+        style={style}
+        image={page === 'services' ? effectiveBranchText('hotel', heroContent).servicesPageImageUrl : undefined}
+      />
+      {sections
+        .filter((section) => section.type !== 'hero')
+        .map((section) => (
+          <React.Fragment key={section.id}>{renderHotelV2SubpageSection(page, section, content, style)}</React.Fragment>
+        ))}
+    </>
+  );
+}
+
 function renderHotelV2HomeSection(section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
   const sectionContent = cmsV2HotelSectionContent(content, section, style);
   switch (section.type) {
@@ -997,6 +1076,96 @@ function renderHotelV2HomeSection(section: ModularSectionV2, content: SiteConten
     case 'cta':
     case 'ctaBand':
       return <CtaBand variant="hotel" content={sectionContent} />;
+    default:
+      return null;
+  }
+}
+
+function renderHotelV2SubpageSection(page: RestaurantV2SubpageKey, section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
+  const data = asUnknownRecord(section.data);
+  const sectionContent = cmsV2HotelSectionContent(cmsV2RestaurantSubpageContent(content, section, page), section, style);
+  switch (section.type) {
+    case 'noticeBanner':
+      return <RestaurantV2NoticeBanner section={section} />;
+    case 'highlightsBar': {
+      const items = cmsV2TextPairs(data.items);
+      return items.length ? (
+        <Section spacing="md" className="surface">
+          <div className="grid md:grid-cols-3 gap-4 reveal-stagger">
+            {items.map((item, i) => <article key={i} className="bg-white border border-line rounded-2xl p-6"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}
+          </div>
+        </Section>
+      ) : null;
+    }
+    case 'accommodationsGrid':
+    case 'accommodationList':
+    case 'roomCards':
+      return sectionContent.rooms?.length ? <RoomShowcaseModule content={sectionContent} itemLinkPrefix="/zimmer" /> : null;
+    case 'steps': {
+      const items = cmsV2TextPairs(data.items);
+      return items.length ? (
+        <Section eyebrow={cmsV2Text(data.eyebrow) || 'Ablauf'} title={splitTitle(cmsV2Text(data.headline) || 'So läuft es ab.')}>
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {items.map((item, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><p className="font-mono text-xs uppercase tracking-widest text-muted">{String(i + 1).padStart(2, '0')}</p><h3 className="font-display text-2xl mt-4">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}
+          </div>
+        </Section>
+      ) : null;
+    }
+    case 'faq': {
+      const items = cmsV2FaqItems(data.items);
+      return items.length ? <Section eyebrow={cmsV2Text(data.eyebrow) || 'FAQ'} title={splitTitle(cmsV2Text(data.headline) || 'Häufige Fragen.')}><Accordion items={items} className="max-w-3xl" /></Section> : null;
+    }
+    case 'teaserList': {
+      const items = cmsV2TextPairs(data.items);
+      return items.length ? (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || cmsV2Text(data.title))} subtitle={cmsV2Text(data.intro) || cmsV2Text(data.description)} className={style === 'modern' ? 'surface' : ''}>
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {items.map((item, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}
+          </div>
+        </Section>
+      ) : null;
+    }
+    case 'gallery': {
+      const images = Array.isArray(data.images) ? data.images.map((item) => cmsV2Image(item)).filter(Boolean) : [];
+      return images.length ? <Section spacing="lg">{style === 'bold' ? <MasonryGrid images={images} /> : style === 'modern' ? <ModernGalleryGrid images={images} /> : <GalleryShowcase variant="hotel" images={images} mode="full" />}</Section> : null;
+    }
+    case 'timeline': {
+      const items = Array.isArray(data.items)
+        ? data.items.filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item)).map((item) => ({ year: cmsV2Text(item.year) || cmsV2Text(item.date), title: cmsV2Text(item.title) || cmsV2Text(item.t), description: cmsV2Text(item.description) || cmsV2Text(item.d) })).filter((item) => item.year || item.title || item.description)
+        : [];
+      return items.length ? <Timeline content={{ ...content, timeline: items } as SiteContent} eyebrow={cmsV2Text(data.eyebrow) || 'Geschichte'} title={splitTitle(cmsV2Text(data.headline) || 'Unser Weg.')} /> : null;
+    }
+    case 'team': {
+      const items = Array.isArray(data.items) ? data.items.filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item)) : [];
+      return items.length ? (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Gastgeber.')}>
+          <div className="grid md:grid-cols-3 gap-6 reveal-stagger">
+            {items.map((item, i) => <article key={i} className="bg-white border border-line rounded-2xl overflow-hidden">{cmsV2Image(item.image) ? <img src={cmsV2Image(item.image)} alt={cmsV2Text(item.name)} className="aspect-[4/3] w-full object-cover" loading="lazy" /> : null}<div className="p-6"><h3 className="font-display text-2xl">{cmsV2Text(item.name) || cmsV2Text(item.title)}</h3><p className="mt-1 text-sm text-muted">{cmsV2Text(item.role)}</p><p className="mt-4 text-sm leading-relaxed text-muted">{cmsV2Text(item.description) || cmsV2Text(item.bio)}</p></div></article>)}
+          </div>
+        </Section>
+      ) : null;
+    }
+    case 'storyFacts': {
+      const items = cmsV2TextPairs(data.items);
+      return <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Unsere Geschichte.')} subtitle={cmsV2Text(data.description)}>{items.length ? <div className="grid md:grid-cols-3 gap-5 reveal-stagger">{items.map((item, i) => <article key={i} className="border border-line rounded-2xl p-6 bg-white"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted">{item.d}</p></article>)}</div> : null}</Section>;
+    }
+    case 'statsBand':
+      return <NumbersBand variant="hotel" content={sectionContent} source={page === 'about' ? 'about' : 'home'} />;
+    case 'testimonials':
+      return renderHotelV2HomeSection(section, content, style);
+    case 'contactDetails':
+      return <Section eyebrow={cmsV2Text(data.eyebrow) || 'Kontakt'} title={splitTitle(cmsV2Text(data.headline) || 'Wir freuen uns auf Ihre Nachricht.')} subtitle={cmsV2Text(data.subline)}><ContactBlock content={content} showForm /></Section>;
+    case 'locations': {
+      const locations = Array.isArray(data.locations) ? data.locations.filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item)) : [];
+      return locations.length ? <Section eyebrow="Standorte" title={splitTitle('Hier finden Sie uns.')}><div className="grid md:grid-cols-2 gap-5 reveal-stagger">{locations.map((loc, i) => <article key={i} className="bg-white border border-line rounded-2xl p-6"><h3 className="font-display text-2xl">{cmsV2Text(loc.name)}</h3><p className="mt-3 text-sm text-muted whitespace-pre-line">{[cmsV2Text(loc.address), cmsV2Text(loc.city), cmsV2Text(loc.phone)].filter(Boolean).join('\n')}</p>{cmsV2Text(loc.mapsUrl) ? <SafeMapEmbed mapsUrl={cmsV2Text(loc.mapsUrl)} address={cmsV2Text(loc.address)} city={cmsV2Text(loc.city)} className="h-[200px] mt-5" /> : null}</article>)}</div></Section> : null;
+    }
+    case 'directions': {
+      const items = cmsV2TextPairs(data.items);
+      return items.length ? <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Anreise.')} subtitle={cmsV2Text(data.subline)}><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{items.map((item, i) => <article key={i} className="bg-white border border-line rounded-2xl p-6"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted">{item.d}</p></article>)}</div></Section> : null;
+    }
+    case 'cta':
+    case 'ctaBand':
+      return <CtaBand variant="hotel" content={sectionContent} page={page} />;
     default:
       return null;
   }
@@ -2303,6 +2472,9 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
 
 /* ─── Services / Speisekarte / Leistungen ────────────────────────── */
 function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
+    return <HotelV2Subpage page="services" content={content} style={style} />;
+  }
   if (shouldUseCmsV2Frontend(content, variant, style)) {
     return <RestaurantV2Subpage page="services" content={content} style={style} />;
   }
@@ -2505,6 +2677,9 @@ function ServiceProcess({ variant, content }: { variant: TemplateVariant; conten
 function GalleryPage({
   content, variant, title, eyebrow, style,
 }: { content: SiteContent; variant: TemplateVariant; title?: string; eyebrow?: string; style: TemplateStyle }) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
+    return <HotelV2Subpage page="gallery" content={content} style={style} />;
+  }
   if (shouldUseCmsV2Frontend(content, variant, style)) {
     return <RestaurantV2Subpage page="gallery" content={content} style={style} />;
   }
@@ -2725,6 +2900,9 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
 
 /* ─── About ──────────────────────────────────────────────────────── */
 function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
+    return <HotelV2Subpage page="about" content={content} style={style} />;
+  }
   if (shouldUseCmsV2Frontend(content, variant, style)) {
     return <RestaurantV2Subpage page="about" content={content} style={style} />;
   }
@@ -3003,6 +3181,9 @@ function PressSection({ variant, content }: { variant: TemplateVariant; content?
 
 /* ─── Contact ────────────────────────────────────────────────────── */
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
+    return <HotelV2Subpage page="contact" content={content} style={style} />;
+  }
   if (shouldUseCmsV2Frontend(content, variant, style)) {
     return <RestaurantV2Subpage page="contact" content={content} style={style} />;
   }

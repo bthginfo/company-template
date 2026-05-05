@@ -320,15 +320,17 @@ if (!restaurantV2RendererSetMatch) {
     }
   }
 }
-const hotelV2HomeRendererSetMatch = TEMPLATE_APP_SOURCE.match(/HOTEL_V2_RENDERED_HOME_SECTION_TYPES\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
-if (!hotelV2HomeRendererSetMatch) {
-  note('[cms-v2-hotel-renderer] Hotel V2 home renderer must declare HOTEL_V2_RENDERED_HOME_SECTION_TYPES.');
+const hotelV2RendererSetMatch = TEMPLATE_APP_SOURCE.match(/HOTEL_V2_RENDERED_SECTION_TYPES\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
+if (!hotelV2RendererSetMatch) {
+  note('[cms-v2-hotel-renderer] Hotel V2 renderer must declare HOTEL_V2_RENDERED_SECTION_TYPES.');
 } else {
-  const renderedTypes = new Set(Array.from(hotelV2HomeRendererSetMatch[1].matchAll(/'([^']+)'/g)).map((m) => m[1]));
+  const renderedTypes = new Set(Array.from(hotelV2RendererSetMatch[1].matchAll(/'([^']+)'/g)).map((m) => m[1]));
   for (const style of STYLES) {
-    for (const sectionType of hotelModularBlueprint(style, 'home')) {
-      if (!renderedTypes.has(sectionType)) {
-        note(`[cms-v2-hotel-renderer] missing V2 home renderer declaration for hotel/${style}/home/${sectionType}`);
+    for (const page of PAGES) {
+      for (const sectionType of hotelModularBlueprint(style, page)) {
+        if (!renderedTypes.has(sectionType)) {
+          note(`[cms-v2-hotel-renderer] missing V2 renderer declaration for hotel/${style}/${page}/${sectionType}`);
+        }
       }
     }
   }
