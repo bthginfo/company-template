@@ -361,8 +361,11 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
 
 /* ─── Home ─────────────────────────────────────────────────────────── */
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  if (shouldUseCmsV2Frontend(content, variant, style)) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'restaurant') {
     return <RestaurantV2HomePage content={content} style={style} />;
+  }
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
+    return <HotelV2HomePage content={content} style={style} />;
   }
 
   const modularFirst = withModularSiteContent(content, variant, style);
@@ -405,15 +408,126 @@ export const RESTAURANT_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'ctaBand',
 ]);
 
+export const HOTEL_V2_RENDERED_HOME_SECTION_TYPES = new Set<string>([
+  'noticeBanner',
+  'hero',
+  'actionBar',
+  'featuredAreas',
+  'storyTeaser',
+  'galleryPreview',
+  'testimonials',
+  'statsBand',
+  'newsTeaser',
+  'cta',
+  'marqueeBand',
+  'brandLogos',
+  'roomSelection',
+  'testimonialMarquee',
+]);
+
 function shouldUseCmsV2Frontend(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): boolean {
   const combo = content.modularPagesV2?.combo;
-  if (variant !== 'restaurant' || combo?.template !== 'restaurant' || combo.style !== style) return false;
+  if (combo?.template !== variant || combo.style !== style) return false;
   if (typeof window === 'undefined') return false;
   try {
     const params = new URLSearchParams(window.location.search);
     return params.get('cmsV2') === '1' || window.localStorage.getItem('cms:v2-frontend') === '1';
   } catch {
     return false;
+  }
+}
+
+function cmsV2HotelRoomItems(value: unknown): NonNullable<SiteContent['rooms']> {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+        .map((item) => {
+          const price = [cmsV2Text(item.price), cmsV2Text(item.priceSuffix)].filter(Boolean).join(' ');
+          return {
+            name: cmsV2Text(item.title) || cmsV2Text(item.name),
+            description: cmsV2Text(item.description),
+            size: cmsV2Text(item.subtitle) || cmsV2Text(item.size),
+            beds: cmsV2Text(item.beds),
+            price,
+            imageUrl: cmsV2Image(item.image),
+            features: Array.isArray(item.features)
+              ? item.features.map((feature) => (typeof feature === 'string' ? feature.trim() : cmsV2Text(asUnknownRecord(feature).text))).filter(Boolean)
+              : [],
+            detailSlug: cmsV2Text(item.detailSlug),
+            detailPublished: cmsV2Boolean(item.detailPublished, true),
+            detailSubtitle: cmsV2Text(item.detailSubtitle),
+            detailBody: cmsV2Text(item.detailBody),
+            detailBodyHtml: cmsV2Text(item.detailBodyHtml),
+            detailGallery: Array.isArray(item.detailGallery) ? item.detailGallery.map(cmsV2Text).filter(Boolean) : [],
+          };
+        })
+        .filter((room) => room.name || room.description || room.imageUrl)
+    : [];
+}
+
+function cmsV2HotelServicesFromRooms(rooms: NonNullable<SiteContent['rooms']>): SiteContent['services'] {
+  return rooms.map((room) => ({
+    title: room.name,
+    description: [room.description, [room.size, room.beds].filter(Boolean).join(' · ')].filter(Boolean).join(' '),
+    price: room.price,
+    imageUrl: room.imageUrl,
+    learnMoreLabel: '',
+    learnMoreHref: '',
+    detailSlug: room.detailSlug,
+    detailPublished: room.detailPublished,
+    detailSubtitle: room.detailSubtitle,
+    detailBody: room.detailBody,
+    detailBodyHtml: room.detailBodyHtml,
+    detailGallery: room.detailGallery,
+  }));
+}
+
+function cmsV2HotelSectionContent(content: SiteContent, section: ModularSectionV2, style: TemplateStyle): SiteContent {
+  const data = asUnknownRecord(section.data);
+  switch (section.type) {
+    case 'featuredAreas':
+    case 'roomSelection': {
+      const rooms = cmsV2HotelRoomItems(data.items);
+      return {
+        ...content,
+        rooms,
+        services: cmsV2HotelServicesFromRooms(rooms),
+        branchText: {
+          ...content.branchText,
+          servicesTeaserEyebrow: cmsV2Text(data.eyebrow),
+          servicesTeaserTitle: cmsV2Text(data.headline),
+        },
+        moduleHeadings: {
+          ...content.moduleHeadings,
+          rooms: {
+            eyebrow: cmsV2Text(data.eyebrow),
+            titleA: cmsV2Text(data.headline),
+            titleB: '',
+            subtitle: cmsV2Text(data.description),
+          },
+        },
+      };
+    }
+    case 'brandLogos':
+      return {
+        ...content,
+        logos: Array.isArray(data.items)
+          ? data.items
+              .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+              .map((item) => cmsV2Image(item.logo) || cmsV2Text(item.name))
+              .filter(Boolean)
+          : [],
+      };
+    case 'testimonialMarquee':
+      return {
+        ...content,
+        branchText: {
+          ...content.branchText,
+          marqueeWords: cmsV2TextItems(data.items),
+        },
+      };
+    default:
+      return cmsV2RestaurantSectionContent(content, section, style);
   }
 }
 
@@ -773,6 +887,119 @@ function RestaurantV2HomePage({ content, style }: { content: SiteContent; style:
         ))}
     </>
   );
+}
+
+function HotelV2HomePage({ content, style }: { content: SiteContent; style: TemplateStyle }) {
+  const sections = content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false) ?? [];
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const heroContent = heroSection ? cmsV2HotelSectionContent(content, heroSection, style) : content;
+  const heroMeta = resolveHeroMeta('hotel', heroContent);
+
+  return (
+    <>
+      <Hero content={heroContent} meta={heroMeta} />
+      {sections
+        .filter((section) => section.type !== 'hero')
+        .map((section) => (
+          <React.Fragment key={section.id}>{renderHotelV2HomeSection(section, content, style)}</React.Fragment>
+        ))}
+    </>
+  );
+}
+
+function renderHotelV2HomeSection(section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
+  const sectionContent = cmsV2HotelSectionContent(content, section, style);
+  switch (section.type) {
+    case 'noticeBanner':
+      return <RestaurantV2NoticeBanner section={section} />;
+    case 'actionBar':
+      return <BranchActionStrip variant="hotel" content={sectionContent} />;
+    case 'marqueeBand':
+    case 'testimonialMarquee': {
+      const words = sectionContent.branchText?.marqueeWords ?? [];
+      return words.length ? (
+        <section className="py-6 border-y border-line bg-white overflow-hidden">
+          <MarqueeTrack speed={34}>
+            {words.map((word) => (
+              <span key={word} className="font-display text-3xl md:text-5xl text-brand/80">{word}</span>
+            ))}
+          </MarqueeTrack>
+        </section>
+      ) : null;
+    }
+    case 'featuredAreas':
+    case 'roomSelection':
+      return sectionContent.rooms?.length ? <RoomShowcaseModule content={sectionContent} itemLinkPrefix="/zimmer" /> : null;
+    case 'storyTeaser':
+      return sectionContent.about?.body ? (
+        <Section
+          eyebrow={effectiveBranchText('hotel', sectionContent).aboutTeaserEyebrow}
+          title={<>{splitTitle(sectionContent.about.title || 'Geschichte')}</>}
+          spacing="lg"
+        >
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <ParallaxImage src={sectionContent.about.imageUrl || sectionContent.gallery[0]} alt={sectionContent.brand.name} className="rounded-3xl aspect-[4/5] reveal" />
+            </div>
+            <div className="lg:col-span-7 lg:pt-12">
+              <div className="prose-lite reveal">
+                {(sectionContent.about.body || '').split('\n\n').map((p, i) => (
+                  <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
+                ))}
+              </div>
+              <TLink to={effectiveBranchText('hotel', sectionContent).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText('hotel', sectionContent).learnMoreLabel} <span aria-hidden>→</span></TLink>
+            </div>
+          </div>
+        </Section>
+      ) : null;
+    case 'galleryPreview': {
+      const images = sectionContent.gallery.slice(0, 8);
+      return images.length ? (
+        <Section eyebrow={effectiveBranchText('hotel', sectionContent).galleryTeaserEyebrow} title={galleryTeaserTitle('hotel', sectionContent)} spacing="lg">
+          <GalleryShowcase variant="hotel" images={images} mode="teaser" />
+        </Section>
+      ) : null;
+    }
+    case 'brandLogos': {
+      const labels = sectionContent.logos ?? [];
+      return labels.length ? (
+        <section className="py-14 border-y border-line">
+          <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+            {labels.map((entry) =>
+              logoBandEntryIsImageUrl(entry) ? (
+                <img key={entry} src={entry} alt="" className="h-9 md:h-11 w-auto max-w-[140px] object-contain mix-blend-multiply" loading="lazy" />
+              ) : (
+                <span key={entry} className="font-display text-2xl tracking-wide">{entry}</span>
+              ),
+            )}
+          </div>
+        </section>
+      ) : null;
+    }
+    case 'testimonials':
+      return visibleTestimonials(sectionContent).length ? (
+        <Section eyebrow={effectiveBranchText('hotel', sectionContent).testimonialsEyebrow} title={splitTitle(effectiveBranchText('hotel', sectionContent).testimonialsTitle)} className="surface">
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {visibleTestimonials(sectionContent).slice(0, 3).map((t, i) => (
+              <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+                <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+                <p className="text-lg leading-relaxed">{t.text}</p>
+                <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+              </blockquote>
+            ))}
+          </div>
+        </Section>
+      ) : null;
+    case 'statsBand':
+      return <NumbersBand variant="hotel" content={sectionContent} />;
+    case 'newsTeaser':
+      return <NewsPreview templateVariant="hotel" content={sectionContent} eyebrow={sectionContent.branchText?.newsEyebrow || 'Aktuelles'} title={sectionContent.branchText?.newsTitle || 'News & Notizen.'} />;
+    case 'cta':
+    case 'ctaBand':
+      return <CtaBand variant="hotel" content={sectionContent} />;
+    default:
+      return null;
+  }
 }
 
 function restaurantV2SubpageSections(content: SiteContent, page: RestaurantV2SubpageKey): ModularSectionV2[] {

@@ -95,6 +95,7 @@ import { SECTION_CONTRACTS, CATALOG_TO_ADMIN, CROSS_PAGE_TARGETS } from '../src/
 import { BRANCH_STYLE_ORDER } from '../src/lib/template-orders';
 import { SECTION_CATALOG, getCatalogForVariant } from '../src/lib/page-layout';
 import { CMS_SECTION_FIELD_CONTRACTS, getCmsSectionFieldKeys, getCmsSectionTypes } from '../src/lib/cms-contract';
+import { hotelModularBlueprint } from '../src/lib/modular-hotel-blueprints';
 import { restaurantModularBlueprint } from '../src/lib/modular-restaurant-blueprints';
 import {
   branchHomeStyleBindingIssues,
@@ -315,6 +316,19 @@ if (!restaurantV2RendererSetMatch) {
         if (!renderedTypes.has(sectionType)) {
           note(`[cms-v2-restaurant-renderer] missing V2 renderer declaration for restaurant/${style}/${page}/${sectionType}`);
         }
+      }
+    }
+  }
+}
+const hotelV2HomeRendererSetMatch = TEMPLATE_APP_SOURCE.match(/HOTEL_V2_RENDERED_HOME_SECTION_TYPES\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
+if (!hotelV2HomeRendererSetMatch) {
+  note('[cms-v2-hotel-renderer] Hotel V2 home renderer must declare HOTEL_V2_RENDERED_HOME_SECTION_TYPES.');
+} else {
+  const renderedTypes = new Set(Array.from(hotelV2HomeRendererSetMatch[1].matchAll(/'([^']+)'/g)).map((m) => m[1]));
+  for (const style of STYLES) {
+    for (const sectionType of hotelModularBlueprint(style, 'home')) {
+      if (!renderedTypes.has(sectionType)) {
+        note(`[cms-v2-hotel-renderer] missing V2 home renderer declaration for hotel/${style}/home/${sectionType}`);
       }
     }
   }
