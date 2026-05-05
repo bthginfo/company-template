@@ -159,7 +159,7 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 
 - [x] `pageBlocksV1` in [`src/lib/types.ts`](../src/lib/types.ts) als **optionales** Root-Feld (`PageBlocksV1Schema` / `PageBlockInstanceV1Schema`).
 - [x] Struktur + Singletons: [`src/lib/page-blocks-v1-validate.ts`](../src/lib/page-blocks-v1-validate.ts), eingebunden über `SiteContentSchema.superRefine`.
-- [~] Pro `AdminSectionKey`: **Top-Level-Keys** von `instance.data` gegen `SECTION_CONTRACTS[*].dataKeys`-Wurzeln validiert (siehe `collectPageBlocksV1Issues`); **tiefe** typspezifische Zod-Schemas pro Block-Typ → Backlog (Phase 4+), um Drift-/Build-Risiko gering zu halten.
+- [~] Pro `AdminSectionKey`: **Top-Level-Keys** von `instance.data` gegen `SECTION_CONTRACTS[*].dataKeys`-Wurzeln validiert (siehe `collectPageBlocksV1Issues`); **tiefe** typspezifische Zod-Schemas pro Block-Typ → Backlog (nach Phase 4 Admin).
 - [x] API `content` PUT: bleibt bei `SiteContentSchema.safeParse` — ungültige `pageBlocksV1` liefern 400.
 - [x] Admin „Seiten“-UI: **eine** wiederverwendbare Oberfläche mit `page: PageKey` (gleiche Komponente, unterschiedliche Tabs/Routes pro Seite) — keine parallelen divergierenden Editoren für dasselbe Modell.
 
@@ -178,7 +178,18 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 
 ---
 
-## 10. Referenz — zentrale Dateien
+## 12. Phase 4 (Admin) — Stand
+
+**Ziel:** Bearbeitung von `pageBlocksV1` im Admin ohne parallele divergierende Oberflächen.
+
+**Umsetzung:** [`src/admin/PageBlocksV1Panel.tsx`](../src/admin/PageBlocksV1Panel.tsx)
+
+- Wird pro **Layout-Seite** (`PageKey`) unter dem bestehenden Seiten-Editor in [`AdminEditorBody.tsx`](../src/admin/AdminEditorBody.tsx) gerendert (gleiche Komponente, Prop `page`).
+- Aktionen: **Seite neu aus Feldern** (`rebootstrapPageBlocksForSinglePage`), Reihenfolge (↑/↓), Sichtbarkeit, **Aus Feldern** pro Block (`projectSiteContentToBlockData`), **data** als JSON mit Validierung (`collectPageBlocksV1Issues`), Block **hinzufügen** / **entfernen** (Singleton-Regel über `isPageBlockSingletonType`).
+
+---
+
+## 13. Referenz — zentrale Dateien
 
 | Thema | Datei |
 |--------|--------|
@@ -188,7 +199,8 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 | Home-Slot-Reihenfolge (aktueller Renderer) | [`src/lib/effective-home-order.ts`](../src/lib/effective-home-order.ts), [`src/lib/template-orders.ts`](../src/lib/template-orders.ts) |
 | Kern-Renderer | [`src/templates/_shared/TemplateApp.tsx`](../src/templates/_shared/TemplateApp.tsx) |
 | Extras-Renderer | [`src/templates/_shared/extra/ExtraBranchTemplate.tsx`](../src/templates/_shared/extra/ExtraBranchTemplate.tsx) |
-| Branch-Flags (Module, Sektion sichtbar) | [`src/lib/branch-config.ts`](../src/lib/branch-config.ts) |
+| Phase-3-Daten-Merge | [`src/lib/page-blocks-v1-page-merge.ts`](../src/lib/page-blocks-v1-page-merge.ts) |
+| Phase-4-Admin-Panel | [`src/admin/PageBlocksV1Panel.tsx`](../src/admin/PageBlocksV1Panel.tsx) |
 
 ---
 

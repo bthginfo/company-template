@@ -15,7 +15,7 @@ import {
 
 const PAGE_KEYS: PageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
 
-function newBlockId(): string {
+export function newPageBlockInstanceId(): string {
   const c = globalThis.crypto;
   if (c && typeof c.randomUUID === 'function') return c.randomUUID();
   return `blk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
@@ -77,7 +77,7 @@ export function bootstrapPageBlocksV1FromContent(
   for (const page of PAGE_KEYS) {
     const order = getAdminSections(page, tpl, style);
     out[page] = order.map((type) => ({
-      id: newBlockId(),
+      id: newPageBlockInstanceId(),
       type,
       isVisible: true,
       data: projectSiteContentToBlockData(content, type),
@@ -95,5 +95,28 @@ export function mergeSiteContentWithBootstrappedPageBlocks(
   return SiteContentSchema.parse({
     ...content,
     pageBlocksV1: bootstrapPageBlocksV1FromContent(content, tpl, style),
+  });
+}
+
+/** Replace only `pageBlocksV1[page]` from current `content` + admin order (new ids). */
+export function rebootstrapPageBlocksForSinglePage(
+  content: SiteContent,
+  page: PageKey,
+  tpl: TemplateKey,
+  style: TemplateStyle,
+): SiteContent {
+  const order = getAdminSections(page, tpl, style);
+  const nextList = order.map((type) => ({
+    id: newPageBlockInstanceId(),
+    type,
+    isVisible: true,
+    data: projectSiteContentToBlockData(content, type),
+  }));
+  return SiteContentSchema.parse({
+    ...content,
+    pageBlocksV1: {
+      ...(content.pageBlocksV1 ?? {}),
+      [page]: nextList,
+    },
   });
 }

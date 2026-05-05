@@ -42,6 +42,7 @@ import {
 import {
   ModularFitnessPageEditor,
 } from './ModularFitnessEditor';
+import { PageBlocksV1Panel } from './PageBlocksV1Panel';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
@@ -261,6 +262,21 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'gallery' && <GalleryPageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'about' && <AboutPageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'contactPage' && <ContactPageEditor data={data} setData={setData} tpl={tplKey} />}
+            {(() => {
+              const layoutPk: PageKey | null =
+                pageId === 'contactPage'
+                  ? 'contact'
+                  : pageId === 'home' || pageId === 'services' || pageId === 'gallery' || pageId === 'about'
+                    ? pageId
+                    : null;
+              if (!layoutPk) return null;
+              const st = tplStyle ?? 'classic';
+              return (
+                <div className="pt-2">
+                  <PageBlocksV1Panel page={layoutPk} data={data} setData={setData} tplKey={tplKey} style={st} />
+                </div>
+              );
+            })()}
           </div>
 
           <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7] rounded-b-2xl">

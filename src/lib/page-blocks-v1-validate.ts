@@ -12,7 +12,7 @@ const PAGE_KEYS = ['home', 'services', 'gallery', 'about', 'contact'] as const;
 const VALID_BLOCK_TYPES = new Set(Object.keys(SECTION_CONTRACTS));
 
 /**
- * Block types that may appear at most once per **page** (home, services, …).
+ * Block `type` values that may appear at most once per page (home, services, …).
  * @see docs/cms-phase0-block-spec.md
  */
 const SINGLETON_TYPES = new Set<string>([
@@ -23,6 +23,10 @@ const SINGLETON_TYPES = new Set<string>([
   'aboutHeader',
   'contactHeader',
 ]);
+
+export function isPageBlockSingletonType(type: string): boolean {
+  return SINGLETON_TYPES.has(type);
+}
 
 function isPlainRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === 'object' && !Array.isArray(v);
