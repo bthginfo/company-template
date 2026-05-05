@@ -1,0 +1,99 @@
+/**
+ * Phase 2: build `pageBlocksV1` from legacy `SiteContent` + admin section order
+ * (`getAdminSections`). Block `data` is a projection of `SECTION_CONTRACTS[type].dataKeys`.
+ */
+
+import { getAdminSections, type AdminSectionKey, type PageKey } from '@/admin/admin-sections';
+import { SECTION_CONTRACTS } from '@/lib/section-registry';
+import type { TemplateStyle } from '@/lib/branch-config';
+import {
+  SiteContentSchema,
+  type PageBlocksV1,
+  type SiteContent,
+  type TemplateKey,
+} from '@/lib/types.js';
+
+const PAGE_KEYS: PageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
+
+function newBlockId(): string {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === 'function') return c.randomUUID();
+  return `blk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function getAtPath(root: unknown, path: string): unknown {
+  const parts = path.split('.');
+  let cur: unknown = root;
+  for (const p of parts) {
+    if (cur === null || cur === undefined || typeof cur !== 'object') return undefined;
+    cur = (cur as Record<string, unknown>)[p];
+  }
+  return cur;
+}
+
+function setAtPath(root: Record<string, unknown>, path: string, value: unknown): void {
+  const parts = path.split('.');
+  let cur: Record<string, unknown> = root;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const p = parts[i];
+    const next = cur[p];
+    if (next !== null && typeof next === 'object' && !Array.isArray(next)) {
+      cur = next as Record<string, unknown>;
+    } else {
+      const child: Record<string, unknown> = {};
+      cur[p] = child;
+      cur = child;
+    }
+  }
+  cur[parts[parts.length - 1]] = value;
+}
+
+/** Copy values for this block type from `SiteContent` into a plain `data` object. */
+export function projectSiteContentToBlockData(
+  content: SiteContent,
+  type: AdminSectionKey,
+): Record<string, unknown> {
+  const contract = SECTION_CONTRACTS[type];
+  if (!contract) return {};
+  const out: Record<string, unknown> = {};
+  for (const dataKey of contract.dataKeys) {
+    const v = getAtPath(content, dataKey);
+    if (v === undefined) continue;
+    try {
+      setAtPath(out, dataKey, structuredClone(v));
+    } catch {
+      setAtPath(out, dataKey, v);
+    }
+  }
+  return out;
+}
+
+export function bootstrapPageBlocksV1FromContent(
+  content: SiteContent,
+  tpl: TemplateKey,
+  style: TemplateStyle,
+): PageBlocksV1 {
+  const out: PageBlocksV1 = {};
+  for (const page of PAGE_KEYS) {
+    const order = getAdminSections(page, tpl, style);
+    out[page] = order.map((type) => ({
+      id: newBlockId(),
+      type,
+      isVisible: true,
+      data: projectSiteContentToBlockData(content, type),
+    }));
+  }
+  return out;
+}
+
+/** Re-parse with `pageBlocksV1` rebuilt from current legacy fields and (tpl × style) order. */
+export function mergeSiteContentWithBootstrappedPageBlocks(
+  content: SiteContent,
+  tpl: TemplateKey,
+  style: TemplateStyle,
+): SiteContent {
+  return SiteContentSchema.parse({
+    ...content,
+    pageBlocksV1: bootstrapPageBlocksV1FromContent(content, tpl, style),
+  });
+}

@@ -54,7 +54,7 @@ const STYLES: TemplateStyle[] = ['classic', 'modern', 'bold'];
 /* ─── seed builder (mirrors provision-core) ──────────────────────── */
 
 function buildSeed(t: TemplateKey): SiteContent {
-  return defaultsFor(t, NAME);
+  return defaultsFor(t, NAME, undefined, 'classic');
 }
 
 /* ═══════════════════════════════════════════════════════════════════

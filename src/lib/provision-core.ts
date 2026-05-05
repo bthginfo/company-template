@@ -12,6 +12,7 @@ import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db, schema } from './db/client.js';
 import { SiteContentSchema, type SiteContent } from './types.js';
+import { mergeSiteContentWithBootstrappedPageBlocks } from './page-blocks-v1-bootstrap.js';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content.js';
 import { BRANCH_TEXT_DEFAULTS } from './branch-text-defaults.js';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from './section-defaults.js';
@@ -130,24 +131,32 @@ function fullDefaults(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tou
   });
 }
 
-export function defaultsFor(t: AnyTemplate, name: string, themePresetId?: string): SiteContent {
+export function defaultsFor(
+  t: AnyTemplate,
+  name: string,
+  themePresetId?: string,
+  style: AnyStyle = 'classic',
+): SiteContent {
   const seeded = (t === 'consulting' || t === 'medical' || t === 'fitness')
     ? extraDefaults(t, name)
     : fullDefaults(t as 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism', name);
 
-  if (!themePresetId) return seeded;
-  const preset = getPreset(t, themePresetId);
-  if (!preset) return seeded;
-
-  return SiteContentSchema.parse({
-    ...seeded,
-    brand: {
-      ...seeded.brand,
-      themePresetId: preset.id,
-      // Keep legacy color in sync for code paths that still read primaryColor.
-      primaryColor: preset.primary,
-    },
-  });
+  let out: SiteContent = seeded;
+  if (themePresetId) {
+    const preset = getPreset(t, themePresetId);
+    if (preset) {
+      out = SiteContentSchema.parse({
+        ...seeded,
+        brand: {
+          ...seeded.brand,
+          themePresetId: preset.id,
+          // Keep legacy color in sync for code paths that still read primaryColor.
+          primaryColor: preset.primary,
+        },
+      });
+    }
+  }
+  return mergeSiteContentWithBootstrappedPageBlocks(out, t, style);
 }
 
 function vercelFactory(token: string, team: string) {
@@ -224,7 +233,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
       await db.update(schema.tenants).set({ name, template, style }).where(eq(schema.tenants.id, existing.id));
       log('  ✓ Tenant row updated (existed) — password preserved');
       if (reseed) {
-        const seed = defaultsFor(template, name, themePresetId);
+        const seed = defaultsFor(template, name, themePresetId, style);
         await db.insert(schema.siteContent)
           .values({ tenantId, data: seed })
           .onConflictDoUpdate({ target: schema.siteContent.tenantId, set: { data: seed } });
@@ -237,7 +246,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
       tenantId = row.id;
       tenantWasNew = true;
       passwordRotated = true;
-      const seed = defaultsFor(template, name, themePresetId);
+      const seed = defaultsFor(template, name, themePresetId, style);
       await db.insert(schema.siteContent)
         .values({ tenantId, data: seed })
         .onConflictDoUpdate({ target: schema.siteContent.tenantId, set: { data: seed } });

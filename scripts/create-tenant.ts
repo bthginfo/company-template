@@ -68,7 +68,7 @@ async function main() {
       .values({ slug, name, template, style, passwordHash })
       .returning();
     tenantId = row.id;
-    const content = defaultsFor(template as AnyTemplate, name);
+    const content = defaultsFor(template as AnyTemplate, name, undefined, style);
     await db.insert(schema.siteContent).values({ tenantId, data: content }).onConflictDoNothing();
     console.log(`Tenant '${slug}' created with default content.`);
   }

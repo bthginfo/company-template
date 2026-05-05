@@ -1,4 +1,5 @@
-import { SiteContentSchema, type SiteContent } from './types.js';
+import { mergeSiteContentWithBootstrappedPageBlocks } from './page-blocks-v1-bootstrap.js';
+import { SiteContentSchema, type SiteContent, type TemplateKey } from './types.js';
 
 /** Shared demo blog rows — used by seeded `SiteContent` and showcase News fallback. */
 export const DEMO_NEWS_POSTS: NonNullable<SiteContent['posts']> = [
@@ -1526,4 +1527,31 @@ const extraGalleryStoryConsulting = {
       'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1200&q=80',
     ),
   });
+})();
+
+/** Showcase demo objects are patched in-place above — rebuild `pageBlocksV1` from final legacy fields. */
+(function refreshDemoPageBlocksV1() {
+  const coreTpl: Record<keyof typeof DEMO_CONTENT, TemplateKey> = {
+    restaurant: 'restaurant',
+    salon: 'salon',
+    tradesman: 'tradesman',
+    hotel: 'hotel',
+    tourism: 'tourism',
+  };
+  for (const k of Object.keys(coreTpl) as Array<keyof typeof DEMO_CONTENT>) {
+    DEMO_CONTENT[k] = mergeSiteContentWithBootstrappedPageBlocks(DEMO_CONTENT[k], coreTpl[k], 'classic');
+  }
+  const extraTpl: Record<keyof typeof EXTRA_DEMO_CONTENT, TemplateKey> = {
+    consulting: 'consulting',
+    medical: 'medical',
+    fitness: 'fitness',
+  };
+  const extraMutable = EXTRA_DEMO_CONTENT as Record<keyof typeof EXTRA_DEMO_CONTENT, SiteContent>;
+  for (const k of Object.keys(extraTpl) as Array<keyof typeof EXTRA_DEMO_CONTENT>) {
+    extraMutable[k] = mergeSiteContentWithBootstrappedPageBlocks(
+      EXTRA_DEMO_CONTENT[k],
+      extraTpl[k],
+      'classic',
+    );
+  }
 })();
