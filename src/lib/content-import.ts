@@ -8,7 +8,23 @@
 import { eq } from 'drizzle-orm';
 import { db, schema } from './db/client.js';
 import { SiteContentSchema } from './types.js';
+import type { TemplateKey } from './types.js';
+import type { TemplateStyle } from './branch-config.js';
 import { applyContentFieldAliases } from './content-field-aliases.js';
+import { buildModularPagesV2FromLegacy } from './cms-v2-hydration.js';
+
+const TEMPLATE_KEYS: readonly TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const STYLES: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
+
+function asTemplateKey(value: string): TemplateKey {
+  if ((TEMPLATE_KEYS as readonly string[]).includes(value)) return value as TemplateKey;
+  throw new Error(`Unsupported tenant template "${value}"`);
+}
+
+function asTemplateStyle(value: string): TemplateStyle {
+  if ((STYLES as readonly string[]).includes(value)) return value as TemplateStyle;
+  throw new Error(`Unsupported tenant style "${value}"`);
+}
 
 /**
  * Import a content JSON into the tenant's site content.
@@ -43,13 +59,19 @@ export async function importContentJson(
   if (!parse.success) {
     throw new Error(`Content validation failed: ${JSON.stringify(parse.error.flatten())}`);
   }
+  const template = asTemplateKey(tenant.template);
+  const style = asTemplateStyle(tenant.style);
+  const hydrated = SiteContentSchema.parse({
+    ...parse.data,
+    modularPagesV2: buildModularPagesV2FromLegacy(parse.data, template, style),
+  });
 
   await db
     .insert(schema.siteContent)
-    .values({ tenantId: tenant.id, data: parse.data })
+    .values({ tenantId: tenant.id, data: hydrated })
     .onConflictDoUpdate({
       target: schema.siteContent.tenantId,
-      set: { data: parse.data, updatedAt: new Date() },
+      set: { data: hydrated, updatedAt: new Date() },
     });
 
   // Only update branch/style on the tenant row if the caller did NOT already

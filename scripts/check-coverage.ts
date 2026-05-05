@@ -200,7 +200,9 @@ const PAGE_BLOCKS_MERGE_SOURCE = readFileSync(join(repoRoot, 'src/lib/page-block
 const CONTENT_API_SOURCE = readFileSync(join(repoRoot, 'api/content.ts'), 'utf8');
 const TYPES_SOURCE = readFileSync(join(repoRoot, 'src/lib/types.ts'), 'utf8');
 const PROVISION_CORE_SOURCE = readFileSync(join(repoRoot, 'src/lib/provision-core.ts'), 'utf8');
+const CONTENT_IMPORT_SOURCE = readFileSync(join(repoRoot, 'src/lib/content-import.ts'), 'utf8');
 const CMS_V2_CONTRACT_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-v2-contract.ts'), 'utf8');
+const CMS_V2_HYDRATION_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-v2-hydration.ts'), 'utf8');
 const CMS_V2_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularV2PageEditor.tsx'), 'utf8');
 const RESTAURANT_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularHomeEditor.tsx'), 'utf8');
 const TEMPLATE_APP_SOURCE = readFileSync(join(repoRoot, 'src/templates/_shared/TemplateApp.tsx'), 'utf8');
@@ -311,14 +313,20 @@ if (!TYPES_SOURCE.includes('ModularPagesV2Schema') || !TYPES_SOURCE.includes('mo
 if (!TYPES_SOURCE.includes('cmsV2: z.object') || !TYPES_SOURCE.includes('enabled: z.boolean().optional().default(false)')) {
   note('[cms-v2-flag] SiteContentSchema must carry cmsV2.enabled as the durable tenant rollout flag.');
 }
-if (!PROVISION_CORE_SOURCE.includes('seedModularPagesV2')) {
-  note('[cms-v2-provisioning] Provisioning defaults must seed modularPagesV2 for new tenants.');
+if (!PROVISION_CORE_SOURCE.includes('buildModularPagesV2FromLegacy')) {
+  note('[cms-v2-provisioning] Provisioning defaults must hydrate modularPagesV2 from default legacy content for new tenants.');
 }
-if (!PROVISION_CORE_SOURCE.includes('cmsV2: { enabled: false }')) {
-  note('[cms-v2-provisioning] Provisioning defaults must initialize cmsV2.enabled explicitly for new tenants.');
+if (!PROVISION_CORE_SOURCE.includes('cmsV2: { enabled: true }')) {
+  note('[cms-v2-provisioning] Provisioning defaults must enable cmsV2 for new tenants.');
 }
 if (!CMS_V2_CONTRACT_SOURCE.includes('getCmsV2PageContract') || !CMS_V2_CONTRACT_SOURCE.includes('seedModularPagesV2')) {
   note('[cms-v2-contract] Direct-render CMS v2 needs page contracts and seed generation.');
+}
+if (!CMS_V2_HYDRATION_SOURCE.includes('buildModularPagesV2FromLegacy') || !CMS_V2_HYDRATION_SOURCE.includes('importRestaurantModularFromLegacy') || !CMS_V2_HYDRATION_SOURCE.includes('visible: section.isVisible !== false')) {
+  note('[cms-v2-hydration] Direct-render CMS v2 needs a legacy/V1 hydration path preserving section data and visibility.');
+}
+if (!CONTENT_IMPORT_SOURCE.includes('buildModularPagesV2FromLegacy')) {
+  note('[cms-v2-import] Content import must rehydrate modularPagesV2 so imported tenant content is editable and rendered in V2.');
 }
 if (!CMS_V2_EDITOR_SOURCE.includes('modularPagesV2') || !CMS_V2_EDITOR_SOURCE.includes('ModularSectionDataForm')) {
   note('[cms-v2-editor] Direct-render CMS v2 needs an admin page editor writing modularPagesV2 section instances.');

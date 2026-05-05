@@ -53,8 +53,9 @@ you exactly what to fix. Do **not** improvise.
    **Speichern im Admin schreibt nur `draft`**; die Live-Site liefert `data`, bis
    **Veröffentlichen** (`POST …/api/content?action=publish`) oder Vorschau mit
    Session (`GET …/api/content?preview=1`). New tenants must be seeded with
-   `modularPagesV1` for their exact template/style combo so onboarding opens
-   directly in the matching CMS structure.
+   `cmsV2.enabled: true` and hydrated `modularPagesV2` section instances for
+   their exact template/style combo so onboarding opens directly in the
+   matching CMS structure and the frontend renders the same section tree.
 5. **Admin endpoints require a valid session cookie.** Never bypass
    `requireSession()` checks.
 6. **All eight templates × three styles must keep building.** When you

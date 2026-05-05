@@ -83,7 +83,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-xs text-amber-900">
-        CMS V2 ist aktiv: Diese Ansicht schreibt direkt in <code>modularPagesV2</code>. Das Frontend liest V2 erst nach dem Renderer-Switch.
+        CMS V2 ist aktiv: Diese Ansicht schreibt direkt in <code>modularPagesV2</code>. Das Frontend liest dieselben Section-Instanzen, sobald der Draft veroeffentlicht ist.
       </div>
 
       <div className="space-y-4">

@@ -11,7 +11,7 @@ import { applyTheme, resolveThemePreset } from '@/lib/theme';
 
 /**
  * pageBlocksV1 is a low-level JSON block override layer. The tenant-facing CMS
- * now uses modularPagesV1 + legacy SiteContent fields as its source of truth;
+ * now uses modularPagesV2 section instances as its source of truth;
  * keeping pageBlocksV1 in persisted drafts can shadow field-editor changes.
  */
 function stripPageBlocksV1(content: SiteContent): SiteContent {
