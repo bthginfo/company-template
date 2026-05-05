@@ -7,6 +7,7 @@ import {
 } from '@/lib/modular-restaurant';
 import type { ModularUploadFn } from './modular-section-field-kit';
 import { ModularSpecActivationPanel, ModularSpecPageEditor, type ModularSpecPageKey } from './ModularSpecPageEditor';
+import { ModularV2PageEditor, shouldUseCmsV2Editor } from './ModularV2PageEditor';
 import { RESTAURANT_MODULAR_SPEC_CFG } from './modular-branch-spec-config';
 
 type Props = {
@@ -18,6 +19,9 @@ type Props = {
 };
 
 export function ModularRestaurantPageEditor(props: Props & { page: ModularSpecPageKey }) {
+  if (shouldUseCmsV2Editor()) {
+    return <ModularV2PageEditor {...props} sectionLabels={RESTAURANT_MODULAR_SPEC_CFG.sectionLabels} />;
+  }
   return <ModularSpecPageEditor {...props} cfg={RESTAURANT_MODULAR_SPEC_CFG} />;
 }
 

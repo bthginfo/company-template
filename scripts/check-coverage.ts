@@ -193,6 +193,8 @@ const CONTENT_API_SOURCE = readFileSync(join(repoRoot, 'api/content.ts'), 'utf8'
 const TYPES_SOURCE = readFileSync(join(repoRoot, 'src/lib/types.ts'), 'utf8');
 const PROVISION_CORE_SOURCE = readFileSync(join(repoRoot, 'src/lib/provision-core.ts'), 'utf8');
 const CMS_V2_CONTRACT_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-v2-contract.ts'), 'utf8');
+const CMS_V2_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularV2PageEditor.tsx'), 'utf8');
+const RESTAURANT_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularHomeEditor.tsx'), 'utf8');
 
 const MODULAR_SHARED_SOURCE = readFileSync(join(repoRoot, 'src/lib/modular-restaurant.ts'), 'utf8');
 const MODULAR_SOURCE_BY_TEMPLATE = Object.fromEntries(
@@ -290,6 +292,12 @@ if (!PROVISION_CORE_SOURCE.includes('seedModularPagesV2')) {
 }
 if (!CMS_V2_CONTRACT_SOURCE.includes('getCmsV2PageContract') || !CMS_V2_CONTRACT_SOURCE.includes('seedModularPagesV2')) {
   note('[cms-v2-contract] Direct-render CMS v2 needs page contracts and seed generation.');
+}
+if (!CMS_V2_EDITOR_SOURCE.includes('modularPagesV2') || !CMS_V2_EDITOR_SOURCE.includes('ModularSectionDataForm')) {
+  note('[cms-v2-editor] Direct-render CMS v2 needs an admin page editor writing modularPagesV2 section instances.');
+}
+if (!RESTAURANT_EDITOR_SOURCE.includes('shouldUseCmsV2Editor') || !RESTAURANT_EDITOR_SOURCE.includes('ModularV2PageEditor')) {
+  note('[cms-v2-restaurant-editor] Restaurant must expose the V2 editor behind the feature gate before renderer migration.');
 }
 if (!CONTENT_API_SOURCE.includes('normalizeMailSecret') || !CONTENT_API_SOURCE.includes('passEnc')) {
   note('[mail-secret] Mail passwords must be normalized server-side into encrypted passEnc instead of persisted plaintext.');
