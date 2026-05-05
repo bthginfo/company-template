@@ -1,7 +1,8 @@
-import { useState } from 'react';
 import type { SiteContent } from '@/lib/types';
 import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
+import { ModularSectionDataForm } from './ModularSectionDataForm';
+import type { ModularUploadFn } from './modular-section-field-kit';
 
 export type ModularSpecPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
@@ -32,6 +33,7 @@ type Props = {
   style: TemplateStyle;
   page: ModularSpecPageKey;
   cfg: ModularSpecEditorConfig;
+  uploadImage?: ModularUploadFn;
 };
 
 function formatBranchStyle(style: TemplateStyle): string {
@@ -40,8 +42,7 @@ function formatBranchStyle(style: TemplateStyle): string {
   return 'Klassisch';
 }
 
-export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg }: Props) {
-  const [jsonError, setJsonError] = useState<string | null>(null);
+export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, uploadImage }: Props) {
   const modular = data.modularPagesV1;
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];
@@ -58,16 +59,8 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg }: 
     setData(commitModular(data, next));
   };
 
-  const patchSectionData = (id: string, rawJson: string) => {
-    let parsed: Record<string, unknown>;
-    try {
-      parsed = JSON.parse(rawJson) as Record<string, unknown>;
-    } catch {
-      setJsonError('JSON ungültig');
-      return;
-    }
-    setJsonError(null);
-    const nextSecs = sections.map((s) => (s.id === id ? { ...s, data: parsed } : s));
+  const patchSectionData = (id: string, nextData: Record<string, unknown>) => {
+    const nextSecs = sections.map((s) => (s.id === id ? { ...s, data: nextData } : s));
     updateSections(nextSecs);
   };
 
@@ -113,8 +106,8 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg }: 
           bestehenden SiteContent-Felder gemergt.
         </p>
         <p className="mt-2 text-xs text-amber-900 max-w-prose leading-relaxed border-t border-amber-200/80 pt-2">
-          <strong className="font-semibold">Aktivieren</strong> legt die Spez-JSON-Struktur an und übernimmt Ihre bisherigen
-          Felder einmalig. <strong className="font-semibold">Deaktivieren</strong> entfernt nur diese JSON-Schicht — die
+          <strong className="font-semibold">Aktivieren</strong> legt die modulare Seitenstruktur an und übernimmt Ihre bisherigen
+          Felder einmalig. <strong className="font-semibold">Deaktivieren</strong> entfernt nur diese zusätzliche Speicher-Schicht — die
           zuletzt gemergten Werte in den normalen Feldern (Hero, Listen, Galerie …) bleiben auf der Website erhalten, bis Sie
           sie dort oder hier wieder ändern.
         </p>
@@ -138,12 +131,10 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg }: 
             onClick={deactivate}
             className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
           >
-            Spez-Modell deaktivieren (nur JSON entfernen)
+            Modularen Editor deaktivieren (nur Spez-Daten entfernen)
           </button>
         </div>
       </div>
-
-      {jsonError && <p className="text-sm text-rose-600">{jsonError}</p>}
 
       <div className="space-y-4">
         {sections.map((sec, idx) => (
@@ -169,12 +160,13 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg }: 
               </div>
             </header>
             <div className="p-4">
-              <label className="block text-[10px] uppercase tracking-widest text-muted mb-1">data (JSON)</label>
-              <textarea
-                className="w-full font-mono text-xs bg-[#f6f6f3] rounded-xl px-3 py-2 border border-line min-h-[140px]"
-                defaultValue={JSON.stringify(sec.data ?? {}, null, 2)}
-                key={sec.id + JSON.stringify(sec.data)}
-                onBlur={(e) => patchSectionData(sec.id, e.target.value)}
+              <ModularSectionDataForm
+                tpl={tpl}
+                style={style}
+                sectionType={sec.type}
+                data={(sec.data ?? {}) as Record<string, unknown>}
+                uploadImage={uploadImage}
+                onChange={(next) => patchSectionData(sec.id, next)}
               />
             </div>
           </section>
@@ -197,12 +189,12 @@ export function ModularSpecActivationPanel({ data, setData, tpl, style, cfg }: A
   if (cfg.hasAny(data)) return null;
   return (
     <div className="bg-white border border-line rounded-2xl p-4 mb-6">
-      <p className="text-sm font-medium">Spez-basierter Seiten-Editor (Beta) · {cfg.branchLabelDe}</p>
+      <p className="text-sm font-medium">Modularer Seiten-Editor · {cfg.branchLabelDe}</p>
       <p className="text-xs text-muted mt-1 max-w-prose">{cfg.activationIntroDe}</p>
       <p className="text-xs text-muted mt-2 max-w-prose leading-relaxed border-t border-line pt-2">
-        <strong className="text-foreground">Aktivieren</strong> = Spez-Struktur anlegen und Inhalte aus den bestehenden
-        Feldern übernehmen. <strong className="text-foreground">Deaktivieren</strong> (im Editor nach Aktivierung) =
-        nur die Spez-JSON löschen; gemergte Seiteninhalte bleiben in den normalen Feldern erhalten.
+        <strong className="text-foreground">Aktivieren</strong> legt die modulare Struktur an und übernimmt Inhalte aus den bestehenden
+        Feldern. <strong className="text-foreground">Deaktivieren</strong> (im Editor nach Aktivierung) entfernt nur diese
+        Speicher-Schicht; gemergte Seiteninhalte bleiben in den normalen Feldern erhalten.
       </p>
       <button
         type="button"
@@ -212,7 +204,7 @@ export function ModularSpecActivationPanel({ data, setData, tpl, style, cfg }: A
           setData(cfg.applyToLegacy({ ...data, modularPagesV1: imported }));
         }}
       >
-        Spez-Modell für {cfg.branchLabelDe} aktivieren
+        Modularen Editor für {cfg.branchLabelDe} aktivieren
       </button>
     </div>
   );

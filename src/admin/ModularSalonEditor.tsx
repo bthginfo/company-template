@@ -7,6 +7,7 @@ import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
 import { ModularSpecActivationPanel, ModularSpecPageEditor, type ModularSpecPageKey } from './ModularSpecPageEditor';
 import { SALON_MODULAR_SPEC_CFG } from './modular-branch-spec-config';
+import type { ModularUploadFn } from './modular-section-field-kit';
 
 export { hasSalonModularPage, hasAnySalonModular } from '@/lib/modular-salon';
 
@@ -15,10 +16,28 @@ type SharedProps = {
   setData: (d: SiteContent) => void;
   tpl: TemplateKey;
   style: TemplateStyle;
+  uploadImage?: ModularUploadFn;
 };
 
-export function ModularSalonPageEditor({ data, setData, tpl, style, page }: SharedProps & { page: ModularSpecPageKey }) {
-  return <ModularSpecPageEditor data={data} setData={setData} tpl={tpl} style={style} page={page} cfg={SALON_MODULAR_SPEC_CFG} />;
+export function ModularSalonPageEditor({
+  data,
+  setData,
+  tpl,
+  style,
+  page,
+  uploadImage,
+}: SharedProps & { page: ModularSpecPageKey }) {
+  return (
+    <ModularSpecPageEditor
+      data={data}
+      setData={setData}
+      tpl={tpl}
+      style={style}
+      page={page}
+      cfg={SALON_MODULAR_SPEC_CFG}
+      uploadImage={uploadImage}
+    />
+  );
 }
 
 export function ModularSalonActivationPanel(props: SharedProps) {

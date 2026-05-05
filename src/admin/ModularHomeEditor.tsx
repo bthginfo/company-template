@@ -1,7 +1,8 @@
-import { useState } from 'react';
 import type { SiteContent } from '@/lib/types';
 import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
+import { ModularSectionDataForm } from './ModularSectionDataForm';
+import type { ModularUploadFn } from './modular-section-field-kit';
 import {
   RESTAURANT_SECTION_LABEL_DE,
   applyRestaurantModularToLegacy,
@@ -16,6 +17,7 @@ type Props = {
   setData: (d: SiteContent) => void;
   tpl: TemplateKey;
   style: TemplateStyle;
+  uploadImage?: ModularUploadFn;
 };
 
 type PageProps = Props & { page: RestaurantModularPageKey };
@@ -38,8 +40,7 @@ const PAGE_LABEL_DE: Record<RestaurantModularPageKey, string> = {
   contact: 'Kontakt',
 };
 
-export function ModularRestaurantPageEditor({ data, setData, tpl, style, page }: PageProps) {
-  const [jsonError, setJsonError] = useState<string | null>(null);
+export function ModularRestaurantPageEditor({ data, setData, tpl, style, page, uploadImage }: PageProps) {
   const modular = data.modularPagesV1;
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];
@@ -53,16 +54,8 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page }:
     setData(commitModular(data, next));
   };
 
-  const patchSectionData = (id: string, rawJson: string) => {
-    let parsed: Record<string, unknown>;
-    try {
-      parsed = JSON.parse(rawJson) as Record<string, unknown>;
-    } catch {
-      setJsonError('JSON ungültig');
-      return;
-    }
-    setJsonError(null);
-    const nextSecs = sections.map((s) => (s.id === id ? { ...s, data: parsed } : s));
+  const patchSectionData = (id: string, nextData: Record<string, unknown>) => {
+    const nextSecs = sections.map((s) => (s.id === id ? { ...s, data: nextData } : s));
     updateSections(nextSecs);
   };
 
@@ -108,7 +101,7 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page }:
           damit die Live-Templates unverändert weiter funktionieren.
         </p>
         <p className="mt-2 text-xs text-amber-900 max-w-prose leading-relaxed border-t border-amber-200/80 pt-2">
-          <strong className="font-semibold">Deaktivieren</strong> entfernt nur die Spez-JSON; gemergte Inhalte in den
+          <strong className="font-semibold">Deaktivieren</strong> entfernt nur die modulare Speicher-Schicht; gemergte Inhalte in den
           normalen Feldern bleiben erhalten.
         </p>
         {modular?.combo?.style && modular.combo.style !== style ? (
@@ -131,12 +124,10 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page }:
             onClick={deactivate}
             className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
           >
-            Spez-Modell deaktivieren (nur JSON entfernen)
+            Modularen Editor deaktivieren (nur Spez-Daten entfernen)
           </button>
         </div>
       </div>
-
-      {jsonError && <p className="text-sm text-rose-600">{jsonError}</p>}
 
       <div className="space-y-4">
         {sections.map((sec, idx) => (
@@ -162,12 +153,13 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page }:
               </div>
             </header>
             <div className="p-4">
-              <label className="block text-[10px] uppercase tracking-widest text-muted mb-1">data (JSON)</label>
-              <textarea
-                className="w-full font-mono text-xs bg-[#f6f6f3] rounded-xl px-3 py-2 border border-line min-h-[140px]"
-                defaultValue={JSON.stringify(sec.data ?? {}, null, 2)}
-                key={sec.id + JSON.stringify(sec.data)}
-                onBlur={(e) => patchSectionData(sec.id, e.target.value)}
+              <ModularSectionDataForm
+                tpl={tpl}
+                style={style}
+                sectionType={sec.type}
+                data={(sec.data ?? {}) as Record<string, unknown>}
+                uploadImage={uploadImage}
+                onChange={(next) => patchSectionData(sec.id, next)}
               />
             </div>
           </section>
@@ -193,14 +185,14 @@ export function ModularRestaurantActivationPanel({ data, setData, tpl, style }: 
   if (hasAnyRestaurantModular(data)) return null;
   return (
     <div className="bg-white border border-line rounded-2xl p-4 mb-6">
-      <p className="text-sm font-medium">Spez-basierter Seiten-Editor (Beta)</p>
+      <p className="text-sm font-medium">Modularer Seiten-Editor · Restaurant</p>
       <p className="text-xs text-muted mt-1 max-w-prose">
-        Aktiviert das modulare JSON-Modell für <strong className="font-medium text-brand">alle Restaurant-Unterseiten</strong> (Start,
+        Aktiviert den modularen Editor für <strong className="font-medium text-brand">alle Restaurant-Unterseiten</strong> (Start,
         Speisekarte, Galerie, Über uns, Kontakt) im Stil {formatBranchStyle(style)}. Ihre bestehenden Inhalte werden einmalig übernommen;
-        danach pflegen Sie die Seiten im jeweiligen Tab oder schalten wieder zurück.
+        danach bearbeiten Sie die Blöcke hier mit den üblichen Formularfeldern oder schalten wieder zurück.
       </p>
       <p className="text-xs text-muted mt-2 max-w-prose leading-relaxed border-t border-line pt-2">
-        <strong className="text-foreground">Deaktivieren</strong> (im Editor) entfernt nur die Spez-JSON; gemergte Felder bleiben
+        <strong className="text-foreground">Deaktivieren</strong> (im Editor) entfernt nur die modulare Speicher-Schicht; gemergte Felder bleiben
         erhalten.
       </p>
       <button
@@ -211,7 +203,7 @@ export function ModularRestaurantActivationPanel({ data, setData, tpl, style }: 
           setData(commitModular(data, imported));
         }}
       >
-        Spez-Modell für Restaurant aktivieren
+        Modularen Editor für Restaurant aktivieren
       </button>
     </div>
   );

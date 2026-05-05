@@ -1,7 +1,8 @@
-import { useState } from 'react';
 import type { SiteContent } from '@/lib/types';
 import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
+import { ModularSectionDataForm } from './ModularSectionDataForm';
+import type { ModularUploadFn } from './modular-section-field-kit';
 import {
   HOTEL_SECTION_LABEL_DE,
   applyHotelModularToLegacy,
@@ -16,6 +17,7 @@ type Props = {
   setData: (d: SiteContent) => void;
   tpl: TemplateKey;
   style: TemplateStyle;
+  uploadImage?: ModularUploadFn;
 };
 
 type PageProps = Props & { page: HotelModularPageKey };
@@ -38,8 +40,7 @@ const PAGE_LABEL_DE: Record<HotelModularPageKey, string> = {
   contact: 'Reservieren',
 };
 
-export function ModularHotelPageEditor({ data, setData, tpl, style, page }: PageProps) {
-  const [jsonError, setJsonError] = useState<string | null>(null);
+export function ModularHotelPageEditor({ data, setData, tpl, style, page, uploadImage }: PageProps) {
   const modular = data.modularPagesV1;
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];
@@ -53,16 +54,8 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page }: Page
     setData(commitModular(data, next));
   };
 
-  const patchSectionData = (id: string, rawJson: string) => {
-    let parsed: Record<string, unknown>;
-    try {
-      parsed = JSON.parse(rawJson) as Record<string, unknown>;
-    } catch {
-      setJsonError('JSON ungültig');
-      return;
-    }
-    setJsonError(null);
-    const nextSecs = sections.map((s) => (s.id === id ? { ...s, data: parsed } : s));
+  const patchSectionData = (id: string, nextData: Record<string, unknown>) => {
+    const nextSecs = sections.map((s) => (s.id === id ? { ...s, data: nextData } : s));
     updateSections(nextSecs);
   };
 
@@ -108,7 +101,7 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page }: Page
           bestehenden SiteContent-Felder gemergt.
         </p>
         <p className="mt-2 text-xs text-amber-900 max-w-prose leading-relaxed border-t border-amber-200/80 pt-2">
-          <strong className="font-semibold">Deaktivieren</strong> entfernt nur die Spez-JSON; gemergte Inhalte in den
+          <strong className="font-semibold">Deaktivieren</strong> entfernt nur die modulare Speicher-Schicht; gemergte Inhalte in den
           normalen Feldern bleiben erhalten.
         </p>
         {modular?.combo?.style && modular.combo.style !== style ? (
@@ -131,12 +124,10 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page }: Page
             onClick={deactivate}
             className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
           >
-            Spez-Modell deaktivieren (nur JSON entfernen)
+            Modularen Editor deaktivieren (nur Spez-Daten entfernen)
           </button>
         </div>
       </div>
-
-      {jsonError && <p className="text-sm text-rose-600">{jsonError}</p>}
 
       <div className="space-y-4">
         {sections.map((sec, idx) => (
@@ -162,12 +153,13 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page }: Page
               </div>
             </header>
             <div className="p-4">
-              <label className="block text-[10px] uppercase tracking-widest text-muted mb-1">data (JSON)</label>
-              <textarea
-                className="w-full font-mono text-xs bg-[#f6f6f3] rounded-xl px-3 py-2 border border-line min-h-[140px]"
-                defaultValue={JSON.stringify(sec.data ?? {}, null, 2)}
-                key={sec.id + JSON.stringify(sec.data)}
-                onBlur={(e) => patchSectionData(sec.id, e.target.value)}
+              <ModularSectionDataForm
+                tpl={tpl}
+                style={style}
+                sectionType={sec.type}
+                data={(sec.data ?? {}) as Record<string, unknown>}
+                uploadImage={uploadImage}
+                onChange={(next) => patchSectionData(sec.id, next)}
               />
             </div>
           </section>
@@ -188,13 +180,14 @@ export function ModularHotelActivationPanel({ data, setData, tpl, style }: Props
   if (hasAnyHotelModular(data)) return null;
   return (
     <div className="bg-white border border-line rounded-2xl p-4 mb-6">
-      <p className="text-sm font-medium">Spez-basierter Seiten-Editor (Beta) · Hotel</p>
+      <p className="text-sm font-medium">Modularer Seiten-Editor · Hotel</p>
       <p className="text-xs text-muted mt-1 max-w-prose">
-        Aktiviert das modulare JSON-Modell für alle Hotel-Unterseiten (Start, Zimmer, Haus &amp; Spa, Geschichte, Reservieren) im
-        Stil {formatBranchStyle(style)}. Inhalte werden einmalig aus den bestehenden Feldern übernommen.
+        Aktiviert den modularen Editor für alle Hotel-Unterseiten (Start, Zimmer, Haus &amp; Spa, Geschichte, Reservieren) im
+        Stil {formatBranchStyle(style)}. Inhalte werden einmalig aus den bestehenden Feldern übernommen; Sie bearbeiten die Blöcke
+        hier mit Formularfeldern wie im restlichen Admin.
       </p>
       <p className="text-xs text-muted mt-2 max-w-prose leading-relaxed border-t border-line pt-2">
-        <strong className="text-foreground">Deaktivieren</strong> (im Editor) entfernt nur die Spez-JSON; gemergte Felder
+        <strong className="text-foreground">Deaktivieren</strong> (im Editor) entfernt nur die modulare Speicher-Schicht; gemergte Felder
         bleiben erhalten.
       </p>
       <button
@@ -205,7 +198,7 @@ export function ModularHotelActivationPanel({ data, setData, tpl, style }: Props
           setData(commitModular(data, imported));
         }}
       >
-        Spez-Modell für Hotel aktivieren
+        Modularen Editor für Hotel aktivieren
       </button>
     </div>
   );

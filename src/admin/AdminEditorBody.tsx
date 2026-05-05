@@ -1221,34 +1221,34 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'home')) {
     return (
       <>
-        <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />
+        <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />
       </>
     );
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'home')) {
     return (
       <>
-        <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />
+        <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />
       </>
     );
   }
   if (tpl === 'tourism' && hasTourismModularPage(data, style, 'home')) {
-    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />;
+    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   if (tpl === 'salon' && hasSalonModularPage(data, style, 'home')) {
-    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />;
+    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'home')) {
-    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />;
+    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'home')) {
-    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />;
+    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   if (tpl === 'medical' && hasMedicalModularPage(data, style, 'home')) {
-    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />;
+    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'home')) {
-    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} page="home" />;
+    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   return (
     <>
@@ -1353,28 +1353,28 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
   const style = _ctx.style || 'classic';
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'services')) {
-    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'services')) {
-    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   if (tpl === 'tourism' && hasTourismModularPage(data, style, 'services')) {
-    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   if (tpl === 'salon' && hasSalonModularPage(data, style, 'services')) {
-    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'services')) {
-    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'services')) {
-    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   if (tpl === 'medical' && hasMedicalModularPage(data, style, 'services')) {
-    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'services')) {
-    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} page="services" />;
+    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   const sectionOrder = getAdminSections('services', tpl, style);
 
@@ -1610,28 +1610,28 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   const [busy, setBusy] = useState(false);
   const style = _ctx.style || 'classic';
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'gallery')) {
-    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'gallery')) {
-    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   if (tpl === 'tourism' && hasTourismModularPage(data, style, 'gallery')) {
-    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   if (tpl === 'salon' && hasSalonModularPage(data, style, 'gallery')) {
-    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'gallery')) {
-    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'gallery')) {
-    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   if (tpl === 'medical' && hasMedicalModularPage(data, style, 'gallery')) {
-    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'gallery')) {
-    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} page="gallery" />;
+    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   const sectionOrder = getAdminSections('gallery', tpl, style);
 
@@ -1749,28 +1749,28 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
   const style = _ctx.style || 'classic';
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'about')) {
-    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'about')) {
-    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   if (tpl === 'tourism' && hasTourismModularPage(data, style, 'about')) {
-    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   if (tpl === 'salon' && hasSalonModularPage(data, style, 'about')) {
-    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'about')) {
-    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'about')) {
-    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   if (tpl === 'medical' && hasMedicalModularPage(data, style, 'about')) {
-    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'about')) {
-    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} page="about" />;
+    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   const sectionOrder = getAdminSections('about', tpl, style);
   const aboutPatch = (patch: Partial<NonNullable<typeof data.about>>) =>
@@ -1899,28 +1899,28 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
   const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
   const style = _ctx.style || 'classic';
   if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'contact')) {
-    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+    return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   if (tpl === 'hotel' && hasHotelModularPage(data, style, 'contact')) {
-    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+    return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   if (tpl === 'tourism' && hasTourismModularPage(data, style, 'contact')) {
-    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+    return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   if (tpl === 'salon' && hasSalonModularPage(data, style, 'contact')) {
-    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+    return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'contact')) {
-    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+    return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'contact')) {
-    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+    return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   if (tpl === 'medical' && hasMedicalModularPage(data, style, 'contact')) {
-    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+    return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'contact')) {
-    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} page="contact" />;
+    return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   const sectionOrder = getAdminSections('contact', tpl, style);
 
