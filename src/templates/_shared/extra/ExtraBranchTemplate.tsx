@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
-import type { SiteContent, PageId } from '@/lib/types';
+import type { SiteContent, PageId, TemplateKey } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter, Accordion } from '@/components/fx';
 import Seo from '@/components/Seo';
 import { BasePathProvider, useBasePath, withBase, resolveMapIframeSrc, SafeMapEmbed, Section, ContactBlock } from '@/components/site-blocks';
@@ -16,6 +16,7 @@ import { isSectionEnabled, getEffectivePageOrder, type PageId as LayoutPageId } 
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
+import { withModularSiteContent } from '@/lib/modular-site-overlay';
 import { buildSlotRenderInstructions, siteContentForSlotInstruction, availableSlotsForPageBlockPlan } from '@/lib/page-blocks-v1-render-sequence';
 import type { PageKey } from '@/admin/admin-sections';
 import { getBranchConfig } from '@/lib/branch-config';
@@ -1048,7 +1049,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
   style: ExtraStyle;
   eyebrow: string;
 }) {
-  const mergedFull = mergePageBlocksIntoSiteContentForPage(initialContent, page);
+  const mergedFull = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(initialContent, page), branch as TemplateKey, style);
   const contentBase = initialContent;
   const ho = pageHeaderOverride(mergedFull, PAGE_HEADER_KEY[page]);
   const title = ho?.title || PAGE_TITLES[page];
@@ -1192,7 +1193,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
  *  CLASSIC — editorial, centered, parallax about, varied gallery
  * ──────────────────────────────────────────────────────────────────── */
 function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
-  const mergedFull = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
+  const mergedFull = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(initialContent, 'home'), branch as TemplateKey, 'classic');
   const contentBase = initialContent;
   const legacyHomeOrder = getEffectiveHomeSectionKeys(mergedFull, branch, 'classic');
 
@@ -1371,7 +1372,7 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
  *  uniform gallery grid, two-column contact with form-style sidebar
  * ──────────────────────────────────────────────────────────────────── */
 function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
-  const mergedFull = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
+  const mergedFull = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(initialContent, 'home'), branch as TemplateKey, 'modern');
   const contentBase = initialContent;
   const homeTForHero = meaningfulTestimonials(mergedFull.testimonials);
   const numbersOverlay = (mergedFull as any).numbers as Array<{ value: string; label: string }> | undefined;
@@ -1601,7 +1602,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
  *  BOLD — magazine: oversized type, full-bleed image, masonry, dramatic
  * ──────────────────────────────────────────────────────────────────── */
 function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
-  const mergedFull = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
+  const mergedFull = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(initialContent, 'home'), branch as TemplateKey, 'bold');
   const contentBase = initialContent;
   const legacyHomeOrder = getEffectiveHomeSectionKeys(mergedFull, branch, 'bold');
   const btHero = effectiveBranchText(branch, mergedFull);

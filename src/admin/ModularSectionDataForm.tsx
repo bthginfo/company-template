@@ -531,7 +531,13 @@ function ActionBarForm({ data, onChange, tpl }: Pick<ModularSectionDataFormProps
 function StoryTeaserForm({ data, onChange, tpl, uploadImage }: Pick<ModularSectionDataFormProps, 'data' | 'onChange' | 'tpl' | 'uploadImage'>) {
   const btn = readButton(data, 'button');
   const href = btn.linkType === 'external' ? str(btn.externalUrl) : str(btn.internalPage);
-  const im = data.image && typeof data.image === 'object' ? (data.image as { image?: string }).image || '' : '';
+  const rawImg = (data as { image?: unknown }).image;
+  const im =
+    typeof rawImg === 'string'
+      ? rawImg.trim()
+      : rawImg && typeof rawImg === 'object'
+        ? str((rawImg as { image?: unknown }).image)
+        : '';
   return (
     <div className="space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">

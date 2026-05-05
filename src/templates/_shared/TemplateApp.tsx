@@ -31,16 +31,9 @@ import {
   resolveClientPathToPageId,
   isAnnouncementBarEnabledOnPage,
 } from '@/lib/page-layout';
-import { applyRestaurantModularOverlay } from '@/lib/modular-restaurant';
-import { applyHotelModularOverlay } from '@/lib/modular-hotel';
-import { applyTourismModularOverlay } from '@/lib/modular-tourism';
-import { applySalonModularOverlay } from '@/lib/modular-salon';
-import { applyTradesmanModularOverlay } from '@/lib/modular-tradesman';
-import { applyConsultingModularOverlay } from '@/lib/modular-consulting';
-import { applyMedicalModularOverlay } from '@/lib/modular-medical';
-import { applyFitnessModularOverlay } from '@/lib/modular-fitness';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
+import { withModularSiteContent } from '@/lib/modular-site-overlay';
 import { buildSlotRenderInstructions, siteContentForSlotInstruction, availableSlotsForPageBlockPlan } from '@/lib/page-blocks-v1-render-sequence';
 // Drift coverage (globalLayoutFieldDriftIssues) requires literal sectionOrder in this bundle; values are read via getEffectiveHomeSectionKeys.
 import { BranchSignature } from './BranchSignature';
@@ -60,18 +53,6 @@ import ExtraBranchTemplate, { type ExtraBranchKey } from './extra';
 
 export type TemplateVariant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
 export type TemplateStyle = 'classic' | 'modern' | 'bold';
-
-function withModularSiteContent(content: SiteContent, variant: TemplateKey, style: TemplateStyle): SiteContent {
-  let c = applyRestaurantModularOverlay(content, variant, style);
-  c = applyHotelModularOverlay(c, variant, style);
-  c = applyTourismModularOverlay(c, variant, style);
-  c = applySalonModularOverlay(c, variant, style);
-  c = applyTradesmanModularOverlay(c, variant, style);
-  c = applyConsultingModularOverlay(c, variant, style);
-  c = applyMedicalModularOverlay(c, variant, style);
-  c = applyFitnessModularOverlay(c, variant, style);
-  return c;
-}
 
 const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLabel: string; nav: NavItem[]; servicesEyebrow: string; servicesHeadline: string }> = {
   restaurant: {
@@ -368,7 +349,7 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
 /* ─── Home ─────────────────────────────────────────────────────────── */
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const modularFirst = withModularSiteContent(content, variant, style);
-  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'home');
+  const resolved = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(content, 'home'), variant, style);
   if (style === 'modern') return <HomePageModern variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
   if (style === 'bold') return <HomePageBold variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
   return <HomePageClassic variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
@@ -1359,7 +1340,7 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
 /* ─── Services / Speisekarte / Leistungen ────────────────────────── */
 function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const modularFirst = withModularSiteContent(content, variant, style);
-  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'services');
+  const resolved = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(content, 'services'), variant, style);
   const cfg = NAV_BY_VARIANT[variant];
   const legacyServicesOrder = getEffectivePageOrder(resolved, 'services', variant).filter((k) => isSectionEnabled(resolved, 'services', k));
   const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => ({
@@ -1557,7 +1538,7 @@ function GalleryPage({
   content, variant, title, eyebrow, style,
 }: { content: SiteContent; variant: TemplateVariant; title?: string; eyebrow?: string; style: TemplateStyle }) {
   const modularFirst = withModularSiteContent(content, variant, style);
-  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'gallery');
+  const resolved = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(content, 'gallery'), variant, style);
   const headerOverride = pageHeaderOverride(resolved, 'galleryHeader');
   const legacyGalleryOrder = getEffectivePageOrder(resolved, 'gallery', variant).filter((k) => isSectionEnabled(resolved, 'gallery', k));
   const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => ({
@@ -1773,7 +1754,7 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
 /* ─── About ──────────────────────────────────────────────────────── */
 function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const modularFirst = withModularSiteContent(content, variant, style);
-  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'about');
+  const resolved = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(content, 'about'), variant, style);
   const legacyAboutOrder = getEffectivePageOrder(resolved, 'about', variant).filter((k) => isSectionEnabled(resolved, 'about', k));
   const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => {
     const introBlockInner = style !== 'modern' ? (
@@ -2047,7 +2028,7 @@ function PressSection({ variant, content }: { variant: TemplateVariant; content?
 /* ─── Contact ────────────────────────────────────────────────────── */
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
   const modularFirst = withModularSiteContent(content, variant, style);
-  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'contact');
+  const resolved = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(content, 'contact'), variant, style);
   const cfg = getBranchConfig(variant);
   const arrivalFallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [

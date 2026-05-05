@@ -23,9 +23,10 @@ export function bool(v: unknown, fallback: boolean): boolean {
 }
 
 export function imgUrl(img: unknown): string {
+  if (typeof img === 'string') return img.trim();
   if (!img || typeof img !== 'object') return '';
   const o = img as { image?: unknown };
-  return typeof o.image === 'string' ? o.image : '';
+  return typeof o.image === 'string' ? o.image.trim() : '';
 }
 
 export function modularComboMatchesTenant(
@@ -697,19 +698,21 @@ export function mergeHomeIntoLegacy(
         break;
       }
       case 'storyTeaser': {
-        const im = (d as { image?: unknown }).image as Record<string, unknown> | undefined;
-        const btn = (d as { button?: unknown }).button as Record<string, unknown> | undefined;
+        const rec = d as Record<string, unknown>;
+        const btn = rec.button as Record<string, unknown> | undefined;
+        const bodyText = str(rec.description) || str(rec.body);
+        const imageUrl = imgUrl(rec.image) || (next.about?.imageUrl ?? '');
         next = {
           ...next,
           about: {
             ...(next.about ?? { title: '', body: '', imageUrl: '' }),
-            title: str((d as { headline?: unknown }).headline),
-            body: str((d as { description?: unknown }).description),
-            imageUrl: im ? str(im.image) : (next.about?.imageUrl ?? ''),
+            title: str(rec.headline),
+            body: bodyText,
+            imageUrl,
           },
           branchText: {
             ...next.branchText,
-            aboutTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+            aboutTeaserEyebrow: str(rec.eyebrow),
             learnMoreLabel: str(btn?.label),
             learnMoreHref: str(btn?.internalPage) || str(btn?.externalUrl),
           },
