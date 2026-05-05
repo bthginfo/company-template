@@ -15,12 +15,6 @@ function str(v: unknown): string {
   return typeof v === 'string' ? v : v == null ? '' : String(v);
 }
 
-function num(v: unknown, fallback: number): number {
-  if (typeof v === 'number' && !Number.isNaN(v)) return v;
-  const n = parseInt(String(v), 10);
-  return Number.isFinite(n) ? n : fallback;
-}
-
 function bool(v: unknown, def: boolean): boolean {
   if (typeof v === 'boolean') return v;
   return def;
@@ -326,16 +320,6 @@ function NewsTeaserForm({ data, onChange, tpl }: Pick<ModularSectionDataFormProp
         </ModField>
         <ModField label="Überschrift">
           <input className={modularInputCls} value={str(data.headline)} onChange={(e) => onChange({ ...data, headline: e.target.value })} />
-        </ModField>
-        <ModField label="Max. Beiträge">
-          <input
-            type="number"
-            min={1}
-            max={20}
-            className={modularInputCls}
-            value={num(data.postLimit, 3)}
-            onChange={(e) => onChange({ ...data, postLimit: parseInt(e.target.value, 10) || 3 })}
-          />
         </ModField>
       </div>
       <ModField label="Button-Text">
@@ -810,10 +794,6 @@ function GalleryGridForm({ data, onChange, uploadImage }: Pick<ModularSectionDat
   const set = (next: string[]) => onChange({ ...data, images: next.map((image) => ({ image, alt: '' })) });
   return (
     <div className="space-y-4">
-      <label className="flex items-center gap-2 text-sm cursor-pointer">
-        <input type="checkbox" checked={bool(data.lightboxEnabled, true)} onChange={(e) => onChange({ ...data, lightboxEnabled: e.target.checked })} />
-        <span>Lightbox aktivieren</span>
-      </label>
       <p className="text-xs uppercase tracking-widest text-muted">Bilder</p>
       {imgs.map((u, i) => (
         <ModImagePick key={i} label={`Bild ${i + 1}`} value={u} onChange={(url) => set(imgs.map((x, j) => (j === i ? url : x)))} uploadImage={uploadImage} />

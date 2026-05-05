@@ -13,6 +13,7 @@ export type CmsPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 export type CmsSectionContract = {
   type: string;
+  fields: readonly string[];
 };
 
 export type CmsPageContract = {
@@ -37,12 +38,88 @@ const BLUEPRINT_BY_TEMPLATE: Record<TemplateKey, BlueprintFn> = {
 
 export const CMS_PAGE_KEYS: readonly CmsPageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
 
+export const CMS_SECTION_FIELD_CONTRACTS = {
+  noticeBanner: ['items'],
+  hero: ['eyebrow', 'headline', 'subline', 'description', 'backgroundImage', 'image', 'buttonPrimary', 'stats'],
+  cta: ['eyebrow', 'headline', 'subline', 'button'],
+  ctaBand: ['eyebrow', 'headline', 'subline', 'button'],
+  actionBar: ['autoAvailabilityStatusEnabled', 'availabilityStatusOverride', 'buttonPrimary', 'buttonSecondary'],
+  marqueeBand: ['items'],
+  keywordBand: ['items'],
+  testimonialMarquee: ['items'],
+  statsBand: ['items'],
+  testimonials: ['eyebrow', 'headline', 'testimonials', 'items'],
+  labelBand: ['labels'],
+  newsTeaser: ['eyebrow', 'headline', 'button'],
+  newsHighlightList: ['eyebrow', 'headline', 'featuredImage', 'posts'],
+  highlightsBar: ['items'],
+  steps: ['eyebrow', 'headline', 'items'],
+  faq: ['eyebrow', 'headline', 'items'],
+  teaserList: ['eyebrow', 'headline', 'intro', 'description', 'items'],
+  timeline: ['items'],
+  team: ['eyebrow', 'headline', 'items'],
+  trainers: ['eyebrow', 'headline', 'items'],
+  expertQuotes: ['eyebrow', 'headline', 'items'],
+  storyFacts: ['description', 'items'],
+  storyTeaser: ['eyebrow', 'headline', 'description', 'image', 'button'],
+  storySplit: ['eyebrow', 'headline', 'description'],
+  storyImageSplit: ['eyebrow', 'headline', 'description'],
+  galleryPreview: ['eyebrow', 'headline', 'images', 'button'],
+  featuredDishesGrid: ['eyebrow', 'titleA', 'titleB', 'description', 'items'],
+  featuredDishes: ['eyebrow', 'headline', 'items'],
+  featuredItems: ['eyebrow', 'headline', 'description', 'items'],
+  gallery: ['images'],
+  contactDetails: ['eyebrow', 'headline', 'subline', 'googleMapsUrl', 'additionalFormFields'],
+  locations: ['locations'],
+  directions: ['eyebrow', 'headline', 'subline', 'items'],
+  menu: ['categories', 'eyebrow', 'titleA', 'titleB', 'subtitle'],
+  serviceCards: ['eyebrow', 'headline', 'description', 'items'],
+  featuredServices: ['eyebrow', 'headline', 'description', 'items'],
+  serviceList: ['eyebrow', 'headline', 'description', 'items'],
+  featuredLooks: ['eyebrow', 'headline', 'description', 'items'],
+  featuredLooksBand: ['eyebrow', 'headline', 'description', 'items'],
+  tourOverviewCards: ['eyebrow', 'headline', 'description', 'items'],
+  tourOverviewList: ['eyebrow', 'headline', 'description', 'items'],
+  serviceOverviewCards: ['eyebrow', 'headline', 'description', 'items'],
+  serviceOverviewList: ['eyebrow', 'headline', 'description', 'items'],
+  featuredAreas: ['eyebrow', 'headline', 'description', 'items'],
+  roomSelection: ['eyebrow', 'headline', 'description', 'items'],
+  tourSchedule: ['eyebrow', 'headline', 'description', 'items'],
+  tourSelection: ['eyebrow', 'headline', 'description', 'items'],
+  classCards: ['eyebrow', 'headline', 'description', 'items'],
+  accommodationsGrid: ['eyebrow', 'headline', 'description', 'items'],
+  accommodationList: ['eyebrow', 'headline', 'description', 'items'],
+  roomCards: ['eyebrow', 'headline', 'description', 'items'],
+  tourCards: ['eyebrow', 'headline', 'description', 'items'],
+  pricingPackages: ['eyebrow', 'headline', 'description', 'items'],
+  stickyEmergencyBanner: ['phone', 'label', 'headline', 'subline'],
+  fundingCalculator: ['investmentMin', 'investmentMax', 'investmentStep', 'investmentDefault', 'programs'],
+  brandLogos: ['items'],
+  featureImage: ['image'],
+  quoteWall: ['items'],
+  categoryCards: ['eyebrow', 'headline', 'items'],
+  topicBand: ['headline', 'subline', 'phone', 'items'],
+  topicCards: ['items'],
+  trainingPlanOverview: ['eyebrow', 'headline', 'stats'],
+  programTable: ['eyebrow', 'headline', 'rows'],
+  contactPreview: ['eyebrow', 'headline', 'description'],
+  serviceInfo: ['eyebrow', 'headline', 'description', 'items'],
+  appointmentBooking: ['eyebrow', 'headline', 'description', 'items'],
+  qualifications: ['eyebrow', 'headline', 'description', 'items'],
+  processTextColumns: ['eyebrow', 'headline', 'description', 'items'],
+  processCards: ['eyebrow', 'headline', 'description', 'items'],
+} as const satisfies Record<string, readonly string[]>;
+
+export function getCmsSectionFieldKeys(sectionType: string): readonly string[] {
+  return CMS_SECTION_FIELD_CONTRACTS[sectionType as keyof typeof CMS_SECTION_FIELD_CONTRACTS] ?? [];
+}
+
 export function getCmsContract(template: TemplateKey, style: TemplateStyle, page: CmsPageKey): CmsPageContract {
   return {
     template,
     style,
     page,
-    sections: BLUEPRINT_BY_TEMPLATE[template](style, page).map((type) => ({ type })),
+    sections: BLUEPRINT_BY_TEMPLATE[template](style, page).map((type) => ({ type, fields: getCmsSectionFieldKeys(type) })),
   };
 }
 

@@ -58,6 +58,21 @@ function courseRowToProgram(row: CourseRow): ProgramRow {
   };
 }
 
+function programTableRowsToCourses(rowsRaw: unknown): NonNullable<SiteContent['courses']> | undefined {
+  if (!Array.isArray(rowsRaw)) return undefined;
+  return rowsRaw
+    .filter((row): row is Record<string, unknown> => !!row && typeof row === 'object')
+    .map((row) => ({
+      ...DEFAULT_COURSE_ROW,
+      name: str(row.programTitle),
+      description: str(row.note),
+      schedule: str(row.time),
+      level: str(row.level),
+      duration: str(row.time),
+      trainer: str(row.trainer),
+    }));
+}
+
 /**
  * Modular import reads `courses` for classCards/programTable/trainingPlanOverview.
  * When tenants only filled `programs` (classic admin), still hydrate modular from that.
@@ -154,6 +169,14 @@ function mergeFitnessHomeSupplements(content: SiteContent, sections: ModularSect
             .map((x) => ({ value: str(x.value), label: str(x.description) }))
         : [];
       next = { ...next, numbers: nums };
+    } else if (sec.type === 'programTable') {
+      const courses = programTableRowsToCourses((d as { rows?: unknown }).rows);
+      if (!courses) continue;
+      next = {
+        ...next,
+        courses,
+        programs: courses.map((c) => courseRowToProgram(c)),
+      };
     } else if (sec.type === 'pricingPackages') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -206,6 +229,11 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
               .map((x) => ({ value: str(x.value), label: str(x.description) }))
           : [];
         next = { ...next, numbers: nums };
+        break;
+      }
+      case 'programTable': {
+        const courses = programTableRowsToCourses((d as { rows?: unknown }).rows);
+        if (courses) coursesOverride = courses;
         break;
       }
       case 'pricingPackages': {

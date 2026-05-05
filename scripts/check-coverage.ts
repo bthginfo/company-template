@@ -94,7 +94,7 @@ import {
 import { SECTION_CONTRACTS, CATALOG_TO_ADMIN, CROSS_PAGE_TARGETS } from '../src/lib/section-registry';
 import { BRANCH_STYLE_ORDER } from '../src/lib/template-orders';
 import { SECTION_CATALOG, getCatalogForVariant } from '../src/lib/page-layout';
-import { getCmsSectionTypes } from '../src/lib/cms-contract';
+import { CMS_SECTION_FIELD_CONTRACTS, getCmsSectionFieldKeys, getCmsSectionTypes } from '../src/lib/cms-contract';
 import {
   branchHomeStyleBindingIssues,
   collectDirSources,
@@ -200,12 +200,28 @@ function modularSectionMention(source: string, sectionType: string): boolean {
   );
 }
 
+function modularFieldMention(source: string, field: string): boolean {
+  return (
+    source.includes(`data.${field}`) ||
+    source.includes(`.${field}`) ||
+    source.includes(`'${field}'`) ||
+    source.includes(`"${field}"`)
+  );
+}
+
 const modularMissing = new Set<string>();
 const modularUnmerged = new Set<string>();
+const modularMissingFieldContract = new Set<string>();
+const modularFieldMissingInAdmin = new Set<string>();
+const modularFieldMissingInMerge = new Set<string>();
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     for (const page of PAGES) {
       for (const sectionType of getCmsSectionTypes(tpl, style, page)) {
+        const fields = getCmsSectionFieldKeys(sectionType);
+        if (fields.length === 0) {
+          modularMissingFieldContract.add(`${tpl}/${style}/${page}: modular section type "${sectionType}" has no CMS_SECTION_FIELD_CONTRACTS entry`);
+        }
         if (!MODULAR_FORM_SOURCES.includes(`case '${sectionType}'`)) {
           modularMissing.add(`${tpl}/${style}/${page}: modular section type "${sectionType}" has no active admin form case`);
         }
@@ -215,12 +231,30 @@ for (const tpl of TEMPLATES) {
         if (!hasOwnPath && !hasSharedPath) {
           modularUnmerged.add(`${tpl}/${style}/${page}: modular section type "${sectionType}" has no template/shared import or merge path`);
         }
+        const mergeSource = `${ownSource}\n${MODULAR_SHARED_SOURCE}`;
+        for (const field of fields) {
+          if (!modularFieldMention(MODULAR_FORM_SOURCES, field)) {
+            modularFieldMissingInAdmin.add(`${sectionType}.${field}: field contract has no active admin form mention`);
+          }
+          if (!modularFieldMention(mergeSource, field)) {
+            modularFieldMissingInMerge.add(`${tpl}/${style}/${page}: ${sectionType}.${field} has no template/shared import or merge mention`);
+          }
+        }
       }
     }
   }
 }
+for (const type of Object.keys(CMS_SECTION_FIELD_CONTRACTS)) {
+  if (!MODULAR_FORM_SOURCES.includes(`case '${type}'`)) continue;
+  if (!getCmsSectionFieldKeys(type).length) {
+    note(`[modular-field-contract-empty] "${type}" has an empty field contract`);
+  }
+}
+for (const msg of modularMissingFieldContract) note(`[modular-no-field-contract] ${msg}`);
 for (const msg of modularMissing) note(`[modular-no-form] ${msg}`);
 for (const msg of modularUnmerged) note(`[modular-no-merge] ${msg}`);
+for (const msg of modularFieldMissingInAdmin) note(`[modular-field-no-form] ${msg}`);
+for (const msg of modularFieldMissingInMerge) note(`[modular-field-no-merge] ${msg}`);
 
 /* ─────────────────────────────────────────────────────────────────
  *  5: Branch invariants — extras compact, core 5 full

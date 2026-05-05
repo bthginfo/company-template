@@ -12,6 +12,7 @@ import {
 } from '@/lib/modular-tradesman-blueprints';
 import {
   str,
+  imgUrl,
   bool,
   modularComboTemplateMatches,
   mergeHomeIntoLegacy,
@@ -228,6 +229,37 @@ function mergeTradesmanHomeSupplements(content: SiteContent, sections: ModularSe
         .map((it) => ({ author: str(it.name), text: str(it.quote) }))
         .filter((t) => t.text || t.author);
       next = { ...next, testimonials: list };
+    } else if (sec.type === 'newsHighlightList') {
+      const rawPosts = (d as { posts?: unknown }).posts;
+      const img = imgUrl((d as { featuredImage?: unknown }).featuredImage);
+      const posts = Array.isArray(rawPosts)
+        ? rawPosts.filter((p): p is Record<string, unknown> => !!p && typeof p === 'object').map((p, i) => {
+            const btn = p.button as Record<string, unknown> | undefined;
+            const href = str(btn?.internalPage) || str(btn?.externalUrl);
+            const slug = href.split('/').filter(Boolean).pop() || `thema-${i + 1}`;
+            return {
+              id: slug,
+              slug,
+              date: str(p.date),
+              title: str(p.title),
+              excerpt: str(p.excerpt),
+              body: '',
+              bodyHtml: '',
+              imageUrl: img,
+              published: true,
+            };
+          })
+        : [];
+      next = {
+        ...next,
+        branchText: {
+          ...next.branchText,
+          newsEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+          newsTitle: str((d as { headline?: unknown }).headline),
+        },
+        ...(posts.length ? { posts } : {}),
+        ...(img ? { gallery: [img, ...(next.gallery ?? []).filter((url) => url !== img)] } : {}),
+      };
     } else if (sec.type === 'ctaBand') {
       const btn = (d as { button?: unknown }).button as Record<string, unknown> | undefined;
       next = {

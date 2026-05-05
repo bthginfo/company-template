@@ -726,7 +726,7 @@ function TrainingPlanOverviewForm({ data, onChange }: Pick<ModularSectionDataFor
   );
 }
 
-function ProgramTableForm({ data, onChange, tpl }: Pick<ModularSectionDataFormProps, 'data' | 'onChange' | 'tpl'>) {
+function ProgramTableForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'data' | 'onChange'>) {
   const rows = Array.isArray(data.rows)
     ? (data.rows as unknown[]).map((x) =>
         x && typeof x === 'object' ? { ...x } as Record<string, string> : {},
@@ -763,24 +763,6 @@ function ProgramTableForm({ data, onChange, tpl }: Pick<ModularSectionDataFormPr
       <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => setRows([...rows, Object.fromEntries(keys.map((k) => [k, '']))])}>
         + Zeile
       </button>
-      <ModField label="Button-Text (unten)">
-        <input className={modularInputCls} value={str(readButton(data, 'button').label)} onChange={(e) => onChange(patchButton(data, 'button', { label: e.target.value }))} />
-      </ModField>
-      <ModLinkTarget
-        label="Button-Ziel"
-        tpl={tpl}
-        value={readButton(data, 'button').linkType === 'external' ? str(readButton(data, 'button').externalUrl) : str(readButton(data, 'button').internalPage)}
-        onChange={(v) => {
-          const ext = v.startsWith('http') || v.startsWith('mailto:') || v.startsWith('tel:');
-          onChange(
-            patchButton(data, 'button', {
-              linkType: ext ? 'external' : 'internal',
-              internalPage: ext ? '' : v,
-              externalUrl: ext ? v : '',
-            }),
-          );
-        }}
-      />
     </div>
   );
 }
@@ -986,7 +968,7 @@ function RestaurantMenuCategoriesForm({ data, onChange, uploadImage }: ModularSe
 
 /** Public entry: returns null when this module has no editor for the type. */
 export function extendedModularSectionForm(props: ModularSectionDataFormProps): ReactNode {
-  const { sectionType, data, onChange, tpl, uploadImage } = props;
+  const { sectionType, data, onChange, uploadImage } = props;
   switch (sectionType) {
     case 'menu':
       return <RestaurantMenuCategoriesForm {...props} />;
@@ -1042,7 +1024,7 @@ export function extendedModularSectionForm(props: ModularSectionDataFormProps): 
     case 'trainingPlanOverview':
       return <TrainingPlanOverviewForm data={data} onChange={onChange} />;
     case 'programTable':
-      return <ProgramTableForm data={data} onChange={onChange} tpl={tpl} />;
+      return <ProgramTableForm data={data} onChange={onChange} />;
     case 'newsHighlightList':
       return <NewsHighlightForm {...props} />;
     case 'contactPreview':
