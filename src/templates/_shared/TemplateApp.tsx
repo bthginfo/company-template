@@ -496,14 +496,7 @@ export const CORE_V2_RENDERED_SECTION_TYPES = new Set<string>([
 function shouldUseCmsV2Frontend(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): boolean {
   const combo = content.modularPagesV2?.combo;
   if (combo?.template !== variant || combo.style !== style) return false;
-  if (content.cmsV2?.enabled === true) return true;
-  if (typeof window === 'undefined') return false;
-  try {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('cmsV2') === '1' || window.localStorage.getItem('cms:v2-frontend') === '1';
-  } catch {
-    return false;
-  }
+  return content.cmsV2?.enabled === true;
 }
 
 function cmsV2HotelRoomItems(value: unknown): NonNullable<SiteContent['rooms']> {

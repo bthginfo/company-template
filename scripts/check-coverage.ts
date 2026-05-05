@@ -334,6 +334,9 @@ if (!CMS_V2_EDITOR_SOURCE.includes('modularPagesV2') || !CMS_V2_EDITOR_SOURCE.in
 if (!CMS_V2_EDITOR_SOURCE.includes('content?.cmsV2?.enabled === true')) {
   note('[cms-v2-editor-flag] V2 admin editor gate must read the durable tenant cmsV2.enabled flag.');
 }
+if (CMS_V2_EDITOR_SOURCE.includes('cms:v2-editor') || CMS_V2_EDITOR_SOURCE.includes("params.get('cmsV2')")) {
+  note('[cms-v2-editor-flag] V2 admin editor must not use query/localStorage QA gates; cmsV2.enabled is the only switch.');
+}
 if (!RESTAURANT_EDITOR_SOURCE.includes('shouldUseCmsV2Editor') || !RESTAURANT_EDITOR_SOURCE.includes('ModularV2PageEditor')) {
   note('[cms-v2-restaurant-editor] Restaurant must expose the V2 editor behind the feature gate before renderer migration.');
 }
@@ -347,6 +350,9 @@ if (!TEMPLATE_APP_SOURCE.includes('shouldUseCmsV2Frontend') || !TEMPLATE_APP_SOU
 }
 if (!TEMPLATE_APP_SOURCE.includes('content.cmsV2?.enabled === true')) {
   note('[cms-v2-frontend-flag] Core frontend V2 gate must read the durable tenant cmsV2.enabled flag.');
+}
+if (TEMPLATE_APP_SOURCE.includes('cms:v2-frontend') || TEMPLATE_APP_SOURCE.includes("params.get('cmsV2')")) {
+  note('[cms-v2-frontend-flag] Core frontend V2 gate must not use query/localStorage QA gates; cmsV2.enabled is the only switch.');
 }
 const restaurantV2RendererSetMatch = TEMPLATE_APP_SOURCE.match(/RESTAURANT_V2_RENDERED_SECTION_TYPES\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
 if (!restaurantV2RendererSetMatch) {
@@ -424,6 +430,9 @@ if (!extraV2RendererSetMatch) {
 }
 if (!EXTRA_TEMPLATE_SOURCE.includes('content.cmsV2?.enabled === true')) {
   note('[cms-v2-extra-frontend-flag] Extra frontend V2 gate must read the durable tenant cmsV2.enabled flag.');
+}
+if (EXTRA_TEMPLATE_SOURCE.includes('cms:v2-frontend') || EXTRA_TEMPLATE_SOURCE.includes("params.get('cmsV2')")) {
+  note('[cms-v2-extra-frontend-flag] Extra frontend V2 gate must not use query/localStorage QA gates; cmsV2.enabled is the only switch.');
 }
 if (!CONTENT_API_SOURCE.includes('normalizeMailSecret') || !CONTENT_API_SOURCE.includes('passEnc')) {
   note('[mail-secret] Mail passwords must be normalized server-side into encrypted passEnc instead of persisted plaintext.');

@@ -419,14 +419,7 @@ function PageSeoExtra({ content, branch, page }: { content: SiteContent; branch:
 function shouldUseExtraCmsV2Frontend(content: SiteContent, branch: ExtraBranchKey, style: ExtraStyle): boolean {
   const combo = content.modularPagesV2?.combo;
   if (combo?.template !== branch || combo.style !== style) return false;
-  if (content.cmsV2?.enabled === true) return true;
-  if (typeof window === 'undefined') return false;
-  try {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('cmsV2') === '1' || window.localStorage.getItem('cms:v2-frontend') === '1';
-  } catch {
-    return false;
-  }
+  return content.cmsV2?.enabled === true;
 }
 
 function extraV2Sections(content: SiteContent, page: ExtraPage): ModularSectionV2[] {

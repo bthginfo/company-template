@@ -730,8 +730,7 @@ export const SiteContentSchema = z.object({
   cmsV2: z.object({
     /**
      * Tenant rollout flag for the direct-render CMS.
-     * Query/localStorage gates still work for local QA, but this flag is the
-     * durable switch used by provisioning/admin once a tenant is ready.
+     * This is the only switch used by provisioning, admin and frontend.
      */
     enabled: z.boolean().optional().default(false),
   }).optional().default({}),
