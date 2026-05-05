@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
-import type { SiteContent, PageId, TemplateKey } from '@/lib/types';
+import type { ModularSectionV2, SiteContent, PageId, TemplateKey } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter, Accordion } from '@/components/fx';
 import Seo from '@/components/Seo';
 import { BasePathProvider, useBasePath, withBase, resolveMapIframeSrc, SafeMapEmbed, Section, ContactBlock } from '@/components/site-blocks';
@@ -22,11 +22,55 @@ import type { PageKey } from '@/admin/admin-sections';
 import { getBranchConfig } from '@/lib/branch-config';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import { mergedServiceHighlights, meaningfulTestimonials, normaliseArrivalList, normaliseFaqList, normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
+import {
+  asUnknownRecord,
+  cmsV2Boolean,
+  cmsV2FaqItems,
+  cmsV2Image,
+  cmsV2LinkHref,
+  cmsV2LinkLabel,
+  cmsV2Text,
+  cmsV2TextItems,
+  cmsV2TextPairs,
+  type UnknownRecord,
+} from '@/lib/cms-v2-render-utils';
 
 export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
 export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
 export const isExtraBranchKey = (k: string | undefined): k is ExtraBranchKey =>
   !!k && (EXTRA_BRANCH_KEYS as string[]).includes(k);
+
+export const EXTRA_V2_RENDERED_SECTION_TYPES = new Set<string>([
+  'noticeBanner',
+  'hero',
+  'keywordBand',
+  'storyTeaser',
+  'serviceCards',
+  'serviceInfo',
+  'classCards',
+  'trainingPlanOverview',
+  'programTable',
+  'processTextColumns',
+  'processCards',
+  'pricingPackages',
+  'team',
+  'trainers',
+  'appointmentBooking',
+  'galleryPreview',
+  'gallery',
+  'testimonials',
+  'newsTeaser',
+  'contactPreview',
+  'teaserList',
+  'categoryCards',
+  'timeline',
+  'statsBand',
+  'faq',
+  'cta',
+  'contactDetails',
+  'locations',
+  'directions',
+]);
 
 /** Per-tenant overlay over branch-text defaults — same SoT as 5-variant template. */
 function effectiveBranchText(branch: ExtraBranchKey, content?: SiteContent) {
@@ -372,6 +416,209 @@ function PageSeoExtra({ content, branch, page }: { content: SiteContent; branch:
   return <Seo title={t} description={desc} content={content} template={branch} page={PAGE_TO_SEO[page]} />;
 }
 
+function shouldUseExtraCmsV2Frontend(content: SiteContent, branch: ExtraBranchKey, style: ExtraStyle): boolean {
+  const combo = content.modularPagesV2?.combo;
+  if (combo?.template !== branch || combo.style !== style) return false;
+  if (typeof window === 'undefined') return false;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('cmsV2') === '1' || window.localStorage.getItem('cms:v2-frontend') === '1';
+  } catch {
+    return false;
+  }
+}
+
+function extraV2Sections(content: SiteContent, page: ExtraPage): ModularSectionV2[] {
+  if (page === 'home') return content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false) ?? [];
+  return content.modularPagesV2?.[page]?.sections?.filter((section) => section.visible !== false) ?? [];
+}
+
+function extraV2ServiceRows(value: unknown): SiteContent['services'] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+        .map((item) => ({
+          title: cmsV2Text(item.title) || cmsV2Text(item.name),
+          description: cmsV2Text(item.description),
+          price: cmsV2Text(item.price) || cmsV2Text(item.meta),
+          imageUrl: cmsV2Image(item.image),
+          learnMoreLabel: cmsV2LinkLabel(item.button),
+          learnMoreHref: cmsV2LinkHref(item.button),
+          detailSlug: cmsV2Text(item.detailSlug),
+          detailPublished: cmsV2Boolean(item.detailPublished, true),
+          detailSubtitle: cmsV2Text(item.detailSubtitle),
+          detailBody: cmsV2Text(item.detailBody),
+          detailBodyHtml: cmsV2Text(item.detailBodyHtml),
+          detailGallery: Array.isArray(item.detailGallery) ? item.detailGallery.map(cmsV2Text).filter(Boolean) : [],
+        }))
+        .filter((item) => item.title || item.description || item.imageUrl)
+    : [];
+}
+
+function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: ModularSectionV2): SiteContent {
+  const data = asUnknownRecord(section.data);
+  switch (section.type) {
+    case 'noticeBanner':
+      return { ...content, announcements: cmsV2TextItems(data.items) };
+    case 'hero':
+      return {
+        ...content,
+        hero: {
+          ...content.hero,
+          title: cmsV2Text(data.headline) || content.hero.title,
+          subtitle: cmsV2Text(data.subline),
+          body: cmsV2Text(data.description),
+          imageUrl: cmsV2Image(data.backgroundImage) || cmsV2Image(data.image) || content.hero.imageUrl,
+          ctaLabel: cmsV2LinkLabel(data.buttonPrimary) || content.hero.ctaLabel,
+          ctaHref: cmsV2LinkHref(data.buttonPrimary) || content.hero.ctaHref,
+        },
+        branchText: { ...content.branchText, heroEyebrow: cmsV2Text(data.eyebrow), heroImageUrl: cmsV2Image(data.image) },
+      };
+    case 'serviceCards':
+    case 'serviceInfo':
+      return { ...content, services: extraV2ServiceRows(data.items) };
+    case 'classCards':
+    case 'programTable':
+    case 'trainingPlanOverview': {
+      const courses = extraV2ServiceRows(data.items ?? data.rows ?? data.stats).map((item) => ({
+        name: item.title,
+        description: item.description,
+        schedule: item.detailSubtitle,
+        level: '',
+        duration: '',
+        trainer: '',
+        price: item.price,
+        imageUrl: item.imageUrl,
+        detailSlug: item.detailSlug,
+        detailPublished: item.detailPublished,
+        detailBody: item.detailBody,
+        detailBodyHtml: item.detailBodyHtml,
+        detailGallery: item.detailGallery,
+        detailSubtitle: item.detailSubtitle,
+      }));
+      return { ...content, courses, services: extraV2ServiceRows(data.items ?? data.rows ?? data.stats) };
+    }
+    case 'processTextColumns':
+    case 'processCards':
+      return { ...content, processSteps: extraV2ServiceRows(data.items).map((item) => ({ title: item.title, description: item.description, duration: item.price, imageUrl: item.imageUrl, detailSlug: item.detailSlug, detailPublished: item.detailPublished, detailSubtitle: item.detailSubtitle, detailBody: item.detailBody, detailBodyHtml: item.detailBodyHtml, detailGallery: item.detailGallery })) };
+    case 'pricingPackages':
+      return { ...content, packages: extraV2ServiceRows(data.items).map((item) => ({ name: item.title, price: item.price, period: '', description: item.description, features: [], highlight: false, ctaLabel: item.learnMoreLabel, ctaHref: item.learnMoreHref, imageUrl: item.imageUrl, detailSlug: item.detailSlug, detailPublished: item.detailPublished, detailSubtitle: item.detailSubtitle, detailBody: item.detailBody, detailBodyHtml: item.detailBodyHtml, detailGallery: item.detailGallery })) };
+    case 'team':
+    case 'trainers': {
+      const team = Array.isArray(data.items)
+        ? data.items.filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item)).map((item) => ({ n: cmsV2Text(item.name) || cmsV2Text(item.title), r: cmsV2Text(item.role), bio: cmsV2Text(item.bio) || cmsV2Text(item.description), img: cmsV2Image(item.image) }))
+        : [];
+      return { ...content, team };
+    }
+    case 'appointmentBooking':
+      return { ...content, booking: { enabled: true, provider: cmsV2Text(data.provider), url: cmsV2LinkHref(data.button) || cmsV2Text(data.url), embedUrl: cmsV2Text(data.embedUrl), note: cmsV2Text(data.description) } };
+    case 'galleryPreview':
+    case 'gallery':
+      return { ...content, gallery: Array.isArray(data.images) ? data.images.map((item) => cmsV2Image(item)).filter(Boolean) : content.gallery };
+    case 'testimonials': {
+      const raw = Array.isArray(data.testimonials) ? data.testimonials : Array.isArray(data.items) ? data.items : [];
+      return { ...content, testimonials: raw.filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item)).map((item) => ({ author: cmsV2Text(item.name) || cmsV2Text(item.author), text: cmsV2Text(item.quote) || cmsV2Text(item.text) })) };
+    }
+    case 'statsBand':
+      return { ...content, numbers: cmsV2TextPairs(data.items).map((item) => ({ value: item.t, label: item.d })) };
+    case 'faq':
+      return { ...content, faq: cmsV2FaqItems(data.items) };
+    case 'contactPreview':
+    case 'cta':
+      return { ...content, ctaBandOverride: { ...content.ctaBandOverride, eyebrow: cmsV2Text(data.eyebrow), lead: cmsV2Text(data.headline), sub: cmsV2Text(data.subline) || cmsV2Text(data.description), cta: cmsV2LinkLabel(data.button), ctaHref: cmsV2LinkHref(data.button) } };
+    default:
+      void branch;
+      return content;
+  }
+}
+
+function ExtraV2Notice({ section }: { section: ModularSectionV2 }) {
+  const lines = cmsV2TextItems(asUnknownRecord(section.data).items);
+  if (!lines.length) return null;
+  return <section className="bg-brand text-white border-y border-white/10"><div className="container-x py-3 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-widest">{lines.map((line) => <span key={line}>{line}</span>)}</div></section>;
+}
+
+function ExtraV2Cards({ section, title }: { section: ModularSectionV2; title: string }) {
+  const data = asUnknownRecord(section.data);
+  const items = cmsV2TextPairs(data.items);
+  if (!items.length) return null;
+  return (
+    <Section eyebrow={cmsV2Text(data.eyebrow)} title={cmsV2Text(data.headline) || title} subtitle={cmsV2Text(data.description)} className="surface">
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {items.map((item, i) => <article key={i} className="bg-white border border-line rounded-2xl p-7"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}
+      </div>
+    </Section>
+  );
+}
+
+function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteContent; branch: ExtraBranchKey; page: ExtraPage; style: ExtraStyle; eyebrow: string }) {
+  const sections = extraV2Sections(content, page);
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const heroContent = heroSection ? extraV2Content(content, branch, heroSection) : content;
+  const headerKey = page === 'home' ? null : PAGE_HEADER_KEY[page];
+  const header = headerKey ? pageHeaderOverride(heroContent, headerKey) : null;
+  const heroTitle = page === 'home' ? heroContent.hero.title : header?.title || PAGE_TITLES[page];
+  const heroEyebrow = page === 'home' ? effectiveBranchText(branch, heroContent).heroEyebrow || eyebrow : header?.eyebrow || PAGE_TITLES[page];
+  const heroSubtitle = page === 'home' ? heroContent.hero.subtitle : header?.subtitle || '';
+
+  return (
+    <>
+      <PageHero eyebrow={heroEyebrow} title={heroTitle} subtitle={heroSubtitle} style={style} />
+      {sections.filter((section) => section.type !== 'hero').map((section) => {
+        const patched = extraV2Content(content, branch, section);
+        switch (section.type) {
+          case 'noticeBanner':
+            return <ExtraV2Notice key={section.id} section={section} />;
+          case 'keywordBand': {
+            const words = cmsV2TextItems(asUnknownRecord(section.data).items);
+            return words.length ? <Section key={section.id} spacing="md"><div className="flex flex-wrap gap-3">{words.map((word) => <span key={word} className="rounded-full border border-line px-4 py-2 text-sm">{word}</span>)}</div></Section> : null;
+          }
+          case 'serviceCards':
+          case 'serviceInfo':
+          case 'classCards':
+            return <React.Fragment key={section.id}><ExtraLeistungenServiceCards content={patched} branch={branch} style={style} /><BranchModulesInline variant={branch} content={patched} /></React.Fragment>;
+          case 'processTextColumns':
+          case 'processCards':
+          case 'pricingPackages':
+          case 'team':
+          case 'trainers':
+          case 'appointmentBooking':
+          case 'trainingPlanOverview':
+          case 'programTable':
+            return <BranchModulesInline key={section.id} variant={branch} content={patched} />;
+          case 'storyTeaser':
+          case 'teaserList':
+          case 'categoryCards':
+          case 'contactPreview':
+          case 'directions':
+            return <ExtraV2Cards key={section.id} section={section} title="Details." />;
+          case 'galleryPreview':
+          case 'gallery':
+            return patched.gallery.length ? <Section key={section.id} spacing="lg"><MasonryLightbox images={section.type === 'galleryPreview' ? patched.gallery.slice(0, 8) : patched.gallery} /></Section> : null;
+          case 'testimonials':
+            return meaningfulTestimonials(patched.testimonials).length ? <Section key={section.id} title="Stimmen." className="surface"><div className="grid md:grid-cols-3 gap-5">{meaningfulTestimonials(patched.testimonials).slice(0, 3).map((t, i) => <blockquote key={i} className="bg-white border border-line rounded-2xl p-7"><p>{t.text}</p><footer className="mt-5 text-sm font-medium">{t.author}</footer></blockquote>)}</div></Section> : null;
+          case 'statsBand':
+            return <ExtraHomeNumbersBand key={section.id} content={patched} />;
+          case 'newsTeaser':
+            return <NewsPreview key={section.id} templateVariant={branch} content={patched} eyebrow={patched.branchText?.newsEyebrow || 'News'} title={patched.branchText?.newsTitle || 'Aktuelles.'} />;
+          case 'faq':
+            return patched.faq?.length ? <Section key={section.id} title="Häufige Fragen."><Accordion items={patched.faq} /></Section> : null;
+          case 'cta':
+            return <ExtraHomeSoftCta key={section.id} branch={branch} content={patched} layoutStyle={style} />;
+          case 'contactDetails':
+            return <Section key={section.id} title="Kontakt"><ContactBlock content={content} showForm /></Section>;
+          case 'locations':
+            return <ExtraV2Cards key={section.id} section={{ ...section, data: { items: asUnknownRecord(section.data).locations } }} title="Standorte." />;
+          case 'timeline':
+            return <Timeline key={section.id} content={content} />;
+          default:
+            return null;
+        }
+      })}
+    </>
+  );
+}
+
 /** Multi-page showcase template with three distinct layouts (classic / modern / bold). */
 export default function ExtraBranchTemplate({
   content,
@@ -383,6 +630,7 @@ export default function ExtraBranchTemplate({
   useReveal();
   const eb = eyebrow ?? content.brand.tagline ?? '';
   const Layout = style === 'modern' ? ModernLayout : style === 'bold' ? BoldLayout : ClassicLayout;
+  const useV2 = shouldUseExtraCmsV2Frontend(content, branch, style);
   return (
     <BasePathProvider value={basePath}>
       <div className={`min-h-screen flex flex-col tpl-style-${style} tpl-branch-${branch} bg-[var(--bg-color)] text-[var(--text-color)]`}>
@@ -391,7 +639,7 @@ export default function ExtraBranchTemplate({
         <main className="flex-1">
           <ScrollToTopOnRoute />
           <Routes>
-            <Route index element={<><PageSeoExtra content={content} branch={branch} page="home" /><Layout content={content} eyebrow={eb} branch={branch} page="home" /></>} />
+            <Route index element={<><PageSeoExtra content={content} branch={branch} page="home" />{useV2 ? <ExtraV2Page content={content} eyebrow={eb} branch={branch} page="home" style={style} /> : <Layout content={content} eyebrow={eb} branch={branch} page="home" />}</>} />
             <Route
               path="leistungen/:catalogSlug"
               element={(
@@ -401,15 +649,15 @@ export default function ExtraBranchTemplate({
                 </>
               )}
             />
-            <Route path="leistungen" element={<><PageSeoExtra content={content} branch={branch} page="services" /><SubPage content={content} branch={branch} page="services" style={style} eyebrow={eb} /></>} />
-            <Route path="galerie" element={<><PageSeoExtra content={content} branch={branch} page="gallery" /><SubPage content={content} branch={branch} page="gallery" style={style} eyebrow={eb} /></>} />
-            <Route path="ueber-uns" element={<><PageSeoExtra content={content} branch={branch} page="about" /><SubPage content={content} branch={branch} page="about" style={style} eyebrow={eb} /></>} />
-            <Route path="kontakt" element={<><PageSeoExtra content={content} branch={branch} page="contact" /><SubPage content={content} branch={branch} page="contact" style={style} eyebrow={eb} /></>} />
+            <Route path="leistungen" element={<><PageSeoExtra content={content} branch={branch} page="services" />{useV2 ? <ExtraV2Page content={content} eyebrow={eb} branch={branch} page="services" style={style} /> : <SubPage content={content} branch={branch} page="services" style={style} eyebrow={eb} />}</>} />
+            <Route path="galerie" element={<><PageSeoExtra content={content} branch={branch} page="gallery" />{useV2 ? <ExtraV2Page content={content} eyebrow={eb} branch={branch} page="gallery" style={style} /> : <SubPage content={content} branch={branch} page="gallery" style={style} eyebrow={eb} />}</>} />
+            <Route path="ueber-uns" element={<><PageSeoExtra content={content} branch={branch} page="about" />{useV2 ? <ExtraV2Page content={content} eyebrow={eb} branch={branch} page="about" style={style} /> : <SubPage content={content} branch={branch} page="about" style={style} eyebrow={eb} />}</>} />
+            <Route path="kontakt" element={<><PageSeoExtra content={content} branch={branch} page="contact" />{useV2 ? <ExtraV2Page content={content} eyebrow={eb} branch={branch} page="contact" style={style} /> : <SubPage content={content} branch={branch} page="contact" style={style} eyebrow={eb} />}</>} />
             <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} templateVariant={branch} />} />
             <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} templateVariant={branch} />} />
             <Route path="impressum" element={<Imprint content={content} />} />
             <Route path="datenschutz" element={<Privacy content={content} />} />
-            <Route path="*" element={<><PageSeoExtra content={content} branch={branch} page="home" /><Layout content={content} eyebrow={eb} branch={branch} page="home" /></>} />
+            <Route path="*" element={<><PageSeoExtra content={content} branch={branch} page="home" />{useV2 ? <ExtraV2Page content={content} eyebrow={eb} branch={branch} page="home" style={style} /> : <Layout content={content} eyebrow={eb} branch={branch} page="home" />}</>} />
           </Routes>
         </main>
         <ExtraFooter content={content} style={style} />

@@ -100,6 +100,9 @@ import { restaurantModularBlueprint } from '../src/lib/modular-restaurant-bluepr
 import { salonModularBlueprint } from '../src/lib/modular-salon-blueprints';
 import { tourismModularBlueprint } from '../src/lib/modular-tourism-blueprints';
 import { tradesmanModularBlueprint } from '../src/lib/modular-tradesman-blueprints';
+import { consultingModularBlueprint } from '../src/lib/modular-consulting-blueprints';
+import { fitnessModularBlueprint } from '../src/lib/modular-fitness-blueprints';
+import { medicalModularBlueprint } from '../src/lib/modular-medical-blueprints';
 import {
   branchHomeStyleBindingIssues,
   collectDirSources,
@@ -201,6 +204,7 @@ const CMS_V2_CONTRACT_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-v2-contr
 const CMS_V2_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularV2PageEditor.tsx'), 'utf8');
 const RESTAURANT_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularHomeEditor.tsx'), 'utf8');
 const TEMPLATE_APP_SOURCE = readFileSync(join(repoRoot, 'src/templates/_shared/TemplateApp.tsx'), 'utf8');
+const EXTRA_TEMPLATE_SOURCE = readFileSync(join(repoRoot, 'src/templates/_shared/extra/ExtraBranchTemplate.tsx'), 'utf8');
 
 const MODULAR_SHARED_SOURCE = readFileSync(join(repoRoot, 'src/lib/modular-restaurant.ts'), 'utf8');
 const MODULAR_SOURCE_BY_TEMPLATE = Object.fromEntries(
@@ -354,6 +358,28 @@ if (!coreV2RendererSetMatch) {
         for (const sectionType of blueprint(style, page)) {
           if (!renderedTypes.has(sectionType)) {
             note(`[cms-v2-core-renderer] missing V2 renderer declaration for ${tpl}/${style}/${page}/${sectionType}`);
+          }
+        }
+      }
+    }
+  }
+}
+const extraV2RendererSetMatch = EXTRA_TEMPLATE_SOURCE.match(/EXTRA_V2_RENDERED_SECTION_TYPES\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
+if (!extraV2RendererSetMatch) {
+  note('[cms-v2-extra-renderer] Extra V2 renderer must declare EXTRA_V2_RENDERED_SECTION_TYPES.');
+} else {
+  const renderedTypes = new Set(Array.from(extraV2RendererSetMatch[1].matchAll(/'([^']+)'/g)).map((m) => m[1]));
+  const blueprints = {
+    consulting: consultingModularBlueprint,
+    medical: medicalModularBlueprint,
+    fitness: fitnessModularBlueprint,
+  } as const;
+  for (const [tpl, blueprint] of Object.entries(blueprints)) {
+    for (const style of STYLES) {
+      for (const page of PAGES) {
+        for (const sectionType of blueprint(style, page)) {
+          if (!renderedTypes.has(sectionType)) {
+            note(`[cms-v2-extra-renderer] missing V2 renderer declaration for ${tpl}/${style}/${page}/${sectionType}`);
           }
         }
       }
