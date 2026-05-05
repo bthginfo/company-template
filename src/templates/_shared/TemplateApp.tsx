@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import type { SiteContent, TemplateKey, PageId } from '@/lib/types';
+import type { ModularSectionV2, SiteContent, TemplateKey, PageId } from '@/lib/types';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import Seo from '@/components/Seo';
 import {
@@ -348,11 +348,269 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
 
 /* ─── Home ─────────────────────────────────────────────────────────── */
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  if (shouldUseCmsV2Frontend(content, variant, style)) {
+    return <RestaurantV2HomePage content={content} style={style} />;
+  }
+
   const modularFirst = withModularSiteContent(content, variant, style);
   const resolved = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(content, 'home'), variant, style);
   if (style === 'modern') return <HomePageModern variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
   if (style === 'bold') return <HomePageBold variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
   return <HomePageClassic variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
+}
+
+type UnknownRecord = Record<string, unknown>;
+
+function asUnknownRecord(value: unknown): UnknownRecord {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as UnknownRecord : {};
+}
+
+function cmsV2Text(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function cmsV2Boolean(value: unknown, fallback: boolean): boolean {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+function cmsV2Image(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  const rec = asUnknownRecord(value);
+  return cmsV2Text(rec.image) || cmsV2Text(rec.url) || cmsV2Text(rec.src);
+}
+
+function cmsV2LinkHref(value: unknown): string {
+  const rec = asUnknownRecord(value);
+  return cmsV2Text(rec.internalPage) || cmsV2Text(rec.externalUrl) || cmsV2Text(rec.href);
+}
+
+function cmsV2LinkLabel(value: unknown): string {
+  return cmsV2Text(asUnknownRecord(value).label);
+}
+
+function shouldUseCmsV2Frontend(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): boolean {
+  const combo = content.modularPagesV2?.combo;
+  if (variant !== 'restaurant' || combo?.template !== 'restaurant' || combo.style !== style) return false;
+  if (typeof window === 'undefined') return false;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('cmsV2') === '1' || window.localStorage.getItem('cms:v2-frontend') === '1';
+  } catch {
+    return false;
+  }
+}
+
+function cmsV2RestaurantSectionContent(content: SiteContent, section: ModularSectionV2, style: TemplateStyle): SiteContent {
+  const data = asUnknownRecord(section.data);
+  switch (section.type) {
+    case 'hero': {
+      const primary = data.buttonPrimary;
+      const stats = Array.isArray(data.stats)
+        ? data.stats
+            .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+            .map((item) => ({ value: cmsV2Text(item.value), label: cmsV2Text(item.description) }))
+            .filter((item) => item.value || item.label)
+        : [];
+      return {
+        ...content,
+        hero: {
+          ...content.hero,
+          title: cmsV2Text(data.headline) || content.hero.title,
+          subtitle: cmsV2Text(data.subline),
+          body: cmsV2Text(data.description),
+          imageUrl: style === 'classic' ? (cmsV2Image(data.backgroundImage) || content.hero.imageUrl) : content.hero.imageUrl,
+          ctaLabel: cmsV2LinkLabel(primary) || content.hero.ctaLabel,
+          ctaHref: cmsV2LinkHref(primary) || content.hero.ctaHref,
+        },
+        branchText: {
+          ...content.branchText,
+          heroEyebrow: cmsV2Text(data.eyebrow),
+          ...(style !== 'classic' && cmsV2Image(data.image) ? { heroImageUrl: cmsV2Image(data.image) } : {}),
+        },
+        heroCta: {
+          ...content.heroCta,
+          primaryLabel: cmsV2LinkLabel(primary),
+          primaryHref: cmsV2LinkHref(primary),
+        },
+        ...(stats.length ? { numbers: stats } : {}),
+      };
+    }
+    case 'actionBar': {
+      const primary = data.buttonPrimary;
+      const secondary = data.buttonSecondary;
+      return {
+        ...content,
+        homeStrip: {
+          ...content.homeStrip,
+          eyebrowAuto: cmsV2Boolean(data.autoAvailabilityStatusEnabled, true),
+          eyebrow: cmsV2Text(data.availabilityStatusOverride),
+          primaryLabel: cmsV2LinkLabel(primary),
+          primaryHref: cmsV2LinkHref(primary) || 'tel:',
+          secondaryLabel: cmsV2LinkLabel(secondary),
+          secondaryHref: cmsV2LinkHref(secondary),
+        },
+      };
+    }
+    case 'featuredDishesGrid':
+    case 'featuredDishes': {
+      const rows = Array.isArray(data.items)
+        ? data.items
+            .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+            .map((item) => ({
+              title: cmsV2Text(item.name) || cmsV2Text(item.title),
+              price: cmsV2Text(item.price),
+              description: cmsV2Text(item.description),
+              imageUrl: cmsV2Image(item.image),
+            }))
+            .filter((item) => item.title || item.description || item.imageUrl)
+        : [];
+      return {
+        ...content,
+        homeSignature: {
+          ...content.homeSignature,
+          eyebrow: cmsV2Text(data.eyebrow),
+          titleA: cmsV2Text(data.titleA) || cmsV2Text(data.headline),
+          titleB: cmsV2Text(data.titleB),
+          intro: cmsV2Text(data.description),
+        },
+        homeSignatureItems: rows,
+      };
+    }
+    case 'statsBand': {
+      const numbers = Array.isArray(data.items)
+        ? data.items
+            .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+            .map((item) => ({ value: cmsV2Text(item.value), label: cmsV2Text(item.description) }))
+            .filter((item) => item.value || item.label)
+        : [];
+      return { ...content, numbers };
+    }
+    case 'newsTeaser': {
+      const button = data.button;
+      return {
+        ...content,
+        branchText: {
+          ...content.branchText,
+          newsEyebrow: cmsV2Text(data.eyebrow),
+          newsTitle: cmsV2Text(data.headline),
+          ...(cmsV2LinkLabel(button) ? { newsAllLabel: cmsV2LinkLabel(button) } : {}),
+          ...(cmsV2LinkHref(button) ? { newsAllHref: cmsV2LinkHref(button) } : {}),
+        },
+      };
+    }
+    case 'galleryPreview':
+    case 'gallery': {
+      const images = Array.isArray(data.images)
+        ? data.images.map((item) => cmsV2Image(item)).filter(Boolean)
+        : [];
+      const button = data.button;
+      return {
+        ...content,
+        gallery: images.length ? images : content.gallery,
+        branchText: {
+          ...content.branchText,
+          galleryTeaserEyebrow: cmsV2Text(data.eyebrow),
+          galleryTeaserTitle: cmsV2Text(data.headline),
+          ...(cmsV2LinkLabel(button) ? { galleryAllLabel: cmsV2LinkLabel(button) } : {}),
+          ...(cmsV2LinkHref(button) ? { galleryAllHref: cmsV2LinkHref(button) } : {}),
+        },
+      };
+    }
+    case 'testimonials': {
+      const raw = Array.isArray(data.testimonials) ? data.testimonials : Array.isArray(data.items) ? data.items : [];
+      const testimonials = raw
+        .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+        .map((item) => ({ author: cmsV2Text(item.name) || cmsV2Text(item.author), text: cmsV2Text(item.quote) || cmsV2Text(item.text) }))
+        .filter((item) => item.author || item.text);
+      return {
+        ...content,
+        testimonials,
+        branchText: {
+          ...content.branchText,
+          testimonialsEyebrow: cmsV2Text(data.eyebrow),
+          testimonialsTitle: cmsV2Text(data.headline),
+        },
+      };
+    }
+    case 'cta':
+    case 'ctaBand': {
+      const button = data.button;
+      return {
+        ...content,
+        ctaBandOverride: {
+          ...content.ctaBandOverride,
+          eyebrow: cmsV2Text(data.eyebrow),
+          lead: cmsV2Text(data.headline),
+          sub: cmsV2Text(data.subline),
+          cta: cmsV2LinkLabel(button),
+          ctaHref: cmsV2LinkHref(button),
+        },
+      };
+    }
+    default:
+      return content;
+  }
+}
+
+function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
+  const sectionContent = cmsV2RestaurantSectionContent(content, section, style);
+  switch (section.type) {
+    case 'actionBar':
+      return <BranchActionStrip variant="restaurant" content={sectionContent} />;
+    case 'featuredDishesGrid':
+    case 'featuredDishes':
+      return <BranchSignature variant="restaurant" style={style} content={sectionContent} />;
+    case 'statsBand':
+      return <NumbersBand variant="restaurant" content={sectionContent} />;
+    case 'newsTeaser':
+      return <NewsPreview templateVariant="restaurant" content={sectionContent} eyebrow={sectionContent.branchText?.newsEyebrow || 'Aktuelles'} title={sectionContent.branchText?.newsTitle || 'News & Notizen.'} />;
+    case 'galleryPreview':
+    case 'gallery': {
+      const images = sectionContent.gallery.slice(0, section.type === 'galleryPreview' ? 8 : undefined);
+      return images.length ? (
+        <Section eyebrow={effectiveBranchText('restaurant', sectionContent).galleryTeaserEyebrow} title={galleryTeaserTitle('restaurant', sectionContent)} spacing="lg">
+          <GalleryShowcase variant="restaurant" images={images} mode={section.type === 'galleryPreview' ? 'teaser' : 'full'} />
+        </Section>
+      ) : null;
+    }
+    case 'testimonials':
+      return visibleTestimonials(sectionContent).length ? (
+        <Section eyebrow={effectiveBranchText('restaurant', sectionContent).testimonialsEyebrow} title={splitTitle(effectiveBranchText('restaurant', sectionContent).testimonialsTitle)} className="surface">
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {visibleTestimonials(sectionContent).slice(0, 3).map((t, i) => (
+              <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+                <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+                <p className="text-lg leading-relaxed">{t.text}</p>
+                <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+              </blockquote>
+            ))}
+          </div>
+        </Section>
+      ) : null;
+    case 'cta':
+    case 'ctaBand':
+      return <CtaBand variant="restaurant" content={sectionContent} />;
+    default:
+      return null;
+  }
+}
+
+function RestaurantV2HomePage({ content, style }: { content: SiteContent; style: TemplateStyle }) {
+  const sections = content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false) ?? [];
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const heroContent = heroSection ? cmsV2RestaurantSectionContent(content, heroSection, style) : content;
+  const heroMeta = resolveHeroMeta('restaurant', heroContent);
+
+  return (
+    <>
+      <Hero content={heroContent} meta={heroMeta} />
+      {sections
+        .filter((section) => section.type !== 'hero')
+        .map((section) => (
+          <React.Fragment key={section.id}>{renderRestaurantV2HomeSection(section, content, style)}</React.Fragment>
+        ))}
+    </>
+  );
 }
 
 /** Per-tenant visibility check. Defaults to true when no flag is set. */

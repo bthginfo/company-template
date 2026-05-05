@@ -195,6 +195,7 @@ const PROVISION_CORE_SOURCE = readFileSync(join(repoRoot, 'src/lib/provision-cor
 const CMS_V2_CONTRACT_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-v2-contract.ts'), 'utf8');
 const CMS_V2_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularV2PageEditor.tsx'), 'utf8');
 const RESTAURANT_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularHomeEditor.tsx'), 'utf8');
+const TEMPLATE_APP_SOURCE = readFileSync(join(repoRoot, 'src/templates/_shared/TemplateApp.tsx'), 'utf8');
 
 const MODULAR_SHARED_SOURCE = readFileSync(join(repoRoot, 'src/lib/modular-restaurant.ts'), 'utf8');
 const MODULAR_SOURCE_BY_TEMPLATE = Object.fromEntries(
@@ -298,6 +299,9 @@ if (!CMS_V2_EDITOR_SOURCE.includes('modularPagesV2') || !CMS_V2_EDITOR_SOURCE.in
 }
 if (!RESTAURANT_EDITOR_SOURCE.includes('shouldUseCmsV2Editor') || !RESTAURANT_EDITOR_SOURCE.includes('ModularV2PageEditor')) {
   note('[cms-v2-restaurant-editor] Restaurant must expose the V2 editor behind the feature gate before renderer migration.');
+}
+if (!TEMPLATE_APP_SOURCE.includes('shouldUseCmsV2Frontend') || !TEMPLATE_APP_SOURCE.includes('RestaurantV2HomePage')) {
+  note('[cms-v2-restaurant-renderer] Restaurant must expose a gated direct-render V2 frontend path before the legacy projection can be removed.');
 }
 if (!CONTENT_API_SOURCE.includes('normalizeMailSecret') || !CONTENT_API_SOURCE.includes('passEnc')) {
   note('[mail-secret] Mail passwords must be normalized server-side into encrypted passEnc instead of persisted plaintext.');
