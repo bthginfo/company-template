@@ -16,6 +16,8 @@ import { isSectionEnabled, getEffectivePageOrder, type PageId as LayoutPageId } 
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
+import { resolveLayoutSlotOrder } from '@/lib/page-blocks-v1-slot-order';
+import type { PageKey } from '@/admin/admin-sections';
 import { getBranchConfig } from '@/lib/branch-config';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import { mergedServiceHighlights, meaningfulTestimonials, normaliseArrivalList, normaliseFaqList, normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
@@ -1040,7 +1042,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
   const heroSubtitle = ho?.subtitle || '';
   const cfg = getBranchConfig(branch);
   const pageKey = page as LayoutPageId;
-  const order = extraSubpageOrder(content, pageKey, branch);
+  const legacySubpageOrder = extraSubpageOrder(content, pageKey, branch);
 
   if (page === 'services') {
     const blocks: Record<string, React.ReactNode> = {
@@ -1053,11 +1055,17 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       faq: <ExtraFaqSection branch={branch} content={content} />,
       cta: <ExtraSubpageCta content={content} page="services" />,
     };
+    const order = resolveLayoutSlotOrder({
+      page: pageKey as PageKey,
+      content,
+      legacyOrder: legacySubpageOrder,
+      availableSlots: new Set(Object.keys(blocks)),
+    });
     return (
       <>
         <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-        {order.map((k) => (
-          <Fragment key={k}>{blocks[k] ?? null}</Fragment>
+        {order.map((k, i) => (
+          <Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</Fragment>
         ))}
       </>
     );
@@ -1071,11 +1079,17 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       testimonials: <ExtraGalleryTestimonials content={content} branch={branch} />,
       cta: <ExtraSubpageCta content={content} page="gallery" />,
     };
+    const order = resolveLayoutSlotOrder({
+      page: pageKey as PageKey,
+      content,
+      legacyOrder: legacySubpageOrder,
+      availableSlots: new Set(Object.keys(blocks)),
+    });
     return (
       <>
         <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-        {order.map((k) => (
-          <Fragment key={k}>{blocks[k] ?? null}</Fragment>
+        {order.map((k, i) => (
+          <Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</Fragment>
         ))}
       </>
     );
@@ -1092,11 +1106,17 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       faq: <ExtraFaqSection branch={branch} content={content} />,
       cta: <ExtraSubpageCta content={content} page="about" />,
     };
+    const order = resolveLayoutSlotOrder({
+      page: pageKey as PageKey,
+      content,
+      legacyOrder: legacySubpageOrder,
+      availableSlots: new Set(Object.keys(blocks)),
+    });
     return (
       <>
         <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-        {order.map((k) => (
-          <Fragment key={k}>{blocks[k] ?? null}</Fragment>
+        {order.map((k, i) => (
+          <Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</Fragment>
         ))}
       </>
     );
@@ -1110,11 +1130,17 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
     faq: <ExtraFaqSection branch={branch} content={content} />,
     cta: <ExtraSubpageCta content={content} page="contact" />,
   };
+  const order = resolveLayoutSlotOrder({
+    page: pageKey as PageKey,
+    content,
+    legacyOrder: legacySubpageOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
   return (
     <>
       <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-      {order.map((k) => (
-        <Fragment key={k}>{blocks[k] ?? null}</Fragment>
+      {order.map((k, i) => (
+        <Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</Fragment>
       ))}
     </>
   );
@@ -1126,7 +1152,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
 function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const content = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
   const bt = effectiveBranchText(branch, content);
-  const order = getEffectiveHomeSectionKeys(content, branch, 'classic');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, branch, 'classic');
   const homeT = meaningfulTestimonials(content.testimonials);
 
   const blocks: Record<string, JSX.Element | null> = {
@@ -1243,6 +1269,13 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
     contact: <ContactSection content={content} variant="classic" />,
   };
 
+  const order = resolveLayoutSlotOrder({
+    page: 'home',
+    content,
+    legacyOrder: legacyHomeOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
+
   const cta = resolveHeroCta(content);
 
   return (
@@ -1276,7 +1309,9 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
         </div>
       </section>
       {/* Ordered sections */}
-      {order.map((key) => <React.Fragment key={key}>{blocks[key]}</React.Fragment>)}
+      {order.map((key, i) => (
+        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
+      ))}
     </>
   );
 }
@@ -1303,7 +1338,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
   const heroBadge = ((content as any).heroBadge ?? {}) as { text?: string; label?: string };
   const badgeText = (heroBadge.text && heroBadge.text.trim()) || '4,9 / 5,0';
   const badgeLabel = (heroBadge.label && heroBadge.label.trim()) || 'Google Bewertung';
-  const order = getEffectiveHomeSectionKeys(content, branch, 'modern');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, branch, 'modern');
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <ExtraHomeActionStrip content={content} />,
@@ -1426,6 +1461,13 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
     contact: <ContactSection content={content} variant="modern" />,
   };
 
+  const order = resolveLayoutSlotOrder({
+    page: 'home',
+    content,
+    legacyOrder: legacyHomeOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
+
   const cta = resolveHeroCta(content);
 
   return (
@@ -1489,7 +1531,9 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
         </div>
       </section>
       {/* Ordered sections */}
-      {order.map((key) => <React.Fragment key={key}>{blocks[key]}</React.Fragment>)}
+      {order.map((key, i) => (
+        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
+      ))}
     </>
   );
 }
@@ -1500,7 +1544,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
 function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
   const content = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
   const bt = effectiveBranchText(branch, content);
-  const order = getEffectiveHomeSectionKeys(content, branch, 'bold');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, branch, 'bold');
   const homeT = meaningfulTestimonials(content.testimonials);
 
   const blocks: Record<string, JSX.Element | null> = {
@@ -1620,6 +1664,13 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
     contact: <ContactSection content={content} variant="bold" />,
   };
 
+  const order = resolveLayoutSlotOrder({
+    page: 'home',
+    content,
+    legacyOrder: legacyHomeOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
+
   const heroEyebrow = bt.heroEyebrow || eyebrow;
   const cta = resolveHeroCta(content);
 
@@ -1659,7 +1710,9 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
         </div>
       </section>
       {/* Ordered sections */}
-      {order.map((key) => <React.Fragment key={key}>{blocks[key]}</React.Fragment>)}
+      {order.map((key, i) => (
+        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
+      ))}
     </>
   );
 }

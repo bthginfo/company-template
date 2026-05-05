@@ -36,6 +36,7 @@ import { applyMedicalModularOverlay } from '@/lib/modular-medical';
 import { applyFitnessModularOverlay } from '@/lib/modular-fitness';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
+import { resolveLayoutSlotOrder } from '@/lib/page-blocks-v1-slot-order';
 // Drift coverage (globalLayoutFieldDriftIssues) requires literal sectionOrder in this bundle; values are read via getEffectiveHomeSectionKeys.
 import { BranchSignature } from './BranchSignature';
 import {
@@ -387,7 +388,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
   const featuredServices = content.services.filter(isMeaningfulServiceCard).slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = resolveHeroMeta(variant, content);
-  const order = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'classic');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'classic');
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
@@ -480,11 +481,18 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
     ),
   };
 
+  const order = resolveLayoutSlotOrder({
+    page: 'home',
+    content,
+    legacyOrder: legacyHomeOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
+
   return (
     <>
       <Hero content={content} meta={heroMeta} />
-      {order.map((key) => (
-        <React.Fragment key={key}>{blocks[key]}</React.Fragment>
+      {order.map((key, i) => (
+        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
       ))}
       {isSectionVisible(content, 'softCta') && <CtaBand variant={variant} content={content} />}
     </>
@@ -500,7 +508,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
   const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.gallery[0] || content.about?.imageUrl;
   const meta = resolveHeroMeta(variant, content);
 
-  const order = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'modern');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'modern');
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
@@ -621,6 +629,13 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
     ) : null,
   };
 
+  const order = resolveLayoutSlotOrder({
+    page: 'home',
+    content,
+    legacyOrder: legacyHomeOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
+
   return (
     <>
       {/* Split hero – text left, framed image right, with aurora + dot grid backdrop */}
@@ -678,8 +693,8 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           </div>
         </div>
       </section>
-      {order.map((key) => (
-        <React.Fragment key={key}>{blocks[key]}</React.Fragment>
+      {order.map((key, i) => (
+        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
       ))}
       {isSectionVisible(content, 'softCta') && <SoftCtaBlock variant={variant} content={content} style="modern" />}
     </>
@@ -695,7 +710,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
   const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.hero?.imageUrl || content.gallery[0];
   const boldTestimonials = visibleTestimonials(content);
 
-  const order = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'bold');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'bold');
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
@@ -810,6 +825,13 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
     ),
   };
 
+  const order = resolveLayoutSlotOrder({
+    page: 'home',
+    content,
+    legacyOrder: legacyHomeOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
+
   return (
     <>
       {/* Type-driven full-bleed hero */}
@@ -856,8 +878,8 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
           </div>
         )}
       </section>
-      {order.map((key) => (
-        <React.Fragment key={key}>{blocks[key]}</React.Fragment>
+      {order.map((key, i) => (
+        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
       ))}
       {isSectionVisible(content, 'softCta') && <SoftCtaBlock variant={variant} content={content} style="bold" />}
     </>
@@ -1277,7 +1299,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
   const modularFirst = withModularSiteContent(content, variant, style);
   const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'services');
   const cfg = NAV_BY_VARIANT[variant];
-  const order = getEffectivePageOrder(resolved, 'services', variant).filter((k) => isSectionEnabled(resolved, 'services', k));
+  const legacyServicesOrder = getEffectivePageOrder(resolved, 'services', variant).filter((k) => isSectionEnabled(resolved, 'services', k));
   const blocks: Record<string, JSX.Element | null> = {
     highlights: <ServiceHighlights variant={variant} content={resolved} />,
     list: (
@@ -1333,6 +1355,12 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
     ),
     cta: <CtaBand variant={variant} content={resolved} page="services" />,
   };
+  const order = resolveLayoutSlotOrder({
+    page: 'services',
+    content: resolved,
+    legacyOrder: legacyServicesOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
   const headerOverride = pageHeaderOverride(resolved, 'servicesHeader');
   const servicesImg = effectiveBranchText(variant, resolved).servicesPageImageUrl || resolved.gallery[2] || resolved.gallery[0];
   return (
@@ -1344,7 +1372,9 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         style={style}
         image={style === 'modern' ? servicesImg : undefined}
       />
-      {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
+      {order.map((k, i) => (
+        <React.Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</React.Fragment>
+      ))}
     </>
   );
 }
@@ -1461,6 +1491,41 @@ function GalleryPage({
   const modularFirst = withModularSiteContent(content, variant, style);
   const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'gallery');
   const headerOverride = pageHeaderOverride(resolved, 'galleryHeader');
+  const legacyGalleryOrder = getEffectivePageOrder(resolved, 'gallery', variant).filter((k) => isSectionEnabled(resolved, 'gallery', k));
+  const blocks: Record<string, JSX.Element | null> = {
+    story: <GalleryStorySection variant={variant} content={resolved} />,
+    grid: (
+      <Section spacing="lg">
+        {style === 'bold' ? (
+          <MasonryGrid images={resolved.gallery} />
+        ) : style === 'modern' ? (
+          <ModernGalleryGrid images={resolved.gallery} />
+        ) : (
+          <GalleryShowcase variant={variant} images={resolved.gallery} mode="full" />
+        )}
+      </Section>
+    ),
+    categories: <GalleryCategoriesSection variant={variant} content={resolved} />,
+    testimonials: visibleTestimonials(resolved).length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, resolved).testimonialsEyebrow || 'Stimmen'} title={<>{splitTitle(effectiveBranchText(variant, resolved).testimonialsTitle || 'Was unsere Gäste sagen.')}</>} className="surface">
+        <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+          {visibleTestimonials(resolved).map((t, i) => (
+            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+              <p className="text-lg leading-relaxed">{t.text}</p>
+              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </Section>
+    ) : null,
+    cta: <CtaBand variant={variant} content={resolved} page="gallery" />,
+  };
+  const order = resolveLayoutSlotOrder({
+    page: 'gallery',
+    content: resolved,
+    legacyOrder: legacyGalleryOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
   return (
     <>
       <PageHero
@@ -1483,39 +1548,9 @@ function GalleryPage({
         )}
         style={style}
       />
-
-      {(() => {
-        const order = getEffectivePageOrder(resolved, 'gallery', variant).filter((k) => isSectionEnabled(resolved, 'gallery', k));
-        const blocks: Record<string, JSX.Element | null> = {
-          story: <GalleryStorySection variant={variant} content={resolved} />,
-          grid: (
-            <Section spacing="lg">
-              {style === 'bold' ? (
-                <MasonryGrid images={resolved.gallery} />
-              ) : style === 'modern' ? (
-                <ModernGalleryGrid images={resolved.gallery} />
-              ) : (
-                <GalleryShowcase variant={variant} images={resolved.gallery} mode="full" />
-              )}
-            </Section>
-          ),
-          categories: <GalleryCategoriesSection variant={variant} content={resolved} />,
-          testimonials: visibleTestimonials(resolved).length > 0 ? (
-            <Section eyebrow={effectiveBranchText(variant, resolved).testimonialsEyebrow || 'Stimmen'} title={<>{splitTitle(effectiveBranchText(variant, resolved).testimonialsTitle || 'Was unsere Gäste sagen.')}</>} className="surface">
-              <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-                {visibleTestimonials(resolved).map((t, i) => (
-                  <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
-                    <p className="text-lg leading-relaxed">{t.text}</p>
-                    <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
-                  </blockquote>
-                ))}
-              </div>
-            </Section>
-          ) : null,
-          cta: <CtaBand variant={variant} content={resolved} page="gallery" />,
-        };
-        return order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>);
-      })()}
+      {order.map((k, i) => (
+        <React.Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</React.Fragment>
+      ))}
     </>
   );
 }
@@ -1657,7 +1692,7 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
 function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const modularFirst = withModularSiteContent(content, variant, style);
   const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'about');
-  const order = getEffectivePageOrder(resolved, 'about', variant).filter((k) => isSectionEnabled(resolved, 'about', k));
+  const legacyAboutOrder = getEffectivePageOrder(resolved, 'about', variant).filter((k) => isSectionEnabled(resolved, 'about', k));
   const introBlock = style !== 'modern' ? (
     <Section spacing="lg">
       <div className={`grid lg:grid-cols-12 gap-10 items-start ${style === 'bold' ? '' : ''}`}>
@@ -1729,6 +1764,12 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
     ),
     cta: <CtaBand variant={variant} content={resolved} page="about" />,
   };
+  const order = resolveLayoutSlotOrder({
+    page: 'about',
+    content: resolved,
+    legacyOrder: legacyAboutOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
   return (
     <>
       <PageHero
@@ -1738,7 +1779,9 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         style={style}
         image={style === 'modern' ? resolved.about?.imageUrl || resolved.gallery[0] : undefined}
       />
-      {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
+      {order.map((k, i) => (
+        <React.Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</React.Fragment>
+      ))}
     </>
   );
 }
@@ -1938,7 +1981,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   const rawArrival = (resolved as unknown as { arrival?: unknown }).arrival;
   const mappedArrival = normaliseArrivalList(rawArrival ?? []);
   const arrival = mappedArrival.length > 0 ? mappedArrival : arrivalFallbacks[variant];
-  const order = getEffectivePageOrder(resolved, 'contact', variant).filter((k) => isSectionEnabled(resolved, 'contact', k));
+  const legacyContactOrder = getEffectivePageOrder(resolved, 'contact', variant).filter((k) => isSectionEnabled(resolved, 'contact', k));
   const arrivalOv = ((resolved as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const locs = resolved.locations ?? [];
   const blocks: Record<string, JSX.Element | null> = {
@@ -2017,6 +2060,12 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
     ),
     cta: <CtaBand variant={variant} content={resolved} page="contact" />,
   };
+  const order = resolveLayoutSlotOrder({
+    page: 'contact',
+    content: resolved,
+    legacyOrder: legacyContactOrder,
+    availableSlots: new Set(Object.keys(blocks)),
+  });
   return (
     <>
       <PageHero
@@ -2032,7 +2081,9 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
         subtitle={pageHeaderOverride(resolved, 'contactPageHeader')?.subtitle || undefined}
         style={style}
       />
-      {order.map((k) => <React.Fragment key={k}>{blocks[k] ?? null}</React.Fragment>)}
+      {order.map((k, i) => (
+        <React.Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</React.Fragment>
+      ))}
     </>
   );
 }

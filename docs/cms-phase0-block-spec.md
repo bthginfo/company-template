@@ -69,7 +69,7 @@ vorkommt **oder** (nur **Home**, Extras) in `getCatalogForVariant('home', tpl, s
 ### 3.1 Home — Layout-Reihenfolge (Frontend)
 
 Die **gerenderte** Home-Reihenfolge der Kern-5 kommt aus  
-[`getEffectiveHomeSectionKeys`](../src/lib/effective-home-order.ts) + `BRANCH_STYLE_ORDER` in [`template-orders.ts`](../src/lib/template-orders.ts).  
+[`getEffectiveHomeSectionKeys`](../src/lib/effective-home-order.ts) + `BRANCH_STYLE_ORDER` in [`template-orders.ts`](../src/lib/template-orders.ts), **sofern** `pageBlocksV1.home` leer ist oder Phase 5 keinen Slot ableiten kann — sonst [`resolveLayoutSlotOrder`](../src/lib/page-blocks-v1-slot-order.ts).  
 Extras: gleiche Helper, inkl. Katalog-Erlaubnis wie bisher `ExtraBranchTemplate`.
 
 **Phase-0-Entscheidung:** Das CMS-Home darf **mehr Instanzen** enthalten als die aktuelle Slot-Liste — z. B. zwei `gallery`-Instanzen — **sofern** der Renderer (Phase 3) **alle** Instanzen nacheinander rendert; Singleton-Regeln (Abschnitt 4) gelten trotzdem für ausgewählte Typen.
@@ -140,7 +140,7 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 
 | Begriff | Datei / Verwendung |
 |---------|-------------------|
-| `SECTION_CATALOG` / `sectionOrder` | [`page-layout.ts`](../src/lib/page-layout.ts) — **heutiges** Layout-Modell (String-Keys, max. einmal pro Key in `getRemainingSections`). Wird durch `PageBlocksV1` **ersetzt** (Phase 5). |
+| `SECTION_CATALOG` / `sectionOrder` | [`page-layout.ts`](../src/lib/page-layout.ts) — **heutiges** Layout-Modell (String-Keys, max. einmal pro Key in `getRemainingSections`). **Fallback**, wenn `pageBlocksV1[page]` leer ist oder Phase 5 keinen abbildbaren Slot ableiten kann. |
 | `modularPagesV1` | Spec-Modular mit `type` + `data` — **parallel** zum alten Modell; Ziel-Cutover: Inhalte/Struktur in `PageBlocksV1` überführen oder entfernen (kein Muss für Live, da keine Kunden). |
 | `AdminSectionKey` + `SECTION_CONTRACTS` | **CMS-Phase-1+** — kanonische Typen und Feld-Verträge. |
 
@@ -165,6 +165,19 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 
 ---
 
+## 10. Phase 5 (Renderer-Slot-Reihenfolge) — Stand
+
+**Ziel:** Wenn `pageBlocksV1[page]` eine **nicht-leere** Liste sichtbarer Instanzen hat, bestimmt deren **Reihenfolge** die Reihenfolge der **Layout-Slots** im Renderer (nicht nur die Daten aus Phase 3).
+
+**Umsetzung:** [`src/lib/page-blocks-v1-slot-order.ts`](../src/lib/page-blocks-v1-slot-order.ts)
+
+- `adminSectionToCatalogSlot(page, admin)` mappt `AdminSectionKey` → String-**Slot** wie in den `blocks`-Maps von `TemplateApp` / `ExtraBranchTemplate` (Home nutzt `HOME_CATALOG_BLOCK_TO_ADMIN`; Unterseiten eigene Tabellen `SERVICES_SLOT`, `GALLERY_SLOT`, …).
+- `resolveLayoutSlotOrder({ page, content, legacyOrder, availableSlots })` liest `content.pageBlocksV1[page]`, überspringt `isVisible === false`, mappt jeden Block auf einen Slot, **filtert** auf Slots, die der jeweilige Render-Pfad wirklich hat (`availableSlots`), und gibt diese Liste zurück. **Leeres** Ergebnis → Fallback auf `legacyOrder` (`getEffectiveHomeSectionKeys` / `getEffectivePageOrder` + `isSectionEnabled` wie bisher).
+
+**Eingebunden in:** [`TemplateApp.tsx`](../src/templates/_shared/TemplateApp.tsx) (alle Home-Stile, Services, Galerie, Über uns, Kontakt) und [`ExtraBranchTemplate.tsx`](../src/templates/_shared/extra/ExtraBranchTemplate.tsx) (Classic/Modern/Bold-Home + `SubPage`). React-Keys nutzen bei Wiederholung desselben Slots `${slot}-${index}`.
+
+---
+
 ## 11. Phase 3 (Renderer) — Stand
 
 **Ziel:** Sichtbare Seiten nutzen Inhalte aus `pageBlocksV1[*][].data`, sobald Patches vorliegen.
@@ -172,7 +185,7 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 **Umsetzung (MVP):** [`src/lib/page-blocks-v1-page-merge.ts`](../src/lib/page-blocks-v1-page-merge.ts)
 
 - Nach `withModularSiteContent` (falls zutreffend) werden alle **sichtbaren** Blöcke einer Seite in Array-Reihenfolge per `deepMergeJson` auf `SiteContent` gelegt und mit `SiteContentSchema.safeParse` normalisiert.
-- Die **Reihenfolge der Sektions-Slots** bleibt unverändert (`getEffectiveHomeSectionKeys`, `getEffectivePageOrder`, …); nur die **Datenhoheit** kommt aus den Block-`data`-Patches (Reihenfolge pro Seite aus Blöcken ist Phase 5).
+- Die **Reihenfolge der Sektions-Slots** folgt **`resolveLayoutSlotOrder`** (Phase 5), sobald `pageBlocksV1[page]` nicht leer ist; sonst unverändert `getEffectiveHomeSectionKeys` / `getEffectivePageOrder`.
 
 **Eingebunden in:** `TemplateApp` (Home, Services, Galerie, Über uns, Kontakt) und `ExtraBranchTemplate` (Home-Layouts + `SubPage`).
 
@@ -200,6 +213,7 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 | Kern-Renderer | [`src/templates/_shared/TemplateApp.tsx`](../src/templates/_shared/TemplateApp.tsx) |
 | Extras-Renderer | [`src/templates/_shared/extra/ExtraBranchTemplate.tsx`](../src/templates/_shared/extra/ExtraBranchTemplate.tsx) |
 | Phase-3-Daten-Merge | [`src/lib/page-blocks-v1-page-merge.ts`](../src/lib/page-blocks-v1-page-merge.ts) |
+| Phase-5-Slot-Reihenfolge | [`src/lib/page-blocks-v1-slot-order.ts`](../src/lib/page-blocks-v1-slot-order.ts) |
 | Phase-4-Admin-Panel | [`src/admin/PageBlocksV1Panel.tsx`](../src/admin/PageBlocksV1Panel.tsx) |
 
 ---
