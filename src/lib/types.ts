@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { collectPageBlocksV1Issues } from './page-blocks-v1-validate';
 
 /** Reusable page-hero / block heading (eyebrow + title + subtitle). */
 const pageHeaderBlock = z.object({
@@ -695,13 +694,7 @@ export const SiteContentSchema = z.object({
    */
   pageBlocksV1: PageBlocksV1Schema.optional(),
 })
-  .passthrough()
-  .superRefine((data, ctx) => {
-    const issues = collectPageBlocksV1Issues(data.pageBlocksV1);
-    for (const msg of issues) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: msg, path: ['pageBlocksV1'] });
-    }
-  });
+  .passthrough();
 // `.passthrough()` keeps rare forward-compatible keys intact; drift coverage
 // requires every `SECTION_CONTRACTS` dataKey root to exist in this Zod object.
 
