@@ -150,18 +150,16 @@ function mergeSalonHomeSupplements(content: SiteContent, sections: ModularSectio
       mergeTreatmentsFromItems((d as { items?: unknown }).items);
     } else if (sec.type === 'featuredLooks' || sec.type === 'featuredLooksBand') {
       const rows = mapLooksToScheduleItems((d as { items?: unknown }).items);
-      if (rows.length) {
-        next = {
-          ...next,
-          homeSignature: {
-            ...next.homeSignature,
-            eyebrow: str((d as { eyebrow?: unknown }).eyebrow) || str((d as { headline?: unknown }).headline),
-            titleA: str((d as { headline?: unknown }).headline) || next.homeSignature?.titleA,
-            titleB: next.homeSignature?.titleB,
-          },
-          homeSignatureItems: rows.map((r) => ({ title: r.title, description: r.description, price: r.price, imageUrl: r.imageUrl })),
-        };
-      }
+      next = {
+        ...next,
+        homeSignature: {
+          ...next.homeSignature,
+          eyebrow: str((d as { eyebrow?: unknown }).eyebrow) || str((d as { headline?: unknown }).headline),
+          titleA: str((d as { headline?: unknown }).headline) || next.homeSignature?.titleA,
+          titleB: next.homeSignature?.titleB,
+        },
+        homeSignatureItems: rows.map((r) => ({ title: r.title, description: r.description, price: r.price, imageUrl: r.imageUrl })),
+      };
     } else if (sec.type === 'brandLogos') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -172,10 +170,10 @@ function mergeSalonHomeSupplements(content: SiteContent, sections: ModularSectio
           return (logo ? str(logo.image) : '') || str(it.name);
         })
         .filter(Boolean);
-      if (names.length) next = { ...next, logos: names };
+      next = { ...next, logos: names };
     } else if (sec.type === 'testimonialMarquee') {
       const lines = readItems(d as Record<string, unknown>).map((x) => x.text);
-      if (lines.length) next = { ...next, branchText: { ...next.branchText, marqueeWords: lines } };
+      next = { ...next, branchText: { ...next.branchText, marqueeWords: lines } };
     } else if (sec.type === 'quoteWall') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -183,7 +181,7 @@ function mergeSalonHomeSupplements(content: SiteContent, sections: ModularSectio
         .filter((it): it is Record<string, unknown> => !!it && typeof it === 'object')
         .map((it) => ({ author: str(it.name), text: str(it.quote) }))
         .filter((t) => t.text || t.author);
-      if (list.length) next = { ...next, testimonials: list };
+      next = { ...next, testimonials: list };
     } else if (sec.type === 'storySplit') {
       const prevAbout = next.about ?? { title: '', body: '', imageUrl: '' };
       next = {
@@ -571,7 +569,7 @@ function mergeSalonServicesIntoLegacy(content: SiteContent, sections: ModularSec
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
-        if (rows.length) next = { ...next, serviceHighlights: rows };
+        next = { ...next, serviceHighlights: rows };
         break;
       }
       case 'serviceOverviewCards':
@@ -580,7 +578,7 @@ function mergeSalonServicesIntoLegacy(content: SiteContent, sections: ModularSec
         const raw = (d as { items?: unknown }).items;
         if (!Array.isArray(raw)) break;
         const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToTreatment);
-        if (mapped.length) treatmentsOverride = mapped;
+        treatmentsOverride = mapped;
         break;
       }
       case 'steps': {
@@ -588,7 +586,7 @@ function mergeSalonServicesIntoLegacy(content: SiteContent, sections: ModularSec
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
-        if (rows.length) next = { ...next, serviceProcess: rows };
+        next = { ...next, serviceProcess: rows };
         break;
       }
       case 'faq': {
@@ -596,7 +594,7 @@ function mergeSalonServicesIntoLegacy(content: SiteContent, sections: ModularSec
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ q: str(x.question), a: str(x.answer) }))
           : [];
-        if (rows.length) next = { ...next, faq: rows };
+        next = { ...next, faq: rows };
         break;
       }
       case 'cta': {

@@ -124,17 +124,15 @@ function mergeTradesmanGalleryExtras(content: SiteContent, sections: ModularSect
     const rows = Array.isArray(raw)
       ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
       : [];
-    if (rows.length) {
-      next = {
-        ...next,
-        branchText: {
-          ...next.branchText,
-          galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
-          galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
-        },
-        galleryCategories: rows,
-      };
-    }
+    next = {
+      ...next,
+      branchText: {
+        ...next.branchText,
+        galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+        galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
+      },
+      galleryCategories: rows,
+    };
   }
   return next;
 }
@@ -160,10 +158,10 @@ function mergeTradesmanHomeSupplements(content: SiteContent, sections: ModularSe
       next = { ...next, services: cur };
     } else if (sec.type === 'keywordBand') {
       const lines = readItems(d as Record<string, unknown>).map((x) => x.text);
-      if (lines.length) next = { ...next, logos: lines };
+      next = { ...next, logos: lines };
     } else if (sec.type === 'marqueeBand' || sec.type === 'testimonialMarquee') {
       const lines = readItems(d as Record<string, unknown>).map((x) => x.text);
-      if (lines.length) next = { ...next, branchText: { ...next.branchText, marqueeWords: lines } };
+      next = { ...next, branchText: { ...next.branchText, marqueeWords: lines } };
     } else if (sec.type === 'featureImage') {
       const im = (d as { image?: unknown }).image as Record<string, unknown> | undefined;
       const url = im ? str(im.image) : '';
@@ -191,7 +189,7 @@ function mergeTradesmanHomeSupplements(content: SiteContent, sections: ModularSe
         .filter((it): it is Record<string, unknown> => !!it && typeof it === 'object')
         .map((it) => ({ author: str(it.name), text: str(it.quote) }))
         .filter((t) => t.text || t.author);
-      if (list.length) next = { ...next, testimonials: list };
+      next = { ...next, testimonials: list };
     } else if (sec.type === 'ctaBand') {
       const btn = (d as { button?: unknown }).button as Record<string, unknown> | undefined;
       next = {
@@ -237,7 +235,7 @@ function mergeTradesmanServicesIntoLegacy(content: SiteContent, sections: Modula
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
-        if (rows.length) next = { ...next, serviceHighlights: rows };
+        next = { ...next, serviceHighlights: rows };
         break;
       }
       case 'serviceOverviewCards':
@@ -246,7 +244,7 @@ function mergeTradesmanServicesIntoLegacy(content: SiteContent, sections: Modula
         const raw = (d as { items?: unknown }).items;
         if (!Array.isArray(raw)) break;
         const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToService);
-        if (mapped.length) servicesOverride = mapped;
+        servicesOverride = mapped;
         break;
       }
       case 'fundingCalculator':
@@ -257,7 +255,7 @@ function mergeTradesmanServicesIntoLegacy(content: SiteContent, sections: Modula
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
-        if (rows.length) next = { ...next, serviceProcess: rows };
+        next = { ...next, serviceProcess: rows };
         break;
       }
       case 'faq': {
@@ -265,7 +263,7 @@ function mergeTradesmanServicesIntoLegacy(content: SiteContent, sections: Modula
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ q: str(x.question), a: str(x.answer) }))
           : [];
-        if (rows.length) next = { ...next, faq: rows };
+        next = { ...next, faq: rows };
         break;
       }
       case 'cta': {

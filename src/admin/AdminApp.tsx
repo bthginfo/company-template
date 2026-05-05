@@ -8,23 +8,13 @@ import { assertValidUpload, humanizeUploadError } from './upload-limits';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
 import { applyTheme, resolveThemePreset } from '@/lib/theme';
-import { syncNonEmptyBlockDataFromContent } from '@/lib/page-blocks-v1-bootstrap';
 
 /**
- * Detect auto-bootstrapped pageBlocksV1 that was never customised by the
- * operator (every block has data:{} and isVisible !== false). Strip it so the
- * frontend falls back to the proven legacy order / visibility system.
+ * pageBlocksV1 is a low-level JSON block override layer. The tenant-facing CMS
+ * now uses modularPagesV1 + legacy SiteContent fields as its source of truth;
+ * keeping pageBlocksV1 in persisted drafts can shadow field-editor changes.
  */
-function stripTrivialPageBlocksV1(content: SiteContent): SiteContent {
-  const pb = content.pageBlocksV1;
-  if (!pb) return content;
-  for (const list of Object.values(pb)) {
-    if (!Array.isArray(list)) continue;
-    for (const b of list) {
-      if (b.isVisible === false) return content;
-      if (b.data && typeof b.data === 'object' && Object.keys(b.data).length > 0) return content;
-    }
-  }
+function stripPageBlocksV1(content: SiteContent): SiteContent {
   const { pageBlocksV1: _, ...rest } = content;
   return rest as SiteContent;
 }
@@ -84,7 +74,7 @@ export function AdminApp() {
     if (state.status === 'ready') {
       setTenant(state.tenant as any);
       if (draft === null || justSaved || justDiscarded) {
-        const cleaned = stripTrivialPageBlocksV1(state.content);
+        const cleaned = stripPageBlocksV1(state.content);
         setDraft(cleaned);
         setPristine(JSON.stringify(cleaned));
         setJustSaved(false);
@@ -134,7 +124,7 @@ export function AdminApp() {
     try {
       setSaving(true);
       setJustSaved(true);
-      const synced = syncNonEmptyBlockDataFromContent(draft);
+      const synced = stripPageBlocksV1(draft);
       if (synced !== draft) setDraft(synced);
       await save(synced);
       const ts = new Date().toLocaleTimeString('de-DE');

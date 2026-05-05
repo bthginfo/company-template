@@ -326,25 +326,23 @@ function mergeTourismHomeSupplements(content: SiteContent, sections: ModularSect
         const tr = mapModularItemToTour(it);
         curTours[i] = { ...(curTours[i] ?? DEFAULT_TOUR_ROW), ...tr };
       });
-      if (rows.length) {
-        const curSvc = [...(next.services ?? [])];
-        for (let i = 0; i < rows.length; i++) {
-          const t = curTours[i];
-          if (t) curSvc[i] = { ...(curSvc[i] ?? DEFAULT_TOURISM_SERVICE_ROW), ...tourRowToServiceRow(t) };
-        }
-        next = {
-          ...next,
-          homeSignature: {
-            ...next.homeSignature,
-            eyebrow: str((d as { eyebrow?: unknown }).eyebrow) || next.homeSignature?.eyebrow,
-            titleA: str((d as { headline?: unknown }).headline) || next.homeSignature?.titleA,
-            titleB: next.homeSignature?.titleB,
-          },
-          homeSignatureItems: rows,
-          tours: curTours,
-          services: curSvc,
-        };
+      const curSvc = [...(next.services ?? [])];
+      for (let i = 0; i < rows.length; i++) {
+        const t = curTours[i];
+        if (t) curSvc[i] = { ...(curSvc[i] ?? DEFAULT_TOURISM_SERVICE_ROW), ...tourRowToServiceRow(t) };
       }
+      next = {
+        ...next,
+        homeSignature: {
+          ...next.homeSignature,
+          eyebrow: str((d as { eyebrow?: unknown }).eyebrow) || next.homeSignature?.eyebrow,
+          titleA: str((d as { headline?: unknown }).headline) || next.homeSignature?.titleA,
+          titleB: next.homeSignature?.titleB,
+        },
+        homeSignatureItems: rows,
+        tours: rows.length ? curTours : [],
+        services: rows.length ? curSvc : [],
+      };
     } else if (sec.type === 'brandLogos') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -356,10 +354,10 @@ function mergeTourismHomeSupplements(content: SiteContent, sections: ModularSect
           return fromImg || str(it.name);
         })
         .filter(Boolean);
-      if (names.length) next = { ...next, logos: names };
+      next = { ...next, logos: names };
     } else if (sec.type === 'testimonialMarquee') {
       const lines = readItems(d as Record<string, unknown>).map((x) => x.text);
-      if (lines.length) next = { ...next, branchText: { ...next.branchText, marqueeWords: lines } };
+      next = { ...next, branchText: { ...next.branchText, marqueeWords: lines } };
     }
   }
   return next;
@@ -502,7 +500,7 @@ function mergeTourismServicesIntoLegacy(content: SiteContent, sections: ModularS
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
-        if (rows.length) next = { ...next, serviceHighlights: rows };
+        next = { ...next, serviceHighlights: rows };
         break;
       }
       case 'tourOverviewCards':
@@ -511,7 +509,7 @@ function mergeTourismServicesIntoLegacy(content: SiteContent, sections: ModularS
         const raw = (d as { items?: unknown }).items;
         if (!Array.isArray(raw)) break;
         const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToTour);
-        if (mapped.length) toursOverride = mapped;
+        toursOverride = mapped;
         break;
       }
       case 'steps': {
@@ -519,7 +517,7 @@ function mergeTourismServicesIntoLegacy(content: SiteContent, sections: ModularS
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
-        if (rows.length) next = { ...next, serviceProcess: rows };
+        next = { ...next, serviceProcess: rows };
         break;
       }
       case 'faq': {
@@ -527,7 +525,7 @@ function mergeTourismServicesIntoLegacy(content: SiteContent, sections: ModularS
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ q: str(x.question), a: str(x.answer) }))
           : [];
-        if (rows.length) next = { ...next, faq: rows };
+        next = { ...next, faq: rows };
         break;
       }
       case 'cta': {

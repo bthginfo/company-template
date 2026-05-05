@@ -65,17 +65,15 @@ function mergeConsultingGalleryExtras(content: SiteContent, sections: ModularSec
     const rows = Array.isArray(raw)
       ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
       : [];
-    if (rows.length) {
-      next = {
-        ...next,
-        branchText: {
-          ...next.branchText,
-          galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
-          galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
-        },
-        galleryCategories: rows,
-      };
-    }
+    next = {
+      ...next,
+      branchText: {
+        ...next.branchText,
+        galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+        galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
+      },
+      galleryCategories: rows,
+    };
   }
   return next;
 }
@@ -92,19 +90,17 @@ function mergeConsultingHomeSupplements(content: SiteContent, sections: ModularS
         const lines = raw
           .map((it) => (it && typeof it === 'object' ? str((it as { text?: unknown }).text) : ''))
           .filter(Boolean);
-        if (lines.length) next = { ...next, logos: lines };
+        next = { ...next, logos: lines };
       }
     } else if (sec.type === 'serviceCards') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
       const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToService);
-      if (mapped.length) {
-        const cur = [...(next.services ?? [])];
-        mapped.forEach((row, i) => {
-          cur[i] = { ...(cur[i] ?? { title: '', description: '', price: '', imageUrl: '' }), ...row };
-        });
-        next = { ...next, services: cur };
-      }
+      const cur = mapped.length ? [...(next.services ?? [])] : [];
+      mapped.forEach((row, i) => {
+        cur[i] = { ...(cur[i] ?? { title: '', description: '', price: '', imageUrl: '' }), ...row };
+      });
+      next = { ...next, services: cur };
     } else if (sec.type === 'processTextColumns' || sec.type === 'processCards') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -117,7 +113,7 @@ function mergeConsultingHomeSupplements(content: SiteContent, sections: ModularS
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
       const packs = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToPackage);
-      if (packs.length) next = { ...next, packages: packs };
+      next = { ...next, packages: packs };
     } else if (sec.type === 'team') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -125,7 +121,7 @@ function mergeConsultingHomeSupplements(content: SiteContent, sections: ModularS
         .filter((it): it is Record<string, unknown> => !!it && typeof it === 'object')
         .map(mapModularTeamToLegacy)
         .filter((m) => m.n || m.r || m.bio);
-      if (team.length) next = { ...next, team };
+      next = { ...next, team };
     }
   }
   if (procRows.length) next = { ...next, serviceProcess: procRows };
@@ -156,7 +152,7 @@ function mergeConsultingServicesIntoLegacy(content: SiteContent, sections: Modul
         const raw = (d as { items?: unknown }).items;
         if (!Array.isArray(raw)) break;
         const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToService);
-        if (mapped.length) servicesOverride = mapped;
+        servicesOverride = mapped;
         break;
       }
       case 'processTextColumns':
@@ -174,7 +170,7 @@ function mergeConsultingServicesIntoLegacy(content: SiteContent, sections: Modul
         const raw = (d as { items?: unknown }).items;
         if (!Array.isArray(raw)) break;
         const packs = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToPackage);
-        if (packs.length) next = { ...next, packages: packs };
+        next = { ...next, packages: packs };
         break;
       }
       case 'testimonials': {
@@ -182,7 +178,7 @@ function mergeConsultingServicesIntoLegacy(content: SiteContent, sections: Modul
         const list = Array.isArray(raw)
           ? raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map((it) => ({ author: str(it.name), text: str(it.quote) }))
           : [];
-        if (list.length) next = { ...next, testimonials: list };
+        next = { ...next, testimonials: list };
         break;
       }
       case 'galleryPreview': {
@@ -190,17 +186,15 @@ function mergeConsultingServicesIntoLegacy(content: SiteContent, sections: Modul
         const urls = Array.isArray(imgsRaw)
           ? imgsRaw.map((it) => (it && typeof it === 'object' ? str((it as { image?: unknown }).image) : '')).filter(Boolean)
           : [];
-        if (urls.length) {
-          next = {
-            ...next,
-            branchText: {
-              ...next.branchText,
-              galleryTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
-              galleryTeaserTitle: str((d as { headline?: unknown }).headline),
-            },
-            gallery: [...urls, ...(next.gallery ?? []).slice(urls.length)],
-          };
-        }
+        next = {
+          ...next,
+          branchText: {
+            ...next.branchText,
+            galleryTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+            galleryTeaserTitle: str((d as { headline?: unknown }).headline),
+          },
+          gallery: urls,
+        };
         break;
       }
       case 'faq': {
@@ -208,7 +202,7 @@ function mergeConsultingServicesIntoLegacy(content: SiteContent, sections: Modul
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ q: str(x.question), a: str(x.answer) }))
           : [];
-        if (rows.length) next = { ...next, faq: rows };
+        next = { ...next, faq: rows };
         break;
       }
       case 'cta': {

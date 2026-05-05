@@ -545,7 +545,7 @@ export function importRestaurantModularFromLegacy(content: SiteContent, style: T
 
 export function mergeNoticeBanner(next: SiteContent, d: Record<string, unknown>): SiteContent {
   const lines = readItems(d).map((x) => x.text);
-  return lines.length ? { ...next, announcements: lines } : next;
+  return { ...next, announcements: lines };
 }
 
 export function mergeHeroToPageHeader(
@@ -638,7 +638,7 @@ export function mergeHomeIntoLegacy(
       }
       case 'marqueeBand': {
         const items = readItems(d as Record<string, unknown>).map((x) => x.text);
-        if (items.length) next = { ...next, branchText: { ...next.branchText, marqueeWords: items } };
+        next = { ...next, branchText: { ...next.branchText, marqueeWords: items } };
         break;
       }
       case 'featuredDishesGrid':
@@ -666,7 +666,7 @@ export function mergeHomeIntoLegacy(
             titleB: str((d as { titleB?: unknown }).titleB),
             intro: str((d as { description?: unknown }).description),
           },
-          homeSignatureItems: rows.length ? rows : next.homeSignatureItems,
+          homeSignatureItems: rows,
         };
         break;
       }
@@ -687,14 +687,12 @@ export function mergeHomeIntoLegacy(
                 };
               })
           : [];
-        if (rows.length) {
-          const base = [...(next.services ?? [])];
-          rows.forEach((r, i) => {
-            const cur = base[i] ?? { title: '', description: '', price: '', imageUrl: '' };
-            base[i] = { ...cur, ...r };
-          });
-          next = { ...next, services: base };
-        }
+        const base = rows.length ? [...(next.services ?? [])] : [];
+        rows.forEach((r, i) => {
+          const cur = base[i] ?? { title: '', description: '', price: '', imageUrl: '' };
+          base[i] = { ...cur, ...r };
+        });
+        next = { ...next, services: base };
         break;
       }
       case 'storyTeaser': {
@@ -742,7 +740,7 @@ export function mergeHomeIntoLegacy(
       }
       case 'labelBand': {
         const labels = readLabelBandEntries(d as Record<string, unknown>);
-        if (labels.length) next = { ...next, logos: labels };
+        next = { ...next, logos: labels };
         break;
       }
       case 'testimonials': {
@@ -750,17 +748,15 @@ export function mergeHomeIntoLegacy(
         const list = Array.isArray(tr)
           ? tr.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map((it) => ({ author: str(it.name), text: str(it.quote) }))
           : [];
-        if (list.length) {
-          next = {
-            ...next,
-            testimonials: list,
-            branchText: {
-              ...next.branchText,
-              testimonialsEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
-              testimonialsTitle: str((d as { headline?: unknown }).headline),
-            },
-          };
-        }
+        next = {
+          ...next,
+          testimonials: list,
+          branchText: {
+            ...next.branchText,
+            testimonialsEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+            testimonialsTitle: str((d as { headline?: unknown }).headline),
+          },
+        };
         break;
       }
       case 'statsBand': {
@@ -768,13 +764,11 @@ export function mergeHomeIntoLegacy(
         const nums = Array.isArray(it)
           ? it.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ value: str(x.value), label: str(x.description) }))
           : [];
-        if (nums.length) {
-          statsBandPass += 1;
-          if (statsBandPass > 1) {
-            next = { ...next, numbers: [...(next.numbers ?? []), ...nums] };
-          } else {
-            next = { ...next, numbers: nums };
-          }
+        statsBandPass += 1;
+        if (statsBandPass > 1) {
+          next = { ...next, numbers: [...(next.numbers ?? []), ...nums] };
+        } else {
+          next = { ...next, numbers: nums };
         }
         break;
       }
@@ -830,7 +824,7 @@ function mergeServicesIntoLegacy(content: SiteContent, sections: ModularSectionV
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
-        if (rows.length) next = { ...next, serviceHighlights: rows };
+        next = { ...next, serviceHighlights: rows };
         break;
       }
       case 'menu': {
@@ -868,7 +862,7 @@ function mergeServicesIntoLegacy(content: SiteContent, sections: ModularSectionV
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
-        if (rows.length) next = { ...next, serviceProcess: rows };
+        next = { ...next, serviceProcess: rows };
         break;
       }
       case 'faq': {
@@ -884,7 +878,7 @@ function mergeServicesIntoLegacy(content: SiteContent, sections: ModularSectionV
         next = {
           ...next,
           ...(Object.keys(btPatch).length ? { branchText: { ...next.branchText, ...btPatch } } : {}),
-          ...(rows.length ? { faq: rows } : {}),
+          faq: rows,
         } as SiteContent;
         break;
       }
@@ -947,7 +941,7 @@ export function mergeGalleryIntoLegacy(content: SiteContent, sections: ModularSe
             galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
             galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
           },
-          galleryCategories: rows.length ? rows : next.galleryCategories,
+          galleryCategories: rows,
         };
       }
     } else if (sec.type === 'gallery') {
@@ -955,7 +949,7 @@ export function mergeGalleryIntoLegacy(content: SiteContent, sections: ModularSe
       const urls = Array.isArray(imgsRaw)
         ? imgsRaw.map((it) => (it && typeof it === 'object' ? str((it as { image?: unknown }).image) : '')).filter(Boolean)
         : [];
-      if (urls.length) next = { ...next, gallery: urls };
+      next = { ...next, gallery: urls };
     } else if (sec.type === 'cta') {
       const btn = (d as { button?: unknown }).button as Record<string, unknown> | undefined;
       const all = { ...(next.ctaBandOverrides ?? {}) };
@@ -1004,7 +998,7 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
           ...(desc.trim()
             ? { about: { ...(next.about ?? { title: '', body: '', imageUrl: '' }), body: desc } }
             : {}),
-          ...(nums.length ? { aboutNumbers: nums } : {}),
+          aboutNumbers: nums,
         } as SiteContent;
         break;
       }
@@ -1020,7 +1014,7 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
             valuesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
             valuesTitle: str((d as { headline?: unknown }).headline),
           },
-          values: rows.length ? rows : next.values,
+          values: rows,
         };
         break;
       }
@@ -1033,7 +1027,7 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
               description: str(x.description),
             }))
           : [];
-        if (rows.length) next = { ...next, timeline: rows };
+        next = { ...next, timeline: rows };
         break;
       }
       case 'team': {
@@ -1046,7 +1040,7 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
               img: imgUrl(x.image),
             }))
           : [];
-        if (rows.length) next = { ...next, team: rows };
+        next = { ...next, team: rows };
         break;
       }
       case 'statsBand': {
@@ -1054,7 +1048,7 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ label: str(x.description), value: str(x.value) }))
           : [];
-        if (rows.length) next = { ...next, aboutNumbers: rows };
+        next = { ...next, aboutNumbers: rows };
         break;
       }
       case 'expertQuotes': {
@@ -1069,7 +1063,7 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
           : [];
         next = {
           ...next,
-          ...(rows.length ? { press: rows } : {}),
+          press: rows,
           branchText: {
             ...next.branchText,
             pressEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
@@ -1085,7 +1079,7 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
           : [];
         next = {
           ...next,
-          ...(list.length ? { testimonials: list } : {}),
+          testimonials: list,
           branchText: {
             ...next.branchText,
             aboutTestimonialsEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
@@ -1186,7 +1180,7 @@ export function mergeContactIntoLegacy(content: SiteContent, sections: ModularSe
                 }))
               : [],
           }));
-        if (locs.length) next = { ...next, locations: locs };
+        next = { ...next, locations: locs };
         break;
       }
       case 'directions': {

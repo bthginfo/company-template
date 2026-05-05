@@ -57,17 +57,15 @@ function mergeMedicalGalleryExtras(content: SiteContent, sections: ModularSectio
     const rows = Array.isArray(raw)
       ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
       : [];
-    if (rows.length) {
-      next = {
-        ...next,
-        branchText: {
-          ...next.branchText,
-          galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
-          galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
-        },
-        galleryCategories: rows,
-      };
-    }
+    next = {
+      ...next,
+      branchText: {
+        ...next.branchText,
+        galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+        galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
+      },
+      galleryCategories: rows,
+    };
   }
   return next;
 }
@@ -98,19 +96,17 @@ function mergeMedicalHomeSupplements(content: SiteContent, sections: ModularSect
         const lines = raw
           .map((it) => (it && typeof it === 'object' ? str((it as { text?: unknown }).text) : ''))
           .filter(Boolean);
-        if (lines.length) next = { ...next, logos: lines };
+        next = { ...next, logos: lines };
       }
     } else if (sec.type === 'serviceCards') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
       const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToService);
-      if (mapped.length) {
-        const cur = [...(next.services ?? [])];
-        mapped.forEach((row, i) => {
-          cur[i] = { ...(cur[i] ?? { title: '', description: '', price: '', imageUrl: '' }), ...row };
-        });
-        next = { ...next, services: cur };
-      }
+      const cur = mapped.length ? [...(next.services ?? [])] : [];
+      mapped.forEach((row, i) => {
+        cur[i] = { ...(cur[i] ?? { title: '', description: '', price: '', imageUrl: '' }), ...row };
+      });
+      next = { ...next, services: cur };
     } else if (sec.type === 'team') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -123,7 +119,7 @@ function mergeMedicalHomeSupplements(content: SiteContent, sections: ModularSect
           }),
         )
         .filter((doc) => doc.name || doc.bio);
-      if (doctors.length) next = { ...next, doctors };
+      next = { ...next, doctors };
     } else if (sec.type === 'appointmentBooking') {
       next = mergeAppointment(d as Record<string, unknown>, next);
     }
@@ -154,7 +150,7 @@ function mergeMedicalServicesIntoLegacy(content: SiteContent, sections: ModularS
         const raw = (d as { items?: unknown }).items;
         if (!Array.isArray(raw)) break;
         const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToService);
-        if (mapped.length) servicesOverride = mapped;
+        servicesOverride = mapped;
         break;
       }
       case 'team': {
@@ -168,7 +164,7 @@ function mergeMedicalServicesIntoLegacy(content: SiteContent, sections: ModularS
               specialty: [str(it.specialties), str(it.qualifications)].filter(Boolean).join(' · '),
             }),
           );
-        if (doctors.length) next = { ...next, doctors };
+        next = { ...next, doctors };
         break;
       }
       case 'appointmentBooking':
@@ -179,7 +175,7 @@ function mergeMedicalServicesIntoLegacy(content: SiteContent, sections: ModularS
         const list = Array.isArray(raw)
           ? raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map((it) => ({ author: str(it.name), text: str(it.quote) }))
           : [];
-        if (list.length) next = { ...next, testimonials: list };
+        next = { ...next, testimonials: list };
         break;
       }
       case 'galleryPreview': {
@@ -187,17 +183,15 @@ function mergeMedicalServicesIntoLegacy(content: SiteContent, sections: ModularS
         const urls = Array.isArray(imgsRaw)
           ? imgsRaw.map((it) => (it && typeof it === 'object' ? str((it as { image?: unknown }).image) : '')).filter(Boolean)
           : [];
-        if (urls.length) {
-          next = {
-            ...next,
-            branchText: {
-              ...next.branchText,
-              galleryTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
-              galleryTeaserTitle: str((d as { headline?: unknown }).headline),
-            },
-            gallery: [...urls, ...(next.gallery ?? []).slice(urls.length)],
-          };
-        }
+        next = {
+          ...next,
+          branchText: {
+            ...next.branchText,
+            galleryTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+            galleryTeaserTitle: str((d as { headline?: unknown }).headline),
+          },
+          gallery: urls,
+        };
         break;
       }
       case 'faq': {
@@ -205,7 +199,7 @@ function mergeMedicalServicesIntoLegacy(content: SiteContent, sections: ModularS
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ q: str(x.question), a: str(x.answer) }))
           : [];
-        if (rows.length) next = { ...next, faq: rows };
+        next = { ...next, faq: rows };
         break;
       }
       case 'cta': {

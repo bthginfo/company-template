@@ -107,17 +107,15 @@ function mergeFitnessGalleryExtras(content: SiteContent, sections: ModularSectio
     const rows = Array.isArray(raw)
       ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
       : [];
-    if (rows.length) {
-      next = {
-        ...next,
-        branchText: {
-          ...next.branchText,
-          galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
-          galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
-        },
-        galleryCategories: rows,
-      };
-    }
+    next = {
+      ...next,
+      branchText: {
+        ...next.branchText,
+        galleryCategoriesEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+        galleryCategoriesTitle: str((d as { headline?: unknown }).headline),
+      },
+      galleryCategories: rows,
+    };
   }
   return next;
 }
@@ -133,23 +131,21 @@ function mergeFitnessHomeSupplements(content: SiteContent, sections: ModularSect
         const lines = raw
           .map((it) => (it && typeof it === 'object' ? str((it as { text?: unknown }).text) : ''))
           .filter(Boolean);
-        if (lines.length) next = { ...next, logos: lines };
+        next = { ...next, logos: lines };
       }
     } else if (sec.type === 'classCards') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
       const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToCourse);
-      if (mapped.length) {
-        const curC = [...(next.courses ?? [])];
-        const curP = [...(next.programs ?? [])];
-        const emptyProg: ProgramRow = { k: '', t: '', d: '', meta: '' };
-        mapped.forEach((row, i) => {
-          const mergedC = { ...(curC[i] ?? DEFAULT_COURSE_ROW), ...row };
-          curC[i] = mergedC;
-          curP[i] = { ...(curP[i] ?? emptyProg), ...courseRowToProgram(mergedC) };
-        });
-        next = { ...next, courses: curC, programs: curP };
-      }
+      const curC = mapped.length ? [...(next.courses ?? [])] : [];
+      const curP = mapped.length ? [...(next.programs ?? [])] : [];
+      const emptyProg: ProgramRow = { k: '', t: '', d: '', meta: '' };
+      mapped.forEach((row, i) => {
+        const mergedC = { ...(curC[i] ?? DEFAULT_COURSE_ROW), ...row };
+        curC[i] = mergedC;
+        curP[i] = { ...(curP[i] ?? emptyProg), ...courseRowToProgram(mergedC) };
+      });
+      next = { ...next, courses: curC, programs: curP };
     } else if (sec.type === 'trainingPlanOverview') {
       const statsRaw = (d as { stats?: unknown }).stats;
       const nums = Array.isArray(statsRaw)
@@ -157,12 +153,12 @@ function mergeFitnessHomeSupplements(content: SiteContent, sections: ModularSect
             .filter((x): x is Record<string, unknown> => !!x && typeof x === 'object')
             .map((x) => ({ value: str(x.value), label: str(x.description) }))
         : [];
-      if (nums.length) next = { ...next, numbers: nums };
+      next = { ...next, numbers: nums };
     } else if (sec.type === 'pricingPackages') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
       const packs = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToPackage);
-      if (packs.length) next = { ...next, packages: packs };
+      next = { ...next, packages: packs };
     } else if (sec.type === 'trainers') {
       const raw = (d as { items?: unknown }).items;
       if (!Array.isArray(raw)) continue;
@@ -170,7 +166,7 @@ function mergeFitnessHomeSupplements(content: SiteContent, sections: ModularSect
         .filter((it): it is Record<string, unknown> => !!it && typeof it === 'object')
         .map(mapModularTeamToLegacy)
         .filter((m) => m.n || m.r || m.bio);
-      if (team.length) next = { ...next, team };
+      next = { ...next, team };
     }
   }
   return next;
@@ -199,7 +195,7 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
         const raw = (d as { items?: unknown }).items;
         if (!Array.isArray(raw)) break;
         const mapped = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToCourse);
-        if (mapped.length) coursesOverride = mapped;
+        coursesOverride = mapped;
         break;
       }
       case 'trainingPlanOverview': {
@@ -209,14 +205,14 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
               .filter((x): x is Record<string, unknown> => !!x && typeof x === 'object')
               .map((x) => ({ value: str(x.value), label: str(x.description) }))
           : [];
-        if (nums.length) next = { ...next, numbers: nums };
+        next = { ...next, numbers: nums };
         break;
       }
       case 'pricingPackages': {
         const raw = (d as { items?: unknown }).items;
         if (!Array.isArray(raw)) break;
         const packs = raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map(mapModularItemToPackage);
-        if (packs.length) next = { ...next, packages: packs };
+        next = { ...next, packages: packs };
         break;
       }
       case 'testimonials': {
@@ -224,7 +220,7 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
         const list = Array.isArray(raw)
           ? raw.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map((it) => ({ author: str(it.name), text: str(it.quote) }))
           : [];
-        if (list.length) next = { ...next, testimonials: list };
+        next = { ...next, testimonials: list };
         break;
       }
       case 'galleryPreview': {
@@ -232,17 +228,15 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
         const urls = Array.isArray(imgsRaw)
           ? imgsRaw.map((it) => (it && typeof it === 'object' ? str((it as { image?: unknown }).image) : '')).filter(Boolean)
           : [];
-        if (urls.length) {
-          next = {
-            ...next,
-            branchText: {
-              ...next.branchText,
-              galleryTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
-              galleryTeaserTitle: str((d as { headline?: unknown }).headline),
-            },
-            gallery: [...urls, ...(next.gallery ?? []).slice(urls.length)],
-          };
-        }
+        next = {
+          ...next,
+          branchText: {
+            ...next.branchText,
+            galleryTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+            galleryTeaserTitle: str((d as { headline?: unknown }).headline),
+          },
+          gallery: urls,
+        };
         break;
       }
       case 'faq': {
@@ -250,7 +244,7 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ q: str(x.question), a: str(x.answer) }))
           : [];
-        if (rows.length) next = { ...next, faq: rows };
+        next = { ...next, faq: rows };
         break;
       }
       case 'cta': {
