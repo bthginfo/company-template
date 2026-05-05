@@ -235,7 +235,12 @@ export function RoomShowcaseModule({ content, itemLinkPrefix }: { content: SiteC
                   ))}
                 </ul>
               )}
-              <TLink to="/kontakt" className="btn-outline mt-5 !py-2 !px-4 !text-xs">Anfragen →</TLink>
+              <TLink
+                to={linked ? `${itemLinkPrefix}/${slug}` : '/kontakt'}
+                className="btn-outline mt-5 !py-2 !px-4 !text-xs"
+              >
+                {linked ? 'Zimmer ansehen →' : 'Anfragen →'}
+              </TLink>
             </div>
           </article>
           );
@@ -296,7 +301,12 @@ export function TourCardsModule({ content, itemLinkPrefix }: { content: SiteCont
                   {tour.languages && tour.languages.length > 0 && <><dt className="text-muted uppercase tracking-widest text-[10px]">Sprachen</dt><dd className="font-display">{tour.languages.join(' · ')}</dd></>}
                   {tour.price && <><dt className="text-muted uppercase tracking-widest text-[10px]">Preis</dt><dd className="font-mono text-brand">{tour.price}</dd></>}
                 </dl>
-                <TLink to="/kontakt" className="btn-primary mt-6 !py-2 !px-4 !text-xs">Tour buchen →</TLink>
+                <TLink
+                  to={linked ? `${itemLinkPrefix}/${slug}` : '/kontakt'}
+                  className="btn-primary mt-6 !py-2 !px-4 !text-xs"
+                >
+                  {linked ? 'Details ansehen →' : 'Tour buchen →'}
+                </TLink>
               </div>
             </article>
           );

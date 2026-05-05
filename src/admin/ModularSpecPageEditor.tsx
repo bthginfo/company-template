@@ -3,6 +3,7 @@ import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
 import { ModularSectionDataForm } from './ModularSectionDataForm';
 import type { ModularUploadFn } from './modular-section-field-kit';
+import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
 
 export type ModularSpecPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
@@ -43,6 +44,16 @@ function formatBranchStyle(style: TemplateStyle): string {
 }
 
 export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, uploadImage }: Props) {
+  useBootstrapModularIfNeeded({
+    tpl,
+    style,
+    data,
+    setData,
+    cfgTpl: cfg.tpl,
+    importFromLegacy: cfg.importFromLegacy,
+    applyToLegacy: cfg.applyToLegacy,
+    hasAny: cfg.hasAny,
+  });
   const modular = data.modularPagesV1;
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];

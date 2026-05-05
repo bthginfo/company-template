@@ -11,6 +11,7 @@ import {
   importHotelModularFromLegacy,
   type HotelModularPageKey,
 } from '@/lib/modular-hotel';
+import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
 
 type Props = {
   data: SiteContent;
@@ -41,6 +42,16 @@ const PAGE_LABEL_DE: Record<HotelModularPageKey, string> = {
 };
 
 export function ModularHotelPageEditor({ data, setData, tpl, style, page, uploadImage }: PageProps) {
+  useBootstrapModularIfNeeded({
+    tpl,
+    style,
+    data,
+    setData,
+    cfgTpl: 'hotel',
+    importFromLegacy: importHotelModularFromLegacy,
+    applyToLegacy: applyHotelModularToLegacy,
+    hasAny: hasAnyHotelModular,
+  });
   const modular = data.modularPagesV1;
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];

@@ -553,6 +553,16 @@ function ExtraLeistungenServiceCards({
                 {s.price && <span className="font-mono text-xs text-[var(--accent-color-2,_var(--accent-color))] whitespace-nowrap mt-1">{s.price}</span>}
               </div>
               {s.description && <p className="mt-3 text-muted leading-relaxed">{s.description}</p>}
+              <div className="mt-4 pt-4 border-t border-line flex justify-end">
+                {(() => {
+                  const lm = extraServiceLearnMore(s, bt, branch);
+                  return (
+                    <ExtraHeroLink href={lm.href} className="text-xs uppercase tracking-widest text-[var(--accent-color)] no-underline hover:underline">
+                      {lm.label}
+                    </ExtraHeroLink>
+                  );
+                })()}
+              </div>
             </div>
           </article>
         );
@@ -610,6 +620,16 @@ function ExtraLeistungenServiceCards({
               </h3>
               <p className="md:col-span-4 text-muted leading-relaxed">{s.description}</p>
               {s.price && <span className="md:col-span-1 md:text-right font-display text-2xl">{s.price}</span>}
+              <div className="md:col-span-12 mt-4 flex justify-end">
+                {(() => {
+                  const lm = extraServiceLearnMore(s, bt, branch);
+                  return (
+                    <ExtraHeroLink href={lm.href} className="text-xs uppercase tracking-widest text-[var(--accent-color)] no-underline hover:underline">
+                      {lm.label}
+                    </ExtraHeroLink>
+                  );
+                })()}
+              </div>
             </div>
           </li>
         );

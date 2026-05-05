@@ -101,6 +101,32 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       ],
       mapsUrl: 'https://www.google.com/maps?q=Maria-Theresien-Stra%C3%9Fe+42,+6020+Innsbruck&output=embed',
     },
+    locations: [
+      {
+        name: 'La Cantinetta · Weinbar',
+        phone: '+43 512 123 4568',
+        email: 'weinbar@trattoria-innsbruck.at',
+        address: 'Stiftgasse 4',
+        city: '6020 Innsbruck',
+        hours: [
+          { day: 'Do – Sa', time: '17:00 – 01:00' },
+          { day: 'So – Mi', time: 'geschlossen' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Stiftgasse+4,+6020+Innsbruck&output=embed',
+      },
+      {
+        name: 'Catering & Events (Abholung)',
+        phone: '+43 512 123 4569',
+        email: 'catering@trattoria-innsbruck.at',
+        address: 'Gewerbegebiet Roßau, Halle 3',
+        city: '6020 Innsbruck',
+        hours: [
+          { day: 'Mo – Fr', time: '09:00 – 16:00' },
+          { day: 'Sa + So', time: 'nach Vereinbarung' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Ro%C3%9Fau+Innsbruck&output=embed',
+      },
+    ],
     social: {
       instagram: 'trattoria.innsbruck',
       facebook: 'trattoriainnsbruck',
@@ -166,6 +192,33 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       ],
       mapsUrl: 'https://www.google.com/maps?q=Leopoldstra%C3%9Fe+28,+80802+M%C3%BCnchen&output=embed',
     },
+    locations: [
+      {
+        name: 'Studio Lumière · Schwabing',
+        phone: '+49 89 1234 5678',
+        email: 'hello@studio-lumiere.de',
+        address: 'Leopoldstraße 28',
+        city: '80802 München',
+        hours: [
+          { day: 'Di – Fr', time: '09:00 – 19:00' },
+          { day: 'Samstag', time: '09:00 – 15:00' },
+          { day: 'So + Mo', time: 'Geschlossen' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Leopoldstra%C3%9Fe+28,+80802+M%C3%BCnchen&output=embed',
+      },
+      {
+        name: 'Pop-Up Color Lab · Glockenbach',
+        phone: '+49 89 1234 5680',
+        email: 'colorlab@studio-lumiere.de',
+        address: 'Reichenbachstraße 36',
+        city: '80469 München',
+        hours: [
+          { day: 'Mi – Sa', time: '10:00 – 19:00' },
+          { day: 'So – Di', time: 'Geschlossen' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Reichenbachstra%C3%9Fe+36,+80469+M%C3%BCnchen&output=embed',
+      },
+    ],
     social: {
       instagram: 'studio.lumiere.muc',
       facebook: 'studiolumieremunich',
@@ -242,6 +295,32 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       ],
       mapsUrl: 'https://www.google.com/maps?q=Schulstra%C3%9Fe+14,+85049+Ingolstadt&output=embed',
     },
+    locations: [
+      {
+        name: 'Mayer & Söhne · Hauptsitz & Werkstatt',
+        phone: '+49 841 9876 543',
+        email: 'info@mayer-soehne.de',
+        address: 'Schulstraße 14',
+        city: '85049 Ingolstadt',
+        hours: [
+          { day: 'Mo – Fr', time: '07:00 – 17:00' },
+          { day: 'Notdienst', time: '24 / 7' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Schulstra%C3%9Fe+14,+85049+Ingolstadt&output=embed',
+      },
+      {
+        name: 'Filiale Neuburg · Sanitär-Showroom',
+        phone: '+49 8431 90 12 30',
+        email: 'neuburg@mayer-soehne.de',
+        address: 'Donauwörther Straße 62',
+        city: '86633 Neuburg a. d. Donau',
+        hours: [
+          { day: 'Mo – Fr', time: '08:00 – 17:00' },
+          { day: 'Sa', time: '09:00 – 13:00 (nur Beratung)' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Donauw%C3%B6rther+Stra%C3%9Fe+62,+86633+Neuburg&output=embed',
+      },
+    ],
     social: {
       whatsapp: '+498419876543',
     },
@@ -301,6 +380,32 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       ],
       mapsUrl: 'https://www.google.com/maps?q=Igls+Innsbruck&output=embed',
     },
+    locations: [
+      {
+        name: 'Hotel Bergkristall · Hauptgebäude',
+        phone: '+43 5234 5678 0',
+        email: 'willkommen@hotel-bergkristall.at',
+        address: 'Dorfstraße 8',
+        city: '6080 Igls bei Innsbruck',
+        hours: [
+          { day: 'Rezeption', time: '24/7' },
+          { day: 'Restaurant', time: '12:00 – 14:30 · 18:30 – 22:00' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Dorfstra%C3%9Fe+8,+6080+Igls&output=embed',
+      },
+      {
+        name: 'Chalet Sonnrain · Suiten & Spa',
+        phone: '+43 5234 5678 20',
+        email: 'chalet@hotel-bergkristall.at',
+        address: 'Sonnrainweg 2',
+        city: '6080 Igls bei Innsbruck',
+        hours: [
+          { day: 'Rezeption', time: '08:00 – 20:00' },
+          { day: 'Spa', time: '10:00 – 20:00' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Igls+Tirol&output=embed',
+      },
+    ],
     social: {
       instagram: 'hotel.bergkristall',
       facebook: 'hotelbergkristall',
@@ -361,6 +466,32 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       ],
       mapsUrl: 'https://www.google.com/maps?q=Innsbruck&output=embed',
     },
+    locations: [
+      {
+        name: 'Alpenroute Tirol · Büro & Treffpunkt',
+        phone: '+43 512 87 65 43',
+        email: 'tour@alpenroute.tirol',
+        address: 'Maria-Theresien-Straße 12',
+        city: '6020 Innsbruck',
+        hours: [
+          { day: 'Mo – Fr', time: '09:00 – 18:00' },
+          { day: 'Sa', time: '10:00 – 14:00' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Maria-Theresien-Stra%C3%9Fe+12,+6020+Innsbruck&output=embed',
+      },
+      {
+        name: 'Repräsentanz München',
+        phone: '+49 89 2000 45 90',
+        email: 'muenchen@alpenroute.tirol',
+        address: 'Sendlinger Straße 42',
+        city: '80331 München',
+        hours: [
+          { day: 'Mo – Fr', time: '10:00 – 17:00' },
+          { day: 'Termine', time: 'nach Vereinbarung' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Sendlinger+Stra%C3%9Fe+42,+80331+M%C3%BCnchen&output=embed',
+      },
+    ],
     social: {
       instagram: 'alpenroute.tirol',
     },
@@ -426,6 +557,31 @@ export const EXTRA_DEMO_CONTENT = {
       ],
       mapsUrl: '',
     },
+    locations: [
+      {
+        name: 'Kanzlei München',
+        phone: '+49 89 22 333 444',
+        email: 'kontakt@hofer-partner.de',
+        address: 'Maximilianstraße 24',
+        city: '80539 München',
+        hours: [
+          { day: 'Mo – Fr', time: '09:00 – 18:00' },
+          { day: 'Termine', time: 'nach Vereinbarung' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Maximilianstra%C3%9Fe+24,+80539+M%C3%BCnchen&output=embed',
+      },
+      {
+        name: 'Büro Wien',
+        phone: '+43 1 512 20 30',
+        email: 'wien@hofer-partner.de',
+        address: 'Kärntner Ring 5–7',
+        city: '1010 Wien',
+        hours: [
+          { day: 'Mo – Fr', time: '09:00 – 17:30' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=K%C3%A4rntner+Ring+5,+1010+Wien&output=embed',
+      },
+    ],
     social: {
       linkedin: 'hofer-partner',
     },
@@ -486,6 +642,33 @@ export const EXTRA_DEMO_CONTENT = {
       ],
       mapsUrl: '',
     },
+    locations: [
+      {
+        name: 'Praxis Dr. Lindner · Hauptstandort',
+        phone: '+43 512 55 66 77',
+        email: 'praxis@dr-lindner.at',
+        address: 'Falkstraße 18',
+        city: '6020 Innsbruck',
+        hours: [
+          { day: 'Mo, Di, Do', time: '08:00 – 18:00' },
+          { day: 'Mi, Fr', time: '08:00 – 13:00' },
+          { day: 'Termine', time: 'online via Doctolib' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Falkstra%C3%9Fe+18,+6020+Innsbruck&output=embed',
+      },
+      {
+        name: 'Filiale Rum · Akupunktur & Vorsorge',
+        phone: '+43 512 55 66 78',
+        email: 'rum@dr-lindner.at',
+        address: 'Höhenstraße 11',
+        city: '6063 Rum bei Innsbruck',
+        hours: [
+          { day: 'Di + Do', time: '14:00 – 18:00' },
+          { day: 'Mi', time: '08:00 – 12:00' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Rum+Tirol&output=embed',
+      },
+    ],
     social: {
       instagram: 'praxis.lindner',
     },
@@ -546,6 +729,32 @@ export const EXTRA_DEMO_CONTENT = {
       ],
       mapsUrl: '',
     },
+    locations: [
+      {
+        name: 'Studio Anima · Glockenbach',
+        phone: '+49 89 44 55 66',
+        email: 'hello@studio-anima.de',
+        address: 'Pestalozzistraße 9',
+        city: '80469 München',
+        hours: [
+          { day: 'Mo – Fr', time: '07:00 – 21:00' },
+          { day: 'Sa + So', time: '08:30 – 17:00' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Pestalozzistra%C3%9Fe+9,+80469+M%C3%BCnchen&output=embed',
+      },
+      {
+        name: 'Studio Anima · Au-Haidhausen',
+        phone: '+49 89 44 55 67',
+        email: 'au@studio-anima.de',
+        address: 'Weißenburger Straße 35',
+        city: '81667 München',
+        hours: [
+          { day: 'Mo – Fr', time: '07:00 – 21:00' },
+          { day: 'Sa', time: '09:00 – 14:00' },
+        ],
+        mapsUrl: 'https://www.google.com/maps?q=Wei%C3%9Fenburger+Stra%C3%9Fe+35,+81667+M%C3%BCnchen&output=embed',
+      },
+    ],
     social: {
       instagram: 'studio.anima.muc',
     },

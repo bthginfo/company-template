@@ -778,9 +778,28 @@
 
     "locations": [
       {
-        "name": "", "phone": "", "email": "", "address": "", "city": "",
-        "hours": [],
-        "_help": "Zusätzliche Standorte (falls vorhanden)."
+        "name": "Filiale Mitte",
+        "phone": "+49 30 123456",
+        "email": "mitte@beispiel.de",
+        "address": "Musterstraße 1",
+        "city": "10115 Berlin",
+        "hours": [
+          { "day": "Mo – Fr", "time": "09:00 – 18:00" },
+          { "day": "Sa", "time": "10:00 – 14:00" }
+        ],
+        "mapsUrl": "https://www.google.com/maps?q=Berlin&output=embed",
+        "_help": "Weitere Standorte neben der Haupt-Kontaktadresse. Leere Zeilen in hours weglassen."
+      },
+      {
+        "name": "Showroom Süd",
+        "phone": "+49 89 987654",
+        "email": "sued@beispiel.de",
+        "address": "Beispielweg 22",
+        "city": "80331 München",
+        "hours": [
+          { "day": "Mo – Fr", "time": "10:00 – 19:00" }
+        ],
+        "mapsUrl": ""
       }
     ]
   },

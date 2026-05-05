@@ -20,43 +20,27 @@ import { tourismSpecType } from './specs/tourism-spec-types';
 import { adminKeyForCatalog, CROSS_PAGE_TARGETS } from '@/lib/section-registry';
 import {
   ModularRestaurantPageEditor,
-  ModularRestaurantActivationPanel,
-  hasRestaurantModularPage,
 } from './ModularHomeEditor';
 import {
   ModularHotelPageEditor,
-  ModularHotelActivationPanel,
-  hasHotelModularPage,
 } from './ModularHotelEditor';
 import {
   ModularTourismPageEditor,
-  ModularTourismActivationPanel,
-  hasTourismModularPage,
 } from './ModularTourismEditor';
 import {
   ModularSalonPageEditor,
-  ModularSalonActivationPanel,
-  hasSalonModularPage,
 } from './ModularSalonEditor';
 import {
   ModularTradesmanPageEditor,
-  ModularTradesmanActivationPanel,
-  hasTradesmanModularPage,
 } from './ModularTradesmanEditor';
 import {
   ModularConsultingPageEditor,
-  ModularConsultingActivationPanel,
-  hasConsultingModularPage,
 } from './ModularConsultingEditor';
 import {
   ModularMedicalPageEditor,
-  ModularMedicalActivationPanel,
-  hasMedicalModularPage,
 } from './ModularMedicalEditor';
 import {
   ModularFitnessPageEditor,
-  ModularFitnessActivationPanel,
-  hasFitnessModularPage,
 } from './ModularFitnessEditor';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
@@ -1218,48 +1202,40 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
   };
 
   const extras = getExtraCrossPageSections(data, 'home', sectionOrder);
-  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'home')) {
+  if (tpl === 'restaurant') {
     return (
       <>
         <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />
       </>
     );
   }
-  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'home')) {
+  if (tpl === 'hotel') {
     return (
       <>
         <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />
       </>
     );
   }
-  if (tpl === 'tourism' && hasTourismModularPage(data, style, 'home')) {
+  if (tpl === 'tourism') {
     return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
-  if (tpl === 'salon' && hasSalonModularPage(data, style, 'home')) {
+  if (tpl === 'salon') {
     return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
-  if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'home')) {
+  if (tpl === 'tradesman') {
     return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
-  if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'home')) {
+  if (tpl === 'consulting') {
     return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
-  if (tpl === 'medical' && hasMedicalModularPage(data, style, 'home')) {
+  if (tpl === 'medical') {
     return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
-  if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'home')) {
+  if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   return (
     <>
-      {tpl === 'restaurant' ? <ModularRestaurantActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
-      {tpl === 'hotel' ? <ModularHotelActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
-      {tpl === 'tourism' ? <ModularTourismActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
-      {tpl === 'salon' ? <ModularSalonActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
-      {tpl === 'tradesman' ? <ModularTradesmanActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
-      {tpl === 'consulting' ? <ModularConsultingActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
-      {tpl === 'medical' ? <ModularMedicalActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
-      {tpl === 'fitness' ? <ModularFitnessActivationPanel data={data} setData={setData} tpl={tpl} style={style} /> : null}
       {sectionOrder.map((key, idx) => (
         <Fragment key={key}>
           {renderSection(key, idx)}
@@ -1352,28 +1328,28 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   const cfg = getBranchConfig(tpl);
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);
   const style = _ctx.style || 'classic';
-  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'services')) {
+  if (tpl === 'restaurant') {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
-  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'services')) {
+  if (tpl === 'hotel') {
     return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
-  if (tpl === 'tourism' && hasTourismModularPage(data, style, 'services')) {
+  if (tpl === 'tourism') {
     return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
-  if (tpl === 'salon' && hasSalonModularPage(data, style, 'services')) {
+  if (tpl === 'salon') {
     return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
-  if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'services')) {
+  if (tpl === 'tradesman') {
     return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
-  if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'services')) {
+  if (tpl === 'consulting') {
     return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
-  if (tpl === 'medical' && hasMedicalModularPage(data, style, 'services')) {
+  if (tpl === 'medical') {
     return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
-  if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'services')) {
+  if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
   const sectionOrder = getAdminSections('services', tpl, style);
@@ -1609,28 +1585,28 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   const style = _ctx.style || 'classic';
-  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'gallery')) {
+  if (tpl === 'restaurant') {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
-  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'gallery')) {
+  if (tpl === 'hotel') {
     return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
-  if (tpl === 'tourism' && hasTourismModularPage(data, style, 'gallery')) {
+  if (tpl === 'tourism') {
     return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
-  if (tpl === 'salon' && hasSalonModularPage(data, style, 'gallery')) {
+  if (tpl === 'salon') {
     return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
-  if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'gallery')) {
+  if (tpl === 'tradesman') {
     return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
-  if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'gallery')) {
+  if (tpl === 'consulting') {
     return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
-  if (tpl === 'medical' && hasMedicalModularPage(data, style, 'gallery')) {
+  if (tpl === 'medical') {
     return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
-  if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'gallery')) {
+  if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
   const sectionOrder = getAdminSections('gallery', tpl, style);
@@ -1748,38 +1724,39 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   const isModern = _ctx.style === 'modern';
   const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
   const style = _ctx.style || 'classic';
-  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'about')) {
+  if (tpl === 'restaurant') {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
-  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'about')) {
+  if (tpl === 'hotel') {
     return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
-  if (tpl === 'tourism' && hasTourismModularPage(data, style, 'about')) {
+  if (tpl === 'tourism') {
     return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
-  if (tpl === 'salon' && hasSalonModularPage(data, style, 'about')) {
+  if (tpl === 'salon') {
     return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
-  if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'about')) {
+  if (tpl === 'tradesman') {
     return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
-  if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'about')) {
+  if (tpl === 'consulting') {
     return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
-  if (tpl === 'medical' && hasMedicalModularPage(data, style, 'about')) {
+  if (tpl === 'medical') {
     return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
-  if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'about')) {
+  if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
-  const sectionOrder = getAdminSections('about', tpl, style);
+  const legacyAboutTpl = tpl as TemplateKey;
+  const sectionOrder = getAdminSections('about', legacyAboutTpl, style);
   const aboutPatch = (patch: Partial<NonNullable<typeof data.about>>) =>
     setData({ ...data, about: { ...(data.about ?? { title: '', body: '', imageUrl: '' }), ...patch } });
 
   const renderSection = (key: string, idx: number) => {
-    const meta = getSectionMeta(key as any, tpl, style);
+    const meta = getSectionMeta(key as any, legacyAboutTpl, style);
     const badge = `Sektion ${idx + 1}`;
-    const specT = pageSpecType(tpl, 'about', key, style);
+    const specT = pageSpecType(legacyAboutTpl, 'about', key, style);
     switch (key) {
       case 'aboutHeader':
         return (
@@ -1793,7 +1770,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       case 'aboutIntro':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="intro" data={data} setData={setData}>
-            {isModern && !isExtra && <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['aboutSidebarEyebrow']} />}
+            {isModern && !isExtra && <BranchTextFields data={data} setData={setData} tpl={legacyAboutTpl} keys={['aboutSidebarEyebrow']} />}
             {isExtra && (
               <Field label="Überschrift" hint="Erscheint als Zwischenüberschrift neben dem Bild.">
                 <input className={inputCls} value={data.about?.title || ''} onChange={(e) => aboutPatch({ title: e.target.value })} />
@@ -1809,7 +1786,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
               <div className="mt-4 pt-4 border-t border-line">
                 <p className="text-sm font-medium mb-1">Sidebar-Kennzahlen</p>
                 <p className="text-xs text-muted mb-3">Eigene Zahlen für die Sidebar neben dem Text. Leer lassen = Home-Zahlen.</p>
-                <NumbersEditor data={data} setData={setData} tpl={tpl} field="aboutNumbers" />
+                <NumbersEditor data={data} setData={setData} tpl={legacyAboutTpl} field="aboutNumbers" />
               </div>
             )}
           </SectionCard>
@@ -1817,8 +1794,8 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       case 'values':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="values" data={data} setData={setData}>
-            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['valuesEyebrow', 'valuesTitle']} />
-            <ValuesEditor data={data} setData={setData} defaults={defaultValues(tpl)} />
+            <BranchTextFields data={data} setData={setData} tpl={legacyAboutTpl} keys={['valuesEyebrow', 'valuesTitle']} />
+            <ValuesEditor data={data} setData={setData} defaults={defaultValues(legacyAboutTpl)} />
           </SectionCard>
         );
       case 'timeline':
@@ -1830,30 +1807,30 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       case 'team':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="team" data={data} setData={setData}>
-            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teamEyebrow', 'teamTitle']} />
+            <BranchTextFields data={data} setData={setData} tpl={legacyAboutTpl} keys={['teamEyebrow', 'teamTitle']} />
             {isExtra && (
-              <ModuleHeadingFields data={data} setData={setData} mKey={tpl === 'fitness' ? 'teamFitness' : tpl === 'medical' ? 'teamMedical' : 'teamConsulting'} />
+              <ModuleHeadingFields data={data} setData={setData} mKey={legacyAboutTpl === 'fitness' ? 'teamFitness' : legacyAboutTpl === 'medical' ? 'teamMedical' : 'teamConsulting'} />
             )}
-            <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
+            <TeamEditor data={data} setData={setData} defaults={defaultTeam(legacyAboutTpl)} />
           </SectionCard>
         );
       case 'aboutNumbers':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="numbers" data={data} setData={setData}>
-            <NumbersEditor data={data} setData={setData} tpl={tpl} />
+            <NumbersEditor data={data} setData={setData} tpl={legacyAboutTpl} />
           </SectionCard>
         );
       case 'certifications':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="certifications" data={data} setData={setData}>
-            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['certsEyebrow', 'certsTitle']} />
+            <BranchTextFields data={data} setData={setData} tpl={legacyAboutTpl} keys={['certsEyebrow', 'certsTitle']} />
             <CertificationsEditor data={data} setData={setData} />
           </SectionCard>
         );
       case 'press':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="press" data={data} setData={setData}>
-            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['pressEyebrow', 'pressTitle']} />
+            <BranchTextFields data={data} setData={setData} tpl={legacyAboutTpl} keys={['pressEyebrow', 'pressTitle']} />
             <PressEditor data={data} setData={setData} />
           </SectionCard>
         );
@@ -1866,7 +1843,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       case 'aboutCta':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="cta" data={data} setData={setData}>
-            <CtaBandEditor data={data} setData={setData} tpl={tpl} page="about" />
+            <CtaBandEditor data={data} setData={setData} tpl={legacyAboutTpl} page="about" />
           </SectionCard>
         );
       default:
@@ -1889,7 +1866,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
           badge={`${sectionOrder.length + i + 1}`}
         />
       ))}
-      <AddSectionRow pageKey="about" data={data} setData={setData} tpl={tpl} />
+      <AddSectionRow pageKey="about" data={data} setData={setData} tpl={legacyAboutTpl} />
     </>
   );
 }
@@ -1898,43 +1875,44 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
   const cb = ((data as any).contactBlock ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
   const setCb = (patch: Partial<typeof cb>) => setData({ ...(data as any), contactBlock: { ...cb, ...patch } } as SiteContent);
   const style = _ctx.style || 'classic';
-  if (tpl === 'restaurant' && hasRestaurantModularPage(data, style, 'contact')) {
+  if (tpl === 'restaurant') {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
-  if (tpl === 'hotel' && hasHotelModularPage(data, style, 'contact')) {
+  if (tpl === 'hotel') {
     return <ModularHotelPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
-  if (tpl === 'tourism' && hasTourismModularPage(data, style, 'contact')) {
+  if (tpl === 'tourism') {
     return <ModularTourismPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
-  if (tpl === 'salon' && hasSalonModularPage(data, style, 'contact')) {
+  if (tpl === 'salon') {
     return <ModularSalonPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
-  if (tpl === 'tradesman' && hasTradesmanModularPage(data, style, 'contact')) {
+  if (tpl === 'tradesman') {
     return <ModularTradesmanPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
-  if (tpl === 'consulting' && hasConsultingModularPage(data, style, 'contact')) {
+  if (tpl === 'consulting') {
     return <ModularConsultingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
-  if (tpl === 'medical' && hasMedicalModularPage(data, style, 'contact')) {
+  if (tpl === 'medical') {
     return <ModularMedicalPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
-  if (tpl === 'fitness' && hasFitnessModularPage(data, style, 'contact')) {
+  if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
-  const sectionOrder = getAdminSections('contact', tpl, style);
+  const legacyContactTpl = tpl as TemplateKey;
+  const sectionOrder = getAdminSections('contact', legacyContactTpl, style);
 
   const renderSection = (key: string, idx: number) => {
-    const meta = getSectionMeta(key as any, tpl, style);
+    const meta = getSectionMeta(key as any, legacyContactTpl, style);
     const badge = `Sektion ${idx + 1}`;
-    const specT = pageSpecType(tpl, 'contact', key, style);
+    const specT = pageSpecType(legacyContactTpl, 'contact', key, style);
     switch (key) {
       case 'contactHeader':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT}>
             <PageHeaderEditor data={data} setData={setData} field="contactPage" defaults={{
               eyebrow: 'Kontakt',
-              title: tpl === 'restaurant' ? 'Reservieren oder einfach vorbeikommen.' : tpl === 'salon' ? 'Termin vereinbaren oder kurz fragen.' : 'Anfrage senden oder Notdienst rufen.',
+              title: legacyContactTpl === 'restaurant' ? 'Reservieren oder einfach vorbeikommen.' : legacyContactTpl === 'salon' ? 'Termin vereinbaren oder kurz fragen.' : 'Anfrage senden oder Notdienst rufen.',
               subtitle: '',
             }} />
           </SectionCard>
@@ -1981,13 +1959,13 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="contact" sectionKey="arrival" data={data} setData={setData}>
             <ArrivalSectionHeader data={data} setData={setData} />
-            <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(tpl)} />
+            <ArrivalEditor data={data} setData={setData} defaults={defaultArrival(legacyContactTpl)} />
           </SectionCard>
         );
       case 'contactCta':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="contact" sectionKey="cta" data={data} setData={setData}>
-            <CtaBandEditor data={data} setData={setData} tpl={tpl} page="contact" />
+            <CtaBandEditor data={data} setData={setData} tpl={legacyContactTpl} page="contact" />
           </SectionCard>
         );
       default:
@@ -2010,7 +1988,7 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
           badge={`${sectionOrder.length + i + 1}`}
         />
       ))}
-      <AddSectionRow pageKey="contact" data={data} setData={setData} tpl={tpl} />
+      <AddSectionRow pageKey="contact" data={data} setData={setData} tpl={legacyContactTpl} />
     </>
   );
 }

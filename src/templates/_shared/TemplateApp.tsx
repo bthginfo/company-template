@@ -2244,9 +2244,24 @@ function TradesmanServiceTiles({ services, compact, variant }: { services: SiteC
               <h3 className="font-display text-2xl leading-tight">{s.title}</h3>
             )}
             {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
-            <div className="mt-auto pt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-muted group-hover:text-brand transition-colors">
-              <span>{linked ? 'Details ansehen' : 'Anfrage stellen'}</span>
-              <span aria-hidden>→</span>
+            <div className="mt-auto pt-4">
+              {linked ? (
+                <TLink
+                  to={catalogDetailHref(variant, slug)}
+                  className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted group-hover:text-brand transition-colors no-underline hover:underline"
+                >
+                  <span>Details ansehen</span>
+                  <span aria-hidden>→</span>
+                </TLink>
+              ) : (
+                <TLink
+                  to="/kontakt"
+                  className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted group-hover:text-brand transition-colors no-underline hover:underline"
+                >
+                  <span>Anfrage stellen</span>
+                  <span aria-hidden>→</span>
+                </TLink>
+              )}
             </div>
           </article>
         );
@@ -2313,7 +2328,15 @@ function HotelRoomCards({ services, compact, variant }: { services: SiteContent[
               {s.description && <p className="text-sm text-muted leading-relaxed">{s.description}</p>}
               <div className="mt-auto pt-4 border-t border-line flex items-center justify-between text-xs uppercase tracking-widest text-muted">
                 <span className="font-mono">Bergblick · Eigenes Bad · WLAN</span>
-                <span className="text-brand">{linked ? 'Details →' : 'Anfragen →'}</span>
+                {linked ? (
+                  <TLink to={catalogDetailHref(variant, slug)} className="text-brand no-underline hover:underline shrink-0">
+                    Details →
+                  </TLink>
+                ) : (
+                  <TLink to="/kontakt" className="text-brand no-underline hover:underline shrink-0">
+                    Anfragen →
+                  </TLink>
+                )}
               </div>
             </div>
           </article>
@@ -2372,12 +2395,24 @@ function TourismTourCards({ services, compact, variant }: { services: SiteConten
                 <div className="border border-line rounded-lg p-2 text-center"><dt className="text-muted text-[9px]">Stufe</dt><dd>{m.diff}</dd></div>
                 <div className="border border-line rounded-lg p-2 text-center"><dt className="text-muted text-[9px]">Gruppe</dt><dd className="text-[9px]">{m.size}</dd></div>
               </dl>
-              {s.price && (
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="font-mono text-base text-brand">{s.price}</span>
-                  <span className="text-xs uppercase tracking-widest text-muted">Buchen →</span>
-                </div>
-              )}
+              <div className={`mt-4 flex items-center gap-4 ${s.price ? 'justify-between' : 'justify-end'}`}>
+                {s.price ? <span className="font-mono text-base text-brand">{s.price}</span> : null}
+                {linked ? (
+                  <TLink
+                    to={catalogDetailHref(variant, slug)}
+                    className="text-xs uppercase tracking-widest text-brand no-underline hover:underline shrink-0 inline-flex items-center gap-1"
+                  >
+                    Details & Buchen <span aria-hidden>→</span>
+                  </TLink>
+                ) : (
+                  <TLink
+                    to="/kontakt"
+                    className="text-xs uppercase tracking-widest text-muted no-underline hover:text-brand shrink-0 inline-flex items-center gap-1"
+                  >
+                    Buchen <span aria-hidden>→</span>
+                  </TLink>
+                )}
+              </div>
             </div>
           </article>
         );

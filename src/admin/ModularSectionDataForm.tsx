@@ -1,5 +1,4 @@
-import type { TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { ModularSectionDataFormProps } from './modular-section-types';
 import {
   ModField,
   ModImagePick,
@@ -7,17 +6,8 @@ import {
   modularInputCls,
   patchButton,
   readButton,
-  type ModularUploadFn,
 } from './modular-section-field-kit';
-
-export type ModularSectionDataFormProps = {
-  tpl: TemplateKey;
-  sectionType: string;
-  data: Record<string, unknown>;
-  onChange: (next: Record<string, unknown>) => void;
-  style: TemplateStyle;
-  uploadImage?: ModularUploadFn;
-};
+import { extendedModularSectionForm } from './modular-extended-section-forms';
 
 function str(v: unknown): string {
   return typeof v === 'string' ? v : v == null ? '' : String(v);
@@ -147,14 +137,20 @@ function StatsBandForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'da
 }
 
 function TestimonialsBlockForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'data' | 'onChange'>) {
-  const rows = Array.isArray(data.testimonials)
-    ? (data.testimonials as unknown[]).map((x) =>
-        x && typeof x === 'object'
-          ? { name: str((x as { name?: unknown }).name), quote: str((x as { quote?: unknown }).quote) }
-          : { name: '', quote: '' },
-      )
-    : [];
-  const set = (next: typeof rows) => onChange({ ...data, testimonials: next });
+  const raw = Array.isArray(data.testimonials)
+    ? (data.testimonials as unknown[])
+    : Array.isArray(data.items)
+      ? (data.items as unknown[])
+      : [];
+  const rows = raw.map((x) =>
+    x && typeof x === 'object'
+      ? {
+          name: str((x as { name?: unknown }).name || (x as { author?: unknown }).author),
+          quote: str((x as { quote?: unknown }).quote || (x as { text?: unknown }).text),
+        }
+      : { name: '', quote: '' },
+  );
+  const set = (next: typeof rows) => onChange({ ...data, testimonials: next, items: next });
   return (
     <div className="space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">
@@ -1296,6 +1292,8 @@ export function ModularSectionDataForm(props: ModularSectionDataFormProps) {
       return <TimelineForm data={data} onChange={onChange} />;
     case 'team':
       return <TeamForm data={data} onChange={onChange} uploadImage={uploadImage} />;
+    case 'trainers':
+      return <TeamForm data={data} onChange={onChange} uploadImage={uploadImage} />;
     case 'expertQuotes':
       return <ExpertQuotesForm data={data} onChange={onChange} />;
     case 'storyFacts':
@@ -1320,7 +1318,12 @@ export function ModularSectionDataForm(props: ModularSectionDataFormProps) {
       return <LocationsModularForm data={data} onChange={onChange} />;
     case 'directions':
       return <DirectionsForm data={data} onChange={onChange} />;
-    default:
+    default: {
+      const extra = extendedModularSectionForm(props);
+      if (extra) return extra;
       return <UnsupportedSection sectionType={sectionType} />;
+    }
   }
 }
+
+export type { ModularSectionDataFormProps } from './modular-section-types';

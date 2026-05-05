@@ -51,6 +51,7 @@ Stil: `classic` (traditionell, seriös, Familienbetrieb), `modern` (zeitgemäß,
 - Timeline: Echte Meilensteine. FAQ: Realistische Fragen zur Branche. SEO: Lokal optimiert.
 - News/Posts: 2-3 realistische Beiträge zu aktuellen Themen des Kunden.
 - CTA-Bänder pro Seite anpassen (Home: allgemein, Services: spezifisch, About: Vertrauen, Contact: direkt).
+- **`locations`:** Wenn der Betrieb mehrere Standorte hat (Filiale, zweites Studio, Außenstelle), `locations[]` mit `name`, Adresse, Telefon/E-Mail, `hours` (wie bei `contact.hours`) und optional `mapsUrl` füllen — nicht nur leere Objekte. Ein Standort → Feld weglassen oder `[]`.
 
 **Nicht-Gefundenes:** Feld leer lassen oder Platzhalter mit `[PRÜFEN]` markieren. Keine erfundenen Fakten.
 

@@ -11,6 +11,7 @@ import {
   importRestaurantModularFromLegacy,
   type RestaurantModularPageKey,
 } from '@/lib/modular-restaurant';
+import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
 
 type Props = {
   data: SiteContent;
@@ -41,6 +42,16 @@ const PAGE_LABEL_DE: Record<RestaurantModularPageKey, string> = {
 };
 
 export function ModularRestaurantPageEditor({ data, setData, tpl, style, page, uploadImage }: PageProps) {
+  useBootstrapModularIfNeeded({
+    tpl,
+    style,
+    data,
+    setData,
+    cfgTpl: 'restaurant',
+    importFromLegacy: importRestaurantModularFromLegacy,
+    applyToLegacy: applyRestaurantModularToLegacy,
+    hasAny: hasAnyRestaurantModular,
+  });
   const modular = data.modularPagesV1;
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];
