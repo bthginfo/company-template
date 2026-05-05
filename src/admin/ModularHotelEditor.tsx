@@ -13,7 +13,7 @@ import {
   type HotelModularPageKey,
 } from '@/lib/modular-hotel';
 import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
-import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
+import { getHomeLayoutSlotKeys } from '@/lib/effective-home-order';
 import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
 import { applyModularHomeVisibilityMirror } from '@/lib/page-blocks-v1-section-visibility-sync';
 
@@ -52,7 +52,7 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page, upload
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];
   const homeSlots = useMemo(
-    () => (page === 'home' ? getEffectiveHomeSectionKeys(data, tpl, style) : null),
+    () => (page === 'home' ? getHomeLayoutSlotKeys(data, tpl, style) : null),
     [page, data, tpl, style],
   );
   const hiddenHomeCount = useMemo(() => {

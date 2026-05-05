@@ -19,7 +19,7 @@ import { getBranchConfig } from './branch-config';
 
 export type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
-/** Layout visibility key: hide the global Hinweis-Banner on a subpage when `false`. */
+/** Layout visibility key: hide the Hinweis-Banner (Ticker) when `sectionVisibility.<page>.announcementBar` is `false`. */
 export const ANNOUNCEMENT_BAR_SECTION_KEY = 'announcementBar' as const;
 export type Variant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'consulting' | 'medical' | 'fitness';
 export type Style = 'classic' | 'modern' | 'bold';
@@ -182,9 +182,8 @@ export function isSectionEnabled(content: SiteContent, page: PageId, key: string
   return true;
 }
 
-/** Hinweis-Banner: home always uses global `announcements`; subpages respect `sectionVisibility.<page>.announcementBar` (default on). */
+/** Hinweis-Banner (Ticker): respects `sectionVisibility.<page>.announcementBar` on every page (default on). */
 export function isAnnouncementBarEnabledOnPage(content: SiteContent, page: PageId): boolean {
-  if (page === 'home') return true;
   return isSectionEnabled(content, page, ANNOUNCEMENT_BAR_SECTION_KEY);
 }
 

@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { ModularSectionDataForm } from './ModularSectionDataForm';
 import type { ModularUploadFn } from './modular-section-field-kit';
 import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
-import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
+import { getHomeLayoutSlotKeys } from '@/lib/effective-home-order';
 import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
 import { applyModularHomeVisibilityMirror } from '@/lib/page-blocks-v1-section-visibility-sync';
 import type { ModularSpecPageKey } from './modular-section-types';
@@ -63,7 +63,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];
   const homeSlots = useMemo(
-    () => (page === 'home' ? getEffectiveHomeSectionKeys(data, cfg.tpl, style) : null),
+    () => (page === 'home' ? getHomeLayoutSlotKeys(data, cfg.tpl, style) : null),
     [page, data, cfg.tpl, style],
   );
   const hiddenHomeCount = useMemo(() => {

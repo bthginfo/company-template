@@ -28,6 +28,8 @@ function slotHit(slots: ReadonlySet<string>, keys: readonly string[]): boolean {
  */
 export function modularHomeSlotsForSectionType(template: TemplateKey, sectionType: string): readonly string[] | null {
   const shared: Record<string, readonly string[]> = {
+    /** Top header ticker — not a body slot in `BRANCH_STYLE_ORDER`; uses `sectionVisibility.home.announcementBar`. */
+    noticeBanner: ['announcementBar'],
     actionBar: ['action'],
     featuredDishesGrid: ['signature'],
     featuredDishes: ['signature'],

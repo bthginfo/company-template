@@ -1,7 +1,10 @@
 /**
- * Single source for which home section *slots* are in play for a tenant,
- * matching `TemplateApp` (core five) and `ExtraBranchTemplate` (extras).
- * Used by the modular admin so editors only surface blocks that map to the live layout.
+ * Home layout slot order for tenants (core five + extras).
+ *
+ * `getEffectiveHomeSectionKeys` matches the live site: order + `sectionVisibility`.
+ * `getHomeLayoutSlotKeys` is the same order **without** visibility filtering — used
+ * by the modular admin so blocks like the Aktionsleiste stay editable after a
+ * tenant hides the slot (otherwise the „Sichtbar“ toggle would disappear).
  */
 
 import type { SiteContent } from '@/lib/types';
@@ -12,10 +15,10 @@ import { isSectionEnabled, getCatalogForVariant } from '@/lib/page-layout';
 import { BRANCH_STYLE_ORDER } from '@/lib/template-orders';
 
 /**
- * Ordered home section keys after `sectionOrder.home` override and `sectionVisibility` flags.
- * Mirrors `HomePageClassic` / `HomePageModern` / `HomePageBold` and extra-branch home layouts.
+ * Home slot keys from `sectionOrder.home` (or branch defaults), without
+ * `sectionVisibility`. For modular admin slot ↔ block mapping only.
  */
-export function getEffectiveHomeSectionKeys(
+export function getHomeLayoutSlotKeys(
   content: SiteContent,
   variant: TemplateKey,
   style: TemplateStyle,
@@ -26,11 +29,21 @@ export function getEffectiveHomeSectionKeys(
     const defaults = [...(BRANCH_STYLE_ORDER[variant][style] ?? BRANCH_STYLE_ORDER.consulting.classic)];
     const catalogKeys = getCatalogForVariant('home', variant, style).map((s) => s.key);
     const allowed = new Set([...defaults, ...catalogKeys]);
-    const base = Array.isArray(custom) && custom.length ? custom.filter((k) => allowed.has(k)) : defaults;
-    return base.filter((k) => isSectionEnabled(content, 'home', k));
+    return Array.isArray(custom) && custom.length ? custom.filter((k) => allowed.has(k)) : defaults;
   }
 
   const defaults = BRANCH_STYLE_ORDER[variant][style];
-  const base = Array.isArray(custom) && custom.length ? custom : [...defaults];
-  return base.filter((k) => isSectionEnabled(content, 'home', k));
+  return Array.isArray(custom) && custom.length ? custom : [...defaults];
+}
+
+/**
+ * Ordered home section keys after `sectionOrder.home` override and `sectionVisibility` flags.
+ * Mirrors `HomePageClassic` / `HomePageModern` / `HomePageBold` and extra-branch home layouts.
+ */
+export function getEffectiveHomeSectionKeys(
+  content: SiteContent,
+  variant: TemplateKey,
+  style: TemplateStyle,
+): string[] {
+  return getHomeLayoutSlotKeys(content, variant, style).filter((k) => isSectionEnabled(content, 'home', k));
 }
