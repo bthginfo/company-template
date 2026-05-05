@@ -1252,8 +1252,8 @@ function UnsupportedSection({ sectionType }: { sectionType: string }) {
     <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
       <p className="font-medium">Formular für „{sectionType}“ ist noch nicht angebunden.</p>
       <p className="mt-2 text-xs leading-relaxed">
-        Bitte nutzen Sie vorerst den Button „Alle Spez-Seiten aus aktuellem Inhalt neu füllen“ oben, oder bearbeiten Sie die
-        Inhalte in den normalen Seiten-Tabs — die werden beim nächsten Neu-Füllen wieder in diese Sektion übernommen.
+        Öffnen Sie ggf. „Erweiterte Seitenaktionen“ oben und füllen Sie die Seiten aus dem bestehenden Inhalt neu, oder bearbeiten
+        Sie die Felder in den klassischen Admin-Tabs — beim nächsten Neu-Import werden sie wieder in diese Sektion übernommen.
       </p>
     </div>
   );

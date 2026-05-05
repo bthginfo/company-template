@@ -108,44 +108,37 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
 
   return (
     <div className="space-y-6">
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-950">
-        <p className="font-medium">
-          Spez-Modell (Beta) · {cfg.branchLabelDe} · {formatBranchStyle(style)} · {cfg.pageLabels[page]}
+      {modular?.combo?.style && modular.combo.style !== style ? (
+        <p className="text-xs text-rose-900 max-w-prose rounded-xl border border-rose-200 bg-rose-50/80 px-3 py-2">
+          Die Speicher-Struktur ist für <strong>{formatBranchStyle(modular.combo.style)}</strong> angelegt, der Mandant nutzt aber{' '}
+          <strong>{formatBranchStyle(style)}</strong>. Öffentlich wird trotzdem gemergt; unter „Erweiterte Seitenaktionen“ können Sie
+          den Inhalt neu importieren (setzt den Stil in den Daten auf {formatBranchStyle(style)}).
         </p>
-        <p className="mt-1 text-xs text-amber-900">
-          Blöcke gemäß <code className="text-[11px] bg-white/80 px-1 rounded">{cfg.specDoc}</code>. Änderungen werden in die
-          bestehenden SiteContent-Felder gemergt.
+      ) : null}
+      <details className="rounded-xl border border-line bg-[#fafaf7] px-3 py-2 text-xs text-muted">
+        <summary className="cursor-pointer font-medium text-foreground select-none">Erweiterte Seitenaktionen</summary>
+        <p className="mt-2 leading-relaxed max-w-prose">
+          Referenz: <code className="text-[11px] bg-white px-1 rounded border border-line">{cfg.specDoc}</code>. Inhalt aus den
+          klassischen Feldern erneut in alle modularen Seiten übernehmen, oder nur die modulare Speicher-Schicht entfernen (gemergte
+          Werte bleiben in SiteContent).
         </p>
-        <p className="mt-2 text-xs text-amber-900 max-w-prose leading-relaxed border-t border-amber-200/80 pt-2">
-          <strong className="font-semibold">Aktivieren</strong> legt die modulare Seitenstruktur an und übernimmt Ihre bisherigen
-          Felder einmalig. <strong className="font-semibold">Deaktivieren</strong> entfernt nur diese zusätzliche Speicher-Schicht — die
-          zuletzt gemergten Werte in den normalen Feldern (Hero, Listen, Galerie …) bleiben auf der Website erhalten, bis Sie
-          sie dort oder hier wieder ändern.
-        </p>
-        {modular?.combo?.style && modular.combo.style !== style ? (
-          <p className="mt-2 text-xs text-rose-900 max-w-prose rounded-lg border border-rose-200 bg-white/90 px-3 py-2">
-            Die Speicher-Struktur ist für <strong>{formatBranchStyle(modular.combo.style)}</strong> angelegt, der Mandant
-            nutzt aber <strong>{formatBranchStyle(style)}</strong>. Öffentlich wird trotzdem gemergt; für passende
-            Sektionstypen auf „Neu füllen“ klicken (setzt den Stil in den Daten auf {formatBranchStyle(style)}).
-          </p>
-        ) : null}
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="flex flex-wrap gap-2 mt-2">
           <button
             type="button"
             onClick={reseed}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-line hover:bg-muted/30"
           >
-            Alle Spez-Seiten aus aktuellem Inhalt neu füllen
+            Alle Seiten aus aktuellem Inhalt neu füllen
           </button>
           <button
             type="button"
             onClick={deactivate}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-line hover:bg-muted/30"
           >
-            Modularen Editor deaktivieren (nur Spez-Daten entfernen)
+            Modulare Daten entfernen
           </button>
         </div>
-      </div>
+      </details>
 
       <div className="space-y-4">
         {sections.map((sec, idx) => (

@@ -33,14 +33,6 @@ function commitModular(base: SiteContent, modular: NonNullable<SiteContent['modu
   return applyRestaurantModularToLegacy({ ...base, modularPagesV1: modular });
 }
 
-const PAGE_LABEL_DE: Record<RestaurantModularPageKey, string> = {
-  home: 'Start',
-  services: 'Speisekarte / Leistungen',
-  gallery: 'Galerie',
-  about: 'Über uns',
-  contact: 'Kontakt',
-};
-
 export function ModularRestaurantPageEditor({ data, setData, tpl, style, page, uploadImage }: PageProps) {
   useBootstrapModularIfNeeded({
     tpl,
@@ -103,42 +95,36 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page, u
 
   return (
     <div className="space-y-6">
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-950">
-        <p className="font-medium">
-          Spez-Modell (Beta) · Restaurant · {formatBranchStyle(style)} · {PAGE_LABEL_DE[page]}
+      {modular?.combo?.style && modular.combo.style !== style ? (
+        <p className="text-xs text-rose-900 max-w-prose rounded-xl border border-rose-200 bg-rose-50/80 px-3 py-2">
+          Die Speicher-Struktur ist für <strong>{formatBranchStyle(modular.combo.style)}</strong> angelegt, der Mandant nutzt aber{' '}
+          <strong>{formatBranchStyle(style)}</strong>. Öffentlich wird trotzdem gemergt; unter „Erweiterte Seitenaktionen“ können Sie
+          den Inhalt neu importieren (setzt den Stil in den Daten auf {formatBranchStyle(style)}).
         </p>
-        <p className="mt-1 text-xs text-amber-900">
-          Blöcke entsprechen der CMS-Spec. Änderungen werden in die bestehenden SiteContent-Felder gemergt,
-          damit die Live-Templates unverändert weiter funktionieren.
+      ) : null}
+      <details className="rounded-xl border border-line bg-[#fafaf7] px-3 py-2 text-xs text-muted">
+        <summary className="cursor-pointer font-medium text-foreground select-none">Erweiterte Seitenaktionen</summary>
+        <p className="mt-2 leading-relaxed max-w-prose">
+          Inhalt aus den klassischen Feldern erneut in alle modularen Seiten übernehmen, oder nur die modulare Speicher-Schicht
+          entfernen (gemergte Werte in den SiteContent-Feldern bleiben erhalten).
         </p>
-        <p className="mt-2 text-xs text-amber-900 max-w-prose leading-relaxed border-t border-amber-200/80 pt-2">
-          <strong className="font-semibold">Deaktivieren</strong> entfernt nur die modulare Speicher-Schicht; gemergte Inhalte in den
-          normalen Feldern bleiben erhalten.
-        </p>
-        {modular?.combo?.style && modular.combo.style !== style ? (
-          <p className="mt-2 text-xs text-rose-900 max-w-prose rounded-lg border border-rose-200 bg-white/90 px-3 py-2">
-            Die Speicher-Struktur ist für <strong>{formatBranchStyle(modular.combo.style)}</strong> angelegt, der Mandant
-            nutzt aber <strong>{formatBranchStyle(style)}</strong>. Öffentlich wird trotzdem gemergt; für passende
-            Sektionstypen auf „Neu füllen“ klicken (setzt den Stil in den Daten auf {formatBranchStyle(style)}).
-          </p>
-        ) : null}
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="flex flex-wrap gap-2 mt-2">
           <button
             type="button"
             onClick={reseed}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-line hover:bg-muted/30"
           >
-            Alle Spez-Seiten aus aktuellem Inhalt neu füllen
+            Alle Seiten aus aktuellem Inhalt neu füllen
           </button>
           <button
             type="button"
             onClick={deactivate}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-line hover:bg-muted/30"
           >
-            Modularen Editor deaktivieren (nur Spez-Daten entfernen)
+            Modulare Daten entfernen
           </button>
         </div>
-      </div>
+      </details>
 
       <div className="space-y-4">
         {sections.map((sec, idx) => (
