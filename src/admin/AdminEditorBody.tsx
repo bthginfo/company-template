@@ -248,23 +248,6 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
           </div>
 
           <div className="p-6 md:p-8 space-y-10">
-            {pageId === 'home' && (
-              <div className="rounded-xl border border-sky-200 bg-sky-50/85 px-4 py-3 text-sm text-slate-800 space-y-2">
-                <p className="font-medium text-slate-900">Demo-Inhalte sind über mehrere Bereiche verteilt</p>
-                <p className="text-slate-700 leading-relaxed">
-                  Unter{' '}
-                  <button type="button" className="text-brand underline underline-offset-2 font-medium" onClick={() => setPageId('news')}>News &amp; Blog</button>
-                  {' '}finden Sie die Beispiel-Artikel, unter{' '}
-                  <button type="button" className="text-brand underline underline-offset-2 font-medium" onClick={() => setPageId('seo')}>SEO &amp; Sichtbarkeit</button>
-                  {' '}Meta-Texte, unter{' '}
-                  <button type="button" className="text-brand underline underline-offset-2 font-medium" onClick={() => setPageId('contact')}>Kontaktdaten</button>
-                  {' '}Erreichbarkeit und Öffnungszeiten. Die Startseiten-Sektionen unten decken nur den sichtbaren Seitenaufbau ab.
-                </p>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Neu provisionierte Mandanten ohne Import-JSON: Telefon, E-Mail und Straße werden in den Kontaktdaten absichtlich leer gelassen (Datenschutz) — bitte eintragen.
-                </p>
-              </div>
-            )}
             {pageId === 'brand' && <BrandPage data={data} setData={setData} tpl={tplKey} style={tplStyle} onStyleChange={onStyleChange} />}
             {pageId === 'navigation' && <NavigationPage data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'contact' && <ContactGlobal data={data} setData={setData} />}
