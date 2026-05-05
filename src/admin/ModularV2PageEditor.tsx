@@ -22,7 +22,8 @@ function ensureV2(data: SiteContent, tpl: TemplateKey, style: TemplateStyle): Mo
   return seedModularPagesV2(tpl, style);
 }
 
-export function shouldUseCmsV2Editor(): boolean {
+export function shouldUseCmsV2Editor(content?: SiteContent): boolean {
+  if (content?.cmsV2?.enabled === true) return true;
   if (typeof window === 'undefined') return false;
   const params = new URLSearchParams(window.location.search);
   return params.get('cmsV2') === '1' || window.localStorage.getItem('cms:v2-editor') === '1';

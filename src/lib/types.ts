@@ -727,6 +727,14 @@ export const SiteContentSchema = z.object({
    * Spec-first modular pages (v1). Scoped to `combo` (template × style).
    * Shared/global admin (SEO, Skripte, …) stays on legacy top-level keys.
    */
+  cmsV2: z.object({
+    /**
+     * Tenant rollout flag for the direct-render CMS.
+     * Query/localStorage gates still work for local QA, but this flag is the
+     * durable switch used by provisioning/admin once a tenant is ready.
+     */
+    enabled: z.boolean().optional().default(false),
+  }).optional().default({}),
   modularPagesV1: ModularPagesV1Schema.optional(),
   modularPagesV2: ModularPagesV2Schema.optional(),
 

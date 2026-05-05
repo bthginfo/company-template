@@ -2531,6 +2531,8 @@ function SocialPage({ data, setData }: SetterProps) {
 function SeoPage({ data, setData }: SetterProps) {
   const seo = (data as any).seo ?? { title: '', description: '', keywords: '', ogImage: '', canonical: '', locale: 'de_AT', priceRange: '', cuisine: '' };
   const set = (patch: any) => setData({ ...(data as any), seo: { ...seo, ...patch } } as SiteContent);
+  const cmsV2 = data.cmsV2 ?? {};
+  const setCmsV2 = (patch: Partial<NonNullable<SiteContent['cmsV2']>>) => setData({ ...data, cmsV2: { ...cmsV2, ...patch } });
   const pageSeo = ((data as any).pageSeo ?? {}) as Record<string, { title?: string; description?: string; keywords?: string; ogImage?: string; noindex?: boolean }>;
   const setPage = (id: string, patch: any) => setData({
     ...(data as any),
@@ -2574,6 +2576,16 @@ function SeoPage({ data, setData }: SetterProps) {
             <input className={inputCls} value={seo.cuisine || ''} onChange={(e) => set({ cuisine: e.target.value })} placeholder="z. B. Italienisch" />
           </Field>
         </div>
+      </SectionCard>
+      <SectionCard title="CMS V2" description="Direktes Section-CMS fuer diese Branchen-/Style-Kombination." badge={cmsV2.enabled ? 'Aktiv' : 'Aus'}>
+        <Toggle
+          value={cmsV2.enabled === true}
+          onChange={(enabled) => setCmsV2({ enabled })}
+          label="CMS V2 fuer Admin und Frontend aktivieren"
+        />
+        <p className="text-xs text-muted leading-relaxed mt-3">
+          Aktiviert den neuen Editor und den direkten V2-Frontend-Renderer fuer diesen Tenant. Speichern schreibt weiter nur Draft; live wird die Umstellung erst nach Veroeffentlichen.
+        </p>
       </SectionCard>
       <SectionCard title="Pro Seite" description="Meta je Unterseite überschreiben." badge="Sektion 3">
         <div className="space-y-6">

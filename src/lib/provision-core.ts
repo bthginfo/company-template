@@ -189,6 +189,7 @@ export function defaultsFor(
   const withLegacyModular = withModularDefaults(mergeSiteContentWithBootstrappedPageBlocks(out, t, style), t, style);
   return SiteContentSchema.parse({
     ...withLegacyModular,
+    cmsV2: { enabled: false },
     modularPagesV2: seedModularPagesV2(t, style),
   });
 }

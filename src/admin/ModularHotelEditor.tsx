@@ -19,7 +19,7 @@ type Props = {
 };
 
 export function ModularHotelPageEditor(props: Props & { page: ModularSpecPageKey }) {
-  if (shouldUseCmsV2Editor()) {
+  if (shouldUseCmsV2Editor(props.data)) {
     return <ModularV2PageEditor {...props} sectionLabels={HOTEL_MODULAR_SPEC_CFG.sectionLabels} />;
   }
   return <ModularSpecPageEditor {...props} cfg={HOTEL_MODULAR_SPEC_CFG} />;

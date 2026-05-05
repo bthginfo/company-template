@@ -19,7 +19,7 @@ type Props = {
 };
 
 export function ModularRestaurantPageEditor(props: Props & { page: ModularSpecPageKey }) {
-  if (shouldUseCmsV2Editor()) {
+  if (shouldUseCmsV2Editor(props.data)) {
     return <ModularV2PageEditor {...props} sectionLabels={RESTAURANT_MODULAR_SPEC_CFG.sectionLabels} />;
   }
   return <ModularSpecPageEditor {...props} cfg={RESTAURANT_MODULAR_SPEC_CFG} />;

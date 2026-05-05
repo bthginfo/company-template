@@ -28,7 +28,7 @@ export function ModularTradesmanPageEditor({
   page,
   uploadImage,
 }: SharedProps & { page: ModularSpecPageKey }) {
-  if (shouldUseCmsV2Editor()) {
+  if (shouldUseCmsV2Editor(data)) {
     return <ModularV2PageEditor data={data} setData={setData} tpl={tpl} style={style} page={page} sectionLabels={TRADESMAN_MODULAR_SPEC_CFG.sectionLabels} uploadImage={uploadImage} />;
   }
   return (
