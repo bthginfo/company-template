@@ -103,9 +103,10 @@ function ProcessColumnsForm({ data, onChange }: Pick<ModularSectionDataFormProps
 }
 
 function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSectionDataFormProps) {
+  const showTags = tpl === 'salon' || tpl === 'tourism';
   const items = Array.isArray(data.items)
     ? (data.items as unknown[]).map((x) => {
-        if (!x || typeof x !== 'object') return { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '', hasSubpage: false };
+        if (!x || typeof x !== 'object') return { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '' };
         const o = x as Record<string, unknown>;
         const btn = readButton(o, 'button');
         const href = btn.linkType === 'external' ? str(btn.externalUrl) : str(btn.internalPage);
@@ -116,7 +117,6 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
           tags: str(o.tags),
           btnLabel: str(btn.label),
           btnHref: href,
-          hasSubpage: bool(o.hasSubpage, false),
         };
       })
     : [];
@@ -126,10 +126,8 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
       items: next.map((r) => ({
         title: r.title,
         description: r.description,
-        tags: r.tags,
+        ...(showTags ? { tags: r.tags } : {}),
         image: { image: r.image, alt: r.title },
-        hasSubpage: r.hasSubpage,
-        subpage: {},
         button: {
           label: r.btnLabel,
           linkType: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? 'external' : 'internal',
@@ -159,14 +157,12 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
           <ModField label="Beschreibung">
             <textarea className={modularInputCls} rows={2} value={row.description} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, description: e.target.value } : x)))} />
           </ModField>
-          <ModField label="Tags">
-            <input className={modularInputCls} value={row.tags} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, tags: e.target.value } : x)))} />
-          </ModField>
+          {showTags ? (
+            <ModField label={tpl === 'tourism' ? 'Sprachen / Tags' : 'Kategorie / Tags'}>
+              <input className={modularInputCls} value={row.tags} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, tags: e.target.value } : x)))} />
+            </ModField>
+          ) : null}
           <ModImagePick label="Bild" value={row.image} onChange={(url) => set(items.map((x, j) => (j === i ? { ...x, image: url } : x)))} uploadImage={uploadImage} />
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input type="checkbox" checked={row.hasSubpage} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, hasSubpage: e.target.checked } : x)))} />
-            <span>Eigene Unterseite</span>
-          </label>
           <ModField label="Button-Text">
             <input className={modularInputCls} value={row.btnLabel} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, btnLabel: e.target.value } : x)))} />
           </ModField>
@@ -181,7 +177,7 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
           </button>
         </div>
       ))}
-      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '', hasSubpage: false }])}>
+      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '' }])}>
         + Karte
       </button>
     </div>

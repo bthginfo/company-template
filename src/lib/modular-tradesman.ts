@@ -137,6 +137,44 @@ function mergeTradesmanGalleryExtras(content: SiteContent, sections: ModularSect
   return next;
 }
 
+function mergeTradesmanAboutExtras(content: SiteContent, sections: ModularSectionV1[]): SiteContent {
+  let next: SiteContent = { ...content };
+  for (const sec of sections) {
+    if (sec.isVisible === false) continue;
+    const d = sec.data ?? {};
+    if (sec.type === 'storyImageSplit') {
+      const prevAbout = next.about ?? { title: '', body: '', imageUrl: '' };
+      next = {
+        ...next,
+        about: {
+          ...prevAbout,
+          title: str((d as { headline?: unknown }).headline) || prevAbout.title,
+          body: str((d as { description?: unknown }).description) || prevAbout.body,
+        },
+        branchText: { ...next.branchText, aboutTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow) },
+      };
+    } else if (sec.type === 'qualifications') {
+      const raw = (d as { items?: unknown }).items;
+      const rows = Array.isArray(raw)
+        ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({
+            t: str(x.title),
+            d: str(x.description),
+          }))
+        : [];
+      next = {
+        ...next,
+        branchText: {
+          ...next.branchText,
+          certsEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+          certsTitle: str((d as { headline?: unknown }).headline),
+        },
+        certifications: rows,
+      };
+    }
+  }
+  return next;
+}
+
 function mergeTradesmanHomeSupplements(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
   let next: SiteContent = { ...content };
   for (const sec of sections) {
@@ -206,6 +244,27 @@ function mergeTradesmanHomeSupplements(content: SiteContent, sections: ModularSe
     }
   }
   return next;
+}
+
+function importTradesmanAboutExtras(content: SiteContent, sections: ModularSectionV1[]): void {
+  const by = (t: string) => sections.find((s) => s.type === t);
+  const sis = by('storyImageSplit');
+  if (sis) {
+    sis.data = {
+      eyebrow: str(content.branchText?.aboutTeaserEyebrow),
+      headline: str(content.about?.title),
+      description: str(content.about?.body),
+    };
+  }
+  const qual = by('qualifications');
+  if (qual) {
+    qual.data = {
+      eyebrow: str(content.branchText?.certsEyebrow),
+      headline: str(content.branchText?.certsTitle),
+      description: '',
+      items: (content.certifications ?? []).map((c) => ({ title: str(c.t), description: str(c.d) })),
+    };
+  }
 }
 
 function mergeTradesmanHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
@@ -679,6 +738,7 @@ export function importTradesmanModularFromLegacy(content: SiteContent, style: Te
   importGallerySections(content, [...gallery]);
   const about = emptySections(style, 'about');
   importAboutSections(content, [...about], style);
+  importTradesmanAboutExtras(content, [...about]);
   const contact = emptySections(style, 'contact');
   importContactSections(content, [...contact]);
   return {
@@ -702,7 +762,10 @@ export function applyTradesmanModularToLegacy(content: SiteContent): SiteContent
     next = mergeGalleryIntoLegacy(next, m.gallery.sections);
     next = mergeTradesmanGalleryExtras(next, m.gallery.sections);
   }
-  if (m.about?.sections?.length) next = mergeAboutIntoLegacy(next, m.about.sections);
+  if (m.about?.sections?.length) {
+    next = mergeAboutIntoLegacy(next, m.about.sections);
+    next = mergeTradesmanAboutExtras(next, m.about.sections);
+  }
   if (m.contact?.sections?.length) next = mergeContactIntoLegacy(next, m.contact.sections);
   return next;
 }

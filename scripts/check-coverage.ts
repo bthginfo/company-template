@@ -186,7 +186,22 @@ const MODULAR_FORM_SOURCES = [
   readFileSync(join(repoRoot, 'src/admin/modular-extended-section-forms.tsx'), 'utf8'),
 ].join('\n\n');
 
+const MODULAR_SHARED_SOURCE = readFileSync(join(repoRoot, 'src/lib/modular-restaurant.ts'), 'utf8');
+const MODULAR_SOURCE_BY_TEMPLATE = Object.fromEntries(
+  TEMPLATES.map((tpl) => [tpl, readFileSync(join(repoRoot, `src/lib/modular-${tpl}.ts`), 'utf8')]),
+) as Record<TemplateKey, string>;
+
+function modularSectionMention(source: string, sectionType: string): boolean {
+  return (
+    source.includes(`case '${sectionType}'`) ||
+    source.includes(`sec.type === '${sectionType}'`) ||
+    source.includes(`sec.type !== '${sectionType}'`) ||
+    source.includes(`by('${sectionType}')`)
+  );
+}
+
 const modularMissing = new Set<string>();
+const modularUnmerged = new Set<string>();
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     for (const page of PAGES) {
@@ -194,11 +209,18 @@ for (const tpl of TEMPLATES) {
         if (!MODULAR_FORM_SOURCES.includes(`case '${sectionType}'`)) {
           modularMissing.add(`${tpl}/${style}/${page}: modular section type "${sectionType}" has no active admin form case`);
         }
+        const ownSource = MODULAR_SOURCE_BY_TEMPLATE[tpl];
+        const hasOwnPath = modularSectionMention(ownSource, sectionType);
+        const hasSharedPath = modularSectionMention(MODULAR_SHARED_SOURCE, sectionType);
+        if (!hasOwnPath && !hasSharedPath) {
+          modularUnmerged.add(`${tpl}/${style}/${page}: modular section type "${sectionType}" has no template/shared import or merge path`);
+        }
       }
     }
   }
 }
 for (const msg of modularMissing) note(`[modular-no-form] ${msg}`);
+for (const msg of modularUnmerged) note(`[modular-no-merge] ${msg}`);
 
 /* ─────────────────────────────────────────────────────────────────
  *  5: Branch invariants — extras compact, core 5 full
