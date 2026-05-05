@@ -12,9 +12,10 @@ import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
-import { isSectionEnabled, getEffectivePageOrder, getCatalogForVariant, type PageId as LayoutPageId } from '@/lib/page-layout';
+import { isSectionEnabled, getEffectivePageOrder, type PageId as LayoutPageId } from '@/lib/page-layout';
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
-import { BRANCH_STYLE_ORDER } from '@/lib/template-orders';
+import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
+import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
 import { getBranchConfig } from '@/lib/branch-config';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import { mergedServiceHighlights, meaningfulTestimonials, normaliseArrivalList, normaliseFaqList, normaliseProgramList, normaliseTdList, normaliseTeamList } from '@/lib/content-field-aliases';
@@ -37,23 +38,6 @@ function effectiveBranchText(branch: ExtraBranchKey, content?: SiteContent) {
       }),
     ),
   } as ReturnType<typeof branchTextDefaults>;
-}
-
-/** Shorthand: check if section is visible for extra-branch home page. */
-function $vis(content: SiteContent, key: string): boolean {
-  return isSectionEnabled(content, 'home', key);
-}
-
-/** Resolve effective section order for extra-branch home page. */
-function extraHomeOrder(content: SiteContent, branch: ExtraBranchKey, style: ExtraStyle): string[] {
-  const defaults = [...(BRANCH_STYLE_ORDER[branch][style] ?? BRANCH_STYLE_ORDER.consulting.classic)];
-  const catalogKeys = getCatalogForVariant('home', branch, style).map((s) => s.key);
-  const allowed = new Set([...defaults, ...catalogKeys]);
-  const custom = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
-  if (Array.isArray(custom) && custom.length) {
-    return custom.filter((k) => allowed.has(k));
-  }
-  return defaults;
 }
 
 /** Pull a per-page header override from content extras (set by admin's PageHeaderEditor). */
@@ -1042,13 +1026,14 @@ function ExtraGalleryGridSection({ content }: { content: SiteContent }) {
   );
 }
 
-function SubPage({ content, branch, page, style, eyebrow }: {
+function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
   content: SiteContent;
   branch: ExtraBranchKey;
   page: Exclude<ExtraPage, 'home'>;
   style: ExtraStyle;
   eyebrow: string;
 }) {
+  const content = mergePageBlocksIntoSiteContentForPage(initialContent, page);
   const ho = pageHeaderOverride(content, PAGE_HEADER_KEY[page]);
   const title = ho?.title || PAGE_TITLES[page];
   const heroEyebrow = ho?.eyebrow || eyebrow;
@@ -1138,9 +1123,10 @@ function SubPage({ content, branch, page, style, eyebrow }: {
 /* ─────────────────────────────────────────────────────────────────────
  *  CLASSIC — editorial, centered, parallax about, varied gallery
  * ──────────────────────────────────────────────────────────────────── */
-function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+  const content = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
   const bt = effectiveBranchText(branch, content);
-  const order = extraHomeOrder(content, branch, 'classic').filter((k) => $vis(content, k));
+  const order = getEffectiveHomeSectionKeys(content, branch, 'classic');
   const homeT = meaningfulTestimonials(content.testimonials);
 
   const blocks: Record<string, JSX.Element | null> = {
@@ -1299,7 +1285,8 @@ function ClassicLayout({ content, eyebrow, branch, page: _page }: { content: Sit
  *  MODERN — SaaS clean: split hero, sticky-rail about, feature cards,
  *  uniform gallery grid, two-column contact with form-style sidebar
  * ──────────────────────────────────────────────────────────────────── */
-function ModernLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+  const content = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
   const bt = effectiveBranchText(branch, content);
   const homeT = meaningfulTestimonials(content.testimonials);
   const numbersOverlay = (content as any).numbers as Array<{ value: string; label: string }> | undefined;
@@ -1316,7 +1303,7 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
   const heroBadge = ((content as any).heroBadge ?? {}) as { text?: string; label?: string };
   const badgeText = (heroBadge.text && heroBadge.text.trim()) || '4,9 / 5,0';
   const badgeLabel = (heroBadge.label && heroBadge.label.trim()) || 'Google Bewertung';
-  const order = extraHomeOrder(content, branch, 'modern').filter((k) => $vis(content, k));
+  const order = getEffectiveHomeSectionKeys(content, branch, 'modern');
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <ExtraHomeActionStrip content={content} />,
@@ -1510,9 +1497,10 @@ function ModernLayout({ content, eyebrow, branch, page: _page }: { content: Site
 /* ─────────────────────────────────────────────────────────────────────
  *  BOLD — magazine: oversized type, full-bleed image, masonry, dramatic
  * ──────────────────────────────────────────────────────────────────── */
-function BoldLayout({ content, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
+  const content = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
   const bt = effectiveBranchText(branch, content);
-  const order = extraHomeOrder(content, branch, 'bold').filter((k) => $vis(content, k));
+  const order = getEffectiveHomeSectionKeys(content, branch, 'bold');
   const homeT = meaningfulTestimonials(content.testimonials);
 
   const blocks: Record<string, JSX.Element | null> = {

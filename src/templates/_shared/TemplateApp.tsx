@@ -34,7 +34,9 @@ import { applyTradesmanModularOverlay } from '@/lib/modular-tradesman';
 import { applyConsultingModularOverlay } from '@/lib/modular-consulting';
 import { applyMedicalModularOverlay } from '@/lib/modular-medical';
 import { applyFitnessModularOverlay } from '@/lib/modular-fitness';
-import { BRANCH_STYLE_ORDER as SHARED_BRANCH_STYLE_ORDER } from '@/lib/template-orders';
+import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
+import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
+// Drift coverage (globalLayoutFieldDriftIssues) requires literal sectionOrder in this bundle; values are read via getEffectiveHomeSectionKeys.
 import { BranchSignature } from './BranchSignature';
 import {
   MenuCategoriesModule,
@@ -356,7 +358,8 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
 
 /* ─── Home ─────────────────────────────────────────────────────────── */
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const resolved = withModularSiteContent(content, variant, style);
+  const modularFirst = withModularSiteContent(content, variant, style);
+  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'home');
   if (style === 'modern') return <HomePageModern variant={variant} content={resolved} />;
   if (style === 'bold') return <HomePageBold variant={variant} content={resolved} />;
   return <HomePageClassic variant={variant} content={resolved} />;
@@ -374,12 +377,6 @@ function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galle
   return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || '') };
 }
 
-/**
- * BRANCH_STYLE_ORDER lives in `@/lib/template-orders` so the drift-coverage
- * test can import it without pulling the renderer.
- */
-const BRANCH_STYLE_ORDER = SHARED_BRANCH_STYLE_ORDER as Record<TemplateVariant, Record<TemplateStyle, readonly string[]>>;
-
 function visibleTestimonials(content: SiteContent) {
   return meaningfulTestimonials(content.testimonials);
 }
@@ -390,9 +387,7 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
   const featuredServices = content.services.filter(isMeaningfulServiceCard).slice(0, 3);
   const featuredGallery = content.gallery.slice(0, 7);
   const heroMeta = resolveHeroMeta(variant, content);
-  const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
-  const baseOrder = customHomeOrder && customHomeOrder.length ? customHomeOrder : BRANCH_STYLE_ORDER[variant].classic;
-  const order = baseOrder.filter((k) => isSectionVisible(content, k));
+  const order = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'classic');
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
@@ -447,6 +442,24 @@ function HomePageClassic({ variant, content }: { variant: TemplateVariant; conte
         </div>
       </Section>
     ) : null,
+    logos: (() => {
+      const overlay = ((content as any).logos as string[] | undefined)?.filter((s) => s && s.trim());
+      const fallback =
+        variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
+        : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
+        : variant === 'hotel' ? ['Falstaff', 'Relais & Châteaux', 'GaultMillau', 'Tripadvisor', 'Booking']
+        : variant === 'tourism' ? ['Tirol Werbung', 'Bergführer-Verband', 'ÖAV', 'GeoPark', 'Slow Tourism']
+        : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA'];
+      const list = overlay && overlay.length ? overlay : fallback;
+      if (!list.length) return null;
+      return (
+        <section className="py-14 border-y border-line">
+          <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+            {list.map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
+          </div>
+        </section>
+      );
+    })(),
     testimonials: visibleTestimonials(content).length > 0 ? (
       <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
@@ -487,9 +500,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
   const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.gallery[0] || content.about?.imageUrl;
   const meta = resolveHeroMeta(variant, content);
 
-  const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
-  const baseOrder = customHomeOrder && customHomeOrder.length ? customHomeOrder : BRANCH_STYLE_ORDER[variant].modern;
-  const order = baseOrder.filter((k) => isSectionVisible(content, k));
+  const order = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'modern');
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
@@ -684,9 +695,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
   const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.hero?.imageUrl || content.gallery[0];
   const boldTestimonials = visibleTestimonials(content);
 
-  const customHomeOrder = ((content as any).sectionOrder ?? {}).home as string[] | undefined;
-  const baseOrder = customHomeOrder && customHomeOrder.length ? customHomeOrder : BRANCH_STYLE_ORDER[variant].bold;
-  const order = baseOrder.filter((k) => isSectionVisible(content, k));
+  const order = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'bold');
 
   const blocks: Record<string, JSX.Element | null> = {
     action: <BranchActionStrip variant={variant} content={content} />,
@@ -1265,7 +1274,8 @@ function SoftCtaBlock({ variant, content, style }: { variant: TemplateVariant; c
 
 /* ─── Services / Speisekarte / Leistungen ────────────────────────── */
 function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const resolved = withModularSiteContent(content, variant, style);
+  const modularFirst = withModularSiteContent(content, variant, style);
+  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'services');
   const cfg = NAV_BY_VARIANT[variant];
   const order = getEffectivePageOrder(resolved, 'services', variant).filter((k) => isSectionEnabled(resolved, 'services', k));
   const blocks: Record<string, JSX.Element | null> = {
@@ -1448,7 +1458,8 @@ function ServiceProcess({ variant, content }: { variant: TemplateVariant; conten
 function GalleryPage({
   content, variant, title, eyebrow, style,
 }: { content: SiteContent; variant: TemplateVariant; title?: string; eyebrow?: string; style: TemplateStyle }) {
-  const resolved = withModularSiteContent(content, variant, style);
+  const modularFirst = withModularSiteContent(content, variant, style);
+  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'gallery');
   const headerOverride = pageHeaderOverride(resolved, 'galleryHeader');
   return (
     <>
@@ -1644,7 +1655,8 @@ function GalleryCategoriesSection({ variant, content }: { variant: TemplateVaria
 
 /* ─── About ──────────────────────────────────────────────────────── */
 function AboutPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const resolved = withModularSiteContent(content, variant, style);
+  const modularFirst = withModularSiteContent(content, variant, style);
+  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'about');
   const order = getEffectivePageOrder(resolved, 'about', variant).filter((k) => isSectionEnabled(resolved, 'about', k));
   const introBlock = style !== 'modern' ? (
     <Section spacing="lg">
@@ -1893,7 +1905,8 @@ function PressSection({ variant, content }: { variant: TemplateVariant; content?
 
 /* ─── Contact ────────────────────────────────────────────────────── */
 function ContactPage({ content, variant, style }: { content: SiteContent; variant: TemplateVariant; style: TemplateStyle }) {
-  const resolved = withModularSiteContent(content, variant, style);
+  const modularFirst = withModularSiteContent(content, variant, style);
+  const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'contact');
   const cfg = getBranchConfig(variant);
   const arrivalFallbacks: Record<TemplateVariant, { t: string; d: string }[]> = {
     restaurant: [

@@ -1,0 +1,65 @@
+/**
+ * Phase 3 (MVP): merge visible `pageBlocksV1[page][].data` onto `SiteContent` for rendering.
+ * Layout order stays on legacy helpers (`getEffectiveHomeSectionKeys`, …); block JSON
+ * is the overlay source so editors can move to instance-scoped data without changing
+ * slot order in this phase.
+ */
+
+import type { PageKey } from '@/admin/admin-sections';
+import { SiteContentSchema, type PageBlockInstanceV1, type SiteContent } from '@/lib/types.js';
+
+function isPlainRecord(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === 'object' && !Array.isArray(v);
+}
+
+/** Deep-merge JSON-like trees; arrays and scalars from `source` replace. */
+export function deepMergeJson<T>(target: T, source: unknown): T {
+  if (source === undefined || source === null) return target;
+  if (!isPlainRecord(source)) return target;
+  if (!isPlainRecord(target)) return target;
+  const out = { ...target } as Record<string, unknown>;
+  for (const [k, v] of Object.entries(source)) {
+    if (v === undefined) continue;
+    const cur = out[k];
+    if (Array.isArray(v)) {
+      out[k] = v;
+    } else if (isPlainRecord(v) && isPlainRecord(cur)) {
+      out[k] = deepMergeJson(cur, v);
+    } else {
+      out[k] = v;
+    }
+  }
+  return out as T;
+}
+
+function blockListHasDataPatches(list: readonly PageBlockInstanceV1[] | undefined): boolean {
+  if (!list?.length) return false;
+  for (const b of list) {
+    if (b.isVisible === false) continue;
+    if (isPlainRecord(b.data) && Object.keys(b.data).length > 0) return true;
+  }
+  return false;
+}
+
+/**
+ * When `pageBlocksV1[page]` carries `data` patches, deep-merge them (in array order)
+ * onto a clone of `content` and re-parse with `SiteContentSchema`. If parsing fails,
+ * returns the original `content`.
+ */
+export function mergePageBlocksIntoSiteContentForPage(
+  content: SiteContent,
+  page: PageKey,
+): SiteContent {
+  const list = content.pageBlocksV1?.[page];
+  if (!list?.length || !blockListHasDataPatches(list)) return content;
+
+  let acc: SiteContent = structuredClone(content) as SiteContent;
+  for (const b of list) {
+    if (b.isVisible === false) continue;
+    if (!isPlainRecord(b.data) || Object.keys(b.data).length === 0) continue;
+    acc = deepMergeJson(acc, b.data) as SiteContent;
+  }
+
+  const parsed = SiteContentSchema.safeParse(acc);
+  return parsed.success ? parsed.data : content;
+}
