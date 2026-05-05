@@ -97,6 +97,9 @@ import { SECTION_CATALOG, getCatalogForVariant } from '../src/lib/page-layout';
 import { CMS_SECTION_FIELD_CONTRACTS, getCmsSectionFieldKeys, getCmsSectionTypes } from '../src/lib/cms-contract';
 import { hotelModularBlueprint } from '../src/lib/modular-hotel-blueprints';
 import { restaurantModularBlueprint } from '../src/lib/modular-restaurant-blueprints';
+import { salonModularBlueprint } from '../src/lib/modular-salon-blueprints';
+import { tourismModularBlueprint } from '../src/lib/modular-tourism-blueprints';
+import { tradesmanModularBlueprint } from '../src/lib/modular-tradesman-blueprints';
 import {
   branchHomeStyleBindingIssues,
   collectDirSources,
@@ -330,6 +333,28 @@ if (!hotelV2RendererSetMatch) {
       for (const sectionType of hotelModularBlueprint(style, page)) {
         if (!renderedTypes.has(sectionType)) {
           note(`[cms-v2-hotel-renderer] missing V2 renderer declaration for hotel/${style}/${page}/${sectionType}`);
+        }
+      }
+    }
+  }
+}
+const coreV2RendererSetMatch = TEMPLATE_APP_SOURCE.match(/CORE_V2_RENDERED_SECTION_TYPES\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
+if (!coreV2RendererSetMatch) {
+  note('[cms-v2-core-renderer] Core V2 renderer must declare CORE_V2_RENDERED_SECTION_TYPES for salon/tourism/tradesman.');
+} else {
+  const renderedTypes = new Set(Array.from(coreV2RendererSetMatch[1].matchAll(/'([^']+)'/g)).map((m) => m[1]));
+  const blueprints = {
+    salon: salonModularBlueprint,
+    tourism: tourismModularBlueprint,
+    tradesman: tradesmanModularBlueprint,
+  } as const;
+  for (const [tpl, blueprint] of Object.entries(blueprints)) {
+    for (const style of STYLES) {
+      for (const page of PAGES) {
+        for (const sectionType of blueprint(style, page)) {
+          if (!renderedTypes.has(sectionType)) {
+            note(`[cms-v2-core-renderer] missing V2 renderer declaration for ${tpl}/${style}/${page}/${sectionType}`);
+          }
         }
       }
     }

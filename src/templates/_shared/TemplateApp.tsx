@@ -367,6 +367,9 @@ function HomePage({ variant, content, style }: { variant: TemplateVariant; conte
   if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
     return <HotelV2HomePage content={content} style={style} />;
   }
+  if (shouldUseCmsV2Frontend(content, variant, style)) {
+    return <CoreV2HomePage variant={variant} content={content} style={style} />;
+  }
 
   const modularFirst = withModularSiteContent(content, variant, style);
   const resolved = withModularSiteContent(mergePageBlocksIntoSiteContentForPage(content, 'home'), variant, style);
@@ -439,6 +442,57 @@ export const HOTEL_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'directions',
 ]);
 
+export const CORE_V2_RENDERED_SECTION_TYPES = new Set<string>([
+  'noticeBanner',
+  'hero',
+  'actionBar',
+  'stickyEmergencyBanner',
+  'featuredServices',
+  'serviceCards',
+  'serviceList',
+  'serviceOverviewCards',
+  'serviceOverviewList',
+  'featuredLooks',
+  'featuredLooksBand',
+  'featureImage',
+  'storyTeaser',
+  'storySplit',
+  'storyImageSplit',
+  'galleryPreview',
+  'gallery',
+  'testimonials',
+  'testimonialMarquee',
+  'quoteWall',
+  'statsBand',
+  'newsTeaser',
+  'newsHighlightList',
+  'cta',
+  'ctaBand',
+  'marqueeBand',
+  'keywordBand',
+  'brandLogos',
+  'topicCards',
+  'topicBand',
+  'categoryCards',
+  'qualifications',
+  'fundingCalculator',
+  'tourSchedule',
+  'tourSelection',
+  'tourOverviewCards',
+  'tourOverviewList',
+  'tourCards',
+  'highlightsBar',
+  'steps',
+  'faq',
+  'teaserList',
+  'timeline',
+  'team',
+  'storyFacts',
+  'contactDetails',
+  'locations',
+  'directions',
+]);
+
 function shouldUseCmsV2Frontend(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): boolean {
   const combo = content.modularPagesV2?.combo;
   if (combo?.template !== variant || combo.style !== style) return false;
@@ -494,6 +548,172 @@ function cmsV2HotelServicesFromRooms(rooms: NonNullable<SiteContent['rooms']>): 
     detailBodyHtml: room.detailBodyHtml,
     detailGallery: room.detailGallery,
   }));
+}
+
+function cmsV2CatalogServices(value: unknown): SiteContent['services'] {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+        .map((item) => ({
+          title: cmsV2Text(item.title) || cmsV2Text(item.name),
+          description: cmsV2Text(item.description),
+          price: cmsV2Text(item.price) || cmsV2Text(item.meta),
+          imageUrl: cmsV2Image(item.image),
+          learnMoreLabel: cmsV2LinkLabel(item.button),
+          learnMoreHref: cmsV2LinkHref(item.button),
+          detailSlug: cmsV2Text(item.detailSlug),
+          detailPublished: cmsV2Boolean(item.detailPublished, true),
+          detailSubtitle: cmsV2Text(item.detailSubtitle),
+          detailBody: cmsV2Text(item.detailBody),
+          detailBodyHtml: cmsV2Text(item.detailBodyHtml),
+          detailGallery: Array.isArray(item.detailGallery) ? item.detailGallery.map(cmsV2Text).filter(Boolean) : [],
+        }))
+        .filter((item) => item.title || item.description || item.imageUrl)
+    : [];
+}
+
+function cmsV2Treatments(value: unknown): NonNullable<SiteContent['treatments']> {
+  return cmsV2CatalogServices(value).map((item) => ({
+    name: item.title,
+    description: item.description,
+    duration: '',
+    price: item.price,
+    category: '',
+    imageUrl: item.imageUrl,
+    detailSlug: item.detailSlug,
+    detailPublished: item.detailPublished,
+    detailSubtitle: item.detailSubtitle,
+    detailBody: item.detailBody,
+    detailBodyHtml: item.detailBodyHtml,
+    detailGallery: item.detailGallery,
+  }));
+}
+
+function cmsV2Tours(value: unknown): NonNullable<SiteContent['tours']> {
+  return Array.isArray(value)
+    ? value
+        .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+        .map((item) => ({
+          name: cmsV2Text(item.title) || cmsV2Text(item.name),
+          description: cmsV2Text(item.description),
+          duration: cmsV2Text(item.duration) || cmsV2Text(item.subtitle),
+          level: cmsV2Text(item.level) || cmsV2Text(item.difficulty),
+          groupSize: cmsV2Text(item.groupSize) || cmsV2Text(item.group),
+          price: cmsV2Text(item.price) || cmsV2Text(item.meta),
+          imageUrl: cmsV2Image(item.image),
+          languages: Array.isArray(item.languages) ? item.languages.map(cmsV2Text).filter(Boolean) : [],
+          detailSlug: cmsV2Text(item.detailSlug),
+          detailPublished: cmsV2Boolean(item.detailPublished, true),
+          detailSubtitle: cmsV2Text(item.detailSubtitle),
+          detailBody: cmsV2Text(item.detailBody),
+          detailBodyHtml: cmsV2Text(item.detailBodyHtml),
+          detailGallery: Array.isArray(item.detailGallery) ? item.detailGallery.map(cmsV2Text).filter(Boolean) : [],
+        }))
+        .filter((item) => item.name || item.description || item.imageUrl)
+    : [];
+}
+
+function cmsV2CoreSectionContent(content: SiteContent, variant: TemplateVariant, section: ModularSectionV2, style: TemplateStyle): SiteContent {
+  const data = asUnknownRecord(section.data);
+  switch (section.type) {
+    case 'stickyEmergencyBanner':
+      return {
+        ...content,
+        emergencyBanner: {
+          enabled: true,
+          text: cmsV2Text(data.headline) || cmsV2Text(data.label),
+          phone: cmsV2Text(data.phone),
+          sticky: true,
+        },
+      };
+    case 'featuredServices':
+    case 'serviceCards':
+    case 'serviceList':
+    case 'serviceOverviewCards':
+    case 'serviceOverviewList':
+    case 'featuredLooks':
+    case 'featuredLooksBand': {
+      const services = cmsV2CatalogServices(data.items);
+      return {
+        ...content,
+        services,
+        treatments: variant === 'salon' ? cmsV2Treatments(data.items) : content.treatments,
+        branchText: {
+          ...content.branchText,
+          servicesTeaserEyebrow: cmsV2Text(data.eyebrow),
+          servicesTeaserTitle: cmsV2Text(data.headline),
+        },
+        moduleHeadings: {
+          ...content.moduleHeadings,
+          treatments: { eyebrow: cmsV2Text(data.eyebrow), titleA: cmsV2Text(data.headline), titleB: '', subtitle: cmsV2Text(data.description) },
+        },
+      };
+    }
+    case 'tourSchedule':
+    case 'tourSelection':
+    case 'tourOverviewCards':
+    case 'tourOverviewList':
+    case 'tourCards': {
+      const tours = cmsV2Tours(data.items);
+      return {
+        ...content,
+        tours,
+        services: tours.map((tour) => ({
+          title: tour.name,
+          description: tour.description,
+          price: tour.price,
+          imageUrl: tour.imageUrl,
+          learnMoreLabel: '',
+          learnMoreHref: '',
+          detailSlug: tour.detailSlug,
+          detailPublished: tour.detailPublished,
+          detailSubtitle: tour.detailSubtitle,
+          detailBody: tour.detailBody,
+          detailBodyHtml: tour.detailBodyHtml,
+          detailGallery: tour.detailGallery,
+        })),
+        moduleHeadings: {
+          ...content.moduleHeadings,
+          tours: { eyebrow: cmsV2Text(data.eyebrow), titleA: cmsV2Text(data.headline), titleB: '', subtitle: cmsV2Text(data.description) },
+        },
+      };
+    }
+    case 'fundingCalculator': {
+      const programs = Array.isArray(data.programs) ? data.programs : Array.isArray(data.items) ? data.items : [];
+      return {
+        ...content,
+        fundingCalc: {
+          minInvest: Number(data.investmentMin) || content.fundingCalc?.minInvest || 5000,
+          maxInvest: Number(data.investmentMax) || content.fundingCalc?.maxInvest || 150000,
+          stepInvest: Number(data.investmentStep) || content.fundingCalc?.stepInvest || 1000,
+          defaultInvest: Number(data.investmentDefault) || content.fundingCalc?.defaultInvest || 25000,
+        },
+        fundingItems: cmsV2CatalogServices(programs).map((item) => ({
+          title: item.title,
+          description: item.description,
+          percent: item.price,
+          program: item.detailSubtitle,
+          imageUrl: item.imageUrl,
+          detailSlug: item.detailSlug,
+          detailPublished: item.detailPublished,
+          detailBody: item.detailBody,
+          detailBodyHtml: item.detailBodyHtml,
+          detailGallery: item.detailGallery,
+          detailSubtitle: item.detailSubtitle,
+        })),
+      };
+    }
+    case 'brandLogos':
+      return cmsV2HotelSectionContent(content, { ...section, type: 'brandLogos' }, style);
+    case 'testimonialMarquee':
+    case 'keywordBand':
+      return { ...content, branchText: { ...content.branchText, marqueeWords: cmsV2TextItems(data.items) } };
+    case 'storySplit':
+    case 'storyImageSplit':
+      return cmsV2RestaurantSectionContent(content, { ...section, type: 'storyTeaser' }, style);
+    default:
+      return cmsV2RestaurantSectionContent(content, section, style);
+  }
 }
 
 function cmsV2HotelSectionContent(content: SiteContent, section: ModularSectionV2, style: TemplateStyle): SiteContent {
@@ -946,6 +1166,24 @@ function HotelV2HomePage({ content, style }: { content: SiteContent; style: Temp
   );
 }
 
+function CoreV2HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  const sections = content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false) ?? [];
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const heroContent = heroSection ? cmsV2CoreSectionContent(content, variant, heroSection, style) : content;
+  const heroMeta = resolveHeroMeta(variant, heroContent);
+
+  return (
+    <>
+      <Hero content={heroContent} meta={heroMeta} />
+      {sections
+        .filter((section) => section.type !== 'hero')
+        .map((section) => (
+          <React.Fragment key={section.id}>{renderCoreV2Section('home', variant, section, content, style)}</React.Fragment>
+        ))}
+    </>
+  );
+}
+
 function HotelV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey; content: SiteContent; style: TemplateStyle }) {
   const sections = restaurantV2SubpageSections(content, page);
   const heroSection = sections.find((section) => section.type === 'hero');
@@ -984,6 +1222,150 @@ function HotelV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey
         ))}
     </>
   );
+}
+
+function CoreV2Subpage({ page, variant, content, style }: { page: RestaurantV2SubpageKey; variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  const sections = restaurantV2SubpageSections(content, page);
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const heroContent = heroSection ? cmsV2RestaurantSubpageContent(content, heroSection, page) : content;
+  const cfg = NAV_BY_VARIANT[variant];
+  const headerKey: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' =
+    page === 'services' ? 'servicesHeader'
+      : page === 'gallery' ? 'galleryHeader'
+        : page === 'about' ? 'aboutHeader'
+          : 'contactPageHeader';
+  const header = pageHeaderOverride(heroContent, headerKey);
+  const defaultTitle =
+    page === 'services' ? cfg.servicesHeadline
+      : page === 'gallery' ? 'Einblicke.'
+        : page === 'about' ? 'Über uns.'
+          : 'Kontakt.';
+  const defaultEyebrow =
+    page === 'services' ? cfg.servicesEyebrow
+      : page === 'gallery' ? 'Galerie'
+        : page === 'about' ? 'Über uns'
+          : 'Kontakt';
+
+  return (
+    <>
+      <PageHero
+        eyebrow={header?.eyebrow || defaultEyebrow}
+        title={header?.title || defaultTitle}
+        subtitle={header?.subtitle || ''}
+        style={style}
+        image={page === 'services' ? effectiveBranchText(variant, heroContent).servicesPageImageUrl : undefined}
+      />
+      {sections
+        .filter((section) => section.type !== 'hero')
+        .map((section) => (
+          <React.Fragment key={section.id}>{renderCoreV2Section(page, variant, section, content, style)}</React.Fragment>
+        ))}
+    </>
+  );
+}
+
+function renderCoreCards(section: ModularSectionV2, fallbackTitle: string): JSX.Element | null {
+  const data = asUnknownRecord(section.data);
+  const items = cmsV2TextPairs(data.items);
+  if (!items.length) return null;
+  return (
+    <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || fallbackTitle)} subtitle={cmsV2Text(data.description)} className="surface">
+      <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+        {items.map((item, i) => (
+          <article key={i} className="border border-line rounded-2xl p-7 bg-white">
+            <h3 className="font-display text-2xl">{item.t}</h3>
+            <p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function renderCoreV2Section(page: 'home' | RestaurantV2SubpageKey, variant: TemplateVariant, section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
+  const data = asUnknownRecord(section.data);
+  const sectionContent = cmsV2CoreSectionContent(cmsV2RestaurantSubpageContent(content, section, page === 'home' ? 'services' : page), variant, section, style);
+  switch (section.type) {
+    case 'noticeBanner':
+      return <RestaurantV2NoticeBanner section={section} />;
+    case 'stickyEmergencyBanner':
+      return <EmergencyStickyBanner content={sectionContent} />;
+    case 'actionBar':
+      return <BranchActionStrip variant={variant} content={sectionContent} />;
+    case 'marqueeBand':
+    case 'keywordBand':
+    case 'testimonialMarquee': {
+      const words = sectionContent.branchText?.marqueeWords ?? [];
+      return words.length ? <section className="py-6 border-y border-line bg-white overflow-hidden"><MarqueeTrack speed={34}>{words.map((word) => <span key={word} className="font-display text-3xl md:text-5xl text-brand/80">{word}</span>)}</MarqueeTrack></section> : null;
+    }
+    case 'featuredServices':
+    case 'serviceCards':
+    case 'serviceList':
+    case 'serviceOverviewCards':
+    case 'serviceOverviewList':
+      if (variant === 'salon') return <TreatmentListModule content={sectionContent} itemLinkPrefix="/leistungen" />;
+      return sectionContent.services.length ? <Section><ClassicServicesGrid services={sectionContent.services.slice(0, 6)} variant={variant} /></Section> : null;
+    case 'featuredLooks':
+    case 'featuredLooksBand':
+      return variant === 'salon' ? <TreatmentListModule content={sectionContent} itemLinkPrefix="/leistungen" /> : null;
+    case 'tourSchedule':
+    case 'tourSelection':
+    case 'tourOverviewCards':
+    case 'tourOverviewList':
+    case 'tourCards':
+      return <TourCardsModule content={sectionContent} itemLinkPrefix="/touren" />;
+    case 'fundingCalculator':
+      return <FundingCalculatorModule content={sectionContent} itemLinkPrefix="/leistungen" />;
+    case 'featureImage': {
+      const image = cmsV2Image(data.image);
+      return image ? <Section spacing="lg"><img src={image} alt="" className="w-full max-h-[720px] object-cover rounded-2xl" loading="lazy" /></Section> : null;
+    }
+    case 'storyTeaser':
+    case 'storySplit':
+    case 'storyImageSplit':
+      return renderRestaurantV2HomeSection({ ...section, type: 'storyTeaser' }, sectionContent, style);
+    case 'galleryPreview':
+      return renderRestaurantV2HomeSection(section, sectionContent, style);
+    case 'gallery': {
+      const images = Array.isArray(data.images) ? data.images.map((item) => cmsV2Image(item)).filter(Boolean) : [];
+      return images.length ? <Section spacing="lg">{style === 'bold' ? <MasonryGrid images={images} /> : style === 'modern' ? <ModernGalleryGrid images={images} /> : <GalleryShowcase variant={variant} images={images} mode="full" />}</Section> : null;
+    }
+    case 'brandLogos':
+      return renderHotelV2HomeSection(section, sectionContent, style);
+    case 'testimonials':
+      return renderRestaurantV2HomeSection(section, sectionContent, style);
+    case 'quoteWall':
+    case 'newsHighlightList':
+    case 'topicCards':
+    case 'topicBand':
+    case 'categoryCards':
+    case 'qualifications':
+    case 'teaserList':
+      return renderCoreCards(section, 'Details.');
+    case 'statsBand':
+      return <NumbersBand variant={variant} content={sectionContent} source={page === 'about' ? 'about' : 'home'} />;
+    case 'newsTeaser':
+      return <NewsPreview templateVariant={variant as TemplateKey} content={sectionContent} eyebrow={sectionContent.branchText?.newsEyebrow || 'Aktuelles'} title={sectionContent.branchText?.newsTitle || 'News & Notizen.'} />;
+    case 'highlightsBar':
+    case 'steps':
+    case 'directions':
+      return renderCoreCards(section, section.type === 'directions' ? 'Anreise.' : 'Ablauf.');
+    case 'faq': {
+      const items = cmsV2FaqItems(data.items);
+      return items.length ? <Section eyebrow={cmsV2Text(data.eyebrow) || 'FAQ'} title={splitTitle(cmsV2Text(data.headline) || 'Häufige Fragen.')}><Accordion items={items} className="max-w-3xl" /></Section> : null;
+    }
+    case 'timeline':
+    case 'team':
+    case 'storyFacts':
+    case 'contactDetails':
+    case 'locations':
+      return renderRestaurantV2SubpageSection(page === 'home' ? 'about' : page, section, sectionContent, style);
+    case 'cta':
+    case 'ctaBand':
+      return <CtaBand variant={variant} content={sectionContent} page={page === 'home' ? undefined : page} />;
+    default:
+      return null;
+  }
 }
 
 function renderHotelV2HomeSection(section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
@@ -2475,8 +2857,11 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
   if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
     return <HotelV2Subpage page="services" content={content} style={style} />;
   }
-  if (shouldUseCmsV2Frontend(content, variant, style)) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'restaurant') {
     return <RestaurantV2Subpage page="services" content={content} style={style} />;
+  }
+  if (shouldUseCmsV2Frontend(content, variant, style)) {
+    return <CoreV2Subpage page="services" variant={variant} content={content} style={style} />;
   }
 
   const modularFirst = withModularSiteContent(content, variant, style);
@@ -2680,8 +3065,11 @@ function GalleryPage({
   if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
     return <HotelV2Subpage page="gallery" content={content} style={style} />;
   }
-  if (shouldUseCmsV2Frontend(content, variant, style)) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'restaurant') {
     return <RestaurantV2Subpage page="gallery" content={content} style={style} />;
+  }
+  if (shouldUseCmsV2Frontend(content, variant, style)) {
+    return <CoreV2Subpage page="gallery" variant={variant} content={content} style={style} />;
   }
 
   const modularFirst = withModularSiteContent(content, variant, style);
@@ -2903,8 +3291,11 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
   if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
     return <HotelV2Subpage page="about" content={content} style={style} />;
   }
-  if (shouldUseCmsV2Frontend(content, variant, style)) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'restaurant') {
     return <RestaurantV2Subpage page="about" content={content} style={style} />;
+  }
+  if (shouldUseCmsV2Frontend(content, variant, style)) {
+    return <CoreV2Subpage page="about" variant={variant} content={content} style={style} />;
   }
 
   const modularFirst = withModularSiteContent(content, variant, style);
@@ -3184,8 +3575,11 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'hotel') {
     return <HotelV2Subpage page="contact" content={content} style={style} />;
   }
-  if (shouldUseCmsV2Frontend(content, variant, style)) {
+  if (shouldUseCmsV2Frontend(content, variant, style) && variant === 'restaurant') {
     return <RestaurantV2Subpage page="contact" content={content} style={style} />;
+  }
+  if (shouldUseCmsV2Frontend(content, variant, style)) {
+    return <CoreV2Subpage page="contact" variant={variant} content={content} style={style} />;
   }
 
   const modularFirst = withModularSiteContent(content, variant, style);
