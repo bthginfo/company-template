@@ -35,6 +35,19 @@ import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
 import { withModularSiteContent } from '@/lib/modular-site-overlay';
 import { buildSlotRenderInstructions, siteContentForSlotInstruction, availableSlotsForPageBlockPlan } from '@/lib/page-blocks-v1-render-sequence';
+import {
+  asUnknownRecord,
+  cmsV2Boolean,
+  cmsV2FaqItems,
+  cmsV2Image,
+  cmsV2LabelEntries,
+  cmsV2LinkHref,
+  cmsV2LinkLabel,
+  cmsV2Text,
+  cmsV2TextItems,
+  cmsV2TextPairs,
+  type UnknownRecord,
+} from '@/lib/cms-v2-render-utils';
 // Drift coverage (globalLayoutFieldDriftIssues) requires literal sectionOrder in this bundle; values are read via getEffectiveHomeSectionKeys.
 import { BranchSignature } from './BranchSignature';
 import {
@@ -359,7 +372,6 @@ function HomePage({ variant, content, style }: { variant: TemplateVariant; conte
   return <HomePageClassic variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
 }
 
-type UnknownRecord = Record<string, unknown>;
 type RestaurantV2SubpageKey = 'services' | 'gallery' | 'about' | 'contact';
 
 export const RESTAURANT_V2_RENDERED_SECTION_TYPES = new Set<string>([
@@ -392,52 +404,6 @@ export const RESTAURANT_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'cta',
   'ctaBand',
 ]);
-
-function asUnknownRecord(value: unknown): UnknownRecord {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as UnknownRecord : {};
-}
-
-function cmsV2Text(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : '';
-}
-
-function cmsV2Boolean(value: unknown, fallback: boolean): boolean {
-  return typeof value === 'boolean' ? value : fallback;
-}
-
-function cmsV2Image(value: unknown): string {
-  if (typeof value === 'string') return value.trim();
-  const rec = asUnknownRecord(value);
-  return cmsV2Text(rec.image) || cmsV2Text(rec.url) || cmsV2Text(rec.src);
-}
-
-function cmsV2LinkHref(value: unknown): string {
-  const rec = asUnknownRecord(value);
-  return cmsV2Text(rec.internalPage) || cmsV2Text(rec.externalUrl) || cmsV2Text(rec.href);
-}
-
-function cmsV2LinkLabel(value: unknown): string {
-  return cmsV2Text(asUnknownRecord(value).label);
-}
-
-function cmsV2TextItems(value: unknown): string[] {
-  return Array.isArray(value)
-    ? value
-        .map((item) => (typeof item === 'string' ? item.trim() : cmsV2Text(asUnknownRecord(item).text)))
-        .filter(Boolean)
-    : [];
-}
-
-function cmsV2LabelEntries(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => {
-      if (typeof item === 'string') return item.trim();
-      const rec = asUnknownRecord(item);
-      return cmsV2Image(rec.image) || cmsV2Text(rec.text);
-    })
-    .filter(Boolean);
-}
 
 function shouldUseCmsV2Frontend(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): boolean {
   const combo = content.modularPagesV2?.combo;
@@ -813,10 +779,6 @@ function restaurantV2SubpageSections(content: SiteContent, page: RestaurantV2Sub
   return content.modularPagesV2?.[page]?.sections?.filter((section) => section.visible !== false) ?? [];
 }
 
-function cmsV2ItemText(item: UnknownRecord, primary: string, fallback = 'title'): string {
-  return cmsV2Text(item[primary]) || cmsV2Text(item[fallback]) || cmsV2Text(item.name);
-}
-
 function cmsV2RestaurantSubpageContent(content: SiteContent, section: ModularSectionV2, page: RestaurantV2SubpageKey): SiteContent {
   const data = asUnknownRecord(section.data);
   switch (section.type) {
@@ -916,24 +878,6 @@ function cmsV2RestaurantSubpageContent(content: SiteContent, section: ModularSec
     default:
       return content;
   }
-}
-
-function cmsV2TextPairs(value: unknown): { t: string; d: string }[] {
-  return Array.isArray(value)
-    ? value
-        .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
-        .map((item) => ({ t: cmsV2ItemText(item, 'title', 't'), d: cmsV2Text(item.description) || cmsV2Text(item.d) }))
-        .filter((item) => item.t || item.d)
-    : [];
-}
-
-function cmsV2FaqItems(value: unknown): { q: string; a: string }[] {
-  return Array.isArray(value)
-    ? value
-        .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
-        .map((item) => ({ q: cmsV2Text(item.q) || cmsV2Text(item.question), a: cmsV2Text(item.a) || cmsV2Text(item.answer) }))
-        .filter((item) => item.q || item.a)
-    : [];
 }
 
 function RestaurantV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey; content: SiteContent; style: TemplateStyle }) {
