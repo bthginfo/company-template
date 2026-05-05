@@ -3,15 +3,15 @@
  * (`getAdminSections`). Block `data` is a projection of `SECTION_CONTRACTS[type].dataKeys`.
  */
 
-import { getAdminSections, type AdminSectionKey, type PageKey } from '../admin/admin-sections';
-import { SECTION_CONTRACTS } from './section-registry';
-import type { TemplateStyle } from './branch-config';
+import { getAdminSections, type AdminSectionKey, type PageKey } from '../admin/admin-sections.js';
+import { SECTION_CONTRACTS } from './section-registry.js';
+import type { TemplateStyle } from './branch-config.js';
 import {
   SiteContentSchema,
   type PageBlocksV1,
   type SiteContent,
   type TemplateKey,
-} from '@/lib/types.js';
+} from './types.js';
 
 const PAGE_KEYS: PageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
 

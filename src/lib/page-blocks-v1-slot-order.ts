@@ -3,8 +3,8 @@
  * Maps `AdminSectionKey` → catalog / `blocks` map keys used by TemplateApp & extras.
  */
 
-import { HOME_CATALOG_BLOCK_TO_ADMIN, type AdminSectionKey, type PageKey } from '../admin/admin-sections';
-import type { SiteContent } from './types';
+import { HOME_CATALOG_BLOCK_TO_ADMIN, type AdminSectionKey, type PageKey } from '../admin/admin-sections.js';
+import type { SiteContent } from './types.js';
 
 const HOME_SLOT_BY_ADMIN: Map<AdminSectionKey, string> = (() => {
   const m = new Map<AdminSectionKey, string>();
