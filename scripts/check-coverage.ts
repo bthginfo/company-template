@@ -95,6 +95,7 @@ import { SECTION_CONTRACTS, CATALOG_TO_ADMIN, CROSS_PAGE_TARGETS } from '../src/
 import { BRANCH_STYLE_ORDER } from '../src/lib/template-orders';
 import { SECTION_CATALOG, getCatalogForVariant } from '../src/lib/page-layout';
 import { CMS_SECTION_FIELD_CONTRACTS, getCmsSectionFieldKeys, getCmsSectionTypes } from '../src/lib/cms-contract';
+import { restaurantModularBlueprint } from '../src/lib/modular-restaurant-blueprints';
 import {
   branchHomeStyleBindingIssues,
   collectDirSources,
@@ -302,6 +303,21 @@ if (!RESTAURANT_EDITOR_SOURCE.includes('shouldUseCmsV2Editor') || !RESTAURANT_ED
 }
 if (!TEMPLATE_APP_SOURCE.includes('shouldUseCmsV2Frontend') || !TEMPLATE_APP_SOURCE.includes('RestaurantV2HomePage')) {
   note('[cms-v2-restaurant-renderer] Restaurant must expose a gated direct-render V2 frontend path before the legacy projection can be removed.');
+}
+const restaurantV2RendererSetMatch = TEMPLATE_APP_SOURCE.match(/RESTAURANT_V2_RENDERED_SECTION_TYPES\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
+if (!restaurantV2RendererSetMatch) {
+  note('[cms-v2-restaurant-renderer] Restaurant V2 renderer must declare RESTAURANT_V2_RENDERED_SECTION_TYPES.');
+} else {
+  const renderedTypes = new Set(Array.from(restaurantV2RendererSetMatch[1].matchAll(/'([^']+)'/g)).map((m) => m[1]));
+  for (const style of STYLES) {
+    for (const page of PAGES) {
+      for (const sectionType of restaurantModularBlueprint(style, page)) {
+        if (!renderedTypes.has(sectionType)) {
+          note(`[cms-v2-restaurant-renderer] missing V2 renderer declaration for restaurant/${style}/${page}/${sectionType}`);
+        }
+      }
+    }
+  }
 }
 if (!CONTENT_API_SOURCE.includes('normalizeMailSecret') || !CONTENT_API_SOURCE.includes('passEnc')) {
   note('[mail-secret] Mail passwords must be normalized server-side into encrypted passEnc instead of persisted plaintext.');

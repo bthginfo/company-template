@@ -362,6 +362,37 @@ function HomePage({ variant, content, style }: { variant: TemplateVariant; conte
 type UnknownRecord = Record<string, unknown>;
 type RestaurantV2SubpageKey = 'services' | 'gallery' | 'about' | 'contact';
 
+export const RESTAURANT_V2_RENDERED_SECTION_TYPES = new Set<string>([
+  'noticeBanner',
+  'hero',
+  'actionBar',
+  'marqueeBand',
+  'featuredDishesGrid',
+  'featuredDishes',
+  'featuredItems',
+  'storyTeaser',
+  'galleryPreview',
+  'labelBand',
+  'testimonials',
+  'statsBand',
+  'newsTeaser',
+  'highlightsBar',
+  'menu',
+  'steps',
+  'faq',
+  'teaserList',
+  'gallery',
+  'timeline',
+  'team',
+  'expertQuotes',
+  'storyFacts',
+  'contactDetails',
+  'locations',
+  'directions',
+  'cta',
+  'ctaBand',
+]);
+
 function asUnknownRecord(value: unknown): UnknownRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as UnknownRecord : {};
 }
@@ -389,6 +420,25 @@ function cmsV2LinkLabel(value: unknown): string {
   return cmsV2Text(asUnknownRecord(value).label);
 }
 
+function cmsV2TextItems(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value
+        .map((item) => (typeof item === 'string' ? item.trim() : cmsV2Text(asUnknownRecord(item).text)))
+        .filter(Boolean)
+    : [];
+}
+
+function cmsV2LabelEntries(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (typeof item === 'string') return item.trim();
+      const rec = asUnknownRecord(item);
+      return cmsV2Image(rec.image) || cmsV2Text(rec.text);
+    })
+    .filter(Boolean);
+}
+
 function shouldUseCmsV2Frontend(content: SiteContent, variant: TemplateVariant, style: TemplateStyle): boolean {
   const combo = content.modularPagesV2?.combo;
   if (variant !== 'restaurant' || combo?.template !== 'restaurant' || combo.style !== style) return false;
@@ -404,6 +454,11 @@ function shouldUseCmsV2Frontend(content: SiteContent, variant: TemplateVariant, 
 function cmsV2RestaurantSectionContent(content: SiteContent, section: ModularSectionV2, style: TemplateStyle): SiteContent {
   const data = asUnknownRecord(section.data);
   switch (section.type) {
+    case 'noticeBanner':
+      return {
+        ...content,
+        announcements: cmsV2TextItems(data.items),
+      };
     case 'hero': {
       const primary = data.buttonPrimary;
       const stats = Array.isArray(data.stats)
@@ -477,6 +532,67 @@ function cmsV2RestaurantSectionContent(content: SiteContent, section: ModularSec
         homeSignatureItems: rows,
       };
     }
+    case 'featuredItems': {
+      const services = Array.isArray(data.items)
+        ? data.items
+            .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+            .map((item) => ({
+              title: cmsV2Text(item.title) || cmsV2Text(item.name),
+              price: cmsV2Text(item.price),
+              description: cmsV2Text(item.description),
+              imageUrl: cmsV2Image(item.image),
+              detailSlug: cmsV2Text(item.detailSlug),
+              detailPublished: cmsV2Boolean(item.detailPublished, true),
+              detailSubtitle: cmsV2Text(item.detailSubtitle),
+              detailBody: cmsV2Text(item.detailBody),
+              detailBodyHtml: cmsV2Text(item.detailBodyHtml),
+              detailGallery: Array.isArray(item.detailGallery) ? item.detailGallery.map(cmsV2Text).filter(Boolean) : [],
+              learnMoreLabel: cmsV2Text(item.learnMoreLabel),
+              learnMoreHref: cmsV2Text(item.learnMoreHref),
+            }))
+            .filter((item) => item.title || item.description || item.imageUrl)
+        : [];
+      return {
+        ...content,
+        services,
+        branchText: {
+          ...content.branchText,
+          servicesTeaserEyebrow: cmsV2Text(data.eyebrow),
+          servicesTeaserTitle: cmsV2Text(data.headline),
+        },
+      };
+    }
+    case 'storyTeaser': {
+      const button = data.button;
+      return {
+        ...content,
+        about: {
+          ...(content.about ?? { title: '', body: '', imageUrl: '' }),
+          title: cmsV2Text(data.headline),
+          body: cmsV2Text(data.description),
+          imageUrl: cmsV2Image(data.image) || content.about?.imageUrl || '',
+        },
+        branchText: {
+          ...content.branchText,
+          aboutTeaserEyebrow: cmsV2Text(data.eyebrow),
+          learnMoreLabel: cmsV2LinkLabel(button),
+          learnMoreHref: cmsV2LinkHref(button),
+        },
+      };
+    }
+    case 'labelBand':
+      return {
+        ...content,
+        logos: cmsV2LabelEntries(data.labels ?? data.items),
+      };
+    case 'marqueeBand':
+      return {
+        ...content,
+        branchText: {
+          ...content.branchText,
+          marqueeWords: cmsV2TextItems(data.items),
+        },
+      };
     case 'statsBand': {
       const numbers = Array.isArray(data.items)
         ? data.items
@@ -556,11 +672,60 @@ function cmsV2RestaurantSectionContent(content: SiteContent, section: ModularSec
 function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
   const sectionContent = cmsV2RestaurantSectionContent(content, section, style);
   switch (section.type) {
+    case 'noticeBanner':
+      return <RestaurantV2NoticeBanner section={section} />;
     case 'actionBar':
       return <BranchActionStrip variant="restaurant" content={sectionContent} />;
+    case 'marqueeBand': {
+      const words = sectionContent.branchText?.marqueeWords ?? [];
+      return words.length ? (
+        <section className="py-6 border-y border-line bg-white overflow-hidden">
+          <MarqueeTrack speed={32}>
+            {words.map((word) => (
+              <span key={word} className="font-display text-3xl md:text-5xl text-brand/80">{word}</span>
+            ))}
+          </MarqueeTrack>
+        </section>
+      ) : null;
+    }
     case 'featuredDishesGrid':
     case 'featuredDishes':
       return <BranchSignature variant="restaurant" style={style} content={sectionContent} />;
+    case 'featuredItems': {
+      const featured = sectionContent.services.filter(isMeaningfulServiceCard).slice(0, 3);
+      return featured.length ? (
+        <Section
+          eyebrow={effectiveBranchText('restaurant', sectionContent).servicesTeaserEyebrow || 'Empfehlungen'}
+          title={splitTitle(effectiveBranchText('restaurant', sectionContent).servicesTeaserTitle || 'Aus der Küche.')}
+          subtitle={subtitleFor('restaurant', sectionContent)}
+          className={style === 'modern' ? 'surface' : ''}
+        >
+          <ClassicServicesGrid services={featured} variant="restaurant" />
+        </Section>
+      ) : null;
+    }
+    case 'storyTeaser':
+      return sectionContent.about?.body ? (
+        <Section
+          eyebrow={effectiveBranchText('restaurant', sectionContent).aboutTeaserEyebrow}
+          title={<>{splitTitle(sectionContent.about.title || 'Über uns')}</>}
+          spacing="lg"
+        >
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <ParallaxImage src={sectionContent.about.imageUrl || sectionContent.gallery[0]} alt={sectionContent.brand.name} className="rounded-3xl aspect-[4/5] reveal" />
+            </div>
+            <div className="lg:col-span-7 lg:pt-12">
+              <div className="prose-lite reveal">
+                {(sectionContent.about.body || '').split('\n\n').map((p, i) => (
+                  <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
+                ))}
+              </div>
+              <TLink to={effectiveBranchText('restaurant', sectionContent).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText('restaurant', sectionContent).learnMoreLabel} <span aria-hidden>→</span></TLink>
+            </div>
+          </div>
+        </Section>
+      ) : null;
     case 'statsBand':
       return <NumbersBand variant="restaurant" content={sectionContent} />;
     case 'newsTeaser':
@@ -572,6 +737,22 @@ function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteC
         <Section eyebrow={effectiveBranchText('restaurant', sectionContent).galleryTeaserEyebrow} title={galleryTeaserTitle('restaurant', sectionContent)} spacing="lg">
           <GalleryShowcase variant="restaurant" images={images} mode={section.type === 'galleryPreview' ? 'teaser' : 'full'} />
         </Section>
+      ) : null;
+    }
+    case 'labelBand': {
+      const labels = sectionContent.logos ?? [];
+      return labels.length ? (
+        <section className="py-14 border-y border-line">
+          <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+            {labels.map((entry) =>
+              logoBandEntryIsImageUrl(entry) ? (
+                <img key={entry} src={entry} alt="" className="h-9 md:h-11 w-auto max-w-[140px] object-contain mix-blend-multiply" loading="lazy" />
+              ) : (
+                <span key={entry} className="font-display text-2xl tracking-wide">{entry}</span>
+              ),
+            )}
+          </div>
+        </section>
       ) : null;
     }
     case 'testimonials':
@@ -594,6 +775,20 @@ function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteC
     default:
       return null;
   }
+}
+
+function RestaurantV2NoticeBanner({ section }: { section: ModularSectionV2 }) {
+  const lines = cmsV2TextItems(asUnknownRecord(section.data).items);
+  if (!lines.length) return null;
+  return (
+    <section className="bg-brand text-white border-y border-white/10">
+      <div className="container-x py-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs uppercase tracking-widest">
+        {lines.map((line) => (
+          <span key={line}>{line}</span>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function RestaurantV2HomePage({ content, style }: { content: SiteContent; style: TemplateStyle }) {
@@ -785,6 +980,8 @@ function renderRestaurantV2SubpageSection(page: RestaurantV2SubpageKey, section:
   const data = asUnknownRecord(section.data);
   const sectionContent = cmsV2RestaurantSubpageContent(content, section, page);
   switch (section.type) {
+    case 'noticeBanner':
+      return <RestaurantV2NoticeBanner section={section} />;
     case 'highlightsBar': {
       const items = cmsV2TextPairs(data.items);
       return items.length ? (
