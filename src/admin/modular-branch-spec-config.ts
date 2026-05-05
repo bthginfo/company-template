@@ -1,9 +1,9 @@
 /**
  * Per-branch Spez-Modular v1 editor configs (Tourismus, Salon, Handwerk, Beratung, Praxen, Fitness).
- * Hotel und Restaurant behalten eigene Editor-Komponenten.
+ * Jede Branche hat ein eigenes Admin-Modul (`Modular*Editor.tsx`), das diese Configs an `ModularSpecPageEditor` übergibt.
+ * Restaurant und Hotel nutzen vollständig eigene Editor-Implementierungen (`ModularHomeEditor`, `ModularHotelEditor`).
  */
 
-import type { TemplateKey } from '@/lib/types';
 import type { ModularSpecEditorConfig, ModularSpecPageKey } from './ModularSpecPageEditor';
 import { TOURISM_SECTION_LABEL_DE } from '@/lib/modular-tourism-blueprints';
 import {
@@ -158,21 +158,3 @@ export const FITNESS_MODULAR_SPEC_CFG: ModularSpecEditorConfig = {
   hasAny: hasAnyFitnessModular,
 };
 
-export function getModularBranchSpecEditorConfig(tpl: TemplateKey): ModularSpecEditorConfig | null {
-  switch (tpl) {
-    case 'tourism':
-      return TOURISM_MODULAR_SPEC_CFG;
-    case 'salon':
-      return SALON_MODULAR_SPEC_CFG;
-    case 'tradesman':
-      return TRADESMAN_MODULAR_SPEC_CFG;
-    case 'consulting':
-      return CONSULTING_MODULAR_SPEC_CFG;
-    case 'medical':
-      return MEDICAL_MODULAR_SPEC_CFG;
-    case 'fitness':
-      return FITNESS_MODULAR_SPEC_CFG;
-    default:
-      return null;
-  }
-}
