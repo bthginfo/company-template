@@ -7,8 +7,9 @@ import type { ModularUploadFn } from './modular-section-field-kit';
 import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
+import type { ModularSpecPageKey } from './modular-section-types';
 
-export type ModularSpecPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
+export type { ModularSpecPageKey } from './modular-section-types';
 
 export type ModularSpecEditorConfig = {
   tpl: TemplateKey;
@@ -171,6 +172,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
                 sectionType={sec.type}
                 data={(sec.data ?? {}) as Record<string, unknown>}
                 uploadImage={uploadImage}
+                modularPage={page}
                 onChange={(next) => patchSectionData(sec.id, next)}
               />
             </div>

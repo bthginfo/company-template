@@ -140,7 +140,7 @@ export function AdminApp() {
       const ts = new Date().toLocaleTimeString('de-DE');
       setSavedAt(ts);
       setTimeout(() => setSavedAt(null), 5000);
-      toast.success('Gespeichert', { description: `Änderungen sind live auf der Website · ${ts}` });
+      toast.success('Gespeichert', { description: `Entwurf gesichert · ${ts} — Veröffentlichen schaltet die Website live.` });
     } catch (e: any) {
       setJustSaved(false);
       const msg = e?.message || String(e);

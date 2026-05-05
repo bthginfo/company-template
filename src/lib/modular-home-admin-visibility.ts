@@ -93,14 +93,39 @@ function slotsForModularHomeType(template: TemplateKey, sectionType: string): re
   return null;
 }
 
+const CORE_FIVE_TEMPLATES: readonly TemplateKey[] = [
+  'restaurant', 'salon', 'tradesman', 'hotel', 'tourism',
+];
+
+/**
+ * `getEffectiveHomeSectionKeys` follows `BRANCH_STYLE_ORDER` and often omits
+ * `softCta`, but core templates still render the CTA strip after the slot loop
+ * in `TemplateApp`. Treat `softCta` as present for admin visibility so modular
+ * `cta` / `ctaBand` rows are not falsely marked „nicht im Startseiten-Layout“.
+ */
+function effectiveHomeSlotsForVisibility(
+  template: TemplateKey,
+  effectiveHomeSlots: readonly string[],
+  mappedSlots: readonly string[] | null,
+): Set<string> {
+  const slots = new Set(effectiveHomeSlots);
+  if (
+    mappedSlots &&
+    mappedSlots.includes('softCta') &&
+    CORE_FIVE_TEMPLATES.includes(template) &&
+    !slots.has('softCta')
+  ) {
+    slots.add('softCta');
+  }
+  return slots;
+}
+
 export function isModularHomeSectionAdminVisible(
   template: TemplateKey,
   style: TemplateStyle,
   sectionType: string,
   effectiveHomeSlots: readonly string[],
 ): boolean {
-  const slots = new Set(effectiveHomeSlots);
-
   if (sectionType === 'noticeBanner' || sectionType === 'hero') return true;
 
   if (template === 'tradesman' && sectionType === 'stickyEmergencyBanner') return true;
@@ -110,12 +135,13 @@ export function isModularHomeSectionAdminVisible(
   const marqueeTypes = new Set(['marqueeBand', 'testimonialMarquee']);
   if (marqueeTypes.has(sectionType)) {
     if (style !== 'bold') return false;
-    if (slots.has('marquee')) return true;
+    if (new Set(effectiveHomeSlots).has('marquee')) return true;
     return BOLD_INLINE_MARQUEE_TEMPLATES.includes(template);
   }
 
   const mapped = slotsForModularHomeType(template, sectionType);
   if (mapped === null) return true;
   if (mapped.length === 0) return false;
+  const slots = effectiveHomeSlotsForVisibility(template, effectiveHomeSlots, mapped);
   return slotHit(slots, mapped);
 }

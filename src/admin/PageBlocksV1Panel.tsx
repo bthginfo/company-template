@@ -14,6 +14,7 @@ import {
   projectSiteContentToBlockData,
   rebootstrapPageBlocksForSinglePage,
 } from '@/lib/page-blocks-v1-bootstrap';
+import { applyPageBlockVisibilityToggle } from '@/lib/page-blocks-v1-section-visibility-sync';
 import { collectPageBlocksV1Issues, isPageBlockSingletonType } from '@/lib/page-blocks-v1-validate';
 
 function issuesTouchingPage(page: PageKey, issues: string[]): string[] {
@@ -77,6 +78,17 @@ export type PageBlocksV1PanelProps = {
 export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBlocksV1PanelProps) {
   const list = data.pageBlocksV1?.[page] ?? [];
   const [jsonDraft, setJsonDraft] = useState<Record<string, string>>({});
+  /** Raw JSON editors start collapsed; expand per block id when needed. */
+  const [jsonExpanded, setJsonExpanded] = useState<Record<string, boolean>>({});
+
+  const duplicateTypesOnPage = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const b of list) {
+      const t = String(b.type);
+      counts.set(t, (counts.get(t) ?? 0) + 1);
+    }
+    return new Set([...counts.entries()].filter(([, n]) => n > 1).map(([t]) => t));
+  }, [list]);
 
   useEffect(() => {
     setJsonDraft((prev) => {
@@ -122,14 +134,20 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
   };
 
   const toggleVisible = (index: number) => {
-    const next = list.map((b, i) => (i === index ? { ...b, isVisible: !(b.isVisible !== false) } : b));
-    applyList(next);
+    setData(applyPageBlockVisibilityToggle(data, page, index));
   };
 
   const syncBlockDataFromFields = (index: number) => {
     const b = list[index];
     if (!b) return;
     const t = b.type as AdminSectionKey;
+    if (duplicateTypesOnPage.has(String(t))) {
+      toast.error('„Aus Feldern“ nicht möglich', {
+        description:
+          'Auf dieser Seite gibt es mehrere Blöcke desselben Typs. Die Felder oben sind nur eine gemeinsame Quelle — bitte JSON pro Block pflegen oder Duplikate entfernen.',
+      });
+      return;
+    }
     const projected = projectSiteContentToBlockData(data, t);
     const next = list.map((row, i) => (i === index ? { ...row, data: projected } : row));
     applyList(next);
@@ -200,8 +218,9 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
             CMS-Seitenblöcke
           </h2>
           <p className="text-xs text-muted mt-0.5 max-w-prose">
-            Reihenfolge und Sichtbarkeit für die Live-Darstellung (Phase 3 Daten-Merge). JSON pro Block muss zu den erlaubten
-            Feldwurzeln passen.
+            Reihenfolge und Sichtbarkeit für die Live-Darstellung (Phase 3 Daten-Merge). Die Sektions-Karten oben sind die
+            Haupteditoren; JSON nur bei Bedarf. Mehrere Blöcke gleichen Typs: nicht „Aus Feldern“ (würde alle gleich setzen).
+            JSON pro Block muss zu den erlaubten Feldwurzeln passen.
           </p>
         </div>
         <button
@@ -252,7 +271,17 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
                     <button type="button" className="text-xs px-2 py-1 rounded-lg border border-line hover:bg-slate-50" onClick={() => move(i, 1)} disabled={i === list.length - 1} aria-label="Nach unten">
                       ↓
                     </button>
-                    <button type="button" className="text-xs px-2 py-1 rounded-lg border border-line hover:bg-slate-50" onClick={() => syncBlockDataFromFields(i)}>
+                    <button
+                      type="button"
+                      className="text-xs px-2 py-1 rounded-lg border border-line hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                      onClick={() => syncBlockDataFromFields(i)}
+                      disabled={duplicateTypesOnPage.has(String(b.type))}
+                      title={
+                        duplicateTypesOnPage.has(String(b.type))
+                          ? 'Mehrere Blöcke dieses Typs: bitte JSON pro Block bearbeiten.'
+                          : 'Block-Daten aus den Hauptfeldern projizieren'
+                      }
+                    >
                       Aus Feldern
                     </button>
                     <button type="button" className="text-xs px-2 py-1 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50" onClick={() => removeBlock(i)}>
@@ -260,14 +289,29 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
                     </button>
                   </div>
                 </div>
-                <label className="block text-[10px] uppercase tracking-widest text-muted">data (JSON)</label>
-                <textarea
-                  className="w-full min-h-[140px] font-mono text-xs border border-line rounded-lg p-3 bg-[#fafaf7] focus:outline-none focus:ring-2 focus:ring-slate-300"
-                  spellCheck={false}
-                  value={jsonDraft[b.id] ?? JSON.stringify(b.data ?? {}, null, 2)}
-                  onChange={(e) => setJsonDraft((prev) => ({ ...prev, [b.id]: e.target.value }))}
-                  onBlur={() => onJsonBlur(i, b.id)}
-                />
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className="block text-[10px] uppercase tracking-widest text-muted">data (JSON)</label>
+                  <button
+                    type="button"
+                    className="text-xs text-brand hover:underline"
+                    onClick={() => setJsonExpanded((prev) => ({ ...prev, [b.id]: !prev[b.id] }))}
+                  >
+                    {jsonExpanded[b.id] ? 'JSON ausblenden' : 'JSON anzeigen'}
+                  </button>
+                </div>
+                {jsonExpanded[b.id] ? (
+                  <textarea
+                    className="w-full min-h-[140px] font-mono text-xs border border-line rounded-lg p-3 bg-[#fafaf7] focus:outline-none focus:ring-2 focus:ring-slate-300"
+                    spellCheck={false}
+                    value={jsonDraft[b.id] ?? JSON.stringify(b.data ?? {}, null, 2)}
+                    onChange={(e) => setJsonDraft((prev) => ({ ...prev, [b.id]: e.target.value }))}
+                    onBlur={() => onJsonBlur(i, b.id)}
+                  />
+                ) : (
+                  <p className="text-xs text-muted border border-dashed border-line rounded-lg px-3 py-2 bg-[#fafaf7]/80">
+                    Eingeklappt — bei Bedarf „JSON anzeigen“ für Rohdaten dieses Blocks.
+                  </p>
+                )}
               </div>
             );
           })

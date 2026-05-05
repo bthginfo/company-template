@@ -32,7 +32,11 @@ export function buildSlotRenderInstructions(args: {
   mergedFull: SiteContent;
   legacyOrder: string[];
   availableSlots: ReadonlySet<string>;
+  /** When set, slots that fail this check are omitted (aligns block plan with layout `sectionVisibility`). */
+  isSlotVisible?: (slot: string) => boolean;
 }): SlotRenderInstruction[] {
+  const slotOk = args.isSlotVisible ?? (() => true);
+
   const plan = buildPageBlockSlotPlan({
     page: args.page,
     content: args.contentBase,
@@ -40,11 +44,13 @@ export function buildSlotRenderInstructions(args: {
   });
 
   if (plan.length) {
-    return plan.map((p, i) => ({
-      key: `${p.slot}-${i}`,
-      slot: p.slot,
-      mergeEndExclusive: p.mergeEndExclusive,
-    }));
+    return plan
+      .filter((p) => slotOk(p.slot))
+      .map((p) => ({
+        key: `${p.slot}-${p.mergeEndExclusive}`,
+        slot: p.slot,
+        mergeEndExclusive: p.mergeEndExclusive,
+      }));
   }
 
   const order = resolveLayoutSlotOrder({
@@ -54,11 +60,13 @@ export function buildSlotRenderInstructions(args: {
     availableSlots: args.availableSlots,
   });
 
-  return order.map((slot, i) => ({
-    key: `${slot}-${i}`,
-    slot,
-    mergeEndExclusive: null,
-  }));
+  return order
+    .filter((slot) => slotOk(slot))
+    .map((slot, i) => ({
+      key: `${slot}-${i}`,
+      slot,
+      mergeEndExclusive: null,
+    }));
 }
 
 export function siteContentForSlotInstruction(

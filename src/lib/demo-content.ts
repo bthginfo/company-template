@@ -1,42 +1,8 @@
 import { mergeSiteContentWithBootstrappedPageBlocks } from './page-blocks-v1-bootstrap.js';
+import { DEMO_NEWS_BY_TEMPLATE } from './demo-news-by-template.js';
 import { SiteContentSchema, type SiteContent, type TemplateKey } from './types.js';
 
-/** Shared demo blog rows — used by seeded `SiteContent` and showcase News fallback. */
-export const DEMO_NEWS_POSTS: NonNullable<SiteContent['posts']> = [
-  {
-    id: 'demo-news-1',
-    title: 'Saisonkarte überarbeitet',
-    slug: 'saisonkarte-update',
-    date: '2025-04-12',
-    excerpt: 'Neue Gerichte mit Spargel, Bärlauch und regionalem Fisch.',
-    body: 'Die Küche hat die Frühlingskarte neu geplant.\n\nVon leichten Vorspeisen bis zu den Klassikern — alles frisch.',
-    bodyHtml: '',
-    imageUrl: 'https://images.unsplash.com/photo-1551218808-94e220e1d168?auto=format&fit=crop&w=1200&q=80',
-    published: true,
-  },
-  {
-    id: 'demo-news-2',
-    title: 'Öffnungszeiten an Feiertagen',
-    slug: 'feiertage-2025',
-    date: '2025-03-20',
-    excerpt: 'So haben wir für Sie geöffnet — Reservierung empfohlen.',
-    body: 'An den kommenden Feiertagen gelten leicht geänderte Zeiten.\n\nBitte reservieren Sie rechtzeitig.',
-    bodyHtml: '',
-    imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80',
-    published: true,
-  },
-  {
-    id: 'demo-news-3',
-    title: 'Weinabende im Mai',
-    slug: 'weinabende-mai',
-    date: '2025-03-01',
-    excerpt: 'Jeden Freitag ein anderer Winzer — degustieren und bestellen.',
-    body: 'Ab Anfang Mai laden wir jeden Freitag Gastwinzer:innen ein.\n\nPlätze sind limitiert.',
-    bodyHtml: '',
-    imageUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80',
-    published: true,
-  },
-];
+export { DEMO_NEWS_BY_TEMPLATE, DEMO_NEWS_POSTS, demoNewsFallbackForTemplate } from './demo-news-by-template.js';
 
 /**
  * Demo content for the showcase preview pages.
@@ -89,7 +55,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       { author: 'Familie Berger', text: 'Tolles Essen, herzliche Bedienung, fairer Preis. Unsere Kinder lieben Giulia.' },
       { author: 'Andrea L., Bozen', text: 'Authentisch wie selten in Österreich. Der Trüffel-Tagliatelle ist legendär.' },
     ],
-    posts: DEMO_NEWS_POSTS,
+    posts: DEMO_NEWS_BY_TEMPLATE.restaurant,
     contact: {
       phone: '+43 512 123 4567',
       email: 'reservierung@trattoria-innsbruck.at',
@@ -180,7 +146,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       { author: 'Andrea P.', text: 'Atmosphäre wie ein Spa. Marie und ihr Team sind absolute Profis – und obendrein einfach nette Menschen.' },
       { author: 'Carolina B.', text: 'Mein Balayage hält seit 4 Monaten und sieht immer noch frisch aus. Hier bleibe ich.' },
     ],
-    posts: DEMO_NEWS_POSTS,
+    posts: DEMO_NEWS_BY_TEMPLATE.salon,
     contact: {
       phone: '+49 89 1234 5678',
       email: 'hello@studio-lumiere.de',
@@ -284,7 +250,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       { author: 'Bauunternehmen Wagner', text: 'Verlässlicher Partner für unsere Bauprojekte seit Jahren. Kommt immer zum vereinbarten Termin.' },
       { author: 'Annette R.', text: 'Komplette Badsanierung in 12 Tagen. Sauber, freundlich, transparente Kommunikation. Top.' },
     ],
-    posts: DEMO_NEWS_POSTS,
+    posts: DEMO_NEWS_BY_TEMPLATE.tradesman,
     contact: {
       phone: '+49 841 9876 543',
       email: 'info@mayer-soehne.de',
@@ -369,7 +335,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       { author: 'Lina B., Berlin', text: 'Spa-Aufenthalt zum Geburtstag. Drei Tage komplett offline, am vierten wollte ich nicht mehr weg. 12 / 10.' },
       { author: 'Patrick W., München', text: 'Tagung mit 28 Personen perfekt organisiert. Technik, Pausen, Abendessen – alles saß. Kommen wieder.' },
     ],
-    posts: DEMO_NEWS_POSTS,
+    posts: DEMO_NEWS_BY_TEMPLATE.hotel,
     contact: {
       phone: '+43 5234 5678 0',
       email: 'willkommen@hotel-bergkristall.at',
@@ -455,7 +421,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       { author: 'Christine R., Wien', text: 'Wein-Tour im Vinschgau – kein Standard-Programm, sondern echte Begegnungen mit Winzer:innen. Großartig.' },
       { author: 'Boris N., Berlin', text: 'Foto-Workshop am Karwendel: kompetent, geduldig, mit Auge für Details. Der Sonnenaufgang werde ich nicht vergessen.' },
     ],
-    posts: DEMO_NEWS_POSTS,
+    posts: DEMO_NEWS_BY_TEMPLATE.tourism,
     contact: {
       phone: '+43 512 87 65 43',
       email: 'tour@alpenroute.tirol',
@@ -546,7 +512,7 @@ export const EXTRA_DEMO_CONTENT = {
       { author: 'Andreas Reiter, Reiter GmbH', text: 'Seit 12 Jahren unsere Steuerberater. Reaktionszeit unter 24 Stunden, immer ein klarer Plan, nie Bauchgefühl.' },
       { author: 'Familie Brunner, Brunner Holding', text: 'Beratung auf Augenhöhe. Wir wurden nie etwas verkauft, was wir nicht brauchten.' },
     ],
-    posts: DEMO_NEWS_POSTS,
+    posts: DEMO_NEWS_BY_TEMPLATE.consulting,
     contact: {
       phone: '+49 89 22 333 444',
       email: 'kontakt@hofer-partner.de',
@@ -630,7 +596,7 @@ export const EXTRA_DEMO_CONTENT = {
       { author: 'Familie Pichler', text: 'Unsere ganze Familie ist dort. Termine immer pünktlich, freundliches Team, ehrliche Beratung.' },
       { author: 'Robert N.', text: 'Akupunktur hat meine Migräne deutlich reduziert. Frau Dr. Lindner nimmt Beschwerden ernst.' },
     ],
-    posts: DEMO_NEWS_POSTS,
+    posts: DEMO_NEWS_BY_TEMPLATE.medical,
     contact: {
       phone: '+43 512 55 66 77',
       email: 'praxis@dr-lindner.at',
@@ -718,7 +684,7 @@ export const EXTRA_DEMO_CONTENT = {
       { author: 'Tom B.', text: 'Reformer Pilates hat meinen Rücken in 3 Monaten verändert. Hier weiß man, was man tut.' },
       { author: 'Marie L.', text: 'Atmosphäre wie in einem ruhigen Wohnzimmer. Ich komme jede Woche – das ist meine Insel.' },
     ],
-    posts: DEMO_NEWS_POSTS,
+    posts: DEMO_NEWS_BY_TEMPLATE.fitness,
     contact: {
       phone: '+49 89 44 55 66',
       email: 'hello@studio-anima.de',

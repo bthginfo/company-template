@@ -404,8 +404,8 @@ export default function ExtraBranchTemplate({
             <Route path="galerie" element={<><PageSeoExtra content={content} branch={branch} page="gallery" /><SubPage content={content} branch={branch} page="gallery" style={style} eyebrow={eb} /></>} />
             <Route path="ueber-uns" element={<><PageSeoExtra content={content} branch={branch} page="about" /><SubPage content={content} branch={branch} page="about" style={style} eyebrow={eb} /></>} />
             <Route path="kontakt" element={<><PageSeoExtra content={content} branch={branch} page="contact" /><SubPage content={content} branch={branch} page="contact" style={style} eyebrow={eb} /></>} />
-            <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} />} />
-            <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} />} />
+            <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} templateVariant={branch} />} />
+            <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} templateVariant={branch} />} />
             <Route path="impressum" element={<Imprint content={content} />} />
             <Route path="datenschutz" element={<Privacy content={content} />} />
             <Route path="*" element={<><PageSeoExtra content={content} branch={branch} page="home" /><Layout content={content} eyebrow={eb} branch={branch} page="home" /></>} />
@@ -1065,6 +1065,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       mergedFull,
       legacyOrder: legacySubpageOrder,
       availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
+      isSlotVisible: (slot) => isSectionEnabled(mergedFull, pageKey, slot),
     });
     return (
       <>
@@ -1095,6 +1096,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       mergedFull,
       legacyOrder: legacySubpageOrder,
       availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
+      isSlotVisible: (slot) => isSectionEnabled(mergedFull, pageKey, slot),
     });
     return (
       <>
@@ -1128,6 +1130,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       mergedFull,
       legacyOrder: legacySubpageOrder,
       availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
+      isSlotVisible: (slot) => isSectionEnabled(mergedFull, pageKey, slot),
     });
     return (
       <>
@@ -1158,6 +1161,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
     mergedFull,
     legacyOrder: legacySubpageOrder,
     availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
+    isSlotVisible: (slot) => isSectionEnabled(mergedFull, pageKey, slot),
   });
   return (
     <>
@@ -1291,7 +1295,7 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
     numbers: <ExtraHomeNumbersBand content={slice} />,
     faq: <ExtraFaqSection branch={branch} content={slice} />,
     logos: <ExtraHomeLogosStrip content={slice} branch={branch} />,
-    news: <NewsPreview content={slice} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
+    news: <NewsPreview templateVariant={branch} content={slice} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
     softCta: <ExtraHomeSoftCta branch={branch} content={slice} layoutStyle="classic" />,
     contact: <ContactSection content={slice} variant="classic" />,
     };
@@ -1304,6 +1308,7 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
     mergedFull,
     legacyOrder: legacyHomeOrder,
     availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
+    isSlotVisible: (slot) => isSectionEnabled(mergedFull, 'home', slot),
   });
 
   const cta = resolveHeroCta(mergedFull);
@@ -1491,7 +1496,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
     numbers: <ExtraHomeNumbersBand content={slice} />,
     faq: <ExtraFaqSection branch={branch} content={slice} />,
     logos: <ExtraHomeLogosStrip content={slice} branch={branch} />,
-    news: <NewsPreview content={slice} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
+    news: <NewsPreview templateVariant={branch} content={slice} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
     softCta: <ExtraHomeSoftCta branch={branch} content={slice} layoutStyle="modern" />,
     contact: <ContactSection content={slice} variant="modern" />,
     };
@@ -1504,6 +1509,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
     mergedFull,
     legacyOrder: legacyHomeOrder,
     availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
+    isSlotVisible: (slot) => isSectionEnabled(mergedFull, 'home', slot),
   });
 
   const cta = resolveHeroCta(mergedFull);
@@ -1703,7 +1709,7 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
     numbers: <ExtraHomeNumbersBand content={slice} />,
     faq: <ExtraFaqSection branch={branch} content={slice} />,
     logos: <ExtraHomeLogosStrip content={slice} branch={branch} />,
-    news: <NewsPreview content={slice} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />,
+    news: <NewsPreview templateVariant={branch} content={slice} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />,
     softCta: <ExtraHomeSoftCta branch={branch} content={slice} layoutStyle="bold" />,
     contact: <ContactSection content={slice} variant="bold" />,
     };
@@ -1716,6 +1722,7 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
     mergedFull,
     legacyOrder: legacyHomeOrder,
     availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
+    isSlotVisible: (slot) => isSectionEnabled(mergedFull, 'home', slot),
   });
 
   const cta = resolveHeroCta(mergedFull);

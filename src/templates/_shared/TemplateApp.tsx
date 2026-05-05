@@ -268,8 +268,8 @@ export default function TemplateApp({
             <Route path="referenzen" element={<><PageSeo page="gallery" variant={coreVariant} content={content} /><GalleryPage content={content} variant={coreVariant} style={style} title="Referenzen" eyebrow="Projekte" /></>} />
             <Route path="ueber-uns" element={<><PageSeo page="about" variant={coreVariant} content={content} /><AboutPage variant={coreVariant} content={content} style={style} /></>} />
             <Route path="kontakt" element={<><PageSeo page="contactPage" variant={coreVariant} content={content} /><ContactPage content={content} variant={coreVariant} style={style} /></>} />
-            <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} />} />
-            <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} />} />
+            <Route path="news" element={<NewsIndexPage content={content} basePath={basePath} templateVariant={variant} />} />
+            <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} templateVariant={variant} />} />
             <Route path="impressum" element={<Imprint content={content} />} />
             <Route path="datenschutz" element={<Privacy content={content} />} />
             <Route path="*" element={<><PageSeo page="home" variant={coreVariant} content={content} /><HomePage variant={coreVariant} content={content} style={style} /></>} />
@@ -395,7 +395,7 @@ function HomePageClassic({ variant, contentBase, mergedFull }: { variant: Templa
       action: <BranchActionStrip variant={variant} content={slice} />,
       signature: <BranchSignature variant={variant} style="classic" content={slice} />,
       numbers: <NumbersBand variant={variant} content={slice} />,
-      news: <NewsPreview content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'News & Notizen.'} />,
+      news: <NewsPreview templateVariant={variant as TemplateKey} content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'News & Notizen.'} />,
       menu: variant === 'restaurant' ? <MenuCategoriesModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
       rooms: variant === 'hotel' ? <RoomShowcaseModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
       tours: variant === 'tourism' ? <TourCardsModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
@@ -490,6 +490,7 @@ function HomePageClassic({ variant, contentBase, mergedFull }: { variant: Templa
     mergedFull,
     legacyOrder: legacyHomeOrder,
     availableSlots,
+    isSlotVisible: (slot) => isSectionEnabled(mergedFull, 'home', slot),
   });
 
   return (
@@ -521,7 +522,7 @@ function HomePageModern({ variant, contentBase, mergedFull }: { variant: Templat
       action: <BranchActionStrip variant={variant} content={slice} />,
       signature: <BranchSignature variant={variant} style="modern" content={slice} />,
       numbers: <NumbersBand variant={variant} content={slice} />,
-      news: <NewsPreview content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'News & Notizen.'} />,
+      news: <NewsPreview templateVariant={variant as TemplateKey} content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'News & Notizen.'} />,
       menu: variant === 'restaurant' ? <MenuCategoriesModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
       rooms: variant === 'hotel' ? <RoomShowcaseModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
       tours: variant === 'tourism' ? <TourCardsModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
@@ -645,6 +646,7 @@ function HomePageModern({ variant, contentBase, mergedFull }: { variant: Templat
     mergedFull,
     legacyOrder: legacyHomeOrder,
     availableSlots,
+    isSlotVisible: (slot) => isSectionEnabled(mergedFull, 'home', slot),
   });
 
   return (
@@ -730,7 +732,7 @@ function HomePageBold({ variant, contentBase, mergedFull }: { variant: TemplateV
       action: <BranchActionStrip variant={variant} content={slice} />,
       signature: <BranchSignature variant={variant} style="bold" content={slice} />,
       numbers: <NumbersBand variant={variant} content={slice} />,
-      news: <NewsPreview content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'Notizen.'} />,
+      news: <NewsPreview templateVariant={variant as TemplateKey} content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'Notizen.'} />,
       menu: variant === 'restaurant' ? <MenuCategoriesModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
       rooms: variant === 'hotel' ? <RoomShowcaseModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
       tours: variant === 'tourism' ? <TourCardsModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
@@ -848,6 +850,7 @@ function HomePageBold({ variant, contentBase, mergedFull }: { variant: TemplateV
     mergedFull,
     legacyOrder: legacyHomeOrder,
     availableSlots,
+    isSlotVisible: (slot) => isSectionEnabled(mergedFull, 'home', slot),
   });
 
   const heroEyebrow = effectiveBranchText(variant, mergedFull).heroEyebrow || mergedFull.brand.tagline || cfg.servicesEyebrow;
@@ -1385,6 +1388,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
     mergedFull: resolved,
     legacyOrder: legacyServicesOrder,
     availableSlots,
+    isSlotVisible: (slot) => isSectionEnabled(resolved, 'services', slot),
   });
   const headerOverride = pageHeaderOverride(resolved, 'servicesHeader');
   const servicesImg = effectiveBranchText(variant, resolved).servicesPageImageUrl || resolved.gallery[2] || resolved.gallery[0];
@@ -1555,6 +1559,7 @@ function GalleryPage({
     mergedFull: resolved,
     legacyOrder: legacyGalleryOrder,
     availableSlots,
+    isSlotVisible: (slot) => isSectionEnabled(resolved, 'gallery', slot),
   });
   return (
     <>
@@ -1806,6 +1811,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
     mergedFull: resolved,
     legacyOrder: legacyAboutOrder,
     availableSlots,
+    isSlotVisible: (slot) => isSectionEnabled(resolved, 'about', slot),
   });
   return (
     <>
@@ -2109,6 +2115,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
     mergedFull: resolved,
     legacyOrder: legacyContactOrder,
     availableSlots,
+    isSlotVisible: (slot) => isSectionEnabled(resolved, 'contact', slot),
   });
   return (
     <>

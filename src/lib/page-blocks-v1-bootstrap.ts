@@ -125,7 +125,9 @@ export function rebootstrapPageBlocksForSinglePage(
  * Pre-save sync: for every block whose `data` is non-empty, re-project the
  * current `SiteContent` field values into it so stale overrides can't shadow
  * section-editor changes. Blocks with `data: {}` are left untouched (they
- * don't override anything).
+ * don't override anything). If a page lists **more than one block of the same
+ * `type`**, sync is skipped for those blocks so per-instance JSON is not all
+ * overwritten with one global projection.
  */
 export function syncNonEmptyBlockDataFromContent(content: SiteContent): SiteContent {
   const pbv1 = content.pageBlocksV1;
@@ -134,9 +136,21 @@ export function syncNonEmptyBlockDataFromContent(content: SiteContent): SiteCont
   const next: PageBlocksV1 = {};
   for (const page of PAGE_KEYS) {
     const list = pbv1[page];
-    if (!list?.length) { next[page] = list; continue; }
+    if (!list?.length) {
+      next[page] = list;
+      continue;
+    }
+    const typeCounts = new Map<string, number>();
+    for (const b of list) {
+      const t = String(b.type);
+      typeCounts.set(t, (typeCounts.get(t) ?? 0) + 1);
+    }
     next[page] = list.map((b) => {
       if (!b.data || typeof b.data !== 'object' || Object.keys(b.data).length === 0) return b;
+      const t = String(b.type);
+      if ((typeCounts.get(t) ?? 0) > 1) {
+        return b;
+      }
       const fresh = projectSiteContentToBlockData(content, b.type as AdminSectionKey);
       if (JSON.stringify(b.data) === JSON.stringify(fresh)) return b;
       changed = true;

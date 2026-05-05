@@ -15,6 +15,7 @@ something is broken in production or you need to do an unusual ops task.
 - [Rotate VERCEL_TOKEN](#rotate-vercel_token)
 - [Rotate AUTH_SECRET](#rotate-auth_secret)
 - [Database is unreachable / Neon paused](#database-is-unreachable--neon-paused)
+- [Admin draft vs published site](#admin-draft-vs-published-site)
 - [Backup / restore tenant content](#backup--restore-tenant-content)
 - [Decommission a tenant](#decommission-a-tenant)
 
@@ -149,6 +150,18 @@ Neon's free tier auto-pauses after inactivity. Symptoms: Vercel logs show
 3. If on a paid plan and outage persists, check Neon status page.
 
 For permanent reliability, upgrade to a Neon plan without auto-pause.
+
+---
+
+## Admin draft vs published site
+
+Symptoms: Admin shows new copy after **Speichern**, but the public URL (without preview) still shows the old text or placeholders.
+
+1. **Save writes `draft` only.** `PUT /api/content` updates the `draft` column; **`data` is the live row** until publish. See [api/content.ts](api/content.ts).
+2. **Preview (logged-in admin):** open the site with `?preview=1` on the URL (or use **Website (Entwurf)** / **Vorschau** in the admin). `GET /api/content?preview=1` returns the draft when a session cookie is present.
+3. **Go live:** use **Veröffentlichen** in the admin (`POST /api/content?action=publish`), which copies `draft` → `data` and clears the draft.
+
+If something still looks wrong after publish, hard-refresh the browser and check the tenant’s last deploy.
 
 ---
 

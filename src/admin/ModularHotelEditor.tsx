@@ -158,6 +158,7 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page, upload
                 sectionType={sec.type}
                 data={(sec.data ?? {}) as Record<string, unknown>}
                 uploadImage={uploadImage}
+                modularPage={page}
                 onChange={(next) => patchSectionData(sec.id, next)}
               />
             </div>

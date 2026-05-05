@@ -43,6 +43,7 @@ import {
   ModularFitnessPageEditor,
 } from './ModularFitnessEditor';
 import { PageBlocksV1Panel } from './PageBlocksV1Panel';
+import { applySectionVisibilityToPageBlocks } from '@/lib/page-blocks-v1-section-visibility-sync';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
@@ -247,6 +248,23 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
           </div>
 
           <div className="p-6 md:p-8 space-y-10">
+            {pageId === 'home' && (
+              <div className="rounded-xl border border-sky-200 bg-sky-50/85 px-4 py-3 text-sm text-slate-800 space-y-2">
+                <p className="font-medium text-slate-900">Demo-Inhalte sind über mehrere Bereiche verteilt</p>
+                <p className="text-slate-700 leading-relaxed">
+                  Unter{' '}
+                  <button type="button" className="text-brand underline underline-offset-2 font-medium" onClick={() => setPageId('news')}>News &amp; Blog</button>
+                  {' '}finden Sie die Beispiel-Artikel, unter{' '}
+                  <button type="button" className="text-brand underline underline-offset-2 font-medium" onClick={() => setPageId('seo')}>SEO &amp; Sichtbarkeit</button>
+                  {' '}Meta-Texte, unter{' '}
+                  <button type="button" className="text-brand underline underline-offset-2 font-medium" onClick={() => setPageId('contact')}>Kontaktdaten</button>
+                  {' '}Erreichbarkeit und Öffnungszeiten. Die Startseiten-Sektionen unten decken nur den sichtbaren Seitenaufbau ab.
+                </p>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Neu provisionierte Mandanten ohne Import-JSON: Telefon, E-Mail und Straße werden in den Kontaktdaten absichtlich leer gelassen (Datenschutz) — bitte eintragen.
+                </p>
+              </div>
+            )}
             {pageId === 'brand' && <BrandPage data={data} setData={setData} tpl={tplKey} style={tplStyle} onStyleChange={onStyleChange} />}
             {pageId === 'navigation' && <NavigationPage data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'contact' && <ContactGlobal data={data} setData={setData} />}
@@ -280,10 +298,17 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
           </div>
 
           <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7] rounded-b-2xl">
-            <div className="text-sm text-muted">
+            <div className="text-sm text-muted space-y-2 min-w-0 flex-1">
               {savedAt
                 ? <span className="text-emerald-700">✓ Gespeichert um {savedAt}</span>
                 : (footerStatus ?? 'Änderungen werden beim Speichern übernommen.')}
+              {hasDraft ? (
+                <p className="text-xs text-amber-900/90 leading-relaxed max-w-prose">
+                  Die öffentliche Website ohne Vorschau zeigt noch den zuletzt veröffentlichten Stand. Nutzen Sie die Links
+                  „Website (Entwurf)“ / „Live (Entwurf)“, die schwebende Vorschau oder Veröffentlichen, damit Besucher Ihre
+                  gespeicherten Entwürfe sehen.
+                </p>
+              ) : null}
             </div>
             <div className="flex gap-2 flex-wrap">
               {footerExtraActions}
@@ -556,20 +581,20 @@ function SectionInlineControls({ pageKey, sectionKey, data, setData }: {
   const idx = effective.indexOf(sectionKey);
   const isOn = isSectionEnabled(data as any, pageKey, sectionKey);
 
-  const writeVisibility = (next: Record<string, boolean>) => {
-    setData({ ...(data as any), sectionVisibility: next } as SiteContent);
-  };
   const writeOrder = (next: string[]) => {
     setData({ ...(data as any), sectionOrder: { ...order, [pageKey]: next } } as SiteContent);
   };
 
   const toggleOn = () => {
     const visKey = `${pageKey}.${sectionKey}`;
-    const next = { ...visibility, [visKey]: !isOn };
+    const nextVis = !isOn;
+    const next = { ...visibility, [visKey]: nextVis };
     if (pageKey === 'home' && Object.prototype.hasOwnProperty.call(visibility, sectionKey)) {
-      next[sectionKey] = !isOn;
+      next[sectionKey] = nextVis;
     }
-    writeVisibility(next);
+    let nextData = { ...(data as any), sectionVisibility: next } as SiteContent;
+    nextData = applySectionVisibilityToPageBlocks(nextData, pageKey as PageKey, sectionKey, nextVis);
+    setData(nextData);
   };
 
   const move = (dir: -1 | 1) => {

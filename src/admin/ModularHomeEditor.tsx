@@ -158,6 +158,7 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page, u
                 sectionType={sec.type}
                 data={(sec.data ?? {}) as Record<string, unknown>}
                 uploadImage={uploadImage}
+                modularPage={page}
                 onChange={(next) => patchSectionData(sec.id, next)}
               />
             </div>

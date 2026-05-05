@@ -7,8 +7,8 @@ import { getSession, unauthorized } from './_lib/auth.js';
 /**
  * GET  /api/content?slug=xxx            → public, returns live site content
  * GET  /api/content?slug=xxx&preview=1  → admin only, returns draft (falls back to live)
- * PUT  /api/content?slug=xxx            → admin only, writes validated content to live `data` (and clears `draft`)
- * POST /api/content?slug=xxx&action=publish  → admin only, copies draft → data, clears draft (legacy; PUT is live)
+ * PUT  /api/content?slug=xxx            → admin only, writes validated content to `draft` only (live `data` unchanged until publish)
+ * POST /api/content?slug=xxx&action=publish  → admin only, copies draft → data, clears draft
  * POST /api/content?slug=xxx&action=discard  → admin only, clears draft
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -79,13 +79,22 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Invalid content', details: parse.error.flatten() });
   }
 
-  await db
-    .insert(schema.siteContent)
-    .values({ tenantId: tenant.id, data: parse.data, draft: null })
-    .onConflictDoUpdate({
-      target: schema.siteContent.tenantId,
-      set: { data: parse.data, draft: null, updatedAt: new Date() },
+  const existing = await db.query.siteContent.findFirst({
+    where: eq(schema.siteContent.tenantId, tenant.id),
+  });
+
+  if (!existing) {
+    await db.insert(schema.siteContent).values({
+      tenantId: tenant.id,
+      data: parse.data,
+      draft: null,
     });
+  } else {
+    await db
+      .update(schema.siteContent)
+      .set({ draft: parse.data, updatedAt: new Date() })
+      .where(eq(schema.siteContent.tenantId, tenant.id));
+  }
 
   res.json({ ok: true });
 }

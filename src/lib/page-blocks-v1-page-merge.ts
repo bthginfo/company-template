@@ -4,7 +4,8 @@
  * a prefix merge (see `mergePageBlocksIntoSiteContentForPagePrefix`) so repeated slots differ.
  */
 
-import type { PageKey } from '../admin/admin-sections.js';
+import type { AdminSectionKey, PageKey } from '../admin/admin-sections.js';
+import { adminSectionToCatalogSlot } from './page-blocks-v1-slot-order.js';
 import { SiteContentSchema, type PageBlockInstanceV1, type SiteContent } from './types.js';
 
 function isPlainRecord(v: unknown): v is Record<string, unknown> {
@@ -31,10 +32,15 @@ export function deepMergeJson<T>(target: T, source: unknown): T {
   return out as T;
 }
 
-function blockListHasDataPatches(list: readonly PageBlockInstanceV1[] | undefined): boolean {
+/** Only blocks that map to a renderer slot may merge `data` (hero/header-style rows must not override site fields). */
+function blockListHasDataPatches(
+  page: PageKey,
+  list: readonly PageBlockInstanceV1[] | undefined,
+): boolean {
   if (!list?.length) return false;
   for (const b of list) {
     if (b.isVisible === false) continue;
+    if (adminSectionToCatalogSlot(page, b.type as AdminSectionKey) === null) continue;
     if (isPlainRecord(b.data) && Object.keys(b.data).length > 0) return true;
   }
   return false;
@@ -50,11 +56,12 @@ export function mergePageBlocksIntoSiteContentForPage(
   page: PageKey,
 ): SiteContent {
   const list = content.pageBlocksV1?.[page];
-  if (!list?.length || !blockListHasDataPatches(list)) return content;
+  if (!list?.length || !blockListHasDataPatches(page, list)) return content;
 
   let acc: SiteContent = structuredClone(content) as SiteContent;
   for (const b of list) {
     if (b.isVisible === false) continue;
+    if (adminSectionToCatalogSlot(page, b.type as AdminSectionKey) === null) continue;
     if (!isPlainRecord(b.data) || Object.keys(b.data).length === 0) continue;
     acc = deepMergeJson(acc, b.data) as SiteContent;
   }
@@ -77,11 +84,12 @@ export function mergePageBlocksIntoSiteContentForPagePrefix(
   if (!list?.length || endExclusive <= 0) return content;
 
   const slice = list.slice(0, Math.min(endExclusive, list.length));
-  if (!blockListHasDataPatches(slice)) return content;
+  if (!blockListHasDataPatches(page, slice)) return content;
 
   let acc: SiteContent = structuredClone(content) as SiteContent;
   for (const b of slice) {
     if (b.isVisible === false) continue;
+    if (adminSectionToCatalogSlot(page, b.type as AdminSectionKey) === null) continue;
     if (!isPlainRecord(b.data) || Object.keys(b.data).length === 0) continue;
     acc = deepMergeJson(acc, b.data) as SiteContent;
   }

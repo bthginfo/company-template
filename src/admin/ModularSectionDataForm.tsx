@@ -1,4 +1,4 @@
-import type { ModularSectionDataFormProps } from './modular-section-types';
+import type { ModularSectionDataFormProps, ModularSpecPageKey } from './modular-section-types';
 import {
   ModField,
   ModImagePick,
@@ -1223,7 +1223,18 @@ function DirectionsForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'd
   );
 }
 
-function MenuSectionHint() {
+function MenuSectionHint({ modularPage }: { modularPage?: ModularSpecPageKey }) {
+  if (modularPage === 'services') {
+    return (
+      <div className="rounded-xl border border-line bg-[#fafaf7] p-4 text-sm text-muted">
+        <p>
+          Kategorien und Gerichte bearbeiten Sie auf <strong className="text-foreground">dieser Seite</strong> im Bereich{' '}
+          <strong className="text-brand">Speisekarte / Leistungen</strong> unter den Hauptfeldern <em>oberhalb</em> der modularen
+          Blöcke — dieselbe Oberfläche wie in der klassischen Ansicht.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="rounded-xl border border-line bg-[#fafaf7] p-4 text-sm text-muted">
       <p>
@@ -1248,7 +1259,7 @@ function UnsupportedSection({ sectionType }: { sectionType: string }) {
 }
 
 export function ModularSectionDataForm(props: ModularSectionDataFormProps) {
-  const { sectionType, data, onChange, tpl, uploadImage } = props;
+  const { sectionType, data, onChange, tpl, uploadImage, modularPage } = props;
   switch (sectionType) {
     case 'noticeBanner':
       return <NoticeBannerForm data={data} onChange={onChange} />;
@@ -1299,7 +1310,7 @@ export function ModularSectionDataForm(props: ModularSectionDataFormProps) {
     case 'gallery':
       return <GalleryGridForm data={data} onChange={onChange} uploadImage={uploadImage} />;
     case 'menu':
-      return <MenuSectionHint />;
+      return <MenuSectionHint modularPage={modularPage} />;
     case 'contactDetails':
       return <ContactDetailsForm data={data} onChange={onChange} />;
     case 'locations':

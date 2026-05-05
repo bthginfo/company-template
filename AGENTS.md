@@ -46,6 +46,9 @@ you exactly what to fix. Do **not** improvise.
 3. **No `any` types** in new code. If unavoidable, leave a TODO and reason.
 4. **Per-tenant content lives in one row** (`siteContent.data` jsonb).
    Schema changes must keep the existing rows readable (additive only).
+   **Speichern im Admin schreibt nur `draft`**; die Live-Site liefert `data`, bis
+   **Veröffentlichen** (`POST …/api/content?action=publish`) oder Vorschau mit
+   Session (`GET …/api/content?preview=1`).
 5. **Admin endpoints require a valid session cookie.** Never bypass
    `requireSession()` checks.
 6. **All eight templates × three styles must keep building.** When you
@@ -287,7 +290,7 @@ Do not produce a separate markdown summary file unless explicitly asked.
 | HTML sanitizer (allowlist)                        | [src/lib/sanitize-html.ts](src/lib/sanitize-html.ts)              |
 | JWT cookie helpers                                | [api/_lib/auth.ts](api/_lib/auth.ts)                              |
 | Login endpoint (rate-limited)                     | [api/admin/login.ts](api/admin/login.ts)                          |
-| Tenant content read/write                         | [api/content.ts](api/content.ts)                                  |
+| Tenant content read/write                         | [api/content.ts](api/content.ts) (GET live vs preview; PUT → `draft`; POST publish / discard) |
 | Content import (Perplexity JSON)                  | [api/admin/import-content.ts](api/admin/import-content.ts)        |
 | Content import shared logic                       | [src/lib/content-import.ts](src/lib/content-import.ts)            |
 | Content template + Perplexity prompt              | [docs/content-template.json](docs/content-template.json), [docs/perplexity-prompt.md](docs/perplexity-prompt.md) |

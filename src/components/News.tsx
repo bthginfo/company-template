@@ -1,15 +1,21 @@
 import { Link, useParams, Navigate } from 'react-router-dom';
-import type { SiteContent } from '@/lib/types';
+import type { ReactNode } from 'react';
+import type { SiteContent, TemplateKey } from '@/lib/types';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { DEMO_NEWS_POSTS } from '@/lib/demo-content';
+import { demoNewsFallbackForTemplate } from '@/lib/demo-news-by-template';
 import { isShowcaseMode } from '@/lib/tenant';
 
 type Post = NonNullable<SiteContent['posts']>[number];
 
-export function usePublishedPosts(content: SiteContent): Post[] {
+export function usePublishedPosts(content: SiteContent, template?: TemplateKey): Post[] {
   const raw = (content as { posts?: Post[] }).posts;
+  const fallbackTpl = template ?? 'restaurant';
   const list =
-    raw && raw.length > 0 ? raw : isShowcaseMode() ? DEMO_NEWS_POSTS : [];
+    raw && raw.length > 0
+      ? raw
+      : isShowcaseMode()
+        ? demoNewsFallbackForTemplate(fallbackTpl)
+        : [];
   return list
     .filter((p) => p && p.published !== false && (p.title || p.body))
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -25,13 +31,15 @@ function formatDate(iso: string): string {
 }
 
 /** Compact preview of latest 3 posts — embed on home pages. */
-export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', title = 'News & Notizen.' }: {
+export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', title = 'News & Notizen.', templateVariant }: {
   content: SiteContent;
   basePath?: string;
   eyebrow?: string;
-  title?: React.ReactNode;
+  title?: ReactNode;
+  /** Used for showcase fallback posts when `content.posts` is empty. */
+  templateVariant?: TemplateKey;
 }) {
-  const posts = usePublishedPosts(content).slice(0, 3);
+  const posts = usePublishedPosts(content, templateVariant).slice(0, 3);
   if (posts.length === 0) return null;
   const linkTo = (slug: string) => `${basePath}/news/${slug}`;
   return (
@@ -66,8 +74,8 @@ export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', tit
 }
 
 /** Full archive listing page. */
-export function NewsIndexPage({ content, basePath = '' }: { content: SiteContent; basePath?: string }) {
-  const posts = usePublishedPosts(content);
+export function NewsIndexPage({ content, basePath = '', templateVariant }: { content: SiteContent; basePath?: string; templateVariant?: TemplateKey }) {
+  const posts = usePublishedPosts(content, templateVariant);
   const header = (content as any).newsHeader as { eyebrow?: string; title?: string; subtitle?: string } | undefined;
   return (
     <section className="pt-32 md:pt-40 pb-24">
@@ -101,9 +109,9 @@ export function NewsIndexPage({ content, basePath = '' }: { content: SiteContent
 }
 
 /** Detail page for a single post. */
-export function NewsDetailPage({ content, basePath = '' }: { content: SiteContent; basePath?: string }) {
+export function NewsDetailPage({ content, basePath = '', templateVariant }: { content: SiteContent; basePath?: string; templateVariant?: TemplateKey }) {
   const { slug } = useParams<{ slug: string }>();
-  const posts = usePublishedPosts(content);
+  const posts = usePublishedPosts(content, templateVariant);
   const post = posts.find((p) => p.slug === slug || p.id === slug);
   if (!post) return <Navigate to={`${basePath}/news`} replace />;
   const html = (post as any).bodyHtml ? sanitizeHtml((post as any).bodyHtml) : '';
