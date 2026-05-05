@@ -37,8 +37,9 @@ export function useBootstrapModularIfNeeded(
     if (tpl !== cfgTpl) return;
     const cur = dataRef.current;
     const m = cur.modularPagesV1;
-    if (m?.combo?.template === cfgTpl && hasAny(cur)) return;
-    const imported = importFromLegacy(cur, style);
-    setData(applyToLegacy({ ...cur, modularPagesV1: imported }));
+    if (m?.combo?.template === cfgTpl && m.combo.style === style && hasAny(cur)) return;
+    const legacySynced = m?.combo?.template === cfgTpl ? applyToLegacy(cur) : cur;
+    const imported = importFromLegacy(legacySynced, style);
+    setData(applyToLegacy({ ...legacySynced, modularPagesV1: imported }));
   }, [tpl, cfgTpl, style, fp, setData, importFromLegacy, applyToLegacy, hasAny]);
 }

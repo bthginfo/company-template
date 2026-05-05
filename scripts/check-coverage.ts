@@ -94,14 +94,7 @@ import {
 import { SECTION_CONTRACTS, CATALOG_TO_ADMIN, CROSS_PAGE_TARGETS } from '../src/lib/section-registry';
 import { BRANCH_STYLE_ORDER } from '../src/lib/template-orders';
 import { SECTION_CATALOG, getCatalogForVariant } from '../src/lib/page-layout';
-import { restaurantModularBlueprint } from '../src/lib/modular-restaurant-blueprints';
-import { hotelModularBlueprint } from '../src/lib/modular-hotel-blueprints';
-import { tourismModularBlueprint } from '../src/lib/modular-tourism-blueprints';
-import { salonModularBlueprint } from '../src/lib/modular-salon-blueprints';
-import { tradesmanModularBlueprint } from '../src/lib/modular-tradesman-blueprints';
-import { consultingModularBlueprint } from '../src/lib/modular-consulting-blueprints';
-import { medicalModularBlueprint } from '../src/lib/modular-medical-blueprints';
-import { fitnessModularBlueprint } from '../src/lib/modular-fitness-blueprints';
+import { getCmsSectionTypes } from '../src/lib/cms-contract';
 import {
   branchHomeStyleBindingIssues,
   collectDirSources,
@@ -193,22 +186,11 @@ const MODULAR_FORM_SOURCES = [
   readFileSync(join(repoRoot, 'src/admin/modular-extended-section-forms.tsx'), 'utf8'),
 ].join('\n\n');
 
-const modularBlueprintByTpl = {
-  restaurant: restaurantModularBlueprint,
-  hotel: hotelModularBlueprint,
-  tourism: tourismModularBlueprint,
-  salon: salonModularBlueprint,
-  tradesman: tradesmanModularBlueprint,
-  consulting: consultingModularBlueprint,
-  medical: medicalModularBlueprint,
-  fitness: fitnessModularBlueprint,
-} satisfies Record<TemplateKey, (style: TemplateStyle, page: PageKey) => readonly string[]>;
-
 const modularMissing = new Set<string>();
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     for (const page of PAGES) {
-      for (const sectionType of modularBlueprintByTpl[tpl](style, page)) {
+      for (const sectionType of getCmsSectionTypes(tpl, style, page)) {
         if (!MODULAR_FORM_SOURCES.includes(`case '${sectionType}'`)) {
           modularMissing.add(`${tpl}/${style}/${page}: modular section type "${sectionType}" has no active admin form case`);
         }
