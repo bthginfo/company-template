@@ -968,12 +968,25 @@ function ExtraAboutValuesBlock({ content, branch }: { content: SiteContent; bran
 function ExtraAboutTestimonialsBlock({ content, branch }: { content: SiteContent; branch: ExtraBranchKey }) {
   const rows = meaningfulTestimonials(content.testimonials);
   if (rows.length === 0) return null;
+  const rawBt = ((content.branchText ?? {}) as unknown) as Record<string, string | undefined>;
+  const abEb = typeof rawBt.aboutTestimonialsEyebrow === 'string' ? rawBt.aboutTestimonialsEyebrow.trim() : '';
+  const abTl = typeof rawBt.aboutTestimonialsTitle === 'string' ? rawBt.aboutTestimonialsTitle.trim() : '';
   const bt = effectiveBranchText(branch, content);
+  const eyebrow = abEb || bt.testimonialsEyebrow || 'Stimmen';
+  const titleText = abTl || bt.testimonialsTitle;
   return (
     <section className="py-16 md:py-24 surface">
       <div className="container-x">
-        <p className="eyebrow mb-5 reveal">{bt.testimonialsEyebrow || 'Stimmen'}</p>
-        <h2 className="headline-lg max-w-3xl reveal mb-12">{bt.testimonialsTitle || <>Was unsere<br /><em className="italic-pop">Kund:innen sagen.</em></>}</h2>
+        <p className="eyebrow mb-5 reveal">{eyebrow}</p>
+        <h2 className="headline-lg max-w-3xl reveal mb-12">
+          {titleText ? titleText : (
+            <>
+              Was unsere
+              <br />
+              <em className="italic-pop">Kund:innen sagen.</em>
+            </>
+          )}
+        </h2>
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
           {rows.map((t, i) => (
             <figure key={i} className="bg-white border border-line rounded-3xl p-7">

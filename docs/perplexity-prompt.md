@@ -36,6 +36,7 @@ Stil: `classic` (traditionell, seriös, Familienbetrieb), `modern` (zeitgemäß,
 - `branchText.serviceCardNote`: nur für consulting/medical/fitness im modern-Stil — eine kleine Fußnote unter jeder Service-Karte (z.B. "Inkl. Beratung", "Termin online buchbar").
 - `heroCta.secondaryLabel/Href`: zweiter Hero-Button. Bei extras (consulting/medical/fitness) wird er auf allen drei Stilen jetzt vom Frontend gelesen.
 - Subseiten-Hero: `servicesHeader.subtitle`, `galleryHeader.subtitle`, `aboutHeader.subtitle`, `contactPageHeader.subtitle` werden jetzt im Frontend (unter dem Titel) gerendert — Perplexity kann optional einen 1-2-Satz-Untertitel einfüllen.
+- Optional für die Über-uns-Seite: `branchText.aboutTestimonialsEyebrow` und `branchText.aboutTestimonialsTitle` — eigene Überschrift für den Bewertungsblock auf `/ueber-uns`. Leer lassen, wenn dieselbe wie auf der Startseite (`testimonialsEyebrow` / `testimonialsTitle`) reichen soll.
 
 **Katalog-Detailseiten (optional):** Für einzelne Leistungen/Gerichte/Zimmer/Touren etc. können `detailSlug` (URL-freundlich, eindeutig), `detailPublished` (true/false), `detailSubtitle`, `detailBody` (Absätze mit `\n\n`) und `detailGallery` (Array von Bild-URLs, wenn der Kunde Bilder hat — sonst weglassen) gesetzt werden. Gilt für `services`, `menu[].items`, `rooms`, `tours`, `treatments`, `courses`, `packages`, `processSteps`, `doctors`, `fundingItems` je nach Branche. Ohne `detailSlug` gibt es keine Unterseite.
 

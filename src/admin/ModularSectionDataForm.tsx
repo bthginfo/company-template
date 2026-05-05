@@ -1,4 +1,6 @@
 import type { ModularSectionDataFormProps, ModularSpecPageKey } from './modular-section-types';
+import type { SiteContent } from '@/lib/types';
+import { ANNOUNCEMENT_BAR_SECTION_KEY } from '@/lib/page-layout';
 import {
   ModField,
   ModImagePick,
@@ -22,6 +24,48 @@ function num(v: unknown, fallback: number): number {
 function bool(v: unknown, def: boolean): boolean {
   if (typeof v === 'boolean') return v;
   return def;
+}
+
+function NoticeBannerSubpageForm({
+  page,
+  content,
+  onPatch,
+}: {
+  page: ModularSpecPageKey;
+  content: SiteContent;
+  onPatch: (patch: Partial<SiteContent>) => void;
+}) {
+  const vis = (content.sectionVisibility ?? {}) as Record<string, boolean>;
+  const fullKey = `${page}.${ANNOUNCEMENT_BAR_SECTION_KEY}`;
+  const enabled = vis[fullKey] !== false;
+  const pageLabel =
+    page === 'services'
+      ? 'dieser Unterseite'
+      : page === 'gallery'
+        ? 'Galerie'
+        : page === 'about'
+          ? 'Über uns'
+          : 'Kontakt';
+  return (
+    <div className="rounded-xl border border-line bg-[#fafaf7] p-4 space-y-3 text-sm">
+      <p className="text-muted leading-relaxed">
+        Die <strong className="text-foreground">Hinweiszeilen</strong> (Ticker oben) bearbeiten Sie zentral auf der{' '}
+        <strong className="text-brand">Startseite</strong> im ersten Block „Hinweis-Banner“.
+      </p>
+      <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={enabled}
+          onChange={(e) => {
+            onPatch({
+              sectionVisibility: { ...vis, [fullKey]: e.target.checked },
+            });
+          }}
+        />
+        <span>Hinweis-Banner auf „{pageLabel}“ anzeigen</span>
+      </label>
+    </div>
+  );
 }
 
 function NoticeBannerForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'data' | 'onChange'>) {
@@ -316,7 +360,14 @@ function NewsTeaserForm({ data, onChange, tpl }: Pick<ModularSectionDataFormProp
   );
 }
 
-function HeroForm({ data, onChange, tpl, style, uploadImage }: ModularSectionDataFormProps) {
+function HeroForm({ data, onChange, tpl, style, uploadImage, modularPage }: ModularSectionDataFormProps) {
+  const classicSubpageReduced =
+    style === 'classic' &&
+    modularPage &&
+    modularPage !== 'home' &&
+    modularPage !== 'about' &&
+    (modularPage === 'services' || modularPage === 'gallery' || modularPage === 'contact');
+  const aboutClassicIntroHero = style === 'classic' && modularPage === 'about';
   const btn = readButton(data, 'buttonPrimary');
   const href = btn.linkType === 'external' ? str(btn.externalUrl) : str(btn.internalPage);
   const bg = data.backgroundImage && typeof data.backgroundImage === 'object' ? (data.backgroundImage as { image?: string }).image || '' : '';
@@ -347,49 +398,64 @@ function HeroForm({ data, onChange, tpl, style, uploadImage }: ModularSectionDat
       <ModField label="Fließtext / Beschreibung">
         <textarea className={modularInputCls} rows={3} value={str(data.description)} onChange={(e) => onChange({ ...data, description: e.target.value })} />
       </ModField>
-      {style === 'classic' ? (
-        <ModImagePick label="Hintergrundbild" value={bg} onChange={setBg} uploadImage={uploadImage} ratio="aspect-[16/9]" />
+      {aboutClassicIntroHero ? (
+        <>
+          <ModImagePick label="Intro-Bild (unter dem Seitenkopf)" value={img} onChange={setImg} uploadImage={uploadImage} ratio="aspect-[4/5]" />
+          <p className="text-xs text-muted pt-1 max-w-prose">
+            Der klassische Seitenkopf zeigt nur Eyebrow, Überschrift und Untertitel. Fließtext und Bild steuern Sie hier — sie erscheinen im Intro unter dem Kopf.
+          </p>
+        </>
+      ) : classicSubpageReduced ? (
+        <p className="text-xs text-muted pt-1 max-w-prose">
+          Auf dieser klassischen Unterseite zeigt der Seitenkopf nur Eyebrow, Überschrift und Untertitel — ohne Hintergrundbild, Buttons oder Statistik-Zeilen.
+        </p>
       ) : (
-        <ModImagePick label="Hero-Bild" value={img} onChange={setImg} uploadImage={uploadImage} ratio="aspect-[4/5]" />
-      )}
-      <p className="text-xs font-medium text-muted pt-2">Primär-Button</p>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <ModField label="Button-Text">
-          <input className={modularInputCls} value={str(btn.label)} onChange={(e) => onChange(patchButton(data, 'buttonPrimary', { label: e.target.value }))} />
-        </ModField>
-        <div className="sm:col-span-2">
-          <ModLinkTarget
-            label="Button-Ziel"
-            tpl={tpl}
-            value={href}
-            onChange={(v) => {
-              const ext = v.startsWith('http') || v.startsWith('mailto:') || v.startsWith('tel:');
-              onChange(
-                patchButton(data, 'buttonPrimary', {
-                  linkType: ext ? 'external' : 'internal',
-                  internalPage: ext ? '' : v,
-                  externalUrl: ext ? v : '',
-                }),
-              );
-            }}
-          />
-        </div>
-      </div>
-      <p className="text-xs font-medium text-muted pt-2">Statistik-Zeilen (optional)</p>
-      <div className="space-y-2">
-        {stats.map((row, i) => (
-          <div key={i} className="grid sm:grid-cols-[1fr_2fr_auto] gap-2 items-end">
-            <input className={modularInputCls} value={row.value} onChange={(e) => setStats(stats.map((r, j) => (j === i ? { ...r, value: e.target.value } : r)))} placeholder="z. B. 1998" />
-            <input className={modularInputCls} value={row.description} onChange={(e) => setStats(stats.map((r, j) => (j === i ? { ...r, description: e.target.value } : r)))} placeholder="Beschreibung" />
-            <button type="button" className="h-10 w-10 rounded-lg border border-line" onClick={() => setStats(stats.filter((_, j) => j !== i))}>
-              ×
+        <>
+          {style === 'classic' ? (
+            <ModImagePick label="Hintergrundbild" value={bg} onChange={setBg} uploadImage={uploadImage} ratio="aspect-[16/9]" />
+          ) : (
+            <ModImagePick label="Hero-Bild" value={img} onChange={setImg} uploadImage={uploadImage} ratio="aspect-[4/5]" />
+          )}
+          <p className="text-xs font-medium text-muted pt-2">Primär-Button</p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <ModField label="Button-Text">
+              <input className={modularInputCls} value={str(btn.label)} onChange={(e) => onChange(patchButton(data, 'buttonPrimary', { label: e.target.value }))} />
+            </ModField>
+            <div className="sm:col-span-2">
+              <ModLinkTarget
+                label="Button-Ziel"
+                tpl={tpl}
+                value={href}
+                onChange={(v) => {
+                  const ext = v.startsWith('http') || v.startsWith('mailto:') || v.startsWith('tel:');
+                  onChange(
+                    patchButton(data, 'buttonPrimary', {
+                      linkType: ext ? 'external' : 'internal',
+                      internalPage: ext ? '' : v,
+                      externalUrl: ext ? v : '',
+                    }),
+                  );
+                }}
+              />
+            </div>
+          </div>
+          <p className="text-xs font-medium text-muted pt-2">Statistik-Zeilen (optional)</p>
+          <div className="space-y-2">
+            {stats.map((row, i) => (
+              <div key={i} className="grid sm:grid-cols-[1fr_2fr_auto] gap-2 items-end">
+                <input className={modularInputCls} value={row.value} onChange={(e) => setStats(stats.map((r, j) => (j === i ? { ...r, value: e.target.value } : r)))} placeholder="z. B. 1998" />
+                <input className={modularInputCls} value={row.description} onChange={(e) => setStats(stats.map((r, j) => (j === i ? { ...r, description: e.target.value } : r)))} placeholder="Beschreibung" />
+                <button type="button" className="h-10 w-10 rounded-lg border border-line" onClick={() => setStats(stats.filter((_, j) => j !== i))}>
+                  ×
+                </button>
+              </div>
+            ))}
+            <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => setStats([...stats, { value: '', description: '' }])}>
+              + Zeile
             </button>
           </div>
-        ))}
-        <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => setStats([...stats, { value: '', description: '' }])}>
-          + Zeile
-        </button>
-      </div>
+        </>
+      )}
     </div>
   );
 }
@@ -522,7 +588,7 @@ function GalleryPreviewForm({ data, onChange, tpl, uploadImage }: Pick<ModularSe
       <p className="text-xs uppercase tracking-widest text-muted">Vorschaubilder (max. 6 empfohlen)</p>
       <div className="space-y-3">
         {imgs.map((u, i) => (
-          <ModImagePick key={i} label={`Bild ${i + 1}`} value={u} onChange={(url) => set(imgs.map((x, j) => (j === i ? url : x)))} uploadImage={uploadImage} />
+          <ModImagePick key={`${i}-${u || 'empty'}`} label={`Bild ${i + 1}`} value={u} onChange={(url) => set(imgs.map((x, j) => (j === i ? url : x)))} uploadImage={uploadImage} />
         ))}
         <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...imgs, ''])}>
           + Bild
@@ -755,15 +821,25 @@ function GalleryGridForm({ data, onChange, uploadImage }: Pick<ModularSectionDat
 
 function FaqForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'data' | 'onChange'>) {
   return (
-    <TextPairListForm
-      data={data}
-      onChange={onChange}
-      keyItems="items"
-      titleKey="question"
-      descKey="answer"
-      titleLabel="Frage"
-      descLabel="Antwort"
-    />
+    <div className="space-y-4">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <ModField label="Eyebrow">
+          <input className={modularInputCls} value={str(data.eyebrow)} onChange={(e) => onChange({ ...data, eyebrow: e.target.value })} />
+        </ModField>
+        <ModField label="Überschrift">
+          <input className={modularInputCls} value={str(data.headline)} onChange={(e) => onChange({ ...data, headline: e.target.value })} />
+        </ModField>
+      </div>
+      <TextPairListForm
+        data={data}
+        onChange={onChange}
+        keyItems="items"
+        titleKey="question"
+        descKey="answer"
+        titleLabel="Frage"
+        descLabel="Antwort"
+      />
+    </div>
   );
 }
 
@@ -779,7 +855,12 @@ function TeaserListForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'd
         </ModField>
       </div>
       <ModField label="Einleitung">
-        <textarea className={modularInputCls} rows={2} value={str(data.description)} onChange={(e) => onChange({ ...data, description: e.target.value })} />
+        <textarea
+          className={modularInputCls}
+          rows={2}
+          value={str(data.intro ?? data.description)}
+          onChange={(e) => onChange({ ...data, intro: e.target.value })}
+        />
       </ModField>
       <TextPairListForm
         data={data}
@@ -907,26 +988,36 @@ function ExpertQuotesForm({ data, onChange }: Pick<ModularSectionDataFormProps, 
     : [];
   const set = (next: typeof items) => onChange({ ...data, items: next });
   return (
-    <div className="space-y-2">
-      {items.map((row, i) => (
-        <div key={i} className="border border-line rounded-xl p-3 space-y-2">
-          <ModField label="Zitat">
-            <textarea className={modularInputCls} rows={2} value={row.quote} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, quote: e.target.value } : x)))} />
-          </ModField>
-          <ModField label="Quelle">
-            <input className={modularInputCls} value={row.source} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, source: e.target.value } : x)))} />
-          </ModField>
-          <ModField label="Jahr">
-            <input className={modularInputCls} value={row.year} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, year: e.target.value } : x)))} />
-          </ModField>
-          <button type="button" className="text-xs text-rose-600" onClick={() => set(items.filter((_, j) => j !== i))}>
-            Entfernen
-          </button>
-        </div>
-      ))}
-      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { quote: '', source: '', year: '' }])}>
-        + Zitat
-      </button>
+    <div className="space-y-4">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <ModField label="Eyebrow">
+          <input className={modularInputCls} value={str(data.eyebrow)} onChange={(e) => onChange({ ...data, eyebrow: e.target.value })} />
+        </ModField>
+        <ModField label="Überschrift">
+          <input className={modularInputCls} value={str(data.headline)} onChange={(e) => onChange({ ...data, headline: e.target.value })} />
+        </ModField>
+      </div>
+      <div className="space-y-2">
+        {items.map((row, i) => (
+          <div key={i} className="border border-line rounded-xl p-3 space-y-2">
+            <ModField label="Zitat">
+              <textarea className={modularInputCls} rows={2} value={row.quote} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, quote: e.target.value } : x)))} />
+            </ModField>
+            <ModField label="Quelle">
+              <input className={modularInputCls} value={row.source} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, source: e.target.value } : x)))} />
+            </ModField>
+            <ModField label="Jahr">
+              <input className={modularInputCls} value={row.year} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, year: e.target.value } : x)))} />
+            </ModField>
+            <button type="button" className="text-xs text-rose-600" onClick={() => set(items.filter((_, j) => j !== i))}>
+              Entfernen
+            </button>
+          </div>
+        ))}
+        <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { quote: '', source: '', year: '' }])}>
+          + Zitat
+        </button>
+      </div>
     </div>
   );
 }
@@ -1223,29 +1314,6 @@ function DirectionsForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'd
   );
 }
 
-function MenuSectionHint({ modularPage }: { modularPage?: ModularSpecPageKey }) {
-  if (modularPage === 'services') {
-    return (
-      <div className="rounded-xl border border-line bg-[#fafaf7] p-4 text-sm text-muted">
-        <p>
-          Kategorien und Gerichte bearbeiten Sie auf <strong className="text-foreground">dieser Seite</strong> im Bereich{' '}
-          <strong className="text-brand">Speisekarte / Leistungen</strong> unter den Hauptfeldern <em>oberhalb</em> der modularen
-          Blöcke — dieselbe Oberfläche wie in der klassischen Ansicht.
-        </p>
-      </div>
-    );
-  }
-  return (
-    <div className="rounded-xl border border-line bg-[#fafaf7] p-4 text-sm text-muted">
-      <p>
-        Die Speisekarte mit Kategorien und Gerichten bearbeiten Sie bequem im Tab{' '}
-        <strong className="text-brand">Speisekarte / Leistungen</strong> unter den Hauptfeldern — dort finden Sie die gleiche
-        Oberfläche wie gewohnt.
-      </p>
-    </div>
-  );
-}
-
 function UnsupportedSection({ sectionType }: { sectionType: string }) {
   return (
     <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
@@ -1259,9 +1327,12 @@ function UnsupportedSection({ sectionType }: { sectionType: string }) {
 }
 
 export function ModularSectionDataForm(props: ModularSectionDataFormProps) {
-  const { sectionType, data, onChange, tpl, uploadImage, modularPage } = props;
+  const { sectionType, data, onChange, tpl, uploadImage, modularPage, siteContent, onPatchSiteContent } = props;
   switch (sectionType) {
     case 'noticeBanner':
+      if (modularPage && modularPage !== 'home' && siteContent && onPatchSiteContent) {
+        return <NoticeBannerSubpageForm page={modularPage} content={siteContent} onPatch={onPatchSiteContent} />;
+      }
       return <NoticeBannerForm data={data} onChange={onChange} />;
     case 'hero':
       return <HeroForm {...props} />;
@@ -1309,8 +1380,6 @@ export function ModularSectionDataForm(props: ModularSectionDataFormProps) {
       return <FeaturedItemsForm data={data} onChange={onChange} uploadImage={uploadImage} />;
     case 'gallery':
       return <GalleryGridForm data={data} onChange={onChange} uploadImage={uploadImage} />;
-    case 'menu':
-      return <MenuSectionHint modularPage={modularPage} />;
     case 'contactDetails':
       return <ContactDetailsForm data={data} onChange={onChange} />;
     case 'locations':

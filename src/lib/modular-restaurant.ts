@@ -75,6 +75,33 @@ function readItems(data: Record<string, unknown>): { text: string }[] {
     .map((text) => ({ text }));
 }
 
+/** Label band stores rows in `labels` (admin form) or legacy `items`; values may be text or image URLs. */
+function readLabelBandEntries(d: Record<string, unknown>): string[] {
+  const raw = d.labels ?? d.items;
+  if (!Array.isArray(raw)) return [];
+  const out: string[] = [];
+  for (const it of raw) {
+    if (typeof it === 'string') {
+      const t = it.trim();
+      if (t) out.push(t);
+      continue;
+    }
+    if (!it || typeof it !== 'object') continue;
+    const o = it as Record<string, unknown>;
+    const text = str(o.text);
+    const img = o.image;
+    if (img && typeof img === 'object') {
+      const u = str((img as { image?: unknown }).image);
+      if (u) out.push(u);
+    } else if (typeof img === 'string' && img.trim()) {
+      out.push(img.trim());
+    } else if (text) {
+      out.push(text);
+    }
+  }
+  return out;
+}
+
 /* ─── Import: Home (all styles) ─── */
 
 function importHomeSections(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): void {
@@ -254,7 +281,14 @@ function importServicesSections(content: SiteContent, sections: ModularSectionV1
   }
   const menu = by('menu');
   if (menu) {
-    menu.data = { categories: JSON.parse(JSON.stringify(content.menu ?? [])) };
+    const mh = (content.moduleHeadings?.menu ?? {}) as Record<string, string>;
+    menu.data = {
+      categories: JSON.parse(JSON.stringify(content.menu ?? [])),
+      eyebrow: str(mh.eyebrow),
+      titleA: str(mh.titleA),
+      titleB: str(mh.titleB),
+      subtitle: str(mh.subtitle),
+    };
   }
   const st = by('steps');
   if (st) {
@@ -265,6 +299,8 @@ function importServicesSections(content: SiteContent, sections: ModularSectionV1
   const fq = by('faq');
   if (fq) {
     fq.data = {
+      eyebrow: str(content.branchText?.faqEyebrow),
+      headline: str(content.branchText?.faqTitle),
       items: (content.faq ?? []).map((x) => ({ question: str(x.q), answer: str(x.a) })),
     };
   }
@@ -295,10 +331,11 @@ export function importGallerySections(content: SiteContent, sections: ModularSec
   const tls = sections.filter((s) => s.type === 'teaserList');
   if (tls[0]) {
     const gs = content.galleryStory ?? {};
+    const body = str(gs.body);
     tls[0].data = {
       eyebrow: str(gs.eyebrow),
       headline: str(gs.title),
-      description: str(gs.body),
+      intro: body,
       items: (gs.captions ?? []).map((c) => ({ title: str(c.t), description: str(c.d) })),
     };
   }
@@ -338,10 +375,11 @@ export function importAboutSections(content: SiteContent, sections: ModularSecti
   const hero = by('hero');
   if (hero) {
     const ah = content.aboutHeader ?? {};
+    const body = str(content.about?.body);
     hero.data = {
       eyebrow: str(ah.eyebrow),
       headline: str(ah.title),
-      description: str(ah.subtitle),
+      description: body || str(ah.subtitle),
       image: { image: str(content.about?.imageUrl), alt: '' },
     };
   }
@@ -388,6 +426,8 @@ export function importAboutSections(content: SiteContent, sections: ModularSecti
   const eq = by('expertQuotes');
   if (eq) {
     eq.data = {
+      eyebrow: str(content.branchText?.pressEyebrow),
+      headline: str(content.branchText?.pressTitle),
       items: (content.press ?? []).map((p) => ({
         quote: str(p.q),
         source: str(p.src),
@@ -398,8 +438,8 @@ export function importAboutSections(content: SiteContent, sections: ModularSecti
   const te = by('testimonials');
   if (te) {
     te.data = {
-      eyebrow: str(content.branchText?.testimonialsEyebrow),
-      headline: str(content.branchText?.testimonialsTitle),
+      eyebrow: str(content.branchText?.aboutTestimonialsEyebrow) || str(content.branchText?.testimonialsEyebrow),
+      headline: str(content.branchText?.aboutTestimonialsTitle) || str(content.branchText?.testimonialsTitle),
       testimonials: (content.testimonials ?? []).map((t) => ({ name: str(t.author), quote: str(t.text) })),
     };
   }
@@ -527,8 +567,14 @@ export function mergeHeroToPageHeader(
 }
 
 /** Shared home merge for section types also used by Hotel modular (v1). */
-export function mergeHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
+export function mergeHomeIntoLegacy(
+  content: SiteContent,
+  sections: ModularSectionV1[],
+  style: TemplateStyle,
+  templateKey: TemplateKey = 'restaurant',
+): SiteContent {
   let next: SiteContent = { ...content };
+  let statsBandPass = 0;
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
@@ -623,6 +669,7 @@ export function mergeHomeIntoLegacy(content: SiteContent, sections: ModularSecti
         break;
       }
       case 'featuredItems': {
+        if (templateKey === 'restaurant' && style === 'classic') break;
         const itemsRaw = (d as { items?: unknown }).items;
         const rows = Array.isArray(itemsRaw)
           ? itemsRaw
@@ -673,19 +720,24 @@ export function mergeHomeIntoLegacy(content: SiteContent, sections: ModularSecti
         const urls = Array.isArray(imgsRaw)
           ? imgsRaw.map((it) => (it && typeof it === 'object' ? str((it as { image?: unknown }).image) : '')).filter(Boolean)
           : [];
+        const btn = (d as { button?: unknown }).button as Record<string, unknown> | undefined;
+        const btnLabel = str(btn?.label);
+        const btnHref = str(btn?.internalPage) || str(btn?.externalUrl);
         next = {
           ...next,
           branchText: {
             ...next.branchText,
             galleryTeaserEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
             galleryTeaserTitle: str((d as { headline?: unknown }).headline),
+            ...(btnLabel ? { galleryAllLabel: btnLabel } : {}),
+            ...(btnHref ? { galleryAllHref: btnHref } : {}),
           },
-          gallery: urls.length ? [...urls, ...(next.gallery ?? []).slice(urls.length)] : next.gallery,
+          gallery: urls.length ? urls : (next.gallery ?? []),
         };
         break;
       }
       case 'labelBand': {
-        const labels = readItems(d as Record<string, unknown>).map((x) => x.text);
+        const labels = readLabelBandEntries(d as Record<string, unknown>);
         if (labels.length) next = { ...next, logos: labels };
         break;
       }
@@ -712,16 +764,28 @@ export function mergeHomeIntoLegacy(content: SiteContent, sections: ModularSecti
         const nums = Array.isArray(it)
           ? it.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ value: str(x.value), label: str(x.description) }))
           : [];
-        if (nums.length) next = { ...next, numbers: nums };
+        if (nums.length) {
+          statsBandPass += 1;
+          if (statsBandPass > 1) {
+            next = { ...next, numbers: [...(next.numbers ?? []), ...nums] };
+          } else {
+            next = { ...next, numbers: nums };
+          }
+        }
         break;
       }
       case 'newsTeaser': {
+        const btn = (d as { button?: unknown }).button as Record<string, unknown> | undefined;
+        const btnLabel = str(btn?.label);
+        const btnHref = str(btn?.internalPage) || str(btn?.externalUrl);
         next = {
           ...next,
           branchText: {
             ...next.branchText,
             newsEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
             newsTitle: str((d as { headline?: unknown }).headline),
+            ...(btnLabel ? { newsAllLabel: btnLabel } : {}),
+            ...(btnHref ? { newsAllHref: btnHref } : {}),
           },
         };
         break;
@@ -754,9 +818,6 @@ function mergeServicesIntoLegacy(content: SiteContent, sections: ModularSectionV
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
     switch (sec.type) {
-      case 'noticeBanner':
-        next = mergeNoticeBanner(next, d as Record<string, unknown>);
-        break;
       case 'hero':
         next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'servicesHeader', 'servicesPageImageUrl');
         break;
@@ -770,7 +831,32 @@ function mergeServicesIntoLegacy(content: SiteContent, sections: ModularSectionV
       }
       case 'menu': {
         const cats = (d as { categories?: unknown }).categories;
-        if (Array.isArray(cats)) next = { ...next, menu: cats as SiteContent['menu'] };
+        const ey = str((d as { eyebrow?: unknown }).eyebrow);
+        const ta = str((d as { titleA?: unknown }).titleA);
+        const tb = str((d as { titleB?: unknown }).titleB);
+        const su = str((d as { subtitle?: unknown }).subtitle);
+        let o = { ...next };
+        if (Array.isArray(cats)) o = { ...o, menu: cats as SiteContent['menu'] };
+        if (ey || ta || tb || su) {
+          const mh = ((o as { moduleHeadings?: Record<string, Record<string, string>> }).moduleHeadings ?? {}) as Record<
+            string,
+            Record<string, string>
+          >;
+          o = {
+            ...o,
+            moduleHeadings: {
+              ...mh,
+              menu: {
+                ...(mh.menu ?? {}),
+                ...(ey ? { eyebrow: ey } : {}),
+                ...(ta ? { titleA: ta } : {}),
+                ...(tb ? { titleB: tb } : {}),
+                ...(su ? { subtitle: su } : {}),
+              },
+            },
+          } as SiteContent;
+        }
+        next = o;
         break;
       }
       case 'steps': {
@@ -786,7 +872,16 @@ function mergeServicesIntoLegacy(content: SiteContent, sections: ModularSectionV
         const rows = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ q: str(x.question), a: str(x.answer) }))
           : [];
-        if (rows.length) next = { ...next, faq: rows };
+        const fey = (d as { eyebrow?: unknown }).eyebrow;
+        const fht = (d as { headline?: unknown }).headline;
+        const btPatch: Record<string, string> = {};
+        if (typeof fey === 'string') btPatch.faqEyebrow = fey;
+        if (typeof fht === 'string') btPatch.faqTitle = fht;
+        next = {
+          ...next,
+          ...(Object.keys(btPatch).length ? { branchText: { ...next.branchText, ...btPatch } } : {}),
+          ...(rows.length ? { faq: rows } : {}),
+        } as SiteContent;
         break;
       }
       case 'cta': {
@@ -816,20 +911,22 @@ export function mergeGalleryIntoLegacy(content: SiteContent, sections: ModularSe
   for (const sec of sections) {
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
-    if (sec.type === 'noticeBanner') next = mergeNoticeBanner(next, d as Record<string, unknown>);
-    else if (sec.type === 'hero') next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'galleryHeader');
+    if (sec.type === 'hero') next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'galleryHeader');
     else if (sec.type === 'teaserList') {
       if (teaserIdx === 0) {
         const raw = (d as { items?: unknown }).items;
         const caps = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ t: str(x.title), d: str(x.description) }))
           : [];
+        const intro =
+          str((d as { intro?: unknown }).intro) ||
+          str((d as { description?: unknown }).description);
         next = {
           ...next,
           galleryStory: {
             eyebrow: str((d as { eyebrow?: unknown }).eyebrow),
             title: str((d as { headline?: unknown }).headline),
-            body: str((d as { description?: unknown }).description),
+            body: intro,
             captions: caps.length ? caps : next.galleryStory?.captions ?? [],
           },
         };
@@ -878,18 +975,18 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
     switch (sec.type) {
-      case 'noticeBanner':
-        next = mergeNoticeBanner(next, d as Record<string, unknown>);
-        break;
       case 'hero': {
         const im = (d as { image?: unknown }).image;
+        const bodyText = str((d as { description?: unknown }).description);
         next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'aboutHeader');
-        if (im) {
-          next = {
-            ...next,
-            about: { ...(next.about ?? { title: '', body: '', imageUrl: '' }), imageUrl: imgUrl(im) },
-          };
-        }
+        next = {
+          ...next,
+          about: {
+            ...(next.about ?? { title: '', body: '', imageUrl: '' }),
+            ...(bodyText ? { body: bodyText } : {}),
+            ...(im ? { imageUrl: imgUrl(im) } : {}),
+          },
+        };
         break;
       }
       case 'storyFacts': {
@@ -898,10 +995,11 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
         const nums = Array.isArray(raw)
           ? raw.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object').map((x) => ({ label: str(x.label), value: str(x.value) }))
           : [];
-        const extra = nums.map((n) => `${n.label}: ${n.value}`).join('\n');
         next = {
           ...next,
-          about: { ...(next.about ?? { title: '', body: '', imageUrl: '' }), body: [desc, extra].filter(Boolean).join('\n\n') },
+          ...(desc.trim()
+            ? { about: { ...(next.about ?? { title: '', body: '', imageUrl: '' }), body: desc } }
+            : {}),
           ...(nums.length ? { aboutNumbers: nums } : {}),
         } as SiteContent;
         break;
@@ -965,7 +1063,15 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
               url: '',
             }))
           : [];
-        if (rows.length) next = { ...next, press: rows };
+        next = {
+          ...next,
+          ...(rows.length ? { press: rows } : {}),
+          branchText: {
+            ...next.branchText,
+            pressEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+            pressTitle: str((d as { headline?: unknown }).headline),
+          },
+        } as SiteContent;
         break;
       }
       case 'testimonials': {
@@ -973,7 +1079,15 @@ export function mergeAboutIntoLegacy(content: SiteContent, sections: ModularSect
         const list = Array.isArray(tr)
           ? tr.filter((it): it is Record<string, unknown> => !!it && typeof it === 'object').map((it) => ({ author: str(it.name), text: str(it.quote) }))
           : [];
-        if (list.length) next = { ...next, testimonials: list };
+        next = {
+          ...next,
+          ...(list.length ? { testimonials: list } : {}),
+          branchText: {
+            ...next.branchText,
+            aboutTestimonialsEyebrow: str((d as { eyebrow?: unknown }).eyebrow),
+            aboutTestimonialsTitle: str((d as { headline?: unknown }).headline),
+          },
+        } as SiteContent;
         break;
       }
       case 'cta': {
@@ -1003,9 +1117,6 @@ export function mergeContactIntoLegacy(content: SiteContent, sections: ModularSe
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
     switch (sec.type) {
-      case 'noticeBanner':
-        next = mergeNoticeBanner(next, d as Record<string, unknown>);
-        break;
       case 'hero':
         next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'contactPageHeader');
         break;
@@ -1097,7 +1208,7 @@ export function applyRestaurantModularToLegacy(content: SiteContent): SiteConten
   if (!m?.combo || m.combo.template !== 'restaurant') return content;
   const style = m.combo.style;
   let next: SiteContent = { ...content };
-  if (m.home?.sections?.length) next = mergeHomeIntoLegacy(next, m.home.sections, style);
+  if (m.home?.sections?.length) next = mergeHomeIntoLegacy(next, m.home.sections, style, 'restaurant');
   if (m.services?.sections?.length) next = mergeServicesIntoLegacy(next, m.services.sections);
   if (m.gallery?.sections?.length) next = mergeGalleryIntoLegacy(next, m.gallery.sections);
   if (m.about?.sections?.length) next = mergeAboutIntoLegacy(next, m.about.sections);

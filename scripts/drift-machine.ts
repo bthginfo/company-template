@@ -450,7 +450,11 @@ const SUBPAGE_FLAG_CHECKS: readonly SubpageCheck[] = [
     page: 'about',
     when: (c) => c.about.showTestimonials,
     adminSection: 'aboutTestimonials',
-    frontendNeedles: ['meaningfulTestimonials(content.testimonials)', 'visibleTestimonials(slice)'],
+    frontendNeedles: [
+      'meaningfulTestimonials(content.testimonials)',
+      'visibleTestimonials(slice)',
+      'aboutTestimonialsEyebrow',
+    ],
   },
   {
     page: 'about',

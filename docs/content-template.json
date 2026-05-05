@@ -246,6 +246,12 @@
     "testimonialsTitle": "",
     "_testimonialsTitle_max": 60,
 
+    "aboutTestimonialsEyebrow": "",
+    "_aboutTestimonialsEyebrow_max": 40,
+    "aboutTestimonialsTitle": "",
+    "_aboutTestimonialsTitle_max": 60,
+    "_aboutTestimonialsTitle_help": "Optional: eigene Überschrift für den Bewertungsblock auf /ueber-uns. Leer = gleiche Werte wie Startseite (testimonialsEyebrow / testimonialsTitle).",
+
     "newsEyebrow": "",
     "_newsEyebrow_max": 40,
     "newsTitle": "",

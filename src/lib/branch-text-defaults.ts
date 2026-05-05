@@ -24,8 +24,11 @@ export type BranchTextDefaults = {
   learnMoreLabel: string;
   learnMoreHref: string;
   galleryAllLabel: string;
+  galleryAllHref: string;
   testimonialsEyebrow: string;
   testimonialsTitle: string;
+  aboutTestimonialsEyebrow: string;
+  aboutTestimonialsTitle: string;
   manifestEyebrow: string;
   manifestTitle: string;
   softCtaEyebrow: string;
@@ -55,6 +58,8 @@ export type BranchTextDefaults = {
   servicesPageImageUrl: string;
   newsEyebrow: string;
   newsTitle: string;
+  newsAllLabel: string;
+  newsAllHref: string;
 };
 
 export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
@@ -70,8 +75,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     learnMoreLabel: 'Mehr erfahren',
     learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Komplette Galerie',
+    galleryAllHref: '',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Gäste sagen.',
+    aboutTestimonialsEyebrow: '',
+    aboutTestimonialsTitle: '',
     manifestEyebrow: 'Manifest',
     manifestTitle: 'Italianità, ehrlich gelebt.',
     softCtaEyebrow: 'Hunger?',
@@ -101,6 +109,8 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesPageImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
+    newsAllLabel: '',
+    newsAllHref: '',
   },
 
   salon: {
@@ -115,8 +125,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     learnMoreLabel: 'Mehr erfahren',
     learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Komplette Galerie',
+    galleryAllHref: '',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Kund:innen sagen.',
+    aboutTestimonialsEyebrow: '',
+    aboutTestimonialsTitle: '',
     manifestEyebrow: 'Manifest',
     manifestTitle: 'Schönheit, ehrlich gemeint.',
     softCtaEyebrow: 'Bereit für etwas Neues?',
@@ -146,6 +159,8 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesPageImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
+    newsAllLabel: '',
+    newsAllHref: '',
   },
 
   tradesman: {
@@ -160,8 +175,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     learnMoreLabel: 'Mehr erfahren',
     learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Projekte',
+    galleryAllHref: '',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Kund:innen sagen.',
+    aboutTestimonialsEyebrow: '',
+    aboutTestimonialsTitle: '',
     manifestEyebrow: 'Manifest',
     manifestTitle: 'Handwerk, ehrlich geliefert.',
     softCtaEyebrow: 'Etwas tropft?',
@@ -191,6 +209,8 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesPageImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
+    newsAllLabel: '',
+    newsAllHref: '',
   },
 
   hotel: {
@@ -205,8 +225,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     learnMoreLabel: 'Mehr erfahren',
     learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Zimmer',
+    galleryAllHref: '',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Gäste sagen.',
+    aboutTestimonialsEyebrow: '',
+    aboutTestimonialsTitle: '',
     manifestEyebrow: 'Haltung',
     manifestTitle: 'Gastfreundschaft, ungeschminkt.',
     softCtaEyebrow: 'Pause buchen?',
@@ -236,6 +259,8 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesPageImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
+    newsAllLabel: '',
+    newsAllHref: '',
   },
 
   tourism: {
@@ -250,8 +275,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     learnMoreLabel: 'Mehr erfahren',
     learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Touren',
+    galleryAllHref: '',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Gäste erzählen.',
+    aboutTestimonialsEyebrow: '',
+    aboutTestimonialsTitle: '',
     manifestEyebrow: 'Manifest',
     manifestTitle: 'Berge, aber persönlich.',
     softCtaEyebrow: 'Auf in die Berge?',
@@ -281,6 +309,8 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesPageImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
+    newsAllLabel: '',
+    newsAllHref: '',
   },
 
   consulting: {
@@ -295,8 +325,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     learnMoreLabel: 'Mehr erfahren',
     learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Cases',
+    galleryAllHref: '',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was Kund:innen über uns sagen.',
+    aboutTestimonialsEyebrow: '',
+    aboutTestimonialsTitle: '',
     manifestEyebrow: 'Methode',
     manifestTitle: 'Klarheit vor Komplexität.',
     softCtaEyebrow: 'Bereit für den nächsten Schritt?',
@@ -326,6 +359,8 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesPageImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
+    newsAllLabel: '',
+    newsAllHref: '',
   },
 
   medical: {
@@ -340,8 +375,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     learnMoreLabel: 'Mehr erfahren',
     learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Bilder',
+    galleryAllHref: '',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Patient:innen sagen.',
+    aboutTestimonialsEyebrow: '',
+    aboutTestimonialsTitle: '',
     manifestEyebrow: 'Haltung',
     manifestTitle: 'Medizin, die zuhört.',
     softCtaEyebrow: 'Termin nötig?',
@@ -371,6 +409,8 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesPageImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
+    newsAllLabel: '',
+    newsAllHref: '',
   },
 
   fitness: {
@@ -385,8 +425,11 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     learnMoreLabel: 'Mehr erfahren',
     learnMoreHref: '/ueber-uns',
     galleryAllLabel: 'Alle Bilder',
+    galleryAllHref: '',
     testimonialsEyebrow: 'Stimmen',
     testimonialsTitle: 'Was unsere Mitglieder sagen.',
+    aboutTestimonialsEyebrow: '',
+    aboutTestimonialsTitle: '',
     manifestEyebrow: 'Manifest',
     manifestTitle: 'Bewegung, ehrlich gemacht.',
     softCtaEyebrow: 'Probetraining?',
@@ -416,6 +459,8 @@ export const BRANCH_TEXT_DEFAULTS: Record<TemplateKey, BranchTextDefaults> = {
     servicesPageImageUrl: '',
     newsEyebrow: 'Aktuelles',
     newsTitle: 'News & Notizen.',
+    newsAllLabel: '',
+    newsAllHref: '',
   },
 };
 

@@ -86,7 +86,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
     dataKeys: [
       'gallery',
       'branchText.galleryTeaserEyebrow', 'branchText.galleryTeaserTitle',
-      'branchText.galleryAllLabel',
+      'branchText.galleryAllLabel', 'branchText.galleryAllHref',
     ],
   },
   numbers: { key: 'numbers', dataKeys: ['numbers'] },
@@ -95,7 +95,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
     key: 'testimonials',
     dataKeys: ['testimonials', 'branchText.testimonialsEyebrow', 'branchText.testimonialsTitle'],
   },
-  news: { key: 'news', dataKeys: ['posts', 'branchText.newsEyebrow', 'branchText.newsTitle'] },
+  news: { key: 'news', dataKeys: ['posts', 'branchText.newsEyebrow', 'branchText.newsTitle', 'branchText.newsAllLabel', 'branchText.newsAllHref'] },
   softCta: { key: 'softCta', dataKeys: ['ctaBandOverride', 'ctaBandOverrides'] },
   funding: { key: 'funding', dataKeys: ['fundingItems', 'fundingCalc', 'moduleHeadings.funding'] },
   spotlight: {
@@ -203,7 +203,10 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
     dataKeys: ['certifications', 'branchText.certsEyebrow', 'branchText.certsTitle'],
   },
   press: { key: 'press', dataKeys: ['press', 'branchText.pressEyebrow', 'branchText.pressTitle'] },
-  aboutTestimonials: { key: 'aboutTestimonials', dataKeys: ['testimonials'] },
+  aboutTestimonials: {
+    key: 'aboutTestimonials',
+    dataKeys: ['testimonials', 'branchText.aboutTestimonialsEyebrow', 'branchText.aboutTestimonialsTitle'],
+  },
   aboutCta: { key: 'aboutCta', dataKeys: ['ctaBandOverrides.about'] },
 
   /* ─── Contact ──────────────────────────────────────────────────── */

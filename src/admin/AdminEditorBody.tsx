@@ -1045,7 +1045,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       case 'gallery':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="gallery" data={data} setData={setData}>
-            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserEyebrow', 'galleryTeaserTitle', 'galleryAllLabel']} />
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['galleryTeaserEyebrow', 'galleryTeaserTitle', 'galleryAllLabel', 'galleryAllHref']} />
             <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
               {data.gallery.slice(0, GALLERY_TEASER_LIMIT[style]).map((src, i) => (
                 <div key={`${i}_${src}`} className="aspect-square rounded-lg overflow-hidden bg-[#f6f6f3]">
@@ -1071,7 +1071,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
       case 'news':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="news" data={data} setData={setData}>
-            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['newsEyebrow', 'newsTitle']} />
+            <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['newsEyebrow', 'newsTitle', 'newsAllLabel', 'newsAllHref']} />
             <NewsHomePreview data={data} />
           </SectionCard>
         );
@@ -1861,6 +1861,7 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
       case 'aboutTestimonials':
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="about" sectionKey="testimonials" data={data} setData={setData}>
+            <BranchTextFields data={data} setData={setData} tpl={legacyAboutTpl} keys={['aboutTestimonialsEyebrow', 'aboutTestimonialsTitle']} />
             <TestimonialsEditor data={data} setData={setData} />
           </SectionCard>
         );
@@ -2835,8 +2836,11 @@ type BranchTextKey =
   | 'learnMoreLabel'
   | 'learnMoreHref'
   | 'galleryAllLabel'
+  | 'galleryAllHref'
   | 'testimonialsEyebrow'
   | 'testimonialsTitle'
+  | 'aboutTestimonialsEyebrow'
+  | 'aboutTestimonialsTitle'
   | 'manifestEyebrow'
   | 'manifestTitle'
   | 'softCtaEyebrow'
@@ -2857,6 +2861,8 @@ type BranchTextKey =
   | 'pressTitle'
   | 'newsEyebrow'
   | 'newsTitle'
+  | 'newsAllLabel'
+  | 'newsAllHref'
   | 'aboutSidebarEyebrow'
   | 'servicesTeaserEyebrow'
   | 'servicesTeaserTitle'
@@ -2876,8 +2882,11 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   learnMoreLabel: { label: '"Mehr erfahren"-Button-Text' },
   learnMoreHref: { label: '"Mehr erfahren"-Button-Ziel' },
   galleryAllLabel: { label: 'Galerie-„Alle anzeigen"-Button' },
+  galleryAllHref: { label: 'Galerie-„Alle anzeigen"-Ziel' },
   testimonialsEyebrow: { label: 'Eyebrow' },
   testimonialsTitle: { label: 'Überschrift' },
+  aboutTestimonialsEyebrow: { label: 'Über uns – Bewertungen Eyebrow' },
+  aboutTestimonialsTitle: { label: 'Über uns – Bewertungen Überschrift' },
   manifestEyebrow: { label: 'Manifest – Eyebrow' },
   manifestTitle: { label: 'Manifest – Überschrift' },
   softCtaEyebrow: { label: 'Eyebrow (CTA)' },
@@ -2898,6 +2907,8 @@ const BRANCH_TEXT_LABELS: Record<BranchTextKey, { label: string; hint?: string; 
   pressTitle: { label: 'Presse – Überschrift' },
   newsEyebrow: { label: 'Eyebrow' },
   newsTitle: { label: 'Überschrift' },
+  newsAllLabel: { label: 'News-„Alle Beiträge"-Button' },
+  newsAllHref: { label: 'News-„Alle Beiträge"-Ziel' },
   aboutSidebarEyebrow: { label: 'Über-uns-Sidebar Eyebrow' },
   servicesTeaserEyebrow: { label: 'Leistungen-Teaser Eyebrow' },
   servicesTeaserTitle: { label: 'Leistungen-Teaser Titel' },
@@ -2959,7 +2970,7 @@ function BranchTextFields({ data, setData, tpl, keys }: SectionProps & { keys: B
             />
           );
         }
-        if (key === 'learnMoreHref' || key === 'servicesAllHref') {
+        if (key === 'learnMoreHref' || key === 'servicesAllHref' || key === 'galleryAllHref' || key === 'newsAllHref') {
           return (
             <LinkTargetField
               key={key}

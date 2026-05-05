@@ -267,11 +267,16 @@ export const SiteContentSchema = z.object({
     learnMoreHref: z.string().optional().default(''),
     /** Label of the "view all" button on the gallery teaser. */
     galleryAllLabel: z.string().optional().default(''),
+    /** Link target for the gallery teaser button (internal path or full URL). */
+    galleryAllHref: z.string().optional().default(''),
     /** Subtitle / description text used as fallback below hero + above services. */
     teaserSubtitle: z.string().optional().default(''),
     /** Eyebrow + headline of the testimonials block. */
     testimonialsEyebrow: z.string().optional().default(''),
     testimonialsTitle: z.string().optional().default(''),
+    /** Eyebrow + headline for the testimonials block on the /ueber-uns page (optional; falls back to home testimonials titles). */
+    aboutTestimonialsEyebrow: z.string().optional().default(''),
+    aboutTestimonialsTitle: z.string().optional().default(''),
     /** "Manifest" block (Bold style only). */
     manifestEyebrow: z.string().optional().default(''),
     manifestTitle: z.string().optional().default(''),
@@ -301,6 +306,9 @@ export const SiteContentSchema = z.object({
     /** Eyebrow + title for the news/blog teaser block on the home page. */
     newsEyebrow: z.string().optional().default(''),
     newsTitle: z.string().optional().default(''),
+    /** Label + link for the news teaser “all posts” button. */
+    newsAllLabel: z.string().optional().default(''),
+    newsAllHref: z.string().optional().default(''),
     /** Eyebrow shown on the about-page sidebar (modern style "Auf einen Blick"). */
     aboutSidebarEyebrow: z.string().optional().default(''),
     /** Eyebrow above the services teaser on the home page (modern/bold). */

@@ -25,7 +25,12 @@ import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
-import { isSectionEnabled, getEffectivePageOrder } from '@/lib/page-layout';
+import {
+  isSectionEnabled,
+  getEffectivePageOrder,
+  resolveClientPathToPageId,
+  isAnnouncementBarEnabledOnPage,
+} from '@/lib/page-layout';
 import { applyRestaurantModularOverlay } from '@/lib/modular-restaurant';
 import { applyHotelModularOverlay } from '@/lib/modular-hotel';
 import { applyTourismModularOverlay } from '@/lib/modular-tourism';
@@ -236,7 +241,10 @@ export default function TemplateApp({
   const coreVariant = variant as TemplateVariant;
   const cfg = NAV_BY_VARIANT[coreVariant];
   const catalogSvcSeg = getBranchConfig(variant).paths.services.replace(/^\//, '');
-  const announcements = announcementsFor(coreVariant, content);
+  const loc = useLocation();
+  const pageForBanner = resolveClientPathToPageId(loc.pathname, coreVariant);
+  const allAnnouncements = announcementsFor(coreVariant, content);
+  const announcements = isAnnouncementBarEnabledOnPage(content, pageForBanner) ? allAnnouncements : [];
   useReveal();
 
   // Tenant-overridden navigation: only kept items with non-empty label that are visible.
@@ -439,7 +447,15 @@ function HomePageClassic({ variant, contentBase, mergedFull }: { variant: Templa
         <Section eyebrow={effectiveBranchText(variant, slice).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, slice)} spacing="lg">
           <GalleryShowcase variant={variant} images={featuredGallery} mode="teaser" />
           <div className="mt-12 reveal">
-            <TLink to={variant === 'tradesman' ? '/referenzen' : variant === 'hotel' ? '/zimmer' : variant === 'tourism' ? '/touren' : '/galerie'} className="btn-outline">{effectiveBranchText(variant, slice).galleryAllLabel} <span aria-hidden>→</span></TLink>
+            {(() => {
+              const gh = galleryTeaserArchiveHref(variant, slice);
+              const gl = effectiveBranchText(variant, slice).galleryAllLabel;
+              return isExternalNavHref(gh) ? (
+                <a href={gh} className="btn-outline">{gl} <span aria-hidden>→</span></a>
+              ) : (
+                <TLink to={gh} className="btn-outline">{gl} <span aria-hidden>→</span></TLink>
+              );
+            })()}
           </div>
         </Section>
       ) : null,
@@ -456,7 +472,13 @@ function HomePageClassic({ variant, contentBase, mergedFull }: { variant: Templa
         return (
           <section className="py-14 border-y border-line">
             <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
-              {list.map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
+              {list.map((n) =>
+                logoBandEntryIsImageUrl(n) ? (
+                  <img key={n} src={n} alt="" className="h-9 md:h-11 w-auto max-w-[140px] object-contain mix-blend-multiply" loading="lazy" />
+                ) : (
+                  <span key={n} className="font-display text-2xl tracking-wide">{n}</span>
+                ),
+              )}
             </div>
           </section>
         );
@@ -571,7 +593,13 @@ function HomePageModern({ variant, contentBase, mergedFull }: { variant: Templat
         return (
           <section className="py-14 border-y border-line">
             <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
-              {list.map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
+              {list.map((n) =>
+                logoBandEntryIsImageUrl(n) ? (
+                  <img key={n} src={n} alt="" className="h-9 md:h-11 w-auto max-w-[140px] object-contain mix-blend-multiply" loading="lazy" />
+                ) : (
+                  <span key={n} className="font-display text-2xl tracking-wide">{n}</span>
+                ),
+              )}
             </div>
           </section>
         );
@@ -603,17 +631,15 @@ function HomePageModern({ variant, contentBase, mergedFull }: { variant: Templat
             ))}
           </div>
           <div className="mt-10 reveal">
-            <TLink
-              to={
-                variant === 'tradesman' ? '/referenzen'
-                : variant === 'hotel' ? '/zimmer'
-                : variant === 'tourism' ? '/touren'
-                : '/galerie'
-              }
-              className="btn-outline"
-            >
-              {effectiveBranchText(variant, slice).galleryAllLabel} <span aria-hidden>→</span>
-            </TLink>
+            {(() => {
+              const gh = galleryTeaserArchiveHref(variant, slice);
+              const gl = effectiveBranchText(variant, slice).galleryAllLabel;
+              return isExternalNavHref(gh) ? (
+                <a href={gh} className="btn-outline">{gl} <span aria-hidden>→</span></a>
+              ) : (
+                <TLink to={gh} className="btn-outline">{gl} <span aria-hidden>→</span></TLink>
+              );
+            })()}
           </div>
         </Section>
       ) : null,
@@ -787,17 +813,15 @@ function HomePageBold({ variant, contentBase, mergedFull }: { variant: TemplateV
                 <p className="eyebrow mb-4">{effectiveBranchText(variant, slice).galleryTeaserEyebrow}</p>
                 <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, slice)}</h2>
               </div>
-              <TLink
-                to={
-                  variant === 'tradesman' ? '/referenzen'
-                  : variant === 'hotel' ? '/zimmer'
-                  : variant === 'tourism' ? '/touren'
-                  : '/galerie'
-                }
-                className="link-underline hidden md:inline-flex"
-              >
-                {effectiveBranchText(variant, slice).galleryAllLabel} <span aria-hidden>→</span>
-              </TLink>
+              {(() => {
+                const gh = galleryTeaserArchiveHref(variant, slice);
+                const gl = effectiveBranchText(variant, slice).galleryAllLabel;
+                return isExternalNavHref(gh) ? (
+                  <a href={gh} className="link-underline hidden md:inline-flex">{gl} <span aria-hidden>→</span></a>
+                ) : (
+                  <TLink to={gh} className="link-underline hidden md:inline-flex">{gl} <span aria-hidden>→</span></TLink>
+                );
+              })()}
             </div>
             <MasonryGrid images={featuredGallery} />
           </div>
@@ -1170,7 +1194,16 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
   );
 }
 
-function NumbersBand({ variant, content }: { variant: TemplateVariant; content?: SiteContent }) {
+function NumbersBand({
+  variant,
+  content,
+  source = 'home',
+}: {
+  variant: TemplateVariant;
+  content?: SiteContent;
+  /** `about` reads only `aboutNumbers` (Über-uns-Eckdaten), never home `numbers`. */
+  source?: 'home' | 'about';
+}) {
   const defaults: Record<TemplateVariant, { v: number; s?: string; l: string }[]> = {
     restaurant: [
       { v: 1998, l: 'Familienbetrieb seit' },
@@ -1203,13 +1236,17 @@ function NumbersBand({ variant, content }: { variant: TemplateVariant; content?:
       { v: 4, s: ',9', l: 'Sterne ø' },
     ],
   };
-  const overlay = content && ((content as any).numbers as { value: string; label: string }[] | undefined);
+  const overlay =
+    source === 'about'
+      ? content && ((content as any).aboutNumbers as { value: string; label: string }[] | undefined)
+      : content && ((content as any).numbers as { value: string; label: string }[] | undefined);
   const mapped =
     overlay && overlay.length
       ? overlay
           .filter((n) => n && String(n.label ?? '').trim() && String(n.value ?? '').trim())
           .map((n) => ({ ...parseNumberValue(n.value), l: n.label }))
       : [];
+  if (source === 'about' && !mapped.length) return null;
   const stats: { v: number; s?: string; l: string; raw?: boolean }[] = mapped.length ? mapped : defaults[variant];
   return (
     <section className="py-20 md:py-28 bg-brand text-white grain relative overflow-hidden">
@@ -1647,8 +1684,16 @@ function GalleryStorySection({ variant, content }: { variant: TemplateVariant; c
     },
   };
   const overlay = (content as any).galleryStory as Story | undefined;
-  const storyBase: Story =
-    overlay && (overlay.title || overlay.body) ? { ...fallbacks[variant], ...overlay } : fallbacks[variant];
+  const fb = fallbacks[variant];
+  const mergedFromOverlay =
+    overlay && (overlay.title || overlay.body || (overlay.eyebrow && overlay.eyebrow.trim()))
+      ? { ...fb, ...overlay }
+      : fb;
+  const bodyTrim = (mergedFromOverlay.body ?? '').trim();
+  const storyBase: Story = {
+    ...mergedFromOverlay,
+    body: bodyTrim ? mergedFromOverlay.body : fb.body,
+  };
   const captionsNorm = normaliseTdList(storyBase.captions ?? []);
   const story: Story = {
     ...storyBase,
@@ -1779,11 +1824,18 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
       values: <ValuesSection variant={variant} content={slice} />,
       timeline: <Timeline content={slice} />,
       team: <TeamSection variant={variant} content={slice} />,
-      numbers: <NumbersBand variant={variant} content={slice} />,
+      numbers: <NumbersBand variant={variant} content={slice} source="about" />,
       certifications: variant === 'tradesman' ? <CertificationsSection variant={variant} content={slice} /> : null,
       press: variant === 'restaurant' ? <PressSection variant={variant} content={slice} /> : null,
-      testimonials: visibleTestimonials(slice).length > 0 ? (
-        <Section eyebrow={effectiveBranchText(variant, slice).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, slice).testimonialsTitle)} className="surface">
+      testimonials: visibleTestimonials(slice).length > 0 ? (() => {
+        const rawBt = ((slice.branchText ?? {}) as unknown) as Record<string, string | undefined>;
+        const abEb = typeof rawBt.aboutTestimonialsEyebrow === 'string' ? rawBt.aboutTestimonialsEyebrow.trim() : '';
+        const abTl = typeof rawBt.aboutTestimonialsTitle === 'string' ? rawBt.aboutTestimonialsTitle.trim() : '';
+        const bt = effectiveBranchText(variant, slice);
+        const testimonialsEyebrow = abEb || bt.testimonialsEyebrow;
+        const testimonialsTitle = abTl || bt.testimonialsTitle;
+        return (
+        <Section eyebrow={testimonialsEyebrow} title={splitTitle(testimonialsTitle)} className="surface">
           <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
             {visibleTestimonials(slice).map((t, i) => (
               <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
@@ -1794,7 +1846,8 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
             ))}
           </div>
         </Section>
-      ) : null,
+        );
+      })() : null,
       faq: (
         <Section eyebrow={effectiveBranchText(variant, slice).faqEyebrow} title={splitTitle(effectiveBranchText(variant, slice).faqTitle)} className="surface">
           <Accordion items={resolveFaq(variant, slice).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
@@ -2249,6 +2302,30 @@ function galleryTeaserTitle(v: TemplateVariant, content?: SiteContent): React.Re
   const override = (content as any)?.branchText?.galleryTeaserTitle as string | undefined;
   const raw = (override && override.trim()) || branchTextDefaults(v).galleryTeaserTitle;
   return splitTitle(raw);
+}
+
+/** Home gallery teaser CTA — uses `branchText.galleryAllHref` when set, else variant default path. */
+function galleryTeaserArchiveHref(v: TemplateVariant, content: SiteContent): string {
+  const raw = String((content as { branchText?: { galleryAllHref?: string } }).branchText?.galleryAllHref ?? '').trim();
+  if (raw.startsWith('http') || raw.startsWith('mailto:') || raw.startsWith('tel:')) return raw;
+  if (raw.startsWith('/')) return raw;
+  if (v === 'tradesman') return '/referenzen';
+  if (v === 'hotel') return '/zimmer';
+  if (v === 'tourism') return '/touren';
+  return '/galerie';
+}
+
+function isExternalNavHref(h: string): boolean {
+  return h.startsWith('http') || h.startsWith('mailto:') || h.startsWith('tel:');
+}
+
+function logoBandEntryIsImageUrl(n: string): boolean {
+  const s = n.trim();
+  if (!s) return false;
+  if (/^https?:\/\//i.test(s)) return true;
+  if (s.startsWith('/') && /\.(png|jpe?g|gif|webp|svg|avif)(\?|#|$)/i.test(s)) return true;
+  if (s.includes('blob.vercel-storage.com')) return true;
+  return false;
 }
 
 /* ─── Branch-specific service layouts ─────────────────────────────── */
