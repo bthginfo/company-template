@@ -18,6 +18,22 @@ const ContactSchema = z.object({
   // Source / tenant context, used in subject line.
   source: z.string().trim().max(120).optional().default(''),
   tenant: z.string().trim().max(120).optional().default(''),
+  /** Additional CMS-defined fields (slug → value). */
+  extras: z
+    .record(z.string().max(48), z.string().max(4000))
+    .optional()
+    .default({})
+    .superRefine((obj, ctx) => {
+      const keys = Object.keys(obj);
+      if (keys.length > 24) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Zu viele Zusatzfelder.' });
+      }
+      for (const k of keys) {
+        if (!/^[a-z0-9_]+$/.test(k)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Ungültiger Zusatzfeld-Schlüssel: ${k}` });
+        }
+      }
+    }),
 });
 
 /* ─── In-memory rate limit (per IP, best-effort) ─────────────────── */
@@ -146,6 +162,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ['Quelle', data.source],
     ['Mandant', data.tenant],
     ['IP', ip],
+    ...Object.entries(data.extras ?? {})
+      .filter(([, v]) => String(v).trim())
+      .map(([k, v]) => [`Zusatz: ${k}`, String(v)] as [string, string]),
   ].filter(([, v]) => v);
 
   const textBody = [

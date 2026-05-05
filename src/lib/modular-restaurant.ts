@@ -477,6 +477,7 @@ export function importContactSections(content: SiteContent, sections: ModularSec
       subline: str(cb.subtitle),
       googleMapsUrl: str(content.contact.mapsUrl),
       additionalFormFields: (content.formFields ?? []).map((f) => ({
+        fieldKey: str(f.key),
         label: str(f.label),
         fieldType: str(f.type),
         placeholder: '',
@@ -1132,15 +1133,34 @@ export function mergeContactIntoLegacy(content: SiteContent, sections: ModularSe
         };
         const ff = (d as { additionalFormFields?: unknown }).additionalFormFields;
         if (Array.isArray(ff)) {
+          const used = new Set<string>();
           const mapped = ff
             .filter((x): x is Record<string, unknown> => !!x && typeof x === 'object')
-            .map((x) => ({
-              key: str(x.label).toLowerCase().replace(/\s+/g, '_'),
-              label: str(x.label),
-              required: bool(x.required, false),
-              type: (['text', 'email', 'tel', 'textarea', 'date'].includes(str(x.fieldType)) ? str(x.fieldType) : 'text') as 'text' | 'email' | 'tel' | 'textarea' | 'date',
-            }));
-          if (mapped.length) next = { ...next, formFields: mapped };
+            .map((x) => {
+              const label = str(x.label);
+              const explicit = str((x as { fieldKey?: unknown }).fieldKey).trim().toLowerCase();
+              const fromLabel = label
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_+|_+$/g, '')
+                .slice(0, 48);
+              let key = explicit && /^[a-z][a-z0-9_]*$/.test(explicit) ? explicit : fromLabel;
+              if (!key) key = 'feld';
+              let candidate = key;
+              let n = 2;
+              while (used.has(candidate)) {
+                candidate = `${key}_${n}`;
+                n += 1;
+              }
+              used.add(candidate);
+              return {
+                key: candidate,
+                label,
+                required: bool(x.required, false),
+                type: (['text', 'email', 'tel', 'textarea', 'date'].includes(str(x.fieldType)) ? str(x.fieldType) : 'text') as 'text' | 'email' | 'tel' | 'textarea' | 'date',
+              };
+            });
+          next = { ...next, formFields: mapped };
         }
         break;
       }

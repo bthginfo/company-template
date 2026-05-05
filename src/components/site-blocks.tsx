@@ -268,9 +268,11 @@ export function Hero({
       <div className="blob -top-32 -right-32 w-[500px] h-[500px]" style={{ background: 'var(--accent-color)' }} />
 
       <div className={`container-x relative z-10 pt-40 pb-20 md:pb-28 ${align === 'center' ? 'text-center mx-auto' : ''}`}>
-        {content.brand.tagline ? (
+        {(content.branchText?.heroEyebrow && content.branchText.heroEyebrow.trim())
+          || content.brand.tagline ? (
           <p className="inline-flex items-center gap-3 mb-7 text-xs uppercase tracking-[0.18em] text-white/85">
-            <span className="inline-block w-7 h-px bg-white/60" />{content.brand.tagline}
+            <span className="inline-block w-7 h-px bg-white/60" />
+            {(content.branchText?.heroEyebrow && content.branchText.heroEyebrow.trim()) || content.brand.tagline}
           </p>
         ) : null}
         <h1 className={`headline-xl ${align === 'center' ? 'mx-auto max-w-5xl' : 'max-w-5xl'}`}>
@@ -451,17 +453,20 @@ export function ContactBlock({ content, showForm = true, showMap = true, formTen
           {showForm ? (
             <div className="space-y-6">
               {(() => {
-                const admin = ((content as any).formFields ?? []) as Array<{ key: string }>;
-                const ALLOWED: Array<'name' | 'email' | 'phone' | 'subject' | 'message' | 'branche' | 'paket'> = ['name', 'email', 'phone', 'subject', 'message', 'branche', 'paket'];
-                const fromAdmin = admin
-                  .map((f) => (f?.key || '').toLowerCase())
-                  .filter((k): k is typeof ALLOWED[number] => (ALLOWED as readonly string[]).includes(k));
-                const fields = (fromAdmin.length ? fromAdmin : ['name', 'email', 'phone', 'subject', 'message']) as typeof ALLOWED;
+                const admin = ((content as any).formFields ?? []) as Array<{ key?: string; label?: string; type?: string; required?: boolean }>;
+                const rows = admin
+                  .filter((f) => f && String(f.key || '').trim() && String(f.label || '').trim())
+                  .map((f) => ({
+                    key: String(f.key).trim().toLowerCase(),
+                    label: String(f.label).trim(),
+                    type: f.type,
+                    required: f.required === true,
+                  }));
                 return (
                   <ContactForm
                     tenant={tenantSlug || content.brand.name}
                     source={`tenant:${tenantSlug || (content.brand.name || '').toLowerCase().replace(/\s+/g, '-')}`}
-                    fields={fields}
+                    fieldRows={rows.length ? rows : undefined}
                   />
                 );
               })()}

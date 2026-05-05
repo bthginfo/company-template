@@ -1062,17 +1062,19 @@ function ContactDetailsForm({ data, onChange }: Pick<ModularSectionDataFormProps
     ? (data.additionalFormFields as unknown[]).map((x) =>
         x && typeof x === 'object'
           ? {
+              fieldKey: str((x as { fieldKey?: unknown }).fieldKey),
               label: str((x as { label?: unknown }).label),
               fieldType: str((x as { fieldType?: unknown }).fieldType),
               required: bool((x as { required?: unknown }).required, false),
             }
-          : { label: '', fieldType: 'text', required: false },
+          : { fieldKey: '', label: '', fieldType: 'text', required: false },
       )
     : [];
   const set = (next: typeof fields) =>
     onChange({
       ...data,
       additionalFormFields: next.map((f) => ({
+        fieldKey: f.fieldKey,
         label: f.label,
         fieldType: f.fieldType,
         placeholder: '',
@@ -1096,8 +1098,19 @@ function ContactDetailsForm({ data, onChange }: Pick<ModularSectionDataFormProps
         <input className={modularInputCls} value={str(data.googleMapsUrl)} onChange={(e) => onChange({ ...data, googleMapsUrl: e.target.value })} />
       </ModField>
       <p className="text-xs uppercase tracking-widest text-muted">Zusätzliche Formularfelder</p>
+      <p className="text-xs text-muted -mt-2">
+        Optionaler Schlüssel (nur Kleinbuchstaben, Ziffern, Unterstrich). Leer lassen, dann wird er aus dem Label abgeleitet (z. B. „Anreisedatum“ → <code className="font-mono">anreisedatum</code>).
+      </p>
       {fields.map((f, i) => (
         <div key={i} className="grid sm:grid-cols-2 gap-2 border border-line rounded-xl p-3 items-end">
+          <ModField label="Schlüssel (optional)">
+            <input
+              className={modularInputCls}
+              value={f.fieldKey}
+              onChange={(e) => set(fields.map((x, j) => (j === i ? { ...x, fieldKey: e.target.value } : x)))}
+              placeholder="z. B. gaeste_anzahl"
+            />
+          </ModField>
           <ModField label="Label">
             <input className={modularInputCls} value={f.label} onChange={(e) => set(fields.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} />
           </ModField>
@@ -1123,7 +1136,7 @@ function ContactDetailsForm({ data, onChange }: Pick<ModularSectionDataFormProps
           </button>
         </div>
       ))}
-      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...fields, { label: '', fieldType: 'text', required: false }])}>
+      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...fields, { fieldKey: '', label: '', fieldType: 'text', required: false }])}>
         + Formularfeld
       </button>
     </div>
