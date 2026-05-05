@@ -176,6 +176,20 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 
 **Eingebunden in:** [`TemplateApp.tsx`](../src/templates/_shared/TemplateApp.tsx) (alle Home-Stile, Services, Galerie, Über uns, Kontakt) und [`ExtraBranchTemplate.tsx`](../src/templates/_shared/extra/ExtraBranchTemplate.tsx) (Classic/Modern/Bold-Home + `SubPage`). React-Keys nutzen bei Wiederholung desselben Slots `${slot}-${index}`.
 
+### Phase 6 — kumulativer Daten-Merge pro Slot-Zeile
+
+**Problem:** Ohne Phase 6 bekam jede gerenderte Slot-Zeile dasselbe **vollständig** gemergte `SiteContent` (alle Blöcke der Seite). Zwei Galerie-Blöcke sahen beide z. B. die **finale** zusammengeführte Galerie.
+
+**Ziel:** Steuert `pageBlocksV1` die Slot-Reihenfolge, rendert **jede** sichtbare Zeile mit einem **Präfix-Merge**: nur die Block-`data`-Patches **bis einschließlich** der für diese Zeile relevanten Instanz werden auf das Basis-`SiteContent` gelegt (kumulativ entlang der Block-Liste).
+
+**Umsetzung:**
+
+- [`src/lib/page-blocks-v1-slot-order.ts`](../src/lib/page-blocks-v1-slot-order.ts) — `buildPageBlockSlotPlan()` liefert pro sichtbarer Instanz `(slot, mergeEndExclusive)`.
+- [`src/lib/page-blocks-v1-page-merge.ts`](../src/lib/page-blocks-v1-page-merge.ts) — `mergePageBlocksIntoSiteContentForPagePrefix(content, page, endExclusive)`.
+- [`src/lib/page-blocks-v1-render-sequence.ts`](../src/lib/page-blocks-v1-render-sequence.ts) — `buildSlotRenderInstructions`, `siteContentForSlotInstruction` (Präfix vs. `mergedFull` bei reinem Legacy-Slot-Order-Fallback).
+
+**Eingebunden in:** `TemplateApp` und `ExtraBranchTemplate` (Home + Unterseiten): `contentBase` = Rohinhalt vor Seiten-Merge, `mergedFull` = voller Seiten-Merge für Hero/weiche CTAs; Slot-Body nutzt `siteContentForSlotInstruction` pro Zeile.
+
 ---
 
 ## 11. Phase 3 (Renderer) — Stand
@@ -185,7 +199,8 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 **Umsetzung (MVP):** [`src/lib/page-blocks-v1-page-merge.ts`](../src/lib/page-blocks-v1-page-merge.ts)
 
 - Nach `withModularSiteContent` (falls zutreffend) werden alle **sichtbaren** Blöcke einer Seite in Array-Reihenfolge per `deepMergeJson` auf `SiteContent` gelegt und mit `SiteContentSchema.safeParse` normalisiert.
-- Die **Reihenfolge der Sektions-Slots** folgt **`resolveLayoutSlotOrder`** (Phase 5), sobald `pageBlocksV1[page]` nicht leer ist; sonst unverändert `getEffectiveHomeSectionKeys` / `getEffectivePageOrder`.
+- Die **Reihenfolge der Sektions-Slots** folgt **`resolveLayoutSlotOrder`** bzw. dem **Slot-Plan** aus Phase 5/6, sobald `pageBlocksV1[page]` nicht leer ist; sonst unverändert `getEffectiveHomeSectionKeys` / `getEffectivePageOrder`.
+- **Daten pro Slot-Zeile:** Bei aktivem Block-Plan liefert **`siteContentForSlotInstruction`** (Phase 6) ein **Präfix-gemergtes** `SiteContent` bis zur jeweiligen Instanz; Hero und weiche CTAs nutzen weiterhin den **vollen** Seiten-Merge.
 
 **Eingebunden in:** `TemplateApp` (Home, Services, Galerie, Über uns, Kontakt) und `ExtraBranchTemplate` (Home-Layouts + `SubPage`).
 
@@ -213,7 +228,8 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 | Kern-Renderer | [`src/templates/_shared/TemplateApp.tsx`](../src/templates/_shared/TemplateApp.tsx) |
 | Extras-Renderer | [`src/templates/_shared/extra/ExtraBranchTemplate.tsx`](../src/templates/_shared/extra/ExtraBranchTemplate.tsx) |
 | Phase-3-Daten-Merge | [`src/lib/page-blocks-v1-page-merge.ts`](../src/lib/page-blocks-v1-page-merge.ts) |
-| Phase-5-Slot-Reihenfolge | [`src/lib/page-blocks-v1-slot-order.ts`](../src/lib/page-blocks-v1-slot-order.ts) |
+| Phase-5-Slot-Reihenfolge + Slot-Plan | [`src/lib/page-blocks-v1-slot-order.ts`](../src/lib/page-blocks-v1-slot-order.ts) |
+| Phase-6-Render-Sequenz (Präfix-Merge pro Zeile) | [`src/lib/page-blocks-v1-render-sequence.ts`](../src/lib/page-blocks-v1-render-sequence.ts) |
 | Phase-4-Admin-Panel | [`src/admin/PageBlocksV1Panel.tsx`](../src/admin/PageBlocksV1Panel.tsx) |
 
 ---

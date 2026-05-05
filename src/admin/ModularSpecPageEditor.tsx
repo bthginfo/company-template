@@ -1,9 +1,12 @@
 import type { SiteContent } from '@/lib/types';
 import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
+import { useMemo } from 'react';
 import { ModularSectionDataForm } from './ModularSectionDataForm';
 import type { ModularUploadFn } from './modular-section-field-kit';
 import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
+import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
+import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
 
 export type ModularSpecPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
@@ -57,6 +60,14 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
   const modular = data.modularPagesV1;
   const key = bundleKey(page);
   const sections = modular?.[key]?.sections ?? [];
+  const homeSlots = useMemo(
+    () => (page === 'home' ? getEffectiveHomeSectionKeys(data, cfg.tpl, style) : null),
+    [page, data, cfg.tpl, style],
+  );
+  const hiddenHomeCount = useMemo(() => {
+    if (page !== 'home' || !homeSlots) return 0;
+    return sections.filter((s) => !isModularHomeSectionAdminVisible(cfg.tpl, style, s.type, homeSlots)).length;
+  }, [page, sections, cfg.tpl, style, homeSlots]);
 
   const commitModular = (base: SiteContent, nextModular: NonNullable<SiteContent['modularPagesV1']>) =>
     cfg.applyToLegacy({ ...base, modularPagesV1: nextModular });
@@ -88,16 +99,6 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
     updateSections(next);
   };
 
-  const deactivate = () => {
-    const { modularPagesV1: _, ...rest } = data;
-    setData(rest as SiteContent);
-  };
-
-  const reseed = () => {
-    const imported = cfg.importFromLegacy(data, style);
-    setData(commitModular(data, imported));
-  };
-
   if (tpl !== cfg.tpl) {
     return (
       <p className="text-sm text-muted">
@@ -110,38 +111,38 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
     <div className="space-y-6">
       {modular?.combo?.style && modular.combo.style !== style ? (
         <p className="text-xs text-rose-900 max-w-prose rounded-xl border border-rose-200 bg-rose-50/80 px-3 py-2">
-          Die Speicher-Struktur ist für <strong>{formatBranchStyle(modular.combo.style)}</strong> angelegt, der Mandant nutzt aber{' '}
-          <strong>{formatBranchStyle(style)}</strong>. Öffentlich wird trotzdem gemergt; unter „Erweiterte Seitenaktionen“ können Sie
-          den Inhalt neu importieren (setzt den Stil in den Daten auf {formatBranchStyle(style)}).
+          Hinweis: Modulare Metadaten sind für <strong>{formatBranchStyle(modular.combo.style)}</strong> gespeichert, der Mandant nutzt
+          aber <strong>{formatBranchStyle(style)}</strong>. Inhalte werden weiter ins Frontend gemergt; bei Bedarf Stil im Admin an die
+          gespeicherte Kombination anpassen.
         </p>
       ) : null}
-      <details className="rounded-xl border border-line bg-[#fafaf7] px-3 py-2 text-xs text-muted">
-        <summary className="cursor-pointer font-medium text-foreground select-none">Erweiterte Seitenaktionen</summary>
-        <p className="mt-2 leading-relaxed max-w-prose">
-          Referenz: <code className="text-[11px] bg-white px-1 rounded border border-line">{cfg.specDoc}</code>. Inhalt aus den
-          klassischen Feldern erneut in alle modularen Seiten übernehmen, oder nur die modulare Speicher-Schicht entfernen (gemergte
-          Werte bleiben in SiteContent).
+
+      {hiddenHomeCount > 0 ? (
+        <p className="text-xs text-muted max-w-prose border border-line rounded-xl px-3 py-2 bg-[#fafaf7]">
+          {hiddenHomeCount} Block(e) sind für diese Branchen/Stil-Kombination auf der Startseite nicht sichtbar (kein passender Layout-Slot).
+          Daten bleiben gespeichert; bei Layout-Änderung können sie wieder relevant werden.
         </p>
-        <div className="flex flex-wrap gap-2 mt-2">
-          <button
-            type="button"
-            onClick={reseed}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-line hover:bg-muted/30"
-          >
-            Alle Seiten aus aktuellem Inhalt neu füllen
-          </button>
-          <button
-            type="button"
-            onClick={deactivate}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-line hover:bg-muted/30"
-          >
-            Modulare Daten entfernen
-          </button>
-        </div>
-      </details>
+      ) : null}
 
       <div className="space-y-4">
-        {sections.map((sec, idx) => (
+        {sections.map((sec, idx) => {
+          const homeVisible = page !== 'home' || !homeSlots || isModularHomeSectionAdminVisible(cfg.tpl, style, sec.type, homeSlots);
+          if (!homeVisible) {
+            return (
+              <section key={sec.id} className="border border-dashed border-line rounded-2xl overflow-hidden bg-[#fafaf7]/80 opacity-90">
+                <header className="px-4 py-3 border-b border-line flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-muted">type = {sec.type}</p>
+                    <h3 className="font-display text-base text-muted">
+                      {cfg.sectionLabels[sec.type] ?? sec.type}
+                      <span className="ml-2 text-xs font-sans font-normal text-amber-800">· nicht im aktuellen Startseiten-Layout</span>
+                    </h3>
+                  </div>
+                </header>
+              </section>
+            );
+          }
+          return (
           <section key={sec.id} className="border border-line rounded-2xl overflow-hidden bg-white">
             <header className="px-4 py-3 bg-[#fafaf7] border-b border-line flex flex-wrap items-center justify-between gap-2">
               <div>
@@ -174,7 +175,8 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
               />
             </div>
           </section>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -7,8 +7,8 @@ import { getSession, unauthorized } from './_lib/auth.js';
 /**
  * GET  /api/content?slug=xxx            → public, returns live site content
  * GET  /api/content?slug=xxx&preview=1  → admin only, returns draft (falls back to live)
- * PUT  /api/content?slug=xxx            → admin only, saves to draft column
- * POST /api/content?slug=xxx&action=publish  → admin only, copies draft → data, clears draft
+ * PUT  /api/content?slug=xxx            → admin only, writes validated content to live `data` (and clears `draft`)
+ * POST /api/content?slug=xxx&action=publish  → admin only, copies draft → data, clears draft (legacy; PUT is live)
  * POST /api/content?slug=xxx&action=discard  → admin only, clears draft
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -81,10 +81,10 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
 
   await db
     .insert(schema.siteContent)
-    .values({ tenantId: tenant.id, data: parse.data, draft: parse.data })
+    .values({ tenantId: tenant.id, data: parse.data, draft: null })
     .onConflictDoUpdate({
       target: schema.siteContent.tenantId,
-      set: { draft: parse.data, updatedAt: new Date() },
+      set: { data: parse.data, draft: null, updatedAt: new Date() },
     });
 
   res.json({ ok: true });

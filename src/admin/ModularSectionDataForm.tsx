@@ -31,14 +31,6 @@ function NoticeBannerForm({ data, onChange }: Pick<ModularSectionDataFormProps, 
   const setItems = (next: string[]) => onChange({ ...data, items: next.map((text) => ({ text })) });
   return (
     <div className="space-y-4">
-      <label className="flex items-center gap-2 text-sm cursor-pointer">
-        <input
-          type="checkbox"
-          checked={bool(data.isVisible, true)}
-          onChange={(e) => onChange({ ...data, isVisible: e.target.checked })}
-        />
-        <span>Hinweise auf der Website anzeigen</span>
-      </label>
       <ModField label="Hinweiszeilen (z. B. Öffnungszeiten, Events)">
         <div className="space-y-2">
           {items.map((line, i) => (
@@ -409,10 +401,6 @@ function ActionBarForm({ data, onChange, tpl }: Pick<ModularSectionDataFormProps
   const hs = bs.linkType === 'external' ? str(bs.externalUrl) : str(bs.internalPage);
   return (
     <div className="space-y-4">
-      <label className="flex items-center gap-2 text-sm cursor-pointer">
-        <input type="checkbox" checked={bool(data.isVisible, true)} onChange={(e) => onChange({ ...data, isVisible: e.target.checked })} />
-        <span>Leiste anzeigen</span>
-      </label>
       <label className="flex items-center gap-2 text-sm cursor-pointer">
         <input
           type="checkbox"
@@ -1252,8 +1240,8 @@ function UnsupportedSection({ sectionType }: { sectionType: string }) {
     <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
       <p className="font-medium">Formular für „{sectionType}“ ist noch nicht angebunden.</p>
       <p className="mt-2 text-xs leading-relaxed">
-        Öffnen Sie ggf. „Erweiterte Seitenaktionen“ oben und füllen Sie die Seiten aus dem bestehenden Inhalt neu, oder bearbeiten
-        Sie die Felder in den klassischen Admin-Tabs — beim nächsten Neu-Import werden sie wieder in diese Sektion übernommen.
+        Für diesen Sektionstyp ist hier noch kein Formular hinterlegt. Gleiche Inhalte ggf. in anderen Bereichen dieses Admins
+        bearbeiten, falls dort Felder dafür existieren.
       </p>
     </div>
   );

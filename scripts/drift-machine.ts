@@ -21,6 +21,21 @@ import type { TemplateKey } from '../src/lib/types';
 
 const EXCLUDE_DIRS = new Set(['node_modules', 'dist', '.git', '__tests__']);
 
+/**
+ * `SiteContentSchema` may be wrapped in `ZodEffects` (e.g. `.superRefine()`);
+ * drift checks need the inner `ZodObject` `.shape`.
+ */
+export function unwrapSiteContentSchemaObject(): z.ZodObject<z.ZodRawShape> {
+  let cur: z.ZodTypeAny = SiteContentSchema;
+  while (cur instanceof z.ZodEffects) {
+    cur = cur._def.schema;
+  }
+  if (!(cur instanceof z.ZodObject)) {
+    throw new Error('SiteContentSchema must wrap a ZodObject for drift checks');
+  }
+  return cur;
+}
+
 /** Recursively read all `.ts` / `.tsx` sources under `relDirs` (repo-relative). */
 export function collectDirSources(repoRoot: string, relDirs: readonly string[]): string {
   const chunks: string[] = [];
@@ -183,11 +198,7 @@ const CONTRACT_NESTED_ONLY_ROOTS = new Set([
 ]);
 
 export function contractDataKeyRootsMissingFromSchema(): string[] {
-  const schema = SiteContentSchema;
-  if (!(schema instanceof z.ZodObject)) {
-    throw new Error('SiteContentSchema must be a ZodObject for drift checks');
-  }
-  const roots = new Set(Object.keys(schema.shape));
+  const roots = new Set(Object.keys(unwrapSiteContentSchemaObject().shape));
   const missing = new Set<string>();
   for (const c of Object.values(SECTION_CONTRACTS)) {
     for (const dk of c.dataKeys) {
@@ -427,7 +438,7 @@ const SUBPAGE_FLAG_CHECKS: readonly SubpageCheck[] = [
     page: 'about',
     when: (c) => c.about.showTimeline,
     adminSection: 'timeline',
-    frontendNeedles: ['Timeline content={content}'],
+    frontendNeedles: ['Timeline content={content}', 'Timeline content={slice}'],
   },
   {
     page: 'about',

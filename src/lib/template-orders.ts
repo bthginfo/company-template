@@ -21,7 +21,7 @@ export type Style = 'classic' | 'modern' | 'bold';
  */
 export const BRANCH_STYLE_ORDER: Record<TemplateKey, Record<Style, readonly string[]>> = {
   restaurant: {
-    classic: ['action', 'signature', 'about', 'gallery', 'numbers', 'testimonials', 'news'],
+    classic: ['action', 'signature', 'about', 'gallery', 'logos', 'numbers', 'testimonials', 'news'],
     modern:  ['action', 'services', 'signature', 'about', 'gallery', 'logos', 'testimonials', 'numbers', 'news'],
     bold:    ['action', 'signature', 'numbers', 'gallery', 'about', 'testimonials', 'news'],
   },

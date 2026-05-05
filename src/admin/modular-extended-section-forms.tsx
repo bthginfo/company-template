@@ -392,10 +392,6 @@ function PricingPackagesSectionForm({ data, onChange, tpl, uploadImage: _uploadI
 function StickyEmergencyForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'data' | 'onChange'>) {
   return (
     <div className="space-y-4">
-      <label className="flex items-center gap-2 text-sm cursor-pointer">
-        <input type="checkbox" checked={bool(data.isVisible, true)} onChange={(e) => onChange({ ...data, isVisible: e.target.checked })} />
-        <span>Notfall-Leiste anzeigen</span>
-      </label>
       <ModField label="Telefon">
         <input className={modularInputCls} value={str(data.phone)} onChange={(e) => onChange({ ...data, phone: e.target.value })} />
       </ModField>

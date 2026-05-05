@@ -57,7 +57,7 @@ export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
     { key: 'gallery',      label: 'Galerie',                  description: 'Galerie-Teaser.' },
     { key: 'numbers',      label: 'Zahlen-Band',              description: 'Zahlen-Leiste.' },
     { key: 'testimonials', label: 'Bewertungen',              description: 'Kundenstimmen.' },
-    { key: 'logos',        label: 'Logo-Strip',               description: 'Logo-Zeile.', styles: ['modern'] },
+    { key: 'logos',        label: 'Logo-Strip',               description: 'Logo-Zeile (Presse/Partner).' },
     { key: 'faq',          label: 'FAQ',                      description: 'FAQ.', styles: ['classic', 'modern'] },
     { key: 'news',         label: 'News-Teaser',              description: 'Blog-Vorschau.' },
     { key: 'softCta',      label: 'Soft-CTA',                 description: 'Abschluss-CTA.' },

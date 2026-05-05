@@ -86,8 +86,31 @@ export function adminSectionToCatalogSlot(page: PageKey, admin: AdminSectionKey)
 }
 
 /**
- * When `pageBlocksV1[page]` is a non-empty array, build slot order from visible
- * blocks (admin → catalog). Otherwise return `legacyOrder`.
+ * Visible `pageBlocksV1[page]` entries that map to a renderer slot, in array order.
+ * `mergeEndExclusive` is the exclusive end index into `pageBlocksV1[page]` (merge blocks `[0, mergeEndExclusive)`).
+ */
+export function buildPageBlockSlotPlan(args: {
+  page: PageKey;
+  content: SiteContent;
+  availableSlots: ReadonlySet<string>;
+}): { slot: string; mergeEndExclusive: number }[] {
+  const list = args.content.pageBlocksV1?.[args.page];
+  if (!list?.length) return [];
+
+  const out: { slot: string; mergeEndExclusive: number }[] = [];
+  for (let i = 0; i < list.length; i++) {
+    const inst = list[i];
+    if (inst.isVisible === false) continue;
+    const slot = adminSectionToCatalogSlot(args.page, inst.type as AdminSectionKey);
+    if (!slot || !args.availableSlots.has(slot)) continue;
+    out.push({ slot, mergeEndExclusive: i + 1 });
+  }
+  return out;
+}
+
+/**
+ * When `pageBlocksV1[page]` yields at least one mapped slot, return those slot keys;
+ * otherwise return `legacyOrder`.
  */
 export function resolveLayoutSlotOrder(args: {
   page: PageKey;
@@ -95,15 +118,11 @@ export function resolveLayoutSlotOrder(args: {
   legacyOrder: string[];
   availableSlots: ReadonlySet<string>;
 }): string[] {
-  const list = args.content.pageBlocksV1?.[args.page];
-  if (!list?.length) return args.legacyOrder;
-
-  const slots: string[] = [];
-  for (const inst of list) {
-    if (inst.isVisible === false) continue;
-    const slot = adminSectionToCatalogSlot(args.page, inst.type as AdminSectionKey);
-    if (!slot || !args.availableSlots.has(slot)) continue;
-    slots.push(slot);
-  }
-  return slots.length > 0 ? slots : args.legacyOrder;
+  const plan = buildPageBlockSlotPlan({
+    page: args.page,
+    content: args.content,
+    availableSlots: args.availableSlots,
+  });
+  if (!plan.length) return args.legacyOrder;
+  return plan.map((p) => p.slot);
 }

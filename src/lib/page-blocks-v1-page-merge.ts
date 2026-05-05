@@ -1,8 +1,7 @@
 /**
  * Phase 3 (MVP): merge visible `pageBlocksV1[page][].data` onto `SiteContent` for rendering.
- * Layout order stays on legacy helpers (`getEffectiveHomeSectionKeys`, …); block JSON
- * is the overlay source so editors can move to instance-scoped data without changing
- * slot order in this phase.
+ * Phase 5+6: slot order can follow `pageBlocksV1`; when it does, each slot occurrence may use
+ * a prefix merge (see `mergePageBlocksIntoSiteContentForPagePrefix`) so repeated slots differ.
  */
 
 import type { PageKey } from '@/admin/admin-sections';
@@ -55,6 +54,33 @@ export function mergePageBlocksIntoSiteContentForPage(
 
   let acc: SiteContent = structuredClone(content) as SiteContent;
   for (const b of list) {
+    if (b.isVisible === false) continue;
+    if (!isPlainRecord(b.data) || Object.keys(b.data).length === 0) continue;
+    acc = deepMergeJson(acc, b.data) as SiteContent;
+  }
+
+  const parsed = SiteContentSchema.safeParse(acc);
+  return parsed.success ? parsed.data : content;
+}
+
+/**
+ * Phase 6: merge only `pageBlocksV1[page][0 .. endExclusive)` (array indices) onto a
+ * clone of `content`, skipping invisible blocks and empty `data` like the full merge.
+ * `endExclusive <= 0` is a no-op (returns `content`).
+ */
+export function mergePageBlocksIntoSiteContentForPagePrefix(
+  content: SiteContent,
+  page: PageKey,
+  endExclusive: number,
+): SiteContent {
+  const list = content.pageBlocksV1?.[page];
+  if (!list?.length || endExclusive <= 0) return content;
+
+  const slice = list.slice(0, Math.min(endExclusive, list.length));
+  if (!blockListHasDataPatches(slice)) return content;
+
+  let acc: SiteContent = structuredClone(content) as SiteContent;
+  for (const b of slice) {
     if (b.isVisible === false) continue;
     if (!isPlainRecord(b.data) || Object.keys(b.data).length === 0) continue;
     acc = deepMergeJson(acc, b.data) as SiteContent;

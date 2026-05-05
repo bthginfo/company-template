@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { collectPageBlocksV1Issues } from './page-blocks-v1-validate';
 
 /** Reusable page-hero / block heading (eyebrow + title + subtitle). */
 const pageHeaderBlock = z.object({
@@ -59,6 +60,28 @@ export const ModularPagesV1Schema = z.object({
   contact: ModularPageV1Schema.optional(),
 });
 export type ModularPagesV1 = z.infer<typeof ModularPagesV1Schema>;
+
+/**
+ * CMS block instance (Phase 1). `type` must be an `AdminSectionKey` listed in
+ * `SECTION_CONTRACTS`; `data` holds section-local payload (per-type Zod in later phases).
+ */
+export const PageBlockInstanceV1Schema = z.object({
+  id: z.string().min(1),
+  type: z.string().min(1),
+  isVisible: z.boolean().optional().default(true),
+  data: z.record(z.string(), z.unknown()).optional().default({}),
+});
+export type PageBlockInstanceV1 = z.infer<typeof PageBlockInstanceV1Schema>;
+
+/** Optional arrays per page id — all keys optional (partial page graph). */
+export const PageBlocksV1Schema = z.object({
+  home: z.array(PageBlockInstanceV1Schema).optional(),
+  services: z.array(PageBlockInstanceV1Schema).optional(),
+  gallery: z.array(PageBlockInstanceV1Schema).optional(),
+  about: z.array(PageBlockInstanceV1Schema).optional(),
+  contact: z.array(PageBlockInstanceV1Schema).optional(),
+});
+export type PageBlocksV1 = z.infer<typeof PageBlocksV1Schema>;
 
 /** Tenant-owned named palette; referenced by `brand.themePresetId` as `custom:<id>`. */
 export const TenantCustomThemeSchema = z.object({
@@ -665,7 +688,20 @@ export const SiteContentSchema = z.object({
    * Shared/global admin (SEO, Skripte, …) stays on legacy top-level keys.
    */
   modularPagesV1: ModularPagesV1Schema.optional(),
-}).passthrough();
+
+  /**
+   * CMS page composition (Phase 1+). Ordered block instances per page key.
+   * Structural + singleton rules validated in `page-blocks-v1-validate.ts`.
+   */
+  pageBlocksV1: PageBlocksV1Schema.optional(),
+})
+  .passthrough()
+  .superRefine((data, ctx) => {
+    const issues = collectPageBlocksV1Issues(data.pageBlocksV1);
+    for (const msg of issues) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: msg, path: ['pageBlocksV1'] });
+    }
+  });
 // `.passthrough()` keeps rare forward-compatible keys intact; drift coverage
 // requires every `SECTION_CONTRACTS` dataKey root to exist in this Zod object.
 

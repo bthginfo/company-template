@@ -145,7 +145,7 @@ function mergeTradesmanHomeSupplements(content: SiteContent, sections: ModularSe
     if (sec.isVisible === false) continue;
     const d = sec.data ?? {};
     if (sec.type === 'stickyEmergencyBanner') {
-      next = mergeStickyEmergency(next, d);
+      next = mergeStickyEmergency(next, { ...(d as Record<string, unknown>), isVisible: true });
     } else if (sec.type === 'fundingCalculator') {
       next = mergeFundingCalculator(next, d as Record<string, unknown>);
     } else if (sec.type === 'featuredServices' || sec.type === 'serviceCards' || sec.type === 'serviceList') {
@@ -230,7 +230,7 @@ function mergeTradesmanServicesIntoLegacy(content: SiteContent, sections: Modula
         next = mergeHeroToPageHeader(next, d as Record<string, unknown>, 'servicesHeader', 'servicesPageImageUrl');
         break;
       case 'stickyEmergencyBanner':
-        next = mergeStickyEmergency(next, d as Record<string, unknown>);
+        next = mergeStickyEmergency(next, { ...(d as Record<string, unknown>), isVisible: true });
         break;
       case 'highlightsBar': {
         const raw = (d as { items?: unknown }).items;

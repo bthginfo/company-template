@@ -16,7 +16,7 @@ import { isSectionEnabled, getEffectivePageOrder, type PageId as LayoutPageId } 
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
-import { resolveLayoutSlotOrder } from '@/lib/page-blocks-v1-slot-order';
+import { buildSlotRenderInstructions, siteContentForSlotInstruction } from '@/lib/page-blocks-v1-render-sequence';
 import type { PageKey } from '@/admin/admin-sections';
 import { getBranchConfig } from '@/lib/branch-config';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
@@ -1035,113 +1035,138 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
   style: ExtraStyle;
   eyebrow: string;
 }) {
-  const content = mergePageBlocksIntoSiteContentForPage(initialContent, page);
-  const ho = pageHeaderOverride(content, PAGE_HEADER_KEY[page]);
+  const mergedFull = mergePageBlocksIntoSiteContentForPage(initialContent, page);
+  const contentBase = initialContent;
+  const ho = pageHeaderOverride(mergedFull, PAGE_HEADER_KEY[page]);
   const title = ho?.title || PAGE_TITLES[page];
   const heroEyebrow = ho?.eyebrow || eyebrow;
   const heroSubtitle = ho?.subtitle || '';
   const cfg = getBranchConfig(branch);
   const pageKey = page as LayoutPageId;
-  const legacySubpageOrder = extraSubpageOrder(content, pageKey, branch);
+  const legacySubpageOrder = extraSubpageOrder(mergedFull, pageKey, branch);
 
   if (page === 'services') {
-    const blocks: Record<string, React.ReactNode> = {
-      highlights: <ExtraServicesHighlightsRibbon content={content} />,
-      list: <ExtraLeistungenServiceCards content={content} branch={branch} style={style} />,
-      process: <BranchSpotlight branch={branch} style={style} content={content} />,
-      module: <BranchModulesInline variant={branch} content={content} />,
-      testimonials: <ExtraServicesTestimonialsBand content={content} branch={branch} style={style} />,
-      gallery: <ExtraServicesGalleryTeaser content={content} branch={branch} />,
-      faq: <ExtraFaqSection branch={branch} content={content} />,
-      cta: <ExtraSubpageCta content={content} page="services" />,
-    };
-    const order = resolveLayoutSlotOrder({
+    function buildBlocks(slice: SiteContent): Record<string, React.ReactNode> {
+      return {
+        highlights: <ExtraServicesHighlightsRibbon content={slice} />,
+        list: <ExtraLeistungenServiceCards content={slice} branch={branch} style={style} />,
+        process: <BranchSpotlight branch={branch} style={style} content={slice} />,
+        module: <BranchModulesInline variant={branch} content={slice} />,
+        testimonials: <ExtraServicesTestimonialsBand content={slice} branch={branch} style={style} />,
+        gallery: <ExtraServicesGalleryTeaser content={slice} branch={branch} />,
+        faq: <ExtraFaqSection branch={branch} content={slice} />,
+        cta: <ExtraSubpageCta content={slice} page="services" />,
+      };
+    }
+    const blocksMerged = buildBlocks(mergedFull);
+    const instructions = buildSlotRenderInstructions({
       page: pageKey as PageKey,
-      content,
+      contentBase,
+      mergedFull,
       legacyOrder: legacySubpageOrder,
-      availableSlots: new Set(Object.keys(blocks)),
+      availableSlots: new Set(Object.keys(blocksMerged)),
     });
     return (
       <>
         <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-        {order.map((k, i) => (
-          <Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</Fragment>
-        ))}
+        {instructions.map((instr) => {
+          const slice = siteContentForSlotInstruction(contentBase, mergedFull, pageKey as PageKey, instr);
+          const blocks = buildBlocks(slice);
+          return <Fragment key={instr.key}>{blocks[instr.slot] ?? null}</Fragment>;
+        })}
       </>
     );
   }
 
   if (page === 'gallery') {
-    const blocks: Record<string, React.ReactNode> = {
-      story: <ExtraGalleryStorySection branch={branch} content={content} />,
-      grid: <ExtraGalleryGridSection content={content} />,
-      categories: <ExtraGalleryCategoriesSection branch={branch} content={content} />,
-      testimonials: <ExtraGalleryTestimonials content={content} branch={branch} />,
-      cta: <ExtraSubpageCta content={content} page="gallery" />,
-    };
-    const order = resolveLayoutSlotOrder({
+    function buildBlocks(slice: SiteContent): Record<string, React.ReactNode> {
+      return {
+        story: <ExtraGalleryStorySection branch={branch} content={slice} />,
+        grid: <ExtraGalleryGridSection content={slice} />,
+        categories: <ExtraGalleryCategoriesSection branch={branch} content={slice} />,
+        testimonials: <ExtraGalleryTestimonials content={slice} branch={branch} />,
+        cta: <ExtraSubpageCta content={slice} page="gallery" />,
+      };
+    }
+    const blocksMerged = buildBlocks(mergedFull);
+    const instructions = buildSlotRenderInstructions({
       page: pageKey as PageKey,
-      content,
+      contentBase,
+      mergedFull,
       legacyOrder: legacySubpageOrder,
-      availableSlots: new Set(Object.keys(blocks)),
+      availableSlots: new Set(Object.keys(blocksMerged)),
     });
     return (
       <>
         <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-        {order.map((k, i) => (
-          <Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</Fragment>
-        ))}
+        {instructions.map((instr) => {
+          const slice = siteContentForSlotInstruction(contentBase, mergedFull, pageKey as PageKey, instr);
+          const blocks = buildBlocks(slice);
+          return <Fragment key={instr.key}>{blocks[instr.slot] ?? null}</Fragment>;
+        })}
       </>
     );
   }
 
   if (page === 'about') {
-    const blocks: Record<string, React.ReactNode> = {
-      intro: <ExtraAboutIntroBlock content={content} branch={branch} />,
-      values: <ExtraAboutValuesBlock content={content} branch={branch} />,
-      team: <BranchTeam branch={branch} style={style} content={content} suppressMedicalWhenNamedDoctors={false} />,
-      timeline: <Timeline content={content} />,
-      numbers: <ExtraAboutNumbersBand content={content} />,
-      testimonials: <ExtraAboutTestimonialsBlock content={content} branch={branch} />,
-      faq: <ExtraFaqSection branch={branch} content={content} />,
-      cta: <ExtraSubpageCta content={content} page="about" />,
-    };
-    const order = resolveLayoutSlotOrder({
+    function buildBlocks(slice: SiteContent): Record<string, React.ReactNode> {
+      return {
+        intro: <ExtraAboutIntroBlock content={slice} branch={branch} />,
+        values: <ExtraAboutValuesBlock content={slice} branch={branch} />,
+        team: <BranchTeam branch={branch} style={style} content={slice} suppressMedicalWhenNamedDoctors={false} />,
+        timeline: <Timeline content={slice} />,
+        numbers: <ExtraAboutNumbersBand content={slice} />,
+        testimonials: <ExtraAboutTestimonialsBlock content={slice} branch={branch} />,
+        faq: <ExtraFaqSection branch={branch} content={slice} />,
+        cta: <ExtraSubpageCta content={slice} page="about" />,
+      };
+    }
+    const blocksMerged = buildBlocks(mergedFull);
+    const instructions = buildSlotRenderInstructions({
       page: pageKey as PageKey,
-      content,
+      contentBase,
+      mergedFull,
       legacyOrder: legacySubpageOrder,
-      availableSlots: new Set(Object.keys(blocks)),
+      availableSlots: new Set(Object.keys(blocksMerged)),
     });
     return (
       <>
         <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-        {order.map((k, i) => (
-          <Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</Fragment>
-        ))}
+        {instructions.map((instr) => {
+          const slice = siteContentForSlotInstruction(contentBase, mergedFull, pageKey as PageKey, instr);
+          const blocks = buildBlocks(slice);
+          return <Fragment key={instr.key}>{blocks[instr.slot] ?? null}</Fragment>;
+        })}
       </>
     );
   }
 
   /* contact */
-  const blocks: Record<string, React.ReactNode> = {
-    block: <ContactBlock content={content} showForm={cfg.contact.showForm} showMap />,
-    locations: <LocationsBlock content={content} />,
-    arrival: <ExtraArrivalSection content={content} />,
-    faq: <ExtraFaqSection branch={branch} content={content} />,
-    cta: <ExtraSubpageCta content={content} page="contact" />,
-  };
-  const order = resolveLayoutSlotOrder({
+  function buildBlocks(slice: SiteContent): Record<string, React.ReactNode> {
+    return {
+      block: <ContactBlock content={slice} showForm={cfg.contact.showForm} showMap />,
+      locations: <LocationsBlock content={slice} />,
+      arrival: <ExtraArrivalSection content={slice} />,
+      faq: <ExtraFaqSection branch={branch} content={slice} />,
+      cta: <ExtraSubpageCta content={slice} page="contact" />,
+    };
+  }
+  const blocksMerged = buildBlocks(mergedFull);
+  const instructions = buildSlotRenderInstructions({
     page: pageKey as PageKey,
-    content,
+    contentBase,
+    mergedFull,
     legacyOrder: legacySubpageOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots: new Set(Object.keys(blocksMerged)),
   });
   return (
     <>
       <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
-      {order.map((k, i) => (
-        <Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</Fragment>
-      ))}
+      {instructions.map((instr) => {
+        const slice = siteContentForSlotInstruction(contentBase, mergedFull, pageKey as PageKey, instr);
+        const blocks = buildBlocks(slice);
+        return <Fragment key={instr.key}>{blocks[instr.slot] ?? null}</Fragment>;
+      })}
     </>
   );
 }
@@ -1150,31 +1175,33 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
  *  CLASSIC — editorial, centered, parallax about, varied gallery
  * ──────────────────────────────────────────────────────────────────── */
 function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
-  const content = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
-  const bt = effectiveBranchText(branch, content);
-  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, branch, 'classic');
-  const homeT = meaningfulTestimonials(content.testimonials);
+  const mergedFull = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
+  const contentBase = initialContent;
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(mergedFull, branch, 'classic');
 
-  const blocks: Record<string, JSX.Element | null> = {
-    action: <ExtraHomeActionStrip content={content} />,
-    chips: <BranchHeroBadges branch={branch} style="classic" content={content} />,
-    about: content.about ? (
+  function buildBlocks(slice: SiteContent): Record<string, JSX.Element | null> {
+    const bt = effectiveBranchText(branch, slice);
+    const homeT = meaningfulTestimonials(slice.testimonials);
+    return {
+      action: <ExtraHomeActionStrip content={slice} />,
+      chips: <BranchHeroBadges branch={branch} style="classic" content={slice} />,
+      about: slice.about ? (
       <section id="about" className="py-24 md:py-32 surface">
         <div className="container-x grid md:grid-cols-12 gap-10 items-center">
           <div className="md:col-span-5 reveal">
-            <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5]" />
+            <ParallaxImage src={slice.about.imageUrl || slice.gallery[0]} alt={slice.brand.name} className="rounded-3xl aspect-[4/5]" />
           </div>
           <div className="md:col-span-7 reveal">
             <p className="eyebrow mb-5">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
-            <h2 className="headline-lg">{content.about.title}</h2>
+            <h2 className="headline-lg">{slice.about.title}</h2>
             <div className="mt-8 text-lg text-muted leading-relaxed space-y-5 max-w-2xl">
-              {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+              {slice.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
             </div>
           </div>
         </div>
       </section>
     ) : null,
-    services: content.services.length > 0 ? (
+    services: slice.services.length > 0 ? (
       <section id="leistungen" className="py-24 md:py-32">
         <div className="container-x">
           <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
@@ -1187,7 +1214,7 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-            {content.services.map((s, i) => {
+            {slice.services.map((s, i) => {
               const dHref = serviceDetailHref(branch, s);
               return (
                 <article key={i} className="bg-white border border-line rounded-3xl overflow-hidden hover-lift group">
@@ -1222,10 +1249,10 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
         </div>
       </section>
     ) : null,
-    spotlight: <BranchSpotlight branch={branch} style="classic" content={content} />,
-    branchModules: <BranchModulesInline variant={branch} content={content} />,
-    team: <BranchTeam branch={branch} style="classic" content={content} />,
-    gallery: content.gallery.length > 0 ? (
+    spotlight: <BranchSpotlight branch={branch} style="classic" content={slice} />,
+    branchModules: <BranchModulesInline variant={branch} content={slice} />,
+    team: <BranchTeam branch={branch} style="classic" content={slice} />,
+    gallery: slice.gallery.length > 0 ? (
       <section id="galerie" className="py-24 md:py-32 surface">
         <div className="container-x">
           <div className="mb-12 reveal">
@@ -1233,7 +1260,7 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
             <h2 className="headline-lg">{bt.galleryTeaserTitle || <>Bilder aus<br /><em className="italic-pop">unserem Alltag.</em></>}</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 reveal-stagger">
-            {content.gallery.map((src, i) => {
+            {slice.gallery.map((src, i) => {
               const aspects = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[4/5]', 'aspect-[3/4]', 'aspect-[1/1]'];
               return (
                 <figure key={i} className={`overflow-hidden rounded-3xl img-zoom ${aspects[i % aspects.length]}`}>
@@ -1261,41 +1288,44 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
         </div>
       </section>
     ) : null,
-    numbers: <ExtraHomeNumbersBand content={content} />,
-    faq: <ExtraFaqSection branch={branch} content={content} />,
-    logos: <ExtraHomeLogosStrip content={content} branch={branch} />,
-    news: <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
-    softCta: <ExtraHomeSoftCta branch={branch} content={content} layoutStyle="classic" />,
-    contact: <ContactSection content={content} variant="classic" />,
-  };
+    numbers: <ExtraHomeNumbersBand content={slice} />,
+    faq: <ExtraFaqSection branch={branch} content={slice} />,
+    logos: <ExtraHomeLogosStrip content={slice} branch={branch} />,
+    news: <NewsPreview content={slice} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
+    softCta: <ExtraHomeSoftCta branch={branch} content={slice} layoutStyle="classic" />,
+    contact: <ContactSection content={slice} variant="classic" />,
+    };
+  }
 
-  const order = resolveLayoutSlotOrder({
+  const blocksMerged = buildBlocks(mergedFull);
+  const instructions = buildSlotRenderInstructions({
     page: 'home',
-    content,
+    contentBase,
+    mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots: new Set(Object.keys(blocksMerged)),
   });
 
-  const cta = resolveHeroCta(content);
+  const cta = resolveHeroCta(mergedFull);
 
   return (
     <>
       {/* Hero — always first */}
       <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          {content.hero.imageUrl && (
-            <img src={content.hero.imageUrl} alt="" className="w-full h-full object-cover opacity-30" loading="eager" />
+          {mergedFull.hero.imageUrl && (
+            <img src={mergedFull.hero.imageUrl} alt="" className="w-full h-full object-cover opacity-30" loading="eager" />
           )}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--bg-color) 0%, color-mix(in oklab, var(--bg-color), transparent 25%) 40%, var(--bg-color) 100%)' }} />
         </div>
         <div className="container-x">
-          <ExtraAnnouncementsRibbon content={content} />
+          <ExtraAnnouncementsRibbon content={mergedFull} />
           {eyebrow && <p className="eyebrow mb-6 reveal">{eyebrow}</p>}
-          <h1 className="headline-xl max-w-5xl reveal"><SplitText>{content.hero.title}</SplitText></h1>
-          <p className="mt-8 text-lg md:text-2xl text-muted max-w-3xl reveal">{content.hero.subtitle}</p>
-          {heroBodyParagraphs(content).length > 0 && (
+          <h1 className="headline-xl max-w-5xl reveal"><SplitText>{mergedFull.hero.title}</SplitText></h1>
+          <p className="mt-8 text-lg md:text-2xl text-muted max-w-3xl reveal">{mergedFull.hero.subtitle}</p>
+          {heroBodyParagraphs(mergedFull).length > 0 && (
             <div className="mt-6 max-w-3xl text-base md:text-lg text-muted leading-relaxed space-y-4 reveal">
-              {heroBodyParagraphs(content).map((p, i) => (
+              {heroBodyParagraphs(mergedFull).map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
             </div>
@@ -1309,9 +1339,11 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
         </div>
       </section>
       {/* Ordered sections */}
-      {order.map((key, i) => (
-        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
-      ))}
+      {instructions.map((instr) => {
+        const slice = siteContentForSlotInstruction(contentBase, mergedFull, 'home', instr);
+        const blocks = buildBlocks(slice);
+        return <React.Fragment key={instr.key}>{blocks[instr.slot]}</React.Fragment>;
+      })}
     </>
   );
 }
@@ -1321,49 +1353,52 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
  *  uniform gallery grid, two-column contact with form-style sidebar
  * ──────────────────────────────────────────────────────────────────── */
 function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
-  const content = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
-  const bt = effectiveBranchText(branch, content);
-  const homeT = meaningfulTestimonials(content.testimonials);
-  const numbersOverlay = (content as any).numbers as Array<{ value: string; label: string }> | undefined;
+  const mergedFull = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
+  const contentBase = initialContent;
+  const homeTForHero = meaningfulTestimonials(mergedFull.testimonials);
+  const numbersOverlay = (mergedFull as any).numbers as Array<{ value: string; label: string }> | undefined;
   const stats = numbersOverlay && numbersOverlay.length >= 3
     ? numbersOverlay.slice(0, 3).map((n) => {
         const m = /^([\d.,]+)(.*)$/.exec(n.value.trim());
         return { value: m ? parseInt(m[1].replace(/\D/g, ''), 10) || 0 : 0, suffix: m ? m[2] : '', label: n.label };
       })
     : [
-        { value: homeT.length || 50, suffix: '+', label: 'Kund:innen' },
-        { value: content.services.length || 6, suffix: '', label: 'Leistungen' },
+        { value: homeTForHero.length || 50, suffix: '+', label: 'Kund:innen' },
+        { value: mergedFull.services.length || 6, suffix: '', label: 'Leistungen' },
         { value: 24, suffix: 'h', label: 'Antwortzeit' },
       ];
-  const heroBadge = ((content as any).heroBadge ?? {}) as { text?: string; label?: string };
+  const heroBadge = ((mergedFull as any).heroBadge ?? {}) as { text?: string; label?: string };
   const badgeText = (heroBadge.text && heroBadge.text.trim()) || '4,9 / 5,0';
   const badgeLabel = (heroBadge.label && heroBadge.label.trim()) || 'Google Bewertung';
-  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, branch, 'modern');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(mergedFull, branch, 'modern');
 
-  const blocks: Record<string, JSX.Element | null> = {
-    action: <ExtraHomeActionStrip content={content} />,
-    chips: <BranchHeroBadges branch={branch} style="modern" content={content} />,
-    about: content.about ? (
+  function buildBlocks(slice: SiteContent): Record<string, JSX.Element | null> {
+    const bt = effectiveBranchText(branch, slice);
+    const homeT = meaningfulTestimonials(slice.testimonials);
+    return {
+    action: <ExtraHomeActionStrip content={slice} />,
+    chips: <BranchHeroBadges branch={branch} style="modern" content={slice} />,
+    about: slice.about ? (
       <section id="about" className="py-24 md:py-32 surface">
         <div className="container-x grid lg:grid-cols-12 gap-10">
           <aside className="lg:col-span-4 reveal">
             <div className="lg:sticky lg:top-28">
               <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.aboutTeaserEyebrow || 'Über uns'}</p>
-              <h2 className="font-display text-4xl md:text-5xl leading-tight">{content.about.title}</h2>
-              {content.about.imageUrl && (
+              <h2 className="font-display text-4xl md:text-5xl leading-tight">{slice.about.title}</h2>
+              {slice.about.imageUrl && (
                 <div className="mt-8 aspect-[4/3] rounded-2xl overflow-hidden border border-line">
-                  <img src={content.about.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={slice.about.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
                 </div>
               )}
             </div>
           </aside>
           <div className="lg:col-span-7 lg:col-start-6 reveal space-y-6 text-lg leading-relaxed text-muted">
-            {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+            {slice.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
           </div>
         </div>
       </section>
     ) : null,
-    services: content.services.length > 0 ? (
+    services: slice.services.length > 0 ? (
       <section id="leistungen" className="py-24 md:py-32">
         <div className="container-x">
           <div className="max-w-2xl reveal mb-16">
@@ -1372,7 +1407,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
             <p className="mt-4 text-lg text-muted">{bt.teaserSubtitle || 'Klar definierte Pakete – keine versteckten Kosten.'}</p>
           </div>
           <div className="grid md:grid-cols-2 gap-4 reveal-stagger">
-            {content.services.map((s, i) => {
+            {slice.services.map((s, i) => {
               const dHref = serviceDetailHref(branch, s);
               return (
                 <article key={i} className="group bg-white border border-line rounded-2xl p-6 md:p-8 hover:shadow-xl hover:-translate-y-1 transition-all">
@@ -1406,10 +1441,10 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
         </div>
       </section>
     ) : null,
-    spotlight: <BranchSpotlight branch={branch} style="modern" content={content} />,
-    branchModules: <BranchModulesInline variant={branch} content={content} />,
-    team: <BranchTeam branch={branch} style="modern" content={content} />,
-    gallery: content.gallery.length > 0 ? (
+    spotlight: <BranchSpotlight branch={branch} style="modern" content={slice} />,
+    branchModules: <BranchModulesInline variant={branch} content={slice} />,
+    team: <BranchTeam branch={branch} style="modern" content={slice} />,
+    gallery: slice.gallery.length > 0 ? (
       <section id="galerie" className="py-24 md:py-32 surface">
         <div className="container-x">
           <div className="flex items-end justify-between gap-6 mb-12 reveal">
@@ -1420,7 +1455,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
             <p className="text-sm text-muted hidden md:block max-w-xs">Aktuelle Aufnahmen aus unserem Alltag.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 reveal-stagger">
-            {content.gallery.map((src, i) => (
+            {slice.gallery.map((src, i) => (
               <figure key={i} className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-line">
                 <img src={src} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                 <figcaption className="absolute inset-x-0 bottom-0 px-4 py-3 text-[10px] font-mono uppercase tracking-widest text-white bg-gradient-to-t from-black/70 to-transparent">
@@ -1453,22 +1488,25 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
         </div>
       </section>
     ) : null,
-    numbers: <ExtraHomeNumbersBand content={content} />,
-    faq: <ExtraFaqSection branch={branch} content={content} />,
-    logos: <ExtraHomeLogosStrip content={content} branch={branch} />,
-    news: <NewsPreview content={content} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
-    softCta: <ExtraHomeSoftCta branch={branch} content={content} layoutStyle="modern" />,
-    contact: <ContactSection content={content} variant="modern" />,
-  };
+    numbers: <ExtraHomeNumbersBand content={slice} />,
+    faq: <ExtraFaqSection branch={branch} content={slice} />,
+    logos: <ExtraHomeLogosStrip content={slice} branch={branch} />,
+    news: <NewsPreview content={slice} eyebrow={bt.newsEyebrow} title={bt.newsTitle} />,
+    softCta: <ExtraHomeSoftCta branch={branch} content={slice} layoutStyle="modern" />,
+    contact: <ContactSection content={slice} variant="modern" />,
+    };
+  }
 
-  const order = resolveLayoutSlotOrder({
+  const blocksMerged = buildBlocks(mergedFull);
+  const instructions = buildSlotRenderInstructions({
     page: 'home',
-    content,
+    contentBase,
+    mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots: new Set(Object.keys(blocksMerged)),
   });
 
-  const cta = resolveHeroCta(content);
+  const cta = resolveHeroCta(mergedFull);
 
   return (
     <>
@@ -1476,19 +1514,19 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
       <section className="relative pt-32 md:pt-40 pb-20 md:pb-28">
         <div className="container-x grid lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 reveal">
-            <ExtraAnnouncementsRibbon content={content} />
+            <ExtraAnnouncementsRibbon content={mergedFull} />
             {eyebrow && (
               <p className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full bg-[var(--surface-color)] border border-line text-xs font-mono uppercase tracking-widest">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)]" /> {eyebrow}
               </p>
             )}
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
-              {content.hero.title}
+              {mergedFull.hero.title}
             </h1>
-            <p className="mt-6 text-lg md:text-xl text-muted max-w-xl">{content.hero.subtitle}</p>
-            {heroBodyParagraphs(content).length > 0 && (
+            <p className="mt-6 text-lg md:text-xl text-muted max-w-xl">{mergedFull.hero.subtitle}</p>
+            {heroBodyParagraphs(mergedFull).length > 0 && (
               <div className="mt-5 max-w-xl text-base text-muted leading-relaxed space-y-3">
-                {heroBodyParagraphs(content).map((p, i) => (
+                {heroBodyParagraphs(mergedFull).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
@@ -1513,7 +1551,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
           <div className="lg:col-span-5 reveal">
             <div className="relative">
               <div className="aspect-[4/5] rounded-3xl overflow-hidden border border-line shadow-2xl">
-                {content.hero.imageUrl && <img src={content.hero.imageUrl} alt="" className="w-full h-full object-cover" />}
+                {mergedFull.hero.imageUrl && <img src={mergedFull.hero.imageUrl} alt="" className="w-full h-full object-cover" />}
               </div>
               <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl border border-line p-5 max-w-[260px]">
                 <div className="flex items-center gap-3">
@@ -1531,9 +1569,11 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
         </div>
       </section>
       {/* Ordered sections */}
-      {order.map((key, i) => (
-        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
-      ))}
+      {instructions.map((instr) => {
+        const slice = siteContentForSlotInstruction(contentBase, mergedFull, 'home', instr);
+        const blocks = buildBlocks(slice);
+        return <React.Fragment key={instr.key}>{blocks[instr.slot]}</React.Fragment>;
+      })}
     </>
   );
 }
@@ -1542,18 +1582,22 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
  *  BOLD — magazine: oversized type, full-bleed image, masonry, dramatic
  * ──────────────────────────────────────────────────────────────────── */
 function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
-  const content = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
-  const bt = effectiveBranchText(branch, content);
-  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, branch, 'bold');
-  const homeT = meaningfulTestimonials(content.testimonials);
+  const mergedFull = mergePageBlocksIntoSiteContentForPage(initialContent, 'home');
+  const contentBase = initialContent;
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(mergedFull, branch, 'bold');
+  const btHero = effectiveBranchText(branch, mergedFull);
+  const heroEyebrow = btHero.heroEyebrow || eyebrow;
 
-  const blocks: Record<string, JSX.Element | null> = {
-    action: <ExtraHomeActionStrip content={content} />,
-    chips: <BranchHeroBadges branch={branch} style="bold" content={content} />,
+  function buildBlocks(slice: SiteContent): Record<string, JSX.Element | null> {
+    const bt = effectiveBranchText(branch, slice);
+    const homeT = meaningfulTestimonials(slice.testimonials);
+    return {
+    action: <ExtraHomeActionStrip content={slice} />,
+    chips: <BranchHeroBadges branch={branch} style="bold" content={slice} />,
     marquee: (() => {
       const words = (Array.isArray(bt.marqueeWords) && bt.marqueeWords.length > 0)
         ? (bt.marqueeWords as string[])
-        : [content.brand.name];
+        : [slice.brand.name];
       return (
         <div className="border-y border-line py-8 overflow-hidden">
           <div className="flex gap-12 whitespace-nowrap animate-[marquee_25s_linear_infinite] font-display text-4xl md:text-6xl">
@@ -1567,25 +1611,25 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
         </div>
       );
     })(),
-    about: content.about ? (
+    about: slice.about ? (
       <section id="about" className="py-24 md:py-40">
         <div className="container-x grid md:grid-cols-12 gap-10">
           <div className="md:col-span-2 reveal">
             <p className="font-display text-6xl sm:text-7xl md:text-9xl leading-none text-[var(--accent-color)]">01</p>
           </div>
           <div className="md:col-span-10 reveal">
-            <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] mb-10">{content.about.title}</h2>
+            <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] mb-10">{slice.about.title}</h2>
             <div className="grid md:grid-cols-2 gap-8 text-xl md:text-2xl leading-relaxed">
-              {content.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+              {slice.about.body.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
             </div>
-            {content.about.imageUrl && (
-              <img src={content.about.imageUrl} alt="" className="mt-16 w-full aspect-[16/7] object-cover" loading="lazy" />
+            {slice.about.imageUrl && (
+              <img src={slice.about.imageUrl} alt="" className="mt-16 w-full aspect-[16/7] object-cover" loading="lazy" />
             )}
           </div>
         </div>
       </section>
     ) : null,
-    services: content.services.length > 0 ? (
+    services: slice.services.length > 0 ? (
       <section id="leistungen" className="py-24 md:py-40 surface">
         <div className="container-x">
           <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
@@ -1598,7 +1642,7 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
             </div>
           </div>
           <ul className="reveal-stagger">
-            {content.services.map((s, i) => {
+            {slice.services.map((s, i) => {
               const dHref = serviceDetailHref(branch, s);
               return (
                 <li key={i} className="group border-t border-line last:border-b py-8 md:py-12 hover:bg-white/30 transition-colors">
@@ -1621,10 +1665,10 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
         </div>
       </section>
     ) : null,
-    spotlight: <BranchSpotlight branch={branch} style="bold" content={content} />,
-    branchModules: <BranchModulesInline variant={branch} content={content} />,
-    team: <BranchTeam branch={branch} style="bold" content={content} />,
-    gallery: content.gallery.length > 0 ? (
+    spotlight: <BranchSpotlight branch={branch} style="bold" content={slice} />,
+    branchModules: <BranchModulesInline variant={branch} content={slice} />,
+    team: <BranchTeam branch={branch} style="bold" content={slice} />,
+    gallery: slice.gallery.length > 0 ? (
       <section id="galerie" className="py-24 md:py-40">
         <div className="container-x">
           <div className="grid md:grid-cols-12 gap-8 mb-16 reveal">
@@ -1636,7 +1680,7 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
               <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">{bt.galleryTeaserTitle || 'Bilder.'}</h2>
             </div>
           </div>
-          <ExtraMasonry images={content.gallery} />
+          <ExtraMasonry images={slice.gallery} />
         </div>
       </section>
     ) : null,
@@ -1656,46 +1700,48 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
         </div>
       </section>
     ) : null,
-    numbers: <ExtraHomeNumbersBand content={content} />,
-    faq: <ExtraFaqSection branch={branch} content={content} />,
-    logos: <ExtraHomeLogosStrip content={content} branch={branch} />,
-    news: <NewsPreview content={content} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />,
-    softCta: <ExtraHomeSoftCta branch={branch} content={content} layoutStyle="bold" />,
-    contact: <ContactSection content={content} variant="bold" />,
-  };
+    numbers: <ExtraHomeNumbersBand content={slice} />,
+    faq: <ExtraFaqSection branch={branch} content={slice} />,
+    logos: <ExtraHomeLogosStrip content={slice} branch={branch} />,
+    news: <NewsPreview content={slice} eyebrow={bt.newsEyebrow || 'Aktuelles'} title={bt.newsTitle || 'Notizen.'} />,
+    softCta: <ExtraHomeSoftCta branch={branch} content={slice} layoutStyle="bold" />,
+    contact: <ContactSection content={slice} variant="bold" />,
+    };
+  }
 
-  const order = resolveLayoutSlotOrder({
+  const blocksMerged = buildBlocks(mergedFull);
+  const instructions = buildSlotRenderInstructions({
     page: 'home',
-    content,
+    contentBase,
+    mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots: new Set(Object.keys(blocksMerged)),
   });
 
-  const heroEyebrow = bt.heroEyebrow || eyebrow;
-  const cta = resolveHeroCta(content);
+  const cta = resolveHeroCta(mergedFull);
 
   return (
     <>
       {/* Hero — oversized headline overlapping image */}
       <section className="relative pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="container-x">
-          <ExtraAnnouncementsRibbon content={content} />
+          <ExtraAnnouncementsRibbon content={mergedFull} />
           {heroEyebrow && <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-8 reveal">— {heroEyebrow} —</p>}
           <h1 className="font-display text-[clamp(2.5rem,11vw,11rem)] leading-[0.88] md:leading-[0.85] tracking-tight reveal break-words [overflow-wrap:anywhere] [hyphens:auto]">
-            <SplitText>{content.hero.title}</SplitText>
+            <SplitText>{mergedFull.hero.title}</SplitText>
           </h1>
         </div>
-        {content.hero.imageUrl && (
+        {mergedFull.hero.imageUrl && (
           <div className="mt-10 md:mt-16 reveal">
-            <img src={content.hero.imageUrl} alt="" className="w-full aspect-[21/9] object-cover" loading="eager" />
+            <img src={mergedFull.hero.imageUrl} alt="" className="w-full aspect-[21/9] object-cover" loading="eager" />
           </div>
         )}
         <div className="container-x mt-12 grid md:grid-cols-12 gap-8 reveal">
           <div className="md:col-span-7 space-y-5">
-            <p className="text-2xl md:text-3xl leading-tight">{content.hero.subtitle}</p>
-            {heroBodyParagraphs(content).length > 0 && (
+            <p className="text-2xl md:text-3xl leading-tight">{mergedFull.hero.subtitle}</p>
+            {heroBodyParagraphs(mergedFull).length > 0 && (
               <div className="text-lg text-muted leading-relaxed space-y-3 max-w-3xl">
-                {heroBodyParagraphs(content).map((p, i) => (
+                {heroBodyParagraphs(mergedFull).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
@@ -1710,9 +1756,11 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
         </div>
       </section>
       {/* Ordered sections */}
-      {order.map((key, i) => (
-        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
-      ))}
+      {instructions.map((instr) => {
+        const slice = siteContentForSlotInstruction(contentBase, mergedFull, 'home', instr);
+        const blocks = buildBlocks(slice);
+        return <React.Fragment key={instr.key}>{blocks[instr.slot]}</React.Fragment>;
+      })}
     </>
   );
 }

@@ -36,7 +36,7 @@ import { applyMedicalModularOverlay } from '@/lib/modular-medical';
 import { applyFitnessModularOverlay } from '@/lib/modular-fitness';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
-import { resolveLayoutSlotOrder } from '@/lib/page-blocks-v1-slot-order';
+import { buildSlotRenderInstructions, siteContentForSlotInstruction } from '@/lib/page-blocks-v1-render-sequence';
 // Drift coverage (globalLayoutFieldDriftIssues) requires literal sectionOrder in this bundle; values are read via getEffectiveHomeSectionKeys.
 import { BranchSignature } from './BranchSignature';
 import {
@@ -361,9 +361,9 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const modularFirst = withModularSiteContent(content, variant, style);
   const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'home');
-  if (style === 'modern') return <HomePageModern variant={variant} content={resolved} />;
-  if (style === 'bold') return <HomePageBold variant={variant} content={resolved} />;
-  return <HomePageClassic variant={variant} content={resolved} />;
+  if (style === 'modern') return <HomePageModern variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
+  if (style === 'bold') return <HomePageBold variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
+  return <HomePageClassic variant={variant} contentBase={modularFirst} mergedFull={resolved} />;
 }
 
 /** Per-tenant visibility check. Defaults to true when no flag is set. */
@@ -382,258 +382,269 @@ function visibleTestimonials(content: SiteContent) {
   return meaningfulTestimonials(content.testimonials);
 }
 
-function HomePageClassic({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+function HomePageClassic({ variant, contentBase, mergedFull }: { variant: TemplateVariant; contentBase: SiteContent; mergedFull: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const itemLinkPrefix = getBranchConfig(variant).paths.services;
-  const featuredServices = content.services.filter(isMeaningfulServiceCard).slice(0, 3);
-  const featuredGallery = content.gallery.slice(0, 7);
-  const heroMeta = resolveHeroMeta(variant, content);
-  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'classic');
+  const heroMeta = resolveHeroMeta(variant, mergedFull);
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(mergedFull, variant as TemplateKey, 'classic');
 
-  const blocks: Record<string, JSX.Element | null> = {
-    action: <BranchActionStrip variant={variant} content={content} />,
-    signature: <BranchSignature variant={variant} style="classic" content={content} />,
-    numbers: <NumbersBand variant={variant} content={content} />,
-    news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'News & Notizen.'} />,
-    // branch-specific modules
-    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    tours: variant === 'tourism' ? <TourCardsModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    treatments: variant === 'salon' ? <TreatmentListModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    about: content.about?.body ? (
-      <Section
-        eyebrow={effectiveBranchText(variant, content).aboutTeaserEyebrow}
-        title={<>{splitTitle(content.about.title || 'Über uns')}</>}
-        spacing="lg"
-      >
-        <div className="grid lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-5">
-            <ParallaxImage src={content.about.imageUrl || content.gallery[0]} alt={content.brand.name} className="rounded-3xl aspect-[4/5] reveal" />
-          </div>
-          <div className="lg:col-span-7 lg:pt-12">
-            <div className="prose-lite reveal">
-              {(content.about.body || '').split('\n\n').map((p, i) => (
-                <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
-              ))}
+  const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => {
+    const featuredServices = slice.services.filter(isMeaningfulServiceCard).slice(0, 3);
+    const featuredGallery = slice.gallery.slice(0, 7);
+    return {
+      action: <BranchActionStrip variant={variant} content={slice} />,
+      signature: <BranchSignature variant={variant} style="classic" content={slice} />,
+      numbers: <NumbersBand variant={variant} content={slice} />,
+      news: <NewsPreview content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'News & Notizen.'} />,
+      menu: variant === 'restaurant' ? <MenuCategoriesModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      rooms: variant === 'hotel' ? <RoomShowcaseModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      tours: variant === 'tourism' ? <TourCardsModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      treatments: variant === 'salon' ? <TreatmentListModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      funding: variant === 'tradesman' ? <FundingCalculatorModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      about: slice.about?.body ? (
+        <Section
+          eyebrow={effectiveBranchText(variant, slice).aboutTeaserEyebrow}
+          title={<>{splitTitle(slice.about.title || 'Über uns')}</>}
+          spacing="lg"
+        >
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <ParallaxImage src={slice.about.imageUrl || slice.gallery[0]} alt={slice.brand.name} className="rounded-3xl aspect-[4/5] reveal" />
             </div>
-            <TLink to={effectiveBranchText(variant, content).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
+            <div className="lg:col-span-7 lg:pt-12">
+              <div className="prose-lite reveal">
+                {(slice.about.body || '').split('\n\n').map((p, i) => (
+                  <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
+                ))}
+              </div>
+              <TLink to={effectiveBranchText(variant, slice).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText(variant, slice).learnMoreLabel} <span aria-hidden>→</span></TLink>
+            </div>
           </div>
-        </div>
-      </Section>
-    ) : null,
-    services: featuredServices.length > 0 ? (
-      <Section
-        eyebrow={effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}
-        title={<>{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</>}
-        subtitle={subtitleFor(variant, content)}
-        className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
-      >
-        <ClassicServicesGrid services={featuredServices} variant={variant} />
-        <div className="mt-12 reveal">
-          <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>{effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
-        </div>
-      </Section>
-    ) : null,
-    gallery: featuredGallery.length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, content).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, content)} spacing="lg">
-        <GalleryShowcase variant={variant} images={featuredGallery} mode="teaser" />
-        <div className="mt-12 reveal">
-          <TLink to={variant === 'tradesman' ? '/referenzen' : variant === 'hotel' ? '/zimmer' : variant === 'tourism' ? '/touren' : '/galerie'} className="btn-outline">{effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span></TLink>
-        </div>
-      </Section>
-    ) : null,
-    logos: (() => {
-      const overlay = ((content as any).logos as string[] | undefined)?.filter((s) => s && s.trim());
-      const fallback =
-        variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
-        : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
-        : variant === 'hotel' ? ['Falstaff', 'Relais & Châteaux', 'GaultMillau', 'Tripadvisor', 'Booking']
-        : variant === 'tourism' ? ['Tirol Werbung', 'Bergführer-Verband', 'ÖAV', 'GeoPark', 'Slow Tourism']
-        : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA'];
-      const list = overlay && overlay.length ? overlay : fallback;
-      if (!list.length) return null;
-      return (
-        <section className="py-14 border-y border-line">
-          <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
-            {list.map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
+        </Section>
+      ) : null,
+      services: featuredServices.length > 0 ? (
+        <Section
+          eyebrow={effectiveBranchText(variant, slice).servicesTeaserEyebrow || cfg.servicesEyebrow}
+          title={<>{splitTitle(effectiveBranchText(variant, slice).servicesTeaserTitle || cfg.servicesHeadline)}</>}
+          subtitle={subtitleFor(variant, slice)}
+          className={variant === 'tradesman' ? 'bg-brand text-white' : 'surface'}
+        >
+          <ClassicServicesGrid services={featuredServices} variant={variant} />
+          <div className="mt-12 reveal">
+            <TLink to={effectiveBranchText(variant, slice).servicesAllHref || cfg.servicesPath} className={variant === 'tradesman' ? 'btn-accent' : 'btn-primary'}>{effectiveBranchText(variant, slice).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
           </div>
-        </section>
-      );
-    })(),
-    testimonials: visibleTestimonials(content).length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
-        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {visibleTestimonials(content).slice(0, 3).map((t, i) => (
-            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
-              <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
-              <p className="text-lg leading-relaxed">{t.text}</p>
-              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
-            </blockquote>
-          ))}
-        </div>
-      </Section>
-    ) : null,
-    faq: (
-      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)}>
-        <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
-      </Section>
-    ),
+        </Section>
+      ) : null,
+      gallery: featuredGallery.length > 0 ? (
+        <Section eyebrow={effectiveBranchText(variant, slice).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, slice)} spacing="lg">
+          <GalleryShowcase variant={variant} images={featuredGallery} mode="teaser" />
+          <div className="mt-12 reveal">
+            <TLink to={variant === 'tradesman' ? '/referenzen' : variant === 'hotel' ? '/zimmer' : variant === 'tourism' ? '/touren' : '/galerie'} className="btn-outline">{effectiveBranchText(variant, slice).galleryAllLabel} <span aria-hidden>→</span></TLink>
+          </div>
+        </Section>
+      ) : null,
+      logos: (() => {
+        const overlay = ((slice as any).logos as string[] | undefined)?.filter((s) => s && s.trim());
+        const fallback =
+          variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
+          : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
+          : variant === 'hotel' ? ['Falstaff', 'Relais & Châteaux', 'GaultMillau', 'Tripadvisor', 'Booking']
+          : variant === 'tourism' ? ['Tirol Werbung', 'Bergführer-Verband', 'ÖAV', 'GeoPark', 'Slow Tourism']
+          : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA'];
+        const list = overlay && overlay.length ? overlay : fallback;
+        if (!list.length) return null;
+        return (
+          <section className="py-14 border-y border-line">
+            <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+              {list.map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
+            </div>
+          </section>
+        );
+      })(),
+      testimonials: visibleTestimonials(slice).length > 0 ? (
+        <Section eyebrow={effectiveBranchText(variant, slice).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, slice).testimonialsTitle)} className="surface">
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {visibleTestimonials(slice).slice(0, 3).map((t, i) => (
+              <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+                <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+                <p className="text-lg leading-relaxed">{t.text}</p>
+                <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+              </blockquote>
+            ))}
+          </div>
+        </Section>
+      ) : null,
+      faq: (
+        <Section eyebrow={effectiveBranchText(variant, slice).faqEyebrow} title={splitTitle(effectiveBranchText(variant, slice).faqTitle)}>
+          <Accordion items={resolveFaq(variant, slice).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+        </Section>
+      ),
+    };
   };
 
-  const order = resolveLayoutSlotOrder({
+  const blocksAtFull = buildBlocks(mergedFull);
+  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const instructions = buildSlotRenderInstructions({
     page: 'home',
-    content,
+    contentBase,
+    mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots,
   });
 
   return (
     <>
-      <Hero content={content} meta={heroMeta} />
-      {order.map((key, i) => (
-        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
-      ))}
-      {isSectionVisible(content, 'softCta') && <CtaBand variant={variant} content={content} />}
+      <Hero content={mergedFull} meta={heroMeta} />
+      {instructions.map((row) => {
+        const slice = siteContentForSlotInstruction(contentBase, mergedFull, 'home', row);
+        const node = buildBlocks(slice)[row.slot];
+        return <React.Fragment key={row.key}>{node}</React.Fragment>;
+      })}
+      {isSectionVisible(mergedFull, 'softCta') && <CtaBand variant={variant} content={mergedFull} />}
     </>
   );
 }
 
 /* ─── Home: Modern (SaaS-clean) ──────────────────────────────────── */
-function HomePageModern({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+function HomePageModern({ variant, contentBase, mergedFull }: { variant: TemplateVariant; contentBase: SiteContent; mergedFull: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const itemLinkPrefix = getBranchConfig(variant).paths.services;
-  const featuredServices = content.services.filter(isMeaningfulServiceCard).slice(0, 6);
-  const featuredGallery = content.gallery.slice(0, 6);
-  const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.gallery[0] || content.about?.imageUrl;
-  const meta = resolveHeroMeta(variant, content);
+  const heroImg = effectiveBranchText(variant, mergedFull).heroImageUrl || mergedFull.gallery[0] || mergedFull.about?.imageUrl;
+  const meta = resolveHeroMeta(variant, mergedFull);
 
-  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'modern');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(mergedFull, variant as TemplateKey, 'modern');
 
-  const blocks: Record<string, JSX.Element | null> = {
-    action: <BranchActionStrip variant={variant} content={content} />,
-    signature: <BranchSignature variant={variant} style="modern" content={content} />,
-    numbers: <NumbersBand variant={variant} content={content} />,
-    news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'News & Notizen.'} />,
-    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    tours: variant === 'tourism' ? <TourCardsModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    treatments: variant === 'salon' ? <TreatmentListModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    services: featuredServices.length > 0 ? (
-      <SpotlightSection as="div" color="rgba(242,65,113,0.16)" size={620} className="surface">
-        <Section eyebrow={effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow} title={<>{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, content)}>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
-            {featuredServices.map((s, i) => (
-              <Tilt3DCard key={i} max={5} className="rounded-2xl">
-                <article className="bg-white border border-line rounded-2xl overflow-hidden hover-lift h-full flex flex-col">
-                  {s.imageUrl ? (
-                    <div className="aspect-[16/10] overflow-hidden">
-                      <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+  const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => {
+    const featuredServices = slice.services.filter(isMeaningfulServiceCard).slice(0, 6);
+    const featuredGallery = slice.gallery.slice(0, 6);
+    return {
+      action: <BranchActionStrip variant={variant} content={slice} />,
+      signature: <BranchSignature variant={variant} style="modern" content={slice} />,
+      numbers: <NumbersBand variant={variant} content={slice} />,
+      news: <NewsPreview content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'News & Notizen.'} />,
+      menu: variant === 'restaurant' ? <MenuCategoriesModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      rooms: variant === 'hotel' ? <RoomShowcaseModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      tours: variant === 'tourism' ? <TourCardsModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      treatments: variant === 'salon' ? <TreatmentListModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      funding: variant === 'tradesman' ? <FundingCalculatorModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      services: featuredServices.length > 0 ? (
+        <SpotlightSection as="div" color="rgba(242,65,113,0.16)" size={620} className="surface">
+          <Section eyebrow={effectiveBranchText(variant, slice).servicesTeaserEyebrow || cfg.servicesEyebrow} title={<>{splitTitle(effectiveBranchText(variant, slice).servicesTeaserTitle || cfg.servicesHeadline)}</>} subtitle={subtitleFor(variant, slice)}>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-stagger">
+              {featuredServices.map((s, i) => (
+                <Tilt3DCard key={i} max={5} className="rounded-2xl">
+                  <article className="bg-white border border-line rounded-2xl overflow-hidden hover-lift h-full flex flex-col">
+                    {s.imageUrl ? (
+                      <div className="aspect-[16/10] overflow-hidden">
+                        <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                      </div>
+                    ) : null}
+                    <div className="p-7 flex-1">
+                      <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
+                        <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
+                      </div>
+                      <h3 className="font-display text-xl mt-5">{s.title}</h3>
+                      {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
+                      {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
                     </div>
-                  ) : null}
-                  <div className="p-7 flex-1">
-                    <div className="h-10 w-10 rounded-xl bg-[var(--accent-color)]/15 grid place-items-center text-brand">
-                      <span className="font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
-                    </div>
-                    <h3 className="font-display text-xl mt-5">{s.title}</h3>
-                    {s.description && <p className="mt-3 text-sm text-muted leading-relaxed">{s.description}</p>}
-                    {s.price && <p className="mt-4 font-mono text-xs text-brand">{s.price}</p>}
-                  </div>
-                </article>
-              </Tilt3DCard>
-            ))}
-          </div>
-          <div className="mt-12 reveal">
-            <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className="btn-primary">{effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
+                  </article>
+                </Tilt3DCard>
+              ))}
+            </div>
+            <div className="mt-12 reveal">
+              <TLink to={effectiveBranchText(variant, slice).servicesAllHref || cfg.servicesPath} className="btn-primary">{effectiveBranchText(variant, slice).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
+            </div>
+          </Section>
+        </SpotlightSection>
+      ) : null,
+      logos: (() => {
+        const overlay = ((slice as any).logos as string[] | undefined)?.filter((s) => s && s.trim());
+        const fallback =
+          variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
+          : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
+          : variant === 'hotel' ? ['Falstaff', 'Relais & Châteaux', 'GaultMillau', 'Tripadvisor', 'Booking']
+          : variant === 'tourism' ? ['Tirol Werbung', 'Bergführer-Verband', 'ÖAV', 'GeoPark', 'Slow Tourism']
+          : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA'];
+        const list = overlay && overlay.length ? overlay : fallback;
+        if (!list.length) return null;
+        return (
+          <section className="py-14 border-y border-line">
+            <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
+              {list.map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
+            </div>
+          </section>
+        );
+      })(),
+      about: slice.about?.body ? (
+        <Section eyebrow={effectiveBranchText(variant, slice).aboutTeaserEyebrow || 'Über uns'} title={<>{splitTitle(slice.about.title || 'Über uns')}</>}>
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            <div className="prose-lite reveal">
+              {(slice.about.body || '').split('\n\n').slice(0, 2).map((p, i) => (
+                <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
+              ))}
+              <TLink to={effectiveBranchText(variant, slice).learnMoreHref || '/ueber-uns'} className="btn-outline mt-2">{effectiveBranchText(variant, slice).learnMoreLabel} <span aria-hidden>→</span></TLink>
+            </div>
+            {slice.about.imageUrl && (
+              <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3] reveal">
+                <img src={slice.about.imageUrl} alt={slice.about.title || slice.brand.name} className="w-full h-full object-cover" loading="lazy" />
+              </div>
+            )}
           </div>
         </Section>
-      </SpotlightSection>
-    ) : null,
-    logos: (() => {
-      const overlay = ((content as any).logos as string[] | undefined)?.filter((s) => s && s.trim());
-      const fallback =
-        variant === 'restaurant' ? ['Falstaff', 'Tageszeitung', 'À la Carte', 'Genuss', 'Slow Food']
-        : variant === 'salon' ? ['Kérastase', 'Olaplex', 'Davines', 'Aveda', 'OPI']
-        : variant === 'hotel' ? ['Falstaff', 'Relais & Châteaux', 'GaultMillau', 'Tripadvisor', 'Booking']
-        : variant === 'tourism' ? ['Tirol Werbung', 'Bergführer-Verband', 'ÖAV', 'GeoPark', 'Slow Tourism']
-        : ['HWK', 'Innung', 'KfW Partner', 'Viessmann', 'BAFA'];
-      const list = overlay && overlay.length ? overlay : fallback;
-      if (!list.length) return null;
-      return (
-        <section className="py-14 border-y border-line">
-          <div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">
-            {list.map((n) => (<span key={n} className="font-display text-2xl tracking-wide">{n}</span>))}
-          </div>
-        </section>
-      );
-    })(),
-    about: content.about?.body ? (
-      <Section eyebrow={effectiveBranchText(variant, content).aboutTeaserEyebrow || 'Über uns'} title={<>{splitTitle(content.about.title || 'Über uns')}</>}>
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
-          <div className="prose-lite reveal">
-            {(content.about.body || '').split('\n\n').slice(0, 2).map((p, i) => (
-              <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
+      ) : null,
+      gallery: featuredGallery.length > 0 ? (
+        <Section eyebrow={effectiveBranchText(variant, slice).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, slice)} className="surface">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
+            {featuredGallery.map((src, i) => (
+              <div key={i} className="aspect-square overflow-hidden rounded-xl img-zoom">
+                <img src={src} alt={`${slice.brand.name} – Eindruck ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+              </div>
             ))}
-            <TLink to={effectiveBranchText(variant, content).learnMoreHref || '/ueber-uns'} className="btn-outline mt-2">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
           </div>
-          {content.about.imageUrl && (
-            <div className="rounded-2xl overflow-hidden border border-line aspect-[4/3] reveal">
-              <img src={content.about.imageUrl} alt={content.about.title || content.brand.name} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-          )}
-        </div>
-      </Section>
-    ) : null,
-    gallery: featuredGallery.length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, content).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, content)} className="surface">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 reveal-stagger">
-          {featuredGallery.map((src, i) => (
-            <div key={i} className="aspect-square overflow-hidden rounded-xl img-zoom">
-              <img src={src} alt={`${content.brand.name} – Eindruck ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-          ))}
-        </div>
-        <div className="mt-10 reveal">
-          <TLink
-            to={
-              variant === 'tradesman' ? '/referenzen'
-              : variant === 'hotel' ? '/zimmer'
-              : variant === 'tourism' ? '/touren'
-              : '/galerie'
-            }
-            className="btn-outline"
-          >
-            {effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span>
-          </TLink>
-        </div>
-      </Section>
-    ) : null,
-    faq: (
-      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)}>
-        <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
-      </Section>
-    ),
-    testimonials: visibleTestimonials(content).length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, content).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, content).testimonialsTitle)} className="surface">
-        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {visibleTestimonials(content).slice(0, 3).map((t, i) => (
-            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
-              <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
-              <p className="text-lg leading-relaxed">{t.text}</p>
-              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
-            </blockquote>
-          ))}
-        </div>
-      </Section>
-    ) : null,
+          <div className="mt-10 reveal">
+            <TLink
+              to={
+                variant === 'tradesman' ? '/referenzen'
+                : variant === 'hotel' ? '/zimmer'
+                : variant === 'tourism' ? '/touren'
+                : '/galerie'
+              }
+              className="btn-outline"
+            >
+              {effectiveBranchText(variant, slice).galleryAllLabel} <span aria-hidden>→</span>
+            </TLink>
+          </div>
+        </Section>
+      ) : null,
+      faq: (
+        <Section eyebrow={effectiveBranchText(variant, slice).faqEyebrow} title={splitTitle(effectiveBranchText(variant, slice).faqTitle)}>
+          <Accordion items={resolveFaq(variant, slice).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+        </Section>
+      ),
+      testimonials: visibleTestimonials(slice).length > 0 ? (
+        <Section eyebrow={effectiveBranchText(variant, slice).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, slice).testimonialsTitle)} className="surface">
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {visibleTestimonials(slice).slice(0, 3).map((t, i) => (
+              <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+                <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+                <p className="text-lg leading-relaxed">{t.text}</p>
+                <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+              </blockquote>
+            ))}
+          </div>
+        </Section>
+      ) : null,
+    };
   };
 
-  const order = resolveLayoutSlotOrder({
+  const blocksAtFull = buildBlocks(mergedFull);
+  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const instructions = buildSlotRenderInstructions({
     page: 'home',
-    content,
+    contentBase,
+    mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots,
   });
 
   return (
@@ -644,21 +655,21 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
         <AnimatedGridPattern className="text-brand/[0.07]" width={40} height={40} dotSize={1.2} />
         <div className="container-x grid lg:grid-cols-12 gap-12 items-center relative">
           <div className="lg:col-span-6 reveal">
-            <p className="eyebrow mb-5">{content.brand.tagline || 'Willkommen'}</p>
+            <p className="eyebrow mb-5">{mergedFull.brand.tagline || 'Willkommen'}</p>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
-              <TextReveal text={content.hero?.title || ((content.brand.hideName && content.brand.logoUrl) ? '' : (content.brand.name + '.'))} />
-              {content.hero?.subtitle ? (
+              <TextReveal text={mergedFull.hero?.title || ((mergedFull.brand.hideName && mergedFull.brand.logoUrl) ? '' : (mergedFull.brand.name + '.'))} />
+              {mergedFull.hero?.subtitle ? (
                 <>
                   <br />
-                  <span className="text-muted"><TextReveal text={content.hero.subtitle} /></span>
+                  <span className="text-muted"><TextReveal text={mergedFull.hero.subtitle} /></span>
                 </>
               ) : null}
             </h1>
-            <p className="mt-8 text-lg text-muted max-w-xl">{heroBodyFor(variant, content)}</p>
+            <p className="mt-8 text-lg text-muted max-w-xl">{heroBodyFor(variant, mergedFull)}</p>
             {(() => {
-              const hc = (content as any).heroCta as { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string } | undefined;
-              const primaryLabel = hc?.primaryLabel || content.hero.ctaLabel || 'Kontakt aufnehmen';
-              const primaryHref = hc?.primaryHref || content.hero.ctaHref || '/kontakt';
+              const hc = (mergedFull as any).heroCta as { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string } | undefined;
+              const primaryLabel = hc?.primaryLabel || mergedFull.hero.ctaLabel || 'Kontakt aufnehmen';
+              const primaryHref = hc?.primaryHref || mergedFull.hero.ctaHref || '/kontakt';
               const secondaryLabel = hc?.secondaryLabel ?? `${cfg.servicesLabel} ansehen`;
               const secondaryHref = hc?.secondaryHref || cfg.servicesPath;
               return (
@@ -685,7 +696,7 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
                 <div className="relative">
                   <div className="absolute -inset-6 rounded-[2rem] bg-[var(--accent-color)] opacity-25 blur-3xl" aria-hidden />
                   <div className="relative rounded-3xl overflow-hidden border border-line shadow-2xl aspect-[4/5] bg-white">
-                    <img src={heroImg} alt={content.brand.name} className="w-full h-full object-cover" />
+                    <img src={heroImg} alt={mergedFull.brand.name} className="w-full h-full object-cover" />
                   </div>
                 </div>
               </Tilt3DCard>
@@ -693,144 +704,153 @@ function HomePageModern({ variant, content }: { variant: TemplateVariant; conten
           </div>
         </div>
       </section>
-      {order.map((key, i) => (
-        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
-      ))}
-      {isSectionVisible(content, 'softCta') && <SoftCtaBlock variant={variant} content={content} style="modern" />}
+      {instructions.map((row) => {
+        const slice = siteContentForSlotInstruction(contentBase, mergedFull, 'home', row);
+        const node = buildBlocks(slice)[row.slot];
+        return <React.Fragment key={row.key}>{node}</React.Fragment>;
+      })}
+      {isSectionVisible(mergedFull, 'softCta') && <SoftCtaBlock variant={variant} content={mergedFull} style="modern" />}
     </>
   );
 }
 
 /* ─── Home: Bold (magazine/poster) ───────────────────────────────── */
-function HomePageBold({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
+function HomePageBold({ variant, contentBase, mergedFull }: { variant: TemplateVariant; contentBase: SiteContent; mergedFull: SiteContent }) {
   const cfg = NAV_BY_VARIANT[variant];
   const itemLinkPrefix = getBranchConfig(variant).paths.services;
-  const featuredServices = content.services.filter(isMeaningfulServiceCard).slice(0, 8);
-  const featuredGallery = content.gallery.slice(0, 12);
-  const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.hero?.imageUrl || content.gallery[0];
-  const boldTestimonials = visibleTestimonials(content);
+  const heroImg = effectiveBranchText(variant, mergedFull).heroImageUrl || mergedFull.hero?.imageUrl || mergedFull.gallery[0];
 
-  const legacyHomeOrder = getEffectiveHomeSectionKeys(content, variant as TemplateKey, 'bold');
+  const legacyHomeOrder = getEffectiveHomeSectionKeys(mergedFull, variant as TemplateKey, 'bold');
 
-  const blocks: Record<string, JSX.Element | null> = {
-    action: <BranchActionStrip variant={variant} content={content} />,
-    signature: <BranchSignature variant={variant} style="bold" content={content} />,
-    numbers: <NumbersBand variant={variant} content={content} />,
-    news: <NewsPreview content={content} eyebrow={content.branchText?.newsEyebrow || 'Aktuelles'} title={content.branchText?.newsTitle || 'Notizen.'} />,
-    menu: variant === 'restaurant' ? <MenuCategoriesModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    rooms: variant === 'hotel' ? <RoomShowcaseModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    tours: variant === 'tourism' ? <TourCardsModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    treatments: variant === 'salon' ? <TreatmentListModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    funding: variant === 'tradesman' ? <FundingCalculatorModule content={content} itemLinkPrefix={itemLinkPrefix} /> : null,
-    about: (
-      <section className="py-24 md:py-36">
-        <div className="container-x grid md:grid-cols-12 gap-10">
-          <div className="md:col-span-5 md:col-start-2">
-            <p className="eyebrow mb-5 reveal">{effectiveBranchText(variant, content).manifestEyebrow}</p>
-            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] reveal">
-              {splitTitle(content.about?.title || effectiveBranchText(variant, content).manifestTitle)}
-            </h2>
-          </div>
-          <div className="md:col-span-5 md:pt-14 reveal">
-            {(content.about?.body || subtitleFor(variant, content)).split('\n\n').slice(0, 2).map((p, i) => (
-              <p key={i} className="text-lg md:text-xl leading-relaxed mb-5">{p}</p>
-            ))}
-            <TLink to={effectiveBranchText(variant, content).learnMoreHref || '/ueber-uns'} className="link-underline mt-2 inline-flex">{effectiveBranchText(variant, content).learnMoreLabel} <span aria-hidden>→</span></TLink>
-          </div>
-        </div>
-      </section>
-    ),
-    services: featuredServices.length > 0 ? (
-      <section className="py-24 md:py-36 bg-brand text-white">
-        <div className="container-x">
-          <div className="flex flex-col items-start gap-6 mb-16 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="eyebrow mb-4 !text-white/70">{effectiveBranchText(variant, content).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
-              <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(effectiveBranchText(variant, content).servicesTeaserTitle || cfg.servicesHeadline)}</h2>
-            </div>
-            <TLink to={effectiveBranchText(variant, content).servicesAllHref || cfg.servicesPath} className="btn-accent inline-flex">{effectiveBranchText(variant, content).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
-          </div>
-          <ol className="divide-y divide-white/15 reveal-stagger">
-            {featuredServices.map((s, i) => (
-              <li key={i} className="grid md:grid-cols-12 gap-6 py-7 items-baseline group hover:bg-white/5 transition-colors -mx-4 px-4 rounded">
-                <span className="md:col-span-2 font-mono text-xs text-white/50">/ {String(i + 1).padStart(2, '0')}</span>
-                <h3 className="md:col-span-5 font-display text-3xl md:text-4xl">{s.title}</h3>
-                {s.description && <p className="md:col-span-4 text-white/70 text-sm">{s.description}</p>}
-                {s.price && <span className="md:col-span-1 font-mono text-sm md:text-right text-[var(--accent-color)]">{s.price}</span>}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-    ) : null,
-    gallery: featuredGallery.length > 0 ? (
-      <section className="py-24 md:py-36">
-        <div className="container-x">
-          <div className="flex items-end justify-between gap-6 mb-12">
-            <div>
-              <p className="eyebrow mb-4">{effectiveBranchText(variant, content).galleryTeaserEyebrow}</p>
-              <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, content)}</h2>
-            </div>
-            <TLink
-              to={
-                variant === 'tradesman' ? '/referenzen'
-                : variant === 'hotel' ? '/zimmer'
-                : variant === 'tourism' ? '/touren'
-                : '/galerie'
-              }
-              className="link-underline hidden md:inline-flex"
-            >
-              {effectiveBranchText(variant, content).galleryAllLabel} <span aria-hidden>→</span>
-            </TLink>
-          </div>
-          <MasonryGrid images={featuredGallery} />
-        </div>
-      </section>
-    ) : null,
-    testimonials: boldTestimonials.length > 0 ? (
-      <>
-        <div className="py-8 bg-[var(--accent-color)] text-[var(--accent-fg)] border-y border-brand/20">
-          <MarqueeTrack speed={50}>
-            <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap uppercase tracking-tight">
-              <span>Stimmen</span><span className="opacity-50">/</span>
-              <span>Ehrliche Worte</span><span className="opacity-50">/</span>
-              <span>Vertrauen</span><span className="opacity-50">/</span>
-              <span>Stimmen</span><span className="opacity-50">/</span>
-            </span>
-          </MarqueeTrack>
-        </div>
-        <section className="py-24 md:py-36 surface">
+  const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => {
+    const featuredServices = slice.services.filter(isMeaningfulServiceCard).slice(0, 8);
+    const featuredGallery = slice.gallery.slice(0, 12);
+    const boldTestimonials = visibleTestimonials(slice);
+    return {
+      action: <BranchActionStrip variant={variant} content={slice} />,
+      signature: <BranchSignature variant={variant} style="bold" content={slice} />,
+      numbers: <NumbersBand variant={variant} content={slice} />,
+      news: <NewsPreview content={slice} eyebrow={slice.branchText?.newsEyebrow || 'Aktuelles'} title={slice.branchText?.newsTitle || 'Notizen.'} />,
+      menu: variant === 'restaurant' ? <MenuCategoriesModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      rooms: variant === 'hotel' ? <RoomShowcaseModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      tours: variant === 'tourism' ? <TourCardsModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      treatments: variant === 'salon' ? <TreatmentListModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      funding: variant === 'tradesman' ? <FundingCalculatorModule content={slice} itemLinkPrefix={itemLinkPrefix} /> : null,
+      about: (
+        <section className="py-24 md:py-36">
           <div className="container-x grid md:grid-cols-12 gap-10">
-            <div className="md:col-span-7 reveal">
-              <span className="font-display text-[140px] md:text-[200px] leading-[0.6] text-[var(--accent-color)] block">&ldquo;</span>
-              <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{boldTestimonials[0].text}</p>
-              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {boldTestimonials[0].author}</p>
+            <div className="md:col-span-5 md:col-start-2">
+              <p className="eyebrow mb-5 reveal">{effectiveBranchText(variant, slice).manifestEyebrow}</p>
+              <h2 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] reveal">
+                {splitTitle(slice.about?.title || effectiveBranchText(variant, slice).manifestTitle)}
+              </h2>
             </div>
-            <div className="md:col-span-5 space-y-5">
-              {boldTestimonials.slice(1, 4).map((t, i) => (
-                <HardShadowCard key={i} className="bg-white border border-brand rounded-none p-6 reveal" offset={6}>
-                  <p className="text-base leading-relaxed">{t.text}</p>
-                  <footer className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">— {t.author}</footer>
-                </HardShadowCard>
+            <div className="md:col-span-5 md:pt-14 reveal">
+              {(slice.about?.body || subtitleFor(variant, slice)).split('\n\n').slice(0, 2).map((p, i) => (
+                <p key={i} className="text-lg md:text-xl leading-relaxed mb-5">{p}</p>
               ))}
+              <TLink to={effectiveBranchText(variant, slice).learnMoreHref || '/ueber-uns'} className="link-underline mt-2 inline-flex">{effectiveBranchText(variant, slice).learnMoreLabel} <span aria-hidden>→</span></TLink>
             </div>
           </div>
         </section>
-      </>
-    ) : null,
-    faq: (
-      <Section eyebrow={effectiveBranchText(variant, content).faqEyebrow} title={splitTitle(effectiveBranchText(variant, content).faqTitle)}>
-        <Accordion items={resolveFaq(variant, content).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
-      </Section>
-    ),
+      ),
+      services: featuredServices.length > 0 ? (
+        <section className="py-24 md:py-36 bg-brand text-white">
+          <div className="container-x">
+            <div className="flex flex-col items-start gap-6 mb-16 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="eyebrow mb-4 !text-white/70">{effectiveBranchText(variant, slice).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
+                <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{splitTitle(effectiveBranchText(variant, slice).servicesTeaserTitle || cfg.servicesHeadline)}</h2>
+              </div>
+              <TLink to={effectiveBranchText(variant, slice).servicesAllHref || cfg.servicesPath} className="btn-accent inline-flex">{effectiveBranchText(variant, slice).servicesAllLabel || `Alle ${cfg.servicesLabel}`} <span aria-hidden>→</span></TLink>
+            </div>
+            <ol className="divide-y divide-white/15 reveal-stagger">
+              {featuredServices.map((s, i) => (
+                <li key={i} className="grid md:grid-cols-12 gap-6 py-7 items-baseline group hover:bg-white/5 transition-colors -mx-4 px-4 rounded">
+                  <span className="md:col-span-2 font-mono text-xs text-white/50">/ {String(i + 1).padStart(2, '0')}</span>
+                  <h3 className="md:col-span-5 font-display text-3xl md:text-4xl">{s.title}</h3>
+                  {s.description && <p className="md:col-span-4 text-white/70 text-sm">{s.description}</p>}
+                  {s.price && <span className="md:col-span-1 font-mono text-sm md:text-right text-[var(--accent-color)]">{s.price}</span>}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      ) : null,
+      gallery: featuredGallery.length > 0 ? (
+        <section className="py-24 md:py-36">
+          <div className="container-x">
+            <div className="flex items-end justify-between gap-6 mb-12">
+              <div>
+                <p className="eyebrow mb-4">{effectiveBranchText(variant, slice).galleryTeaserEyebrow}</p>
+                <h2 className="font-display text-5xl md:text-7xl leading-[0.95]">{galleryTeaserTitle(variant, slice)}</h2>
+              </div>
+              <TLink
+                to={
+                  variant === 'tradesman' ? '/referenzen'
+                  : variant === 'hotel' ? '/zimmer'
+                  : variant === 'tourism' ? '/touren'
+                  : '/galerie'
+                }
+                className="link-underline hidden md:inline-flex"
+              >
+                {effectiveBranchText(variant, slice).galleryAllLabel} <span aria-hidden>→</span>
+              </TLink>
+            </div>
+            <MasonryGrid images={featuredGallery} />
+          </div>
+        </section>
+      ) : null,
+      testimonials: boldTestimonials.length > 0 ? (
+        <>
+          <div className="py-8 bg-[var(--accent-color)] text-[var(--accent-fg)] border-y border-brand/20">
+            <MarqueeTrack speed={50}>
+              <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap uppercase tracking-tight">
+                <span>Stimmen</span><span className="opacity-50">/</span>
+                <span>Ehrliche Worte</span><span className="opacity-50">/</span>
+                <span>Vertrauen</span><span className="opacity-50">/</span>
+                <span>Stimmen</span><span className="opacity-50">/</span>
+              </span>
+            </MarqueeTrack>
+          </div>
+          <section className="py-24 md:py-36 surface">
+            <div className="container-x grid md:grid-cols-12 gap-10">
+              <div className="md:col-span-7 reveal">
+                <span className="font-display text-[140px] md:text-[200px] leading-[0.6] text-[var(--accent-color)] block">&ldquo;</span>
+                <p className="font-display text-3xl md:text-5xl leading-tight mt-4">{boldTestimonials[0].text}</p>
+                <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted">— {boldTestimonials[0].author}</p>
+              </div>
+              <div className="md:col-span-5 space-y-5">
+                {boldTestimonials.slice(1, 4).map((t, i) => (
+                  <HardShadowCard key={i} className="bg-white border border-brand rounded-none p-6 reveal" offset={6}>
+                    <p className="text-base leading-relaxed">{t.text}</p>
+                    <footer className="mt-4 text-xs font-mono uppercase tracking-widest text-muted">— {t.author}</footer>
+                  </HardShadowCard>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      ) : null,
+      faq: (
+        <Section eyebrow={effectiveBranchText(variant, slice).faqEyebrow} title={splitTitle(effectiveBranchText(variant, slice).faqTitle)}>
+          <Accordion items={resolveFaq(variant, slice).slice(0, 4).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+        </Section>
+      ),
+    };
   };
 
-  const order = resolveLayoutSlotOrder({
+  const blocksAtFull = buildBlocks(mergedFull);
+  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const instructions = buildSlotRenderInstructions({
     page: 'home',
-    content,
+    contentBase,
+    mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots,
   });
+
+  const heroEyebrow = effectiveBranchText(variant, mergedFull).heroEyebrow || mergedFull.brand.tagline || cfg.servicesEyebrow;
 
   return (
     <>
@@ -838,14 +858,14 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
       <section className="pt-40 pb-10 grain relative overflow-hidden">
         <AuroraBackground intensity={0.22} colors={['var(--accent-color)', '#FFB347', '#22d3ee', '#7C3AED']} />
         <div className="container-x relative">
-          <p className="eyebrow mb-6 reveal">{effectiveBranchText(variant, content).heroEyebrow || content.brand.tagline || cfg.servicesEyebrow}</p>
+          <p className="eyebrow mb-6 reveal">{heroEyebrow}</p>
           <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[clamp(2.5rem,13vw,180px)] md:text-[14vw] lg:text-[180px] break-words [overflow-wrap:anywhere] [hyphens:auto]">
-            {(content.hero?.title || ((content.brand.hideName && content.brand.logoUrl) ? '' : content.brand.name)).toUpperCase()}
+            {(mergedFull.hero?.title || ((mergedFull.brand.hideName && mergedFull.brand.logoUrl) ? '' : mergedFull.brand.name)).toUpperCase()}
           </h1>
           {(() => {
-            const hc = (content as any).heroCta as { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string } | undefined;
-            const primaryLabel = hc?.primaryLabel || content.hero.ctaLabel;
-            const primaryHref = hc?.primaryHref || content.hero.ctaHref || '/kontakt';
+            const hc = (mergedFull as any).heroCta as { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string } | undefined;
+            const primaryLabel = hc?.primaryLabel || mergedFull.hero.ctaLabel;
+            const primaryHref = hc?.primaryHref || mergedFull.hero.ctaHref || '/kontakt';
             const secondaryLabel = hc?.secondaryLabel ?? '';
             const secondaryHref = hc?.secondaryHref || cfg.servicesPath;
             return primaryLabel ? (
@@ -862,7 +882,7 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         <div className="mt-10 border-y border-line py-4 bg-white">
           <MarqueeTrack speed={45}>
             <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap text-brand">
-              {marqueeWordsFor(variant, content).concat(marqueeWordsFor(variant, content)).map((w, i) => (
+              {marqueeWordsFor(variant, mergedFull).concat(marqueeWordsFor(variant, mergedFull)).map((w, i) => (
                 <span key={i} className="inline-flex items-center gap-10">
                   <span>{w}</span><span className="text-[var(--accent-color)]">●</span>
                 </span>
@@ -873,15 +893,17 @@ function HomePageBold({ variant, content }: { variant: TemplateVariant; content:
         {heroImg && (
           <div className="container-x mt-12 reveal">
             <div className="aspect-[21/9] overflow-hidden rounded-none">
-              <img src={heroImg} alt={content.brand.name} className="w-full h-full object-cover" />
+              <img src={heroImg} alt={mergedFull.brand.name} className="w-full h-full object-cover" />
             </div>
           </div>
         )}
       </section>
-      {order.map((key, i) => (
-        <React.Fragment key={`${key}-${i}`}>{blocks[key]}</React.Fragment>
-      ))}
-      {isSectionVisible(content, 'softCta') && <SoftCtaBlock variant={variant} content={content} style="bold" />}
+      {instructions.map((row) => {
+        const slice = siteContentForSlotInstruction(contentBase, mergedFull, 'home', row);
+        const node = buildBlocks(slice)[row.slot];
+        return <React.Fragment key={row.key}>{node}</React.Fragment>;
+      })}
+      {isSectionVisible(mergedFull, 'softCta') && <SoftCtaBlock variant={variant} content={mergedFull} style="bold" />}
     </>
   );
 }
@@ -1300,34 +1322,34 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
   const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'services');
   const cfg = NAV_BY_VARIANT[variant];
   const legacyServicesOrder = getEffectivePageOrder(resolved, 'services', variant).filter((k) => isSectionEnabled(resolved, 'services', k));
-  const blocks: Record<string, JSX.Element | null> = {
-    highlights: <ServiceHighlights variant={variant} content={resolved} />,
+  const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => ({
+    highlights: <ServiceHighlights variant={variant} content={slice} />,
     list: (
       <Section spacing="lg" className={style === 'modern' ? 'surface' : ''}>
         {style === 'bold' ? (
-          <BoldServicesList services={resolved.services} variant={variant} />
+          <BoldServicesList services={slice.services} variant={variant} />
         ) : style === 'modern' ? (
-          <ModernServicesGrid services={resolved.services} variant={variant} />
+          <ModernServicesGrid services={slice.services} variant={variant} />
         ) : (
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
             <div className="lg:col-span-4 reveal">
-              <p className="eyebrow mb-5">{effectiveBranchText(variant, resolved).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
-              <h2 className="font-display text-5xl md:text-6xl leading-[0.95]">{splitTitle(effectiveBranchText(variant, resolved).servicesTeaserTitle || cfg.servicesHeadline)}</h2>
-              <p className="mt-8 text-lg text-muted leading-relaxed">{subtitleFor(variant, resolved)}</p>
+              <p className="eyebrow mb-5">{effectiveBranchText(variant, slice).servicesTeaserEyebrow || cfg.servicesEyebrow}</p>
+              <h2 className="font-display text-5xl md:text-6xl leading-[0.95]">{splitTitle(effectiveBranchText(variant, slice).servicesTeaserTitle || cfg.servicesHeadline)}</h2>
+              <p className="mt-8 text-lg text-muted leading-relaxed">{subtitleFor(variant, slice)}</p>
             </div>
             <div className="lg:col-span-8">
-              <ServicesShowcase variant={variant} services={resolved.services} />
+              <ServicesShowcase variant={variant} services={slice.services} />
             </div>
           </div>
         )}
       </Section>
     ),
-    module: <BranchModulesInline variant={variant} content={resolved} />,
-    process: <ServiceProcess variant={variant} content={resolved} />,
-    testimonials: visibleTestimonials(resolved).length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, resolved).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).testimonialsTitle)} className="surface">
+    module: <BranchModulesInline variant={variant} content={slice} />,
+    process: <ServiceProcess variant={variant} content={slice} />,
+    testimonials: visibleTestimonials(slice).length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, slice).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, slice).testimonialsTitle)} className="surface">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {visibleTestimonials(resolved).map((t, i) => (
+          {visibleTestimonials(slice).map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
               <p className="text-lg leading-relaxed">{t.text}</p>
@@ -1337,29 +1359,32 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         </div>
       </Section>
     ) : null,
-    gallery: resolved.gallery.length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, resolved).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, resolved)}>
+    gallery: slice.gallery.length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, slice).galleryTeaserEyebrow} title={galleryTeaserTitle(variant, slice)}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 reveal-stagger">
-          {resolved.gallery.slice(0, 8).map((src, i) => (
+          {slice.gallery.slice(0, 8).map((src, i) => (
             <div key={i} className="aspect-square rounded-2xl overflow-hidden img-zoom">
-              <img src={src} alt={`${resolved.brand.name} – Bild ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+              <img src={src} alt={`${slice.brand.name} – Bild ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
             </div>
           ))}
         </div>
       </Section>
     ) : null,
     faq: (
-      <Section eyebrow={effectiveBranchText(variant, resolved).faqEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).faqTitle)} className="surface">
-        <Accordion items={resolveFaq(variant, resolved).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+      <Section eyebrow={effectiveBranchText(variant, slice).faqEyebrow} title={splitTitle(effectiveBranchText(variant, slice).faqTitle)} className="surface">
+        <Accordion items={resolveFaq(variant, slice).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
       </Section>
     ),
-    cta: <CtaBand variant={variant} content={resolved} page="services" />,
-  };
-  const order = resolveLayoutSlotOrder({
+    cta: <CtaBand variant={variant} content={slice} page="services" />,
+  });
+  const blocksAtFull = buildBlocks(resolved);
+  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const instructions = buildSlotRenderInstructions({
     page: 'services',
-    content: resolved,
+    contentBase: modularFirst,
+    mergedFull: resolved,
     legacyOrder: legacyServicesOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots,
   });
   const headerOverride = pageHeaderOverride(resolved, 'servicesHeader');
   const servicesImg = effectiveBranchText(variant, resolved).servicesPageImageUrl || resolved.gallery[2] || resolved.gallery[0];
@@ -1372,9 +1397,11 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         style={style}
         image={style === 'modern' ? servicesImg : undefined}
       />
-      {order.map((k, i) => (
-        <React.Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</React.Fragment>
-      ))}
+      {instructions.map((row) => {
+        const slice = siteContentForSlotInstruction(modularFirst, resolved, 'services', row);
+        const node = buildBlocks(slice)[row.slot];
+        return <React.Fragment key={row.key}>{node ?? null}</React.Fragment>;
+      })}
     </>
   );
 }
@@ -1492,24 +1519,24 @@ function GalleryPage({
   const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'gallery');
   const headerOverride = pageHeaderOverride(resolved, 'galleryHeader');
   const legacyGalleryOrder = getEffectivePageOrder(resolved, 'gallery', variant).filter((k) => isSectionEnabled(resolved, 'gallery', k));
-  const blocks: Record<string, JSX.Element | null> = {
-    story: <GalleryStorySection variant={variant} content={resolved} />,
+  const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => ({
+    story: <GalleryStorySection variant={variant} content={slice} />,
     grid: (
       <Section spacing="lg">
         {style === 'bold' ? (
-          <MasonryGrid images={resolved.gallery} />
+          <MasonryGrid images={slice.gallery} />
         ) : style === 'modern' ? (
-          <ModernGalleryGrid images={resolved.gallery} />
+          <ModernGalleryGrid images={slice.gallery} />
         ) : (
-          <GalleryShowcase variant={variant} images={resolved.gallery} mode="full" />
+          <GalleryShowcase variant={variant} images={slice.gallery} mode="full" />
         )}
       </Section>
     ),
-    categories: <GalleryCategoriesSection variant={variant} content={resolved} />,
-    testimonials: visibleTestimonials(resolved).length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, resolved).testimonialsEyebrow || 'Stimmen'} title={<>{splitTitle(effectiveBranchText(variant, resolved).testimonialsTitle || 'Was unsere Gäste sagen.')}</>} className="surface">
+    categories: <GalleryCategoriesSection variant={variant} content={slice} />,
+    testimonials: visibleTestimonials(slice).length > 0 ? (
+      <Section eyebrow={effectiveBranchText(variant, slice).testimonialsEyebrow || 'Stimmen'} title={<>{splitTitle(effectiveBranchText(variant, slice).testimonialsTitle || 'Was unsere Gäste sagen.')}</>} className="surface">
         <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {visibleTestimonials(resolved).map((t, i) => (
+          {visibleTestimonials(slice).map((t, i) => (
             <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
               <p className="text-lg leading-relaxed">{t.text}</p>
               <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
@@ -1518,13 +1545,16 @@ function GalleryPage({
         </div>
       </Section>
     ) : null,
-    cta: <CtaBand variant={variant} content={resolved} page="gallery" />,
-  };
-  const order = resolveLayoutSlotOrder({
+    cta: <CtaBand variant={variant} content={slice} page="gallery" />,
+  });
+  const blocksAtFull = buildBlocks(resolved);
+  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const instructions = buildSlotRenderInstructions({
     page: 'gallery',
-    content: resolved,
+    contentBase: modularFirst,
+    mergedFull: resolved,
     legacyOrder: legacyGalleryOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots,
   });
   return (
     <>
@@ -1548,9 +1578,11 @@ function GalleryPage({
         )}
         style={style}
       />
-      {order.map((k, i) => (
-        <React.Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</React.Fragment>
-      ))}
+      {instructions.map((row) => {
+        const slice = siteContentForSlotInstruction(modularFirst, resolved, 'gallery', row);
+        const node = buildBlocks(slice)[row.slot];
+        return <React.Fragment key={row.key}>{node ?? null}</React.Fragment>;
+      })}
     </>
   );
 }
@@ -1693,82 +1725,87 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
   const modularFirst = withModularSiteContent(content, variant, style);
   const resolved = mergePageBlocksIntoSiteContentForPage(modularFirst, 'about');
   const legacyAboutOrder = getEffectivePageOrder(resolved, 'about', variant).filter((k) => isSectionEnabled(resolved, 'about', k));
-  const introBlock = style !== 'modern' ? (
-    <Section spacing="lg">
-      <div className={`grid lg:grid-cols-12 gap-10 items-start ${style === 'bold' ? '' : ''}`}>
-        <div className="lg:col-span-5">
-          <ParallaxImage
-            src={resolved.about?.imageUrl || resolved.gallery[0]}
-            alt={resolved.brand.name}
-            className={`${style === 'bold' ? 'rounded-none' : 'rounded-3xl'} aspect-[4/5] reveal`}
-          />
+  const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => {
+    const introBlockInner = style !== 'modern' ? (
+      <Section spacing="lg">
+        <div className={`grid lg:grid-cols-12 gap-10 items-start ${style === 'bold' ? '' : ''}`}>
+          <div className="lg:col-span-5">
+            <ParallaxImage
+              src={slice.about?.imageUrl || slice.gallery[0]}
+              alt={slice.brand.name}
+              className={`${style === 'bold' ? 'rounded-none' : 'rounded-3xl'} aspect-[4/5] reveal`}
+            />
+          </div>
+          <div className="lg:col-span-7 lg:pl-4">
+            <div className="reveal">
+              {(slice.about?.body || '').split('\n\n').map((p, i) => (
+                <p key={i} className={`leading-relaxed mb-6 ${style === 'bold' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl text-muted'}`}>{p}</p>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="lg:col-span-7 lg:pl-4">
-          <div className="reveal">
-            {(resolved.about?.body || '').split('\n\n').map((p, i) => (
-              <p key={i} className={`leading-relaxed mb-6 ${style === 'bold' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl text-muted'}`}>{p}</p>
+      </Section>
+    ) : (
+      <Section spacing="lg">
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-7 lg:col-start-1 reveal">
+            {(slice.about?.body || '').split('\n\n').map((p, i) => (
+              <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
             ))}
           </div>
+          <aside className="lg:col-span-4 lg:col-start-9 reveal">
+            <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
+              <p className="eyebrow mb-4">{effectiveBranchText(variant, slice).aboutSidebarEyebrow}</p>
+              <dl className="space-y-3 text-sm">
+                {resolveAboutMeta(variant, slice).map((m, i) => (
+                  <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
+                    <dt className="text-muted">{m.label}</dt>
+                    <dd className="font-display">{m.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </aside>
         </div>
-      </div>
-    </Section>
-  ) : (
-    <Section spacing="lg">
-      <div className="grid lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-7 lg:col-start-1 reveal">
-          {(resolved.about?.body || '').split('\n\n').map((p, i) => (
-            <p key={i} className="text-lg leading-relaxed text-muted mb-5">{p}</p>
-          ))}
-        </div>
-        <aside className="lg:col-span-4 lg:col-start-9 reveal">
-          <div className="sticky top-28 rounded-2xl border border-line p-6 bg-white">
-            <p className="eyebrow mb-4">{effectiveBranchText(variant, resolved).aboutSidebarEyebrow}</p>
-            <dl className="space-y-3 text-sm">
-              {resolveAboutMeta(variant, resolved).map((m, i) => (
-                <div key={i} className="flex justify-between gap-4 border-b border-line pb-2 last:border-0">
-                  <dt className="text-muted">{m.label}</dt>
-                  <dd className="font-display">{m.value}</dd>
-                </div>
-              ))}
-            </dl>
+      </Section>
+    );
+    return {
+      intro: introBlockInner,
+      values: <ValuesSection variant={variant} content={slice} />,
+      timeline: <Timeline content={slice} />,
+      team: <TeamSection variant={variant} content={slice} />,
+      numbers: <NumbersBand variant={variant} content={slice} />,
+      certifications: variant === 'tradesman' ? <CertificationsSection variant={variant} content={slice} /> : null,
+      press: variant === 'restaurant' ? <PressSection variant={variant} content={slice} /> : null,
+      testimonials: visibleTestimonials(slice).length > 0 ? (
+        <Section eyebrow={effectiveBranchText(variant, slice).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, slice).testimonialsTitle)} className="surface">
+          <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+            {visibleTestimonials(slice).map((t, i) => (
+              <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
+                <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
+                <p className="text-lg leading-relaxed">{t.text}</p>
+                <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
+              </blockquote>
+            ))}
           </div>
-        </aside>
-      </div>
-    </Section>
-  );
-  const blocks: Record<string, JSX.Element | null> = {
-    intro: introBlock,
-    values: <ValuesSection variant={variant} content={resolved} />,
-    timeline: <Timeline content={resolved} />,
-    team: <TeamSection variant={variant} content={resolved} />,
-    numbers: <NumbersBand variant={variant} content={resolved} />,
-    certifications: variant === 'tradesman' ? <CertificationsSection variant={variant} content={resolved} /> : null,
-    press: variant === 'restaurant' ? <PressSection variant={variant} content={resolved} /> : null,
-    testimonials: visibleTestimonials(resolved).length > 0 ? (
-      <Section eyebrow={effectiveBranchText(variant, resolved).testimonialsEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).testimonialsTitle)} className="surface">
-        <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
-          {visibleTestimonials(resolved).map((t, i) => (
-            <blockquote key={i} className="bg-white border border-line rounded-3xl p-8 hover-lift">
-              <span className="font-display text-7xl text-[var(--accent-color)] block leading-none mb-2">&ldquo;</span>
-              <p className="text-lg leading-relaxed">{t.text}</p>
-              <footer className="mt-6 pt-5 border-t border-line text-sm font-medium">{t.author}</footer>
-            </blockquote>
-          ))}
-        </div>
-      </Section>
-    ) : null,
-    faq: (
-      <Section eyebrow={effectiveBranchText(variant, resolved).faqEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).faqTitle)} className="surface">
-        <Accordion items={resolveFaq(variant, resolved).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
-      </Section>
-    ),
-    cta: <CtaBand variant={variant} content={resolved} page="about" />,
+        </Section>
+      ) : null,
+      faq: (
+        <Section eyebrow={effectiveBranchText(variant, slice).faqEyebrow} title={splitTitle(effectiveBranchText(variant, slice).faqTitle)} className="surface">
+          <Accordion items={resolveFaq(variant, slice).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+        </Section>
+      ),
+      cta: <CtaBand variant={variant} content={slice} page="about" />,
+    };
   };
-  const order = resolveLayoutSlotOrder({
+  const blocksAtFull = buildBlocks(resolved);
+  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const instructions = buildSlotRenderInstructions({
     page: 'about',
-    content: resolved,
+    contentBase: modularFirst,
+    mergedFull: resolved,
     legacyOrder: legacyAboutOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots,
   });
   return (
     <>
@@ -1779,9 +1816,11 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         style={style}
         image={style === 'modern' ? resolved.about?.imageUrl || resolved.gallery[0] : undefined}
       />
-      {order.map((k, i) => (
-        <React.Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</React.Fragment>
-      ))}
+      {instructions.map((row) => {
+        const slice = siteContentForSlotInstruction(modularFirst, resolved, 'about', row);
+        const node = buildBlocks(slice)[row.slot];
+        return <React.Fragment key={row.key}>{node ?? null}</React.Fragment>;
+      })}
     </>
   );
 }
@@ -1978,93 +2017,98 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
       { t: 'Beratung', d: 'Sie wissen nicht, welche Tour passt? Wir telefonieren gerne 15 Minuten unverbindlich.' },
     ],
   };
-  const rawArrival = (resolved as unknown as { arrival?: unknown }).arrival;
-  const mappedArrival = normaliseArrivalList(rawArrival ?? []);
-  const arrival = mappedArrival.length > 0 ? mappedArrival : arrivalFallbacks[variant];
   const legacyContactOrder = getEffectivePageOrder(resolved, 'contact', variant).filter((k) => isSectionEnabled(resolved, 'contact', k));
-  const arrivalOv = ((resolved as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
-  const locs = resolved.locations ?? [];
-  const blocks: Record<string, JSX.Element | null> = {
-    block: <ContactBlock content={resolved} showForm={cfg.contact.showForm} />,
-    locations: locs.length ? (
-      <Section eyebrow={moduleHeading(resolved, 'locations').eyebrow} title={moduleHeading(resolved, 'locations').title}>
-        <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
-          {locs.map((loc, i) => (
-            <article key={i} className="border border-line rounded-3xl p-7 hover-lift bg-white">
-              <h3 className="font-display text-2xl">{loc.name || `Standort ${i + 1}`}</h3>
-              <div className="mt-5 space-y-4 text-lg">
-                {loc.phone ? (
-                  <a href={`tel:${loc.phone}`} className="block group">
-                    <p className="text-xs uppercase tracking-widest text-muted">Telefon</p>
-                    <p className="mt-1 text-xl font-display group-hover:translate-x-1 transition-transform">{loc.phone}</p>
-                  </a>
-                ) : null}
-                {loc.email ? (
-                  <a href={`mailto:${loc.email}`} className="block group">
-                    <p className="text-xs uppercase tracking-widest text-muted">E-Mail</p>
-                    <p className="mt-1 text-xl font-display group-hover:translate-x-1 transition-transform">{loc.email}</p>
-                  </a>
-                ) : null}
-                {loc.address ? (
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-muted">Adresse</p>
-                    <p className="mt-1">{loc.address}{loc.city ? `, ${loc.city}` : ''}</p>
-                  </div>
-                ) : null}
-                {loc.hours && loc.hours.length ? (
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-muted">Öffnungszeiten</p>
-                    <ul className="mt-2 grid grid-cols-[auto,1fr] gap-x-6 gap-y-1">
-                      {loc.hours.map((h, hi) => (
-                        <li key={hi} className="contents">
-                          <span className="font-medium">{h.day}</span>
-                          <span className="text-muted font-mono text-sm whitespace-nowrap">{h.time}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </div>
-              {(loc.mapsUrl || loc.address) ? (
-                <div className="mt-6">
-                  <SafeMapEmbed mapsUrl={loc.mapsUrl || ''} address={loc.address || ''} city={loc.city || ''} className="h-[200px]" />
+  const buildBlocks = (slice: SiteContent): Record<string, JSX.Element | null> => {
+    const rawArrivalSlice = (slice as unknown as { arrival?: unknown }).arrival;
+    const mappedArrivalSlice = normaliseArrivalList(rawArrivalSlice ?? []);
+    const arrivalSlice = mappedArrivalSlice.length > 0 ? mappedArrivalSlice : arrivalFallbacks[variant];
+    const arrivalOvSlice = ((slice as any).arrivalSection ?? {}) as { eyebrow?: string; title?: string; subtitle?: string };
+    const locsSlice = slice.locations ?? [];
+    return {
+      block: <ContactBlock content={slice} showForm={cfg.contact.showForm} />,
+      locations: locsSlice.length ? (
+        <Section eyebrow={moduleHeading(slice, 'locations').eyebrow} title={moduleHeading(slice, 'locations').title}>
+          <div className="grid md:grid-cols-2 gap-8 reveal-stagger">
+            {locsSlice.map((loc, i) => (
+              <article key={i} className="border border-line rounded-3xl p-7 hover-lift bg-white">
+                <h3 className="font-display text-2xl">{loc.name || `Standort ${i + 1}`}</h3>
+                <div className="mt-5 space-y-4 text-lg">
+                  {loc.phone ? (
+                    <a href={`tel:${loc.phone}`} className="block group">
+                      <p className="text-xs uppercase tracking-widest text-muted">Telefon</p>
+                      <p className="mt-1 text-xl font-display group-hover:translate-x-1 transition-transform">{loc.phone}</p>
+                    </a>
+                  ) : null}
+                  {loc.email ? (
+                    <a href={`mailto:${loc.email}`} className="block group">
+                      <p className="text-xs uppercase tracking-widest text-muted">E-Mail</p>
+                      <p className="mt-1 text-xl font-display group-hover:translate-x-1 transition-transform">{loc.email}</p>
+                    </a>
+                  ) : null}
+                  {loc.address ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-muted">Adresse</p>
+                      <p className="mt-1">{loc.address}{loc.city ? `, ${loc.city}` : ''}</p>
+                    </div>
+                  ) : null}
+                  {loc.hours && loc.hours.length ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-muted">Öffnungszeiten</p>
+                      <ul className="mt-2 grid grid-cols-[auto,1fr] gap-x-6 gap-y-1">
+                        {loc.hours.map((h, hi) => (
+                          <li key={hi} className="contents">
+                            <span className="font-medium">{h.day}</span>
+                            <span className="text-muted font-mono text-sm whitespace-nowrap">{h.time}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
-            </article>
-          ))}
-        </div>
-      </Section>
-    ) : null,
-    arrival: (
-      <Section
-        eyebrow={arrivalOv.eyebrow || 'Wegbeschreibung'}
-        title={arrivalOv.title || <>So <em className="italic-pop">finden Sie uns.</em></>}
-        subtitle={arrivalOv.subtitle || undefined}
-        className="surface"
-      >
-        <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
-          {arrival.map((a, i) => (
-            <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
-              <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
-              <h3 className="font-display text-2xl mt-3">{a.t}</h3>
-              <p className="mt-3 text-muted leading-relaxed">{a.d}</p>
-            </article>
-          ))}
-        </div>
-      </Section>
-    ),
-    faq: (
-      <Section eyebrow={effectiveBranchText(variant, resolved).faqEyebrow} title={splitTitle(effectiveBranchText(variant, resolved).faqTitle)}>
-        <Accordion items={resolveFaq(variant, resolved).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
-      </Section>
-    ),
-    cta: <CtaBand variant={variant} content={resolved} page="contact" />,
+                {(loc.mapsUrl || loc.address) ? (
+                  <div className="mt-6">
+                    <SafeMapEmbed mapsUrl={loc.mapsUrl || ''} address={loc.address || ''} city={loc.city || ''} className="h-[200px]" />
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </Section>
+      ) : null,
+      arrival: (
+        <Section
+          eyebrow={arrivalOvSlice.eyebrow || 'Wegbeschreibung'}
+          title={arrivalOvSlice.title || <>So <em className="italic-pop">finden Sie uns.</em></>}
+          subtitle={arrivalOvSlice.subtitle || undefined}
+          className="surface"
+        >
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {arrivalSlice.map((a, i) => (
+              <article key={i} className="bg-white border border-line rounded-3xl p-7 hover-lift">
+                <p className="font-mono text-xs text-muted">/ {String(i + 1).padStart(2, '0')}</p>
+                <h3 className="font-display text-2xl mt-3">{a.t}</h3>
+                <p className="mt-3 text-muted leading-relaxed">{a.d}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+      ),
+      faq: (
+        <Section eyebrow={effectiveBranchText(variant, slice).faqEyebrow} title={splitTitle(effectiveBranchText(variant, slice).faqTitle)}>
+          <Accordion items={resolveFaq(variant, slice).map((f) => ({ q: f.q, a: f.a }))} className="max-w-3xl" />
+        </Section>
+      ),
+      cta: <CtaBand variant={variant} content={slice} page="contact" />,
+    };
   };
-  const order = resolveLayoutSlotOrder({
+  const blocksAtFull = buildBlocks(resolved);
+  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const instructions = buildSlotRenderInstructions({
     page: 'contact',
-    content: resolved,
+    contentBase: modularFirst,
+    mergedFull: resolved,
     legacyOrder: legacyContactOrder,
-    availableSlots: new Set(Object.keys(blocks)),
+    availableSlots,
   });
   return (
     <>
@@ -2081,9 +2125,11 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
         subtitle={pageHeaderOverride(resolved, 'contactPageHeader')?.subtitle || undefined}
         style={style}
       />
-      {order.map((k, i) => (
-        <React.Fragment key={`${k}-${i}`}>{blocks[k] ?? null}</React.Fragment>
-      ))}
+      {instructions.map((row) => {
+        const slice = siteContentForSlotInstruction(modularFirst, resolved, 'contact', row);
+        const node = buildBlocks(slice)[row.slot];
+        return <React.Fragment key={row.key}>{node ?? null}</React.Fragment>;
+      })}
     </>
   );
 }

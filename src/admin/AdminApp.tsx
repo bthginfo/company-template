@@ -118,7 +118,7 @@ export function AdminApp() {
       const ts = new Date().toLocaleTimeString('de-DE');
       setSavedAt(ts);
       setTimeout(() => setSavedAt(null), 5000);
-      toast.success('Entwurf gespeichert', { description: `Änderungen als Entwurf gesichert · ${ts}` });
+      toast.success('Gespeichert', { description: `Änderungen sind live auf der Website · ${ts}` });
     } catch (e: any) {
       setJustSaved(false);
       const msg = e?.message || String(e);
@@ -216,7 +216,7 @@ export function AdminApp() {
       footerStatus={
         state.status === 'ready' && state.hasDraft
           ? <span className="text-amber-600">Unveröffentlichter Entwurf — noch nicht live.</span>
-          : 'Änderungen werden als Entwurf gespeichert.'
+          : 'Speichern überträgt die Änderungen auf die Live-Website.'
       }
     />
   );
