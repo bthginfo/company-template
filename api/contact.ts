@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import crypto from 'node:crypto';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
@@ -85,12 +86,13 @@ async function resolveMailConfig(tenantSlug: string | undefined): Promise<MailCo
       if (tenant) {
         const row = await db.query.siteContent.findFirst({ where: eq(schema.siteContent.tenantId, tenant.id) });
         const m = (row?.data as any)?.mail;
-        if (m && m.enabled && m.host && m.user && m.pass) {
+        const pass = readMailSecret(m);
+        if (m && m.enabled && m.host && m.user && pass) {
           return {
             host: String(m.host),
             port: Number(m.port || 587),
             user: String(m.user),
-            pass: String(m.pass),
+            pass,
             from: String(m.from || m.user),
             to: String(m.to || m.user),
             autoReply: m.autoReply !== false,
@@ -217,4 +219,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 function safeParse(s: string) {
   try { return JSON.parse(s); } catch { return {}; }
+}
+
+const MAIL_SECRET_PREFIX = 'enc:v1:';
+
+function cryptoKey(): Buffer {
+  return crypto.createHash('sha256').update(process.env.AUTH_SECRET || process.env.ADMIN_PASSWORD_HASH || 'dev-secret').digest();
+}
+
+function decryptMailSecret(value: string): string {
+  if (!value.startsWith(MAIL_SECRET_PREFIX)) return value;
+  const packed = Buffer.from(value.slice(MAIL_SECRET_PREFIX.length), 'base64url');
+  const iv = packed.subarray(0, 12);
+  const tag = packed.subarray(12, 28);
+  const encrypted = packed.subarray(28);
+  const decipher = crypto.createDecipheriv('aes-256-gcm', cryptoKey(), iv);
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8');
+}
+
+function readMailSecret(mail: Record<string, unknown> | undefined): string {
+  if (!mail) return '';
+  const raw = String(mail.passEnc || mail.pass || '');
+  if (!raw) return '';
+  try {
+    return decryptMailSecret(raw);
+  } catch {
+    return '';
+  }
 }

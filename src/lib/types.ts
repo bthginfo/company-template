@@ -61,6 +61,38 @@ export const ModularPagesV1Schema = z.object({
 export type ModularPagesV1 = z.infer<typeof ModularPagesV1Schema>;
 
 /**
+ * Direct-render CMS page tree (v2). Unlike `modularPagesV1`, v2 is not merged
+ * into legacy `SiteContent` fields. Frontend renderers consume these section
+ * instances directly, while global tenant settings stay on the existing top-level
+ * content keys during the migration.
+ */
+export const ModularSectionV2Schema = z.object({
+  id: z.string().min(1),
+  type: z.string().min(1),
+  visible: z.boolean().optional().default(true),
+  data: z.record(z.string(), z.unknown()).optional().default({}),
+});
+export type ModularSectionV2 = z.infer<typeof ModularSectionV2Schema>;
+
+const ModularPageV2Schema = z.object({
+  sections: z.array(ModularSectionV2Schema).optional().default([]),
+});
+
+export const ModularPagesV2Schema = z.object({
+  version: z.literal(2).default(2),
+  combo: z.object({
+    template: templateKeyZ,
+    style: templateStyleZ,
+  }),
+  home: ModularPageV2Schema.optional(),
+  services: ModularPageV2Schema.optional(),
+  gallery: ModularPageV2Schema.optional(),
+  about: ModularPageV2Schema.optional(),
+  contact: ModularPageV2Schema.optional(),
+});
+export type ModularPagesV2 = z.infer<typeof ModularPagesV2Schema>;
+
+/**
  * CMS block instance (Phase 1). `type` must be an `AdminSectionKey` listed in
  * `SECTION_CONTRACTS`; `data` holds section-local payload (per-type Zod in later phases).
  */
@@ -586,6 +618,7 @@ export const SiteContentSchema = z.object({
     port: z.number().int().optional().default(587),
     user: z.string().optional().default(''),
     pass: z.string().optional().default(''),
+    passEnc: z.string().optional().default(''),
     from: z.string().optional().default(''),
     to: z.string().optional().default(''),
     autoReply: z.boolean().optional().default(true),
@@ -695,6 +728,7 @@ export const SiteContentSchema = z.object({
    * Shared/global admin (SEO, Skripte, …) stays on legacy top-level keys.
    */
   modularPagesV1: ModularPagesV1Schema.optional(),
+  modularPagesV2: ModularPagesV2Schema.optional(),
 
   /**
    * CMS page composition (Phase 1+). Ordered block instances per page key.

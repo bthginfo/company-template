@@ -2694,17 +2694,7 @@ function MailTestButton() {
   const sendTest = async () => {
     setState('sending'); setMsg('');
     try {
-      const r = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Mail-Test',
-          email: 'noreply@example.com',
-          message: 'Dies ist eine Test-Nachricht aus dem Admin. Wenn Sie diese Mail erhalten, funktioniert Ihr Postausgang korrekt.',
-          source: 'admin-mail-test',
-          tenant: tenantSlug,
-        }),
-      });
+      const r = await fetch(`/api/admin/test-mail?slug=${encodeURIComponent(tenantSlug)}`, { method: 'POST' });
       const j = await r.json().catch(() => ({}));
       if (r.ok && j.ok) { setState('ok'); setMsg('Test-Mail wurde versendet. Bitte prüfen Sie Ihren Posteingang.'); }
       else { setState('err'); setMsg(j?.error || 'Versand fehlgeschlagen.'); }

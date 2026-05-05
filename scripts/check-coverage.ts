@@ -190,6 +190,9 @@ const MODULAR_SPEC_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/Modula
 const CMS_CONTRACT_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-contract.ts'), 'utf8');
 const PAGE_BLOCKS_MERGE_SOURCE = readFileSync(join(repoRoot, 'src/lib/page-blocks-v1-page-merge.ts'), 'utf8');
 const CONTENT_API_SOURCE = readFileSync(join(repoRoot, 'api/content.ts'), 'utf8');
+const TYPES_SOURCE = readFileSync(join(repoRoot, 'src/lib/types.ts'), 'utf8');
+const PROVISION_CORE_SOURCE = readFileSync(join(repoRoot, 'src/lib/provision-core.ts'), 'utf8');
+const CMS_V2_CONTRACT_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-v2-contract.ts'), 'utf8');
 
 const MODULAR_SHARED_SOURCE = readFileSync(join(repoRoot, 'src/lib/modular-restaurant.ts'), 'utf8');
 const MODULAR_SOURCE_BY_TEMPLATE = Object.fromEntries(
@@ -276,8 +279,20 @@ if (!CMS_CONTRACT_SOURCE.includes('CMS_REPEATABLE_SECTION_TYPES')) {
 if (!PAGE_BLOCKS_MERGE_SOURCE.includes('content.modularPagesV1?.combo')) {
   note('[pageblocks-shadow] pageBlocksV1 merge must be disabled for modular tenants so hidden legacy blocks cannot shadow the CMS.');
 }
-if (!CONTENT_API_SOURCE.includes('draft: parse.data')) {
+if (!CONTENT_API_SOURCE.includes('draft: normalizedDraft')) {
   note('[draft-only-save] PUT /api/content must write submitted content to draft, including first-row recovery paths.');
+}
+if (!TYPES_SOURCE.includes('ModularPagesV2Schema') || !TYPES_SOURCE.includes('modularPagesV2: ModularPagesV2Schema.optional()')) {
+  note('[cms-v2-missing] SiteContentSchema must carry modularPagesV2 for direct-render CMS migration.');
+}
+if (!PROVISION_CORE_SOURCE.includes('seedModularPagesV2')) {
+  note('[cms-v2-provisioning] Provisioning defaults must seed modularPagesV2 for new tenants.');
+}
+if (!CMS_V2_CONTRACT_SOURCE.includes('getCmsV2PageContract') || !CMS_V2_CONTRACT_SOURCE.includes('seedModularPagesV2')) {
+  note('[cms-v2-contract] Direct-render CMS v2 needs page contracts and seed generation.');
+}
+if (!CONTENT_API_SOURCE.includes('normalizeMailSecret') || !CONTENT_API_SOURCE.includes('passEnc')) {
+  note('[mail-secret] Mail passwords must be normalized server-side into encrypted passEnc instead of persisted plaintext.');
 }
 
 /* ─────────────────────────────────────────────────────────────────

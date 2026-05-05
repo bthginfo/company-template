@@ -1,7 +1,8 @@
 ﻿import type { VercelRequest, VercelResponse } from '@vercel/node';
+import crypto from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
-import { SiteContentSchema } from '../src/lib/types.js';
+import { SiteContentSchema, type SiteContent } from '../src/lib/types.js';
 import { defaultsFor } from '../src/lib/provision-core.js';
 import { getSession, unauthorized } from './_lib/auth.js';
 
@@ -75,14 +76,15 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  const existing = await db.query.siteContent.findFirst({
+    where: eq(schema.siteContent.tenantId, tenant.id),
+  });
+
   const parse = SiteContentSchema.safeParse(req.body);
   if (!parse.success) {
     return res.status(400).json({ error: 'Invalid content', details: parse.error.flatten() });
   }
-
-  const existing = await db.query.siteContent.findFirst({
-    where: eq(schema.siteContent.tenantId, tenant.id),
-  });
+  const normalizedDraft = normalizeMailSecret(parse.data, (existing?.draft ?? existing?.data) as SiteContent | undefined);
 
   if (!existing) {
     const liveSeed = defaultsFor(
@@ -94,12 +96,12 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     await db.insert(schema.siteContent).values({
       tenantId: tenant.id,
       data: liveSeed,
-      draft: parse.data,
+      draft: normalizedDraft,
     });
   } else {
     await db
       .update(schema.siteContent)
-      .set({ draft: parse.data, updatedAt: new Date() })
+      .set({ draft: normalizedDraft, updatedAt: new Date() })
       .where(eq(schema.siteContent.tenantId, tenant.id));
   }
 
@@ -147,4 +149,38 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
   }
 
   res.status(400).json({ error: 'Unknown action' });
+}
+
+const MAIL_SECRET_PREFIX = 'enc:v1:';
+
+function cryptoKey(): Buffer {
+  return crypto.createHash('sha256').update(process.env.AUTH_SECRET || process.env.ADMIN_PASSWORD_HASH || 'dev-secret').digest();
+}
+
+function encryptMailSecret(value: string): string {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', cryptoKey(), iv);
+  const encrypted = Buffer.concat([cipher.update(value, 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `${MAIL_SECRET_PREFIX}${Buffer.concat([iv, tag, encrypted]).toString('base64url')}`;
+}
+
+function normalizeMailSecret(next: SiteContent, previous?: SiteContent): SiteContent {
+  const mail = next.mail;
+  if (!mail) return next;
+  const pass = String(mail.pass || '');
+  const previousMail = previous?.mail;
+  const preservedRaw = previousMail?.passEnc || previousMail?.pass || '';
+  const preserved = preservedRaw && !String(preservedRaw).startsWith(MAIL_SECRET_PREFIX) ? encryptMailSecret(String(preservedRaw)) : preservedRaw;
+  const passEnc = pass
+    ? (pass.startsWith(MAIL_SECRET_PREFIX) ? pass : encryptMailSecret(pass))
+    : preserved;
+  return {
+    ...next,
+    mail: {
+      ...mail,
+      pass: '',
+      passEnc,
+    },
+  };
 }

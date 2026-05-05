@@ -13,6 +13,7 @@ import { randomBytes } from 'crypto';
 import { db, schema } from './db/client.js';
 import { SiteContentSchema, type SiteContent } from './types.js';
 import { mergeSiteContentWithBootstrappedPageBlocks } from './page-blocks-v1-bootstrap.js';
+import { seedModularPagesV2 } from './cms-v2-contract.js';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content.js';
 import { BRANCH_TEXT_DEFAULTS } from './branch-text-defaults.js';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from './section-defaults.js';
@@ -185,7 +186,11 @@ export function defaultsFor(
       });
     }
   }
-  return withModularDefaults(mergeSiteContentWithBootstrappedPageBlocks(out, t, style), t, style);
+  const withLegacyModular = withModularDefaults(mergeSiteContentWithBootstrappedPageBlocks(out, t, style), t, style);
+  return SiteContentSchema.parse({
+    ...withLegacyModular,
+    modularPagesV2: seedModularPagesV2(t, style),
+  });
 }
 
 function vercelFactory(token: string, team: string) {
