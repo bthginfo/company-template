@@ -1,21 +1,13 @@
 import type { SiteContent } from '@/lib/types';
 import type { TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
-import { useMemo } from 'react';
-import { ModularSectionDataForm } from './ModularSectionDataForm';
-import type { ModularUploadFn } from './modular-section-field-kit';
 import {
-  HOTEL_SECTION_LABEL_DE,
-  applyHotelModularToLegacy,
   hasAnyHotelModular,
   hasHotelModularPage,
-  importHotelModularFromLegacy,
-  type HotelModularPageKey,
 } from '@/lib/modular-hotel';
-import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
-import { getHomeLayoutSlotKeys } from '@/lib/effective-home-order';
-import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
-import { applyModularHomeVisibilityMirror } from '@/lib/page-blocks-v1-section-visibility-sync';
+import type { ModularUploadFn } from './modular-section-field-kit';
+import { ModularSpecActivationPanel, ModularSpecPageEditor, type ModularSpecPageKey } from './ModularSpecPageEditor';
+import { HOTEL_MODULAR_SPEC_CFG } from './modular-branch-spec-config';
 
 type Props = {
   data: SiteContent;
@@ -25,196 +17,12 @@ type Props = {
   uploadImage?: ModularUploadFn;
 };
 
-type PageProps = Props & { page: HotelModularPageKey };
-
-type ModularBundleKey = Exclude<keyof NonNullable<SiteContent['modularPagesV1']>, 'combo'>;
-
-function bundleKey(page: HotelModularPageKey): ModularBundleKey {
-  return page;
+export function ModularHotelPageEditor(props: Props & { page: ModularSpecPageKey }) {
+  return <ModularSpecPageEditor {...props} cfg={HOTEL_MODULAR_SPEC_CFG} />;
 }
 
-function commitModular(base: SiteContent, modular: NonNullable<SiteContent['modularPagesV1']>) {
-  return applyHotelModularToLegacy({ ...base, modularPagesV1: modular });
-}
-
-export function ModularHotelPageEditor({ data, setData, tpl, style, page, uploadImage }: PageProps) {
-  useBootstrapModularIfNeeded({
-    tpl,
-    style,
-    data,
-    setData,
-    cfgTpl: 'hotel',
-    importFromLegacy: importHotelModularFromLegacy,
-    applyToLegacy: applyHotelModularToLegacy,
-    hasAny: hasAnyHotelModular,
-  });
-  const modular = data.modularPagesV1;
-  const key = bundleKey(page);
-  const sections = modular?.[key]?.sections ?? [];
-  const homeSlots = useMemo(
-    () => (page === 'home' ? getHomeLayoutSlotKeys(data, tpl, style) : null),
-    [page, data, tpl, style],
-  );
-  const hiddenHomeCount = useMemo(() => {
-    if (page !== 'home' || !homeSlots) return 0;
-    return sections.filter((s) => !isModularHomeSectionAdminVisible(tpl, style, s.type, homeSlots)).length;
-  }, [page, sections, tpl, style, homeSlots]);
-
-  const updateSections = (nextSecs: typeof sections) => {
-    if (!modular) return;
-    const next: NonNullable<SiteContent['modularPagesV1']> = {
-      ...modular,
-      [key]: { sections: nextSecs },
-    };
-    setData(commitModular(data, next));
-  };
-
-  const patchSectionData = (id: string, nextData: Record<string, unknown>) => {
-    const nextSecs = sections.map((s) => (s.id === id ? { ...s, data: nextData } : s));
-    updateSections(nextSecs);
-  };
-
-  const toggleVisible = (id: string) => {
-    const sec = sections.find((s) => s.id === id);
-    if (!sec || !modular) return;
-    const nextVisible = !(sec.isVisible !== false);
-    const nextSecs = sections.map((s) => (s.id === id ? { ...s, isVisible: nextVisible } : s));
-    const nextModular: NonNullable<SiteContent['modularPagesV1']> = {
-      ...modular,
-      [key]: { sections: nextSecs },
-    };
-    let merged = commitModular(data, nextModular);
-    if (page === 'home') {
-      merged = applyModularHomeVisibilityMirror(merged, 'hotel', sec.type, nextVisible);
-    }
-    setData(merged);
-  };
-
-  const move = (idx: number, dir: -1 | 1) => {
-    const j = idx + dir;
-    if (j < 0 || j >= sections.length) return;
-    const next = [...sections];
-    [next[idx], next[j]] = [next[j], next[idx]];
-    updateSections(next);
-  };
-
-  if (tpl !== 'hotel') {
-    return (
-      <p className="text-sm text-muted">
-        Modulare Speicher-Struktur ist für diese Kombination noch nicht freigeschaltet.
-      </p>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {modular?.combo?.style && modular.combo.style !== style ? (
-        <p className="text-xs text-rose-900 max-w-prose rounded-xl border border-rose-200 bg-rose-50/80 px-3 py-2">
-          Hinweis: Modulare Metadaten sind für <strong>{formatBranchStyle(modular.combo.style)}</strong> gespeichert, der Mandant nutzt
-          aber <strong>{formatBranchStyle(style)}</strong>. Inhalte werden weiter ins Frontend gemergt; bei Bedarf Stil im Admin an die
-          gespeicherte Kombination anpassen.
-        </p>
-      ) : null}
-
-      {hiddenHomeCount > 0 ? (
-        <p className="text-xs text-muted max-w-prose border border-line rounded-xl px-3 py-2 bg-[#fafaf7]">
-          {hiddenHomeCount} Block(e) sind für diese Branchen/Stil-Kombination auf der Startseite nicht sichtbar (kein passender Layout-Slot).
-          Daten bleiben gespeichert; bei Layout-Änderung können sie wieder relevant werden.
-        </p>
-      ) : null}
-
-      <div className="space-y-4">
-        {sections.map((sec, idx) => {
-          const homeVisible = page !== 'home' || !homeSlots || isModularHomeSectionAdminVisible(tpl, style, sec.type, homeSlots);
-          if (!homeVisible) {
-            return (
-              <section key={sec.id} className="border border-dashed border-line rounded-2xl overflow-hidden bg-[#fafaf7]/80 opacity-90">
-                <header className="px-4 py-3 border-b border-line flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-wider text-muted">type = {sec.type}</p>
-                    <h3 className="font-display text-base text-muted">
-                      {HOTEL_SECTION_LABEL_DE[sec.type] ?? sec.type}
-                      <span className="ml-2 text-xs font-sans font-normal text-amber-800">· nicht im aktuellen Startseiten-Layout</span>
-                    </h3>
-                  </div>
-                </header>
-              </section>
-            );
-          }
-          return (
-          <section key={sec.id} className="border border-line rounded-2xl overflow-hidden bg-white">
-            <header className="px-4 py-3 bg-[#fafaf7] border-b border-line flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-wider text-brand">type = {sec.type}</p>
-                <h3 className="font-display text-lg">
-                  {HOTEL_SECTION_LABEL_DE[sec.type] ?? sec.type}
-                </h3>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <label className="text-xs flex items-center gap-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={sec.isVisible !== false}
-                    onChange={() => toggleVisible(sec.id)}
-                  />
-                  Sichtbar
-                </label>
-                <button type="button" className="text-xs px-2 py-1 border border-line rounded" onClick={() => move(idx, -1)} disabled={idx === 0}>↑</button>
-                <button type="button" className="text-xs px-2 py-1 border border-line rounded" onClick={() => move(idx, 1)} disabled={idx === sections.length - 1}>↓</button>
-              </div>
-            </header>
-            <div className="p-4">
-              <ModularSectionDataForm
-                tpl={tpl}
-                style={style}
-                sectionType={sec.type}
-                data={(sec.data ?? {}) as Record<string, unknown>}
-                uploadImage={uploadImage}
-                modularPage={page}
-                onChange={(next) => patchSectionData(sec.id, next)}
-              />
-            </div>
-          </section>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function formatBranchStyle(style: TemplateStyle): string {
-  if (style === 'modern') return 'Modern';
-  if (style === 'bold') return 'Bold';
-  return 'Klassisch';
-}
-
-export function ModularHotelActivationPanel({ data, setData, tpl, style }: Props) {
-  if (tpl !== 'hotel') return null;
-  if (hasAnyHotelModular(data)) return null;
-  return (
-    <div className="bg-white border border-line rounded-2xl p-4 mb-6">
-      <p className="text-sm font-medium">Modularer Seiten-Editor · Hotel</p>
-      <p className="text-xs text-muted mt-1 max-w-prose">
-        Aktiviert den modularen Editor für alle Hotel-Unterseiten (Start, Zimmer, Haus &amp; Spa, Geschichte, Reservieren) im
-        Stil {formatBranchStyle(style)}. Inhalte werden einmalig aus den bestehenden Feldern übernommen; Sie bearbeiten die Blöcke
-        hier mit Formularfeldern wie im restlichen Admin.
-      </p>
-      <p className="text-xs text-muted mt-2 max-w-prose leading-relaxed border-t border-line pt-2">
-        <strong className="text-foreground">Deaktivieren</strong> (im Editor) entfernt nur die modulare Speicher-Schicht; gemergte Felder
-        bleiben erhalten.
-      </p>
-      <button
-        type="button"
-        className="mt-3 text-xs font-medium px-4 py-2 rounded-lg bg-brand text-white"
-        onClick={() => {
-          const imported = importHotelModularFromLegacy(data, style);
-          setData(commitModular(data, imported));
-        }}
-      >
-        Modularen Editor für Hotel aktivieren
-      </button>
-    </div>
-  );
+export function ModularHotelActivationPanel(props: Props) {
+  return <ModularSpecActivationPanel {...props} cfg={HOTEL_MODULAR_SPEC_CFG} />;
 }
 
 export { hasHotelModularPage, hasAnyHotelModular };

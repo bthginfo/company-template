@@ -5,6 +5,20 @@
  */
 
 import type { ModularSpecEditorConfig, ModularSpecPageKey } from './ModularSpecPageEditor';
+import { RESTAURANT_SECTION_LABEL_DE } from '@/lib/modular-restaurant-blueprints';
+import {
+  importRestaurantModularFromLegacy,
+  applyRestaurantModularToLegacy,
+  hasRestaurantModularPage,
+  hasAnyRestaurantModular,
+} from '@/lib/modular-restaurant';
+import { HOTEL_SECTION_LABEL_DE } from '@/lib/modular-hotel-blueprints';
+import {
+  importHotelModularFromLegacy,
+  applyHotelModularToLegacy,
+  hasHotelModularPage,
+  hasAnyHotelModular,
+} from '@/lib/modular-hotel';
 import { TOURISM_SECTION_LABEL_DE } from '@/lib/modular-tourism-blueprints';
 import {
   importTourismModularFromLegacy,
@@ -54,6 +68,46 @@ const PAGE_LABELS_STANDARD: Record<ModularSpecPageKey, string> = {
   gallery: 'Galerie',
   about: 'Über uns',
   contact: 'Kontakt',
+};
+
+export const RESTAURANT_MODULAR_SPEC_CFG: ModularSpecEditorConfig = {
+  tpl: 'restaurant',
+  branchLabelDe: 'Restaurant',
+  specDoc: 'docs/spec-modular-abgleich.md',
+  pageLabels: {
+    home: 'Start',
+    services: 'Speisekarte',
+    gallery: 'Galerie',
+    about: 'Über uns',
+    contact: 'Kontakt',
+  },
+  sectionLabels: { ...RESTAURANT_SECTION_LABEL_DE },
+  activationIntroDe:
+    'Aktiviert das modulare Speicher-Modell für alle Restaurant-Unterseiten im gewählten Stil. Inhalte werden einmalig aus den bestehenden Feldern übernommen und bei Änderungen in die SiteContent-Felder zurückgemergt.',
+  importFromLegacy: importRestaurantModularFromLegacy,
+  applyToLegacy: applyRestaurantModularToLegacy,
+  hasPage: hasRestaurantModularPage,
+  hasAny: hasAnyRestaurantModular,
+};
+
+export const HOTEL_MODULAR_SPEC_CFG: ModularSpecEditorConfig = {
+  tpl: 'hotel',
+  branchLabelDe: 'Hotel',
+  specDoc: 'docs/spec-hotel.md',
+  pageLabels: {
+    home: 'Start',
+    services: 'Zimmer',
+    gallery: 'Haus & Spa',
+    about: 'Geschichte',
+    contact: 'Reservieren',
+  },
+  sectionLabels: { ...HOTEL_SECTION_LABEL_DE },
+  activationIntroDe:
+    'Aktiviert das modulare Speicher-Modell für alle Hotel-Unterseiten im gewählten Stil. Inhalte werden einmalig aus den bestehenden Feldern übernommen und bei Änderungen in die SiteContent-Felder zurückgemergt.',
+  importFromLegacy: importHotelModularFromLegacy,
+  applyToLegacy: applyHotelModularToLegacy,
+  hasPage: hasHotelModularPage,
+  hasAny: hasAnyHotelModular,
 };
 
 export const TOURISM_MODULAR_SPEC_CFG: ModularSpecEditorConfig = {

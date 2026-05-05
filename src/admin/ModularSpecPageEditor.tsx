@@ -9,6 +9,8 @@ import { getHomeLayoutSlotKeys } from '@/lib/effective-home-order';
 import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
 import { applyModularHomeVisibilityMirror } from '@/lib/page-blocks-v1-section-visibility-sync';
 import type { ModularSpecPageKey } from './modular-section-types';
+import { getCmsAddableSectionTypes } from '@/lib/cms-contract';
+import { ANNOUNCEMENT_BAR_SECTION_KEY } from '@/lib/page-layout';
 
 export type { ModularSpecPageKey } from './modular-section-types';
 
@@ -83,6 +85,33 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
     setData(commitModular(data, next));
   };
 
+  const addableSectionTypes = useMemo(
+    () => getCmsAddableSectionTypes(cfg.tpl, style, page, sections.map((s) => s.type)),
+    [cfg.tpl, style, page, sections],
+  );
+
+  const addSection = (type: string) => {
+    if (!modular || !addableSectionTypes.includes(type)) return;
+    const sameTypeCount = sections.filter((s) => s.type === type).length;
+    updateSections([
+      ...sections,
+      {
+        id: `${page}-${type}-${sameTypeCount}-${Date.now().toString(36)}`,
+        type,
+        isVisible: true,
+        data: {},
+      },
+    ]);
+  };
+
+  const removeSection = (id: string) => {
+    const sec = sections.find((s) => s.id === id);
+    if (!sec) return;
+    const label = cfg.sectionLabels[sec.type] ?? sec.type;
+    if (!window.confirm(`Section "${label}" aus dieser Seite entfernen?`)) return;
+    updateSections(sections.filter((s) => s.id !== id));
+  };
+
   const patchSectionData = (id: string, nextData: Record<string, unknown>) => {
     const nextSecs = sections.map((s) => (s.id === id ? { ...s, data: nextData } : s));
     updateSections(nextSecs);
@@ -100,6 +129,12 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
     let merged = commitModular(data, nextModular);
     if (page === 'home') {
       merged = applyModularHomeVisibilityMirror(merged, cfg.tpl, sec.type, nextVisible);
+    } else if (sec.type === 'noticeBanner') {
+      const vis = ((merged as { sectionVisibility?: Record<string, boolean> }).sectionVisibility ?? {}) as Record<string, boolean>;
+      merged = {
+        ...merged,
+        sectionVisibility: { ...vis, [`${page}.${ANNOUNCEMENT_BAR_SECTION_KEY}`]: nextVisible },
+      };
     }
     setData(merged);
   };
@@ -175,6 +210,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
                 </label>
                 <button type="button" className="text-xs px-2 py-1 border border-line rounded" onClick={() => move(idx, -1)} disabled={idx === 0}>↑</button>
                 <button type="button" className="text-xs px-2 py-1 border border-line rounded" onClick={() => move(idx, 1)} disabled={idx === sections.length - 1}>↓</button>
+                <button type="button" className="text-xs px-2 py-1 border border-rose-200 text-rose-700 rounded" onClick={() => removeSection(sec.id)}>Entfernen</button>
               </div>
             </header>
             <div className="p-4">
@@ -185,12 +221,37 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
                 data={(sec.data ?? {}) as Record<string, unknown>}
                 uploadImage={uploadImage}
                 modularPage={page}
+                siteContent={data}
+                onPatchSiteContent={(patch) => setData({ ...data, ...patch })}
                 onChange={(next) => patchSectionData(sec.id, next)}
               />
             </div>
           </section>
           );
         })}
+      </div>
+      <div className="rounded-2xl border border-dashed border-line bg-[#fafaf7] p-4">
+        <label className="block text-xs uppercase tracking-widest text-muted mb-2">
+          Section hinzufügen
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {addableSectionTypes.length ? (
+            addableSectionTypes.map((type) => (
+              <button
+                key={type}
+                type="button"
+                className="text-xs px-3 py-2 rounded-lg border border-line bg-white hover:border-brand"
+                onClick={() => addSection(type)}
+              >
+                + {cfg.sectionLabels[type] ?? type}
+              </button>
+            ))
+          ) : (
+            <p className="text-xs text-muted">
+              Alle für diese Branchen/Stil/Seiten-Kombination erlaubten Section-Typen sind bereits vorhanden.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -18,6 +18,14 @@ import { BRANCH_TEXT_DEFAULTS } from './branch-text-defaults.js';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from './section-defaults.js';
 import { FAQ_DEFAULTS } from './faq-defaults.js';
 import { getPreset } from './theme.js';
+import { importRestaurantModularFromLegacy, applyRestaurantModularToLegacy } from './modular-restaurant.js';
+import { importHotelModularFromLegacy, applyHotelModularToLegacy } from './modular-hotel.js';
+import { importTourismModularFromLegacy, applyTourismModularToLegacy } from './modular-tourism.js';
+import { importSalonModularFromLegacy, applySalonModularToLegacy } from './modular-salon.js';
+import { importTradesmanModularFromLegacy, applyTradesmanModularToLegacy } from './modular-tradesman.js';
+import { importConsultingModularFromLegacy, applyConsultingModularToLegacy } from './modular-consulting.js';
+import { importMedicalModularFromLegacy, applyMedicalModularToLegacy } from './modular-medical.js';
+import { importFitnessModularFromLegacy, applyFitnessModularToLegacy } from './modular-fitness.js';
 
 export const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
 export const VALID_STYLES = ['classic', 'modern', 'bold'] as const;
@@ -131,6 +139,27 @@ function fullDefaults(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tou
   });
 }
 
+function withModularDefaults(content: SiteContent, template: AnyTemplate, style: AnyStyle): SiteContent {
+  switch (template) {
+    case 'restaurant':
+      return applyRestaurantModularToLegacy({ ...content, modularPagesV1: importRestaurantModularFromLegacy(content, style) });
+    case 'hotel':
+      return applyHotelModularToLegacy({ ...content, modularPagesV1: importHotelModularFromLegacy(content, style) });
+    case 'tourism':
+      return applyTourismModularToLegacy({ ...content, modularPagesV1: importTourismModularFromLegacy(content, style) });
+    case 'salon':
+      return applySalonModularToLegacy({ ...content, modularPagesV1: importSalonModularFromLegacy(content, style) });
+    case 'tradesman':
+      return applyTradesmanModularToLegacy({ ...content, modularPagesV1: importTradesmanModularFromLegacy(content, style) });
+    case 'consulting':
+      return applyConsultingModularToLegacy({ ...content, modularPagesV1: importConsultingModularFromLegacy(content, style) });
+    case 'medical':
+      return applyMedicalModularToLegacy({ ...content, modularPagesV1: importMedicalModularFromLegacy(content, style) });
+    case 'fitness':
+      return applyFitnessModularToLegacy({ ...content, modularPagesV1: importFitnessModularFromLegacy(content, style) });
+  }
+}
+
 export function defaultsFor(
   t: AnyTemplate,
   name: string,
@@ -156,7 +185,7 @@ export function defaultsFor(
       });
     }
   }
-  return mergeSiteContentWithBootstrappedPageBlocks(out, t, style);
+  return withModularDefaults(mergeSiteContentWithBootstrappedPageBlocks(out, t, style), t, style);
 }
 
 function vercelFactory(token: string, team: string) {

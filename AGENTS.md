@@ -40,15 +40,21 @@ you exactly what to fix. Do **not** improvise.
    combination, that the admin only exposes editors for fields the
    frontend actually renders, and that every frontend-rendered field
    has a matching admin editor. See `scripts/check-coverage.ts` and
-   `src/lib/section-registry.ts`. **When you add a new editable field
-   or section, update `section-registry.ts` first**, otherwise the
-   build fails.
+   `src/lib/cms-contract.ts` / `src/lib/section-registry.ts`.
+   **For modular tenant CMS, the source of truth is the branch/style/page
+   blueprint surfaced through `cms-contract.ts`: the admin may only offer
+   section types returned by that contract, and all returned section types
+   must have an active admin form and frontend merge/render path.**
+   When you add a new editable field or section, update the contract/registry
+   first, otherwise the build fails.
 3. **No `any` types** in new code. If unavoidable, leave a TODO and reason.
 4. **Per-tenant content lives in one row** (`siteContent.data` jsonb).
    Schema changes must keep the existing rows readable (additive only).
    **Speichern im Admin schreibt nur `draft`**; die Live-Site liefert `data`, bis
    **Veröffentlichen** (`POST …/api/content?action=publish`) oder Vorschau mit
-   Session (`GET …/api/content?preview=1`).
+   Session (`GET …/api/content?preview=1`). New tenants must be seeded with
+   `modularPagesV1` for their exact template/style combo so onboarding opens
+   directly in the matching CMS structure.
 5. **Admin endpoints require a valid session cookie.** Never bypass
    `requireSession()` checks.
 6. **All eight templates × three styles must keep building.** When you
@@ -282,7 +288,8 @@ Do not produce a separate markdown summary file unless explicitly asked.
 | Admin section registry + section ordering         | [src/admin/admin-sections.ts](src/admin/admin-sections.ts)        |
 | Frontend home order (core 5)                      | [src/lib/template-orders.ts](src/lib/template-orders.ts)          |
 | Frontend home order (extras) + section catalog    | [src/lib/page-layout.ts](src/lib/page-layout.ts)                  |
-| Section dataKeys (admin↔frontend contract)        | [src/lib/section-registry.ts](src/lib/section-registry.ts)        |
+| Modular CMS contract (branch×style×page sections) | [src/lib/cms-contract.ts](src/lib/cms-contract.ts)                |
+| Legacy section dataKeys (admin↔frontend contract) | [src/lib/section-registry.ts](src/lib/section-registry.ts)        |
 | Drift coverage script                             | [scripts/check-coverage.ts](scripts/check-coverage.ts)            |
 | Spec-modular (Markdown ↔ Blueprint ↔ Merge)       | [docs/spec-modular-abgleich.md](docs/spec-modular-abgleich.md)   |
 | Default content per template                      | [src/lib/demo-content.ts](src/lib/demo-content.ts)                |

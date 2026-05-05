@@ -49,3 +49,24 @@ export function getCmsContract(template: TemplateKey, style: TemplateStyle, page
 export function getCmsSectionTypes(template: TemplateKey, style: TemplateStyle, page: CmsPageKey): readonly string[] {
   return getCmsContract(template, style, page).sections.map((s) => s.type);
 }
+
+export function getCmsAddableSectionTypes(
+  template: TemplateKey,
+  style: TemplateStyle,
+  page: CmsPageKey,
+  existingTypes: readonly string[],
+): readonly string[] {
+  const existingCounts = new Map<string, number>();
+  for (const type of existingTypes) {
+    existingCounts.set(type, (existingCounts.get(type) ?? 0) + 1);
+  }
+
+  const offeredCounts = new Map<string, number>();
+  const out: string[] = [];
+  for (const type of getCmsSectionTypes(template, style, page)) {
+    const offered = offeredCounts.get(type) ?? 0;
+    offeredCounts.set(type, offered + 1);
+    if ((existingCounts.get(type) ?? 0) <= offered) out.push(type);
+  }
+  return out;
+}

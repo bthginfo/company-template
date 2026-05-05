@@ -135,21 +135,19 @@ Hinweis: Nicht jeder Spec-Block muss vollständig alle Unterfelder mergen (z. 
 
 ## Provisioning & Tenant-Daten
 
-### Aktuelles Verhalten (keine Pflichtänderung)
+### Aktuelles Verhalten
 
 - `scripts/provision-tenant.ts` / `src/lib/provision-core.ts` seeden **`SiteContent`** über `DEMO_CONTENT` / `EXTRA_DEMO_CONTENT` und `SiteContentSchema.parse(…)`.
-- **`modularPagesV1` ist optional** (`src/lib/types.ts`) und wird beim Provisionieren **nicht** gesetzt.
-- Neue Mandanten starten mit **klassischen** Feldern; Spez-Modular ist im Admin **opt-in** („Aktivieren“).
+- Danach wird für die gewählte Branchen/Stil-Kombination direkt `modularPagesV1` erzeugt und einmal über `apply*ModularToLegacy` zurückgemergt.
+- Neue Mandanten starten damit sofort im passenden modularen CMS. Der Admin darf nur Section-Typen anbieten, die `src/lib/cms-contract.ts` für `template × style × page` zurückgibt.
+- `modularPagesV1` bleibt im Schema optional, damit bestehende Reihen lesbar bleiben. Für neue Provisionings ist die modulare Struktur aber der erwartete Standard.
 
-Das ist konsistent und muss für lauffähiges Provisioning **nicht** geändert werden.
+### Import-Erweiterungen
 
-### Optionale Erweiterungen (nur bei Produktwunsch)
-
-| Wunsch | Änderung |
+| Thema | Regel |
 |--------|----------|
-| Neuer Tenant soll **sofort** Spez-JSON mitbringen | Nach `defaultsFor()` in `provision-core.ts` z. B. `importTourismModularFromLegacy(seed, style)` aufrufen und Ergebnis in `seed.modularPagesV1` legen; ggf. einmal `applyTourismModularToLegacy` für konsistente Legacy-Felder. Pro Template eigener Aufruf. |
-| CLI-Flag `--spec-modular` | Analog nur wenn Flag gesetzt, sonst Verhalten wie heute. |
-| Perplexity-Export enthält bereits `modularPagesV1` | `importContentJson` / `content-import.ts` muss weiterhin **deep-merge**-fähig sein (prüfen, ob Import Modular-Keys überschreibt oder ignoriert). |
+| Perplexity-Export enthält bereits `modularPagesV1` | `importContentJson` / `content-import.ts` muss deep-merge-fähig bleiben; importierte Modular-Keys dürfen nicht die falsche Template/Style-Kombination aktivieren. |
+| Neue Section-Typen | Erst Blueprint + `cms-contract.ts`-Pfad, dann Admin-Form, dann Merge/Frontend. `npm run check:drift` muss die neue Kombination abdecken. |
 
 ### Content-JSON (`--content`)
 
@@ -160,5 +158,5 @@ Das ist konsistent und muss für lauffähiges Provisioning **nicht** geändert w
 ## Nächste konkrete Arbeitsschritte
 
 1. Pro Template eine **Diff-Liste**: Spec-`type`-Menge ∖ Menge der in `merge*` behandelten Typen → Tickets für fehlende Mapper.
-2. **`check:drift`** erweitert **nicht** Modular — optional separates Script `scripts/check-modular-spec.ts` (Spec-Typen vs. Blueprint-Union).
-3. Provisioning nur anfassen, wenn ihr **Default „Spez an“** wollt; sonst Dokumentation für Ops reicht (`RUNBOOK.md` kann auf dieses File verweisen).
+2. `check:drift` bleibt das Pflicht-Gate für Modular-Section-Abdeckung und Legacy-Feldabdeckung.
+3. Feld-Level-Contracts sollten weiter in `cms-contract.ts` konsolidiert werden, damit Admin-Form-Felder künftig ebenso hart geprüft werden wie Section-Typen.
