@@ -36,20 +36,25 @@ export function modularComboMatchesTenant(
   return !!m?.combo && m.combo.template === tpl && m.combo.style === style;
 }
 
+/** True when stored modular data belongs to this template (style may differ — see overlay + admin mismatch hint). */
+export function modularComboTemplateMatches(m: ModularPagesV1 | undefined, tpl: TemplateKey): boolean {
+  return !!m?.combo && m.combo.template === tpl;
+}
+
 export function hasRestaurantModularPage(
   content: SiteContent,
-  style: TemplateStyle,
+  _style: TemplateStyle,
   page: RestaurantModularPageKey,
 ): boolean {
   const m = content.modularPagesV1;
-  if (!modularComboMatchesTenant(m, 'restaurant', style) || !m) return false;
+  if (!modularComboTemplateMatches(m, 'restaurant') || !m) return false;
   const bundle = page === 'home' ? m.home : page === 'services' ? m.services : page === 'gallery' ? m.gallery : page === 'about' ? m.about : m.contact;
   return (bundle?.sections?.length ?? 0) > 0;
 }
 
-export function hasAnyRestaurantModular(content: SiteContent, style: TemplateStyle): boolean {
+export function hasAnyRestaurantModular(content: SiteContent): boolean {
   const pages: RestaurantModularPageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
-  return pages.some((p) => hasRestaurantModularPage(content, style, p));
+  return pages.some((p) => hasRestaurantModularPage(content, 'classic', p));
 }
 
 function emptySections(style: TemplateStyle, page: RestaurantModularPageKey): ModularSectionV1[] {
@@ -1103,11 +1108,11 @@ export function applyRestaurantModularToLegacy(content: SiteContent): SiteConten
 export function applyRestaurantModularOverlay(
   content: SiteContent,
   variant: TemplateKey,
-  style: TemplateStyle,
+  _runtimeStyle: TemplateStyle,
 ): SiteContent {
   if (variant !== 'restaurant') return content;
-  if (!modularComboMatchesTenant(content.modularPagesV1, 'restaurant', style)) return content;
-  if (!hasAnyRestaurantModular(content, style)) return content;
+  if (!modularComboTemplateMatches(content.modularPagesV1, 'restaurant')) return content;
+  if (!hasAnyRestaurantModular(content)) return content;
   return applyRestaurantModularToLegacy(content);
 }
 

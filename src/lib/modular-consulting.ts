@@ -12,7 +12,7 @@ import {
 } from '@/lib/modular-consulting-blueprints';
 import {
   str,
-  modularComboMatchesTenant,
+  modularComboTemplateMatches,
   mergeHomeIntoLegacy,
   mergeGalleryIntoLegacy,
   mergeAboutIntoLegacy,
@@ -27,16 +27,16 @@ import { mapModularItemToPackage, mapModularItemToService, mapModularTeamToLegac
 
 export { CONSULTING_SECTION_LABEL_DE, type ConsultingModularPageKey };
 
-export function hasConsultingModularPage(content: SiteContent, style: TemplateStyle, page: ConsultingModularPageKey): boolean {
+export function hasConsultingModularPage(content: SiteContent, _style: TemplateStyle, page: ConsultingModularPageKey): boolean {
   const m = content.modularPagesV1;
-  if (!modularComboMatchesTenant(m, 'consulting', style) || !m) return false;
+  if (!modularComboTemplateMatches(m, 'consulting') || !m) return false;
   const bundle =
     page === 'home' ? m.home : page === 'services' ? m.services : page === 'gallery' ? m.gallery : page === 'about' ? m.about : m.contact;
   return (bundle?.sections?.length ?? 0) > 0;
 }
 
-export function hasAnyConsultingModular(content: SiteContent, style: TemplateStyle): boolean {
-  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasConsultingModularPage(content, style, p));
+export function hasAnyConsultingModular(content: SiteContent): boolean {
+  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasConsultingModularPage(content, 'classic', p));
 }
 
 function emptySections(style: TemplateStyle, page: ConsultingModularPageKey): ModularSectionV1[] {
@@ -521,9 +521,9 @@ export function applyConsultingModularToLegacy(content: SiteContent): SiteConten
   return next;
 }
 
-export function applyConsultingModularOverlay(content: SiteContent, variant: TemplateKey, style: TemplateStyle): SiteContent {
+export function applyConsultingModularOverlay(content: SiteContent, variant: TemplateKey, _style: TemplateStyle): SiteContent {
   if (variant !== 'consulting') return content;
-  if (!modularComboMatchesTenant(content.modularPagesV1, 'consulting', style)) return content;
-  if (!hasAnyConsultingModular(content, style)) return content;
+  if (!modularComboTemplateMatches(content.modularPagesV1, 'consulting')) return content;
+  if (!hasAnyConsultingModular(content)) return content;
   return applyConsultingModularToLegacy(content);
 }

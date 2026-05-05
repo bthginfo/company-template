@@ -13,7 +13,7 @@ import {
 import {
   str,
   bool,
-  modularComboMatchesTenant,
+  modularComboTemplateMatches,
   mergeHomeIntoLegacy,
   mergeGalleryIntoLegacy,
   mergeAboutIntoLegacy,
@@ -32,18 +32,18 @@ type ServiceRow = SiteContent['services'][number];
 
 export function hasTradesmanModularPage(
   content: SiteContent,
-  style: TemplateStyle,
+  _style: TemplateStyle,
   page: TradesmanModularPageKey,
 ): boolean {
   const m = content.modularPagesV1;
-  if (!modularComboMatchesTenant(m, 'tradesman', style) || !m) return false;
+  if (!modularComboTemplateMatches(m, 'tradesman') || !m) return false;
   const bundle =
     page === 'home' ? m.home : page === 'services' ? m.services : page === 'gallery' ? m.gallery : page === 'about' ? m.about : m.contact;
   return (bundle?.sections?.length ?? 0) > 0;
 }
 
-export function hasAnyTradesmanModular(content: SiteContent, style: TemplateStyle): boolean {
-  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasTradesmanModularPage(content, style, p));
+export function hasAnyTradesmanModular(content: SiteContent): boolean {
+  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasTradesmanModularPage(content, 'classic', p));
 }
 
 function emptySections(style: TemplateStyle, page: TradesmanModularPageKey): ModularSectionV1[] {
@@ -709,9 +709,9 @@ export function applyTradesmanModularToLegacy(content: SiteContent): SiteContent
   return next;
 }
 
-export function applyTradesmanModularOverlay(content: SiteContent, variant: TemplateKey, style: TemplateStyle): SiteContent {
+export function applyTradesmanModularOverlay(content: SiteContent, variant: TemplateKey, _style: TemplateStyle): SiteContent {
   if (variant !== 'tradesman') return content;
-  if (!modularComboMatchesTenant(content.modularPagesV1, 'tradesman', style)) return content;
-  if (!hasAnyTradesmanModular(content, style)) return content;
+  if (!modularComboTemplateMatches(content.modularPagesV1, 'tradesman')) return content;
+  if (!hasAnyTradesmanModular(content)) return content;
   return applyTradesmanModularToLegacy(content);
 }

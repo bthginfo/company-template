@@ -14,7 +14,7 @@ import {
 import {
   str,
   bool,
-  modularComboMatchesTenant,
+  modularComboTemplateMatches,
   mergeHomeIntoLegacy,
   mergeGalleryIntoLegacy,
   mergeAboutIntoLegacy,
@@ -33,19 +33,19 @@ type TourRow = NonNullable<SiteContent['tours']>[number];
 
 export function hasTourismModularPage(
   content: SiteContent,
-  style: TemplateStyle,
+  _style: TemplateStyle,
   page: TourismModularPageKey,
 ): boolean {
   const m = content.modularPagesV1;
-  if (!modularComboMatchesTenant(m, 'tourism', style) || !m) return false;
+  if (!modularComboTemplateMatches(m, 'tourism') || !m) return false;
   const bundle =
     page === 'home' ? m.home : page === 'services' ? m.services : page === 'gallery' ? m.gallery : page === 'about' ? m.about : m.contact;
   return (bundle?.sections?.length ?? 0) > 0;
 }
 
-export function hasAnyTourismModular(content: SiteContent, style: TemplateStyle): boolean {
+export function hasAnyTourismModular(content: SiteContent): boolean {
   const pages: TourismModularPageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
-  return pages.some((p) => hasTourismModularPage(content, style, p));
+  return pages.some((p) => hasTourismModularPage(content, 'classic', p));
 }
 
 function emptySections(style: TemplateStyle, page: TourismModularPageKey): ModularSectionV1[] {
@@ -506,10 +506,10 @@ export function applyTourismModularToLegacy(content: SiteContent): SiteContent {
 export function applyTourismModularOverlay(
   content: SiteContent,
   variant: TemplateKey,
-  style: TemplateStyle,
+  _style: TemplateStyle,
 ): SiteContent {
   if (variant !== 'tourism') return content;
-  if (!modularComboMatchesTenant(content.modularPagesV1, 'tourism', style)) return content;
-  if (!hasAnyTourismModular(content, style)) return content;
+  if (!modularComboTemplateMatches(content.modularPagesV1, 'tourism')) return content;
+  if (!hasAnyTourismModular(content)) return content;
   return applyTourismModularToLegacy(content);
 }

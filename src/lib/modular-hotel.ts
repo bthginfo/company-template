@@ -15,7 +15,7 @@ import {
   str,
   bool,
   imgUrl,
-  modularComboMatchesTenant,
+  modularComboTemplateMatches,
   mergeHomeIntoLegacy,
   mergeGalleryIntoLegacy,
   mergeAboutIntoLegacy,
@@ -33,19 +33,19 @@ type HotelRoom = NonNullable<SiteContent['rooms']>[number];
 
 export function hasHotelModularPage(
   content: SiteContent,
-  style: TemplateStyle,
+  _style: TemplateStyle,
   page: HotelModularPageKey,
 ): boolean {
   const m = content.modularPagesV1;
-  if (!modularComboMatchesTenant(m, 'hotel', style) || !m) return false;
+  if (!modularComboTemplateMatches(m, 'hotel') || !m) return false;
   const bundle =
     page === 'home' ? m.home : page === 'services' ? m.services : page === 'gallery' ? m.gallery : page === 'about' ? m.about : m.contact;
   return (bundle?.sections?.length ?? 0) > 0;
 }
 
-export function hasAnyHotelModular(content: SiteContent, style: TemplateStyle): boolean {
+export function hasAnyHotelModular(content: SiteContent): boolean {
   const pages: HotelModularPageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
-  return pages.some((p) => hasHotelModularPage(content, style, p));
+  return pages.some((p) => hasHotelModularPage(content, 'classic', p));
 }
 
 function emptySections(style: TemplateStyle, page: HotelModularPageKey): ModularSectionV1[] {
@@ -503,10 +503,10 @@ export function applyHotelModularToLegacy(content: SiteContent): SiteContent {
 export function applyHotelModularOverlay(
   content: SiteContent,
   variant: TemplateKey,
-  style: TemplateStyle,
+  _style: TemplateStyle,
 ): SiteContent {
   if (variant !== 'hotel') return content;
-  if (!modularComboMatchesTenant(content.modularPagesV1, 'hotel', style)) return content;
-  if (!hasAnyHotelModular(content, style)) return content;
+  if (!modularComboTemplateMatches(content.modularPagesV1, 'hotel')) return content;
+  if (!hasAnyHotelModular(content)) return content;
   return applyHotelModularToLegacy(content);
 }

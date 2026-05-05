@@ -16,7 +16,7 @@ export type ModularSpecEditorConfig = {
   importFromLegacy: (data: SiteContent, style: TemplateStyle) => NonNullable<SiteContent['modularPagesV1']>;
   applyToLegacy: (data: SiteContent) => SiteContent;
   hasPage: (data: SiteContent, style: TemplateStyle, page: ModularSpecPageKey) => boolean;
-  hasAny: (data: SiteContent, style: TemplateStyle) => boolean;
+  hasAny: (data: SiteContent) => boolean;
 };
 
 type BundleKey = Exclude<keyof NonNullable<SiteContent['modularPagesV1']>, 'combo'>;
@@ -90,8 +90,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg }: 
   };
 
   const reseed = () => {
-    if (!modular?.combo) return;
-    const imported = cfg.importFromLegacy(data, modular.combo.style);
+    const imported = cfg.importFromLegacy(data, style);
     setData(commitModular(data, imported));
   };
 
@@ -113,6 +112,19 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg }: 
           Blöcke gemäß <code className="text-[11px] bg-white/80 px-1 rounded">{cfg.specDoc}</code>. Änderungen werden in die
           bestehenden SiteContent-Felder gemergt.
         </p>
+        <p className="mt-2 text-xs text-amber-900 max-w-prose leading-relaxed border-t border-amber-200/80 pt-2">
+          <strong className="font-semibold">Aktivieren</strong> legt die Spez-JSON-Struktur an und übernimmt Ihre bisherigen
+          Felder einmalig. <strong className="font-semibold">Deaktivieren</strong> entfernt nur diese JSON-Schicht — die
+          zuletzt gemergten Werte in den normalen Feldern (Hero, Listen, Galerie …) bleiben auf der Website erhalten, bis Sie
+          sie dort oder hier wieder ändern.
+        </p>
+        {modular?.combo?.style && modular.combo.style !== style ? (
+          <p className="mt-2 text-xs text-rose-900 max-w-prose rounded-lg border border-rose-200 bg-white/90 px-3 py-2">
+            Die Speicher-Struktur ist für <strong>{formatBranchStyle(modular.combo.style)}</strong> angelegt, der Mandant
+            nutzt aber <strong>{formatBranchStyle(style)}</strong>. Öffentlich wird trotzdem gemergt; für passende
+            Sektionstypen auf „Neu füllen“ klicken (setzt den Stil in den Daten auf {formatBranchStyle(style)}).
+          </p>
+        ) : null}
         <div className="flex flex-wrap gap-2 mt-3">
           <button
             type="button"
@@ -126,7 +138,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg }: 
             onClick={deactivate}
             className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
           >
-            Spez-Modell vollständig deaktivieren
+            Spez-Modell deaktivieren (nur JSON entfernen)
           </button>
         </div>
       </div>
@@ -182,11 +194,16 @@ type ActivationProps = {
 
 export function ModularSpecActivationPanel({ data, setData, tpl, style, cfg }: ActivationProps) {
   if (tpl !== cfg.tpl) return null;
-  if (cfg.hasAny(data, style)) return null;
+  if (cfg.hasAny(data)) return null;
   return (
     <div className="bg-white border border-line rounded-2xl p-4 mb-6">
       <p className="text-sm font-medium">Spez-basierter Seiten-Editor (Beta) · {cfg.branchLabelDe}</p>
       <p className="text-xs text-muted mt-1 max-w-prose">{cfg.activationIntroDe}</p>
+      <p className="text-xs text-muted mt-2 max-w-prose leading-relaxed border-t border-line pt-2">
+        <strong className="text-foreground">Aktivieren</strong> = Spez-Struktur anlegen und Inhalte aus den bestehenden
+        Feldern übernehmen. <strong className="text-foreground">Deaktivieren</strong> (im Editor nach Aktivierung) =
+        nur die Spez-JSON löschen; gemergte Seiteninhalte bleiben in den normalen Feldern erhalten.
+      </p>
       <button
         type="button"
         className="mt-3 text-xs font-medium px-4 py-2 rounded-lg bg-brand text-white"

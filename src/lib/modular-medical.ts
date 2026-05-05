@@ -12,7 +12,7 @@ import {
 } from '@/lib/modular-medical-blueprints';
 import {
   str,
-  modularComboMatchesTenant,
+  modularComboTemplateMatches,
   mergeHomeIntoLegacy,
   mergeGalleryIntoLegacy,
   mergeAboutIntoLegacy,
@@ -27,16 +27,16 @@ import { mapModularDoctor, mapModularItemToService } from '@/lib/modular-catalog
 
 export { MEDICAL_SECTION_LABEL_DE, type MedicalModularPageKey };
 
-export function hasMedicalModularPage(content: SiteContent, style: TemplateStyle, page: MedicalModularPageKey): boolean {
+export function hasMedicalModularPage(content: SiteContent, _style: TemplateStyle, page: MedicalModularPageKey): boolean {
   const m = content.modularPagesV1;
-  if (!modularComboMatchesTenant(m, 'medical', style) || !m) return false;
+  if (!modularComboTemplateMatches(m, 'medical') || !m) return false;
   const bundle =
     page === 'home' ? m.home : page === 'services' ? m.services : page === 'gallery' ? m.gallery : page === 'about' ? m.about : m.contact;
   return (bundle?.sections?.length ?? 0) > 0;
 }
 
-export function hasAnyMedicalModular(content: SiteContent, style: TemplateStyle): boolean {
-  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasMedicalModularPage(content, style, p));
+export function hasAnyMedicalModular(content: SiteContent): boolean {
+  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasMedicalModularPage(content, 'classic', p));
 }
 
 function emptySections(style: TemplateStyle, page: MedicalModularPageKey): ModularSectionV1[] {
@@ -527,9 +527,9 @@ export function applyMedicalModularToLegacy(content: SiteContent): SiteContent {
   return next;
 }
 
-export function applyMedicalModularOverlay(content: SiteContent, variant: TemplateKey, style: TemplateStyle): SiteContent {
+export function applyMedicalModularOverlay(content: SiteContent, variant: TemplateKey, _style: TemplateStyle): SiteContent {
   if (variant !== 'medical') return content;
-  if (!modularComboMatchesTenant(content.modularPagesV1, 'medical', style)) return content;
-  if (!hasAnyMedicalModular(content, style)) return content;
+  if (!modularComboTemplateMatches(content.modularPagesV1, 'medical')) return content;
+  if (!hasAnyMedicalModular(content)) return content;
   return applyMedicalModularToLegacy(content);
 }

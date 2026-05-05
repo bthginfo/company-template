@@ -5,6 +5,45 @@
 import type { SiteContent } from '@/lib/types';
 import { bool, imgUrl, str } from '@/lib/modular-restaurant';
 
+/** Flache `detail*`-Felder; fehlen sie, Werte aus verschachteltem Spec-`subpage` übernehmen. */
+function readCatalogDetailBlock(it: Record<string, unknown>): {
+  detailSlug: string;
+  detailPublished: boolean;
+  detailSubtitle: string;
+  detailBody: string;
+  detailBodyHtml: string;
+  detailGallery: string[];
+} {
+  const topSlug = str((it as { detailSlug?: unknown }).detailSlug);
+  const topPublished = bool((it as { detailPublished?: unknown }).detailPublished, true);
+  const topSub = str((it as { detailSubtitle?: unknown }).detailSubtitle);
+  const topBody = str((it as { detailBody?: unknown }).detailBody);
+  const topHtml = str((it as { detailBodyHtml?: unknown }).detailBodyHtml);
+  const topGal = Array.isArray((it as { detailGallery?: unknown }).detailGallery)
+    ? ((it as { detailGallery: unknown[] }).detailGallery as string[]).filter((u): u is string => typeof u === 'string')
+    : [];
+
+  const subRaw = (it as { subpage?: unknown }).subpage;
+  const sub = subRaw && typeof subRaw === 'object' ? (subRaw as Record<string, unknown>) : undefined;
+  const subEyebrow = sub ? str(sub.eyebrow) : '';
+  const subTitle = sub ? str(sub.title) : '';
+  const subDesc = sub ? str(sub.description) : '';
+  const subContent = sub ? str(sub.content) : '';
+  const subImg = sub ? imgUrl(sub.image) : '';
+
+  const gallery = topGal.length ? [...topGal] : [];
+  if (subImg && !gallery.includes(subImg)) gallery.unshift(subImg);
+
+  return {
+    detailSlug: topSlug,
+    detailPublished: topPublished,
+    detailSubtitle: topSub || subEyebrow || subTitle,
+    detailBody: topBody || subDesc,
+    detailBodyHtml: topHtml || subContent,
+    detailGallery: gallery,
+  };
+}
+
 export function combinePrice(it: Record<string, unknown>): string {
   const priceBase = str(it.price);
   const suf = str(it.priceSuffix);
@@ -22,6 +61,7 @@ export function mapModularItemToTour(it: Record<string, unknown>): NonNullable<S
         .map((s) => s.trim())
         .filter(Boolean)
     : [];
+  const det = readCatalogDetailBlock(it);
   return {
     name: str(it.title) || str(it.name),
     description: str(it.description),
@@ -31,14 +71,7 @@ export function mapModularItemToTour(it: Record<string, unknown>): NonNullable<S
     price: combinePrice(it),
     imageUrl: imgUrl(it.image),
     languages,
-    detailSlug: str((it as { detailSlug?: unknown }).detailSlug),
-    detailPublished: bool((it as { detailPublished?: unknown }).detailPublished, true),
-    detailSubtitle: str((it as { detailSubtitle?: unknown }).detailSubtitle),
-    detailBody: str((it as { detailBody?: unknown }).detailBody),
-    detailBodyHtml: str((it as { detailBodyHtml?: unknown }).detailBodyHtml),
-    detailGallery: Array.isArray((it as { detailGallery?: unknown }).detailGallery)
-      ? ((it as { detailGallery: unknown[] }).detailGallery as string[]).filter((u): u is string => typeof u === 'string')
-      : [],
+    ...det,
   };
 }
 
@@ -63,6 +96,7 @@ export function mapModularItemToTreatment(it: Record<string, unknown>): NonNulla
 
 export function mapModularItemToService(it: Record<string, unknown>): SiteContent['services'][number] {
   const btn = it.button as Record<string, unknown> | undefined;
+  const det = readCatalogDetailBlock(it);
   return {
     title: str(it.title) || str(it.name),
     description: str(it.description),
@@ -70,20 +104,14 @@ export function mapModularItemToService(it: Record<string, unknown>): SiteConten
     imageUrl: imgUrl(it.image),
     learnMoreLabel: str(btn?.label),
     learnMoreHref: str(btn?.internalPage) || str(btn?.externalUrl),
-    detailSlug: str((it as { detailSlug?: unknown }).detailSlug),
-    detailPublished: bool((it as { detailPublished?: unknown }).detailPublished, true),
-    detailSubtitle: str((it as { detailSubtitle?: unknown }).detailSubtitle),
-    detailBody: str((it as { detailBody?: unknown }).detailBody),
-    detailBodyHtml: str((it as { detailBodyHtml?: unknown }).detailBodyHtml),
-    detailGallery: Array.isArray((it as { detailGallery?: unknown }).detailGallery)
-      ? ((it as { detailGallery: unknown[] }).detailGallery as string[]).filter((u): u is string => typeof u === 'string')
-      : [],
+    ...det,
   };
 }
 
 export function mapModularItemToCourse(it: Record<string, unknown>): NonNullable<SiteContent['courses']>[number] {
   const intensity = str(it.intensity);
   const desc = str(it.description);
+  const det = readCatalogDetailBlock(it);
   return {
     name: str(it.title) || str(it.name),
     description: intensity ? (desc ? `${desc} (${intensity})` : intensity) : desc,
@@ -93,14 +121,7 @@ export function mapModularItemToCourse(it: Record<string, unknown>): NonNullable
     trainer: str(it.trainer),
     price: combinePrice(it),
     imageUrl: imgUrl(it.image),
-    detailSlug: str((it as { detailSlug?: unknown }).detailSlug),
-    detailPublished: bool((it as { detailPublished?: unknown }).detailPublished, true),
-    detailSubtitle: str((it as { detailSubtitle?: unknown }).detailSubtitle),
-    detailBody: str((it as { detailBody?: unknown }).detailBody),
-    detailBodyHtml: str((it as { detailBodyHtml?: unknown }).detailBodyHtml),
-    detailGallery: Array.isArray((it as { detailGallery?: unknown }).detailGallery)
-      ? ((it as { detailGallery: unknown[] }).detailGallery as string[]).filter((u): u is string => typeof u === 'string')
-      : [],
+    ...det,
   };
 }
 
@@ -113,6 +134,7 @@ export function mapModularItemToPackage(it: Record<string, unknown>): NonNullabl
         .filter(Boolean)
     : [];
   const btn = it.button as Record<string, unknown> | undefined;
+  const det = readCatalogDetailBlock(it);
   return {
     name: str(it.title),
     price: str(it.price),
@@ -123,14 +145,7 @@ export function mapModularItemToPackage(it: Record<string, unknown>): NonNullabl
     ctaLabel: str(btn?.label),
     ctaHref: str(btn?.internalPage) || str(btn?.externalUrl),
     imageUrl: imgUrl(it.image),
-    detailSlug: str((it as { detailSlug?: unknown }).detailSlug),
-    detailPublished: bool((it as { detailPublished?: unknown }).detailPublished, true),
-    detailSubtitle: str((it as { detailSubtitle?: unknown }).detailSubtitle),
-    detailBody: str((it as { detailBody?: unknown }).detailBody),
-    detailBodyHtml: str((it as { detailBodyHtml?: unknown }).detailBodyHtml),
-    detailGallery: Array.isArray((it as { detailGallery?: unknown }).detailGallery)
-      ? ((it as { detailGallery: unknown[] }).detailGallery as string[]).filter((u): u is string => typeof u === 'string')
-      : [],
+    ...det,
   };
 }
 
@@ -144,19 +159,13 @@ export function mapModularTeamToLegacy(it: Record<string, unknown>): { n: string
 }
 
 export function mapModularDoctor(it: Record<string, unknown>): NonNullable<SiteContent['doctors']>[number] {
+  const det = readCatalogDetailBlock(it);
   return {
     name: str(it.name),
     role: str(it.role),
     specialty: str(it.specialties) || str(it.specialty),
     imageUrl: imgUrl(it.image),
     bio: str(it.description),
-    detailSlug: str((it as { detailSlug?: unknown }).detailSlug),
-    detailPublished: bool((it as { detailPublished?: unknown }).detailPublished, true),
-    detailSubtitle: str((it as { detailSubtitle?: unknown }).detailSubtitle),
-    detailBody: str((it as { detailBody?: unknown }).detailBody),
-    detailBodyHtml: str((it as { detailBodyHtml?: unknown }).detailBodyHtml),
-    detailGallery: Array.isArray((it as { detailGallery?: unknown }).detailGallery)
-      ? ((it as { detailGallery: unknown[] }).detailGallery as string[]).filter((u): u is string => typeof u === 'string')
-      : [],
+    ...det,
   };
 }

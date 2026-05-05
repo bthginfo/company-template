@@ -13,7 +13,7 @@ import {
 import {
   str,
   bool,
-  modularComboMatchesTenant,
+  modularComboTemplateMatches,
   mergeHomeIntoLegacy,
   mergeGalleryIntoLegacy,
   mergeAboutIntoLegacy,
@@ -30,16 +30,16 @@ export { SALON_SECTION_LABEL_DE, type SalonModularPageKey };
 
 type TreatmentRow = NonNullable<SiteContent['treatments']>[number];
 
-export function hasSalonModularPage(content: SiteContent, style: TemplateStyle, page: SalonModularPageKey): boolean {
+export function hasSalonModularPage(content: SiteContent, _style: TemplateStyle, page: SalonModularPageKey): boolean {
   const m = content.modularPagesV1;
-  if (!modularComboMatchesTenant(m, 'salon', style) || !m) return false;
+  if (!modularComboTemplateMatches(m, 'salon') || !m) return false;
   const bundle =
     page === 'home' ? m.home : page === 'services' ? m.services : page === 'gallery' ? m.gallery : page === 'about' ? m.about : m.contact;
   return (bundle?.sections?.length ?? 0) > 0;
 }
 
-export function hasAnySalonModular(content: SiteContent, style: TemplateStyle): boolean {
-  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasSalonModularPage(content, style, p));
+export function hasAnySalonModular(content: SiteContent): boolean {
+  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasSalonModularPage(content, 'classic', p));
 }
 
 function emptySections(style: TemplateStyle, page: SalonModularPageKey): ModularSectionV1[] {
@@ -600,9 +600,9 @@ export function applySalonModularToLegacy(content: SiteContent): SiteContent {
   return next;
 }
 
-export function applySalonModularOverlay(content: SiteContent, variant: TemplateKey, style: TemplateStyle): SiteContent {
+export function applySalonModularOverlay(content: SiteContent, variant: TemplateKey, _style: TemplateStyle): SiteContent {
   if (variant !== 'salon') return content;
-  if (!modularComboMatchesTenant(content.modularPagesV1, 'salon', style)) return content;
-  if (!hasAnySalonModular(content, style)) return content;
+  if (!modularComboTemplateMatches(content.modularPagesV1, 'salon')) return content;
+  if (!hasAnySalonModular(content)) return content;
   return applySalonModularToLegacy(content);
 }

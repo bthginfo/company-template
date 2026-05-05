@@ -12,7 +12,7 @@ import {
 } from '@/lib/modular-fitness-blueprints';
 import {
   str,
-  modularComboMatchesTenant,
+  modularComboTemplateMatches,
   mergeHomeIntoLegacy,
   mergeGalleryIntoLegacy,
   mergeAboutIntoLegacy,
@@ -27,16 +27,16 @@ import { mapModularItemToCourse, mapModularItemToPackage, mapModularTeamToLegacy
 
 export { FITNESS_SECTION_LABEL_DE, type FitnessModularPageKey };
 
-export function hasFitnessModularPage(content: SiteContent, style: TemplateStyle, page: FitnessModularPageKey): boolean {
+export function hasFitnessModularPage(content: SiteContent, _style: TemplateStyle, page: FitnessModularPageKey): boolean {
   const m = content.modularPagesV1;
-  if (!modularComboMatchesTenant(m, 'fitness', style) || !m) return false;
+  if (!modularComboTemplateMatches(m, 'fitness') || !m) return false;
   const bundle =
     page === 'home' ? m.home : page === 'services' ? m.services : page === 'gallery' ? m.gallery : page === 'about' ? m.about : m.contact;
   return (bundle?.sections?.length ?? 0) > 0;
 }
 
-export function hasAnyFitnessModular(content: SiteContent, style: TemplateStyle): boolean {
-  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasFitnessModularPage(content, style, p));
+export function hasAnyFitnessModular(content: SiteContent): boolean {
+  return (['home', 'services', 'gallery', 'about', 'contact'] as const).some((p) => hasFitnessModularPage(content, 'classic', p));
 }
 
 function emptySections(style: TemplateStyle, page: FitnessModularPageKey): ModularSectionV1[] {
@@ -576,9 +576,9 @@ export function applyFitnessModularToLegacy(content: SiteContent): SiteContent {
   return next;
 }
 
-export function applyFitnessModularOverlay(content: SiteContent, variant: TemplateKey, style: TemplateStyle): SiteContent {
+export function applyFitnessModularOverlay(content: SiteContent, variant: TemplateKey, _style: TemplateStyle): SiteContent {
   if (variant !== 'fitness') return content;
-  if (!modularComboMatchesTenant(content.modularPagesV1, 'fitness', style)) return content;
-  if (!hasAnyFitnessModular(content, style)) return content;
+  if (!modularComboTemplateMatches(content.modularPagesV1, 'fitness')) return content;
+  if (!hasAnyFitnessModular(content)) return content;
   return applyFitnessModularToLegacy(content);
 }

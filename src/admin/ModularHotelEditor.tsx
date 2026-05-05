@@ -85,8 +85,7 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page }: Page
   };
 
   const reseed = () => {
-    if (!modular?.combo) return;
-    const imported = importHotelModularFromLegacy(data, modular.combo.style);
+    const imported = importHotelModularFromLegacy(data, style);
     setData(commitModular(data, imported));
   };
 
@@ -108,6 +107,17 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page }: Page
           Blöcke gemäß <code className="text-[11px] bg-white/80 px-1 rounded">docs/spec-hotel.md</code>. Änderungen werden in die
           bestehenden SiteContent-Felder gemergt.
         </p>
+        <p className="mt-2 text-xs text-amber-900 max-w-prose leading-relaxed border-t border-amber-200/80 pt-2">
+          <strong className="font-semibold">Deaktivieren</strong> entfernt nur die Spez-JSON; gemergte Inhalte in den
+          normalen Feldern bleiben erhalten.
+        </p>
+        {modular?.combo?.style && modular.combo.style !== style ? (
+          <p className="mt-2 text-xs text-rose-900 max-w-prose rounded-lg border border-rose-200 bg-white/90 px-3 py-2">
+            Die Speicher-Struktur ist für <strong>{formatBranchStyle(modular.combo.style)}</strong> angelegt, der Mandant
+            nutzt aber <strong>{formatBranchStyle(style)}</strong>. Öffentlich wird trotzdem gemergt; für passende
+            Sektionstypen auf „Neu füllen“ klicken (setzt den Stil in den Daten auf {formatBranchStyle(style)}).
+          </p>
+        ) : null}
         <div className="flex flex-wrap gap-2 mt-3">
           <button
             type="button"
@@ -121,7 +131,7 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page }: Page
             onClick={deactivate}
             className="text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100"
           >
-            Spez-Modell vollständig deaktivieren
+            Spez-Modell deaktivieren (nur JSON entfernen)
           </button>
         </div>
       </div>
@@ -175,13 +185,17 @@ function formatBranchStyle(style: TemplateStyle): string {
 
 export function ModularHotelActivationPanel({ data, setData, tpl, style }: Props) {
   if (tpl !== 'hotel') return null;
-  if (hasAnyHotelModular(data, style)) return null;
+  if (hasAnyHotelModular(data)) return null;
   return (
     <div className="bg-white border border-line rounded-2xl p-4 mb-6">
       <p className="text-sm font-medium">Spez-basierter Seiten-Editor (Beta) · Hotel</p>
       <p className="text-xs text-muted mt-1 max-w-prose">
         Aktiviert das modulare JSON-Modell für alle Hotel-Unterseiten (Start, Zimmer, Haus &amp; Spa, Geschichte, Reservieren) im
         Stil {formatBranchStyle(style)}. Inhalte werden einmalig aus den bestehenden Feldern übernommen.
+      </p>
+      <p className="text-xs text-muted mt-2 max-w-prose leading-relaxed border-t border-line pt-2">
+        <strong className="text-foreground">Deaktivieren</strong> (im Editor) entfernt nur die Spez-JSON; gemergte Felder
+        bleiben erhalten.
       </p>
       <button
         type="button"
