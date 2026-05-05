@@ -36,7 +36,7 @@ import { applyMedicalModularOverlay } from '@/lib/modular-medical';
 import { applyFitnessModularOverlay } from '@/lib/modular-fitness';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
-import { buildSlotRenderInstructions, siteContentForSlotInstruction } from '@/lib/page-blocks-v1-render-sequence';
+import { buildSlotRenderInstructions, siteContentForSlotInstruction, availableSlotsForPageBlockPlan } from '@/lib/page-blocks-v1-render-sequence';
 // Drift coverage (globalLayoutFieldDriftIssues) requires literal sectionOrder in this bundle; values are read via getEffectiveHomeSectionKeys.
 import { BranchSignature } from './BranchSignature';
 import {
@@ -483,7 +483,7 @@ function HomePageClassic({ variant, contentBase, mergedFull }: { variant: Templa
   };
 
   const blocksAtFull = buildBlocks(mergedFull);
-  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const availableSlots = availableSlotsForPageBlockPlan(blocksAtFull);
   const instructions = buildSlotRenderInstructions({
     page: 'home',
     contentBase,
@@ -638,7 +638,7 @@ function HomePageModern({ variant, contentBase, mergedFull }: { variant: Templat
   };
 
   const blocksAtFull = buildBlocks(mergedFull);
-  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const availableSlots = availableSlotsForPageBlockPlan(blocksAtFull);
   const instructions = buildSlotRenderInstructions({
     page: 'home',
     contentBase,
@@ -841,7 +841,7 @@ function HomePageBold({ variant, contentBase, mergedFull }: { variant: TemplateV
   };
 
   const blocksAtFull = buildBlocks(mergedFull);
-  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const availableSlots = availableSlotsForPageBlockPlan(blocksAtFull);
   const instructions = buildSlotRenderInstructions({
     page: 'home',
     contentBase,
@@ -1378,7 +1378,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
     cta: <CtaBand variant={variant} content={slice} page="services" />,
   });
   const blocksAtFull = buildBlocks(resolved);
-  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const availableSlots = availableSlotsForPageBlockPlan(blocksAtFull);
   const instructions = buildSlotRenderInstructions({
     page: 'services',
     contentBase: modularFirst,
@@ -1548,7 +1548,7 @@ function GalleryPage({
     cta: <CtaBand variant={variant} content={slice} page="gallery" />,
   });
   const blocksAtFull = buildBlocks(resolved);
-  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const availableSlots = availableSlotsForPageBlockPlan(blocksAtFull);
   const instructions = buildSlotRenderInstructions({
     page: 'gallery',
     contentBase: modularFirst,
@@ -1799,7 +1799,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
     };
   };
   const blocksAtFull = buildBlocks(resolved);
-  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const availableSlots = availableSlotsForPageBlockPlan(blocksAtFull);
   const instructions = buildSlotRenderInstructions({
     page: 'about',
     contentBase: modularFirst,
@@ -2102,7 +2102,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
     };
   };
   const blocksAtFull = buildBlocks(resolved);
-  const availableSlots = new Set(Object.keys(blocksAtFull).filter((k) => blocksAtFull[k] != null));
+  const availableSlots = availableSlotsForPageBlockPlan(blocksAtFull);
   const instructions = buildSlotRenderInstructions({
     page: 'contact',
     contentBase: modularFirst,

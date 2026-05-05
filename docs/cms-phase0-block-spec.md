@@ -186,9 +186,9 @@ Drift-Tooling wird in späteren Phasen auf **„Instanz-Daten + Renderer“** er
 
 - [`src/lib/page-blocks-v1-slot-order.ts`](../src/lib/page-blocks-v1-slot-order.ts) — `buildPageBlockSlotPlan()` liefert pro sichtbarer Instanz `(slot, mergeEndExclusive)`.
 - [`src/lib/page-blocks-v1-page-merge.ts`](../src/lib/page-blocks-v1-page-merge.ts) — `mergePageBlocksIntoSiteContentForPagePrefix(content, page, endExclusive)`.
-- [`src/lib/page-blocks-v1-render-sequence.ts`](../src/lib/page-blocks-v1-render-sequence.ts) — `buildSlotRenderInstructions`, `siteContentForSlotInstruction` (Präfix vs. `mergedFull` bei reinem Legacy-Slot-Order-Fallback).
+- [`src/lib/page-blocks-v1-render-sequence.ts`](../src/lib/page-blocks-v1-render-sequence.ts) — `buildSlotRenderInstructions`, `siteContentForSlotInstruction` (Präfix vs. `mergedFull` bei reinem Legacy-Slot-Order-Fallback), `availableSlotsForPageBlockPlan` (nur Slots mit nicht-`null`-Block wie im Kern-Renderer).
 
-**Eingebunden in:** `TemplateApp` und `ExtraBranchTemplate` (Home + Unterseiten): `contentBase` = Rohinhalt vor Seiten-Merge, `mergedFull` = voller Seiten-Merge für Hero/weiche CTAs; Slot-Body nutzt `siteContentForSlotInstruction` pro Zeile.
+**Eingebunden in:** `TemplateApp` und `ExtraBranchTemplate` (Home + Unterseiten): `contentBase` = Rohinhalt vor Seiten-Merge, `mergedFull` = voller Seiten-Merge für Hero/weiche CTAs; Slot-Body nutzt `siteContentForSlotInstruction` pro Zeile. `contentBase` und `mergedFull` teilen dieselbe `pageBlocksV1[page]`-Liste (gleiche Indizes für `mergeEndExclusive`).
 
 ---
 

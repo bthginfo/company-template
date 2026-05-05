@@ -1,9 +1,13 @@
 /**
  * Phase 6: build per-row render instructions so repeated slots use cumulative
  * `pageBlocksV1` merges (prefix up to each visible mapped block).
+ *
+ * `contentBase` and `mergedFull` must carry the same `pageBlocksV1[page]` array
+ * (same length / order) so `mergeEndExclusive` indices match the full merge.
  */
 
 import type { PageKey } from '@/admin/admin-sections';
+import type { ReactNode } from 'react';
 import type { SiteContent } from '@/lib/types';
 import { mergePageBlocksIntoSiteContentForPagePrefix } from '@/lib/page-blocks-v1-page-merge';
 import { buildPageBlockSlotPlan, resolveLayoutSlotOrder } from '@/lib/page-blocks-v1-slot-order';
@@ -14,6 +18,13 @@ export type SlotRenderInstruction = {
   /** `null` = use `mergedFull` for this row (legacy slot order). */
   mergeEndExclusive: number | null;
 };
+
+/** Slot keys whose block is non-null — excluded keys are not valid `pageBlocksV1` targets (matches TemplateApp). */
+export function availableSlotsForPageBlockPlan(
+  blocks: Record<string, ReactNode | null | undefined>,
+): Set<string> {
+  return new Set(Object.keys(blocks).filter((k) => blocks[k] != null));
+}
 
 export function buildSlotRenderInstructions(args: {
   page: PageKey;

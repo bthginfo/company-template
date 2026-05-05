@@ -16,7 +16,7 @@ import { isSectionEnabled, getEffectivePageOrder, type PageId as LayoutPageId } 
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { mergePageBlocksIntoSiteContentForPage } from '@/lib/page-blocks-v1-page-merge';
-import { buildSlotRenderInstructions, siteContentForSlotInstruction } from '@/lib/page-blocks-v1-render-sequence';
+import { buildSlotRenderInstructions, siteContentForSlotInstruction, availableSlotsForPageBlockPlan } from '@/lib/page-blocks-v1-render-sequence';
 import type { PageKey } from '@/admin/admin-sections';
 import { getBranchConfig } from '@/lib/branch-config';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
@@ -1064,7 +1064,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       contentBase,
       mergedFull,
       legacyOrder: legacySubpageOrder,
-      availableSlots: new Set(Object.keys(blocksMerged)),
+      availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
     });
     return (
       <>
@@ -1094,7 +1094,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       contentBase,
       mergedFull,
       legacyOrder: legacySubpageOrder,
-      availableSlots: new Set(Object.keys(blocksMerged)),
+      availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
     });
     return (
       <>
@@ -1127,7 +1127,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
       contentBase,
       mergedFull,
       legacyOrder: legacySubpageOrder,
-      availableSlots: new Set(Object.keys(blocksMerged)),
+      availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
     });
     return (
       <>
@@ -1157,7 +1157,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
     contentBase,
     mergedFull,
     legacyOrder: legacySubpageOrder,
-    availableSlots: new Set(Object.keys(blocksMerged)),
+    availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
   });
   return (
     <>
@@ -1303,7 +1303,7 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
     contentBase,
     mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocksMerged)),
+    availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
   });
 
   const cta = resolveHeroCta(mergedFull);
@@ -1503,7 +1503,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
     contentBase,
     mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocksMerged)),
+    availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
   });
 
   const cta = resolveHeroCta(mergedFull);
@@ -1715,7 +1715,7 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
     contentBase,
     mergedFull,
     legacyOrder: legacyHomeOrder,
-    availableSlots: new Set(Object.keys(blocksMerged)),
+    availableSlots: availableSlotsForPageBlockPlan(blocksMerged),
   });
 
   const cta = resolveHeroCta(mergedFull);
