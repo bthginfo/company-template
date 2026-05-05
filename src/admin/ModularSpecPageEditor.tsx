@@ -7,6 +7,7 @@ import type { ModularUploadFn } from './modular-section-field-kit';
 import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
+import { applyModularHomeVisibilityMirror } from '@/lib/page-blocks-v1-section-visibility-sync';
 import type { ModularSpecPageKey } from './modular-section-types';
 
 export type { ModularSpecPageKey } from './modular-section-types';
@@ -88,8 +89,19 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
   };
 
   const toggleVisible = (id: string) => {
-    const nextSecs = sections.map((s) => (s.id === id ? { ...s, isVisible: !(s.isVisible !== false) } : s));
-    updateSections(nextSecs);
+    const sec = sections.find((s) => s.id === id);
+    if (!sec || !modular) return;
+    const nextVisible = !(sec.isVisible !== false);
+    const nextSecs = sections.map((s) => (s.id === id ? { ...s, isVisible: nextVisible } : s));
+    const nextModular: NonNullable<SiteContent['modularPagesV1']> = {
+      ...modular,
+      [key]: { sections: nextSecs },
+    };
+    let merged = commitModular(data, nextModular);
+    if (page === 'home') {
+      merged = applyModularHomeVisibilityMirror(merged, cfg.tpl, sec.type, nextVisible);
+    }
+    setData(merged);
   };
 
   const move = (idx: number, dir: -1 | 1) => {

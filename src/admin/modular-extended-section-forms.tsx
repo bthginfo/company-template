@@ -3,7 +3,9 @@
  */
 
 import type { ReactNode } from 'react';
+import { useId } from 'react';
 import type { ModularSectionDataFormProps } from './modular-section-types';
+import { MODULE_DEFAULTS } from '@/components/branch-modules';
 import {
   ModField,
   ModImagePick,
@@ -787,10 +789,211 @@ function ProgramTableForm({ data, onChange, tpl }: Pick<ModularSectionDataFormPr
   );
 }
 
+/** Restaurant Speisekarte: module band + categorised dishes (maps to `content.menu` + `moduleHeadings.menu`). */
+function RestaurantMenuCategoriesForm({ data, onChange, uploadImage }: ModularSectionDataFormProps) {
+  const def = MODULE_DEFAULTS.menu;
+  const uid = useId();
+  type MenuItem = { name: string; description?: string; price?: string; allergens?: string; tags?: string[]; imageUrl?: string };
+  type MenuCategory = { category: string; description?: string; priceLabel?: string; items: MenuItem[] };
+  const list = (Array.isArray(data.categories) ? data.categories : []) as unknown as MenuCategory[];
+  const setList = (next: MenuCategory[]) => onChange({ ...data, categories: next });
+  const setCat = (i: number, next: MenuCategory) => setList(list.map((x, j) => (j === i ? next : x)));
+  const keys = list.map((_, i) => `${uid}-cat-${i}`);
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-line bg-[#fafaf7] p-4 space-y-3">
+        <p className="text-[10px] uppercase tracking-widest text-muted">Modul-Überschrift</p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <ModField label="Eyebrow">
+            <input
+              className={modularInputCls}
+              value={str(data.eyebrow)}
+              placeholder={def.eyebrow}
+              onChange={(e) => onChange({ ...data, eyebrow: e.target.value })}
+            />
+          </ModField>
+          <ModField label="Untertitel">
+            <input
+              className={modularInputCls}
+              value={str(data.subtitle)}
+              placeholder={def.subtitle}
+              onChange={(e) => onChange({ ...data, subtitle: e.target.value })}
+            />
+          </ModField>
+          <ModField label="Titel – Teil 1">
+            <input
+              className={modularInputCls}
+              value={str(data.titleA)}
+              placeholder={def.titleA}
+              onChange={(e) => onChange({ ...data, titleA: e.target.value })}
+            />
+          </ModField>
+          <ModField label="Titel – Teil 2 (kursiv)">
+            <input
+              className={modularInputCls}
+              value={str(data.titleB)}
+              placeholder={def.titleB}
+              onChange={(e) => onChange({ ...data, titleB: e.target.value })}
+            />
+          </ModField>
+        </div>
+      </div>
+      <p className="text-xs text-muted">
+        Kategorien und Gerichte erscheinen im Frontend im Block „Speisekarte“ auf dieser Seite. Änderungen hier werden mit{' '}
+        <strong className="text-foreground">Veröffentlichen</strong> live.
+      </p>
+      {list.map((cat, i) => (
+        <details key={keys[i]} className="border border-line rounded-2xl bg-[#fafaf7]">
+          <summary className="px-4 py-3 cursor-pointer flex items-center gap-3 list-none">
+            <span className="font-mono text-xs text-muted w-6">{String(i + 1).padStart(2, '0')}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{cat.category || 'Neue Kategorie'}</p>
+              <p className="text-xs text-muted truncate">{(cat.items ?? []).length} Gerichte</p>
+            </div>
+            <span className="text-muted text-xs">▾</span>
+          </summary>
+          <div className="px-4 pb-4 pt-3 space-y-3 border-t border-line">
+            <ModField label="Kategorie">
+              <input className={modularInputCls} value={cat.category} onChange={(e) => setCat(i, { ...cat, category: e.target.value })} />
+            </ModField>
+            <ModField label="Kategorie-Beschreibung (optional)">
+              <input className={modularInputCls} value={cat.description || ''} onChange={(e) => setCat(i, { ...cat, description: e.target.value })} />
+            </ModField>
+            <ModField label='Preis-Spalten-Titel (optional)'>
+              <input className={modularInputCls} value={cat.priceLabel || ''} onChange={(e) => setCat(i, { ...cat, priceLabel: e.target.value })} />
+            </ModField>
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-muted mb-2">Gerichte</p>
+              <div className="space-y-2">
+                {(cat.items ?? []).map((it, k) => (
+                  <div key={`${keys[i]}-it-${k}`} className="border border-line rounded-xl p-3 bg-white space-y-2">
+                    <div className="grid sm:grid-cols-[1fr_120px] gap-2">
+                      <input
+                        className={modularInputCls}
+                        placeholder="Name"
+                        value={it.name}
+                        onChange={(e) => {
+                          const name = e.target.value;
+                          setCat(i, {
+                            ...cat,
+                            items: (cat.items ?? []).map((x, m) => (m === k ? { ...x, name } : x)),
+                          });
+                        }}
+                      />
+                      <input
+                        className={modularInputCls}
+                        placeholder="Preis"
+                        value={it.price || ''}
+                        onChange={(e) =>
+                          setCat(i, {
+                            ...cat,
+                            items: (cat.items ?? []).map((x, m) => (m === k ? { ...x, price: e.target.value } : x)),
+                          })
+                        }
+                      />
+                    </div>
+                    <textarea
+                      className={modularInputCls}
+                      rows={2}
+                      placeholder="Beschreibung"
+                      value={it.description || ''}
+                      onChange={(e) =>
+                        setCat(i, {
+                          ...cat,
+                          items: (cat.items ?? []).map((x, m) => (m === k ? { ...x, description: e.target.value } : x)),
+                        })
+                      }
+                    />
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      <input
+                        className={modularInputCls}
+                        placeholder="Allergene"
+                        value={it.allergens || ''}
+                        onChange={(e) =>
+                          setCat(i, {
+                            ...cat,
+                            items: (cat.items ?? []).map((x, m) => (m === k ? { ...x, allergens: e.target.value } : x)),
+                          })
+                        }
+                      />
+                      <input
+                        className={modularInputCls}
+                        placeholder="Tags (kommasepariert)"
+                        value={(it.tags || []).join(', ')}
+                        onChange={(e) =>
+                          setCat(i, {
+                            ...cat,
+                            items: (cat.items ?? []).map((x, m) =>
+                              m === k
+                                ? { ...x, tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }
+                                : x,
+                            ),
+                          })
+                        }
+                      />
+                    </div>
+                    <ModImagePick
+                      label="Bild (optional)"
+                      value={it.imageUrl || ''}
+                      onChange={(url) =>
+                        setCat(i, {
+                          ...cat,
+                          items: (cat.items ?? []).map((x, m) => (m === k ? { ...x, imageUrl: url } : x)),
+                        })
+                      }
+                      uploadImage={uploadImage}
+                      ratio="aspect-[16/9]"
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setCat(i, { ...cat, items: (cat.items ?? []).filter((_, m) => m !== k) })}
+                        className="text-xs text-rose-600 hover:underline"
+                      >
+                        Gericht entfernen
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCat(i, {
+                      ...cat,
+                      items: [...(cat.items ?? []), { name: '', description: '', price: '', allergens: '', tags: [], imageUrl: '' }],
+                    })
+                  }
+                  className="btn-outline !px-4 !py-2 text-sm"
+                >
+                  + Gericht hinzufügen
+                </button>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <button type="button" onClick={() => setList(list.filter((_, j) => j !== i))} className="text-xs text-rose-600 hover:underline">
+                Kategorie entfernen
+              </button>
+            </div>
+          </div>
+        </details>
+      ))}
+      <button
+        type="button"
+        onClick={() => setList([...list, { category: '', description: '', items: [] }])}
+        className="btn-outline !px-4 !py-2 text-sm"
+      >
+        + Kategorie hinzufügen
+      </button>
+    </div>
+  );
+}
+
 /** Public entry: returns null when this module has no editor for the type. */
 export function extendedModularSectionForm(props: ModularSectionDataFormProps): ReactNode {
   const { sectionType, data, onChange, tpl, uploadImage } = props;
   switch (sectionType) {
+    case 'menu':
+      return <RestaurantMenuCategoriesForm {...props} />;
     case 'keywordBand':
     case 'testimonialMarquee':
       return <ItemsTextLinesForm data={data} onChange={onChange} label="Zeilen / Wörter" />;

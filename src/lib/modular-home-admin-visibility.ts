@@ -24,8 +24,9 @@ function slotHit(slots: ReadonlySet<string>, keys: readonly string[]): boolean {
 /**
  * Which home layout slots a modular section type feeds, for the given template.
  * `null` = treat as unknown → show in admin (safe default).
+ * Exported for mirroring modular “Sichtbar” toggles into `sectionVisibility` (layout slots).
  */
-function slotsForModularHomeType(template: TemplateKey, sectionType: string): readonly string[] | null {
+export function modularHomeSlotsForSectionType(template: TemplateKey, sectionType: string): readonly string[] | null {
   const shared: Record<string, readonly string[]> = {
     actionBar: ['action'],
     featuredDishesGrid: ['signature'],
@@ -139,7 +140,7 @@ export function isModularHomeSectionAdminVisible(
     return BOLD_INLINE_MARQUEE_TEMPLATES.includes(template);
   }
 
-  const mapped = slotsForModularHomeType(template, sectionType);
+  const mapped = modularHomeSlotsForSectionType(template, sectionType);
   if (mapped === null) return true;
   if (mapped.length === 0) return false;
   const slots = effectiveHomeSlotsForVisibility(template, effectiveHomeSlots, mapped);

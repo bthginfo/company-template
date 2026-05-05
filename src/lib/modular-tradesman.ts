@@ -211,7 +211,7 @@ function mergeTradesmanHomeSupplements(content: SiteContent, sections: ModularSe
 }
 
 function mergeTradesmanHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
-  let next = mergeHomeIntoLegacy(content, sections, style);
+  let next = mergeHomeIntoLegacy(content, sections, style, 'tradesman');
   next = mergeTradesmanHomeSupplements(next, sections, style);
   return next;
 }

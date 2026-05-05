@@ -32,16 +32,26 @@ export function deepMergeJson<T>(target: T, source: unknown): T {
   return out as T;
 }
 
-/** Only blocks that map to a renderer slot may merge `data` (hero/header-style rows must not override site fields). */
+function homeBlockBypassesSlotCatalog(t: AdminSectionKey): boolean {
+  return t === 'hero' || t === 'announcements' || t === 'softCta';
+}
+
+function blockContributesToMerge(page: PageKey, b: PageBlockInstanceV1): boolean {
+  if (b.isVisible === false) return false;
+  const t = b.type as AdminSectionKey;
+  if (!isPlainRecord(b.data) || Object.keys(b.data).length === 0) return false;
+  if (page === 'home' && homeBlockBypassesSlotCatalog(t)) return true;
+  return adminSectionToCatalogSlot(page, t) !== null;
+}
+
+/** Only blocks that map to a renderer slot merge `data`, plus home hero / announcements / softCta (no catalog slot). */
 function blockListHasDataPatches(
   page: PageKey,
   list: readonly PageBlockInstanceV1[] | undefined,
 ): boolean {
   if (!list?.length) return false;
   for (const b of list) {
-    if (b.isVisible === false) continue;
-    if (adminSectionToCatalogSlot(page, b.type as AdminSectionKey) === null) continue;
-    if (isPlainRecord(b.data) && Object.keys(b.data).length > 0) return true;
+    if (blockContributesToMerge(page, b)) return true;
   }
   return false;
 }
@@ -60,9 +70,7 @@ export function mergePageBlocksIntoSiteContentForPage(
 
   let acc: SiteContent = structuredClone(content) as SiteContent;
   for (const b of list) {
-    if (b.isVisible === false) continue;
-    if (adminSectionToCatalogSlot(page, b.type as AdminSectionKey) === null) continue;
-    if (!isPlainRecord(b.data) || Object.keys(b.data).length === 0) continue;
+    if (!blockContributesToMerge(page, b)) continue;
     acc = deepMergeJson(acc, b.data) as SiteContent;
   }
 
@@ -88,9 +96,7 @@ export function mergePageBlocksIntoSiteContentForPagePrefix(
 
   let acc: SiteContent = structuredClone(content) as SiteContent;
   for (const b of slice) {
-    if (b.isVisible === false) continue;
-    if (adminSectionToCatalogSlot(page, b.type as AdminSectionKey) === null) continue;
-    if (!isPlainRecord(b.data) || Object.keys(b.data).length === 0) continue;
+    if (!blockContributesToMerge(page, b)) continue;
     acc = deepMergeJson(acc, b.data) as SiteContent;
   }
 

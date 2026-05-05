@@ -133,7 +133,7 @@ function mergeConsultingHomeSupplements(content: SiteContent, sections: ModularS
 }
 
 function mergeConsultingHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
-  let next = mergeHomeIntoLegacy(content, sections, style);
+  let next = mergeHomeIntoLegacy(content, sections, style, 'consulting');
   next = mergeConsultingHomeSupplements(next, sections);
   return next;
 }

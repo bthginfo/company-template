@@ -93,7 +93,10 @@ function resolveSignature(variant: TemplateVariant, style: TemplateStyle, conten
  * RESTAURANT — "Heute auf der Karte" / Menu spotlight
  * ═══════════════════════════════════════════════════════════════════ */
 function RestaurantSignature({ style, content }: { style: TemplateStyle; content: SiteContent }) {
-  const dishes = effectiveSignatureServiceRows(content.homeSignatureItems, content.services, 3);
+  const dishes =
+    style === 'classic'
+      ? (content.homeSignatureItems ?? []).filter(isMeaningfulServiceCard).slice(0, 3)
+      : effectiveSignatureServiceRows(content.homeSignatureItems, content.services, 3);
   const photos = content.gallery.slice(0, 3);
   if (!dishes.length) return null;
   const t = resolveSignature('restaurant', style, content);

@@ -15,6 +15,7 @@ import {
 import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
+import { applyModularHomeVisibilityMirror } from '@/lib/page-blocks-v1-section-visibility-sync';
 
 type Props = {
   data: SiteContent;
@@ -74,8 +75,19 @@ export function ModularHotelPageEditor({ data, setData, tpl, style, page, upload
   };
 
   const toggleVisible = (id: string) => {
-    const nextSecs = sections.map((s) => (s.id === id ? { ...s, isVisible: !(s.isVisible !== false) } : s));
-    updateSections(nextSecs);
+    const sec = sections.find((s) => s.id === id);
+    if (!sec || !modular) return;
+    const nextVisible = !(sec.isVisible !== false);
+    const nextSecs = sections.map((s) => (s.id === id ? { ...s, isVisible: nextVisible } : s));
+    const nextModular: NonNullable<SiteContent['modularPagesV1']> = {
+      ...modular,
+      [key]: { sections: nextSecs },
+    };
+    let merged = commitModular(data, nextModular);
+    if (page === 'home') {
+      merged = applyModularHomeVisibilityMirror(merged, 'hotel', sec.type, nextVisible);
+    }
+    setData(merged);
   };
 
   const move = (idx: number, dir: -1 | 1) => {

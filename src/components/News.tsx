@@ -31,17 +31,27 @@ function formatDate(iso: string): string {
 }
 
 /** Compact preview of latest 3 posts — embed on home pages. */
-export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', title = 'News & Notizen.', templateVariant }: {
+export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', title = 'News & Notizen.', allPostsLabel, allPostsHref, templateVariant }: {
   content: SiteContent;
   basePath?: string;
   eyebrow?: string;
   title?: ReactNode;
+  /** Override “Alle Beiträge” label / target (modular news teaser). */
+  allPostsLabel?: string;
+  allPostsHref?: string;
   /** Used for showcase fallback posts when `content.posts` is empty. */
   templateVariant?: TemplateKey;
 }) {
   const posts = usePublishedPosts(content, templateVariant).slice(0, 3);
   if (posts.length === 0) return null;
   const linkTo = (slug: string) => `${basePath}/news/${slug}`;
+  const bt = (content.branchText ?? {}) as { newsAllLabel?: string; newsAllHref?: string };
+  const archiveLabel = (allPostsLabel && allPostsLabel.trim()) || bt.newsAllLabel || 'Alle Beiträge';
+  const archiveHrefRaw = (allPostsHref && allPostsHref.trim()) || bt.newsAllHref || '';
+  const archiveTo = archiveHrefRaw.startsWith('http') || archiveHrefRaw.startsWith('mailto:') || archiveHrefRaw.startsWith('tel:')
+    ? archiveHrefRaw
+    : `${basePath}${archiveHrefRaw && archiveHrefRaw.startsWith('/') ? archiveHrefRaw : '/news'}`;
+  const archiveIsExternal = /^https?:\/\//i.test(archiveTo) || archiveTo.startsWith('mailto:') || archiveTo.startsWith('tel:');
   return (
     <section className="py-20 md:py-28 surface">
       <div className="container-x">
@@ -50,7 +60,11 @@ export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', tit
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-3">{eyebrow}</p>
             <h2 className="font-display text-4xl md:text-5xl leading-tight">{title}</h2>
           </div>
-          <Link to={`${basePath}/news`} className="btn-outline">Alle Beiträge <span aria-hidden>→</span></Link>
+          {archiveIsExternal ? (
+            <a href={archiveTo} className="btn-outline">{archiveLabel} <span aria-hidden>→</span></a>
+          ) : (
+            <Link to={archiveTo} className="btn-outline">{archiveLabel} <span aria-hidden>→</span></Link>
+          )}
         </div>
         <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
           {posts.map((p) => (

@@ -325,7 +325,7 @@ function mergeHotelHomeSupplements(content: SiteContent, sections: ModularSectio
 }
 
 function mergeHotelHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
-  let next = mergeHomeIntoLegacy(content, sections, style);
+  let next = mergeHomeIntoLegacy(content, sections, style, 'hotel');
   next = mergeHotelHomeSupplements(next, sections);
   return next;
 }

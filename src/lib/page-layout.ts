@@ -15,8 +15,12 @@
  */
 
 import type { SiteContent } from './types';
+import { getBranchConfig } from './branch-config';
 
 export type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contact';
+
+/** Layout visibility key: hide the global Hinweis-Banner on a subpage when `false`. */
+export const ANNOUNCEMENT_BAR_SECTION_KEY = 'announcementBar' as const;
 export type Variant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'consulting' | 'medical' | 'fitness';
 export type Style = 'classic' | 'modern' | 'bold';
 
@@ -176,6 +180,25 @@ export function isSectionEnabled(content: SiteContent, page: PageId, key: string
   // Legacy: home used unprefixed keys before the layout manager
   if (page === 'home' && key in flags) return flags[key] !== false;
   return true;
+}
+
+/** Hinweis-Banner: home always uses global `announcements`; subpages respect `sectionVisibility.<page>.announcementBar` (default on). */
+export function isAnnouncementBarEnabledOnPage(content: SiteContent, page: PageId): boolean {
+  if (page === 'home') return true;
+  return isSectionEnabled(content, page, ANNOUNCEMENT_BAR_SECTION_KEY);
+}
+
+/** Map the browser path to a layout page id (core templates, default paths). */
+export function resolveClientPathToPageId(pathname: string, variant: Variant): PageId {
+  const p = (pathname.replace(/\/$/, '') || '/').split('?')[0] ?? '/';
+  if (p === '/' || p === '') return 'home';
+  const cfg = getBranchConfig(variant);
+  const first = p.split('/').filter(Boolean)[0] ?? '';
+  if (first === cfg.paths.services.replace(/^\//, '')) return 'services';
+  if (first === cfg.paths.gallery.replace(/^\//, '')) return 'gallery';
+  if (first === cfg.paths.about.replace(/^\//, '')) return 'about';
+  if (first === cfg.paths.contact.replace(/^\//, '')) return 'contact';
+  return 'home';
 }
 
 /**

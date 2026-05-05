@@ -132,7 +132,7 @@ function mergeMedicalHomeSupplements(content: SiteContent, sections: ModularSect
 }
 
 function mergeMedicalHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
-  let n = mergeHomeIntoLegacy(content, sections, style);
+  let n = mergeHomeIntoLegacy(content, sections, style, 'medical');
   n = mergeMedicalHomeSupplements(n, sections);
   return n;
 }

@@ -226,7 +226,7 @@ function mergeSalonHomeSupplements(content: SiteContent, sections: ModularSectio
 }
 
 function mergeSalonHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
-  let next = mergeHomeIntoLegacy(content, sections, style);
+  let next = mergeHomeIntoLegacy(content, sections, style, 'salon');
   next = mergeSalonHomeSupplements(next, sections, style);
   return next;
 }

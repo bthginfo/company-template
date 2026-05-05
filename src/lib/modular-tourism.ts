@@ -366,7 +366,7 @@ function mergeTourismHomeSupplements(content: SiteContent, sections: ModularSect
 }
 
 function mergeTourismHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
-  let next = mergeHomeIntoLegacy(content, sections, style);
+  let next = mergeHomeIntoLegacy(content, sections, style, 'tourism');
   next = mergeTourismHomeSupplements(next, sections);
   return next;
 }

@@ -5,7 +5,8 @@
 
 import type { AdminSectionKey, PageKey } from '../admin/admin-sections.js';
 import { adminSectionToCatalogSlot } from './page-blocks-v1-slot-order.js';
-import { SiteContentSchema, type SiteContent } from './types.js';
+import { SiteContentSchema, type SiteContent, type TemplateKey } from './types.js';
+import { modularHomeSlotsForSectionType } from './modular-home-admin-visibility.js';
 
 /** Catalog / layout key used with `isSectionEnabled(content, page, key)` — same as renderer slot for mapped blocks. */
 export function catalogSlotKeyForAdminBlock(page: PageKey, adminType: AdminSectionKey): string | null {
@@ -75,4 +76,26 @@ export function applySectionVisibilityToPageBlocks(
   };
   const p = SiteContentSchema.safeParse(next);
   return p.success ? p.data : data;
+}
+
+/**
+ * When a modular home section is shown/hidden, mirror that to `sectionVisibility`
+ * so `isSectionEnabled` / the live layout match the checkbox (same keys as the Layout-Manager).
+ */
+export function applyModularHomeVisibilityMirror(
+  content: SiteContent,
+  templateKey: TemplateKey,
+  sectionType: string,
+  nextVisible: boolean,
+): SiteContent {
+  const slots = modularHomeSlotsForSectionType(templateKey, sectionType);
+  if (!slots?.length) return content;
+  const vis = readVisibility(content);
+  for (const slot of slots) {
+    vis[`home.${slot}`] = nextVisible;
+    vis[slot] = nextVisible;
+  }
+  const next: SiteContent = { ...content, sectionVisibility: vis };
+  const p = SiteContentSchema.safeParse(next);
+  return p.success ? p.data : content;
 }

@@ -177,7 +177,7 @@ function mergeFitnessHomeSupplements(content: SiteContent, sections: ModularSect
 }
 
 function mergeFitnessHomeIntoLegacy(content: SiteContent, sections: ModularSectionV1[], style: TemplateStyle): SiteContent {
-  let n = mergeHomeIntoLegacy(content, sections, style);
+  let n = mergeHomeIntoLegacy(content, sections, style, 'fitness');
   n = mergeFitnessHomeSupplements(n, sections);
   return n;
 }

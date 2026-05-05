@@ -15,6 +15,8 @@ import {
 import { useBootstrapModularIfNeeded } from './use-modular-bootstrap';
 import { getEffectiveHomeSectionKeys } from '@/lib/effective-home-order';
 import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visibility';
+import { applyModularHomeVisibilityMirror } from '@/lib/page-blocks-v1-section-visibility-sync';
+import { ANNOUNCEMENT_BAR_SECTION_KEY } from '@/lib/page-layout';
 
 type Props = {
   data: SiteContent;
@@ -74,8 +76,25 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page, u
   };
 
   const toggleVisible = (id: string) => {
-    const nextSecs = sections.map((s) => (s.id === id ? { ...s, isVisible: !(s.isVisible !== false) } : s));
-    updateSections(nextSecs);
+    const sec = sections.find((s) => s.id === id);
+    if (!sec || !modular) return;
+    const nextVisible = !(sec.isVisible !== false);
+    const nextSecs = sections.map((s) => (s.id === id ? { ...s, isVisible: nextVisible } : s));
+    const nextModular: NonNullable<SiteContent['modularPagesV1']> = {
+      ...modular,
+      [key]: { sections: nextSecs },
+    };
+    let merged = commitModular(data, nextModular);
+    if (page === 'home') {
+      merged = applyModularHomeVisibilityMirror(merged, 'restaurant', sec.type, nextVisible);
+    } else if (sec.type === 'noticeBanner') {
+      const vis = ((merged as { sectionVisibility?: Record<string, boolean> }).sectionVisibility ?? {}) as Record<string, boolean>;
+      merged = {
+        ...merged,
+        sectionVisibility: { ...vis, [`${page}.${ANNOUNCEMENT_BAR_SECTION_KEY}`]: nextVisible },
+      };
+    }
+    setData(merged);
   };
 
   const move = (idx: number, dir: -1 | 1) => {
@@ -112,7 +131,10 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page, u
       ) : null}
 
       <div className="space-y-4">
-        {sections.map((sec, idx) => {
+        {sections
+          .filter((s) => !(style === 'classic' && s.type === 'featuredItems'))
+          .map((sec) => {
+          const idx = sections.indexOf(sec);
           const homeVisible = page !== 'home' || !homeSlots || isModularHomeSectionAdminVisible(tpl, style, sec.type, homeSlots);
           if (!homeVisible) {
             return (
@@ -159,6 +181,8 @@ export function ModularRestaurantPageEditor({ data, setData, tpl, style, page, u
                 data={(sec.data ?? {}) as Record<string, unknown>}
                 uploadImage={uploadImage}
                 modularPage={page}
+                siteContent={data}
+                onPatchSiteContent={(patch) => setData({ ...data, ...patch })}
                 onChange={(next) => patchSectionData(sec.id, next)}
               />
             </div>
