@@ -12,17 +12,10 @@ import { getSession, unauthorized } from './_lib/auth.js';
  * POST /api/content?slug=xxx&action=discard  → admin only, clears draft
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  try {
-    if (req.method === 'GET') return await handleGet(req, res);
-    if (req.method === 'PUT') return await handlePut(req, res);
-    if (req.method === 'POST') return await handlePost(req, res);
-    res.status(405).json({ error: 'Method not allowed' });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    const stack = err instanceof Error ? err.stack : undefined;
-    console.error('[api/content] unhandled error:', msg, stack);
-    res.status(500).json({ error: msg, stack });
-  }
+  if (req.method === 'GET') return handleGet(req, res);
+  if (req.method === 'PUT') return handlePut(req, res);
+  if (req.method === 'POST') return handlePost(req, res);
+  res.status(405).json({ error: 'Method not allowed' });
 }
 
 async function handleGet(req: VercelRequest, res: VercelResponse) {

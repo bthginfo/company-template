@@ -3,8 +3,8 @@
  * Kept separate from `types.ts` to avoid pulling `section-registry` into odd import cycles.
  */
 
-import type { AdminSectionKey } from '@/admin/admin-sections';
-import { SECTION_CONTRACTS } from '@/lib/section-registry';
+import type { AdminSectionKey } from '../admin/admin-sections';
+import { SECTION_CONTRACTS } from './section-registry';
 
 const PAGE_KEYS = ['home', 'services', 'gallery', 'about', 'contact'] as const;
 
