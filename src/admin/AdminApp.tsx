@@ -8,7 +8,26 @@ import { assertValidUpload, humanizeUploadError } from './upload-limits';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
 import { applyTheme, resolveThemePreset } from '@/lib/theme';
-import { bootstrapPageBlocksV1FromContent, syncNonEmptyBlockDataFromContent } from '@/lib/page-blocks-v1-bootstrap';
+import { syncNonEmptyBlockDataFromContent } from '@/lib/page-blocks-v1-bootstrap';
+
+/**
+ * Detect auto-bootstrapped pageBlocksV1 that was never customised by the
+ * operator (every block has data:{} and isVisible !== false). Strip it so the
+ * frontend falls back to the proven legacy order / visibility system.
+ */
+function stripTrivialPageBlocksV1(content: SiteContent): SiteContent {
+  const pb = content.pageBlocksV1;
+  if (!pb) return content;
+  for (const list of Object.values(pb)) {
+    if (!Array.isArray(list)) continue;
+    for (const b of list) {
+      if (b.isVisible === false) return content;
+      if (b.data && typeof b.data === 'object' && Object.keys(b.data).length > 0) return content;
+    }
+  }
+  const { pageBlocksV1: _, ...rest } = content;
+  return rest as SiteContent;
+}
 
 type Session = { role: 'super' | 'tenant'; tenantId: string | null; slug: string | null } | null;
 
@@ -65,16 +84,9 @@ export function AdminApp() {
     if (state.status === 'ready') {
       setTenant(state.tenant as any);
       if (draft === null || justSaved || justDiscarded) {
-        let content = state.content;
-        const t = state.tenant as any;
-        const tpl = asTemplateKey(t?.template);
-        const sty = (t?.style as TemplateStyle) || 'classic';
-        const hasBlocks = content?.pageBlocksV1 && Object.values(content.pageBlocksV1).some((l: any) => l?.length);
-        if (content && !hasBlocks) {
-          content = { ...content, pageBlocksV1: bootstrapPageBlocksV1FromContent(content, tpl, sty) };
-        }
-        setDraft(content);
-        setPristine(JSON.stringify(content));
+        const cleaned = stripTrivialPageBlocksV1(state.content);
+        setDraft(cleaned);
+        setPristine(JSON.stringify(cleaned));
         setJustSaved(false);
         setJustDiscarded(false);
       }
