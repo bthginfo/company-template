@@ -20,6 +20,7 @@ and edits content via an in-browser admin.
 | Type-check + build        | `npm run build`                                                    |
 | Type-check only           | `npm run lint`                                                     |
 | Audit admin↔frontend drift| `npm run check:drift`                                              |
+| Audit CMS V2 runtime      | `npm run check:cms-runtime`                                        |
 | Generate DB migration     | `npm run db:generate`                                              |
 | Apply DB schema           | `npm run db:push`                                                  |
 | Hash a password (one-off) | `npm run hash`                                                     |
@@ -51,6 +52,11 @@ and edits content via an in-browser admin.
 - **All site content lives in one `siteContent.data` jsonb column** keyed by
   `tenant_id`. The shape is the union of `DEMO_CONTENT` + `EXTRA_DEMO_CONTENT`
   (see [src/lib/demo-content.ts](src/lib/demo-content.ts)).
+- **Tenant-facing CMS source of truth:** provisioned tenants run CMS V2.
+  `cmsV2.enabled` is normalized to `true`, page structure/content lives in
+  `modularPagesV2`, and the frontend renders those Section instances directly.
+  Legacy `modularPagesV1` / `pageBlocksV1` code remains only as compatibility
+  and hydration support for old rows/imports.
 - **Two admin entry points:**
   - `/admin` — tenant-scoped, edits `siteContent.data` for the deployed slug.
   - `/admin-demo` — read-only showcase used on `bth-studio-showcase.vercel.app`.
@@ -90,6 +96,7 @@ scripts/
   new-tenant.ps1          ★ FOOLPROOF onboarding wrapper (start here)
   provision-tenant.ts     end-to-end provisioning (called by new-tenant.ps1)
   create-tenant.ts        DB-only seed (legacy)
+  check-cms-v2-runtime.ts CMS V2 provisioning/page-isolation runtime audit
   postbuild-prerender.mjs static prerender of /, /about, /contact, …
 AGENTS.md                 instructions for automated agents
 ```

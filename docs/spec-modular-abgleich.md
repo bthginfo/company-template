@@ -1,5 +1,9 @@
 # Abgleich: CMS-Spec ↔ Code (Modular v1) & Provisioning
 
+> Status: Legacy reference. Tenant-facing CMS source of truth is now
+> `cmsV2.enabled: true` + hydrated `modularPagesV2`. `modularPagesV1` remains
+> only as compatibility/hydration input for old rows and imports.
+
 Stand: manueller Review-Leitfaden. Bei Schema-/Spec-Änderungen dieses Dokument mitaktualisieren.
 
 ## Vorgehen (wiederholbar)

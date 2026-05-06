@@ -19,6 +19,7 @@ For ops procedures (rollback, key rotation, incident response), see
 | Re-seed an existing tenant    | Same as above, plus `-Reseed`                                        |
 | Type-check the codebase       | `npm run lint`                                                       |
 | Audit admin↔frontend drift    | `npm run check:drift`                                                |
+| Audit CMS V2 runtime behavior | `npm run check:cms-runtime`                                          |
 | Build (must pass before push) | `npm run build`                                                      |
 | Run the dev server            | `npm run dev`                                                        |
 | Hash a password               | `npm run hash` then enter password                                   |
@@ -35,16 +36,17 @@ you exactly what to fix. Do **not** improvise.
    tenant projects.
 2. **`tsc --noEmit` must pass** before every commit. The build runs it
    first; if it fails, the deployment fails.
-2a. **`npm run check:drift` must pass** — `npm run build` invokes it
-   automatically. The script audits, for each (branch × style × page)
+2a. **`npm run check:drift` and `npm run check:cms-runtime` must pass** —
+   `npm run build` invokes both automatically. The drift script audits, for each (branch × style × page)
    combination, that the admin only exposes editors for fields the
    frontend actually renders, and that every frontend-rendered field
    has a matching admin editor. See `scripts/check-coverage.ts` and
    `src/lib/cms-contract.ts` / `src/lib/section-registry.ts`.
    **For modular tenant CMS, the source of truth is the branch/style/page
-   blueprint surfaced through `cms-contract.ts`: the admin may only offer
-   section types returned by that contract, and all returned section types
-   must have an active admin form and frontend merge/render path.**
+   blueprint surfaced through `cms-contract.ts` plus hydrated
+   `modularPagesV2`: the admin may only offer section types returned by
+   that contract, and all returned section types must have an active admin
+   form and direct frontend render path.**
    When you add a new editable field or section, update the contract/registry
    first, otherwise the build fails.
 3. **No `any` types** in new code. If unavoidable, leave a TODO and reason.
@@ -263,7 +265,7 @@ When you need to introduce a new content field that the frontend reads
    [docs/content-template.json](docs/content-template.json), and
    [docs/perplexity-prompt.md](docs/perplexity-prompt.md) so new
    tenants get a reasonable seed value and the AI knows to fill it in.
-6. **Run `npm run build`** — it runs `check:drift` automatically. Fix
+6. **Run `npm run build`** — it runs `check:drift` and `check:cms-runtime` automatically. Fix
    any drift reports before committing.
 
 ### Output expectations
@@ -273,6 +275,7 @@ After completing a task, report:
 - The git commit hash you produced (if you committed)
 - The result of `npm run lint` (must be clean)
 - The result of `npm run check:drift` (must be clean)
+- The result of `npm run check:cms-runtime` (must be clean)
 - Any TODOs you left and why
 
 Do not produce a separate markdown summary file unless explicitly asked.

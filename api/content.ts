@@ -4,6 +4,9 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types.js';
 import { defaultsFor } from '../src/lib/provision-core.js';
+import { buildModularPagesV2FromLegacy } from '../src/lib/cms-v2-hydration.js';
+import type { TemplateKey } from '../src/lib/types.js';
+import type { TemplateStyle } from '../src/lib/branch-config.js';
 import { getSession, unauthorized } from './_lib/auth.js';
 
 /**
@@ -34,7 +37,7 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
   });
 
   const isPreview = req.query.preview === '1';
-  let responseContent = content?.data ?? null;
+  let responseContent = content?.data ? normalizeTenantCmsV2(content.data as SiteContent, tenant.template, tenant.style) : null;
   const hasDraft = !!content?.draft;
 
   if (isPreview) {
@@ -43,7 +46,7 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
       return res.status(403).json({ error: 'Preview requires admin session' });
     }
     if (content?.draft) {
-      responseContent = content.draft;
+      responseContent = normalizeTenantCmsV2(content.draft as SiteContent, tenant.template, tenant.style);
     }
   }
 
@@ -84,7 +87,11 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
   if (!parse.success) {
     return res.status(400).json({ error: 'Invalid content', details: parse.error.flatten() });
   }
-  const normalizedDraft = normalizeMailSecret(parse.data, (existing?.draft ?? existing?.data) as SiteContent | undefined);
+  const normalizedDraft = normalizeTenantCmsV2(
+    normalizeMailSecret(parse.data, (existing?.draft ?? existing?.data) as SiteContent | undefined),
+    tenant.template,
+    tenant.style,
+  );
 
   if (!existing) {
     const liveSeed = defaultsFor(
@@ -135,7 +142,7 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
     }
     await db
       .update(schema.siteContent)
-      .set({ data: content.draft, draft: null, updatedAt: new Date() })
+      .set({ data: normalizeTenantCmsV2(content.draft as SiteContent, tenant.template, tenant.style), draft: null, updatedAt: new Date() })
       .where(eq(schema.siteContent.tenantId, tenant.id));
     return res.json({ ok: true });
   }
@@ -152,6 +159,30 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
 }
 
 const MAIL_SECRET_PREFIX = 'enc:v1:';
+const TEMPLATE_KEYS: readonly TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const STYLES: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
+
+function asTemplateKey(value: string): TemplateKey {
+  return (TEMPLATE_KEYS as readonly string[]).includes(value) ? (value as TemplateKey) : 'restaurant';
+}
+
+function asTemplateStyle(value: string): TemplateStyle {
+  return (STYLES as readonly string[]).includes(value) ? (value as TemplateStyle) : 'classic';
+}
+
+function normalizeTenantCmsV2(content: SiteContent, templateValue: string, styleValue: string): SiteContent {
+  const template = asTemplateKey(templateValue);
+  const style = asTemplateStyle(styleValue);
+  const current = content.modularPagesV2;
+  const modularPagesV2 = current?.combo?.template === template && current.combo.style === style
+    ? current
+    : buildModularPagesV2FromLegacy(content, template, style);
+  return SiteContentSchema.parse({
+    ...content,
+    cmsV2: { ...(content.cmsV2 ?? {}), enabled: true },
+    modularPagesV2,
+  });
+}
 
 function cryptoKey(): Buffer {
   return crypto.createHash('sha256').update(process.env.AUTH_SECRET || process.env.ADMIN_PASSWORD_HASH || 'dev-secret').digest();

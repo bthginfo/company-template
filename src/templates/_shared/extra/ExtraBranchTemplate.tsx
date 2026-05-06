@@ -449,6 +449,33 @@ function extraV2ServiceRows(value: unknown): SiteContent['services'] {
     : [];
 }
 
+function extraV2AdditionalFormFields(value: unknown, fallback: SiteContent['formFields'] = []): SiteContent['formFields'] {
+  if (!Array.isArray(value)) return fallback;
+  const extra = value
+    .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+    .map((item) => {
+      const label = cmsV2Text(item.label);
+      const rawKey = cmsV2Text(item.fieldKey) || label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+      const type = cmsV2Text(item.fieldType);
+      const fieldType: SiteContent['formFields'][number]['type'] = type === 'email' || type === 'tel' || type === 'textarea' || type === 'date' ? type : 'text';
+      return {
+        key: rawKey || 'zusatzfeld',
+        label,
+        required: cmsV2Boolean(item.required, false),
+        type: fieldType,
+      };
+    })
+    .filter((field) => field.label);
+  if (!extra.length) return fallback;
+  const seen = new Set<string>();
+  return [...fallback, ...extra].filter((field) => {
+    const key = field.key || field.label;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: ModularSectionV2): SiteContent {
   const data = asUnknownRecord(section.data);
   switch (section.type) {
@@ -520,6 +547,13 @@ function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: M
     case 'contactPreview':
     case 'cta':
       return { ...content, ctaBandOverride: { ...content.ctaBandOverride, eyebrow: cmsV2Text(data.eyebrow), lead: cmsV2Text(data.headline), sub: cmsV2Text(data.subline) || cmsV2Text(data.description), cta: cmsV2LinkLabel(data.button), ctaHref: cmsV2LinkHref(data.button) } };
+    case 'contactDetails':
+      return {
+        ...content,
+        contact: { ...content.contact, mapsUrl: cmsV2Text(data.googleMapsUrl) || content.contact.mapsUrl },
+        contactBlock: { ...content.contactBlock, eyebrow: cmsV2Text(data.eyebrow), title: cmsV2Text(data.headline), subtitle: cmsV2Text(data.subline) },
+        formFields: extraV2AdditionalFormFields(data.additionalFormFields, content.formFields),
+      };
     default:
       void branch;
       return content;
@@ -537,7 +571,7 @@ function ExtraV2Cards({ section, title }: { section: ModularSectionV2; title: st
   const items = cmsV2TextPairs(data.items);
   if (!items.length) return null;
   return (
-    <Section eyebrow={cmsV2Text(data.eyebrow)} title={cmsV2Text(data.headline) || title} subtitle={cmsV2Text(data.description)} className="surface">
+    <Section eyebrow={cmsV2Text(data.eyebrow)} title={cmsV2Text(data.headline) || title} subtitle={cmsV2Text(data.intro) || cmsV2Text(data.description)} className="surface">
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
         {items.map((item, i) => <article key={i} className="bg-white border border-line rounded-2xl p-7"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}
       </div>
@@ -600,7 +634,7 @@ function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteC
           case 'cta':
             return <ExtraHomeSoftCta key={section.id} branch={branch} content={patched} layoutStyle={style} />;
           case 'contactDetails':
-            return <Section key={section.id} title="Kontakt"><ContactBlock content={content} showForm /></Section>;
+            return <Section key={section.id} title="Kontakt"><ContactBlock content={patched} showForm /></Section>;
           case 'locations':
             return <ExtraV2Cards key={section.id} section={{ ...section, data: { items: asUnknownRecord(section.data).locations } }} title="Standorte." />;
           case 'timeline':

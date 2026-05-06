@@ -16,6 +16,14 @@ type Props = {
   uploadImage?: ModularUploadFn;
 };
 
+const PAGE_LABELS: Record<ModularSpecPageKey, string> = {
+  home: 'Startseite',
+  services: 'Leistungen',
+  gallery: 'Galerie',
+  about: 'Ueber uns',
+  contact: 'Kontakt',
+};
+
 function ensureV2(data: SiteContent, tpl: TemplateKey, style: TemplateStyle): ModularPagesV2 {
   const current = data.modularPagesV2;
   if (current?.combo?.template === tpl && current.combo.style === style) return current;
@@ -29,6 +37,7 @@ export function shouldUseCmsV2Editor(content?: SiteContent): boolean {
 export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLabels, uploadImage }: Props) {
   const modular = ensureV2(data, tpl, style);
   const sections = modular[page]?.sections ?? [];
+  const visibleCount = sections.filter((section) => section.visible !== false).length;
 
   const commit = (nextSections: ModularSectionV2[]) => {
     const nextModular: ModularPagesV2 = {
@@ -79,25 +88,40 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-xs text-amber-900">
-        CMS V2 ist aktiv: Diese Ansicht schreibt direkt in <code>modularPagesV2</code>. Das Frontend liest dieselben Section-Instanzen, sobald der Draft veroeffentlicht ist.
+      <div className="rounded-2xl border border-line bg-white px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted">Seitenstruktur</p>
+          <h2 className="font-display text-xl">{PAGE_LABELS[page]} bearbeiten</h2>
+          <p className="text-xs text-muted mt-1">Admin und Frontend verwenden dieselben Section-Instanzen. Speichern schreibt Draft, Veroeffentlichen geht live.</p>
+        </div>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">{sections.length} Sections</span>
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-1">{visibleCount} sichtbar</span>
+          <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">{tpl} / {style}</span>
+        </div>
       </div>
 
       <div className="space-y-4">
+        {!sections.length ? (
+          <div className="rounded-2xl border border-dashed border-line bg-[#fafaf7] p-6 text-sm text-muted">
+            Diese Seite hat noch keine Sections. Fuegen Sie unten einen erlaubten Section-Typ hinzu.
+          </div>
+        ) : null}
         {sections.map((section, idx) => (
           <section key={section.id} className="border border-line rounded-2xl overflow-hidden bg-white">
             <header className="px-4 py-3 bg-[#fafaf7] border-b border-line flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-wider text-brand">v2 type = {section.type}</p>
+                <p className="font-mono text-[10px] uppercase tracking-wider text-brand">{section.type}</p>
                 <h3 className="font-display text-lg">{sectionLabels[section.type] ?? section.type}</h3>
+                <p className="text-xs text-muted mt-0.5">Position {idx + 1} von {sections.length}</p>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <label className="text-xs flex items-center gap-1.5 cursor-pointer">
                   <input type="checkbox" checked={section.visible !== false} onChange={() => toggleVisible(section.id)} />
                   Sichtbar
                 </label>
-                <button type="button" className="text-xs px-2 py-1 border border-line rounded" onClick={() => move(idx, -1)} disabled={idx === 0}>↑</button>
-                <button type="button" className="text-xs px-2 py-1 border border-line rounded" onClick={() => move(idx, 1)} disabled={idx === sections.length - 1}>↓</button>
+                <button type="button" className="text-xs px-2 py-1 border border-line rounded disabled:opacity-40" onClick={() => move(idx, -1)} disabled={idx === 0}>Hoch</button>
+                <button type="button" className="text-xs px-2 py-1 border border-line rounded disabled:opacity-40" onClick={() => move(idx, 1)} disabled={idx === sections.length - 1}>Runter</button>
                 <button type="button" className="text-xs px-2 py-1 border border-rose-200 text-rose-700 rounded" onClick={() => removeSection(section.id)}>Entfernen</button>
               </div>
             </header>
@@ -121,16 +145,20 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
       <div className="rounded-2xl border border-dashed border-line bg-[#fafaf7] p-4">
         <label className="block text-xs uppercase tracking-widest text-muted mb-2">Section hinzufügen</label>
         <div className="flex flex-wrap gap-2">
-          {addableTypes.map((type) => (
-            <button
-              key={type}
-              type="button"
-              className="text-xs px-3 py-2 rounded-lg border border-line bg-white hover:border-brand"
-              onClick={() => addSection(type)}
-            >
-              + {sectionLabels[type] ?? type}
-            </button>
-          ))}
+          {addableTypes.length ? (
+            addableTypes.map((type) => (
+              <button
+                key={type}
+                type="button"
+                className="text-xs px-3 py-2 rounded-lg border border-line bg-white hover:border-brand"
+                onClick={() => addSection(type)}
+              >
+                + {sectionLabels[type] ?? type}
+              </button>
+            ))
+          ) : (
+            <p className="text-sm text-muted">Alle fuer diese Seite erlaubten Section-Typen sind bereits angelegt.</p>
+          )}
         </div>
       </div>
     </div>

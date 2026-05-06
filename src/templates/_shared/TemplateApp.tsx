@@ -607,6 +607,50 @@ function cmsV2Tours(value: unknown): NonNullable<SiteContent['tours']> {
     : [];
 }
 
+function cmsV2AdditionalFormFields(value: unknown, fallback: SiteContent['formFields'] = []): SiteContent['formFields'] {
+  if (!Array.isArray(value)) return fallback;
+  const extra = value
+    .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+    .map((item) => {
+      const label = cmsV2Text(item.label);
+      const rawKey = cmsV2Text(item.fieldKey) || label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+      const type = cmsV2Text(item.fieldType);
+      const fieldType: SiteContent['formFields'][number]['type'] = type === 'email' || type === 'tel' || type === 'textarea' || type === 'date' ? type : 'text';
+      return {
+        key: rawKey || 'zusatzfeld',
+        label,
+        required: cmsV2Boolean(item.required, false),
+        type: fieldType,
+      };
+    })
+    .filter((field) => field.label);
+  if (!extra.length) return fallback;
+  const seen = new Set<string>();
+  return [...fallback, ...extra].filter((field) => {
+    const key = field.key || field.label;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function cmsV2ContactContent(content: SiteContent, data: UnknownRecord): SiteContent {
+  return {
+    ...content,
+    contact: {
+      ...content.contact,
+      mapsUrl: cmsV2Text(data.googleMapsUrl) || content.contact.mapsUrl,
+    },
+    contactBlock: {
+      ...content.contactBlock,
+      eyebrow: cmsV2Text(data.eyebrow),
+      title: cmsV2Text(data.headline),
+      subtitle: cmsV2Text(data.subline),
+    },
+    formFields: cmsV2AdditionalFormFields(data.additionalFormFields, content.formFields),
+  };
+}
+
 function cmsV2CoreSectionContent(content: SiteContent, variant: TemplateVariant, section: ModularSectionV2, style: TemplateStyle): SiteContent {
   const data = asUnknownRecord(section.data);
   switch (section.type) {
@@ -702,6 +746,8 @@ function cmsV2CoreSectionContent(content: SiteContent, variant: TemplateVariant,
     case 'testimonialMarquee':
     case 'keywordBand':
       return { ...content, branchText: { ...content.branchText, marqueeWords: cmsV2TextItems(data.items) } };
+    case 'contactDetails':
+      return cmsV2ContactContent(content, data);
     case 'storySplit':
     case 'storyImageSplit':
       return cmsV2RestaurantSectionContent(content, { ...section, type: 'storyTeaser' }, style);
@@ -1329,13 +1375,32 @@ function renderCoreV2Section(page: 'home' | RestaurantV2SubpageKey, variant: Tem
     case 'testimonials':
       return renderRestaurantV2HomeSection(section, sectionContent, style);
     case 'quoteWall':
-    case 'newsHighlightList':
     case 'topicCards':
     case 'topicBand':
     case 'categoryCards':
     case 'qualifications':
     case 'teaserList':
       return renderCoreCards(section, 'Details.');
+    case 'newsHighlightList':
+      return (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Aktuelles.')} className="surface">
+          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 items-start">
+            {cmsV2Image(data.featuredImage) ? <img src={cmsV2Image(data.featuredImage)} alt="" className="w-full rounded-2xl object-cover aspect-[4/3]" loading="lazy" /> : null}
+            <div className="space-y-4">
+              {(Array.isArray(data.posts) ? data.posts : [])
+                .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
+                .map((item, i) => (
+                  <article key={i} className="border border-line rounded-2xl bg-white p-5">
+                    <p className="text-xs uppercase tracking-widest text-muted">{cmsV2Text(item.date)}</p>
+                    <h3 className="font-display text-2xl mt-2">{cmsV2Text(item.title)}</h3>
+                    <p className="mt-2 text-sm text-muted">{cmsV2Text(item.excerpt)}</p>
+                    {cmsV2Text(item.href) ? <TLink to={cmsV2Text(item.href)} className="text-sm font-medium text-brand mt-3 inline-block">Weiterlesen</TLink> : null}
+                  </article>
+                ))}
+            </div>
+          </div>
+        </Section>
+      );
     case 'statsBand':
       return <NumbersBand variant={variant} content={sectionContent} source={page === 'about' ? 'about' : 'home'} />;
     case 'newsTeaser':
@@ -1530,7 +1595,7 @@ function renderHotelV2SubpageSection(page: RestaurantV2SubpageKey, section: Modu
     case 'testimonials':
       return renderHotelV2HomeSection(section, content, style);
     case 'contactDetails':
-      return <Section eyebrow={cmsV2Text(data.eyebrow) || 'Kontakt'} title={splitTitle(cmsV2Text(data.headline) || 'Wir freuen uns auf Ihre Nachricht.')} subtitle={cmsV2Text(data.subline)}><ContactBlock content={content} showForm /></Section>;
+      return <Section eyebrow={cmsV2Text(data.eyebrow) || 'Kontakt'} title={splitTitle(cmsV2Text(data.headline) || 'Wir freuen uns auf Ihre Nachricht.')} subtitle={cmsV2Text(data.subline)}><ContactBlock content={sectionContent} showForm /></Section>;
     case 'locations': {
       const locations = Array.isArray(data.locations) ? data.locations.filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item)) : [];
       return locations.length ? <Section eyebrow="Standorte" title={splitTitle('Hier finden Sie uns.')}><div className="grid md:grid-cols-2 gap-5 reveal-stagger">{locations.map((loc, i) => <article key={i} className="bg-white border border-line rounded-2xl p-6"><h3 className="font-display text-2xl">{cmsV2Text(loc.name)}</h3><p className="mt-3 text-sm text-muted whitespace-pre-line">{[cmsV2Text(loc.address), cmsV2Text(loc.city), cmsV2Text(loc.phone)].filter(Boolean).join('\n')}</p>{cmsV2Text(loc.mapsUrl) ? <SafeMapEmbed mapsUrl={cmsV2Text(loc.mapsUrl)} address={cmsV2Text(loc.address)} city={cmsV2Text(loc.city)} className="h-[200px] mt-5" /> : null}</article>)}</div></Section> : null;
@@ -1636,6 +1701,8 @@ function cmsV2RestaurantSubpageContent(content: SiteContent, section: ModularSec
       return cmsV2RestaurantSectionContent(content, section, 'classic');
     case 'testimonials':
       return cmsV2RestaurantSectionContent(content, section, 'classic');
+    case 'contactDetails':
+      return cmsV2ContactContent(content, data);
     case 'cta':
     case 'ctaBand': {
       const patched = cmsV2RestaurantSectionContent(content, section, 'classic');
@@ -1825,7 +1892,7 @@ function renderRestaurantV2SubpageSection(page: RestaurantV2SubpageKey, section:
     case 'contactDetails':
       return (
         <Section eyebrow={cmsV2Text(data.eyebrow) || 'Kontakt'} title={splitTitle(cmsV2Text(data.headline) || 'Wir freuen uns auf Ihre Nachricht.')} subtitle={cmsV2Text(data.subline)}>
-          <ContactBlock content={content} showForm />
+          <ContactBlock content={sectionContent} showForm />
         </Section>
       );
     case 'locations': {

@@ -201,6 +201,8 @@ const CONTENT_API_SOURCE = readFileSync(join(repoRoot, 'api/content.ts'), 'utf8'
 const TYPES_SOURCE = readFileSync(join(repoRoot, 'src/lib/types.ts'), 'utf8');
 const PROVISION_CORE_SOURCE = readFileSync(join(repoRoot, 'src/lib/provision-core.ts'), 'utf8');
 const CONTENT_IMPORT_SOURCE = readFileSync(join(repoRoot, 'src/lib/content-import.ts'), 'utf8');
+const PACKAGE_SOURCE = readFileSync(join(repoRoot, 'package.json'), 'utf8');
+const CMS_V2_RUNTIME_AUDIT_SOURCE = readFileSync(join(repoRoot, 'scripts/check-cms-v2-runtime.ts'), 'utf8');
 const CMS_V2_CONTRACT_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-v2-contract.ts'), 'utf8');
 const CMS_V2_HYDRATION_SOURCE = readFileSync(join(repoRoot, 'src/lib/cms-v2-hydration.ts'), 'utf8');
 const CMS_V2_EDITOR_SOURCE = readFileSync(join(repoRoot, 'src/admin/ModularV2PageEditor.tsx'), 'utf8');
@@ -242,16 +244,35 @@ function modularFieldMention(source: string, field: string): boolean {
   );
 }
 
+function v2RendererFieldMention(source: string, field: string): boolean {
+  return (
+    source.includes(`data.${field}`) ||
+    source.includes(`data[${JSON.stringify(field)}]`) ||
+    source.includes(`item.${field}`) ||
+    source.includes(`item[${JSON.stringify(field)}]`) ||
+    source.includes(`loc.${field}`) ||
+    source.includes(`loc[${JSON.stringify(field)}]`) ||
+    source.includes(`category.${field}`) ||
+    source.includes(`category[${JSON.stringify(field)}]`) ||
+    source.includes(`program.${field}`) ||
+    source.includes(`program[${JSON.stringify(field)}]`) ||
+    source.includes(`asUnknownRecord(section.data).${field}`) ||
+    source.includes(`asUnknownRecord(section.data)[${JSON.stringify(field)}]`)
+  );
+}
+
 const modularMissing = new Set<string>();
 const modularUnmerged = new Set<string>();
 const modularMissingFieldContract = new Set<string>();
 const modularFieldMissingInAdmin = new Set<string>();
 const modularFieldMissingInMerge = new Set<string>();
+const cmsV2FieldMissingInRenderer = new Set<string>();
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     for (const page of PAGES) {
       for (const sectionType of getCmsSectionTypes(tpl, style, page)) {
         const fields = getCmsSectionFieldKeys(sectionType);
+        const rendererSource = isExtraBranch(tpl) ? EXTRA_TEMPLATE_SOURCE : TEMPLATE_APP_SOURCE;
         if (fields.length === 0) {
           modularMissingFieldContract.add(`${tpl}/${style}/${page}: modular section type "${sectionType}" has no CMS_SECTION_FIELD_CONTRACTS entry`);
         }
@@ -272,6 +293,9 @@ for (const tpl of TEMPLATES) {
           if (!modularFieldMention(mergeSource, field)) {
             modularFieldMissingInMerge.add(`${tpl}/${style}/${page}: ${sectionType}.${field} has no template/shared import or merge mention`);
           }
+          if (!v2RendererFieldMention(rendererSource, field)) {
+            cmsV2FieldMissingInRenderer.add(`${tpl}/${style}/${page}: ${sectionType}.${field} has no direct V2 renderer mention`);
+          }
         }
       }
     }
@@ -288,6 +312,7 @@ for (const msg of modularMissing) note(`[modular-no-form] ${msg}`);
 for (const msg of modularUnmerged) note(`[modular-no-merge] ${msg}`);
 for (const msg of modularFieldMissingInAdmin) note(`[modular-field-no-form] ${msg}`);
 for (const msg of modularFieldMissingInMerge) note(`[modular-field-no-merge] ${msg}`);
+for (const msg of cmsV2FieldMissingInRenderer) note(`[cms-v2-field-no-render] ${msg}`);
 
 if (!MODULAR_EXTENDED_FORM_SOURCE.includes('const showItemButton =') || !MODULAR_EXTENDED_FORM_SOURCE.includes('showItemButton ?')) {
   note('[modular-admin-extra-field] Generic service-card editors must gate per-item button fields to templates whose frontend merge uses them.');
@@ -306,6 +331,12 @@ if (!PAGE_BLOCKS_MERGE_SOURCE.includes('content.modularPagesV1?.combo')) {
 }
 if (!CONTENT_API_SOURCE.includes('draft: normalizedDraft')) {
   note('[draft-only-save] PUT /api/content must write submitted content to draft, including first-row recovery paths.');
+}
+if (!CONTENT_API_SOURCE.includes('normalizeTenantCmsV2') || !CONTENT_API_SOURCE.includes('cmsV2: { ...(content.cmsV2 ?? {}), enabled: true }')) {
+  note('[cms-v2-api-normalize] Content API must normalize live, preview, draft saves and publish to tenant-facing CMS V2.');
+}
+if (!PACKAGE_SOURCE.includes('check-cms-v2-runtime.ts') || !CMS_V2_RUNTIME_AUDIT_SOURCE.includes('editing one page changed another page')) {
+  note('[cms-v2-runtime-audit] Build must run the CMS V2 runtime audit for page isolation, visibility and add-section behavior.');
 }
 if (!TYPES_SOURCE.includes('ModularPagesV2Schema') || !TYPES_SOURCE.includes('modularPagesV2: ModularPagesV2Schema.optional()')) {
   note('[cms-v2-missing] SiteContentSchema must carry modularPagesV2 for direct-render CMS migration.');
@@ -327,6 +358,9 @@ if (!CMS_V2_HYDRATION_SOURCE.includes('buildModularPagesV2FromLegacy') || !CMS_V
 }
 if (!CONTENT_IMPORT_SOURCE.includes('buildModularPagesV2FromLegacy')) {
   note('[cms-v2-import] Content import must rehydrate modularPagesV2 so imported tenant content is editable and rendered in V2.');
+}
+if (ADMIN_SOURCES.includes('setCmsV2') || ADMIN_SOURCES.includes('CMS V2 fuer Admin und Frontend aktivieren')) {
+  note('[cms-v2-admin-toggle] Tenant admin must not expose a switch that disables the V2 source of truth.');
 }
 if (!CMS_V2_EDITOR_SOURCE.includes('modularPagesV2') || !CMS_V2_EDITOR_SOURCE.includes('ModularSectionDataForm')) {
   note('[cms-v2-editor] Direct-render CMS v2 needs an admin page editor writing modularPagesV2 section instances.');
