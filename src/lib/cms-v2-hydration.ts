@@ -517,7 +517,9 @@ export function ensureCompleteModularPagesV2(
   };
   for (const page of CMS_PAGE_KEYS) {
     next[page] = {
-      sections: completeV2PageSections(current[page]?.sections, template, style, page),
+      sections: completeV2PageSections(current[page]?.sections, template, style, page).map((section) =>
+        fillSectionData(content, template, style, page, section),
+      ),
     };
   }
   return next;
