@@ -14,8 +14,8 @@
  * renders keys that map to a real React block.
  */
 
-import type { SiteContent } from './types';
-import { getBranchConfig } from './branch-config';
+import type { SiteContent } from './types.js';
+import { getBranchConfig } from './branch-config.js';
 
 export type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

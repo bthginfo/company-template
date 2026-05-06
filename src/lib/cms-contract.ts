@@ -1,13 +1,13 @@
-import type { TemplateStyle } from './branch-config';
-import type { TemplateKey } from './types';
-import { restaurantModularBlueprint } from './modular-restaurant-blueprints';
-import { hotelModularBlueprint } from './modular-hotel-blueprints';
-import { tourismModularBlueprint } from './modular-tourism-blueprints';
-import { salonModularBlueprint } from './modular-salon-blueprints';
-import { tradesmanModularBlueprint } from './modular-tradesman-blueprints';
-import { consultingModularBlueprint } from './modular-consulting-blueprints';
-import { medicalModularBlueprint } from './modular-medical-blueprints';
-import { fitnessModularBlueprint } from './modular-fitness-blueprints';
+import type { TemplateStyle } from './branch-config.js';
+import type { TemplateKey } from './types.js';
+import { restaurantModularBlueprint } from './modular-restaurant-blueprints.js';
+import { hotelModularBlueprint } from './modular-hotel-blueprints.js';
+import { tourismModularBlueprint } from './modular-tourism-blueprints.js';
+import { salonModularBlueprint } from './modular-salon-blueprints.js';
+import { tradesmanModularBlueprint } from './modular-tradesman-blueprints.js';
+import { consultingModularBlueprint } from './modular-consulting-blueprints.js';
+import { medicalModularBlueprint } from './modular-medical-blueprints.js';
+import { fitnessModularBlueprint } from './modular-fitness-blueprints.js';
 
 export type CmsPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
