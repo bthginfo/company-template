@@ -1,6 +1,6 @@
 import type { TemplateStyle } from './branch-config.js';
-import type { ModularPagesV1, ModularPagesV2, ModularSectionV2, SiteContent, TemplateKey } from './types.js';
-import { CMS_PAGE_KEYS, type CmsPageKey } from './cms-contract.js';
+import { SiteContentSchema, type ModularPagesV1, type ModularPagesV2, type ModularSectionV2, type SiteContent, type TemplateKey } from './types.js';
+import { CMS_PAGE_KEYS, getCmsSectionTypes, type CmsPageKey } from './cms-contract.js';
 import { importRestaurantModularFromLegacy } from './modular-restaurant.js';
 import { importHotelModularFromLegacy } from './modular-hotel.js';
 import { importTourismModularFromLegacy } from './modular-tourism.js';
@@ -53,4 +53,71 @@ export function buildModularPagesV2FromLegacy(content: SiteContent, template: Te
   }
 
   return modular;
+}
+
+function completeV2PageSections(
+  currentSections: readonly ModularSectionV2[] | undefined,
+  template: TemplateKey,
+  style: TemplateStyle,
+  page: CmsPageKey,
+): ModularSectionV2[] {
+  const next = [...(currentSections ?? [])];
+  const currentCounts = new Map<string, number>();
+  for (const section of next) currentCounts.set(section.type, (currentCounts.get(section.type) ?? 0) + 1);
+
+  const requiredCounts = new Map<string, number>();
+  for (const type of getCmsSectionTypes(template, style, page)) {
+    const requiredIndex = requiredCounts.get(type) ?? 0;
+    requiredCounts.set(type, requiredIndex + 1);
+    if ((currentCounts.get(type) ?? 0) <= requiredIndex) {
+      next.push({
+        id: `${page}-${type}-${requiredIndex}`,
+        type,
+        visible: true,
+        data: {},
+      });
+      currentCounts.set(type, (currentCounts.get(type) ?? 0) + 1);
+    }
+  }
+
+  return next;
+}
+
+type CmsV2NormalizeMode = 'preserve' | 'legacy';
+
+export function ensureCompleteModularPagesV2(
+  content: SiteContent,
+  template: TemplateKey,
+  style: TemplateStyle,
+  mode: CmsV2NormalizeMode = 'preserve',
+): ModularPagesV2 {
+  const current = content.modularPagesV2;
+  if (mode === 'legacy' || current?.combo?.template !== template || current.combo.style !== style) {
+    return buildModularPagesV2FromLegacy(content, template, style);
+  }
+
+  const next: ModularPagesV2 = {
+    ...current,
+    version: 2,
+    combo: { template, style },
+  };
+  for (const page of CMS_PAGE_KEYS) {
+    next[page] = {
+      sections: completeV2PageSections(current[page]?.sections, template, style, page),
+    };
+  }
+  return next;
+}
+
+export function normalizeSiteContentCmsV2(
+  content: SiteContent,
+  template: TemplateKey,
+  style: TemplateStyle,
+  mode: CmsV2NormalizeMode = 'preserve',
+): SiteContent {
+  return SiteContentSchema.parse({
+    ...content,
+    cmsV2: { ...(content.cmsV2 ?? {}), enabled: true },
+    modularPagesV2: ensureCompleteModularPagesV2(content, template, style, mode),
+  });
 }

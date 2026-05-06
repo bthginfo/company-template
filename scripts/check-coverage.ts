@@ -331,7 +331,7 @@ if (!PAGE_BLOCKS_MERGE_SOURCE.includes('content.modularPagesV1?.combo')) {
 if (!CONTENT_API_SOURCE.includes('draft: normalizedDraft')) {
   note('[draft-only-save] PUT /api/content must write submitted content to draft, including first-row recovery paths.');
 }
-if (!CONTENT_API_SOURCE.includes('normalizeTenantCmsV2') || !CONTENT_API_SOURCE.includes('cmsV2: { ...(content.cmsV2 ?? {}), enabled: true }') || !CONTENT_API_SOURCE.includes('CMS_PAGE_KEYS.every')) {
+if (!CONTENT_API_SOURCE.includes('normalizeTenantCmsV2') || !CONTENT_API_SOURCE.includes('normalizeSiteContentCmsV2')) {
   note('[cms-v2-api-normalize] Content API must normalize live, preview, draft saves and publish to complete tenant-facing CMS V2.');
 }
 if (!PACKAGE_SOURCE.includes('check-cms-v2-runtime.ts') || !CMS_V2_RUNTIME_AUDIT_SOURCE.includes('editing one page changed another page')) {
@@ -343,11 +343,8 @@ if (!TYPES_SOURCE.includes('ModularPagesV2Schema') || !TYPES_SOURCE.includes('mo
 if (!TYPES_SOURCE.includes('cmsV2: z.object') || !TYPES_SOURCE.includes('enabled: z.boolean().optional().default(false)')) {
   note('[cms-v2-flag] SiteContentSchema must carry cmsV2.enabled as the durable tenant rollout flag.');
 }
-if (!PROVISION_CORE_SOURCE.includes('buildModularPagesV2FromLegacy')) {
-  note('[cms-v2-provisioning] Provisioning defaults must hydrate modularPagesV2 from default legacy content for new tenants.');
-}
-if (!PROVISION_CORE_SOURCE.includes('cmsV2: { enabled: true }')) {
-  note('[cms-v2-provisioning] Provisioning defaults must enable cmsV2 for new tenants.');
+if (!PROVISION_CORE_SOURCE.includes('normalizeSiteContentCmsV2')) {
+  note('[cms-v2-provisioning] Provisioning defaults must normalize and hydrate cmsV2/modularPagesV2 for new tenants.');
 }
 if (!CMS_V2_CONTRACT_SOURCE.includes('getCmsV2PageContract') || !CMS_V2_CONTRACT_SOURCE.includes('seedModularPagesV2')) {
   note('[cms-v2-contract] Direct-render CMS v2 needs page contracts and seed generation.');
@@ -355,11 +352,11 @@ if (!CMS_V2_CONTRACT_SOURCE.includes('getCmsV2PageContract') || !CMS_V2_CONTRACT
 if (!CMS_V2_HYDRATION_SOURCE.includes('buildModularPagesV2FromLegacy') || !CMS_V2_HYDRATION_SOURCE.includes('importRestaurantModularFromLegacy') || !CMS_V2_HYDRATION_SOURCE.includes('visible: section.isVisible !== false')) {
   note('[cms-v2-hydration] Direct-render CMS v2 needs a legacy/V1 hydration path preserving section data and visibility.');
 }
-if (!CONTENT_IMPORT_SOURCE.includes('buildModularPagesV2FromLegacy')) {
-  note('[cms-v2-import] Content import must rehydrate modularPagesV2 so imported tenant content is editable and rendered in V2.');
+if (!CMS_V2_HYDRATION_SOURCE.includes('ensureCompleteModularPagesV2') || !CMS_V2_HYDRATION_SOURCE.includes('getCmsSectionTypes')) {
+  note('[cms-v2-normalizer] CMS V2 normalization must preserve tenant section instances and fill missing blueprint sections.');
 }
-if (!CONTENT_IMPORT_SOURCE.includes('cmsV2: { ...(parse.data.cmsV2 ?? {}), enabled: true }')) {
-  note('[cms-v2-import] Content import must keep CMS V2 enabled for imported tenant content.');
+if (!CONTENT_IMPORT_SOURCE.includes('normalizeSiteContentCmsV2')) {
+  note('[cms-v2-import] Content import must normalize cmsV2/modularPagesV2 so imported tenant content is editable and rendered in V2.');
 }
 if (ADMIN_SOURCES.includes('setCmsV2') || ADMIN_SOURCES.includes('CMS V2 fuer Admin und Frontend aktivieren')) {
   note('[cms-v2-admin-toggle] Tenant admin must not expose a switch that disables the V2 source of truth.');

@@ -11,7 +11,7 @@ import { SiteContentSchema } from './types.js';
 import type { TemplateKey } from './types.js';
 import type { TemplateStyle } from './branch-config.js';
 import { applyContentFieldAliases } from './content-field-aliases.js';
-import { buildModularPagesV2FromLegacy } from './cms-v2-hydration.js';
+import { normalizeSiteContentCmsV2 } from './cms-v2-hydration.js';
 
 const TEMPLATE_KEYS: readonly TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
 const STYLES: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
@@ -61,11 +61,7 @@ export async function importContentJson(
   }
   const template = asTemplateKey(tenant.template);
   const style = asTemplateStyle(tenant.style);
-  const hydrated = SiteContentSchema.parse({
-    ...parse.data,
-    cmsV2: { ...(parse.data.cmsV2 ?? {}), enabled: true },
-    modularPagesV2: buildModularPagesV2FromLegacy(parse.data, template, style),
-  });
+  const hydrated = normalizeSiteContentCmsV2(parse.data, template, style, 'legacy');
 
   await db
     .insert(schema.siteContent)

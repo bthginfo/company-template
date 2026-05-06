@@ -2,7 +2,7 @@ import type { SiteContent, TemplateKey } from './types';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content';
 import { SiteContentSchema } from './types';
 import type { TemplateStyle } from './branch-config';
-import { buildModularPagesV2FromLegacy } from './cms-v2-hydration';
+import { normalizeSiteContentCmsV2 } from './cms-v2-hydration';
 
 const KEY = (k: TemplateKey) => `bth.demo.override.${k}`;
 
@@ -48,17 +48,8 @@ export function loadForStyle(k: TemplateKey, style: TemplateStyle): SiteContent 
 }
 
 export function ensureDemoCmsV2ForStyle(content: SiteContent, k: TemplateKey, style: TemplateStyle): SiteContent {
-  const combo = content.modularPagesV2?.combo;
-  if (content.cmsV2?.enabled === true && combo?.template === k && combo.style === style) {
-    return content;
-  }
-
   const legacyClone = SiteContentSchema.parse(structuredClone(content));
-  return SiteContentSchema.parse({
-    ...legacyClone,
-    cmsV2: { ...(legacyClone.cmsV2 ?? {}), enabled: true },
-    modularPagesV2: buildModularPagesV2FromLegacy(legacyClone, k, style),
-  });
+  return normalizeSiteContentCmsV2(legacyClone, k, style);
 }
 
 export function downloadJson(filename: string, payload: unknown): void {

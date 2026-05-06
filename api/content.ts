@@ -4,8 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types.js';
 import { defaultsFor } from '../src/lib/provision-core.js';
-import { buildModularPagesV2FromLegacy } from '../src/lib/cms-v2-hydration.js';
-import { CMS_PAGE_KEYS } from '../src/lib/cms-contract.js';
+import { normalizeSiteContentCmsV2 } from '../src/lib/cms-v2-hydration.js';
 import type { TemplateKey } from '../src/lib/types.js';
 import type { TemplateStyle } from '../src/lib/branch-config.js';
 import { getSession, unauthorized } from './_lib/auth.js';
@@ -174,19 +173,7 @@ function asTemplateStyle(value: string): TemplateStyle {
 function normalizeTenantCmsV2(content: SiteContent, templateValue: string, styleValue: string): SiteContent {
   const template = asTemplateKey(templateValue);
   const style = asTemplateStyle(styleValue);
-  const current = content.modularPagesV2;
-  const hasCompletePages =
-    current?.combo?.template === template &&
-    current.combo.style === style &&
-    CMS_PAGE_KEYS.every((page) => (current[page]?.sections?.length ?? 0) > 0);
-  const modularPagesV2 = hasCompletePages
-    ? current
-    : buildModularPagesV2FromLegacy(content, template, style);
-  return SiteContentSchema.parse({
-    ...content,
-    cmsV2: { ...(content.cmsV2 ?? {}), enabled: true },
-    modularPagesV2,
-  });
+  return normalizeSiteContentCmsV2(content, template, style);
 }
 
 function cryptoKey(): Buffer {

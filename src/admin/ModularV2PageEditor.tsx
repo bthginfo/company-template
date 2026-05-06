@@ -1,7 +1,7 @@
 import type { SiteContent, TemplateKey, ModularPagesV2, ModularSectionV2 } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/branch-config';
 import { seedModularPagesV2 } from '@/lib/cms-v2-contract';
-import { getCmsAddableSectionTypes } from '@/lib/cms-contract';
+import { getCmsAddableSectionTypes, getCmsSectionFieldKeys } from '@/lib/cms-contract';
 import { ModularSectionDataForm } from './ModularSectionDataForm';
 import type { ModularUploadFn } from './modular-section-field-kit';
 import type { ModularSpecPageKey } from './modular-section-types';
@@ -30,6 +30,29 @@ function ensureV2(data: SiteContent, tpl: TemplateKey, style: TemplateStyle): Mo
   return seedModularPagesV2(tpl, style);
 }
 
+function valueAtPath(root: Record<string, unknown>, path: string): unknown {
+  return path.split('.').reduce<unknown>((current, key) => (
+    current && typeof current === 'object' && !Array.isArray(current)
+      ? (current as Record<string, unknown>)[key]
+      : undefined
+  ), root);
+}
+
+function hasMeaningfulValue(value: unknown): boolean {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'string') return value.trim().length > 0;
+  if (typeof value === 'number') return Number.isFinite(value);
+  if (typeof value === 'boolean') return true;
+  if (Array.isArray(value)) return value.some(hasMeaningfulValue);
+  if (typeof value === 'object') return Object.values(value as Record<string, unknown>).some(hasMeaningfulValue);
+  return true;
+}
+
+function emptyFieldCount(section: ModularSectionV2): number {
+  const data = (section.data ?? {}) as Record<string, unknown>;
+  return getCmsSectionFieldKeys(section.type).filter((key) => !hasMeaningfulValue(valueAtPath(data, key))).length;
+}
+
 export function shouldUseCmsV2Editor(content?: SiteContent): boolean {
   return content?.cmsV2?.enabled === true;
 }
@@ -38,6 +61,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
   const modular = ensureV2(data, tpl, style);
   const sections = modular[page]?.sections ?? [];
   const visibleCount = sections.filter((section) => section.visible !== false).length;
+  const sectionsWithEmptyFields = sections.filter((section) => emptyFieldCount(section) > 0).length;
 
   const commit = (nextSections: ModularSectionV2[]) => {
     const nextModular: ModularPagesV2 = {
@@ -97,6 +121,11 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
         <div className="flex flex-wrap gap-2 text-xs">
           <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">{sections.length} Sections</span>
           <span className="rounded-full border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-1">{visibleCount} sichtbar</span>
+          {sectionsWithEmptyFields ? (
+            <span className="rounded-full border border-amber-200 bg-amber-50 text-amber-900 px-3 py-1">{sectionsWithEmptyFields} Sections mit Luecken</span>
+          ) : (
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-1">Alle Felder gepflegt</span>
+          )}
           <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">{tpl} / {style}</span>
         </div>
       </div>
@@ -116,6 +145,11 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
                 <p className="text-xs text-muted mt-0.5">Position {idx + 1} von {sections.length}</p>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
+                {emptyFieldCount(section) ? (
+                  <span className="text-xs px-2 py-1 rounded border border-amber-200 bg-amber-50 text-amber-900">{emptyFieldCount(section)} Felder leer</span>
+                ) : (
+                  <span className="text-xs px-2 py-1 rounded border border-emerald-200 bg-emerald-50 text-emerald-900">Felder gepflegt</span>
+                )}
                 <label className="text-xs flex items-center gap-1.5 cursor-pointer">
                   <input type="checkbox" checked={section.visible !== false} onChange={() => toggleVisible(section.id)} />
                   Sichtbar
