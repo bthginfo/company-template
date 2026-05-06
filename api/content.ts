@@ -37,7 +37,7 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
   });
 
   const isPreview = req.query.preview === '1';
-  let responseContent = content?.data ? normalizeTenantCmsV2(content.data as SiteContent, tenant.template, tenant.style) : null;
+  let responseContent = content?.data ? normalizeTenantCmsV2(content.data as SiteContent, tenant.template, tenant.style, tenant.name) : null;
   const hasDraft = !!content?.draft;
 
   if (isPreview) {
@@ -46,7 +46,7 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
       return res.status(403).json({ error: 'Preview requires admin session' });
     }
     if (content?.draft) {
-      responseContent = normalizeTenantCmsV2(content.draft as SiteContent, tenant.template, tenant.style);
+      responseContent = normalizeTenantCmsV2(content.draft as SiteContent, tenant.template, tenant.style, tenant.name);
     }
   }
 
@@ -91,6 +91,7 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     normalizeMailSecret(parse.data, (existing?.draft ?? existing?.data) as SiteContent | undefined),
     tenant.template,
     tenant.style,
+    tenant.name,
   );
 
   if (!existing) {
@@ -142,7 +143,7 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
     }
     await db
       .update(schema.siteContent)
-      .set({ data: normalizeTenantCmsV2(content.draft as SiteContent, tenant.template, tenant.style), draft: null, updatedAt: new Date() })
+      .set({ data: normalizeTenantCmsV2(content.draft as SiteContent, tenant.template, tenant.style, tenant.name), draft: null, updatedAt: new Date() })
       .where(eq(schema.siteContent.tenantId, tenant.id));
     return res.json({ ok: true });
   }
@@ -170,10 +171,28 @@ function asTemplateStyle(value: string): TemplateStyle {
   return (STYLES as readonly string[]).includes(value) ? (value as TemplateStyle) : 'classic';
 }
 
-function normalizeTenantCmsV2(content: SiteContent, templateValue: string, styleValue: string): SiteContent {
+function normalizeTenantCmsV2(content: SiteContent, templateValue: string, styleValue: string, tenantName = 'Tenant'): SiteContent {
   const template = asTemplateKey(templateValue);
   const style = asTemplateStyle(styleValue);
-  return normalizeSiteContentCmsV2(content, template, style);
+  const parse = SiteContentSchema.safeParse(content);
+  if (parse.success) {
+    return normalizeSiteContentCmsV2(parse.data, template, style);
+  }
+  console.error('[content-normalize] invalid tenant content, falling back to defaults', {
+    template,
+    style,
+    issues: parse.error.issues.map((issue) => ({ path: issue.path.join('.'), message: issue.message })),
+  });
+  return normalizeSiteContentCmsV2(
+    defaultsFor(
+      template as Parameters<typeof defaultsFor>[0],
+      tenantName,
+      undefined,
+      style as Parameters<typeof defaultsFor>[3],
+    ),
+    template,
+    style,
+  );
 }
 
 function cryptoKey(): Buffer {

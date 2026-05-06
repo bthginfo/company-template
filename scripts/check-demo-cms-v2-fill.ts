@@ -1,7 +1,8 @@
 import { getCmsSectionFieldKeys, type CmsPageKey } from '../src/lib/cms-contract';
+import { normalizeSiteContentCmsV2 } from '../src/lib/cms-v2-hydration';
 import { defaultsFor } from '../src/lib/provision-core';
 import type { TemplateStyle } from '../src/lib/branch-config';
-import type { TemplateKey } from '../src/lib/types';
+import type { ModularSectionV2, SiteContent, TemplateKey } from '../src/lib/types';
 
 const TEMPLATES: TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
 const STYLES: TemplateStyle[] = ['classic', 'modern', 'bold'];
@@ -30,17 +31,57 @@ function hasMeaningfulValue(value: unknown): boolean {
 for (const template of TEMPLATES) {
   for (const style of STYLES) {
     const content = defaultsFor(template, `QA ${template}`, undefined, style);
-    for (const page of PAGES) {
-      const sections = content.modularPagesV2?.[page]?.sections ?? [];
-      for (const section of sections) {
-        const data = (section.data ?? {}) as Record<string, unknown>;
-        const emptyFields = getCmsSectionFieldKeys(section.type).filter((field) => !hasMeaningfulValue(valueAtPath(data, field)));
-        if (emptyFields.length) {
-          errors.push(`${template}/${style}/${page}/${section.type}: empty demo admin fields: ${emptyFields.join(', ')}`);
-        }
+    assertNoEmptyFields(content, template, style, 'fresh');
+
+    const stale = simulateStaleV2(content);
+    const repaired = normalizeSiteContentCmsV2(stale, template, style);
+    assertNoEmptyFields(repaired, template, style, 'repaired');
+  }
+}
+
+function assertNoEmptyFields(content: SiteContent, template: TemplateKey, style: TemplateStyle, mode: string): void {
+  for (const page of PAGES) {
+    const sections = content.modularPagesV2?.[page]?.sections ?? [];
+    for (const section of sections) {
+      const data = (section.data ?? {}) as Record<string, unknown>;
+      const emptyFields = getCmsSectionFieldKeys(section.type).filter((field) => !hasMeaningfulValue(valueAtPath(data, field)));
+      if (emptyFields.length) {
+        errors.push(`${template}/${style}/${page}/${section.type}/${mode}: empty demo admin fields: ${emptyFields.join(', ')}`);
       }
     }
   }
+}
+
+function simulateStaleV2(content: SiteContent): SiteContent {
+  const modularPagesV2 = content.modularPagesV2;
+  if (!modularPagesV2) return content;
+  return {
+    ...content,
+    modularPagesV2: {
+      ...modularPagesV2,
+      home: {
+        sections: (modularPagesV2.home?.sections ?? []).map((section): ModularSectionV2 => {
+          if (section.type === 'newsTeaser') {
+            return { ...section, data: { ...section.data, eyebrow: '', headline: '' } };
+          }
+          if (section.type === 'testimonials') {
+            return {
+              ...section,
+              data: {
+                ...section.data,
+                testimonials: [{ name: '', quote: '' }, ...(((section.data?.testimonials as unknown[]) ?? []).slice(1))],
+                items: [{ name: '', quote: '' }, ...(((section.data?.items as unknown[]) ?? []).slice(1))],
+              },
+            };
+          }
+          if (section.type === 'marqueeBand') {
+            return { ...section, data: { ...section.data, items: [] } };
+          }
+          return section;
+        }),
+      },
+    },
+  };
 }
 
 if (errors.length) {

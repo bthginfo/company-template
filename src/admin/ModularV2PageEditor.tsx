@@ -20,7 +20,7 @@ const PAGE_LABELS: Record<ModularSpecPageKey, string> = {
   home: 'Startseite',
   services: 'Leistungen',
   gallery: 'Galerie',
-  about: 'Ueber uns',
+  about: 'Über uns',
   contact: 'Kontakt',
 };
 
@@ -116,13 +116,13 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
         <div>
           <p className="text-xs uppercase tracking-widest text-muted">Seitenstruktur</p>
           <h2 className="font-display text-xl">{PAGE_LABELS[page]} bearbeiten</h2>
-          <p className="text-xs text-muted mt-1">Admin und Frontend verwenden dieselben Section-Instanzen. Speichern schreibt Draft, Veroeffentlichen geht live.</p>
+          <p className="text-xs text-muted mt-1">Admin und Frontend verwenden dieselben Section-Instanzen. Speichern schreibt Draft, Veröffentlichen geht live.</p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
           <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">{sections.length} Sections</span>
           <span className="rounded-full border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-1">{visibleCount} sichtbar</span>
           {sectionsWithEmptyFields ? (
-            <span className="rounded-full border border-amber-200 bg-amber-50 text-amber-900 px-3 py-1">{sectionsWithEmptyFields} Sections mit Luecken</span>
+            <span className="rounded-full border border-amber-200 bg-amber-50 text-amber-900 px-3 py-1">{sectionsWithEmptyFields} Sections mit Lücken</span>
           ) : (
             <span className="rounded-full border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-1">Alle Felder gepflegt</span>
           )}
@@ -133,7 +133,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
       <div className="space-y-4">
         {!sections.length ? (
           <div className="rounded-2xl border border-dashed border-line bg-[#fafaf7] p-6 text-sm text-muted">
-            Diese Seite hat noch keine Sections. Fuegen Sie unten einen erlaubten Section-Typ hinzu.
+            Diese Seite hat noch keine Sections. Fügen Sie unten einen erlaubten Section-Typ hinzu.
           </div>
         ) : null}
         {sections.map((section, idx) => (
@@ -191,7 +191,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
               </button>
             ))
           ) : (
-            <p className="text-sm text-muted">Alle fuer diese Seite erlaubten Section-Typen sind bereits angelegt.</p>
+            <p className="text-sm text-muted">Alle für diese Seite erlaubten Section-Typen sind bereits angelegt.</p>
           )}
         </div>
       </div>

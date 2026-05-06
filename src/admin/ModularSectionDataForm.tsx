@@ -69,6 +69,9 @@ function NoticeBannerForm({ data, onChange }: Pick<ModularSectionDataFormProps, 
   const setItems = (next: string[]) => onChange({ ...data, items: next.map((text) => ({ text })) });
   return (
     <div className="space-y-4">
+      <p className="text-xs text-muted leading-relaxed">
+        Diese Zeilen gehören zum Hinweisbanner. Das laufende Themenband ganz oben bearbeiten Sie in der Section „Marquee / Themenband“.
+      </p>
       <ModField label="Hinweiszeilen (z. B. Öffnungszeiten, Events)">
         <div className="space-y-2">
           {items.map((line, i) => (
@@ -267,7 +270,7 @@ function MarqueeForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'data
     : [];
   const set = (next: string[]) => onChange({ ...data, items: next.map((text) => ({ text })) });
   return (
-    <ModField label="Wörter / Phrasen (eine Zeile pro Kachel)">
+    <ModField label="Laufband ganz oben: Wörter / Phrasen">
       <div className="space-y-2">
         {items.map((w, i) => (
           <div key={i} className="flex gap-2">

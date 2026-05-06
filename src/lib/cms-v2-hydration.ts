@@ -60,9 +60,9 @@ type RecordValue = Record<string, unknown>;
 
 const SIGNATURE_FALLBACKS: Record<Exclude<TemplateKey, 'consulting' | 'medical' | 'fitness'>, Record<TemplateStyle, { eyebrow: string; titleA: string; titleB: string; intro: string }>> = {
   restaurant: {
-    classic: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Koechin schreibt jeden Morgen frisch, was die Lieferanten bringen.' },
+    classic: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch, was die Lieferanten bringen.' },
     modern: { eyebrow: 'Heute auf der Karte', titleA: 'Empfehlungen', titleB: 'vom Haus.', intro: 'Saisonal gekocht, klar serviert und jeden Tag frisch entschieden.' },
-    bold: { eyebrow: 'Heute / Tonight', titleA: 'Auf', titleB: 'dem Tisch.', intro: 'Drei starke Teller aus der Kueche.' },
+    bold: { eyebrow: 'Heute / Tonight', titleA: 'Auf', titleB: 'dem Tisch.', intro: 'Drei starke Teller aus der Küche.' },
   },
   salon: {
     classic: { eyebrow: 'Inspiration', titleA: 'Looks', titleB: 'der Woche.', intro: 'Eine Auswahl unserer letzten Arbeiten, frisch aus dem Studio.' },
@@ -71,17 +71,17 @@ const SIGNATURE_FALLBACKS: Record<Exclude<TemplateKey, 'consulting' | 'medical' 
   },
   tradesman: {
     classic: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Aktuelle Projekte aus der Werkstatt, sauber geplant und umgesetzt.' },
-    modern: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Handwerkliche Loesungen fuer echte Anforderungen.' },
+    modern: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Handwerkliche Lösungen für echte Anforderungen.' },
     bold: { eyebrow: 'Aktuelle Baustelle', titleA: 'Was wir gerade', titleB: 'umsetzen.', intro: 'Robuste Arbeit mit klarer Kante.' },
   },
   hotel: {
-    classic: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders, waehlen Sie, was zu Ihrer Reise passt.' },
+    classic: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Jedes Zimmer ist anders, wählen Sie, was zu Ihrer Reise passt.' },
     modern: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Ruhige Zimmer, gute Betten und kurze Wege.' },
     bold: { eyebrow: 'Zimmer-Auswahl', titleA: 'Ihr Zuhause', titleB: 'auf Zeit.', intro: 'Zimmer mit Charakter und klarer Ausstattung.' },
   },
   tourism: {
-    classic: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, grosse Erlebnisse und Guides mit Ortskenntnis.' },
-    modern: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Gefuehrte Erlebnisse mit guter Planung und echtem Ortsgefuehl.' },
+    classic: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Kleine Gruppen, große Erlebnisse und Guides mit Ortskenntnis.' },
+    modern: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Geführte Erlebnisse mit guter Planung und echtem Ortsgefühl.' },
     bold: { eyebrow: 'Unsere Touren', titleA: 'Auf', titleB: 'Entdeckungsreise.', intro: 'Rausgehen, entdecken, ankommen.' },
   },
 };
@@ -125,6 +125,22 @@ function button(label: string, href: string): RecordValue {
 
 function setMissing(target: RecordValue, key: string, value: unknown): void {
   if (!isMeaningful(target[key]) && isMeaningful(value)) target[key] = value;
+}
+
+function mergeRows(current: unknown, fallback: RecordValue[]): RecordValue[] {
+  const currentRows = Array.isArray(current)
+    ? current.filter((row): row is RecordValue => !!row && typeof row === 'object' && !Array.isArray(row))
+    : [];
+  if (!currentRows.length) return fallback;
+  const max = Math.max(currentRows.length, fallback.length);
+  const rows: RecordValue[] = [];
+  for (let index = 0; index < max; index += 1) {
+    const currentRow = currentRows[index];
+    const fallbackRow = fallback[index];
+    if (isMeaningful(currentRow)) rows.push(currentRow);
+    else if (fallbackRow) rows.push(fallbackRow);
+  }
+  return rows.filter(isMeaningful);
 }
 
 function branchText(content: SiteContent, template: TemplateKey): RecordValue {
@@ -217,7 +233,7 @@ function numberRows(content: SiteContent): RecordValue[] {
   return [
     { value: 'Seit 1998', description: 'Erfahrung im Betrieb' },
     { value: '4,8/5', description: 'Bewertung unserer Kundschaft' },
-    { value: '100%', description: 'Persoenlich betreut' },
+    { value: '100%', description: 'Persönlich betreut' },
   ];
 }
 
@@ -230,7 +246,7 @@ function contactRows(content: SiteContent): RecordValue[] {
   return [
     { title: 'Telefon', value: text(contact.phone) || '+43 512 000000', description: 'Direkt erreichbar' },
     { title: 'E-Mail', value: text(contact.email) || 'info@example.com', description: 'Antwort innerhalb eines Werktags' },
-    { title: 'Adresse', value: [text(contact.address), text(contact.city)].filter(Boolean).join(', ') || 'Musterstrasse 1', description: 'Vor Ort fuer Sie da' },
+    { title: 'Adresse', value: [text(contact.address), text(contact.city)].filter(Boolean).join(', ') || 'Musterstraße 1', description: 'Vor Ort für Sie da' },
   ];
 }
 
@@ -238,15 +254,15 @@ function sectionItems(content: SiteContent, template: TemplateKey, type: string)
   if (type === 'featuredDishesGrid' || type === 'featuredDishes') return homeSignatureRows(content).length ? homeSignatureRows(content) : serviceRows(content).slice(0, 3);
   if (type === 'roomSelection' || type === 'accommodationsGrid' || type === 'accommodationList' || type === 'roomCards') return roomRows(content).length ? roomRows(content) : serviceRows(content);
   if (type === 'steps' || type === 'processTextColumns' || type === 'processCards') return textPairRows(content.serviceProcess).length ? textPairRows(content.serviceProcess) : [
-    { title: 'Anfrage', description: 'Wir klaeren Ziel, Zeitraum und Rahmen.' },
+    { title: 'Anfrage', description: 'Wir klären Ziel, Zeitraum und Rahmen.' },
     { title: 'Planung', description: 'Sie erhalten eine klare Empfehlung.' },
-    { title: 'Umsetzung', description: 'Wir begleiten die naechsten Schritte.' },
+    { title: 'Umsetzung', description: 'Wir begleiten die nächsten Schritte.' },
   ];
   if (type === 'faq') return (content.faq ?? []).map((row) => ({ question: text(row.q), answer: text(row.a) })).filter(isMeaningful);
   if (type === 'team' || type === 'trainers') {
     const rows = (content.team ?? []).map((row) => ({ name: firstText(row.n), role: firstText(row.r), description: text(row.bio), image: image(firstText(row.img), firstText(row.n)) })).filter(isMeaningful);
     return rows.length ? rows : [
-      { name: 'Alex Muster', role: 'Leitung', description: 'Persoenliche Beratung und Qualitaet im Alltag.', image: image(text(content.about?.imageUrl) || text(content.hero?.imageUrl), 'Alex Muster') },
+      { name: 'Alex Muster', role: 'Leitung', description: 'Persönliche Beratung und Qualität im Alltag.', image: image(text(content.about?.imageUrl) || text(content.hero?.imageUrl), 'Alex Muster') },
       { name: 'Sam Beispiel', role: 'Team', description: 'Begleitet Kundinnen und Kunden vom ersten Kontakt bis zur Umsetzung.', image: image(text(content.gallery?.[0]), 'Sam Beispiel') },
     ];
   }
@@ -261,22 +277,22 @@ function sectionItems(content: SiteContent, template: TemplateKey, type: string)
   if (type === 'highlightsBar' || type === 'highlights') {
     const rows = textPairRows(content.serviceHighlights);
     return rows.length ? rows : [
-      { title: 'Persoenlich', description: 'Direkte Betreuung durch ein eingespieltes Team.' },
-      { title: 'Transparent', description: 'Klare Leistungen, klare Absprachen, klare naechste Schritte.' },
-      { title: 'Verlaesslich', description: 'Planung und Umsetzung mit Blick fuer Details.' },
+      { title: 'Persönlich', description: 'Direkte Betreuung durch ein eingespieltes Team.' },
+      { title: 'Transparent', description: 'Klare Leistungen, klare Absprachen, klare nächste Schritte.' },
+      { title: 'Verlässlich', description: 'Planung und Umsetzung mit Blick für Details.' },
     ];
   }
   if (type === 'timeline') {
     const rows = looseRows(content.timeline);
     return rows.length ? rows : [
-      { title: 'Start', description: 'Der Betrieb waechst aus Erfahrung und klarer Haltung.' },
-      { title: 'Heute', description: 'Das Team verbindet bewaehrtes Handwerk mit moderner Arbeitsweise.' },
+      { title: 'Start', description: 'Der Betrieb wächst aus Erfahrung und klarer Haltung.' },
+      { title: 'Heute', description: 'Das Team verbindet bewährtes Handwerk mit moderner Arbeitsweise.' },
     ];
   }
   if (type === 'qualifications') {
     const rows = textPairRows(content.certifications);
     return rows.length ? rows : [
-      { title: 'Gepruefte Qualitaet', description: 'Arbeitsweise und Beratung folgen klaren Standards.' },
+      { title: 'Geprüfte Qualität', description: 'Arbeitsweise und Beratung folgen klaren Standards.' },
       { title: 'Erfahrung', description: 'Routine aus vielen Projekten und Kundensituationen.' },
     ];
   }
@@ -290,7 +306,7 @@ function sectionItems(content: SiteContent, template: TemplateKey, type: string)
 function servicesOrFallback(content: SiteContent): RecordValue[] {
   const rows = serviceRows(content);
   return rows.length ? rows : [
-    { title: 'Beratung', description: 'Wir klaeren gemeinsam, was gebraucht wird.', image: image(text(content.gallery?.[0])) },
+    { title: 'Beratung', description: 'Wir klären gemeinsam, was gebraucht wird.', image: image(text(content.gallery?.[0])) },
     { title: 'Umsetzung', description: 'Das Team setzt die vereinbarten Schritte sauber um.', image: image(text(content.gallery?.[1])) },
     { title: 'Begleitung', description: 'Auch nach dem ersten Termin bleiben wir ansprechbar.', image: image(text(content.gallery?.[2])) },
   ];
@@ -348,7 +364,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'items', items);
   }
 
-  if (section.type === 'noticeBanner') setMissing(data, 'items', (content.announcements?.length ? content.announcements : ['Heute geoeffnet', firstText(content.contact?.phone, 'Reservierung moeglich')]).map((line) => ({ text: line })));
+  if (section.type === 'noticeBanner') setMissing(data, 'items', (content.announcements?.length ? content.announcements : ['Heute geöffnet', firstText(content.contact?.phone, 'Reservierung möglich')]).map((line) => ({ text: line })));
   if (section.type === 'menu') {
     setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Speisekarte'));
     setMissing(data, 'titleA', 'Unsere');
@@ -361,11 +377,17 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'images', gallery);
     setMissing(data, 'button', button(firstText(bt.galleryAllLabel, 'Galerie ansehen'), firstText(bt.galleryAllHref, '/galerie')));
   }
+  if (section.type === 'newsTeaser') {
+    setMissing(data, 'eyebrow', firstText(bt.newsEyebrow, 'Aktuelles'));
+    setMissing(data, 'headline', firstText(bt.newsTitle, 'News & Notizen.'));
+    setMissing(data, 'button', button(firstText(bt.newsAllLabel, 'Alle Beiträge'), firstText(bt.newsAllHref, '/news')));
+  }
   if (section.type === 'testimonials') {
+    const rows = mergeRows(data.testimonials ?? data.items, testimonialRows(content));
     setMissing(data, 'eyebrow', firstText(bt.testimonialsEyebrow, 'Stimmen'));
     setMissing(data, 'headline', firstText(bt.testimonialsTitle, 'Was unsere Kundschaft sagt.'));
-    setMissing(data, 'testimonials', testimonialRows(content));
-    setMissing(data, 'items', testimonialRows(content));
+    data.testimonials = rows;
+    data.items = rows;
   }
   if (section.type === 'cta' || section.type === 'ctaBand') {
     const cta = content.ctaBandOverride ?? {};
@@ -377,7 +399,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
   if (section.type === 'statsBand') setMissing(data, 'items', numberRows(content));
   if (section.type === 'steps') {
     setMissing(data, 'eyebrow', firstText(bt.processEyebrow, 'Ablauf'));
-    setMissing(data, 'headline', firstText(bt.processTitle, 'So laeuft es ab.'));
+    setMissing(data, 'headline', firstText(bt.processTitle, 'So läuft es ab.'));
   }
   if (section.type === 'steps' || section.type === 'faq' || section.type === 'timeline' || section.type === 'team' || section.type === 'trainers' || section.type === 'expertQuotes' || section.type === 'quoteWall' || section.type === 'categoryCards' || section.type === 'topicCards' || section.type === 'programTable' || section.type === 'highlightsBar') setMissing(data, 'items', items);
   if (section.type === 'team' || section.type === 'trainers') {
@@ -400,8 +422,8 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'headline', firstText(bt.faqTitle, 'Antworten auf Ihre Fragen.'));
   }
   if (section.type === 'storyTeaser' || section.type === 'storySplit' || section.type === 'storyImageSplit') {
-    setMissing(data, 'eyebrow', firstText(bt.aboutTeaserEyebrow, 'Ueber uns'));
-    setMissing(data, 'headline', firstText(content.about?.title, 'Ueber uns'));
+    setMissing(data, 'eyebrow', firstText(bt.aboutTeaserEyebrow, 'Über uns'));
+    setMissing(data, 'headline', firstText(content.about?.title, 'Über uns'));
     setMissing(data, 'description', firstText(content.about?.body, bt.teaserSubtitle));
     setMissing(data, 'image', image(firstText(content.about?.imageUrl, heroImage), firstText(content.about?.title, content.brand?.name)));
     setMissing(data, 'button', button(firstText(bt.learnMoreLabel, 'Mehr erfahren'), firstText(bt.learnMoreHref, '/ueber-uns')));
@@ -416,7 +438,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'headline', firstText(contactCta.title, 'So erreichen Sie uns.'));
     setMissing(data, 'subline', firstText(contactCta.text, bt.teaserSubtitle));
     setMissing(data, 'description', firstText(contactCta.text, bt.teaserSubtitle));
-    setMissing(data, 'googleMapsUrl', firstText(contact.mapsUrl, 'https://maps.google.com/?q=Musterstrasse%201'));
+    setMissing(data, 'googleMapsUrl', firstText(contact.mapsUrl, 'https://maps.google.com/?q=Musterstraße%201'));
     setMissing(data, 'additionalFormFields', [{ label: 'Wunschtermin', type: 'text' }]);
     setMissing(data, 'locations', [{ name: content.brand?.name, address: text(contact.address), city: text(contact.city), phone: text(contact.phone), email: text(contact.email), mapsUrl: text(contact.mapsUrl) }]);
     setMissing(data, 'items', contactRows(content));
@@ -428,7 +450,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'phone', firstText(contact.phone, '+43 512 000000'));
     setMissing(data, 'label', 'Direktkontakt');
     setMissing(data, 'headline', 'Schnelle Hilfe vom Fachbetrieb.');
-    setMissing(data, 'subline', firstText(bt.teaserSubtitle, 'Wir melden uns schnell zurueck.'));
+    setMissing(data, 'subline', firstText(bt.teaserSubtitle, 'Wir melden uns schnell zurück.'));
   }
   if (section.type === 'fundingCalculator') {
     setMissing(data, 'investmentMin', 1000);
