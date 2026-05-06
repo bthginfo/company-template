@@ -142,20 +142,20 @@ Hinweis: Nicht jeder Spec-Block muss vollständig alle Unterfelder mergen (z. 
 ### Aktuelles Verhalten
 
 - `scripts/provision-tenant.ts` / `src/lib/provision-core.ts` seeden **`SiteContent`** über `DEMO_CONTENT` / `EXTRA_DEMO_CONTENT` und `SiteContentSchema.parse(…)`.
-- Danach wird für die gewählte Branchen/Stil-Kombination direkt `modularPagesV1` erzeugt und einmal über `apply*ModularToLegacy` zurückgemergt.
-- Neue Mandanten starten damit sofort im passenden modularen CMS. Der Admin darf nur Section-Typen anbieten, die `src/lib/cms-contract.ts` für `template × style × page` zurückgibt.
-- `modularPagesV1` bleibt im Schema optional, damit bestehende Reihen lesbar bleiben. Für neue Provisionings ist die modulare Struktur aber der erwartete Standard.
+- Danach wird für die gewählte Branchen/Stil-Kombination `modularPagesV2` aus den Legacy/V1-Importern hydratisiert und `cmsV2.enabled` auf `true` gesetzt.
+- Neue Mandanten starten damit sofort im passenden direkten Section-CMS. Der Admin darf nur Section-Typen anbieten, die `src/lib/cms-contract.ts` für `template × style × page` zurückgibt.
+- `modularPagesV1` bleibt im Schema optional, damit bestehende Reihen und Hydration lesbar bleiben. Für neue Provisionings ist `modularPagesV2` der erwartete Standard.
 
 ### Import-Erweiterungen
 
 | Thema | Regel |
 |--------|----------|
-| Perplexity-Export enthält bereits `modularPagesV1` | `importContentJson` / `content-import.ts` muss deep-merge-fähig bleiben; importierte Modular-Keys dürfen nicht die falsche Template/Style-Kombination aktivieren. |
+| Perplexity-Export enthält Legacy- oder Modular-Daten | `importContentJson` / `content-import.ts` deep-mergt den Export und hydratisiert danach `modularPagesV2` für die Tenant-Template/Style-Kombination. |
 | Neue Section-Typen | Erst Blueprint + `cms-contract.ts`-Pfad, dann Admin-Form, dann Merge/Frontend. `npm run check:drift` muss die neue Kombination abdecken. |
 
 ### Content-JSON (`--content`)
 
-- Wenn externe JSON-Dateien künftig `modularPagesV1` enthalten sollen, **Import-Pipeline** (`src/lib/content-import.ts`, `api/admin/import-content.ts`) gegen reale Beispiele testen.
+- Externe JSON-Dateien müssen keine `modularPagesV2` enthalten. Die Import-Pipeline (`src/lib/content-import.ts`, `api/admin/import-content.ts`) erzeugt die V2-Struktur nach dem Merge.
 
 ---
 

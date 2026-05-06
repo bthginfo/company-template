@@ -30,13 +30,12 @@
  *
  * Exit code: 0 = all green, 1 = drift detected. Wired into `npm run build`.
  *
- * ─── What this script does *not* guarantee (read before trusting “120/120”) ───
+ * ─── Remaining limits (read before treating this as a formal proof) ───
  *
- * • **Section cards, not fields.** It knows admin *sections* (hero, gallery, …)
- *   and `SECTION_CONTRACTS` *data paths*, not whether every sub-field inside
- *   `AdminEditorBody` is shown for a given (branch, style). Visibility via
- *   `$s(cfg…)`, `fieldVisible`, or inline `style === 'modern'` is **never**
- *   checked here.
+ * • **Textual field coverage.** V2 field coverage checks require every
+ *   `CMS_SECTION_FIELD_CONTRACTS` field to be mentioned by the active admin form
+ *   and direct V2 renderer. This is strict enough to catch common drift, but it
+ *   is still source-text matching, not TypeScript data-flow analysis.
  *
  * • **Registry is the contract list.** A new `SiteContent` field rendered in JSX
  *   but never added to `section-registry.ts` still produces **no failure** for
@@ -54,10 +53,10 @@
  *   pass still uses the full `src/templates` + `components` haystack for
  *   PerStyle needles.
  *
- * • **Sub-pages ignore style.** `getAdminSections('services'|'gallery'|…)`
- *   currently does not vary by `TemplateStyle` (parameter exists but is
- *   unused for those pages). The 120 loop still runs three identical lists
- *   for those pages — it does **not** assert “style A shows fewer editors”.
+ * • **Runtime behavior.** `scripts/check-cms-v2-runtime.ts` covers provisioning
+ *   defaults, page isolation, visibility and add-section behavior for all
+ *   24 combos. Browser-level form submit/publish UX still needs E2E coverage
+ *   when credentials and a local tenant DB are available.
  *
  * • **Home parity is order keys, not layout.** Step 6 maps admin keys ↔
  *   `BRANCH_STYLE_ORDER` *block ids*. It does not prove
@@ -332,8 +331,8 @@ if (!PAGE_BLOCKS_MERGE_SOURCE.includes('content.modularPagesV1?.combo')) {
 if (!CONTENT_API_SOURCE.includes('draft: normalizedDraft')) {
   note('[draft-only-save] PUT /api/content must write submitted content to draft, including first-row recovery paths.');
 }
-if (!CONTENT_API_SOURCE.includes('normalizeTenantCmsV2') || !CONTENT_API_SOURCE.includes('cmsV2: { ...(content.cmsV2 ?? {}), enabled: true }')) {
-  note('[cms-v2-api-normalize] Content API must normalize live, preview, draft saves and publish to tenant-facing CMS V2.');
+if (!CONTENT_API_SOURCE.includes('normalizeTenantCmsV2') || !CONTENT_API_SOURCE.includes('cmsV2: { ...(content.cmsV2 ?? {}), enabled: true }') || !CONTENT_API_SOURCE.includes('CMS_PAGE_KEYS.every')) {
+  note('[cms-v2-api-normalize] Content API must normalize live, preview, draft saves and publish to complete tenant-facing CMS V2.');
 }
 if (!PACKAGE_SOURCE.includes('check-cms-v2-runtime.ts') || !CMS_V2_RUNTIME_AUDIT_SOURCE.includes('editing one page changed another page')) {
   note('[cms-v2-runtime-audit] Build must run the CMS V2 runtime audit for page isolation, visibility and add-section behavior.');
@@ -358,6 +357,9 @@ if (!CMS_V2_HYDRATION_SOURCE.includes('buildModularPagesV2FromLegacy') || !CMS_V
 }
 if (!CONTENT_IMPORT_SOURCE.includes('buildModularPagesV2FromLegacy')) {
   note('[cms-v2-import] Content import must rehydrate modularPagesV2 so imported tenant content is editable and rendered in V2.');
+}
+if (!CONTENT_IMPORT_SOURCE.includes('cmsV2: { ...(parse.data.cmsV2 ?? {}), enabled: true }')) {
+  note('[cms-v2-import] Content import must keep CMS V2 enabled for imported tenant content.');
 }
 if (ADMIN_SOURCES.includes('setCmsV2') || ADMIN_SOURCES.includes('CMS V2 fuer Admin und Frontend aktivieren')) {
   note('[cms-v2-admin-toggle] Tenant admin must not expose a switch that disables the V2 source of truth.');

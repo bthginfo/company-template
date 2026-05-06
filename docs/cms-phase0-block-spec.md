@@ -1,8 +1,12 @@
 # Phase 0 — CMS-Block-Spezifikation (verbindlich)
 
+> Status: historische Phase-0-Referenz. Die tenant-facing CMS-Wahrheit ist
+> heute `cmsV2.enabled: true` mit hydratisierten `modularPagesV2`-Section-
+> Instanzen. `pageBlocksV1` ist kein Kunden-CMS-Source-of-Truth mehr.
+
 Dieses Dokument ist **Phase 0**: festgelegte Begriffe, Ziele, Wiederholbarkeit, Datenhoheit und Verweise auf den **bestehenden Code** als „Contract“. Umsetzung erfolgt ab Phase 1 im Code (`types`, Zod, Renderer, Admin).
 
-**Kontext:** Es gibt noch **keine Live-Mandanten**. Breaking Changes und ein späterer **Cutover** (ohne Legacy-Migration) sind **explizit erlaubt** — Ziel ist ein **vollständiges CMS**, nicht Abwärtskompatibilität zu `sectionOrder` / `modularPagesV1`.
+**Historischer Kontext:** Dieses Dokument entstand vor dem CMS-V2-Cutover. Die frühere Phase-0-Annahme war ein späterer Cutover weg von `sectionOrder` / `modularPagesV1`; umgesetzt ist heute `modularPagesV2` als direkte Kunden-CMS-Struktur.
 
 ---
 
@@ -52,7 +56,7 @@ type PageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 type PageBlocksV1 = Partial<Record<PageKey, PageBlockInstanceV1[]>>;
 ```
 
-`pageBlocksV1` (Typ **`PageBlocksV1`**) wird **eine Zeile** in `siteContent` (additiv bis Cutover), später **alleinige Quelle** für Seitenaufbau (Phase 5).
+`pageBlocksV1` (Typ **`PageBlocksV1`**) war der Phase-0-Arbeitstitel für Block-Instanzen. Heute ist `modularPagesV2` die tenant-facing Quelle für Seitenaufbau.
 
 ---
 

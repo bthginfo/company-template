@@ -63,6 +63,7 @@ export async function importContentJson(
   const style = asTemplateStyle(tenant.style);
   const hydrated = SiteContentSchema.parse({
     ...parse.data,
+    cmsV2: { ...(parse.data.cmsV2 ?? {}), enabled: true },
     modularPagesV2: buildModularPagesV2FromLegacy(parse.data, template, style),
   });
 

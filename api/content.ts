@@ -5,6 +5,7 @@ import { db, schema } from '../src/lib/db/client.js';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types.js';
 import { defaultsFor } from '../src/lib/provision-core.js';
 import { buildModularPagesV2FromLegacy } from '../src/lib/cms-v2-hydration.js';
+import { CMS_PAGE_KEYS } from '../src/lib/cms-contract.js';
 import type { TemplateKey } from '../src/lib/types.js';
 import type { TemplateStyle } from '../src/lib/branch-config.js';
 import { getSession, unauthorized } from './_lib/auth.js';
@@ -174,7 +175,11 @@ function normalizeTenantCmsV2(content: SiteContent, templateValue: string, style
   const template = asTemplateKey(templateValue);
   const style = asTemplateStyle(styleValue);
   const current = content.modularPagesV2;
-  const modularPagesV2 = current?.combo?.template === template && current.combo.style === style
+  const hasCompletePages =
+    current?.combo?.template === template &&
+    current.combo.style === style &&
+    CMS_PAGE_KEYS.every((page) => (current[page]?.sections?.length ?? 0) > 0);
+  const modularPagesV2 = hasCompletePages
     ? current
     : buildModularPagesV2FromLegacy(content, template, style);
   return SiteContentSchema.parse({
