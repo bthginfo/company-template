@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '../src/lib/demo-content';
+import { defaultsFor } from '../src/lib/provision-core';
 import type { TemplateKey } from '../src/lib/types';
 import type { TemplateStyle } from '../src/lib/branch-config';
 
@@ -16,16 +16,13 @@ export const TEMPLATES: TemplateKey[] = [
 
 export const STYLES: TemplateStyle[] = ['classic', 'modern', 'bold'];
 
-export function contentFor(tpl: TemplateKey) {
-  if (tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness') {
-    return EXTRA_DEMO_CONTENT[tpl];
-  }
-  return DEMO_CONTENT[tpl];
+export function contentFor(tpl: TemplateKey, style: TemplateStyle) {
+  return defaultsFor(tpl, `E2E ${tpl}`, undefined, style);
 }
 
 /** Mock GET /api/content for any slug — matches smoke + subpage tests. */
 export async function mockTenantContent(page: Page, tpl: TemplateKey, style: TemplateStyle) {
-  const content = contentFor(tpl);
+  const content = contentFor(tpl, style);
   await page.route('**/api/content**', async (route) => {
     await route.fulfill({
       status: 200,

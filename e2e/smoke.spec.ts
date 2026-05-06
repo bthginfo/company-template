@@ -4,7 +4,7 @@ import { TEMPLATES, STYLES, contentFor, mockTenantContent } from './fixtures';
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     test(`Startseite lädt (${tpl} / ${style})`, async ({ page }) => {
-      const content = contentFor(tpl);
+      const content = contentFor(tpl, style);
       const brand = content.brand.name;
 
       await mockTenantContent(page, tpl, style);

@@ -37,7 +37,19 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
   });
 
   const isPreview = req.query.preview === '1';
-  let responseContent = content?.data ? normalizeTenantCmsV2(content.data as SiteContent, tenant.template, tenant.style, tenant.name) : null;
+  let responseContent = content?.data
+    ? normalizeTenantCmsV2(content.data as SiteContent, tenant.template, tenant.style, tenant.name)
+    : normalizeTenantCmsV2(
+      defaultsFor(
+        asTemplateKey(tenant.template),
+        tenant.name,
+        undefined,
+        asTemplateStyle(tenant.style),
+      ),
+      tenant.template,
+      tenant.style,
+      tenant.name,
+    );
   const hasDraft = !!content?.draft;
 
   if (isPreview) {

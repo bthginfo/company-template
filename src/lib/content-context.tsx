@@ -47,7 +47,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       const qs = (adminMode || urlPreview) ? '&preview=1' : '';
       // Bypass any browser/CDN cache so edits show up immediately after save.
       const r = await fetch(`/api/content?slug=${encodeURIComponent(slug)}${qs}`, { cache: 'no-store' });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      if (!r.ok) throw new Error(await apiErrorMessage(r, 'Inhalte konnten nicht geladen werden'));
       const json = await r.json();
       const parsed = json.content ? SiteContentSchema.parse(json.content) : FALLBACK_CONTENT;
       setState({ status: 'ready', tenant: json.tenant, content: parsed, hasDraft: !!json.hasDraft });
@@ -70,21 +70,21 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(next),
     });
-    if (!r.ok) throw new Error(`Save failed: ${r.status}`);
+    if (!r.ok) throw new Error(await apiErrorMessage(r, 'Speichern fehlgeschlagen'));
     await load();
   };
 
   const publish = async () => {
     const slug = getTenantSlug();
     const r = await fetch(`/api/content?slug=${encodeURIComponent(slug)}&action=publish`, { method: 'POST' });
-    if (!r.ok) throw new Error(`Publish failed: ${r.status}`);
+    if (!r.ok) throw new Error(await apiErrorMessage(r, 'Veröffentlichen fehlgeschlagen'));
     await load();
   };
 
   const discard = async () => {
     const slug = getTenantSlug();
     const r = await fetch(`/api/content?slug=${encodeURIComponent(slug)}&action=discard`, { method: 'POST' });
-    if (!r.ok) throw new Error(`Discard failed: ${r.status}`);
+    if (!r.ok) throw new Error(await apiErrorMessage(r, 'Entwurf verwerfen fehlgeschlagen'));
     await load();
   };
 
@@ -93,4 +93,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
 export function useContent() {
   return useContext(Ctx);
+}
+
+async function apiErrorMessage(response: Response, fallback: string): Promise<string> {
+  const data = await response.json().catch(() => null) as { error?: unknown } | null;
+  const error = typeof data?.error === 'string' && data.error.trim() ? data.error.trim() : fallback;
+  return `${error} (${response.status})`;
 }

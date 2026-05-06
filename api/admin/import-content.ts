@@ -7,7 +7,7 @@ import { importContentJson } from '../../src/lib/content-import.js';
  * POST /api/admin/import-content?slug=xxx
  *
  * Accepts a JSON content payload (from the Perplexity template) and
- * deep-merges it into the tenant's existing site content.
+ * deep-merges it into the tenant's existing site content as an unpublished draft.
  *
  * Auth: super-admin OR matching tenant session OR CRM session.
  *
@@ -49,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const result = await importContentJson(slug, raw as Record<string, unknown>);
+    const result = await importContentJson(slug, raw as Record<string, unknown>, { target: 'draft' });
     res.json({ ok: true, ...result });
   } catch (e: any) {
     const status = e.message?.includes('not found') ? 404 : 400;

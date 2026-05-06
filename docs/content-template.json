@@ -1,7 +1,7 @@
 {
   "_version": "1.0",
   "_description": "Content-Template für company-template. Perplexity füllt alle Felder für einen konkreten Kunden aus. Bilder (imageUrl) bleiben leer – werden manuell hochgeladen.",
-  "_instructions": "Setze branch + style + dann alle Felder. Leere Strings = Feld wird nicht gesetzt. Arrays dürfen leer sein wenn nicht relevant.",
+  "_instructions": "Setze branch + style + dann alle Felder. Leere Bildfelder bleiben bewusst leer und entfernen Demo-Bilder beim Import. Leere Arrays sind erlaubt, wenn ein Modul nicht relevant ist oder keine belastbaren Daten existieren.",
 
   "_copy_rules": {
     "perspective": "Alle sichtbaren Texte aus Sicht des Betriebs schreiben: wir/unser/bei uns. Nicht als Agentur, nicht 'der Kunde', nicht distanziert 'das Unternehmen', sofern eine direkte Wir-Form natuerlicher ist.",

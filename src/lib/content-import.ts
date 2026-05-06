@@ -33,27 +33,18 @@ function asTemplateStyle(value: string): TemplateStyle {
 export async function importContentJson(
   slug: string,
   raw: Record<string, unknown>,
+  options: { target?: 'live' | 'draft' } = {},
 ): Promise<{ branch: string; style: string }> {
   const tenant = await db.query.tenants.findFirst({
     where: eq(schema.tenants.slug, slug),
   });
   if (!tenant) throw new Error(`Tenant "${slug}" not found`);
 
-  const cleaned = normaliseImport(raw);
-
   const existing = await db.query.siteContent.findFirst({
     where: eq(schema.siteContent.tenantId, tenant.id),
   });
   const existingData = (existing?.data ?? {}) as Record<string, unknown>;
-  const merged = deepMerge(existingData, cleaned);
-
-  // Coerce array shapes, then map AI export aliases (question/answer → q/a, etc.)
-  coerceArrayFields(merged);
-  applyContentFieldAliases(merged);
-  ensureIds(merged, 'faq');
-  ensureIds(merged, 'press');
-  ensureIds(merged, 'team');
-  ensureIds(merged, 'programs');
+  const merged = mergeImportedContent(existingData, raw);
 
   const parse = SiteContentSchema.safeParse(merged);
   if (!parse.success) {
@@ -62,14 +53,29 @@ export async function importContentJson(
   const template = asTemplateKey(tenant.template);
   const style = asTemplateStyle(tenant.style);
   const hydrated = normalizeSiteContentCmsV2(parse.data, template, style, 'legacy');
+  const target = options.target ?? 'live';
 
-  await db
-    .insert(schema.siteContent)
-    .values({ tenantId: tenant.id, data: hydrated })
-    .onConflictDoUpdate({
-      target: schema.siteContent.tenantId,
-      set: { data: hydrated, updatedAt: new Date() },
-    });
+  if (target === 'draft') {
+    const existingParse = existing?.data ? SiteContentSchema.safeParse(existing.data) : null;
+    const liveData = existingParse?.success
+      ? normalizeSiteContentCmsV2(existingParse.data, template, style)
+      : normalizeSiteContentCmsV2(parse.data, template, style);
+    await db
+      .insert(schema.siteContent)
+      .values({ tenantId: tenant.id, data: liveData, draft: hydrated })
+      .onConflictDoUpdate({
+        target: schema.siteContent.tenantId,
+        set: { draft: hydrated, updatedAt: new Date() },
+      });
+  } else {
+    await db
+      .insert(schema.siteContent)
+      .values({ tenantId: tenant.id, data: hydrated })
+      .onConflictDoUpdate({
+        target: schema.siteContent.tenantId,
+        set: { data: hydrated, draft: null, updatedAt: new Date() },
+      });
+  }
 
   // Only update branch/style on the tenant row if the caller did NOT already
   // set them via provisioning. The CRM provisions the tenant first (which sets
@@ -81,6 +87,24 @@ export async function importContentJson(
     branch: tenant.template,
     style: tenant.style,
   };
+}
+
+export function mergeImportedContent(
+  existingData: Record<string, unknown>,
+  raw: Record<string, unknown>,
+): Record<string, unknown> {
+  const cleaned = normaliseImport(raw);
+  const merged = deepMerge(existingData, cleaned);
+
+  // Coerce array shapes, then map AI export aliases (question/answer -> q/a, etc.)
+  coerceArrayFields(merged);
+  applyContentFieldAliases(merged);
+  ensureIds(merged, 'faq');
+  ensureIds(merged, 'press');
+  ensureIds(merged, 'team');
+  ensureIds(merged, 'programs');
+
+  return merged;
 }
 
 /** Strip `_` prefixed keys, hoist `_subpage_*` children to top-level. */
@@ -189,13 +213,12 @@ function coerceArrayFields(obj: Record<string, unknown>) {
  * Deep-merge `source` into `target`. Skips empty strings and empty arrays
  * in source (doesn't overwrite existing content with nothing).
  */
-function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>, path: string[] = []): Record<string, unknown> {
   const result = { ...target };
 
   for (const [key, srcVal] of Object.entries(source)) {
     if (srcVal === undefined || srcVal === null) continue;
-    if (typeof srcVal === 'string' && srcVal.trim() === '') continue;
-    if (Array.isArray(srcVal) && srcVal.length === 0) continue;
+    if (typeof srcVal === 'string' && srcVal.trim() === '' && !shouldApplyEmptyString([...path, key])) continue;
 
     const tgtVal = target[key];
 
@@ -203,11 +226,18 @@ function deepMerge(target: Record<string, unknown>, source: Record<string, unkno
       srcVal && typeof srcVal === 'object' && !Array.isArray(srcVal) &&
       tgtVal && typeof tgtVal === 'object' && !Array.isArray(tgtVal)
     ) {
-      result[key] = deepMerge(tgtVal as Record<string, unknown>, srcVal as Record<string, unknown>);
+      result[key] = deepMerge(tgtVal as Record<string, unknown>, srcVal as Record<string, unknown>, [...path, key]);
     } else {
       result[key] = srcVal;
     }
   }
 
   return result;
+}
+
+function shouldApplyEmptyString(path: string[]): boolean {
+  const key = path[path.length - 1]?.toLowerCase() ?? '';
+  if (key.includes('image')) return true;
+  if (key.includes('gallery')) return true;
+  return key === 'logourl';
 }

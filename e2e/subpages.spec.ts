@@ -16,7 +16,7 @@ function allSubpageUrls(tpl: Parameters<typeof getBranchConfig>[0]): string[] {
 for (const tpl of TEMPLATES) {
   for (const style of STYLES) {
     test(`Unterseiten & Rechtliches & News laden (${tpl} / ${style})`, async ({ page }) => {
-      const content = contentFor(tpl);
+      const content = contentFor(tpl, style);
       const brand = content.brand.name;
       await mockTenantContent(page, tpl, style);
 
