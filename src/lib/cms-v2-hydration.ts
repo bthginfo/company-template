@@ -143,6 +143,28 @@ function mergeRows(current: unknown, fallback: RecordValue[]): RecordValue[] {
   return rows.filter(isMeaningful);
 }
 
+function textList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (typeof item === 'string') return item.trim();
+      if (item && typeof item === 'object' && !Array.isArray(item)) return text((item as RecordValue).text);
+      return '';
+    })
+    .filter(Boolean);
+}
+
+function announcementLines(content: SiteContent): string[] {
+  const lines = textList(content.announcements);
+  if (lines.length) return lines;
+  return ['Heute geöffnet', firstText(content.contact?.phone, 'Reservierung möglich')].filter(Boolean);
+}
+
+function noticeBannerItemsFromV2(modular: ModularPagesV2): string[] {
+  const section = modular.home?.sections.find((item) => item.type === 'noticeBanner');
+  return textList((section?.data as RecordValue | undefined)?.items);
+}
+
 function branchText(content: SiteContent, template: TemplateKey): RecordValue {
   return { ...BRANCH_TEXT_DEFAULTS[template], ...(content.branchText ?? {}) } as RecordValue;
 }
@@ -364,7 +386,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'items', items);
   }
 
-  if (section.type === 'noticeBanner') setMissing(data, 'items', (content.announcements?.length ? content.announcements : ['Heute geöffnet', firstText(content.contact?.phone, 'Reservierung möglich')]).map((line) => ({ text: line })));
+  if (section.type === 'noticeBanner') data.items = announcementLines(content).map((line) => ({ text: line }));
   if (section.type === 'menu') {
     setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Speisekarte'));
     setMissing(data, 'titleA', 'Unsere');
@@ -553,9 +575,12 @@ export function normalizeSiteContentCmsV2(
   style: TemplateStyle,
   mode: CmsV2NormalizeMode = 'preserve',
 ): SiteContent {
+  const modularPagesV2 = ensureCompleteModularPagesV2(content, template, style, mode);
+  const announcements = textList(content.announcements);
   return SiteContentSchema.parse({
     ...content,
+    announcements: announcements.length ? announcements : noticeBannerItemsFromV2(modularPagesV2),
     cmsV2: { ...(content.cmsV2 ?? {}), enabled: true },
-    modularPagesV2: ensureCompleteModularPagesV2(content, template, style, mode),
+    modularPagesV2,
   });
 }

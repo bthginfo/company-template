@@ -40,6 +40,9 @@ for (const template of TEMPLATES) {
 }
 
 function assertNoEmptyFields(content: SiteContent, template: TemplateKey, style: TemplateStyle, mode: string): void {
+  if (!hasMeaningfulValue(content.announcements)) {
+    errors.push(`${template}/${style}/${mode}: empty global header announcements`);
+  }
   for (const page of PAGES) {
     const sections = content.modularPagesV2?.[page]?.sections ?? [];
     for (const section of sections) {
@@ -57,6 +60,7 @@ function simulateStaleV2(content: SiteContent): SiteContent {
   if (!modularPagesV2) return content;
   return {
     ...content,
+    announcements: [],
     modularPagesV2: {
       ...modularPagesV2,
       home: {

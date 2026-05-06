@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import type { SiteContent, TemplateKey, TenantCustomTheme } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getBranchConfig, isActiveForStyle, isBranchTextKeyVisible, type TemplateStyle } from '@/lib/branch-config';
-import { catalogSectionApplies } from '@/lib/page-layout';
+import { ANNOUNCEMENT_BAR_SECTION_KEY, catalogSectionApplies } from '@/lib/page-layout';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '@/lib/section-defaults';
 import { getEffectivePageOrder, getRemainingSections, isSectionEnabled, type PageId as LayoutPageId } from '@/lib/page-layout';
 import { RichTextEditor } from './RichTextEditor';
@@ -2046,9 +2046,81 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
   const footer = (data as any).footer || {};
   const setFooter = (patch: any) => setData({ ...data, footer: { ...footer, ...patch } } as any);
   const navKeys = useListKeys(list);
+  const announcements = data.announcements && data.announcements.length ? data.announcements : defaultAnnouncements(tpl);
+  const setAnnouncements = (next: string[]) => {
+    setData({ ...data, announcements: next } as SiteContent);
+  };
+  const sectionVisibility = (data.sectionVisibility ?? {}) as Record<string, boolean>;
+  const cfg = getBranchConfig(tpl);
+  const announcementPages = [
+    { key: 'home', label: 'Startseite' },
+    { key: 'services', label: cfg.pages.services },
+    { key: 'gallery', label: cfg.pages.gallery },
+    { key: 'about', label: cfg.pages.about },
+    { key: 'contact', label: cfg.pages.contact },
+  ] as const;
+  const setAnnouncementVisibility = (page: (typeof announcementPages)[number]['key'], visible: boolean) => {
+    setData({
+      ...data,
+      sectionVisibility: {
+        ...sectionVisibility,
+        [`${page}.${ANNOUNCEMENT_BAR_SECTION_KEY}`]: visible,
+      },
+    } as SiteContent);
+  };
+  const setAllAnnouncementVisibility = (visible: boolean) => {
+    setData({
+      ...data,
+      sectionVisibility: {
+        ...sectionVisibility,
+        ...Object.fromEntries(announcementPages.map((page) => [`${page.key}.${ANNOUNCEMENT_BAR_SECTION_KEY}`, visible])),
+      },
+    } as SiteContent);
+  };
 
   return (
     <>
+      <SectionCard
+        title="Header-Hinweisbanner"
+        description="Das laufende Banner ganz oben im Header. Diese Inhalte sind global und werden auf allen aktivierten Seiten gleich gerendert."
+      >
+        <RepeatableList
+          items={announcements}
+          onChange={setAnnouncements}
+          render={(value: string, index: number, set: (value: string) => void) => (
+            <input className={inputCls} value={value} onChange={(e) => set(e.target.value)} placeholder={`Hinweis ${index + 1}`} />
+          )}
+          newItem={() => ''}
+          addLabel="+ Hinweis hinzufügen"
+        />
+        <div className="mt-5 rounded-xl border border-line bg-[#f6f6f3] p-4">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted mb-3">Sichtbarkeit je Seite</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {announcementPages.map((page) => {
+              const fullKey = `${page.key}.${ANNOUNCEMENT_BAR_SECTION_KEY}`;
+              return (
+                <label key={page.key} className="flex items-center gap-2 text-sm bg-white border border-line rounded-lg px-3 py-2">
+                  <input
+                    type="checkbox"
+                    checked={sectionVisibility[fullKey] !== false}
+                    onChange={(e) => setAnnouncementVisibility(page.key, e.target.checked)}
+                  />
+                  {page.label}
+                </label>
+              );
+            })}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" className="btn-outline !px-3 !py-1.5 text-xs" onClick={() => setAllAnnouncementVisibility(true)}>
+              Auf allen Seiten anzeigen
+            </button>
+            <button type="button" className="btn-outline !px-3 !py-1.5 text-xs" onClick={() => setAllAnnouncementVisibility(false)}>
+              Auf allen Seiten ausblenden
+            </button>
+          </div>
+        </div>
+      </SectionCard>
+
       <SectionCard
         title="Hauptnavigation"
         description="Beschriftung, Reihenfolge und Sichtbarkeit jedes Menü-Eintrags. Erscheint im Header und im Footer."

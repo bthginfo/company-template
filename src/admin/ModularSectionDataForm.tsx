@@ -33,7 +33,9 @@ function NoticeBannerSubpageForm({
   const fullKey = `${page}.${ANNOUNCEMENT_BAR_SECTION_KEY}`;
   const enabled = vis[fullKey] !== false;
   const pageLabel =
-    page === 'services'
+    page === 'home'
+      ? 'Startseite'
+      : page === 'services'
       ? 'dieser Unterseite'
       : page === 'gallery'
         ? 'Galerie'
@@ -43,8 +45,9 @@ function NoticeBannerSubpageForm({
   return (
     <div className="rounded-xl border border-line bg-[#fafaf7] p-4 space-y-3 text-sm">
       <p className="text-muted leading-relaxed">
-        Die <strong className="text-foreground">Hinweiszeilen</strong> (Ticker oben) bearbeiten Sie zentral auf der{' '}
-        <strong className="text-brand">Startseite</strong> im ersten Block „Hinweis-Banner“.
+        Die <strong className="text-foreground">Hinweiszeilen</strong> im Header bearbeiten Sie global unter{' '}
+        <strong className="text-brand">Navigation & Footer</strong> im Block „Header-Hinweisbanner“. Hier steuern Sie nur die
+        Sichtbarkeit auf dieser Seite.
       </p>
       <label className="flex items-center gap-2.5 cursor-pointer select-none">
         <input
@@ -70,7 +73,7 @@ function NoticeBannerForm({ data, onChange }: Pick<ModularSectionDataFormProps, 
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted leading-relaxed">
-        Diese Zeilen gehören zum Hinweisbanner. Das laufende Themenband ganz oben bearbeiten Sie in der Section „Marquee / Themenband“.
+        Fallback-Editor: Das Header-Hinweisbanner wird global unter Navigation & Footer gepflegt.
       </p>
       <ModField label="Hinweiszeilen (z. B. Öffnungszeiten, Events)">
         <div className="space-y-2">
@@ -1332,7 +1335,7 @@ export function ModularSectionDataForm(props: ModularSectionDataFormProps) {
   const { sectionType, data, onChange, tpl, uploadImage, modularPage, siteContent, onPatchSiteContent } = props;
   switch (sectionType) {
     case 'noticeBanner':
-      if (modularPage && modularPage !== 'home' && siteContent && onPatchSiteContent) {
+      if (modularPage && siteContent && onPatchSiteContent) {
         return <NoticeBannerSubpageForm page={modularPage} content={siteContent} onPatch={onPatchSiteContent} />;
       }
       return <NoticeBannerForm data={data} onChange={onChange} />;
