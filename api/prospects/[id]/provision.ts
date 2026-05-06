@@ -4,12 +4,13 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '../../../src/lib/db/client.js';
 import { requireCrm } from '../../_lib/crm-auth.js';
 import { provisionErrorResponse } from '../../_lib/provision-error.js';
-import { provisionTenant, VALID_STYLES, VALID_TEMPLATES } from '../../../src/lib/provision-core.js';
-import { importContentJson } from '../../../src/lib/content-import.js';
 
 export const config = {
   maxDuration: 60,
 };
+
+const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
+const VALID_STYLES = ['classic', 'modern', 'bold'] as const;
 
 const ProvisionSchema = z.object({
   slug: z.string().trim().min(2).max(64),
@@ -48,6 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const prospect = await db.query.prospects.findFirst({ where: eq(schema.prospects.id, id) });
     if (!prospect) return res.status(404).json({ error: 'Prospect not found' });
 
+    const { provisionTenant } = await import('../../../src/lib/provision-core.js');
     const result = await provisionTenant({
       slug: parsed.data.slug,
       name: parsed.data.name,
@@ -63,6 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let contentImport: { ok: true; branch: string; style: string } | { ok: false; error: string } | null = null;
     if (parsed.data.contentJson) {
       try {
+        const { importContentJson } = await import('../../../src/lib/content-import.js');
         const imported = await importContentJson(result.slug, parsed.data.contentJson);
         contentImport = { ok: true, ...imported };
       } catch (e: unknown) {

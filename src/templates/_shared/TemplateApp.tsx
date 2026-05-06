@@ -387,7 +387,6 @@ export const RESTAURANT_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'marqueeBand',
   'featuredDishesGrid',
   'featuredDishes',
-  'featuredItems',
   'storyTeaser',
   'galleryPreview',
   'labelBand',

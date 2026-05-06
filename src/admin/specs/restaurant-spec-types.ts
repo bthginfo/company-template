@@ -15,7 +15,6 @@ const HOME_CLASSIC: Partial<Record<AdminSectionKey, RestaurantSpecBlockType>> = 
   hero: 'hero',
   actionStrip: 'actionBar',
   services: 'featuredDishesGrid',
-  signature: 'featuredItems',
   about: 'storyTeaser',
   gallery: 'galleryPreview',
   logos: 'labelBand',

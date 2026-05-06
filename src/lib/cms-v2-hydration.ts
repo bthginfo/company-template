@@ -519,7 +519,8 @@ function completeV2PageSections(
   style: TemplateStyle,
   page: CmsPageKey,
 ): ModularSectionV2[] {
-  const next = [...(currentSections ?? [])];
+  const allowedTypes = new Set(getCmsSectionTypes(template, style, page));
+  const next = [...(currentSections ?? [])].filter((section) => allowedTypes.has(section.type));
   const currentCounts = new Map<string, number>();
   for (const section of next) currentCounts.set(section.type, (currentCounts.get(section.type) ?? 0) + 1);
 

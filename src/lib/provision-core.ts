@@ -235,13 +235,6 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
   if (!VALID_TEMPLATES.includes(template)) throw new Error(`Template ungültig: ${template}`);
   if (!VALID_STYLES.includes(style)) throw new Error(`Style ungültig: ${style}`);
 
-  const TOKEN = process.env.VERCEL_TOKEN;
-  const TEAM = process.env.VERCEL_TEAM_ID;
-  if (!TOKEN) throw new Error('VERCEL_TOKEN env var not set');
-  if (!TEAM) throw new Error('VERCEL_TEAM_ID env var not set');
-  const REPO = input.githubRepo || process.env.GITHUB_REPO || 'bthginfo/company-template';
-
-  const vercel = vercelFactory(TOKEN, TEAM);
   const projectName = slug;
   log(`→ Provisioning '${slug}' as Vercel project '${projectName}'`);
 
@@ -314,6 +307,13 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
         deploymentUrl: '',
       };
     }
+
+    const TOKEN = process.env.VERCEL_TOKEN;
+    const TEAM = process.env.VERCEL_TEAM_ID;
+    if (!TOKEN) throw new Error('VERCEL_TOKEN env var not set');
+    if (!TEAM) throw new Error('VERCEL_TEAM_ID env var not set');
+    const REPO = input.githubRepo || process.env.GITHUB_REPO || 'bthginfo/company-template';
+    const vercel = vercelFactory(TOKEN, TEAM);
 
     // 2. Read shared env vars
     log('→ Reading shared env vars from process.env');
