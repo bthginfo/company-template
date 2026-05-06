@@ -27,7 +27,7 @@ export function provisionErrorResponse(error: unknown, provisioningLog: string[]
   ) {
     return { status: 503, body: { error: message, category: 'configuration', provisioningLog: log } };
   }
-  if (message.includes('Vercel API') || message.includes('Deployment ')) {
+  if (message.includes('Vercel API') || message.includes('Deployment ') || message.includes('Vercel project')) {
     return { status: 502, body: { error: message, category: 'vercel', provisioningLog: log } };
   }
   if (message.includes('duplicate key') || message.includes('relation') || message.includes('POSTGRES')) {

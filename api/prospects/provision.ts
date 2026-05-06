@@ -3,9 +3,9 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../../src/lib/db/client.js';
 import { requireCrm } from '../_lib/crm-auth.js';
+import { provisionErrorResponse } from '../_lib/provision-error.js';
 import { provisionTenant, VALID_STYLES, VALID_TEMPLATES } from '../../src/lib/provision-core.js';
 import { importContentJson } from '../../src/lib/content-import.js';
-import { provisionErrorResponse } from './_provision-error.js';
 
 const ProvisionSchema = z.object({
   id: z.string().uuid().optional(),
@@ -19,27 +19,31 @@ const ProvisionSchema = z.object({
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (await requireCrm(req, res)) return;
-
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const body = typeof req.body === 'string' ? tryParse(req.body) : req.body || {};
-  const id = String((req.query.id ?? body.id ?? '') as string).trim();
-  if (!id) return res.status(400).json({ error: 'id missing' });
-
-  const parsed = ProvisionSchema.safeParse({ ...body, id });
-  if (!parsed.success) {
-    return res.status(400).json({ error: 'Ungültige Eingabe', details: parsed.error.flatten() });
-  }
-
-  const prospect = await db.query.prospects.findFirst({ where: eq(schema.prospects.id, id) });
-  if (!prospect) return res.status(404).json({ error: 'Prospect not found' });
-
   const provisioningLog: string[] = [];
+  let id = '';
+  let slug = '';
+
   try {
+    if (await requireCrm(req, res)) return;
+
+    if (req.method !== 'POST') {
+      res.setHeader('Allow', 'POST');
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const body = typeof req.body === 'string' ? tryParse(req.body) : req.body || {};
+    id = String((req.query.id ?? body.id ?? '') as string).trim();
+    if (!id) return res.status(400).json({ error: 'id missing' });
+
+    const parsed = ProvisionSchema.safeParse({ ...body, id });
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Ungültige Eingabe', details: parsed.error.flatten() });
+    }
+    slug = parsed.data.slug;
+
+    const prospect = await db.query.prospects.findFirst({ where: eq(schema.prospects.id, id) });
+    if (!prospect) return res.status(404).json({ error: 'Prospect not found' });
+
     const result = await provisionTenant({
       slug: parsed.data.slug,
       name: parsed.data.name,
@@ -56,8 +60,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         const imported = await importContentJson(result.slug, parsed.data.contentJson);
         contentImport = { ok: true, ...imported };
-      } catch (e: any) {
-        contentImport = { ok: false, error: e?.message || 'Content import failed' };
+      } catch (e: unknown) {
+        contentImport = { ok: false, error: e instanceof Error ? e.message : 'Content import failed' };
       }
     }
 
@@ -75,7 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const out = provisionErrorResponse(e, provisioningLog);
     console.error('[prospects/provision] failed', {
       id,
-      slug: parsed.data.slug,
+      slug,
       category: out.body.category,
       error: out.body.error,
       provisioningLog,
