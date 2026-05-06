@@ -5,6 +5,7 @@ import { db, schema } from '../../src/lib/db/client.js';
 import { requireCrm } from '../_lib/crm-auth.js';
 import { provisionTenant, VALID_STYLES, VALID_TEMPLATES } from '../../src/lib/provision-core.js';
 import { importContentJson } from '../../src/lib/content-import.js';
+import { provisionErrorResponse } from './_provision-error.js';
 
 const ProvisionSchema = z.object({
   id: z.string().uuid().optional(),
@@ -37,6 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const prospect = await db.query.prospects.findFirst({ where: eq(schema.prospects.id, id) });
   if (!prospect) return res.status(404).json({ error: 'Prospect not found' });
 
+  const provisioningLog: string[] = [];
   try {
     const result = await provisionTenant({
       slug: parsed.data.slug,
@@ -46,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       password: parsed.data.password,
       reseed: parsed.data.reseed ?? false,
       waitForBuild: false,
-      onLog: () => {},
+      onLog: (line) => provisioningLog.push(line),
     });
 
     let contentImport: { ok: true; branch: string; style: string } | { ok: false; error: string } | null = null;
@@ -69,8 +71,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .returning();
 
     return res.json({ ok: true, prospect: updated, provisioning: result, contentImport });
-  } catch (e: any) {
-    return res.status(500).json({ error: e?.message || 'Provisioning failed' });
+  } catch (e) {
+    const out = provisionErrorResponse(e, provisioningLog);
+    console.error('[prospects/provision] failed', {
+      id,
+      slug: parsed.data.slug,
+      category: out.body.category,
+      error: out.body.error,
+      provisioningLog,
+    });
+    return res.status(out.status).json(out.body);
   }
 }
 

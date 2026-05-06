@@ -210,6 +210,11 @@ function vercelFactory(token: string, team: string) {
   };
 }
 
+function githubRepoId(project: any): string | number | null {
+  const repoId = project?.link?.repoId;
+  return typeof repoId === 'string' || typeof repoId === 'number' ? repoId : null;
+}
+
 export async function provisionTenant(input: ProvisionInput): Promise<ProvisionResult> {
   const log = input.onLog ?? (() => {});
   const slug = input.slug;
@@ -320,7 +325,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
       log(`  ✓ Vercel project already exists (${project.id}) — will update env + redeploy`);
     } catch (e: any) {
       if (!String(e.message).includes('not_found') && !String(e.message).includes('404')) throw e;
-      project = await vercel('/v10/projects', {
+      project = await vercel('/v11/projects', {
         method: 'POST',
         body: JSON.stringify({
           name: projectName,
@@ -332,6 +337,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
         }),
       });
       log(`  ✓ Project created (${project.id})`);
+      project = await vercel(`/v9/projects/${projectName}`).catch(() => project);
       const projectId = project.id;
       rollback.push(async () => {
         await vercel(`/v9/projects/${projectId}`, { method: 'DELETE' }).catch(() => {});
@@ -384,13 +390,17 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
 
     // 6. Trigger deployment
     log('→ Triggering deployment');
+    const repoId = githubRepoId(project);
+    if (!repoId) {
+      throw new Error(`Vercel project "${vercelProjectName}" is not linked to GitHub repo "${REPO}" or repoId is missing.`);
+    }
     const deployment = await vercel('/v13/deployments', {
       method: 'POST',
       body: JSON.stringify({
         name: vercelProjectName,
         target: 'production',
         project: project.id,
-        gitSource: { type: 'github', repoId: project.link?.repoId, ref: 'main' },
+        gitSource: { type: 'github', repoId, ref: 'main' },
       }),
     });
     log(`  ✓ Deployment queued: https://${deployment.url}`);

@@ -1270,7 +1270,11 @@ async function req<T = any>(url: string, init?: RequestInit): Promise<T> {
   const data = txt ? safeJson(txt) : {};
 
   if (!res.ok) {
-    const msg = (data as any)?.error || `HTTP ${res.status}`;
+    const log = Array.isArray((data as any)?.provisioningLog) && (data as any).provisioningLog.length
+      ? `\n\nLog:\n${(data as any).provisioningLog.join('\n')}`
+      : '';
+    const category = typeof (data as any)?.category === 'string' ? ` [${(data as any).category}]` : '';
+    const msg = `${(data as any)?.error || `HTTP ${res.status}`}${category}${log}`;
     throw new Error(msg);
   }
   return data as T;
