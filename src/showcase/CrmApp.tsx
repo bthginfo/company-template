@@ -44,6 +44,7 @@ type ProvisioningResponse = {
     deploymentState: string;
     deploymentUrl?: string;
   };
+  contentImport?: { ok: true; branch: string; style: string } | { ok: false; error: string } | null;
 };
 
 type CrmTab = 'prospects' | 'tenants';
@@ -161,6 +162,7 @@ export default function CrmApp() {
   const [provPasteText, setProvPasteText] = useState('');
   const [provFileInputKey, setProvFileInputKey] = useState(0);
   const [provResult, setProvResult] = useState<ProvisioningResponse['provisioning'] | null>(null);
+  const [provImportResult, setProvImportResult] = useState<ProvisioningResponse['contentImport']>(null);
 
   // Tenants tab state
   const [tenants, setTenants] = useState<TenantRow[]>([]);
@@ -350,6 +352,7 @@ export default function CrmApp() {
     setProvJsonMode('file');
     setProvPasteText('');
     setProvFileInputKey((k) => k + 1);
+    setProvImportResult(null);
     setProvisionModal({ open: true, p });
   };
 
@@ -388,21 +391,15 @@ export default function CrmApp() {
           template: templateToUse,
           style: styleToUse,
           ...(provPassword.trim().length >= 8 ? { password: provPassword.trim() } : {}),
+          ...(importPayload ? { contentJson: importPayload } : {}),
         }),
       });
       setProvTemplate(templateToUse);
       setProvStyle(styleToUse);
       setProvResult(data.provisioning);
-      // Auto-import content JSON if provided
-      if (importPayload) {
-        try {
-          await req(`/api/admin/import-content?slug=${encodeURIComponent(provSlug)}`, {
-            method: 'POST',
-            body: JSON.stringify(importPayload),
-          });
-        } catch (e: any) {
-          alert(`Tenant erstellt, aber Content-Import fehlgeschlagen: ${e?.message}`);
-        }
+      setProvImportResult(data.contentImport ?? null);
+      if (data.contentImport?.ok === false) {
+        alert(`Tenant erstellt, aber Content-Import fehlgeschlagen: ${data.contentImport.error}`);
       }
       await reloadProspects();
     } catch (e: any) {
@@ -1136,6 +1133,14 @@ export default function CrmApp() {
                 <p><strong>Admin:</strong> <a href={provResult.loginUrl} target="_blank" rel="noreferrer" className="text-rose-600 underline">{provResult.loginUrl}</a></p>
                 <p><strong>Status:</strong> {provResult.deploymentState}</p>
                 <p><strong>Passwort:</strong> {provResult.password || '(bestehender Tenant - kein neues Passwort)'}</p>
+                {provImportResult ? (
+                  <p>
+                    <strong>Content:</strong>{' '}
+                    {provImportResult.ok
+                      ? `JSON importiert (${provImportResult.branch}/${provImportResult.style}, CMS V2 aktiv)`
+                      : `Import fehlgeschlagen: ${provImportResult.error}`}
+                  </p>
+                ) : null}
                 {provResult.vercelProjectName && provResult.vercelProjectName !== provResult.slug ? (
                   <p className="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 leading-snug">
                     Vercel hat den Projektnamen angepasst (<strong>{provResult.vercelProjectName}</strong> statt <strong>{provResult.slug}</strong>).

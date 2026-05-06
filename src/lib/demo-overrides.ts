@@ -1,5 +1,8 @@
 import type { SiteContent, TemplateKey } from './types';
 import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content';
+import { SiteContentSchema } from './types';
+import type { TemplateStyle } from './branch-config';
+import { buildModularPagesV2FromLegacy } from './cms-v2-hydration';
 
 const KEY = (k: TemplateKey) => `bth.demo.override.${k}`;
 
@@ -38,6 +41,24 @@ export function clearOverride(k: TemplateKey): void {
 
 export function loadFor(k: TemplateKey): SiteContent {
   return readOverride(k) ?? baseFor(k);
+}
+
+export function loadForStyle(k: TemplateKey, style: TemplateStyle): SiteContent {
+  return ensureDemoCmsV2ForStyle(loadFor(k), k, style);
+}
+
+export function ensureDemoCmsV2ForStyle(content: SiteContent, k: TemplateKey, style: TemplateStyle): SiteContent {
+  const combo = content.modularPagesV2?.combo;
+  if (content.cmsV2?.enabled === true && combo?.template === k && combo.style === style) {
+    return content;
+  }
+
+  const legacyClone = SiteContentSchema.parse(structuredClone(content));
+  return SiteContentSchema.parse({
+    ...legacyClone,
+    cmsV2: { ...(legacyClone.cmsV2 ?? {}), enabled: true },
+    modularPagesV2: buildModularPagesV2FromLegacy(legacyClone, k, style),
+  });
 }
 
 export function downloadJson(filename: string, payload: unknown): void {

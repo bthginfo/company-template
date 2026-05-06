@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '../../src/lib/db/client.js';
 import { requireCrm } from '../_lib/crm-auth.js';
 import { provisionTenant, VALID_STYLES, VALID_TEMPLATES } from '../../src/lib/provision-core.js';
+import { importContentJson } from '../../src/lib/content-import.js';
 
 const ProvisionSchema = z.object({
   id: z.string().uuid().optional(),
@@ -13,6 +14,7 @@ const ProvisionSchema = z.object({
   style: z.enum(VALID_STYLES).optional(),
   password: z.string().min(8).max(128).optional(),
   reseed: z.boolean().optional(),
+  contentJson: z.record(z.unknown()).optional(),
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -47,6 +49,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       onLog: () => {},
     });
 
+    let contentImport: { ok: true; branch: string; style: string } | { ok: false; error: string } | null = null;
+    if (parsed.data.contentJson) {
+      try {
+        const imported = await importContentJson(result.slug, parsed.data.contentJson);
+        contentImport = { ok: true, ...imported };
+      } catch (e: any) {
+        contentImport = { ok: false, error: e?.message || 'Content import failed' };
+      }
+    }
+
     const [updated] = await db
       .update(schema.prospects)
       .set({
@@ -56,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .where(eq(schema.prospects.id, id))
       .returning();
 
-    return res.json({ ok: true, prospect: updated, provisioning: result });
+    return res.json({ ok: true, prospect: updated, provisioning: result, contentImport });
   } catch (e: any) {
     return res.status(500).json({ error: e?.message || 'Provisioning failed' });
   }

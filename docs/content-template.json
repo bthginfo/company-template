@@ -3,6 +3,14 @@
   "_description": "Content-Template für company-template. Perplexity füllt alle Felder für einen konkreten Kunden aus. Bilder (imageUrl) bleiben leer – werden manuell hochgeladen.",
   "_instructions": "Setze branch + style + dann alle Felder. Leere Strings = Feld wird nicht gesetzt. Arrays dürfen leer sein wenn nicht relevant.",
 
+  "_copy_rules": {
+    "perspective": "Alle sichtbaren Texte aus Sicht des Betriebs schreiben: wir/unser/bei uns. Nicht als Agentur, nicht 'der Kunde', nicht distanziert 'das Unternehmen', sofern eine direkte Wir-Form natuerlicher ist.",
+    "address": "Du/Sie aus bestehender Kommunikation ableiten; wenn unklar, Sie verwenden und durchgehend konsistent bleiben.",
+    "avoid": ["massgeschneiderte Loesungen", "professioneller Service", "hochwertige Qualitaet", "Ihr Partner fuer", "Kompetenz aus einer Hand", "innovativ und kundenorientiert"],
+    "facts": "Keine erfundenen Fakten. Unbekannte Zahlen, Bewertungen, Awards, Gruendungsjahre, Teamgroessen und Namen leer lassen.",
+    "images": "Alle Bildfelder leer lassen. Keine Stockfoto-URLs, keine Social-/Google-Bildlinks."
+  },
+
   "branch": "",
   "_branch_options": ["restaurant", "salon", "tradesman", "hotel", "tourism", "consulting", "medical", "fitness"],
   "_branch_help": "Branche des Kunden. Bestimmt welche Module verfügbar sind.",
@@ -27,7 +35,7 @@
   "hero": {
     "title": "",
     "_title_max": 80,
-    "_title_help": "Hauptüberschrift der Startseite. Kurz, emotional, auf den Punkt.",
+    "_title_help": "Hauptüberschrift der Startseite. Kurz, emotional, aus Sicht des Betriebs, auf den Punkt.",
 
     "subtitle": "",
     "_subtitle_max": 100,
@@ -35,7 +43,7 @@
 
     "body": "",
     "_body_max": 300,
-    "_body_help": "Beschreibungstext (nur modern). 1-2 Sätze unter der Headline.",
+    "_body_help": "Beschreibungstext. 1-2 Sätze aus Wir-/Unser-Perspektive, konkret statt generisch.",
 
     "ctaLabel": "",
     "_ctaLabel_max": 30,
@@ -302,7 +310,7 @@
 
     "body": "",
     "_body_max": 600,
-    "_body_help": "Haupttext Über-uns. 2-3 Absätze, durch Leerzeilen getrennt. Erzählt die Geschichte des Unternehmens."
+    "_body_help": "Haupttext Über-uns. 2-3 Absätze, durch Leerzeilen getrennt. Aus Sicht des Betriebs schreiben: wir/unser/bei uns, keine distanzierte Agentur-Sprache."
   },
 
   "services": [
@@ -314,7 +322,7 @@
       "price": "",
       "_price_max": 20,
       "imageUrl": "",
-      "_imageUrl_help": "Optional. Karten-Bild (HTTPS-URL).",
+      "_imageUrl_help": "LEER LASSEN - Bilder werden manuell hochgeladen. Keine Stockfoto-/Social-/Google-Bildlinks.",
       "detailSlug": "",
       "_detailSlug_help": "Optional. URL-Segment für Katalog-Detailseite (z.B. tagliatelle-al-tartufo). Kleinbuchstaben, Bindestriche. Nur wenn Unterseite gewünscht.",
       "detailPublished": true,
@@ -323,7 +331,7 @@
       "detailBody": "",
       "_detailBody_help": "Optional. Fließtext für Detailseite; Absätze mit doppeltem Zeilenumbruch (\\n\\n).",
       "detailGallery": [],
-      "_detailGallery_help": "Optional. 2+ Bild-URLs für Galerie auf der Detailseite."
+      "_detailGallery_help": "LEER LASSEN - Detailbilder werden manuell hochgeladen."
     }
   ],
   "_services_help": "Hauptleistungen / Angebote. 4-8 Einträge. Ohne Bilder.",

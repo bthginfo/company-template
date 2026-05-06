@@ -2,15 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/tenant';
-import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from '@/lib/demo-content';
-import { clearOverride, downloadJson, loadFor, writeOverride } from '@/lib/demo-overrides';
+import { clearOverride, downloadJson, loadForStyle, writeOverride } from '@/lib/demo-overrides';
 import { AdminEditorBody } from '@/admin/AdminEditorBody';
 
 type DemoKey = TemplateKey;
 const ALL_DEMO_KEYS: DemoKey[] = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'];
 const isDemoKey = (k: string): k is DemoKey => (ALL_DEMO_KEYS as string[]).includes(k);
-const baseFor = (k: DemoKey): SiteContent =>
-  k === 'restaurant' || k === 'salon' || k === 'tradesman' || k === 'hotel' || k === 'tourism' ? DEMO_CONTENT[k] : EXTRA_DEMO_CONTENT[k];
+const previewBaseFor = (k: DemoKey, style: TemplateStyle): string =>
+  style === 'classic' ? `/preview/${k}` : `/preview/${k}/style/${style}`;
 
 /**
  * AdminDemo — showcase wrapper around the shared admin editor body.
@@ -19,7 +18,7 @@ const baseFor = (k: DemoKey): SiteContent =>
  */
 export default function AdminDemo() {
   const [tplKey, setTplKey] = useState<DemoKey>('restaurant');
-  const [data, setDataInternal] = useState<SiteContent>(() => loadFor('restaurant'));
+  const [data, setDataInternal] = useState<SiteContent>(() => loadForStyle('restaurant', 'classic'));
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [style, setStyle] = useState<TemplateStyle>('classic');
 
@@ -30,9 +29,14 @@ export default function AdminDemo() {
 
   const switchTpl = (k: DemoKey) => {
     setTplKey(k);
-    setDataInternal(loadFor(k));
+    setDataInternal(loadForStyle(k, 'classic'));
     setSavedAt(null);
     setStyle('classic');
+  };
+  const switchStyle = (nextStyle: TemplateStyle) => {
+    setStyle(nextStyle);
+    setDataInternal(loadForStyle(tplKey, nextStyle));
+    setSavedAt(null);
   };
   const fakeSave = () => {
     setSavedAt(new Date().toLocaleTimeString('de-DE'));
@@ -40,7 +44,7 @@ export default function AdminDemo() {
   };
   const resetDemo = () => {
     clearOverride(tplKey);
-    setDataInternal(baseFor(tplKey));
+    setDataInternal(loadForStyle(tplKey, style));
     setSavedAt(null);
   };
   const exportJson = () => downloadJson(`${tplKey}-content.json`, data);
@@ -53,11 +57,11 @@ export default function AdminDemo() {
   useEffect(() => {
     const onOverride = (e: Event) => {
       const detail = (e as CustomEvent<{ key: DemoKey }>).detail;
-      if (detail?.key === tplKey) setDataInternal(loadFor(tplKey));
+      if (detail?.key === tplKey) setDataInternal(loadForStyle(tplKey, style));
     };
     window.addEventListener('bth:override', onOverride);
     return () => window.removeEventListener('bth:override', onOverride);
-  }, [tplKey]);
+  }, [tplKey, style]);
 
   return (
     <AdminEditorBody
@@ -67,9 +71,9 @@ export default function AdminDemo() {
       setData={setData}
       onSave={fakeSave}
       savedAt={savedAt}
-      previewUrlBase={`/preview/${tplKey}`}
+      previewUrlBase={previewBaseFor(tplKey, style)}
       style={style}
-      onStyleChange={(s) => setStyle(s)}
+      onStyleChange={switchStyle}
       topBar={embedded ? undefined : (
         <div className="bg-[var(--accent-color)] text-brand text-sm py-2.5 text-center font-medium">
           <span>Live-Demo des Admin-Bereichs · Ihre Änderungen werden hier nicht gespeichert · </span>

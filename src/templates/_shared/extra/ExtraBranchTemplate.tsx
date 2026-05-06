@@ -2858,7 +2858,7 @@ function FitnessPrograms({ style, content }: { style: ExtraStyle; content: SiteC
       <section className="py-24 md:py-40 bg-[var(--text-color)] text-[var(--bg-color)]">
         <div className="container-x">
           <div className="grid md:grid-cols-12 gap-8 mb-14 reveal">
-            <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">⚡</p>
+            <p className="md:col-span-2 font-display text-7xl md:text-9xl leading-none text-[var(--accent-color)]">01</p>
             <h2 className="md:col-span-10 font-display text-5xl md:text-7xl leading-[0.95]">{h.title}</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-px bg-current/10 reveal-stagger">

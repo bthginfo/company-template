@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate, useLocati
 import { DEMO_CONTENT } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import type { SiteContent, TemplateKey } from '@/lib/types';
-import { clearOverride, loadFor, readOverride } from '@/lib/demo-overrides';
+import { clearOverride, loadFor, readOverride, ensureDemoCmsV2ForStyle } from '@/lib/demo-overrides';
 import AdminDemo from './AdminDemo';
 import CrmApp from './CrmApp';
 import { Imprint, Privacy } from './Legal';
@@ -2357,10 +2357,13 @@ function TemplatePreview() {
   }, [tplKey]);
   const hasOverride = !!readOverride(tplKey as TemplateKey);
 
-  const themedContent = useMemo(() => ({
-    ...content,
-    brand: { ...content.brand, primaryColor: preset.primary },
-  }), [content, preset]);
+  const themedContent = useMemo(() => {
+    const hydrated = ensureDemoCmsV2ForStyle(content, tplKey as TemplateKey, style);
+    return {
+      ...hydrated,
+      brand: { ...hydrated.brand, primaryColor: preset.primary },
+    };
+  }, [content, preset, style, tplKey]);
 
   useEffect(() => { applyTheme(preset); }, [preset]);
   useEffect(() => setPresetIdx(0), [tplKey]);
