@@ -7,6 +7,10 @@ import { provisionErrorResponse } from '../_lib/provision-error.js';
 import { provisionTenant, VALID_STYLES, VALID_TEMPLATES } from '../../src/lib/provision-core.js';
 import { importContentJson } from '../../src/lib/content-import.js';
 
+export const config = {
+  maxDuration: 60,
+};
+
 const ProvisionSchema = z.object({
   id: z.string().uuid().optional(),
   slug: z.string().trim().min(2).max(64),

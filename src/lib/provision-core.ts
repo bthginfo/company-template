@@ -366,19 +366,19 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
     const existingEnv = await vercel(`/v9/projects/${vercelProjectName}/env`);
     const byKey = new Map<string, string>();
     for (const e of existingEnv.envs as Array<{ id: string; key: string }>) byKey.set(e.key, e.id);
-    for (const [key, value] of Object.entries(tenantEnv)) {
+    await Promise.all(Object.entries(tenantEnv).map(async ([key, value]) => {
       if (byKey.has(key)) {
         await vercel(`/v9/projects/${vercelProjectName}/env/${byKey.get(key)}`, {
           method: 'PATCH',
           body: JSON.stringify({ value, target: ['production', 'preview', 'development'], type: 'encrypted' }),
         });
-      } else {
-        await vercel(`/v10/projects/${vercelProjectName}/env`, {
-          method: 'POST',
-          body: JSON.stringify({ key, value, target: ['production', 'preview', 'development'], type: 'encrypted' }),
-        });
+        return;
       }
-    }
+      await vercel(`/v10/projects/${vercelProjectName}/env`, {
+        method: 'POST',
+        body: JSON.stringify({ key, value, target: ['production', 'preview', 'development'], type: 'encrypted' }),
+      });
+    }));
     log('  ✓ Env vars set');
 
     // 5. Disable SSO
