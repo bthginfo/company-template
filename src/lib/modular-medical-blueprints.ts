@@ -2,7 +2,7 @@
  * Praxen (medical) — spec-modular v1 (`docs/spec-praxen.md`).
  */
 
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateStyle } from './branch-config.js';
 
 export type MedicalModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

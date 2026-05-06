@@ -3,7 +3,7 @@
  * Page keys mirror `modularPagesV1`: services = Zimmer, gallery = Haus & Spa, about = Geschichte, contact = Reservieren.
  */
 
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateStyle } from './branch-config.js';
 
 export type HotelModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

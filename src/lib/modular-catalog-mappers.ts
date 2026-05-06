@@ -2,8 +2,8 @@
  * Shared item mappers for spec-modular sections → legacy `SiteContent` catalog rows.
  */
 
-import type { SiteContent } from '@/lib/types';
-import { bool, imgUrl, str } from '@/lib/modular-restaurant';
+import type { SiteContent } from './types.js';
+import { bool, imgUrl, str } from './modular-restaurant.js';
 
 /** Flache `detail*`-Felder; fehlen sie, Werte aus verschachteltem Spec-`subpage` übernehmen. */
 function readCatalogDetailBlock(it: Record<string, unknown>): {

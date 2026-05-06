@@ -7,12 +7,12 @@
  * tenant hides the slot (otherwise the „Sichtbar“ toggle would disappear).
  */
 
-import type { SiteContent } from '@/lib/types';
-import type { TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
-import { isExtraBranch } from '@/lib/branch-config';
-import { isSectionEnabled, getCatalogForVariant } from '@/lib/page-layout';
-import { BRANCH_STYLE_ORDER } from '@/lib/template-orders';
+import type { SiteContent } from './types.js';
+import type { TemplateKey } from './types.js';
+import type { TemplateStyle } from './branch-config.js';
+import { isExtraBranch } from './branch-config.js';
+import { isSectionEnabled, getCatalogForVariant } from './page-layout.js';
+import { BRANCH_STYLE_ORDER } from './template-orders.js';
 
 /**
  * Home slot keys from `sectionOrder.home` (or branch defaults), without

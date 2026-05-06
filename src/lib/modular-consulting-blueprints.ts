@@ -3,7 +3,7 @@
  * Klassische Section-Reihenfolge; Modern/Bold nutzen dieselbe Editor-Struktur (Inhalte mergen identisch).
  */
 
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateStyle } from './branch-config.js';
 
 export type ConsultingModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

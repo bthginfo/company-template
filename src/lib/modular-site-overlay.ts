@@ -4,16 +4,16 @@
  * wins over stale `pageBlocksV1` projections onto the same legacy fields.
  */
 
-import type { SiteContent, TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
-import { applyRestaurantModularOverlay } from '@/lib/modular-restaurant';
-import { applyHotelModularOverlay } from '@/lib/modular-hotel';
-import { applyTourismModularOverlay } from '@/lib/modular-tourism';
-import { applySalonModularOverlay } from '@/lib/modular-salon';
-import { applyTradesmanModularOverlay } from '@/lib/modular-tradesman';
-import { applyConsultingModularOverlay } from '@/lib/modular-consulting';
-import { applyMedicalModularOverlay } from '@/lib/modular-medical';
-import { applyFitnessModularOverlay } from '@/lib/modular-fitness';
+import type { SiteContent, TemplateKey } from './types.js';
+import type { TemplateStyle } from './branch-config.js';
+import { applyRestaurantModularOverlay } from './modular-restaurant.js';
+import { applyHotelModularOverlay } from './modular-hotel.js';
+import { applyTourismModularOverlay } from './modular-tourism.js';
+import { applySalonModularOverlay } from './modular-salon.js';
+import { applyTradesmanModularOverlay } from './modular-tradesman.js';
+import { applyConsultingModularOverlay } from './modular-consulting.js';
+import { applyMedicalModularOverlay } from './modular-medical.js';
+import { applyFitnessModularOverlay } from './modular-fitness.js';
 
 export function withModularSiteContent(content: SiteContent, variant: TemplateKey, style: TemplateStyle): SiteContent {
   let c = applyRestaurantModularOverlay(content, variant, style);

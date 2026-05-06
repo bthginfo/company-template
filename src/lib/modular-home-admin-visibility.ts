@@ -5,8 +5,8 @@
  * Unknown `type` strings default to visible so new spec blocks stay editable until mapped here.
  */
 
-import type { TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateKey } from './types.js';
+import type { TemplateStyle } from './branch-config.js';
 
 /** Core five + hotel: bold home uses an inline hero marquee, not the `marquee` catalog slot. */
 const BOLD_INLINE_MARQUEE_TEMPLATES: readonly TemplateKey[] = [

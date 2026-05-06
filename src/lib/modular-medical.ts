@@ -2,14 +2,14 @@
  * Praxen — spec-modular v1 (`docs/spec-praxen.md`).
  */
 
-import type { SiteContent, ModularPagesV1, ModularSectionV1 } from '@/lib/types';
-import type { TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { SiteContent, ModularPagesV1, ModularSectionV1 } from './types.js';
+import type { TemplateKey } from './types.js';
+import type { TemplateStyle } from './branch-config.js';
 import {
   medicalModularBlueprint,
   type MedicalModularPageKey,
   MEDICAL_SECTION_LABEL_DE,
-} from '@/lib/modular-medical-blueprints';
+} from './modular-medical-blueprints.js';
 import {
   str,
   modularComboTemplateMatches,
@@ -23,8 +23,8 @@ import {
   importGallerySections,
   importAboutSections,
   importContactSections,
-} from '@/lib/modular-restaurant';
-import { mapModularDoctor, mapModularItemToService } from '@/lib/modular-catalog-mappers';
+} from './modular-restaurant.js';
+import { mapModularDoctor, mapModularItemToService } from './modular-catalog-mappers.js';
 
 export { MEDICAL_SECTION_LABEL_DE, type MedicalModularPageKey };
 

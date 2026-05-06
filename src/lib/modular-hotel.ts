@@ -3,14 +3,14 @@
  * Reuses shared merge/import for gallery, about, contact with Restaurant (same legacy fields).
  */
 
-import type { SiteContent, ModularPagesV1, ModularSectionV1 } from '@/lib/types';
-import type { TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { SiteContent, ModularPagesV1, ModularSectionV1 } from './types.js';
+import type { TemplateKey } from './types.js';
+import type { TemplateStyle } from './branch-config.js';
 import {
   hotelModularBlueprint,
   type HotelModularPageKey,
   HOTEL_SECTION_LABEL_DE,
-} from '@/lib/modular-hotel-blueprints';
+} from './modular-hotel-blueprints.js';
 import {
   str,
   bool,
@@ -26,7 +26,7 @@ import {
   importGallerySections,
   importAboutSections,
   importContactSections,
-} from '@/lib/modular-restaurant';
+} from './modular-restaurant.js';
 
 export { HOTEL_SECTION_LABEL_DE, type HotelModularPageKey };
 

@@ -3,7 +3,7 @@
  * services = Leistungen, gallery = Referenzen, about = Betrieb, contact = Anfrage.
  */
 
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateStyle } from './branch-config.js';
 
 export type TradesmanModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

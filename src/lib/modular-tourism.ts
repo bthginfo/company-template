@@ -3,14 +3,14 @@
  * Touren → `tours`; Home-Tourplan → `homeSignatureItems` + Überschriften; Galerie/Über uns/Kontakt wie Hotel.
  */
 
-import type { SiteContent, ModularPagesV1, ModularSectionV1 } from '@/lib/types';
-import type { TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { SiteContent, ModularPagesV1, ModularSectionV1 } from './types.js';
+import type { TemplateKey } from './types.js';
+import type { TemplateStyle } from './branch-config.js';
 import {
   tourismModularBlueprint,
   type TourismModularPageKey,
   TOURISM_SECTION_LABEL_DE,
-} from '@/lib/modular-tourism-blueprints';
+} from './modular-tourism-blueprints.js';
 import {
   str,
   bool,
@@ -25,8 +25,8 @@ import {
   importGallerySections,
   importAboutSections,
   importContactSections,
-} from '@/lib/modular-restaurant';
-import { mapModularItemToTour } from '@/lib/modular-catalog-mappers';
+} from './modular-restaurant.js';
+import { mapModularItemToTour } from './modular-catalog-mappers.js';
 
 export { TOURISM_SECTION_LABEL_DE, type TourismModularPageKey };
 

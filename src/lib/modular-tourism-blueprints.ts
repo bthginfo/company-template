@@ -3,7 +3,7 @@
  * Page keys mirror `modularPagesV1`: services = Touren, gallery = Eindrücke, about = Guides, contact = Buchen.
  */
 
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateStyle } from './branch-config.js';
 
 export type TourismModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

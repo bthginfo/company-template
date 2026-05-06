@@ -3,7 +3,7 @@
  * Subpages follow your written specs; home follows BRANCH_STYLE_ORDER semantics.
  */
 
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateStyle } from './branch-config.js';
 
 export type RestaurantModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

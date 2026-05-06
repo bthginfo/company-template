@@ -2,7 +2,7 @@
  * Fitness — spec-modular v1 (`docs/spec-fitness.md`).
  */
 
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateStyle } from './branch-config.js';
 
 export type FitnessModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

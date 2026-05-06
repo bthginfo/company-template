@@ -3,7 +3,7 @@
  * services = Leistungen, gallery = Looks, about = Studio, contact = Termin.
  */
 
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { TemplateStyle } from './branch-config.js';
 
 export type SalonModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 

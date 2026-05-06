@@ -2,14 +2,14 @@
  * Handwerk — spec-modular v1. `services` ← Service-Karten / -listen; Förderung & Notdienst aus Spec-Sections.
  */
 
-import type { SiteContent, ModularPagesV1, ModularSectionV1 } from '@/lib/types';
-import type { TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
+import type { SiteContent, ModularPagesV1, ModularSectionV1 } from './types.js';
+import type { TemplateKey } from './types.js';
+import type { TemplateStyle } from './branch-config.js';
 import {
   tradesmanModularBlueprint,
   type TradesmanModularPageKey,
   TRADESMAN_SECTION_LABEL_DE,
-} from '@/lib/modular-tradesman-blueprints';
+} from './modular-tradesman-blueprints.js';
 import {
   str,
   imgUrl,
@@ -25,8 +25,8 @@ import {
   importGallerySections,
   importAboutSections,
   importContactSections,
-} from '@/lib/modular-restaurant';
-import { mapModularItemToService } from '@/lib/modular-catalog-mappers';
+} from './modular-restaurant.js';
+import { mapModularItemToService } from './modular-catalog-mappers.js';
 
 export { TRADESMAN_SECTION_LABEL_DE, type TradesmanModularPageKey };
 
