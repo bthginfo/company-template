@@ -423,8 +423,8 @@ function shouldUseExtraCmsV2Frontend(content: SiteContent, branch: ExtraBranchKe
 }
 
 function extraV2Sections(content: SiteContent, page: ExtraPage): ModularSectionV2[] {
-  if (page === 'home') return content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false) ?? [];
-  return content.modularPagesV2?.[page]?.sections?.filter((section) => section.visible !== false) ?? [];
+  if (page === 'home') return content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false && section.type !== 'noticeBanner') ?? [];
+  return content.modularPagesV2?.[page]?.sections?.filter((section) => section.visible !== false && section.type !== 'noticeBanner') ?? [];
 }
 
 function extraV2ServiceRows(value: unknown): SiteContent['services'] {
@@ -560,12 +560,6 @@ function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: M
   }
 }
 
-function ExtraV2Notice({ section }: { section: ModularSectionV2 }) {
-  const lines = cmsV2TextItems(asUnknownRecord(section.data).items);
-  if (!lines.length) return null;
-  return <section className="bg-brand text-white border-y border-white/10"><div className="container-x py-3 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-widest">{lines.map((line) => <span key={line}>{line}</span>)}</div></section>;
-}
-
 function ExtraV2Cards({ section, title }: { section: ModularSectionV2; title: string }) {
   const data = asUnknownRecord(section.data);
   const items = cmsV2TextPairs(data.items);
@@ -595,8 +589,6 @@ function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteC
       {sections.filter((section) => section.type !== 'hero').map((section) => {
         const patched = extraV2Content(content, branch, section);
         switch (section.type) {
-          case 'noticeBanner':
-            return <ExtraV2Notice key={section.id} section={section} />;
           case 'keywordBand': {
             const words = cmsV2TextItems(asUnknownRecord(section.data).items);
             return words.length ? <Section key={section.id} spacing="md"><div className="flex flex-wrap gap-3">{words.map((word) => <span key={word} className="rounded-full border border-line px-4 py-2 text-sm">{word}</span>)}</div></Section> : null;

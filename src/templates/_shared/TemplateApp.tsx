@@ -1050,8 +1050,6 @@ function cmsV2RestaurantSectionContent(content: SiteContent, section: ModularSec
 function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
   const sectionContent = cmsV2RestaurantSectionContent(content, section, style);
   switch (section.type) {
-    case 'noticeBanner':
-      return <RestaurantV2NoticeBanner section={section} />;
     case 'actionBar':
       return <BranchActionStrip variant="restaurant" content={sectionContent} />;
     case 'marqueeBand': {
@@ -1153,20 +1151,6 @@ function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteC
     default:
       return null;
   }
-}
-
-function RestaurantV2NoticeBanner({ section }: { section: ModularSectionV2 }) {
-  const lines = cmsV2TextItems(asUnknownRecord(section.data).items);
-  if (!lines.length) return null;
-  return (
-    <section className="bg-brand text-white border-y border-white/10">
-      <div className="container-x py-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs uppercase tracking-widest">
-        {lines.map((line) => (
-          <span key={line}>{line}</span>
-        ))}
-      </div>
-    </section>
-  );
 }
 
 function RestaurantV2HomePage({ content, style }: { content: SiteContent; style: TemplateStyle }) {
@@ -1325,8 +1309,6 @@ function renderCoreV2Section(page: 'home' | RestaurantV2SubpageKey, variant: Tem
   const data = asUnknownRecord(section.data);
   const sectionContent = cmsV2CoreSectionContent(cmsV2RestaurantSubpageContent(content, section, page === 'home' ? 'services' : page), variant, section, style);
   switch (section.type) {
-    case 'noticeBanner':
-      return <RestaurantV2NoticeBanner section={section} />;
     case 'stickyEmergencyBanner':
       return <EmergencyStickyBanner content={sectionContent} />;
     case 'actionBar':
@@ -1429,8 +1411,6 @@ function renderCoreV2Section(page: 'home' | RestaurantV2SubpageKey, variant: Tem
 function renderHotelV2HomeSection(section: ModularSectionV2, content: SiteContent, style: TemplateStyle): JSX.Element | null {
   const sectionContent = cmsV2HotelSectionContent(content, section, style);
   switch (section.type) {
-    case 'noticeBanner':
-      return <RestaurantV2NoticeBanner section={section} />;
     case 'actionBar':
       return <BranchActionStrip variant="hotel" content={sectionContent} />;
     case 'marqueeBand':
@@ -1525,8 +1505,6 @@ function renderHotelV2SubpageSection(page: RestaurantV2SubpageKey, section: Modu
   const data = asUnknownRecord(section.data);
   const sectionContent = cmsV2HotelSectionContent(cmsV2RestaurantSubpageContent(content, section, page), section, style);
   switch (section.type) {
-    case 'noticeBanner':
-      return <RestaurantV2NoticeBanner section={section} />;
     case 'highlightsBar': {
       const items = cmsV2TextPairs(data.items);
       return items.length ? (
@@ -1766,8 +1744,6 @@ function renderRestaurantV2SubpageSection(page: RestaurantV2SubpageKey, section:
   const data = asUnknownRecord(section.data);
   const sectionContent = cmsV2RestaurantSubpageContent(content, section, page);
   switch (section.type) {
-    case 'noticeBanner':
-      return <RestaurantV2NoticeBanner section={section} />;
     case 'highlightsBar': {
       const items = cmsV2TextPairs(data.items);
       return items.length ? (
