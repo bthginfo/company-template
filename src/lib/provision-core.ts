@@ -68,6 +68,8 @@ export type ProvisionInput = {
   sharedEnvOverrides?: Partial<Record<string, string>>;
   /** Override polling. CLI waits ~60s; API endpoints should set false to return fast. */
   waitForBuild?: boolean;
+  /** Create/update only database tenant + seed content. CRM uses this to keep the first step under serverless limits. */
+  dbOnly?: boolean;
   /** Verbose logger — defaults to no-op so the API stays quiet. */
   onLog?: (line: string) => void;
 };
@@ -224,6 +226,7 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
   const themePresetId = input.themePresetId?.trim() || undefined;
   const reseed = input.reseed ?? false;
   const waitForBuild = input.waitForBuild ?? false;
+  const dbOnly = input.dbOnly ?? false;
 
   // Validate inputs early.
   const slugErr = validateSlug(slug);
@@ -292,6 +295,24 @@ export async function provisionTenant(input: ProvisionInput): Promise<ProvisionR
         await db.delete(schema.tenants).where(eq(schema.tenants.id, tenantId));
         log('  ↺ tenant + content rows deleted');
       });
+    }
+
+    if (dbOnly) {
+      log('  ✓ DB-only provisioning complete; Vercel project/deploy skipped');
+      return {
+        slug,
+        vercelProjectName: slug,
+        name,
+        template,
+        style,
+        tenantId,
+        tenantWasNew,
+        password: tenantWasNew ? password : null,
+        projectUrl: `https://${slug}.vercel.app`,
+        loginUrl: `https://${slug}.vercel.app/admin/login`,
+        deploymentState: 'DB_ONLY',
+        deploymentUrl: '',
+      };
     }
 
     // 2. Read shared env vars

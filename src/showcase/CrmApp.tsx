@@ -344,7 +344,7 @@ export default function CrmApp() {
 
   const openProvision = (p: Prospect) => {
     setProvResult(null);
-    setProvSlug(slugify(p.company || p.name));
+    setProvSlug(p.provisionedTenantSlug || slugify(p.company || p.name));
     setProvName((p.company || p.name || '').trim());
     setProvPassword('');
     setProvContentJson(null);
@@ -390,6 +390,7 @@ export default function CrmApp() {
           name: provName,
           template: templateToUse,
           style: styleToUse,
+          dbOnly: true,
           ...(provPassword.trim().length >= 8 ? { password: provPassword.trim() } : {}),
           ...(importPayload ? { contentJson: importPayload } : {}),
         }),
@@ -404,6 +405,33 @@ export default function CrmApp() {
       await reloadProspects();
     } catch (e: any) {
       alert(e?.message || 'Provisioning fehlgeschlagen.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const runVercelProvision = async () => {
+    if (!provisionModal.p) return;
+    setBusy(true);
+    try {
+      const data = await req<ProvisioningResponse>(`/api/prospects/provision?id=${encodeURIComponent(provisionModal.p.id)}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          id: provisionModal.p.id,
+          slug: provSlug,
+          name: provName,
+          template: provTemplate,
+          style: provStyle,
+          dbOnly: false,
+        }),
+      });
+      setProvResult((prev) => ({
+        ...data.provisioning,
+        password: prev?.password ?? data.provisioning.password,
+      }));
+      await reloadProspects();
+    } catch (e: any) {
+      alert(e?.message || 'Vercel-Provisioning fehlgeschlagen.');
     } finally {
       setBusy(false);
     }
@@ -1122,7 +1150,7 @@ export default function CrmApp() {
                 }
                 onClick={() => void runProvision()}
               >
-                Provision starten
+                Tenant anlegen
               </button>
             </div>
 
@@ -1133,6 +1161,21 @@ export default function CrmApp() {
                 <p><strong>Admin:</strong> <a href={provResult.loginUrl} target="_blank" rel="noreferrer" className="text-rose-600 underline">{provResult.loginUrl}</a></p>
                 <p><strong>Status:</strong> {provResult.deploymentState}</p>
                 <p><strong>Passwort:</strong> {provResult.password || '(bestehender Tenant - kein neues Passwort)'}</p>
+                {provResult.deploymentState === 'DB_ONLY' ? (
+                  <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-amber-950">
+                    <p className="text-xs leading-relaxed">
+                      Tenant und Content sind in der Datenbank angelegt. Starte jetzt den separaten Vercel-Schritt; falls Vercel langsam ist,
+                      kann dieser Schritt erneut ausgeführt werden.
+                    </p>
+                    <button
+                      className="mt-2 rounded-lg bg-slate-900 text-white px-3 py-1.5 text-xs hover:bg-slate-700 disabled:opacity-50"
+                      disabled={busy}
+                      onClick={() => void runVercelProvision()}
+                    >
+                      Vercel-Projekt & Deployment starten
+                    </button>
+                  </div>
+                ) : null}
                 {provImportResult ? (
                   <p>
                     <strong>Content:</strong>{' '}

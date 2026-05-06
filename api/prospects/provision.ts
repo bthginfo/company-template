@@ -19,6 +19,7 @@ const ProvisionSchema = z.object({
   style: z.enum(VALID_STYLES).optional(),
   password: z.string().min(8).max(128).optional(),
   reseed: z.boolean().optional(),
+  dbOnly: z.boolean().optional(),
   contentJson: z.record(z.unknown()).optional(),
 });
 
@@ -55,6 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       style: parsed.data.style,
       password: parsed.data.password,
       reseed: parsed.data.reseed ?? false,
+      dbOnly: parsed.data.dbOnly ?? false,
       waitForBuild: false,
       onLog: (line) => provisioningLog.push(line),
     });
