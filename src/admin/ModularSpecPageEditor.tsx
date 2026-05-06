@@ -10,7 +10,6 @@ import { isModularHomeSectionAdminVisible } from '@/lib/modular-home-admin-visib
 import { applyModularHomeVisibilityMirror } from '@/lib/page-blocks-v1-section-visibility-sync';
 import type { ModularSpecPageKey } from './modular-section-types';
 import { getCmsAddableSectionTypes } from '@/lib/cms-contract';
-import { ANNOUNCEMENT_BAR_SECTION_KEY } from '@/lib/page-layout';
 
 export type { ModularSpecPageKey } from './modular-section-types';
 
@@ -63,7 +62,8 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
   });
   const modular = data.modularPagesV1;
   const key = bundleKey(page);
-  const sections = modular?.[key]?.sections ?? [];
+  const rawSections = modular?.[key]?.sections ?? [];
+  const sections = rawSections.filter((section) => section.type !== 'noticeBanner');
   const homeSlots = useMemo(
     () => (page === 'home' ? getHomeLayoutSlotKeys(data, cfg.tpl, style) : null),
     [page, data, cfg.tpl, style],
@@ -129,12 +129,6 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
     let merged = commitModular(data, nextModular);
     if (page === 'home') {
       merged = applyModularHomeVisibilityMirror(merged, cfg.tpl, sec.type, nextVisible);
-    } else if (sec.type === 'noticeBanner') {
-      const vis = ((merged as { sectionVisibility?: Record<string, boolean> }).sectionVisibility ?? {}) as Record<string, boolean>;
-      merged = {
-        ...merged,
-        sectionVisibility: { ...vis, [`${page}.${ANNOUNCEMENT_BAR_SECTION_KEY}`]: nextVisible },
-      };
     }
     setData(merged);
   };

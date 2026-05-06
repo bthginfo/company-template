@@ -9,7 +9,6 @@ export type HotelModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'c
 
 /* ─── Home ─── */
 const HOTEL_HOME_CLASSIC: readonly string[] = [
-  'noticeBanner',
   'hero',
   'actionBar',
   'featuredAreas',
@@ -22,7 +21,6 @@ const HOTEL_HOME_CLASSIC: readonly string[] = [
 ];
 
 const HOTEL_HOME_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'actionBar',
   'galleryPreview',
@@ -36,7 +34,6 @@ const HOTEL_HOME_MODERN: readonly string[] = [
 ];
 
 const HOTEL_HOME_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'marqueeBand',
   'actionBar',
@@ -52,7 +49,6 @@ const HOTEL_HOME_BOLD: readonly string[] = [
 
 /* ─── Zimmer (services) ─── */
 const HOTEL_SERVICES_CLASSIC_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'highlightsBar',
   'accommodationsGrid',
@@ -63,7 +59,6 @@ const HOTEL_SERVICES_CLASSIC_MODERN: readonly string[] = [
 ];
 
 const HOTEL_SERVICES_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'highlightsBar',
   'accommodationList',
@@ -74,7 +69,6 @@ const HOTEL_SERVICES_BOLD: readonly string[] = [
 ];
 
 const HOTEL_GALLERY_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'gallery',
@@ -83,7 +77,6 @@ const HOTEL_GALLERY_ALL: readonly string[] = [
 ];
 
 const HOTEL_ABOUT_CLASSIC_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'timeline',
@@ -94,7 +87,6 @@ const HOTEL_ABOUT_CLASSIC_BOLD: readonly string[] = [
 ];
 
 const HOTEL_ABOUT_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'storyFacts',
   'teaserList',
@@ -106,7 +98,6 @@ const HOTEL_ABOUT_MODERN: readonly string[] = [
 ];
 
 const HOTEL_CONTACT_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'contactDetails',
   'locations',

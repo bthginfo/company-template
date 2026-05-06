@@ -1170,7 +1170,7 @@ function RestaurantV2NoticeBanner({ section }: { section: ModularSectionV2 }) {
 }
 
 function RestaurantV2HomePage({ content, style }: { content: SiteContent; style: TemplateStyle }) {
-  const sections = content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false) ?? [];
+  const sections = visibleCmsV2Sections(content.modularPagesV2?.home?.sections);
   const heroSection = sections.find((section) => section.type === 'hero');
   const heroContent = heroSection ? cmsV2RestaurantSectionContent(content, heroSection, style) : content;
   const heroMeta = resolveHeroMeta('restaurant', heroContent);
@@ -1188,7 +1188,7 @@ function RestaurantV2HomePage({ content, style }: { content: SiteContent; style:
 }
 
 function HotelV2HomePage({ content, style }: { content: SiteContent; style: TemplateStyle }) {
-  const sections = content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false) ?? [];
+  const sections = visibleCmsV2Sections(content.modularPagesV2?.home?.sections);
   const heroSection = sections.find((section) => section.type === 'hero');
   const heroContent = heroSection ? cmsV2HotelSectionContent(content, heroSection, style) : content;
   const heroMeta = resolveHeroMeta('hotel', heroContent);
@@ -1206,7 +1206,7 @@ function HotelV2HomePage({ content, style }: { content: SiteContent; style: Temp
 }
 
 function CoreV2HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
-  const sections = content.modularPagesV2?.home?.sections?.filter((section) => section.visible !== false) ?? [];
+  const sections = visibleCmsV2Sections(content.modularPagesV2?.home?.sections);
   const heroSection = sections.find((section) => section.type === 'hero');
   const heroContent = heroSection ? cmsV2CoreSectionContent(content, variant, heroSection, style) : content;
   const heroMeta = resolveHeroMeta(variant, heroContent);
@@ -1612,7 +1612,11 @@ function renderHotelV2SubpageSection(page: RestaurantV2SubpageKey, section: Modu
 }
 
 function restaurantV2SubpageSections(content: SiteContent, page: RestaurantV2SubpageKey): ModularSectionV2[] {
-  return content.modularPagesV2?.[page]?.sections?.filter((section) => section.visible !== false) ?? [];
+  return visibleCmsV2Sections(content.modularPagesV2?.[page]?.sections);
+}
+
+function visibleCmsV2Sections(sections: readonly ModularSectionV2[] | undefined): ModularSectionV2[] {
+  return sections?.filter((section) => section.visible !== false && section.type !== 'noticeBanner') ?? [];
 }
 
 function cmsV2RestaurantSubpageContent(content: SiteContent, section: ModularSectionV2, page: RestaurantV2SubpageKey): SiteContent {

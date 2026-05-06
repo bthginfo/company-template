@@ -8,7 +8,6 @@ import type { TemplateStyle } from './branch-config.js';
 export type TradesmanModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 const TRADESMAN_HOME_CLASSIC: readonly string[] = [
-  'noticeBanner',
   'hero',
   'stickyEmergencyBanner',
   'actionBar',
@@ -24,7 +23,6 @@ const TRADESMAN_HOME_CLASSIC: readonly string[] = [
 ];
 
 const TRADESMAN_HOME_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'stickyEmergencyBanner',
   'actionBar',
@@ -41,7 +39,6 @@ const TRADESMAN_HOME_MODERN: readonly string[] = [
 ];
 
 const TRADESMAN_HOME_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'stickyEmergencyBanner',
   'marqueeBand',
@@ -60,7 +57,6 @@ const TRADESMAN_HOME_BOLD: readonly string[] = [
 ];
 
 const TRADESMAN_SERVICES_CLASSIC: readonly string[] = [
-  'noticeBanner',
   'hero',
   'stickyEmergencyBanner',
   'highlightsBar',
@@ -72,7 +68,6 @@ const TRADESMAN_SERVICES_CLASSIC: readonly string[] = [
 ];
 
 const TRADESMAN_SERVICES_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'stickyEmergencyBanner',
   'highlightsBar',
@@ -84,7 +79,6 @@ const TRADESMAN_SERVICES_MODERN: readonly string[] = [
 ];
 
 const TRADESMAN_SERVICES_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'stickyEmergencyBanner',
   'highlightsBar',
@@ -96,7 +90,6 @@ const TRADESMAN_SERVICES_BOLD: readonly string[] = [
 ];
 
 const TRADESMAN_GALLERY_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'gallery',
@@ -105,7 +98,6 @@ const TRADESMAN_GALLERY_ALL: readonly string[] = [
 ];
 
 const TRADESMAN_ABOUT_CLASSIC_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'storyImageSplit',
   'teaserList',
@@ -118,7 +110,6 @@ const TRADESMAN_ABOUT_CLASSIC_BOLD: readonly string[] = [
 ];
 
 const TRADESMAN_ABOUT_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'timeline',
@@ -130,7 +121,6 @@ const TRADESMAN_ABOUT_MODERN: readonly string[] = [
 ];
 
 const TRADESMAN_CONTACT_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'contactDetails',
   'locations',

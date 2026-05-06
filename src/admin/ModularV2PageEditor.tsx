@@ -59,7 +59,8 @@ export function shouldUseCmsV2Editor(content?: SiteContent): boolean {
 
 export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLabels, uploadImage }: Props) {
   const modular = ensureV2(data, tpl, style);
-  const sections = modular[page]?.sections ?? [];
+  const rawSections = modular[page]?.sections ?? [];
+  const sections = rawSections.filter((section) => section.type !== 'noticeBanner');
   const visibleCount = sections.filter((section) => section.visible !== false).length;
   const sectionsWithEmptyFields = sections.filter((section) => emptyFieldCount(section) > 0).length;
 

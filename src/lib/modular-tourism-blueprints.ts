@@ -8,7 +8,6 @@ import type { TemplateStyle } from './branch-config.js';
 export type TourismModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 const TOURISM_HOME_CLASSIC: readonly string[] = [
-  'noticeBanner',
   'hero',
   'actionBar',
   'galleryPreview',
@@ -21,7 +20,6 @@ const TOURISM_HOME_CLASSIC: readonly string[] = [
 ];
 
 const TOURISM_HOME_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'actionBar',
   'tourSchedule',
@@ -35,7 +33,6 @@ const TOURISM_HOME_MODERN: readonly string[] = [
 ];
 
 const TOURISM_HOME_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'marqueeBand',
   'actionBar',
@@ -50,7 +47,6 @@ const TOURISM_HOME_BOLD: readonly string[] = [
 ];
 
 const TOURISM_SERVICES_CLASSIC_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'highlightsBar',
   'tourOverviewCards',
@@ -61,7 +57,6 @@ const TOURISM_SERVICES_CLASSIC_MODERN: readonly string[] = [
 ];
 
 const TOURISM_SERVICES_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'highlightsBar',
   'tourOverviewList',
@@ -72,7 +67,6 @@ const TOURISM_SERVICES_BOLD: readonly string[] = [
 ];
 
 const TOURISM_GALLERY_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'gallery',
@@ -81,7 +75,6 @@ const TOURISM_GALLERY_ALL: readonly string[] = [
 ];
 
 const TOURISM_ABOUT_CLASSIC_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'timeline',
@@ -92,7 +85,6 @@ const TOURISM_ABOUT_CLASSIC_BOLD: readonly string[] = [
 ];
 
 const TOURISM_ABOUT_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'storyFacts',
   'teaserList',
@@ -104,7 +96,6 @@ const TOURISM_ABOUT_MODERN: readonly string[] = [
 ];
 
 const TOURISM_CONTACT_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'contactDetails',
   'locations',

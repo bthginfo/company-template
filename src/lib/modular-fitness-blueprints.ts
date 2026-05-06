@@ -7,7 +7,6 @@ import type { TemplateStyle } from './branch-config.js';
 export type FitnessModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 const FITNESS_HOME: readonly string[] = [
-  'noticeBanner',
   'hero',
   'keywordBand',
   'storyTeaser',
@@ -23,7 +22,6 @@ const FITNESS_HOME: readonly string[] = [
 ];
 
 const FITNESS_SERVICES: readonly string[] = [
-  'noticeBanner',
   'hero',
   'classCards',
   'trainingPlanOverview',
@@ -36,7 +34,6 @@ const FITNESS_SERVICES: readonly string[] = [
 ];
 
 const FITNESS_GALLERY: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'gallery',
@@ -46,7 +43,6 @@ const FITNESS_GALLERY: readonly string[] = [
 ];
 
 const FITNESS_ABOUT: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'timeline',
@@ -57,7 +53,6 @@ const FITNESS_ABOUT: readonly string[] = [
 ];
 
 const FITNESS_CONTACT: readonly string[] = [
-  'noticeBanner',
   'hero',
   'contactDetails',
   'locations',

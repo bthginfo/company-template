@@ -8,7 +8,6 @@ import type { TemplateStyle } from './branch-config.js';
 export type RestaurantModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 const HOME_CLASSIC: readonly string[] = [
-  'noticeBanner',
   'hero',
   'actionBar',
   'featuredDishesGrid',
@@ -22,7 +21,6 @@ const HOME_CLASSIC: readonly string[] = [
 ];
 
 const HOME_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'actionBar',
   'featuredDishesGrid',
@@ -36,7 +34,6 @@ const HOME_MODERN: readonly string[] = [
 ];
 
 const HOME_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'marqueeBand',
   'actionBar',
@@ -50,7 +47,6 @@ const HOME_BOLD: readonly string[] = [
 ];
 
 const SERVICES_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'highlightsBar',
   'menu',
@@ -60,7 +56,6 @@ const SERVICES_ALL: readonly string[] = [
 ];
 
 const GALLERY_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'gallery',
@@ -69,7 +64,6 @@ const GALLERY_ALL: readonly string[] = [
 ];
 
 const ABOUT_CLASSIC_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'timeline',
@@ -81,7 +75,6 @@ const ABOUT_CLASSIC_BOLD: readonly string[] = [
 ];
 
 const ABOUT_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'storyFacts',
   'teaserList',
@@ -94,7 +87,6 @@ const ABOUT_MODERN: readonly string[] = [
 ];
 
 const CONTACT_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'contactDetails',
   'locations',

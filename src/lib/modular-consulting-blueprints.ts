@@ -8,7 +8,6 @@ import type { TemplateStyle } from './branch-config.js';
 export type ConsultingModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 const CONSULTING_HOME: readonly string[] = [
-  'noticeBanner',
   'hero',
   'keywordBand',
   'storyTeaser',
@@ -24,7 +23,6 @@ const CONSULTING_HOME: readonly string[] = [
 ];
 
 const CONSULTING_SERVICES: readonly string[] = [
-  'noticeBanner',
   'hero',
   'serviceCards',
   'processTextColumns',
@@ -37,7 +35,6 @@ const CONSULTING_SERVICES: readonly string[] = [
 ];
 
 const CONSULTING_GALLERY: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'gallery',
@@ -47,7 +44,6 @@ const CONSULTING_GALLERY: readonly string[] = [
 ];
 
 const CONSULTING_ABOUT: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'timeline',
@@ -58,7 +54,6 @@ const CONSULTING_ABOUT: readonly string[] = [
 ];
 
 const CONSULTING_CONTACT: readonly string[] = [
-  'noticeBanner',
   'hero',
   'contactDetails',
   'locations',

@@ -576,11 +576,17 @@ export function normalizeSiteContentCmsV2(
   style: TemplateStyle,
   mode: CmsV2NormalizeMode = 'preserve',
 ): SiteContent {
+  const legacyNoticeBannerItems = content.modularPagesV2 ? noticeBannerItemsFromV2(content.modularPagesV2) : [];
   const modularPagesV2 = ensureCompleteModularPagesV2(content, template, style, mode);
   const announcements = textList(content.announcements);
+  const normalizedAnnouncements = announcements.length
+    ? announcements
+    : legacyNoticeBannerItems.length
+      ? legacyNoticeBannerItems
+      : announcementLines(content);
   return SiteContentSchema.parse({
     ...content,
-    announcements: announcements.length ? announcements : noticeBannerItemsFromV2(modularPagesV2),
+    announcements: normalizedAnnouncements,
     cmsV2: { ...(content.cmsV2 ?? {}), enabled: true },
     modularPagesV2,
   });

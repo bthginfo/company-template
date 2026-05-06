@@ -8,7 +8,6 @@ import type { TemplateStyle } from './branch-config.js';
 export type SalonModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 const SALON_HOME_CLASSIC: readonly string[] = [
-  'noticeBanner',
   'hero',
   'actionBar',
   'featuredServices',
@@ -22,7 +21,6 @@ const SALON_HOME_CLASSIC: readonly string[] = [
 ];
 
 const SALON_HOME_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'actionBar',
   'featuredLooks',
@@ -36,7 +34,6 @@ const SALON_HOME_MODERN: readonly string[] = [
 ];
 
 const SALON_HOME_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'marqueeBand',
   'featureImage',
@@ -52,7 +49,6 @@ const SALON_HOME_BOLD: readonly string[] = [
 ];
 
 const SALON_SERVICES_CLASSIC_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'highlightsBar',
   'serviceOverviewCards',
@@ -63,7 +59,6 @@ const SALON_SERVICES_CLASSIC_MODERN: readonly string[] = [
 ];
 
 const SALON_SERVICES_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'highlightsBar',
   'serviceOverviewList',
@@ -74,7 +69,6 @@ const SALON_SERVICES_BOLD: readonly string[] = [
 ];
 
 const SALON_GALLERY_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'gallery',
@@ -83,7 +77,6 @@ const SALON_GALLERY_ALL: readonly string[] = [
 ];
 
 const SALON_ABOUT_CLASSIC_BOLD: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'timeline',
@@ -94,7 +87,6 @@ const SALON_ABOUT_CLASSIC_BOLD: readonly string[] = [
 ];
 
 const SALON_ABOUT_MODERN: readonly string[] = [
-  'noticeBanner',
   'hero',
   'storyFacts',
   'teaserList',
@@ -106,7 +98,6 @@ const SALON_ABOUT_MODERN: readonly string[] = [
 ];
 
 const SALON_CONTACT_ALL: readonly string[] = [
-  'noticeBanner',
   'hero',
   'contactDetails',
   'locations',

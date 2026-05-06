@@ -7,7 +7,6 @@ import type { TemplateStyle } from './branch-config.js';
 export type MedicalModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 const MEDICAL_HOME: readonly string[] = [
-  'noticeBanner',
   'hero',
   'keywordBand',
   'storyTeaser',
@@ -22,7 +21,6 @@ const MEDICAL_HOME: readonly string[] = [
 ];
 
 const MEDICAL_SERVICES: readonly string[] = [
-  'noticeBanner',
   'hero',
   'serviceInfo',
   'serviceCards',
@@ -35,7 +33,6 @@ const MEDICAL_SERVICES: readonly string[] = [
 ];
 
 const MEDICAL_GALLERY: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'gallery',
@@ -45,7 +42,6 @@ const MEDICAL_GALLERY: readonly string[] = [
 ];
 
 const MEDICAL_ABOUT: readonly string[] = [
-  'noticeBanner',
   'hero',
   'teaserList',
   'timeline',
@@ -56,7 +52,6 @@ const MEDICAL_ABOUT: readonly string[] = [
 ];
 
 const MEDICAL_CONTACT: readonly string[] = [
-  'noticeBanner',
   'hero',
   'contactDetails',
   'locations',
