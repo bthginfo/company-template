@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vercel dev",
     "dev:vite": "vite",
-    "build": "tsc -b --noEmit && tsx scripts/check-coverage.ts && tsx scripts/check-cms-v2-runtime.ts && vite build && tsx scripts/postbuild-prerender.ts",
+    "build": "tsc -b --noEmit && tsx scripts/check-coverage.ts && tsx scripts/check-cms-v2-runtime.ts && tsx scripts/check-demo-cms-v2-fill.ts && vite build && tsx scripts/postbuild-prerender.ts",
     "preview": "vite preview",
     "lint": "tsc -b --noEmit",
     "check:drift": "tsx scripts/check-coverage.ts",
     "check:cms-runtime": "tsx scripts/check-cms-v2-runtime.ts",
+    "check:demo-cms-fill": "tsx scripts/check-demo-cms-v2-fill.ts",
     "test:e2e": "npm run build && playwright test",
     "test:e2e:ui": "npm run build && playwright test --ui",
     "audit:surface": "tsx scripts/surface-audit-content-as-any.ts",
