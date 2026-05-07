@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { DEMO_CONTENT } from '@/lib/demo-content';
+import { DEMO_CONTENT, applyStyleOverrides } from '@/lib/demo-content';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { clearOverride, loadFor, readOverride, ensureDemoCmsV2ForStyle } from '@/lib/demo-overrides';
@@ -2359,10 +2359,8 @@ function TemplatePreview() {
 
   const themedContent = useMemo(() => {
     const hydrated = ensureDemoCmsV2ForStyle(content, tplKey as TemplateKey, style);
-    return {
-      ...hydrated,
-      brand: { ...hydrated.brand, primaryColor: preset.primary },
-    };
+    const base = { ...hydrated, brand: { ...hydrated.brand, primaryColor: preset.primary } };
+    return applyStyleOverrides(base, tplKey, style);
   }, [content, preset, style, tplKey]);
 
   useEffect(() => { applyTheme(preset); }, [preset]);

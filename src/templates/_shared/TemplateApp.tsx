@@ -249,7 +249,7 @@ export default function TemplateApp({
 
   return (
     <BasePathProvider value={basePath}>
-      <div className={`min-h-screen flex flex-col tpl-style-${style}`}>
+      <div className={`min-h-screen flex flex-col tpl-style-${style} tpl-variant-${variant}`}>
         <ConsentScripts scripts={(content as any).customScripts} />
         <SiteHeader content={content} nav={resolvedNav} basePath={basePath} announcements={announcements} transparentTextDark={style !== 'classic'} />
         <main className="flex-1">
