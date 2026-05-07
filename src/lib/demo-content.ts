@@ -1581,6 +1581,281 @@ const extraGalleryStoryConsulting = {
   });
 })();
 
+// ─── Populate CMS fields that previously fell through to hardcoded fallbacks ──
+(() => {
+  const R = DEMO_CONTENT.restaurant;
+  const S = DEMO_CONTENT.salon;
+  const Tr = DEMO_CONTENT.tradesman;
+  const H = DEMO_CONTENT.hotel;
+  const To = DEMO_CONTENT.tourism;
+  const C = EXTRA_DEMO_CONTENT.consulting as SiteContent;
+  const M = EXTRA_DEMO_CONTENT.medical as SiteContent;
+  const F = EXTRA_DEMO_CONTENT.fitness as SiteContent;
+
+  // --- numbers (hero stats) ---
+  Object.assign(R, { numbers: [
+    { label: 'Jahre Erfahrung', value: '26' },
+    { label: 'Gerichte täglich frisch', value: '40+' },
+    { label: 'Stammkunden', value: '800+' },
+    { label: 'Naturweine im Keller', value: '120' },
+  ]});
+  Object.assign(S, { numbers: [
+    { label: 'Jahre Erfahrung', value: '15' },
+    { label: 'Zufriedene Kunden/Jahr', value: '3.000+' },
+    { label: 'Behandlungen', value: '50+' },
+    { label: 'Stylisten im Team', value: '8' },
+  ]});
+  Object.assign(Tr, { numbers: [
+    { label: 'Projekte abgeschlossen', value: '2.400+' },
+    { label: 'Jahre Meisterbetrieb', value: '42' },
+    { label: 'Mitarbeiter', value: '18' },
+    { label: 'Notdienst-Einsätze/Jahr', value: '350+' },
+  ]});
+  Object.assign(H, { numbers: [
+    { label: 'Zimmer & Suiten', value: '34' },
+    { label: 'Spa-Bereich m²', value: '800' },
+    { label: 'Hauben/Punkte', value: '2/16' },
+    { label: 'Jahre Familientradition', value: '85' },
+  ]});
+  Object.assign(To, { numbers: [
+    { label: 'Erlebnisse buchbar', value: '60+' },
+    { label: 'Partnerbetriebe', value: '25' },
+    { label: 'Gäste/Saison', value: '12.000+' },
+    { label: 'Regionen', value: '4' },
+  ]});
+  Object.assign(C, { numbers: [
+    { label: 'Mandanten betreut', value: '500+' },
+    { label: 'Jahre Erfahrung', value: '20' },
+    { label: 'Fachberater', value: '12' },
+    { label: 'Erfolgsquote', value: '97%' },
+  ]});
+  Object.assign(M, { numbers: [
+    { label: 'Patienten/Jahr', value: '8.000+' },
+    { label: 'Fachärzte', value: '6' },
+    { label: 'Jahre Praxis', value: '18' },
+    { label: 'Fachbereiche', value: '4' },
+  ]});
+  Object.assign(F, { numbers: [
+    { label: 'Mitglieder aktiv', value: '1.200+' },
+    { label: 'Kurse/Woche', value: '45' },
+    { label: 'Trainer:innen', value: '14' },
+    { label: 'Trainingsfläche m²', value: '1.800' },
+  ]});
+
+  // --- values ---
+  Object.assign(R, { values: [
+    { t: 'Frische', d: 'Jeden Tag neue Pasta, jede Woche neue Karte.' },
+    { t: 'Herkunft', d: 'Wir kennen jeden Lieferanten persönlich.' },
+    { t: 'Gastfreundschaft', d: 'Jeder Gast ist Familie – vom ersten Moment.' },
+  ]});
+  Object.assign(S, { values: [
+    { t: 'Individualität', d: 'Jeder Schnitt beginnt mit einem Gespräch.' },
+    { t: 'Qualität', d: 'Nur Produkte, hinter denen wir voll stehen.' },
+    { t: 'Wohlfühlen', d: 'Ein Ort, an dem Sie abschalten können.' },
+  ]});
+  Object.assign(Tr, { values: [
+    { t: 'Zuverlässigkeit', d: 'Termintreue und klare Kommunikation.' },
+    { t: 'Meisterqualität', d: 'Jede Arbeit mit Gewährleistung und Stolz.' },
+    { t: 'Fairness', d: 'Festpreise, keine versteckten Kosten.' },
+  ]});
+  Object.assign(H, { values: [
+    { t: 'Ruhe', d: 'Ein Ort, der Stille und Weite möglich macht.' },
+    { t: 'Genuss', d: 'Vom Frühstück bis zum Abendmenü: bewusst.' },
+    { t: 'Aufmerksamkeit', d: 'Kleine Details, die den Aufenthalt besonders machen.' },
+  ]});
+  Object.assign(To, { values: [
+    { t: 'Erlebnis', d: 'Momente, die bleiben – keine Massenware.' },
+    { t: 'Nachhaltigkeit', d: 'Sanfter Tourismus, lokale Wertschöpfung.' },
+    { t: 'Insider-Wissen', d: 'Geheimtipps von Menschen, die hier leben.' },
+  ]});
+  Object.assign(C, { values: [
+    { t: 'Klarheit', d: 'Komplexes einfach erklärt, immer auf den Punkt.' },
+    { t: 'Verbindlichkeit', d: 'Was wir zusagen, setzen wir um.' },
+    { t: 'Diskretion', d: 'Absolute Vertraulichkeit in jeder Beratung.' },
+  ]});
+  Object.assign(M, { values: [
+    { t: 'Menschlichkeit', d: 'Medizin beginnt mit Zuhören.' },
+    { t: 'Kompetenz', d: 'Fortbildung, Leitlinien, aktuelle Forschung.' },
+    { t: 'Erreichbarkeit', d: 'Kurze Wartezeiten, schnelle Termine.' },
+  ]});
+  Object.assign(F, { values: [
+    { t: 'Ehrlichkeit', d: 'Keine leeren Versprechen – echte Ergebnisse.' },
+    { t: 'Gemeinschaft', d: 'Training macht zusammen mehr Spaß.' },
+    { t: 'Vielfalt', d: 'Für jedes Level das richtige Format.' },
+  ]});
+
+  // --- team ---
+  Object.assign(R, { team: [
+    { n: 'Giulia Ferraro', r: 'Küchenchefin', img: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=400&q=80', bio: 'Kocht seit ihrem 14. Lebensjahr – heute leitet sie die Küche mit Leidenschaft und Präzision.' },
+    { n: 'Marco Bellini', r: 'Sommelier', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80', bio: 'Naturwein-Spezialist mit Netzwerk zu kleinen Winzern in ganz Italien.' },
+    { n: 'Anna Gruber', r: 'Service-Leitung', img: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&w=400&q=80', bio: 'Sorgt dafür, dass jeder Abend reibungslos und persönlich verläuft.' },
+  ]});
+  Object.assign(S, { team: [
+    { n: 'Lisa Auer', r: 'Inhaberin & Master-Stylistin', img: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&w=400&q=80', bio: '15 Jahre Erfahrung in Schnitt, Farbe und Styling.' },
+    { n: 'Julia Kern', r: 'Coloristin', img: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=400&q=80', bio: 'Spezialistin für Balayage und natürliche Farbtöne.' },
+    { n: 'Sarah Moser', r: 'Kosmetik & Wellness', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80', bio: 'Gesichtsbehandlungen, Waxing und Wohlfühl-Packages.' },
+  ]});
+  Object.assign(Tr, { team: [
+    { n: 'Stefan Mayer', r: 'Geschäftsführer & Meister', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', bio: 'Meisterbrief seit 2002, Spezialist für Badsanierung.' },
+    { n: 'Thomas Huber', r: 'Heizung & Energie', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80', bio: 'Wärmepumpen, Solar und energieeffiziente Systeme.' },
+    { n: 'Michael Berger', r: 'Notdienst-Leitung', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', bio: '24/7 erreichbar für Rohrbruch, Heizungsausfall und Co.' },
+  ]});
+  Object.assign(H, { team: [
+    { n: 'Elisabeth Waldner', r: 'Gastgeberin & Inhaberin', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80', bio: 'Führt das Haus in dritter Generation mit Liebe zum Detail.' },
+    { n: 'Andreas Pichler', r: 'Küchenchef', img: 'https://images.unsplash.com/photo-1583195764036-6dc248ac07d9?auto=format&fit=crop&w=400&q=80', bio: '2 Hauben, regionale Küche und kreative Menüs.' },
+    { n: 'Maria Kofler', r: 'Spa-Leitung', img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80', bio: 'Wellness-Konzepte mit alpinen Kräutern und lokalen Rohstoffen.' },
+  ]});
+  Object.assign(To, { team: [
+    { n: 'Martin Hofer', r: 'Gründer & Guide', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80', bio: 'Bergführer, Kletterer, Storyteller – kennt jede Route.' },
+    { n: 'Katharina Steiner', r: 'Erlebnis-Planung', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', bio: 'Organisiert Gruppentouren, Events und Incentives.' },
+    { n: 'Lukas Brenner', r: 'Fotograf & Content', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80', bio: 'Hält die schönsten Momente fest – für Social Media und Erinnerung.' },
+  ]});
+  Object.assign(C, { team: [
+    { n: 'Dr. Markus Hofer', r: 'Geschäftsführer', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80', bio: 'Strategie und Steuerrecht seit 20 Jahren.' },
+    { n: 'Mag. Claudia Lang', r: 'Wirtschaftsprüfung', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80', bio: 'Internationale Bilanzierung und Compliance.' },
+    { n: 'Thomas Eder', r: 'Digitale Transformation', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80', bio: 'Prozessoptimierung und ERP-Beratung.' },
+  ]});
+  Object.assign(M, { team: [
+    { n: 'Dr. Eva Steinbach', r: 'Fachärztin Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', bio: 'Hausärztliche Versorgung mit Schwerpunkt Prävention.' },
+    { n: 'Dr. Florian Lechner', r: 'Facharzt Orthopädie', img: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', bio: 'Sportmedizin, Gelenke und konservative Therapie.' },
+    { n: 'Lisa Winkler', r: 'Praxismanagement', img: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&w=400&q=80', bio: 'Organisation, Termine und Patientenbetreuung.' },
+  ]});
+  Object.assign(F, { team: [
+    { n: 'Max Berger', r: 'Head Coach', img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80', bio: 'Functional Training, Athletikcoach, Lizenztrainer.' },
+    { n: 'Nina Hofer', r: 'Group Fitness', img: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=400&q=80', bio: 'Yoga, Pilates, HIIT – für jedes Level.' },
+    { n: 'David Ortner', r: 'Personal Training', img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=400&q=80', bio: '1:1 Betreuung für Gewichtsverlust und Muskelaufbau.' },
+  ]});
+
+  // --- arrival ---
+  Object.assign(R, { arrival: [
+    { t: 'Mit dem Auto', d: 'Parkgarage City 2 Min. entfernt, Tiefgarage Innrain.' },
+    { t: 'Öffentlich', d: 'Straßenbahn Linie 1, Haltestelle Museumstraße.' },
+    { t: 'Zu Fuß', d: '5 Minuten vom Hauptbahnhof durch die Altstadt.' },
+  ]});
+  Object.assign(S, { arrival: [
+    { t: 'Mit dem Auto', d: 'Kostenlose Parkplätze direkt vor dem Studio.' },
+    { t: 'Mit dem Bus', d: 'Linie 4, Haltestelle Kirchplatz (50m).' },
+    { t: 'Mit dem Rad', d: 'Fahrradständer am Eingang.' },
+  ]});
+  Object.assign(Tr, { arrival: [
+    { t: 'Büro', d: 'Gewerbegebiet Süd, kostenlose Parkplätze.' },
+    { t: 'Vor Ort', d: 'Wir kommen zu Ihnen – Terminvereinbarung genügt.' },
+    { t: 'Notdienst', d: '24/7 Telefon, Anfahrt innerhalb von 45 Minuten.' },
+  ]});
+  Object.assign(H, { arrival: [
+    { t: 'Mit dem Auto', d: 'A13 Ausfahrt Seefeld, dann 10 Min. Bergstraße.' },
+    { t: 'Transfer', d: 'Shuttle vom Bahnhof Seefeld, auf Anfrage.' },
+    { t: 'Zu Fuß', d: 'Wanderweg 26a führt direkt zum Haus.' },
+  ]});
+  Object.assign(To, { arrival: [
+    { t: 'Anreise', d: 'Bahnhof Jenbach oder Innsbruck Hbf, Buslinie 4134.' },
+    { t: 'Treffpunkt', d: 'Unser Büro am Marktplatz 3, Schwaz.' },
+    { t: 'Leihausrüstung', d: 'Alles vor Ort – Schuhe, Stöcke, Helme.' },
+  ]});
+  Object.assign(C, { arrival: [
+    { t: 'Büro', d: 'Museumsstraße 12, 6020 Innsbruck, 2. Stock.' },
+    { t: 'Öffentlich', d: 'Straßenbahn Linie 3, Haltestelle Landesmuseum.' },
+    { t: 'Termin', d: 'Erstgespräch nach Vereinbarung, auch per Video.' },
+  ]});
+  Object.assign(M, { arrival: [
+    { t: 'Praxis', d: 'Südtiroler Platz 8, EG rechts, barrierefrei.' },
+    { t: 'Parken', d: 'Tiefgarage Kaufhaus 1 Min., Kurzparkzone vor dem Haus.' },
+    { t: 'Öffis', d: 'Bus Linie 1 + 4, Haltestelle Südtiroler Platz.' },
+  ]});
+  Object.assign(F, { arrival: [
+    { t: 'Studio', d: 'Gewerbepark Nord, Halle 3 – großer Parkplatz.' },
+    { t: 'Öffentlich', d: 'Bus 12, Haltestelle Gewerbepark (100m).' },
+    { t: 'Rad', d: 'Radweg entlang der Sill, Fahrradständer am Eingang.' },
+  ]});
+
+  // --- announcements ---
+  Object.assign(R, { announcements: ['Neuer Mittagstisch ab Mai – 3 Gänge für €14,90', 'Terrasse geöffnet!', 'Weinverkostung jeden letzten Freitag'] });
+  Object.assign(S, { announcements: ['Neue Öffnungszeiten: Mo–Sa 9–19 Uhr', 'Balayage-Wochen – 15% Rabatt im Mai', 'Online-Terminbuchung jetzt verfügbar'] });
+  Object.assign(Tr, { announcements: ['Notdienst 24/7 erreichbar', 'Heizungswartung – jetzt Herbsttermin sichern', 'Neue Wärmepumpen-Förderung 2026'] });
+  Object.assign(H, { announcements: ['Frühbucher-Vorteil: 10% auf Sommeraufenthalte', 'Neues Spa-Programm ab Juni', 'Wanderwochen mit geführten Touren'] });
+  Object.assign(To, { announcements: ['Neue Klettersteig-Route eröffnet!', 'Familien-Packages ab €89/Person', 'Gutscheine online erhältlich'] });
+  Object.assign(C, { announcements: ['Webinar: Steuertipps 2026 – jetzt anmelden', 'Neue Partnerin im Team: Mag. Claudia Lang', 'Sommeröffnungszeiten ab Juni'] });
+  Object.assign(M, { announcements: ['Grippeschutzimpfung ab Oktober verfügbar', 'Neue Sprechstunde: Sportmedizin', 'Online-Rezept jetzt möglich'] });
+  Object.assign(F, { announcements: ['Probetraining kostenlos – jederzeit!', 'Neuer Kursplan ab Mai online', 'Summer-Body-Challenge startet am 1. Juni'] });
+
+  // --- logos (partner brands) ---
+  Object.assign(R, { logos: ['Südtiroler Bauernbund', 'Slow Food Tirol', 'Biowein Austria', 'Gasthof-Allianz', 'IKB'] });
+  Object.assign(S, { logos: ['Kérastase', 'Olaplex', 'Davines', 'ghd', 'Dermalogica'] });
+  Object.assign(Tr, { logos: ['Viessmann', 'Grohe', 'Geberit', 'Stiebel Eltron', 'WKO Meisterbetrieb'] });
+  Object.assign(H, { logos: ['Relais & Châteaux', 'Best Alpine Wellness', 'Gault Millau', 'Falstaff', 'Tirol Werbung'] });
+  Object.assign(To, { logos: ['Tirol Werbung', 'Alpenverein', 'Naturpark Karwendel', 'Olympiaregion', 'Bergrettung'] });
+  Object.assign(C, { logos: ['WKO', 'KSW Tirol', 'EY Alumni', 'Digital Austria', 'BMF Partner'] });
+  Object.assign(M, { logos: ['ÖÄK', 'Ärztekammer Tirol', 'ÖGAM', 'Sportmedizin Austria', 'Gesund.tirol'] });
+  Object.assign(F, { logos: ['Les Mills', 'TRX', 'Technogym', 'Polar', 'WKO Sport'] });
+
+  // --- faq ---
+  Object.assign(R, { faq: [
+    { q: 'Muss ich reservieren?', a: 'Empfohlen, besonders Fr–Sa. Online oder telefonisch.' },
+    { q: 'Gibt es vegetarische Optionen?', a: 'Ja, mindestens 4 Hauptgerichte sind immer vegetarisch oder vegan.' },
+    { q: 'Kann ich Gutscheine kaufen?', a: 'Ja, online oder im Restaurant – ab €25.' },
+    { q: 'Gibt es einen Mittagstisch?', a: 'Di–Fr 11:30–14:00, 3 Gänge ab €14,90.' },
+  ]});
+  Object.assign(S, { faq: [
+    { q: 'Brauche ich einen Termin?', a: 'Ja, wir arbeiten nur mit Termin. Online buchen oder anrufen.' },
+    { q: 'Wie lange dauert ein Haarschnitt?', a: 'Ca. 45–60 Minuten inkl. Beratung und Styling.' },
+    { q: 'Gibt es Parkplätze?', a: 'Ja, kostenlos direkt vor dem Studio.' },
+    { q: 'Welche Produkte verwendet ihr?', a: 'Kérastase, Olaplex und Davines – auf Anfrage auch vegan.' },
+  ]});
+  Object.assign(Tr, { faq: [
+    { q: 'Wie schnell kommt der Notdienst?', a: 'Innerhalb von 45 Minuten im Stadtgebiet.' },
+    { q: 'Gibt es Festpreise?', a: 'Ja, für Standardleistungen. Angebot vorab kostenlos.' },
+    { q: 'Welche Hersteller verbaut ihr?', a: 'Viessmann, Grohe, Geberit – Markenqualität mit Garantie.' },
+    { q: 'Macht ihr auch Kleinreparaturen?', a: 'Ja, Tropfhahn bis Therme – kein Auftrag zu klein.' },
+  ]});
+  Object.assign(H, { faq: [
+    { q: 'Ab wann kann ich einchecken?', a: 'Check-in ab 15:00, Check-out bis 11:00. Früher/später auf Anfrage.' },
+    { q: 'Ist der Spa-Bereich inklusive?', a: 'Ja, für alle Hausgäste – Sauna, Pool, Ruhebereich.' },
+    { q: 'Gibt es vegetarisches Abendmenü?', a: 'Ja, wir bieten immer ein vegetarisches 4-Gänge-Menü.' },
+    { q: 'Kann ich meinen Hund mitbringen?', a: 'In ausgewählten Zimmern – bitte bei Buchung angeben.' },
+  ]});
+  Object.assign(To, { faq: [
+    { q: 'Brauche ich Vorkenntnisse?', a: 'Die meisten Touren sind für Einsteiger geeignet. Wir beraten Sie gerne.' },
+    { q: 'Was ist bei schlechtem Wetter?', a: 'Wir haben Alternativ-Programme und informieren 24h vorher.' },
+    { q: 'Ist Ausrüstung inklusive?', a: 'Ja, Leihausrüstung ist im Preis enthalten.' },
+    { q: 'Ab welchem Alter können Kinder teilnehmen?', a: 'Je nach Tour ab 6 Jahren – Familien-Touren ab 4.' },
+  ]});
+  Object.assign(C, { faq: [
+    { q: 'Was kostet ein Erstgespräch?', a: 'Das Erstgespräch (30 Min.) ist kostenlos und unverbindlich.' },
+    { q: 'Arbeiten Sie auch mit Unternehmen?', a: 'Ja, KMU bis mittelständische Betriebe sind unser Schwerpunkt.' },
+    { q: 'Wie läuft eine Beratung ab?', a: 'Erstgespräch, Analyse, Konzept, Umsetzungsbegleitung.' },
+    { q: 'Bieten Sie Video-Beratung an?', a: 'Ja, alle Termine auch per Teams oder Zoom.' },
+  ]});
+  Object.assign(M, { faq: [
+    { q: 'Brauche ich eine Überweisung?', a: 'Für die Allgemeinmedizin nein, für Fachärzte empfohlen.' },
+    { q: 'Wie bekomme ich einen Termin?', a: 'Online, telefonisch oder per App – meist innerhalb einer Woche.' },
+    { q: 'Welche Kassen nehmen Sie?', a: 'Alle gesetzlichen Kassen und private Zusatzversicherungen.' },
+    { q: 'Gibt es Abendsprechstunden?', a: 'Dienstag und Donnerstag bis 19:00 Uhr.' },
+  ]});
+  Object.assign(F, { faq: [
+    { q: 'Ist ein Probetraining kostenlos?', a: 'Ja, jederzeit und ohne Voranmeldung – einfach vorbeikommen.' },
+    { q: 'Gibt es eine Mindestlaufzeit?', a: 'Nein, wir bieten flexible Monatsverträge.' },
+    { q: 'Welche Kurse sind für Anfänger?', a: 'Yoga Basic, Fit Start, Mobility – alle mit "Einsteiger" markiert.' },
+    { q: 'Kann ich den Kursplan online sehen?', a: 'Ja, auf unserer Website und in der App – live aktualisiert.' },
+  ]});
+
+  // --- certifications (tradesman-specific) ---
+  Object.assign(Tr, { certifications: [
+    { t: 'Meisterbetrieb', d: 'Eingetragener Meisterbetrieb der WKO Tirol.' },
+    { t: 'Gas-Wasser-Heizung', d: 'Konzessionierter Installateur nach GewO.' },
+    { t: 'Wärmepumpen-Partner', d: 'Zertifizierter Viessmann-Fachpartner.' },
+    { t: 'Energieberater', d: 'Registrierter Energieberater Land Tirol.' },
+    { t: 'TÜV-geprüft', d: 'Jährliche Betriebsprüfung bestanden.' },
+    { t: 'Lehrbetrieb', d: 'Ausgezeichneter Lehrbetrieb seit 2010.' },
+  ]});
+
+  // --- press (restaurant-specific) ---
+  Object.assign(R, { press: [
+    { src: 'Falstaff', q: 'Authentische italienische Küche mit Seele – eine der besten Trattorien Tirols.', y: '2025', url: '' },
+    { src: 'Tiroler Tageszeitung', q: 'Familie Ferraro bringt seit 26 Jahren ein Stück Italien nach Innsbruck.', y: '2024', url: '' },
+    { src: 'Gault Millau', q: 'Handwerk und Herzblut: 14 Punkte für die Trattoria Innsbruck.', y: '2025', url: '' },
+  ]});
+})();
+
 /** Showcase demo objects are patched in-place above — rebuild `pageBlocksV1` from final legacy fields. */
 (function refreshDemoPageBlocksV1() {
   const coreTpl: Record<keyof typeof DEMO_CONTENT, TemplateKey> = {
