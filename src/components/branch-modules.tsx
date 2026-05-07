@@ -778,8 +778,7 @@ export function EmergencyStickyBanner({ content }: { content: SiteContent }) {
           </svg>
         </span>
         <div className="flex-1 min-w-0">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-white/70">Notdienst 24/7</p>
-          <p className="font-display text-base leading-tight truncate">{b.text || 'Wir kommen schnell.'}</p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-white/70">{b.text || 'Notdienst 24/7'}</p>
         </div>
         {phone && (
           <a href={phoneHref} className="font-display text-base bg-[var(--accent-color)] text-brand rounded-full px-4 py-2 whitespace-nowrap hover:scale-105 transition-transform">

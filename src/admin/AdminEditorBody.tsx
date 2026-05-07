@@ -5407,8 +5407,8 @@ function EmergencyBannerEditor({ data, setData }: SetterProps) {
   return (
     <div className="space-y-3">
       <Toggle value={!!v.enabled} onChange={(b) => set({ ...v, enabled: b })} label="Notdienst-Banner anzeigen" />
-      <Field label="Text" hint="Erscheint im Banner neben der Telefonnummer.">
-        <input className={inputCls} placeholder="24 h Notdienst" value={v.text || ''} onChange={(e) => set({ ...v, text: e.target.value })} />
+      <Field label="Kurzlabel" hint="Kleiner Text oben im Banner, z. B. ‹Notdienst 24/7›.">
+        <input className={inputCls} placeholder="Notdienst 24/7" value={v.text || ''} onChange={(e) => set({ ...v, text: e.target.value })} />
       </Field>
       <Field label="Telefonnummer">
         <input className={inputCls} placeholder="+49 …" value={v.phone || ''} onChange={(e) => set({ ...v, phone: e.target.value })} />

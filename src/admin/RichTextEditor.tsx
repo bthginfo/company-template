@@ -50,6 +50,16 @@ export function RichTextEditor({ value, onChange, placeholder, className, rows =
     const html = ref.current.innerHTML.trim();
     if (html === '' || html === '<br>') {
       ref.current.innerHTML = '<p><br></p>';
+      // Place caret inside the new <p> so focus isn't lost after innerHTML reset
+      const sel = window.getSelection();
+      const p = ref.current.querySelector('p');
+      if (sel && p) {
+        const range = document.createRange();
+        range.setStart(p, 0);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
   };
 
