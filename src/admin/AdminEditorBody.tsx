@@ -84,6 +84,7 @@ export type AdminEditorBodyProps = {
   onStyleChange?: (style: TemplateStyle) => Promise<void> | void;
   /** Draft workflow */
   hasDraft?: boolean;
+  hasUnsavedChanges?: boolean;
   onPublish?: () => void | Promise<void>;
   publishing?: boolean;
   onDiscard?: () => void | Promise<void>;
@@ -108,6 +109,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     style: tplStyle,
     onStyleChange,
     hasDraft,
+    hasUnsavedChanges,
     onPublish,
     publishing,
     onDiscard,
@@ -161,7 +163,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             )}
             {previewUrlBase !== undefined && (
               <a href={hrefDraftPreview(previewUrlBase || '/', hasDraft)} target="_blank" rel="noreferrer" className="text-sm text-slate-600 hover:text-slate-900 hidden md:inline">
-                {hasDraft ? 'Website (Entwurf) ↗' : 'Website ansehen ↗'}
+                {hasDraft ? 'Entwurf ansehen ↗' : 'Website ansehen ↗'}
               </a>
             )}
           </div>
@@ -230,7 +232,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
                 <p className="text-xs font-mono text-muted mt-1">{formatBranchStyleLine(tplKey, tplStyle)}</p>
               )}
               {!isGlobal && (
-                <p className="text-sm text-muted mt-1">Jede Sektion auf dieser Seite ist hier einzeln pflegbar.</p>
+                <p className="text-sm text-muted mt-1">Jeder Abschnitt auf dieser Seite ist hier einzeln pflegbar.</p>
               )}
             </div>
             {!isGlobal && previewUrlBase !== undefined && (
@@ -240,7 +242,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
                 rel="noreferrer"
                 className="text-sm text-slate-600 hover:text-slate-900 underline underline-offset-2"
               >
-                {hasDraft ? 'Live (Entwurf) ↗' : 'Live ansehen ↗'}
+                {hasDraft ? 'Entwurf ansehen ↗' : 'Live ansehen ↗'}
               </a>
             )}
           </div>
@@ -265,14 +267,26 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 
           <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7] rounded-b-2xl">
             <div className="text-sm text-muted space-y-2 min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                {hasUnsavedChanges ? (
+                  <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">Ungespeicherte Änderungen</span>
+                ) : hasDraft ? (
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-900">Entwurf gespeichert</span>
+                ) : (
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800">Live-Stand aktuell</span>
+                )}
+                {onPublish ? (
+                  <span className="text-xs text-muted">
+                    {hasDraft ? 'Besucher sehen Änderungen erst nach dem Veröffentlichen.' : 'Neue Änderungen zuerst speichern, dann veröffentlichen.'}
+                  </span>
+                ) : null}
+              </div>
               {savedAt
                 ? <span className="text-emerald-700">✓ Gespeichert um {savedAt}</span>
                 : (footerStatus ?? 'Änderungen werden beim Speichern übernommen.')}
               {hasDraft ? (
                 <p className="text-xs text-amber-900/90 leading-relaxed max-w-prose">
-                  Die öffentliche Website ohne Vorschau zeigt noch den zuletzt veröffentlichten Stand. Nutzen Sie die Links
-                  „Website (Entwurf)“ / „Live (Entwurf)“, die schwebende Vorschau oder Veröffentlichen, damit Besucher Ihre
-                  gespeicherten Entwürfe sehen.
+                  Die öffentliche Website zeigt noch den zuletzt veröffentlichten Stand. Prüfen Sie den Entwurf über „Entwurf ansehen“ und veröffentlichen Sie ihn, sobald alles passt.
                 </p>
               ) : null}
             </div>
@@ -345,8 +359,8 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             </>
           ) : (
             <>
-              <span aria-hidden="true">💾</span>
-              <span className="hidden md:inline">Speichern</span>
+            <span aria-hidden="true">💾</span>
+              <span className="hidden md:inline">Entwurf speichern</span>
             </>
           )}
         </button>
@@ -456,7 +470,7 @@ function StyleSwitcher({ current, onChange, inline }: { current: TemplateStyle; 
         <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
           <p className="font-medium text-amber-900">Stil wechseln?</p>
           <p className="text-amber-800 text-xs mt-1">
-            Das Layout ändert sich sofort. Alle Inhalte bleiben erhalten, einige Sektionen
+            Das Layout ändert sich sofort. Alle Inhalte bleiben erhalten, einige Abschnitte
             werden je nach Stil ein- oder ausgeblendet.
           </p>
           <div className="flex gap-2 mt-3">
@@ -569,7 +583,7 @@ function SectionInlineControls({ pageKey, sectionKey, data, setData }: {
 
   const removeFromPage = () => {
     if (idx < 0) return;
-    if (!confirm('Diese Sektion von der Seite entfernen? Du kannst sie unten wieder hinzufügen.')) return;
+    if (!confirm('Diesen Abschnitt von der Seite entfernen? Sie können ihn unten wieder hinzufügen.')) return;
     writeOrder(effective.filter((k) => k !== sectionKey));
   };
 
@@ -578,7 +592,7 @@ function SectionInlineControls({ pageKey, sectionKey, data, setData }: {
       <button
         type="button"
         onClick={toggleOn}
-        title={isOn ? 'Sektion ausblenden' : 'Sektion einblenden'}
+        title={isOn ? 'Abschnitt ausblenden' : 'Abschnitt einblenden'}
         className={`px-2.5 py-1 rounded-lg border text-xs ${isOn ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-white border-line text-muted'}`}
       >
         {isOn ? '● Sichtbar' : '○ Versteckt'}
@@ -620,8 +634,8 @@ function AddSectionRow({ pageKey, data, setData, tpl }: {
   };
   return (
     <div className="border border-dashed border-line rounded-2xl p-5 bg-[#fafaf7]">
-      <p className="text-xs uppercase tracking-widest text-muted mb-1">Sektion hinzufügen</p>
-      <p className="text-xs text-muted mb-3">Zusätzliche Sektionen — Platzierung danach mit ↑↓.</p>
+      <p className="text-xs uppercase tracking-widest text-muted mb-1">Abschnitt hinzufügen</p>
+      <p className="text-xs text-muted mb-3">Zusätzliche Abschnitte werden unten angefügt. Die Reihenfolge ändern Sie danach mit Hoch/Runter.</p>
       <div className="flex flex-wrap gap-2">
         {remaining.map((s) => (
           <button key={s.key} type="button" onClick={() => onAdd(s.key)} className="text-xs px-3 py-1.5 rounded-full border border-line bg-white hover:bg-brand hover:text-white transition" title={s.description}>
@@ -810,14 +824,14 @@ function ImagePickerField({ label, value, onChange, ratio = 'aspect-[4/3]' }: { 
   };
 
   return (
-    <Field label={label} hint={_ctx.uploadImage ? UPLOAD_HINT : 'Demo: nur lokal.'}>
+    <Field label={label} hint={_ctx.uploadImage ? `${UPLOAD_HINT} Empfohlen: klares Querformat, Motiv nicht zu dunkel.` : 'Demo: Bild wird nur lokal in der Vorschau angezeigt.'}>
       <div className="grid sm:grid-cols-[180px_1fr] gap-3 items-start">
         <div className={`${ratio} rounded-xl overflow-hidden bg-[#f6f6f3] border border-line grid place-items-center`}>
-          {value ? <img src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Kein Bild</span>}
+          {value ? <img src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Noch kein Bild</span>}
         </div>
         <div className="space-y-2">
           <label className="btn-outline !py-2 !px-4 text-sm w-full inline-grid place-items-center cursor-pointer">
-            {busy ? 'Lädt …' : 'Bild hochladen'}
+            {busy ? 'Lädt …' : value ? 'Bild ersetzen' : 'Bild hochladen'}
             <input
               type="file"
               accept="image/*"
@@ -829,7 +843,12 @@ function ImagePickerField({ label, value, onChange, ratio = 'aspect-[4/3]' }: { 
               }}
             />
           </label>
-          <input className={inputCls} placeholder="oder URL einfügen" value={value} onChange={(e) => onChange(e.target.value)} />
+          <input className={inputCls} placeholder="oder Bild-URL einfügen" value={value} onChange={(e) => onChange(e.target.value)} />
+          {value ? (
+            <button type="button" className="text-xs text-rose-600 hover:underline" onClick={() => onChange('')}>
+              Bild entfernen
+            </button>
+          ) : null}
           {error && <p className="text-xs text-rose-600">{error}</p>}
         </div>
       </div>
@@ -844,7 +863,7 @@ function LinkTargetField({ label, value, onChange, sections }: { label: string; 
     <Field label={label}>
       <div className="flex gap-2 mb-2">
         <button type="button" onClick={() => setMode('section')} className={`px-3 py-1.5 text-xs rounded-full border ${mode === 'section' ? 'bg-brand text-white border-brand' : 'bg-white border-line text-slate-600'}`}>
-          Sektion auf der Seite
+          Abschnitt / Seite
         </button>
         <button type="button" onClick={() => setMode('external')} className={`px-3 py-1.5 text-xs rounded-full border ${mode === 'external' ? 'bg-brand text-white border-brand' : 'bg-white border-line text-slate-600'}`}>
           Externe URL
@@ -856,7 +875,7 @@ function LinkTargetField({ label, value, onChange, sections }: { label: string; 
           value={sections.some((s) => s.id === value) ? value : ''}
           onChange={(e) => onChange(e.target.value)}
         >
-          <option value="">— Sektion wählen —</option>
+          <option value="">— Ziel wählen —</option>
           {sections.map((s) => (
             <option key={s.id} value={s.id}>{s.label}</option>
           ))}
@@ -898,10 +917,10 @@ function homeSectionsFor(t: TemplateKey) {
   const galleryPath = t === 'tradesman' ? '/referenzen' : '/galerie';
   return [
     { id: '#hero', label: 'Startbereich (oben)' },
-    { id: '#about', label: 'Sektion: Über uns' },
-    { id: '#services', label: 'Sektion: Leistungen / Speisekarte' },
-    { id: '#gallery', label: 'Sektion: Galerie / Eindrücke' },
-    { id: '#testimonials', label: 'Sektion: Bewertungen' },
+    { id: '#about', label: 'Abschnitt: Über uns' },
+    { id: '#services', label: 'Abschnitt: Leistungen / Speisekarte' },
+    { id: '#gallery', label: 'Abschnitt: Galerie / Eindrücke' },
+    { id: '#testimonials', label: 'Abschnitt: Bewertungen' },
     servicesPage[t],
     { id: galleryPath, label: galleryLabel[t] },
     { id: '/ueber-uns', label: '→ Seite: Über uns' },
@@ -997,7 +1016,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
             <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
             <p className="text-xs font-medium text-muted mt-6 mb-3">Zusätzliche Highlight-Einträge</p>
             <p className="text-xs text-muted mb-3 max-w-prose leading-relaxed">
-              Speichern legt einen Entwurf an. Über <strong className="font-medium">Website (Entwurf)</strong> können Sie die Änderung prüfen; mit <strong className="font-medium text-brand">Veröffentlichen</strong> wird sie sichtbar.
+              Speichern legt einen Entwurf an. Über <strong className="font-medium">Entwurf ansehen</strong> können Sie die Änderung prüfen; mit <strong className="font-medium text-brand">Veröffentlichen</strong> wird sie sichtbar.
             </p>
             <HomeSignatureItemsEditor data={data} setData={setData} />
           </SectionCard>

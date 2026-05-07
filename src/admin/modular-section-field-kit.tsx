@@ -47,15 +47,15 @@ export function ModImagePick({
     }
   };
   return (
-    <ModField label={label} hint={uploadImage ? UPLOAD_HINT : 'Demo: nur URL einfügen.'}>
+    <ModField label={label} hint={uploadImage ? `${UPLOAD_HINT} Empfohlen: klares Querformat, Motiv nicht zu dunkel.` : 'Demo: nur Bild-URL einfügen.'}>
       <div className="grid sm:grid-cols-[180px_1fr] gap-3 items-start">
         <div className={`${ratio} rounded-xl overflow-hidden bg-[#f6f6f3] border border-line grid place-items-center`}>
-          {value ? <img key={value} src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Kein Bild</span>}
+          {value ? <img key={value} src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Noch kein Bild</span>}
         </div>
         <div className="space-y-2">
           {uploadImage ? (
             <label className="btn-outline !py-2 !px-4 text-sm w-full inline-grid place-items-center cursor-pointer">
-              {busy ? 'Lädt …' : 'Bild hochladen'}
+              {busy ? 'Lädt …' : value ? 'Bild ersetzen' : 'Bild hochladen'}
               <input
                 type="file"
                 accept="image/*"
@@ -68,7 +68,12 @@ export function ModImagePick({
               />
             </label>
           ) : null}
-          <input className={modularInputCls} placeholder="oder URL einfügen" value={value} onChange={(e) => onChange(e.target.value)} />
+          <input className={modularInputCls} placeholder="oder Bild-URL einfügen" value={value} onChange={(e) => onChange(e.target.value)} />
+          {value ? (
+            <button type="button" className="text-xs text-rose-600 hover:underline" onClick={() => onChange('')}>
+              Bild entfernen
+            </button>
+          ) : null}
           {error ? <p className="text-xs text-rose-600">{error}</p> : null}
         </div>
       </div>
@@ -100,10 +105,10 @@ export function modularHomeLinkSections(tpl: TemplateKey): { id: string; label: 
   const galleryPath = tpl === 'tradesman' ? '/referenzen' : '/galerie';
   return [
     { id: '#hero', label: 'Startbereich (oben)' },
-    { id: '#about', label: 'Sektion: Über uns' },
-    { id: '#services', label: 'Sektion: Leistungen / Speisekarte' },
-    { id: '#gallery', label: 'Sektion: Galerie / Eindrücke' },
-    { id: '#testimonials', label: 'Sektion: Bewertungen' },
+    { id: '#about', label: 'Abschnitt: Über uns' },
+    { id: '#services', label: 'Abschnitt: Leistungen / Speisekarte' },
+    { id: '#gallery', label: 'Abschnitt: Galerie / Eindrücke' },
+    { id: '#testimonials', label: 'Abschnitt: Bewertungen' },
     servicesPage[tpl],
     { id: galleryPath, label: galleryLabel[tpl] },
     { id: '/ueber-uns', label: '→ Seite: Über uns' },
@@ -136,7 +141,7 @@ export function ModLinkTarget({
           onClick={() => setMode('section')}
           className={`px-3 py-1.5 text-xs rounded-full border ${mode === 'section' ? 'bg-brand text-white border-brand' : 'bg-white border-line text-slate-600'}`}
         >
-          Sektion / Seite
+          Abschnitt / Seite
         </button>
         <button
           type="button"

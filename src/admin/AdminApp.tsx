@@ -214,6 +214,7 @@ export function AdminApp() {
       style={(tenant.style as 'classic' | 'modern' | 'bold' | undefined) || 'classic'}
       onStyleChange={onStyleChange}
       hasDraft={state.status === 'ready' && state.hasDraft}
+      hasUnsavedChanges={isDirty}
       onPublish={onPublish}
       publishing={publishing}
       onDiscard={onDiscard}
@@ -227,8 +228,8 @@ export function AdminApp() {
       }
       footerStatus={
         state.status === 'ready' && state.hasDraft
-          ? <span className="text-amber-600">Unveröffentlichter Entwurf — noch nicht live.</span>
-          : 'Speichern legt einen Entwurf an. Mit „Veröffentlichen“ gehen Änderungen live.'
+          ? <span className="text-amber-600">Entwurf gespeichert, aber noch nicht veröffentlicht.</span>
+          : 'Keine unveröffentlichten Änderungen.'
       }
     />
   );

@@ -24,6 +24,23 @@ const PAGE_LABELS: Record<ModularSpecPageKey, string> = {
   contact: 'Kontakt',
 };
 
+const TEMPLATE_LABELS: Record<TemplateKey, string> = {
+  restaurant: 'Restaurant',
+  salon: 'Salon',
+  tradesman: 'Handwerk',
+  hotel: 'Hotel',
+  tourism: 'Tourismus',
+  consulting: 'Beratung',
+  medical: 'Praxis',
+  fitness: 'Studio',
+};
+
+const STYLE_LABELS: Record<TemplateStyle, string> = {
+  classic: 'Klassisch',
+  modern: 'Modern',
+  bold: 'Bold',
+};
+
 function ensureV2(data: SiteContent, tpl: TemplateKey, style: TemplateStyle): ModularPagesV2 {
   const current = data.modularPagesV2;
   if (current?.combo?.template === tpl && current.combo.style === style) return current;
@@ -127,7 +144,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
           ) : (
             <span className="rounded-full border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-1">Alle Felder gepflegt</span>
           )}
-          <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">{tpl} / {style}</span>
+          <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">Design: {TEMPLATE_LABELS[tpl]} · {STYLE_LABELS[style]}</span>
         </div>
       </div>
 
@@ -137,7 +154,9 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
             Diese Seite hat noch keine Abschnitte. Fügen Sie unten einen passenden Abschnitt hinzu.
           </div>
         ) : null}
-        {sections.map((section, idx) => (
+        {sections.map((section, idx) => {
+          const missingFields = emptyFieldCount(section);
+          return (
           <section key={section.id} className="border border-line rounded-2xl overflow-hidden bg-white">
             <header className="px-4 py-3 bg-[#fafaf7] border-b border-line flex flex-wrap items-center justify-between gap-2">
               <div>
@@ -146,8 +165,8 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
                 <p className="text-xs text-muted mt-0.5">Position {idx + 1} von {sections.length}</p>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {emptyFieldCount(section) ? (
-                  <span className="text-xs px-2 py-1 rounded border border-amber-200 bg-amber-50 text-amber-900">{emptyFieldCount(section)} Felder leer</span>
+                {missingFields ? (
+                  <span className="text-xs px-2 py-1 rounded border border-amber-200 bg-amber-50 text-amber-900" title="Diese Felder sind optional, aber noch nicht ausgefüllt.">{missingFields} Felder leer</span>
                 ) : (
                   <span className="text-xs px-2 py-1 rounded border border-emerald-200 bg-emerald-50 text-emerald-900">Felder gepflegt</span>
                 )}
@@ -174,7 +193,8 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
               />
             </div>
           </section>
-        ))}
+          );
+        })}
       </div>
 
       <div className="rounded-2xl border border-dashed border-line bg-[#fafaf7] p-4">
