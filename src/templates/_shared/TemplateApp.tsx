@@ -1380,6 +1380,7 @@ function HotelV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey
         body={cmsV2Text(heroData.description)}
         style={style}
         image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText('hotel', heroContent).servicesPageImageUrl : undefined)}
+        page={page}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -1422,6 +1423,7 @@ function CoreV2Subpage({ page, variant, content, style }: { page: RestaurantV2Su
         body={cmsV2Text(heroData.description)}
         style={style}
         image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText(variant, heroContent).servicesPageImageUrl : undefined)}
+        page={page}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -1897,6 +1899,7 @@ function RestaurantV2Subpage({ page, content, style }: { page: RestaurantV2Subpa
         body={cmsV2Text(heroData.description)}
         style={style}
         image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText('restaurant', heroContent).servicesPageImageUrl : undefined)}
+        page={page}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -3160,6 +3163,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         subtitle={headerOverride?.subtitle || subtitleFor(variant, resolved)}
         style={style}
         image={style === 'modern' ? servicesImg : undefined}
+        page="services"
       />
       {instructions.map((row) => {
         const slice = siteContentForSlotInstruction(modularFirst, resolved, 'services', row);
@@ -3352,6 +3356,8 @@ function GalleryPage({
           undefined
         )}
         style={style}
+        image={resolved.gallery[0] || resolved.about?.imageUrl}
+        page="gallery"
       />
       {instructions.map((row) => {
         const slice = siteContentForSlotInstruction(modularFirst, resolved, 'gallery', row);
@@ -3616,7 +3622,8 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         title={pageHeaderOverride(resolved, 'aboutHeader')?.title || resolved.about?.title || 'Unsere Geschichte.'}
         subtitle={pageHeaderOverride(resolved, 'aboutHeader')?.subtitle || (style === 'modern' ? 'Wer wir sind, wie wir denken, was uns wichtig ist.' : undefined)}
         style={style}
-        image={style === 'modern' ? resolved.about?.imageUrl || resolved.gallery[0] : undefined}
+        image={resolved.about?.imageUrl || resolved.gallery[0]}
+        page="about"
       />
       {instructions.map((row) => {
         const slice = siteContentForSlotInstruction(modularFirst, resolved, 'about', row);
@@ -3937,6 +3944,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
         }
         subtitle={pageHeaderOverride(resolved, 'contactPageHeader')?.subtitle || undefined}
         style={style}
+        page="contact"
       />
       {instructions.map((row) => {
         const slice = siteContentForSlotInstruction(modularFirst, resolved, 'contact', row);
@@ -3947,14 +3955,82 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   );
 }
 
-function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image }: {
+function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, page }: {
   eyebrow: string;
   title: string;
   subtitle?: string;
   body?: string;
   style?: TemplateStyle;
   image?: string;
+  page?: 'services' | 'gallery' | 'about' | 'contact';
 }) {
+  /* ── Services: accent band ──────────────────────────────────────── */
+  if (page === 'services' && style !== 'bold') {
+    return (
+      <section className="pt-40 pb-14 md:pb-20 bg-brand text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+        <div className="container-x relative">
+          <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/60 mb-5 reveal">{eyebrow}</p>
+          <h1 className={`reveal ${style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl max-w-5xl'}`}>{splitTitle(title)}</h1>
+          {subtitle && <p className="mt-5 max-w-2xl text-lg text-white/70 reveal">{subtitle}</p>}
+          {body && body !== subtitle && <p className="mt-4 text-base text-white/60 max-w-2xl reveal">{body}</p>}
+        </div>
+      </section>
+    );
+  }
+
+  /* ── Gallery: image-backed hero ─────────────────────────────────── */
+  if (page === 'gallery' && image && style !== 'bold') {
+    return (
+      <section className="relative pt-40 pb-16 md:pb-24 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img src={image} alt="" className="w-full h-full object-cover opacity-25" loading="eager" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-color)] via-[var(--bg-color)]/70 to-[var(--bg-color)]" />
+        </div>
+        <div className="container-x relative z-10">
+          <p className={style === 'modern' ? 'eyebrow mb-5 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>
+          <h1 className={`reveal ${style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl max-w-5xl'}`}>{splitTitle(title)}</h1>
+          {subtitle && <p className="mt-5 max-w-3xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
+        </div>
+      </section>
+    );
+  }
+
+  /* ── About: split layout with image ─────────────────────────────── */
+  if (page === 'about' && image && style !== 'bold') {
+    return (
+      <section className="pt-40 pb-12 md:pb-16 surface">
+        <div className="container-x grid md:grid-cols-12 gap-8 md:gap-12 items-end">
+          <div className="md:col-span-7 reveal">
+            <p className="eyebrow mb-5">{eyebrow}</p>
+            <h1 className={style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl'}>{splitTitle(title)}</h1>
+            {subtitle && <p className="mt-5 max-w-xl text-lg md:text-xl text-muted">{subtitle}</p>}
+            {body && body !== subtitle && <p className="mt-4 text-base text-muted max-w-xl leading-relaxed">{body}</p>}
+          </div>
+          <div className="md:col-span-5 reveal">
+            <div className="aspect-[4/3] rounded-2xl overflow-hidden border border-line">
+              <img src={image} alt="" className="w-full h-full object-cover" loading="eager" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ── Contact: compact with accent line ──────────────────────────── */
+  if (page === 'contact' && style !== 'bold') {
+    return (
+      <section className="pt-40 pb-10 md:pb-14">
+        <div className="container-x">
+          <div className="w-12 h-1 rounded-full bg-[var(--accent-color)] mb-6 reveal" />
+          <p className="eyebrow mb-5 reveal">{eyebrow}</p>
+          <h1 className={`reveal ${style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl font-display tracking-tight leading-[1.05] max-w-3xl' : 'headline-xl max-w-3xl'}`}>{splitTitle(title)}</h1>
+          {subtitle && <p className="mt-5 max-w-2xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
+        </div>
+      </section>
+    );
+  }
+
   if (style === 'bold') {
     return (
       <section className="pt-40 pb-16 grain relative overflow-hidden">
