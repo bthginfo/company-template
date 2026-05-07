@@ -6,6 +6,35 @@ import type { TemplateStyle } from '../src/lib/branch-config';
 const TEMPLATES: TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
 const STYLES: TemplateStyle[] = ['classic', 'modern', 'bold'];
 const PAGES: CmsPageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
+const EXTRA_TEMPLATES = new Set<TemplateKey>(['consulting', 'medical', 'fitness']);
+const EXTRA_RENDER_BUCKETS: Record<string, string> = {
+  appointmentBooking: 'booking',
+  categoryCards: 'text-cards',
+  classCards: 'catalog-cards',
+  contactDetails: 'contact-details',
+  contactPreview: 'text-cards',
+  cta: 'cta',
+  directions: 'text-cards',
+  faq: 'faq',
+  gallery: 'gallery',
+  galleryPreview: 'gallery',
+  keywordBand: 'keyword-band',
+  locations: 'locations',
+  newsTeaser: 'news-teaser',
+  pricingPackages: 'pricing-packages',
+  processCards: 'process-cards',
+  processTextColumns: 'text-columns',
+  programTable: 'program-table',
+  serviceCards: 'catalog-cards',
+  serviceInfo: 'service-info',
+  statsBand: 'stats-band',
+  storyTeaser: 'text-cards',
+  team: 'team',
+  teaserList: 'text-cards',
+  testimonials: 'testimonials',
+  trainers: 'team',
+  trainingPlanOverview: 'training-overview',
+};
 
 const errors: string[] = [];
 
@@ -42,6 +71,18 @@ for (const tpl of TEMPLATES) {
     for (const page of PAGES) {
       const pageSections = sections(content, page);
       if (!pageSections.length) errors.push(`${tpl}/${style}/${page}: no V2 sections`);
+      if (EXTRA_TEMPLATES.has(tpl)) {
+        const renderedSections = pageSections.filter((section) => section.visible !== false && section.type !== 'hero');
+        for (let i = 1; i < renderedSections.length; i += 1) {
+          const prev = renderedSections[i - 1];
+          const current = renderedSections[i];
+          const prevBucket = EXTRA_RENDER_BUCKETS[prev.type];
+          const currentBucket = EXTRA_RENDER_BUCKETS[current.type];
+          if (prevBucket && currentBucket && prevBucket === currentBucket) {
+            errors.push(`${tpl}/${style}/${page}: adjacent sections "${prev.type}" and "${current.type}" share frontend bucket "${currentBucket}"`);
+          }
+        }
+      }
       for (const section of pageSections) {
         const scoped = `${page}:${section.id}`;
         if (allIds.has(scoped)) errors.push(`${tpl}/${style}/${page}: duplicate section id ${section.id}`);

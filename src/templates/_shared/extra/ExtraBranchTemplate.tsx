@@ -507,11 +507,11 @@ function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: M
         branchText: { ...content.branchText, heroEyebrow: cmsV2Text(data.eyebrow), heroImageUrl: cmsV2Image(data.image) || content.branchText?.heroImageUrl || currentHeroImage },
       };
     case 'serviceCards':
-    case 'serviceInfo':
       return { ...content, services: extraV2ServiceRows(data.items) };
+    case 'serviceInfo':
+      return content;
     case 'classCards':
-    case 'programTable':
-    case 'trainingPlanOverview': {
+    case 'programTable': {
       const courses = extraV2ServiceRows(data.items ?? data.rows ?? data.stats).map((item) => ({
         name: item.title,
         description: item.description,
@@ -530,7 +530,9 @@ function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: M
       }));
       return { ...content, courses, services: extraV2ServiceRows(data.items ?? data.rows ?? data.stats) };
     }
+    case 'trainingPlanOverview':
     case 'processTextColumns':
+      return content;
     case 'processCards':
       return { ...content, processSteps: extraV2ServiceRows(data.items).map((item) => ({ title: item.title, description: item.description, duration: item.price, imageUrl: item.imageUrl, detailSlug: item.detailSlug, detailPublished: item.detailPublished, detailSubtitle: item.detailSubtitle, detailBody: item.detailBody, detailBodyHtml: item.detailBodyHtml, detailGallery: item.detailGallery })) };
     case 'pricingPackages':
@@ -573,7 +575,7 @@ function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: M
 
 function ExtraV2Cards({ section, title }: { section: ModularSectionV2; title: string }) {
   const data = asUnknownRecord(section.data);
-  const items = cmsV2TextPairs(data.items);
+  const items = cmsV2TextPairs(data.items ?? data.stats ?? data.rows);
   if (!items.length) return null;
   return (
     <Section eyebrow={cmsV2Text(data.eyebrow)} title={cmsV2Text(data.headline) || title} subtitle={cmsV2Text(data.intro) || cmsV2Text(data.description)} className="surface">
@@ -588,10 +590,12 @@ function ExtraV2SingleModule({ section, content, branch, style }: { section: Mod
   const itemLinkPrefix = getBranchConfig(branch).paths.services;
   switch (section.type) {
     case 'serviceCards':
-    case 'serviceInfo':
     case 'classCards':
       return <ExtraLeistungenServiceCards content={content} branch={branch} style={style} />;
+    case 'serviceInfo':
+      return <ExtraV2Cards section={section} title="Service & Info." />;
     case 'processTextColumns':
+      return <ExtraV2Cards section={section} title="Wie wir arbeiten." />;
     case 'processCards':
       return <ProcessStepsModule content={content} itemLinkPrefix={itemLinkPrefix} />;
     case 'pricingPackages':
@@ -602,6 +606,7 @@ function ExtraV2SingleModule({ section, content, branch, style }: { section: Mod
     case 'appointmentBooking':
       return <OnlineBookingModule content={content} />;
     case 'trainingPlanOverview':
+      return <ExtraV2Cards section={section} title="Trainingsplan." />;
     case 'programTable':
       return <CourseScheduleModule content={content} itemLinkPrefix={itemLinkPrefix} />;
     default:
