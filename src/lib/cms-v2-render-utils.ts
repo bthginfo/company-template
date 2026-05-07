@@ -20,6 +20,9 @@ export function cmsV2Image(value: unknown): string {
 
 export function cmsV2LinkHref(value: unknown): string {
   const rec = asUnknownRecord(value);
+  const linkType = cmsV2Text(rec.linkType);
+  if (linkType === 'external') return cmsV2Text(rec.externalUrl) || cmsV2Text(rec.href);
+  if (linkType === 'internal') return cmsV2Text(rec.internalPage) || cmsV2Text(rec.href);
   return cmsV2Text(rec.internalPage) || cmsV2Text(rec.externalUrl) || cmsV2Text(rec.href);
 }
 

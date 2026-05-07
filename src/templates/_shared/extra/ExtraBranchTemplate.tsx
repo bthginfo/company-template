@@ -215,6 +215,8 @@ function ExtraHomeActionStrip({ content }: { content: SiteContent }) {
     : (liveEyebrow && !liveIsOpen ? 'bg-stone-400' : 'bg-emerald-500');
   const hintColor = cfg.tone === 'dark' ? 'text-white/70' : 'text-muted';
   const eyebrowColor = cfg.tone === 'dark' ? 'text-white' : 'text-brand';
+  const primaryHref = resolveHref(cfg.primaryHref || '#');
+  const secondaryHref = resolveHref(cfg.secondaryHref || '#');
 
   return (
     <section className={`border-y ${tone}`}>
@@ -232,10 +234,10 @@ function ExtraHomeActionStrip({ content }: { content: SiteContent }) {
             </a>
           )}
           {cfg.primaryLabel && cfg.primaryHref !== 'tel:' && (
-            <a href={resolveHref(cfg.primaryHref)} className="btn-outline !py-2 !px-4 !text-xs">{cfg.primaryLabel}</a>
+            <ExtraHeroLink href={primaryHref} className="btn-outline !py-2 !px-4 !text-xs">{cfg.primaryLabel}</ExtraHeroLink>
           )}
           {cfg.secondaryLabel && (
-            <ExtraHeroLink href={resolveHref(cfg.secondaryHref)} className={cfg.tone === 'dark' ? 'btn-accent !py-2 !px-4 !text-xs' : 'btn-primary !py-2 !px-4 !text-xs'}>
+            <ExtraHeroLink href={secondaryHref} className={cfg.tone === 'dark' ? 'btn-accent !py-2 !px-4 !text-xs' : 'btn-primary !py-2 !px-4 !text-xs'}>
               {cfg.secondaryLabel}
             </ExtraHeroLink>
           )}

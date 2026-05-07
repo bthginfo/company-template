@@ -453,6 +453,7 @@ function HeroForm({ data, onChange, tpl, style, uploadImage, modularPage }: Modu
 function ActionBarForm({ data, onChange, tpl }: Pick<ModularSectionDataFormProps, 'data' | 'onChange' | 'tpl'>) {
   const bp = readButton(data, 'buttonPrimary');
   const bs = readButton(data, 'buttonSecondary');
+  const autoStatus = bool(data.autoAvailabilityStatusEnabled, true);
   const hp = bp.linkType === 'external' ? str(bp.externalUrl) : str(bp.internalPage);
   const hs = bs.linkType === 'external' ? str(bs.externalUrl) : str(bs.internalPage);
   return (
@@ -460,13 +461,18 @@ function ActionBarForm({ data, onChange, tpl }: Pick<ModularSectionDataFormProps
       <label className="flex items-center gap-2 text-sm cursor-pointer">
         <input
           type="checkbox"
-          checked={bool(data.autoAvailabilityStatusEnabled, true)}
+          checked={autoStatus}
           onChange={(e) => onChange({ ...data, autoAvailabilityStatusEnabled: e.target.checked })}
         />
         <span>Status aus Öffnungszeiten automatisch</span>
       </label>
-      <ModField label="Status-Text (Override)">
-        <input className={modularInputCls} value={str(data.availabilityStatusOverride)} onChange={(e) => onChange({ ...data, availabilityStatusOverride: e.target.value })} />
+      <ModField label="Status-Text (Override)" hint={autoStatus ? 'Automatisch aktiv: Dieser Text wird im Frontend aus den Öffnungszeiten berechnet.' : undefined}>
+        <input
+          className={`${modularInputCls} disabled:cursor-not-allowed disabled:opacity-50`}
+          value={str(data.availabilityStatusOverride)}
+          disabled={autoStatus}
+          onChange={(e) => onChange({ ...data, availabilityStatusOverride: e.target.value })}
+        />
       </ModField>
       <p className="text-xs font-medium text-muted">Primär-Button</p>
       <div className="grid sm:grid-cols-2 gap-4">

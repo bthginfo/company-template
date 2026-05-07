@@ -4,7 +4,7 @@ import type { ModularSectionV2, SiteContent, TemplateKey, PageId } from '@/lib/t
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import Seo from '@/components/Seo';
 import {
-  SiteHeader, Hero, Section, ContactBlock, SafeMapEmbed, SiteFooter, BasePathProvider,
+  SiteHeader, Hero, Section, ContactBlock, SafeMapEmbed, SiteFooter, BasePathProvider, useBasePath, withBase,
   type NavItem,
 } from '@/components/site-blocks';
 import {
@@ -2639,6 +2639,14 @@ function defaultHomeStrip(variant: TemplateVariant): {
   return { tone: 'light', eyebrow: 'Jetzt Kontakt aufnehmen', hint: 'Wir freuen uns auf Ihre Nachricht.', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' };
 }
 
+function ActionStripLink({ href, className, children }: { href: string; className: string; children: React.ReactNode }) {
+  const basePath = useBasePath();
+  if (href.startsWith('#') || isExternalNavHref(href)) {
+    return <a href={href} className={className}>{children}</a>;
+  }
+  return <a href={withBase(basePath, href)} className={className}>{children}</a>;
+}
+
 function BranchActionStrip({ variant, content }: { variant: TemplateVariant; content: SiteContent }) {
   const phone = content.contact.phone || '';
   const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
@@ -2690,6 +2698,8 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
     : (liveEyebrow && !liveIsOpen ? 'bg-stone-400' : 'bg-emerald-500');
   const hintColor = cfg.tone === 'dark' ? 'text-white/70' : 'text-muted';
   const eyebrowColor = cfg.tone === 'dark' ? 'text-white' : 'text-brand';
+  const primaryHref = resolveHref(cfg.primaryHref || '#');
+  const secondaryHref = resolveHref(cfg.secondaryHref || '#');
 
   // Restaurant special: also surface today's opening hours alongside eyebrow.
   // Skip when the auto-eyebrow already shows today's hours.
@@ -2717,12 +2727,12 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
             </a>
           )}
           {cfg.primaryLabel && cfg.primaryHref !== 'tel:' && (
-            <a href={resolveHref(cfg.primaryHref)} className="btn-outline !py-2 !px-4 !text-xs">{cfg.primaryLabel}</a>
+            <ActionStripLink href={primaryHref} className="btn-outline !py-2 !px-4 !text-xs">{cfg.primaryLabel}</ActionStripLink>
           )}
           {cfg.secondaryLabel && (
-            <TLink to={resolveHref(cfg.secondaryHref)} className={cfg.tone === 'dark' ? 'btn-accent !py-2 !px-4 !text-xs' : 'btn-primary !py-2 !px-4 !text-xs'}>
+            <ActionStripLink href={secondaryHref} className={cfg.tone === 'dark' ? 'btn-accent !py-2 !px-4 !text-xs' : 'btn-primary !py-2 !px-4 !text-xs'}>
               {cfg.secondaryLabel}
-            </TLink>
+            </ActionStripLink>
           )}
         </span>
       </div>
