@@ -1153,6 +1153,116 @@ function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteC
   }
 }
 
+function CmsV2HomeHero({
+  variant,
+  content,
+  style,
+  meta,
+}: {
+  variant: TemplateVariant;
+  content: SiteContent;
+  style: TemplateStyle;
+  meta: { label: string; value: string }[];
+}) {
+  const cfg = NAV_BY_VARIANT[variant];
+  const heroImg = effectiveBranchText(variant, content).heroImageUrl || content.hero.imageUrl || content.gallery[0] || content.about?.imageUrl;
+  const heroCta = (content as any).heroCta as { primaryLabel?: string; primaryHref?: string; secondaryLabel?: string; secondaryHref?: string } | undefined;
+  const primaryLabel = heroCta?.primaryLabel || content.hero.ctaLabel || 'Kontakt aufnehmen';
+  const primaryHref = heroCta?.primaryHref || content.hero.ctaHref || '/kontakt';
+  const secondaryLabel = heroCta?.secondaryLabel ?? (style === 'modern' ? `${cfg.servicesLabel} ansehen` : '');
+  const secondaryHref = heroCta?.secondaryHref || cfg.servicesPath;
+
+  if (style === 'modern') {
+    return (
+      <section className="pt-44 pb-20 md:pb-28 relative overflow-hidden">
+        <AuroraBackground intensity={0.18} colors={['var(--accent-color)', '#FFB347', '#7C3AED', '#22d3ee']} />
+        <AnimatedGridPattern className="text-brand/[0.07]" width={40} height={40} dotSize={1.2} />
+        <div className="container-x grid lg:grid-cols-12 gap-12 items-center relative">
+          <div className="lg:col-span-6 reveal">
+            <p className="eyebrow mb-5">{content.brand.tagline || 'Willkommen'}</p>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display leading-[1.05] tracking-tight">
+              <TextReveal text={content.hero.title || ((content.brand.hideName && content.brand.logoUrl) ? '' : `${content.brand.name}.`)} />
+              {content.hero.subtitle ? (
+                <>
+                  <br />
+                  <span className="text-muted"><TextReveal text={content.hero.subtitle} /></span>
+                </>
+              ) : null}
+            </h1>
+            <p className="mt-8 text-lg text-muted max-w-xl">{heroBodyFor(variant, content)}</p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <TLink to={primaryHref} className="btn-primary">{primaryLabel} <span aria-hidden>→</span></TLink>
+              {secondaryLabel ? <TLink to={secondaryHref} className="btn-outline">{secondaryLabel}</TLink> : null}
+            </div>
+            <dl className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-4 max-w-xl">
+              {meta.map((m, i) => (
+                <div key={i}>
+                  <dt className="text-[10px] uppercase tracking-widest text-muted">{m.label}</dt>
+                  <dd className="mt-1 font-display text-2xl">{m.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className="lg:col-span-6 reveal">
+            {heroImg ? (
+              <Tilt3DCard className="rounded-3xl">
+                <div className="relative">
+                  <div className="absolute -inset-6 rounded-[2rem] bg-[var(--accent-color)] opacity-25 blur-3xl" aria-hidden />
+                  <div className="relative rounded-3xl overflow-hidden border border-line shadow-2xl aspect-[4/5] bg-white">
+                    <img src={heroImg} alt={content.brand.name} className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              </Tilt3DCard>
+            ) : null}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (style === 'bold') {
+    const heroEyebrow = effectiveBranchText(variant, content).heroEyebrow || content.brand.tagline || cfg.servicesEyebrow;
+    const words = marqueeWordsFor(variant, content).concat(marqueeWordsFor(variant, content));
+    return (
+      <section className="pt-40 pb-10 grain relative overflow-hidden">
+        <AuroraBackground intensity={0.22} colors={['var(--accent-color)', '#FFB347', '#22d3ee', '#7C3AED']} />
+        <div className="container-x relative">
+          <p className="eyebrow mb-6 reveal">{heroEyebrow}</p>
+          <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[clamp(2.5rem,13vw,180px)] md:text-[14vw] lg:text-[180px] break-words [overflow-wrap:anywhere] [hyphens:auto]">
+            {(content.hero.title || ((content.brand.hideName && content.brand.logoUrl) ? '' : content.brand.name)).toUpperCase()}
+          </h1>
+          {primaryLabel ? (
+            <div className="mt-10 flex flex-wrap gap-4 reveal">
+              <TLink to={primaryHref} className="btn-accent">{primaryLabel} <span aria-hidden>→</span></TLink>
+              {secondaryLabel ? <TLink to={secondaryHref} className="btn-outline">{secondaryLabel}</TLink> : null}
+            </div>
+          ) : null}
+        </div>
+        <div className="mt-10 border-y border-line py-4 bg-white">
+          <MarqueeTrack speed={45}>
+            <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap text-brand">
+              {words.map((w, i) => (
+                <span key={i} className="inline-flex items-center gap-10">
+                  <span>{w}</span><span className="text-[var(--accent-color)]">●</span>
+                </span>
+              ))}
+            </span>
+          </MarqueeTrack>
+        </div>
+        {heroImg ? (
+          <div className="container-x mt-12 reveal">
+            <div className="aspect-[21/9] overflow-hidden rounded-none">
+              <img src={heroImg} alt={content.brand.name} className="w-full h-full object-cover" />
+            </div>
+          </div>
+        ) : null}
+      </section>
+    );
+  }
+
+  return <Hero content={content} meta={meta} />;
+}
+
 function RestaurantV2HomePage({ content, style }: { content: SiteContent; style: TemplateStyle }) {
   const sections = visibleCmsV2Sections(content.modularPagesV2?.home?.sections);
   const heroSection = sections.find((section) => section.type === 'hero');
@@ -1161,7 +1271,7 @@ function RestaurantV2HomePage({ content, style }: { content: SiteContent; style:
 
   return (
     <>
-      <Hero content={heroContent} meta={heroMeta} />
+      <CmsV2HomeHero variant="restaurant" content={heroContent} style={style} meta={heroMeta} />
       {sections
         .filter((section) => section.type !== 'hero')
         .map((section) => (
@@ -1179,7 +1289,7 @@ function HotelV2HomePage({ content, style }: { content: SiteContent; style: Temp
 
   return (
     <>
-      <Hero content={heroContent} meta={heroMeta} />
+      <CmsV2HomeHero variant="hotel" content={heroContent} style={style} meta={heroMeta} />
       {sections
         .filter((section) => section.type !== 'hero')
         .map((section) => (
@@ -1197,7 +1307,7 @@ function CoreV2HomePage({ variant, content, style }: { variant: TemplateVariant;
 
   return (
     <>
-      <Hero content={heroContent} meta={heroMeta} />
+      <CmsV2HomeHero variant={variant} content={heroContent} style={style} meta={heroMeta} />
       {sections
         .filter((section) => section.type !== 'hero')
         .map((section) => (

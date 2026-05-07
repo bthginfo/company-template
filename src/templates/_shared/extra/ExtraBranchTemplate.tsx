@@ -575,6 +575,137 @@ function ExtraV2Cards({ section, title }: { section: ModularSectionV2; title: st
   );
 }
 
+function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteContent; branch: ExtraBranchKey; style: ExtraStyle; eyebrow: string }) {
+  const cta = resolveHeroCta(content);
+  const body = heroBodyParagraphs(content);
+  const heroEyebrow = effectiveBranchText(branch, content).heroEyebrow || eyebrow;
+
+  if (style === 'modern') {
+    const testimonials = meaningfulTestimonials(content.testimonials);
+    const numbers = (content as any).numbers as Array<{ value: string; label: string }> | undefined;
+    const stats = numbers && numbers.length >= 3
+      ? numbers.slice(0, 3).map((n) => {
+          const m = /^([\d.,]+)(.*)$/.exec(n.value.trim());
+          return { value: m ? parseInt(m[1].replace(/\D/g, ''), 10) || 0 : 0, suffix: m ? m[2] : '', label: n.label };
+        })
+      : [
+          { value: testimonials.length || 50, suffix: '+', label: 'Kund:innen' },
+          { value: content.services.length || 6, suffix: '', label: 'Leistungen' },
+          { value: 24, suffix: 'h', label: 'Antwortzeit' },
+        ];
+    const heroBadge = ((content as any).heroBadge ?? {}) as { text?: string; label?: string };
+    const badgeText = (heroBadge.text && heroBadge.text.trim()) || '4,9 / 5,0';
+    const badgeLabel = (heroBadge.label && heroBadge.label.trim()) || 'Google Bewertung';
+
+    return (
+      <section className="relative pt-32 md:pt-40 pb-20 md:pb-28">
+        <div className="container-x grid lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-7 reveal">
+            <ExtraAnnouncementsRibbon content={content} />
+            {heroEyebrow ? (
+              <p className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full bg-[var(--surface-color)] border border-line text-xs font-mono uppercase tracking-widest">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)]" /> {heroEyebrow}
+              </p>
+            ) : null}
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight">{content.hero.title}</h1>
+            <p className="mt-6 text-lg md:text-xl text-muted max-w-xl">{content.hero.subtitle}</p>
+            {body.length > 0 ? (
+              <div className="mt-5 max-w-xl text-base text-muted leading-relaxed space-y-3">
+                {body.map((p, i) => <p key={i}>{p}</p>)}
+              </div>
+            ) : null}
+            <div className="mt-10 flex flex-wrap gap-3">
+              <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel}</ExtraHeroLink>
+              {cta.secondaryLabel ? <ExtraHeroLink href={cta.secondaryHref} className="btn-ghost">{cta.secondaryLabel} →</ExtraHeroLink> : null}
+            </div>
+            <dl className="mt-14 grid grid-cols-3 gap-6 max-w-md">
+              {stats.map((s, i) => (
+                <div key={i} className="border-l border-line pl-4">
+                  <dt className="font-display text-3xl"><AnimatedCounter to={s.value} />{s.suffix}</dt>
+                  <dd className="text-xs uppercase tracking-widest text-muted mt-1">{s.label}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className="lg:col-span-5 reveal">
+            <div className="relative">
+              <div className="aspect-[4/5] rounded-3xl overflow-hidden border border-line shadow-2xl">
+                {content.hero.imageUrl ? <img src={content.hero.imageUrl} alt="" className="w-full h-full object-cover" /> : null}
+              </div>
+              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl border border-line p-5 max-w-[260px]">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[var(--accent-color)]/20 grid place-items-center"><span className="text-xl">★</span></div>
+                  <div>
+                    <p className="font-display text-lg leading-tight">{badgeText}</p>
+                    <p className="text-xs text-muted">{badgeLabel}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (style === 'bold') {
+    return (
+      <section className="relative pt-32 md:pt-40 pb-12 md:pb-20">
+        <div className="container-x">
+          <ExtraAnnouncementsRibbon content={content} />
+          {heroEyebrow ? <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-8 reveal">— {heroEyebrow} —</p> : null}
+          <h1 className="font-display text-[clamp(2.5rem,11vw,11rem)] leading-[0.88] md:leading-[0.85] tracking-tight reveal break-words [overflow-wrap:anywhere] [hyphens:auto]">
+            <SplitText>{content.hero.title}</SplitText>
+          </h1>
+        </div>
+        {content.hero.imageUrl ? (
+          <div className="mt-10 md:mt-16 reveal">
+            <img src={content.hero.imageUrl} alt="" className="w-full aspect-[21/9] object-cover" loading="eager" />
+          </div>
+        ) : null}
+        <div className="container-x mt-12 grid md:grid-cols-12 gap-8 reveal">
+          <div className="md:col-span-7 space-y-5">
+            <p className="text-2xl md:text-3xl leading-tight">{content.hero.subtitle}</p>
+            {body.length > 0 ? (
+              <div className="text-lg text-muted leading-relaxed space-y-3 max-w-3xl">
+                {body.map((p, i) => <p key={i}>{p}</p>)}
+              </div>
+            ) : null}
+          </div>
+          <div className="md:col-span-5 md:text-right flex flex-wrap gap-3 md:justify-end">
+            <ExtraHeroLink href={cta.primaryHref} className="btn-primary text-base">{cta.primaryLabel} <span aria-hidden>→</span></ExtraHeroLink>
+            {cta.secondaryLabel ? <ExtraHeroLink href={cta.secondaryHref} className="btn-outline text-base">{cta.secondaryLabel}</ExtraHeroLink> : null}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        {content.hero.imageUrl ? <img src={content.hero.imageUrl} alt="" className="w-full h-full object-cover opacity-30" loading="eager" /> : null}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--bg-color) 0%, color-mix(in oklab, var(--bg-color), transparent 25%) 40%, var(--bg-color) 100%)' }} />
+      </div>
+      <div className="container-x">
+        <ExtraAnnouncementsRibbon content={content} />
+        {heroEyebrow ? <p className="eyebrow mb-6 reveal">{heroEyebrow}</p> : null}
+        <h1 className="headline-xl max-w-5xl reveal"><SplitText>{content.hero.title}</SplitText></h1>
+        <p className="mt-8 text-lg md:text-2xl text-muted max-w-3xl reveal">{content.hero.subtitle}</p>
+        {body.length > 0 ? (
+          <div className="mt-6 max-w-3xl text-base md:text-lg text-muted leading-relaxed space-y-4 reveal">
+            {body.map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        ) : null}
+        <div className="mt-12 flex flex-wrap gap-3 reveal">
+          <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel} <span aria-hidden>→</span></ExtraHeroLink>
+          {cta.secondaryLabel ? <ExtraHeroLink href={cta.secondaryHref} className="btn-outline">{cta.secondaryLabel}</ExtraHeroLink> : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteContent; branch: ExtraBranchKey; page: ExtraPage; style: ExtraStyle; eyebrow: string }) {
   const sections = extraV2Sections(content, page);
   const heroSection = sections.find((section) => section.type === 'hero');
@@ -587,7 +718,9 @@ function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteC
 
   return (
     <>
-      <PageHero eyebrow={heroEyebrow} title={heroTitle} subtitle={heroSubtitle} style={style} />
+      {page === 'home'
+        ? <ExtraV2HomeHero content={heroContent} branch={branch} style={style} eyebrow={eyebrow} />
+        : <PageHero eyebrow={heroEyebrow} title={heroTitle} subtitle={heroSubtitle} style={style} />}
       {sections.filter((section) => section.type !== 'hero').map((section) => {
         const patched = extraV2Content(content, branch, section);
         switch (section.type) {
