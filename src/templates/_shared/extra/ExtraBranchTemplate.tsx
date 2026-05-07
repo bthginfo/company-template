@@ -189,6 +189,7 @@ function ExtraHomeActionStrip({ content, branch }: { content: SiteContent; branc
   const def = defaultExtraHomeStrip();
   const rawStrip = ((content as any).homeStrip || {}) as Record<string, unknown>;
   const auto = rawStrip.eyebrowAuto !== false && branch !== 'wedding';
+  if (branch === 'wedding') return null;
   const stripForMerge = Object.fromEntries(
     Object.entries(rawStrip).filter(([key]) => !auto || key !== 'eyebrow'),
   );
@@ -2798,7 +2799,7 @@ function BranchSpotlight({
 }) {
   if (branch === 'consulting') return <ConsultingProcess style={style} content={content} />;
   if (branch === 'medical') return <MedicalServiceInfo style={style} content={content} />;
-  if (branch === 'wedding') return <ConsultingProcess style={style} content={content} />;
+  if (branch === 'wedding') return null;
   return <FitnessPrograms style={style} content={content} />;
 }
 

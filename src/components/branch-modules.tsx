@@ -505,10 +505,13 @@ export function ProcessStepsModule({ content, itemLinkPrefix }: { content: SiteC
   const steps = ((content as any).processSteps || []) as NonNullable<SiteContent['processSteps']>;
   if (!steps || !steps.length) return null;
   const h = moduleHeading(content, 'process');
+  const bt = (content.branchText ?? {}) as { processEyebrow?: string; processTitle?: string };
+  const eyebrow = bt.processEyebrow || h.eyebrow;
+  const title = bt.processTitle ? <>{bt.processTitle}</> : h.title;
   return (
     <Section
-      eyebrow={h.eyebrow}
-      title={h.title}
+      eyebrow={eyebrow}
+      title={title}
       subtitle={h.subtitle}
       className="surface"
     >
