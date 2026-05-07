@@ -2332,9 +2332,9 @@ function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraSty
               </NavLink>
             ))}
           </nav>
-          <NavLink to={withBase(basePath, ((content as any)?.navCta?.href || '').trim() || '/kontakt')} className="hidden md:inline-flex btn-primary !py-2.5 !px-5 text-sm">
+          <ExtraHeroLink href={((content as any)?.navCta?.href || '').trim() || '/kontakt'} className="hidden md:inline-flex btn-primary !py-2.5 !px-5 text-sm">
             {((content as any)?.navCta?.label || '').trim() || content.hero.ctaLabel || 'Termin'} <span aria-hidden>→</span>
-          </NavLink>
+          </ExtraHeroLink>
           <button
             onClick={() => setMobile(true)}
             className="md:hidden p-2 rounded-full border border-line"

@@ -19,6 +19,10 @@ export function withBase(basePath: string, to: string) {
   return `${basePath}${to}` || '/';
 }
 
+function isDirectHref(to: string): boolean {
+  return to.startsWith('#') || /^https?:\/\//i.test(to) || to.startsWith('mailto:') || to.startsWith('tel:');
+}
+
 export function TLink({
   to,
   className,
@@ -26,6 +30,13 @@ export function TLink({
   ...rest
 }: { to: string; className?: string; children: ReactNode } & Omit<React.ComponentProps<typeof Link>, 'to' | 'className' | 'children'>) {
   const basePath = useBasePath();
+  if (isDirectHref(to)) {
+    return (
+      <a href={to} className={className}>
+        {children}
+      </a>
+    );
+  }
   return (
     <Link to={withBase(basePath, to)} className={className} {...rest}>
       {children}
@@ -142,7 +153,9 @@ export function SiteHeader({
               const nc = (content as any)?.navCta as { label?: string; href?: string } | undefined;
               const ctaLabel = (nc?.label && nc.label.trim()) || 'Termin';
               const ctaHref = (nc?.href && nc.href.trim()) || `${basePath}/kontakt`;
-              return <Link to={ctaHref} className="ml-4 btn-primary !py-2.5 !px-5 text-sm">{ctaLabel} <span aria-hidden>→</span></Link>;
+              return isDirectHref(ctaHref)
+                ? <a href={ctaHref} className="ml-4 btn-primary !py-2.5 !px-5 text-sm">{ctaLabel} <span aria-hidden>→</span></a>
+                : <Link to={withBase(basePath, ctaHref)} className="ml-4 btn-primary !py-2.5 !px-5 text-sm">{ctaLabel} <span aria-hidden>→</span></Link>;
             })()}
           </nav>
 
@@ -194,7 +207,9 @@ export function SiteHeader({
               const nc = (content as any)?.navCta as { label?: string; href?: string } | undefined;
               const ctaLabel = (nc?.label && nc.label.trim()) || 'Termin anfragen';
               const ctaHref = (nc?.href && nc.href.trim()) || `${basePath}/kontakt`;
-              return <Link to={ctaHref} className="btn-primary mt-10 self-start">{ctaLabel} <span aria-hidden>→</span></Link>;
+              return isDirectHref(ctaHref)
+                ? <a href={ctaHref} className="btn-primary mt-10 self-start">{ctaLabel} <span aria-hidden>→</span></a>
+                : <Link to={withBase(basePath, ctaHref)} className="btn-primary mt-10 self-start">{ctaLabel} <span aria-hidden>→</span></Link>;
             })()}
           </nav>
         </div>,
@@ -302,14 +317,19 @@ export function Hero({
           const primaryHref = hc?.primaryHref || content.hero.ctaHref || '/kontakt';
           const secondaryLabel = hc?.secondaryLabel ?? 'Mehr erfahren';
           const secondaryHref = hc?.secondaryHref || '#mehr';
-          const isAnchor = secondaryHref.startsWith('#') || secondaryHref.startsWith('http');
           return (
             <div className={`mt-12 flex flex-wrap gap-4 ${align === 'center' ? 'justify-center' : ''}`}>
-              <Link to={withBase(basePath, primaryHref)} className="btn-accent">
-                {primaryLabel} <span aria-hidden>→</span>
-              </Link>
+              {isDirectHref(primaryHref) ? (
+                <a href={primaryHref} className="btn-accent">
+                  {primaryLabel} <span aria-hidden>→</span>
+                </a>
+              ) : (
+                <Link to={withBase(basePath, primaryHref)} className="btn-accent">
+                  {primaryLabel} <span aria-hidden>→</span>
+                </Link>
+              )}
               {secondaryLabel ? (
-                isAnchor ? (
+                isDirectHref(secondaryHref) ? (
                   <a href={secondaryHref} className="btn-outline !border-white/60 !text-white hover:!bg-white hover:!text-slate-900">
                     {secondaryLabel}
                   </a>
