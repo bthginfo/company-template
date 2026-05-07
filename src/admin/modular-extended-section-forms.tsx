@@ -804,14 +804,22 @@ function TopicCardsForm({ data, onChange, tpl, uploadImage }: ModularSectionData
 }
 
 function TrainingPlanOverviewForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'data' | 'onChange'>) {
-  const stats = Array.isArray(data.stats)
-    ? (data.stats as unknown[]).map((x) =>
+  const items = Array.isArray(data.items)
+    ? (data.items as unknown[]).map((x) =>
         x && typeof x === 'object'
-          ? { value: str((x as { value?: unknown }).value), description: str((x as { description?: unknown }).description) }
-          : { value: '', description: '' },
+          ? {
+              title: str((x as { title?: unknown }).title),
+              description: str((x as { description?: unknown }).description),
+              goal: str((x as { goal?: unknown }).goal),
+              level: str((x as { level?: unknown }).level),
+              frequency: str((x as { frequency?: unknown }).frequency),
+              duration: str((x as { duration?: unknown }).duration),
+            }
+          : { title: '', description: '', goal: '', level: '', frequency: '', duration: '' },
       )
     : [];
-  const setStats = (next: typeof stats) => onChange({ ...data, stats: next });
+  const setItems = (next: typeof items) => onChange({ ...data, items: next });
+
   return (
     <div className="space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">
@@ -822,17 +830,42 @@ function TrainingPlanOverviewForm({ data, onChange }: Pick<ModularSectionDataFor
           <input className={modularInputCls} value={str(data.headline)} onChange={(e) => onChange({ ...data, headline: e.target.value })} />
         </ModField>
       </div>
-      <p className="text-xs uppercase tracking-widest text-muted">Kennzahlen</p>
-      {stats.map((s, i) => (
-        <div key={i} className="grid sm:grid-cols-2 gap-2">
-          <input className={modularInputCls} placeholder="Wert" value={s.value} onChange={(e) => setStats(stats.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)))} />
-          <input className={modularInputCls} placeholder="Label" value={s.description} onChange={(e) => setStats(stats.map((x, j) => (j === i ? { ...x, description: e.target.value } : x)))} />
+      <ModField label="Einleitung">
+        <textarea className={modularInputCls} rows={3} value={str(data.description)} onChange={(e) => onChange({ ...data, description: e.target.value })} />
+      </ModField>
+      <p className="text-xs uppercase tracking-widest text-muted">Trainingsplan</p>
+      {items.map((item, i) => (
+        <div key={i} className="rounded-xl border border-line bg-white/70 p-3 space-y-3">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <ModField label="Titel">
+              <input className={modularInputCls} value={item.title} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))} />
+            </ModField>
+            <ModField label="Ziel">
+              <input className={modularInputCls} value={item.goal} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, goal: e.target.value } : x)))} />
+            </ModField>
+          </div>
+          <ModField label="Beschreibung">
+            <textarea className={modularInputCls} rows={3} value={item.description} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, description: e.target.value } : x)))} />
+          </ModField>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <ModField label="Level">
+              <input className={modularInputCls} value={item.level} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, level: e.target.value } : x)))} />
+            </ModField>
+            <ModField label="Frequenz">
+              <input className={modularInputCls} value={item.frequency} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, frequency: e.target.value } : x)))} />
+            </ModField>
+            <ModField label="Dauer">
+              <input className={modularInputCls} value={item.duration} onChange={(e) => setItems(items.map((x, j) => (j === i ? { ...x, duration: e.target.value } : x)))} />
+            </ModField>
+          </div>
+          <button type="button" className="text-xs text-rose-600" onClick={() => setItems(items.filter((_, j) => j !== i))}>
+            Entfernen
+          </button>
         </div>
       ))}
-      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => setStats([...stats, { value: '', description: '' }])}>
-        + Kennzahl
+      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => setItems([...items, { title: '', description: '', goal: '', level: '', frequency: '', duration: '' }])}>
+        + Trainingsplan-Zeile
       </button>
-      <p className="text-xs text-muted">Die Kurs-Karten darunter bearbeiten Sie im Block „Kurs-Karten“ (classCards).</p>
     </div>
   );
 }

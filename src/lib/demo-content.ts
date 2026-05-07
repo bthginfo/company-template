@@ -1407,12 +1407,47 @@ const extraGalleryStoryConsulting = {
     contactPageHeader: ph('Anfrage', 'Kontakt', 'Festpreis-Anfrage, Notdienst und Erreichbarkeit.'),
   });
 
+  Object.assign(Tr, {
+    galleryStory: {
+      eyebrow: 'Referenzen',
+      title: 'Arbeit, die man sehen kann.',
+      body: 'Einblicke in Bäder, Heizräume, Wartung und Baustellenalltag.',
+      captions: [
+        { t: 'Badumbau', d: 'Saubere Demontage, neue Leitungen und klare Abstimmung vor Ort.' },
+        { t: 'Heizraum', d: 'Moderne Technik mit nachvollziehbarer Einweisung.' },
+        { t: 'Notdienst', d: 'Schnelle Hilfe, wenn Wasser oder Heizung nicht warten können.' },
+      ],
+    },
+    galleryCategories: [
+      { t: 'Sanitär', d: 'Bäder, Armaturen, Reparaturen und Leitungen.' },
+      { t: 'Heizung', d: 'Wartung, Austausch und effiziente Anlagen.' },
+      { t: 'Service', d: 'Notdienst, Kontrolle und klare Dokumentation.' },
+    ],
+  });
+
   const R = DEMO_CONTENT.restaurant;
   Object.assign(R, {
     servicesHeader: ph('Aus der Küche', 'Speisekarte', 'Auszug aus der Karte — Pasta, Pizza, Dolci.'),
     galleryHeader: ph('Stimmung', 'Galerie', 'Einblicke in Küche und Gastraum.'),
     aboutHeader: ph('Familie', 'Über uns', 'Geschichte und Team der Trattoria.'),
     contactPageHeader: ph('Reservierung', 'Kontakt', 'Adresse, Zeiten und Nachricht — wir antworten schnell.'),
+  });
+  Object.assign(R, {
+    galleryStory: {
+      eyebrow: 'Einblicke',
+      title: 'Aus unserer Trattoria.',
+      body: 'Küche, Keller und Gastraum - Momente aus Vorbereitung, Service und Abendgeschäft.',
+      captions: [
+        { t: 'Pasta-Manufaktur', d: 'Tagliatelle, Ravioli und Gnocchi entstehen jeden Vormittag frisch.' },
+        { t: 'Holzofen', d: '48 Stunden Teigführung, San-Marzano-Tomaten und kräftige Hitze.' },
+        { t: 'Weinkeller', d: 'Naturweine, Barolo und kleine Produzenten aus Italien.' },
+      ],
+    },
+    galleryCategories: [
+      { t: 'Küche', d: 'Frische Pasta, Saucen und Dolci aus eigener Vorbereitung.' },
+      { t: 'Gastraum', d: 'Klassischer Service, lange Tische und familiäre Atmosphäre.' },
+      { t: 'Wein', d: 'Flaschen für Pizza, Pasta und besondere Abende.' },
+    ],
   });
   Object.assign(R.services[0], {
     detailSlug: 'tagliatelle-speisekarte',
@@ -1432,6 +1467,23 @@ const extraGalleryStoryConsulting = {
     galleryHeader: ph('Looks', 'Galerie', 'Arbeiten, Räume und Stimmung im Studio Lumière.'),
     aboutHeader: ph('Über uns', 'Studio Lumière', 'Marie Hofer und das Team — Ausbildung und Philosophie.'),
     contactPageHeader: ph('Termin', 'Kontakt', 'Buchung, Adresse und Anfahrt nach Schwabing.'),
+  });
+  Object.assign(S, {
+    galleryStory: {
+      eyebrow: 'Looks',
+      title: 'Schnitte, Farbe und Studio.',
+      body: 'Einblicke in Beratung, Farbtechnik, Pflege und den ruhigen Ablauf im Salon.',
+      captions: [
+        { t: 'Beratung', d: 'Wir schauen Haarstruktur, Alltag und Wunschbild gemeinsam an.' },
+        { t: 'Color', d: 'Balayage, Glossing und Pflege abgestimmt auf den Haartyp.' },
+        { t: 'Finish', d: 'Schnitt, Styling und Tipps für zuhause.' },
+      ],
+    },
+    galleryCategories: [
+      { t: 'Schnitt', d: 'Damen, Herren und individuelle Formen.' },
+      { t: 'Farbe', d: 'Balayage, Glossing und natürliche Nuancen.' },
+      { t: 'Pflege', d: 'Treatments für Glanz, Struktur und Kopfhaut.' },
+    ],
   });
   Object.assign(S.services[0], {
     detailSlug: 'damen-schnitt-leistung',
@@ -1463,6 +1515,23 @@ const extraGalleryStoryConsulting = {
     aboutHeader: ph('Team', 'Über uns', 'Guides, Philosophie und Qualität bei Alpenroute Tirol.'),
     contactPageHeader: ph('Buchung', 'Kontakt', 'Fragen zur Tour — wir melden uns mit konkreten Terminen.'),
   });
+  Object.assign(T, {
+    galleryStory: {
+      eyebrow: 'Unterwegs',
+      title: 'Momente aus den Bergen.',
+      body: 'Touren, Pausen, Aussichtspunkte und kleine Gruppen in Tirol.',
+      captions: [
+        { t: 'Aufstieg', d: 'Routenwahl passend zur Gruppe, Wetter und Kondition.' },
+        { t: 'Pause', d: 'Zeit für Aussicht, Wasser und echte Orientierung.' },
+        { t: 'Abstieg', d: 'Sicher zurück mit Guide und klarer Kommunikation.' },
+      ],
+    },
+    galleryCategories: [
+      { t: 'Tagestouren', d: 'Kompakte Routen mit lokalem Guide.' },
+      { t: 'Mehrtägig', d: 'Planung, Etappen und Unterkunft abgestimmt.' },
+      { t: 'Workshops', d: 'Karte, Wetter, Ausrüstung und Technik.' },
+    ],
+  });
   Object.assign(T.services[0], {
     detailSlug: 'tagestouren-tirol',
     detailPublished: true,
@@ -1481,6 +1550,23 @@ const extraGalleryStoryConsulting = {
     galleryHeader: ph('Impressionen', 'Galerie', 'Zimmer, Spa, Natur und kulinarische Momente.'),
     aboutHeader: ph('Familie', 'Über uns', 'Drei Generationen Gastgeber in den Tiroler Bergen.'),
     contactPageHeader: ph('Anfrage', 'Kontakt', 'Reservierung, Anreise und persönliche Wünsche.'),
+  });
+  Object.assign(H, {
+    galleryStory: {
+      eyebrow: 'Haus',
+      title: 'Zimmer, Spa und Bergblick.',
+      body: 'Einblicke in Räume, Frühstück, Wellness und die Lage am Berg.',
+      captions: [
+        { t: 'Zimmer', d: 'Holz, Stoffe und ruhige Farben für klare Erholung.' },
+        { t: 'Spa', d: 'Sauna, Ruhebereich und Blick in die Berge.' },
+        { t: 'Frühstück', d: 'Regionale Produkte, Kaffee und Zeit am Morgen.' },
+      ],
+    },
+    galleryCategories: [
+      { t: 'Zimmer', d: 'Almblick, Suiten und kleine Rückzugsorte.' },
+      { t: 'Spa', d: 'Sauna, Ruhe und Anwendungen.' },
+      { t: 'Kulinarik', d: 'Frühstück, Abendkarte und regionale Produkte.' },
+    ],
   });
   Object.assign(H.services[0], {
     detailSlug: 'zimmer-suiten-uebersicht',

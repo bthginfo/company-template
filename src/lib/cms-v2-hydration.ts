@@ -144,6 +144,26 @@ function mergeRows(current: unknown, fallback: RecordValue[]): RecordValue[] {
   return rows.filter(isMeaningful);
 }
 
+function mergeRowFields(current: unknown, fallback: RecordValue[]): RecordValue[] {
+  const currentRows = Array.isArray(current)
+    ? current.filter((row): row is RecordValue => !!row && typeof row === 'object' && !Array.isArray(row))
+    : [];
+  if (!currentRows.length) return fallback;
+  const max = Math.max(currentRows.length, fallback.length);
+  const rows: RecordValue[] = [];
+  for (let index = 0; index < max; index += 1) {
+    const currentRow = currentRows[index] ?? {};
+    const fallbackRow = fallback[index] ?? {};
+    const keys = new Set([...Object.keys(fallbackRow), ...Object.keys(currentRow)]);
+    const next: RecordValue = {};
+    keys.forEach((key) => {
+      next[key] = isMeaningful(currentRow[key]) ? currentRow[key] : fallbackRow[key];
+    });
+    if (isMeaningful(next)) rows.push(next);
+  }
+  return rows;
+}
+
 function textList(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value
@@ -176,6 +196,37 @@ function signatureFallback(template: TemplateKey, style: TemplateStyle): { eyebr
     return { eyebrow: bt.servicesTeaserEyebrow, titleA: bt.servicesTeaserTitle, titleB: '', intro: bt.teaserSubtitle };
   }
   return SIGNATURE_FALLBACKS[template][style];
+}
+
+function teaserListCopy(template: TemplateKey, page?: string): { eyebrow: string; headline: string; description: string } {
+  if (page === 'gallery') {
+    return {
+      eyebrow: template === 'restaurant' ? 'Einblicke' : 'Galerie',
+      headline: template === 'restaurant' ? 'Aus unserer Trattoria.' : 'Momente aus unserem Alltag.',
+      description: template === 'restaurant'
+        ? 'Küche, Keller und Gastraum - Eindrücke aus Service, Vorbereitung und Genuss.'
+        : 'Eine Auswahl echter Eindrücke aus Arbeit, Räumen und Projekten.',
+    };
+  }
+  if (page === 'about') {
+    return {
+      eyebrow: 'Haltung',
+      headline: 'Was uns wichtig ist.',
+      description: 'Kurze Einblicke in Arbeitsweise, Team und die Entscheidungen hinter unserem Angebot.',
+    };
+  }
+  if (page === 'contact') {
+    return {
+      eyebrow: 'Kontakt',
+      headline: 'So erreichen Sie uns.',
+      description: 'Die wichtigsten Wege für Fragen, Termine und direkte Abstimmung.',
+    };
+  }
+  return {
+    eyebrow: 'Auswahl',
+    headline: 'Auswahl und Einblicke.',
+    description: 'Eine kompakte Auswahl der wichtigsten Inhalte dieser Seite.',
+  };
 }
 
 function serviceRows(content: SiteContent): RecordValue[] {
@@ -281,6 +332,24 @@ function numberRows(content: SiteContent, template?: TemplateKey): RecordValue[]
   ];
 }
 
+function trainingPlanRows(content: SiteContent): RecordValue[] {
+  const fallbackGoals = ['Technik und Routine', 'Kraft und Mobilität', 'Atmung und Fokus', 'Regelmäßig dranbleiben'];
+  const courseRows = (content.courses ?? []).slice(0, 4).map((row, index) => ({
+    title: firstText(row.name, `Phase ${index + 1}`),
+    description: firstText(row.description, 'Eine klare Einheit mit Anleitung, Korrektur und Zeit für Fragen.'),
+    goal: fallbackGoals[index] ?? 'Training festigen',
+    level: firstText(row.level, 'Alle Levels'),
+    frequency: firstText(row.schedule, '1-2x pro Woche'),
+    duration: firstText(row.duration, '60-75 min'),
+  })).filter(isMeaningful);
+  if (courseRows.length) return courseRows;
+  return [
+    { title: 'Woche 1-2: Ankommen', description: 'Wir prüfen Beweglichkeit, Technik und Trainingsrhythmus und legen die ersten festen Einheiten fest.', goal: 'Routine aufbauen', level: 'Einsteiger:innen', frequency: '2 Einheiten pro Woche', duration: '45-60 min' },
+    { title: 'Woche 3-4: Aufbauen', description: 'Die Übungen werden intensiver, bleiben aber sauber geführt und an das persönliche Niveau angepasst.', goal: 'Kraft und Stabilität', level: 'Alle Levels', frequency: '2-3 Einheiten pro Woche', duration: '60 min' },
+    { title: 'Woche 5-6: Vertiefen', description: 'Wir kombinieren Technik, Ausdauer und Regeneration zu einem Plan, der im Alltag realistisch bleibt.', goal: 'Dranbleiben', level: 'Fortlaufend', frequency: 'Individuell planbar', duration: '60-75 min' },
+  ];
+}
+
 function galleryImages(content: SiteContent): RecordValue[] {
   return (content.gallery ?? []).map((url) => image(text(url))).filter(isMeaningful);
 }
@@ -294,7 +363,7 @@ function contactRows(content: SiteContent): RecordValue[] {
   ];
 }
 
-function sectionItems(content: SiteContent, template: TemplateKey, type: string): RecordValue[] {
+function sectionItems(content: SiteContent, template: TemplateKey, type: string, page?: string): RecordValue[] {
   if (type === 'featuredDishesGrid' || type === 'featuredDishes') return homeSignatureRows(content).length ? homeSignatureRows(content) : serviceRows(content).slice(0, 3);
   if (type === 'roomSelection' || type === 'accommodationsGrid' || type === 'accommodationList' || type === 'roomCards') return roomRows(content).length ? roomRows(content) : serviceRows(content);
   if (type === 'steps' || type === 'processTextColumns' || type === 'processCards') return textPairRows(content.serviceProcess).length ? textPairRows(content.serviceProcess) : [
@@ -311,7 +380,8 @@ function sectionItems(content: SiteContent, template: TemplateKey, type: string)
     ];
   }
   if (type === 'testimonials' || type === 'quoteWall' || type === 'testimonialMarquee' || type === 'expertQuotes') return testimonialRows(content);
-  if (type === 'statsBand' || type === 'trainingPlanOverview') return numberRows(content, template);
+  if (type === 'statsBand') return numberRows(content, template);
+  if (type === 'trainingPlanOverview') return trainingPlanRows(content);
   if (type === 'directions' || type === 'topicBand' || type === 'topicCards' || type === 'contactPreview' || type === 'serviceInfo' || type === 'appointmentBooking') return contactRows(content);
   if (type === 'brandLogos' || type === 'labelBand' || type === 'keywordBand' || type === 'marqueeBand') {
     const logos = content.logos ?? [];
@@ -340,7 +410,22 @@ function sectionItems(content: SiteContent, template: TemplateKey, type: string)
       { title: 'Erfahrung', description: 'Routine aus vielen Projekten und Kundensituationen.' },
     ];
   }
-  if (type === 'categoryCards' || type === 'teaserList') {
+  if (type === 'teaserList') {
+    if (page === 'gallery') {
+      const rows = looseRows(content.galleryStory?.captions);
+      if (rows.length) return rows;
+      const categories = looseRows(content.galleryCategories);
+      return categories.length ? categories : galleryImages(content);
+    }
+    if (page === 'about') {
+      const rows = looseRows(content.values);
+      if (rows.length) return rows;
+    }
+    if (page === 'contact') return contactRows(content);
+    const categories = looseRows(content.galleryCategories);
+    return categories.length ? categories : servicesOrFallback(content);
+  }
+  if (type === 'categoryCards') {
     const rows = looseRows(content.galleryCategories);
     return rows.length ? rows : servicesOrFallback(content);
   }
@@ -361,7 +446,7 @@ function sanitizeSectionData(sectionType: string, data: RecordValue): RecordValu
   return Object.fromEntries(Object.entries(data).filter(([key]) => allowed.has(key))) as RecordValue;
 }
 
-function fillSectionData(content: SiteContent, template: TemplateKey, style: TemplateStyle, _page: CmsPageKey, section: ModularSectionV2): ModularSectionV2 {
+function fillSectionData(content: SiteContent, template: TemplateKey, style: TemplateStyle, page: CmsPageKey, section: ModularSectionV2): ModularSectionV2 {
   const data: RecordValue = { ...(section.data ?? {}) };
   const contractedFields = new Set(getCmsSectionFieldKeys(section.type).map((key) => key.split('.')[0]));
   const bt = branchText(content, template);
@@ -370,7 +455,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
   const heroImage = firstText(content.hero?.imageUrl, bt.heroImageUrl, content.about?.imageUrl, content.gallery?.[0]);
   const gallery = galleryImages(content);
   const services = serviceRows(content);
-  const items = sectionItems(content, template, section.type);
+  const items = sectionItems(content, template, section.type, page);
 
   if (section.type === 'hero') {
     setMissing(data, 'eyebrow', firstText(bt.heroEyebrow, content.brand?.tagline, template));
@@ -461,10 +546,11 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'headline', firstText(bt.galleryCategoriesTitle, 'Was Sie bei uns erwartet.'));
   }
   if (section.type === 'teaserList') {
-    setMissing(data, 'eyebrow', firstText(bt.galleryTeaserEyebrow, bt.servicesTeaserEyebrow, 'Auswahl'));
-    setMissing(data, 'headline', firstText(bt.galleryTeaserTitle, bt.servicesTeaserTitle, 'Auswahl und Einblicke.'));
-    setMissing(data, 'intro', firstText(bt.teaserSubtitle, sig.intro));
-    setMissing(data, 'description', firstText(bt.teaserSubtitle, sig.intro));
+    const teaserCopy = teaserListCopy(template, page);
+    setMissing(data, 'eyebrow', firstText(bt.galleryTeaserEyebrow, bt.servicesTeaserEyebrow, teaserCopy.eyebrow));
+    setMissing(data, 'headline', firstText(bt.galleryTeaserTitle, bt.servicesTeaserTitle, teaserCopy.headline));
+    setMissing(data, 'intro', firstText(teaserCopy.description, bt.teaserSubtitle));
+    setMissing(data, 'description', firstText(teaserCopy.description, bt.teaserSubtitle));
     setMissing(data, 'items', items);
   }
   if (section.type === 'faq') {
@@ -495,7 +581,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
   }
   if (section.type === 'labelBand') setMissing(data, 'labels', (content.logos?.length ? content.logos : [content.brand?.name]).map((entry) => ({ text: text(entry) })));
   if (section.type === 'brandLogos') setMissing(data, 'items', (content.logos?.length ? content.logos : [content.brand?.name]).map((entry) => ({ name: text(entry), logo: image(text(entry)) })));
-  if (section.type === 'marqueeBand' || section.type === 'keywordBand' || section.type === 'testimonialMarquee') setMissing(data, 'items', sectionItems(content, template, section.type));
+  if (section.type === 'marqueeBand' || section.type === 'keywordBand' || section.type === 'testimonialMarquee') setMissing(data, 'items', sectionItems(content, template, section.type, page));
   if (section.type === 'stickyEmergencyBanner') {
     setMissing(data, 'phone', firstText(contact.phone, '+43 512 000000'));
     setMissing(data, 'label', 'Direktkontakt');
@@ -516,9 +602,11 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'items', items);
   }
   if (section.type === 'trainingPlanOverview') {
-    setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Training'));
-    setMissing(data, 'headline', firstText(bt.servicesTeaserTitle, 'Ihr Plan.'));
-    setMissing(data, 'stats', numberRows(content, template));
+    const planRows = trainingPlanRows(content);
+    setMissing(data, 'eyebrow', firstText(bt.processEyebrow, 'Training'));
+    setMissing(data, 'headline', firstText(bt.processTitle, 'Trainingsplan.'));
+    setMissing(data, 'description', 'Ein klarer Wochenrhythmus mit Kursen, Pausen und Raum für persönliche Anpassungen.');
+    data.items = mergeRowFields(data.items, planRows);
   }
   if (section.type === 'programTable') {
     setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Programme'));

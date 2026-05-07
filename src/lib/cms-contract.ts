@@ -100,7 +100,7 @@ export const CMS_SECTION_FIELD_CONTRACTS = {
   categoryCards: ['eyebrow', 'headline', 'items'],
   topicBand: ['headline', 'subline', 'phone', 'items'],
   topicCards: ['items'],
-  trainingPlanOverview: ['eyebrow', 'headline', 'stats'],
+  trainingPlanOverview: ['eyebrow', 'headline', 'description', 'items'],
   programTable: ['eyebrow', 'headline', 'rows'],
   contactPreview: ['eyebrow', 'headline', 'description'],
   serviceInfo: ['eyebrow', 'headline', 'description', 'items'],

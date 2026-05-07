@@ -575,12 +575,65 @@ function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: M
 
 function ExtraV2Cards({ section, title }: { section: ModularSectionV2; title: string }) {
   const data = asUnknownRecord(section.data);
-  const items = cmsV2TextPairs(data.items ?? data.stats ?? data.rows);
+  const items = cmsV2TextPairs(data.items ?? data.rows);
   if (!items.length) return null;
   return (
     <Section eyebrow={cmsV2Text(data.eyebrow)} title={cmsV2Text(data.headline) || title} subtitle={cmsV2Text(data.intro) || cmsV2Text(data.description)} className="surface">
       <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
         {items.map((item, i) => <article key={i} className="bg-white border border-line rounded-2xl p-7"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}
+      </div>
+    </Section>
+  );
+}
+
+function ExtraV2TrainingPlan({ section }: { section: ModularSectionV2 }) {
+  const data = asUnknownRecord(section.data);
+  const items = Array.isArray(data.items)
+    ? data.items
+        .map(asUnknownRecord)
+        .map((item) => ({
+          title: cmsV2Text(item.title),
+          description: cmsV2Text(item.description),
+          goal: cmsV2Text(item.goal),
+          level: cmsV2Text(item.level),
+          frequency: cmsV2Text(item.frequency),
+          duration: cmsV2Text(item.duration),
+        }))
+        .filter((item) => item.title || item.description || item.goal || item.level || item.frequency || item.duration)
+    : [];
+  if (!items.length) return null;
+
+  return (
+    <Section
+      eyebrow={cmsV2Text(data.eyebrow)}
+      title={cmsV2Text(data.headline) || 'Trainingsplan.'}
+      subtitle={cmsV2Text(data.description)}
+      className="surface"
+    >
+      <div className="grid md:grid-cols-2 gap-5 reveal-stagger">
+        {items.map((item, i) => {
+          const meta = [
+            item.goal && `Ziel: ${item.goal}`,
+            item.level && `Level: ${item.level}`,
+            item.frequency && item.frequency,
+            item.duration && item.duration,
+          ].filter(Boolean);
+          return (
+            <article key={i} className="bg-white border border-line rounded-2xl p-7">
+              <h3 className="font-display text-2xl">{item.title}</h3>
+              {item.description ? <p className="mt-3 text-sm text-muted leading-relaxed">{item.description}</p> : null}
+              {meta.length ? (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {meta.map((entry) => (
+                    <span key={entry} className="rounded-full border border-line px-3 py-1 text-xs text-muted">
+                      {entry}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </article>
+          );
+        })}
       </div>
     </Section>
   );
@@ -606,7 +659,7 @@ function ExtraV2SingleModule({ section, content, branch, style }: { section: Mod
     case 'appointmentBooking':
       return <OnlineBookingModule content={content} />;
     case 'trainingPlanOverview':
-      return <ExtraV2Cards section={section} title="Trainingsplan." />;
+      return <ExtraV2TrainingPlan section={section} />;
     case 'programTable':
       return <CourseScheduleModule content={content} itemLinkPrefix={itemLinkPrefix} />;
     default:
