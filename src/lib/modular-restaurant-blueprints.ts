@@ -59,7 +59,6 @@ const GALLERY_ALL: readonly string[] = [
   'hero',
   'teaserList',
   'gallery',
-  'teaserList',
   'cta',
 ];
 

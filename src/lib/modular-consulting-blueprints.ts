@@ -13,7 +13,6 @@ const CONSULTING_HOME: readonly string[] = [
   'storyTeaser',
   'serviceCards',
   'processTextColumns',
-  'processCards',
   'pricingPackages',
   'team',
   'galleryPreview',
@@ -25,7 +24,6 @@ const CONSULTING_HOME: readonly string[] = [
 const CONSULTING_SERVICES: readonly string[] = [
   'hero',
   'serviceCards',
-  'processTextColumns',
   'processCards',
   'pricingPackages',
   'testimonials',

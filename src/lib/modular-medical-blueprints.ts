@@ -22,7 +22,6 @@ const MEDICAL_HOME: readonly string[] = [
 
 const MEDICAL_SERVICES: readonly string[] = [
   'hero',
-  'serviceInfo',
   'serviceCards',
   'team',
   'appointmentBooking',

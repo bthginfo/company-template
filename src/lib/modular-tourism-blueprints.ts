@@ -50,7 +50,6 @@ const TOURISM_SERVICES_CLASSIC_MODERN: readonly string[] = [
   'hero',
   'highlightsBar',
   'tourOverviewCards',
-  'tourCards',
   'steps',
   'faq',
   'cta',
@@ -60,7 +59,6 @@ const TOURISM_SERVICES_BOLD: readonly string[] = [
   'hero',
   'highlightsBar',
   'tourOverviewList',
-  'tourCards',
   'steps',
   'faq',
   'cta',
@@ -70,7 +68,6 @@ const TOURISM_GALLERY_ALL: readonly string[] = [
   'hero',
   'teaserList',
   'gallery',
-  'teaserList',
   'cta',
 ];
 

@@ -403,7 +403,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
       { title: 'Mehrtages-Touren Dolomiten', description: 'Drei bis sieben Tage durch UNESCO-Welterbe, Übernachtung in Hütten oder Boutique-Hotels. Ab 690 €.', imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80' },
       { title: 'Wein- & Genuss-Touren', description: 'Vinschgau, Eisacktal, Kalterer See. Drei Weingüter, ein Mittagessen, Gespräche mit Produzent:innen. 169 €.', imageUrl: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=900&q=80' },
       { title: 'Foto- & Naturworkshops', description: 'Sonnenaufgang am Karwendel, Astrofotografie auf der Zugspitze. Mit Fotograf Markus Eder.', imageUrl: 'https://images.unsplash.com/photo-1516214104703-d870798883c5?auto=format&fit=crop&w=900&q=80' },
-      { title: 'Privat- & Firmen-Tours', description: 'Maßgeschneiderte Tagesprogramme für Gruppen bis 12 Personen. Incentives, Teamtage, Hochzeitsausflüge.', imageUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Privat- & Firmen-Touren', description: 'Maßgeschneiderte Tagesprogramme für Gruppen bis 12 Personen. Incentives, Teamtage, Hochzeitsausflüge.', imageUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=900&q=80' },
       { title: 'Winter-Erlebnisse', description: 'Skitourenkurse, Schneeschuh-Wanderung mit Fackeln, Eisklettern für Anfänger. Zertifizierte Berg-Guides.', imageUrl: 'https://images.unsplash.com/photo-1551524559-8af4e6624178?auto=format&fit=crop&w=900&q=80' },
     ],
     gallery: [

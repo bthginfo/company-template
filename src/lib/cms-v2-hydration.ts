@@ -334,8 +334,9 @@ function numberRows(content: SiteContent, template?: TemplateKey): RecordValue[]
 
 function trainingPlanRows(content: SiteContent): RecordValue[] {
   const fallbackGoals = ['Technik und Routine', 'Kraft und Mobilität', 'Atmung und Fokus', 'Regelmäßig dranbleiben'];
+  const fallbackTitles = ['Woche 1-2: Ankommen', 'Woche 3-4: Aufbauen', 'Woche 5-6: Vertiefen', 'Fortlaufend: Dranbleiben'];
   const courseRows = (content.courses ?? []).slice(0, 4).map((row, index) => ({
-    title: firstText(row.name, `Phase ${index + 1}`),
+    title: fallbackTitles[index] ?? `Phase ${index + 1}`,
     description: firstText(row.description, 'Eine klare Einheit mit Anleitung, Korrektur und Zeit für Fragen.'),
     goal: fallbackGoals[index] ?? 'Training festigen',
     level: firstText(row.level, 'Alle Levels'),
@@ -348,6 +349,46 @@ function trainingPlanRows(content: SiteContent): RecordValue[] {
     { title: 'Woche 3-4: Aufbauen', description: 'Die Übungen werden intensiver, bleiben aber sauber geführt und an das persönliche Niveau angepasst.', goal: 'Kraft und Stabilität', level: 'Alle Levels', frequency: '2-3 Einheiten pro Woche', duration: '60 min' },
     { title: 'Woche 5-6: Vertiefen', description: 'Wir kombinieren Technik, Ausdauer und Regeneration zu einem Plan, der im Alltag realistisch bleibt.', goal: 'Dranbleiben', level: 'Fortlaufend', frequency: 'Individuell planbar', duration: '60-75 min' },
   ];
+}
+
+function teamFallbackRows(content: SiteContent, template: TemplateKey): RecordValue[] {
+  const imgA = image(text(content.about?.imageUrl) || text(content.hero?.imageUrl), text(content.brand?.name));
+  const imgB = image(text(content.gallery?.[0]), text(content.brand?.name));
+  const rows: Record<TemplateKey, RecordValue[]> = {
+    restaurant: [
+      { name: 'Carla Rossi', role: 'Küchenleitung', description: 'Verantwortet Pasta, Saucen und die saisonale Karte.', image: imgA },
+      { name: 'Matteo Rossi', role: 'Gastgeber', description: 'Kümmert sich um Service, Weinempfehlungen und Reservierungen.', image: imgB },
+    ],
+    salon: [
+      { name: 'Marie Hofer', role: 'Master Stylistin', description: 'Schnitt, Farbe und Beratung mit Blick für Alltag und Haarstruktur.', image: imgA },
+      { name: 'Lea Wagner', role: 'Coloristin', description: 'Balayage, Glossing und Pflegepläne für natürliche Ergebnisse.', image: imgB },
+    ],
+    tradesman: [
+      { name: 'Thomas Mayer', role: 'Installateurmeister', description: 'Plant Sanierungen, Heizungswechsel und Notdiensteinsätze.', image: imgA },
+      { name: 'Lena Mayer', role: 'Projektkoordination', description: 'Organisiert Termine, Material und die Abstimmung mit Kund:innen.', image: imgB },
+    ],
+    hotel: [
+      { name: 'Anna Leitner', role: 'Gastgeberin', description: 'Begleitet Anfragen, Anreise und besondere Wünsche im Haus.', image: imgA },
+      { name: 'Josef Leitner', role: 'Küche & Einkauf', description: 'Verantwortet Frühstück, regionale Produkte und Abendkarte.', image: imgB },
+    ],
+    tourism: [
+      { name: 'Lukas Kofler', role: 'Bergführer', description: 'Plant Routen, prüft Wetterfenster und führt kleine Gruppen.', image: imgA },
+      { name: 'Mira Gruber', role: 'Guide & Organisation', description: 'Kümmert sich um Ausrüstung, Treffpunkte und Tourenkommunikation.', image: imgB },
+    ],
+    consulting: [
+      { name: 'Dr. Anna Hofer', role: 'Partnerin Strategie', description: 'Begleitet Geschäftsmodell, Nachfolge und Transformation.', image: imgA },
+      { name: 'Max Reiter', role: 'Steuerberater', description: 'Verbindet Zahlen, Abschluss und operative Entscheidungen.', image: imgB },
+    ],
+    medical: [
+      { name: 'Dr. Lena Lindner', role: 'Allgemeinmedizin', description: 'Hausärztliche Versorgung, Vorsorge und Akutsprechstunde.', image: imgA },
+      { name: 'Miriam Eder', role: 'Ordinationsleitung', description: 'Koordiniert Termine, Befunde und den Ablauf in der Praxis.', image: imgB },
+    ],
+    fitness: [
+      { name: 'Sarah Moser', role: 'Yoga & Studioleitung', description: 'Unterrichtet Vinyasa, Yin und achtsame Progression.', image: imgA },
+      { name: 'Nina Hartl', role: 'Pilates Coach', description: 'Begleitet Reformer-Kurse, Technik und individuelle Anpassungen.', image: imgB },
+    ],
+  };
+  return rows[template];
 }
 
 function galleryImages(content: SiteContent): RecordValue[] {
@@ -374,10 +415,7 @@ function sectionItems(content: SiteContent, template: TemplateKey, type: string,
   if (type === 'faq') return (content.faq ?? []).map((row) => ({ question: text(row.q), answer: text(row.a) })).filter(isMeaningful);
   if (type === 'team' || type === 'trainers') {
     const rows = (content.team ?? []).map((row) => ({ name: firstText(row.n), role: firstText(row.r), description: text(row.bio), image: image(firstText(row.img), firstText(row.n)) })).filter(isMeaningful);
-    return rows.length ? rows : [
-      { name: 'Alex Muster', role: 'Leitung', description: 'Persönliche Beratung und Qualität im Alltag.', image: image(text(content.about?.imageUrl) || text(content.hero?.imageUrl), 'Alex Muster') },
-      { name: 'Sam Beispiel', role: 'Team', description: 'Begleitet Kundinnen und Kunden vom ersten Kontakt bis zur Umsetzung.', image: image(text(content.gallery?.[0]), 'Sam Beispiel') },
-    ];
+    return rows.length ? rows : teamFallbackRows(content, template);
   }
   if (type === 'testimonials' || type === 'quoteWall' || type === 'testimonialMarquee' || type === 'expertQuotes') return testimonialRows(content);
   if (type === 'statsBand') return numberRows(content, template);
@@ -493,8 +531,9 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
   }
 
   if (['serviceCards', 'featuredServices', 'serviceList', 'featuredLooks', 'featuredLooksBand', 'tourOverviewCards', 'tourOverviewList', 'serviceOverviewCards', 'serviceOverviewList', 'featuredAreas', 'roomSelection', 'tourSchedule', 'tourSelection', 'classCards', 'accommodationsGrid', 'accommodationList', 'roomCards', 'tourCards', 'pricingPackages', 'serviceInfo', 'appointmentBooking', 'qualifications', 'processTextColumns', 'processCards'].includes(section.type)) {
-    setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, bt.processEyebrow, sig.eyebrow));
-    setMissing(data, 'headline', firstText(bt.servicesTeaserTitle, bt.processTitle, sig.titleA));
+    const isProcessSection = section.type === 'processTextColumns' || section.type === 'processCards';
+    setMissing(data, 'eyebrow', firstText(isProcessSection ? bt.processEyebrow : bt.servicesTeaserEyebrow, sig.eyebrow));
+    setMissing(data, 'headline', firstText(isProcessSection ? bt.processTitle : bt.servicesTeaserTitle, sig.titleA));
     setMissing(data, 'description', firstText(bt.teaserSubtitle, sig.intro));
     setMissing(data, 'items', items);
   }
@@ -571,7 +610,14 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
   if (section.type === 'contactDetails' || section.type === 'contactPreview' || section.type === 'locations' || section.type === 'directions') {
     const contactCta = (content as { contactCta?: Record<string, unknown> }).contactCta ?? {};
     setMissing(data, 'eyebrow', 'Kontakt');
-    setMissing(data, 'headline', firstText(contactCta.title, 'So erreichen Sie uns.'));
+    const contactHeadline = section.type === 'contactDetails'
+      ? firstText(content.contactPageHeader?.subtitle, contactCta.title, 'Nachricht und Termin.')
+      : section.type === 'locations'
+        ? 'Hier finden Sie uns.'
+        : section.type === 'directions'
+          ? 'Anfahrt und Wege.'
+          : firstText(contactCta.title, 'Direkt Kontakt aufnehmen.');
+    setMissing(data, 'headline', contactHeadline);
     setMissing(data, 'subline', firstText(contactCta.text, bt.teaserSubtitle));
     setMissing(data, 'description', firstText(contactCta.text, bt.teaserSubtitle));
     setMissing(data, 'googleMapsUrl', firstText(contact.mapsUrl, 'https://maps.google.com/?q=Musterstraße%201'));

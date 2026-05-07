@@ -85,7 +85,7 @@ export function modularHomeSlotsForSectionType(template: TemplateKey, sectionTyp
       if (sectionType === 'pricingPackages') return ['spotlight', 'services'];
       if (sectionType === 'team' || sectionType === 'trainers') return ['team'];
       if (sectionType === 'classCards') return ['branchModules'];
-      if (sectionType === 'trainingPlanOverview') return ['numbers'];
+      if (sectionType === 'trainingPlanOverview') return ['branchModules'];
       if (sectionType === 'galleryPreview') return ['gallery'];
       if (sectionType === 'contactPreview') return ['contact'];
       if (sectionType === 'appointmentBooking') return ['contact'];

@@ -52,7 +52,6 @@ const HOTEL_SERVICES_CLASSIC_MODERN: readonly string[] = [
   'hero',
   'highlightsBar',
   'accommodationsGrid',
-  'roomCards',
   'steps',
   'faq',
   'cta',
@@ -62,7 +61,6 @@ const HOTEL_SERVICES_BOLD: readonly string[] = [
   'hero',
   'highlightsBar',
   'accommodationList',
-  'roomCards',
   'steps',
   'faq',
   'cta',
@@ -72,7 +70,6 @@ const HOTEL_GALLERY_ALL: readonly string[] = [
   'hero',
   'teaserList',
   'gallery',
-  'teaserList',
   'cta',
 ];
 

@@ -11,7 +11,6 @@ const SALON_HOME_CLASSIC: readonly string[] = [
   'hero',
   'actionBar',
   'featuredServices',
-  'serviceCards',
   'storyTeaser',
   'galleryPreview',
   'testimonials',
@@ -52,7 +51,6 @@ const SALON_SERVICES_CLASSIC_MODERN: readonly string[] = [
   'hero',
   'highlightsBar',
   'serviceOverviewCards',
-  'serviceCards',
   'steps',
   'faq',
   'cta',
@@ -62,7 +60,6 @@ const SALON_SERVICES_BOLD: readonly string[] = [
   'hero',
   'highlightsBar',
   'serviceOverviewList',
-  'serviceCards',
   'steps',
   'faq',
   'cta',
@@ -72,7 +69,6 @@ const SALON_GALLERY_ALL: readonly string[] = [
   'hero',
   'teaserList',
   'gallery',
-  'teaserList',
   'cta',
 ];
 
