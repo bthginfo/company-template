@@ -9,6 +9,7 @@ import { importTradesmanModularFromLegacy } from './modular-tradesman.js';
 import { importConsultingModularFromLegacy } from './modular-consulting.js';
 import { importMedicalModularFromLegacy } from './modular-medical.js';
 import { importFitnessModularFromLegacy } from './modular-fitness.js';
+import { importWeddingModularFromLegacy } from './modular-wedding.js';
 import { BRANCH_TEXT_DEFAULTS } from './branch-text-defaults.js';
 
 function importV1FromLegacy(content: SiteContent, template: TemplateKey, style: TemplateStyle): ModularPagesV1 {
@@ -29,6 +30,8 @@ function importV1FromLegacy(content: SiteContent, template: TemplateKey, style: 
       return importMedicalModularFromLegacy(content, style);
     case 'fitness':
       return importFitnessModularFromLegacy(content, style);
+    case 'wedding':
+      return importWeddingModularFromLegacy(content, style);
   }
 }
 
@@ -59,7 +62,7 @@ export function buildModularPagesV2FromLegacy(content: SiteContent, template: Te
 
 type RecordValue = Record<string, unknown>;
 
-const SIGNATURE_FALLBACKS: Record<Exclude<TemplateKey, 'consulting' | 'medical' | 'fitness'>, Record<TemplateStyle, { eyebrow: string; titleA: string; titleB: string; intro: string }>> = {
+const SIGNATURE_FALLBACKS: Record<Exclude<TemplateKey, 'consulting' | 'medical' | 'fitness' | 'wedding'>, Record<TemplateStyle, { eyebrow: string; titleA: string; titleB: string; intro: string }>> = {
   restaurant: {
     classic: { eyebrow: 'Empfehlung des Hauses', titleA: 'Heute', titleB: 'auf der Karte.', intro: 'Die Köchin schreibt jeden Morgen frisch, was die Lieferanten bringen.' },
     modern: { eyebrow: 'Heute auf der Karte', titleA: 'Empfehlungen', titleB: 'vom Haus.', intro: 'Saisonal gekocht, klar serviert und jeden Tag frisch entschieden.' },
@@ -125,7 +128,8 @@ function button(label: string, href: string): RecordValue {
 }
 
 function setMissing(target: RecordValue, key: string, value: unknown): void {
-  if (!isMeaningful(target[key]) && isMeaningful(value)) target[key] = value;
+  if (key in target || !isMeaningful(value)) return;
+  target[key] = value;
 }
 
 function mergeRows(current: unknown, fallback: RecordValue[]): RecordValue[] {
@@ -191,7 +195,7 @@ function branchText(content: SiteContent, template: TemplateKey): RecordValue {
 }
 
 function signatureFallback(template: TemplateKey, style: TemplateStyle): { eyebrow: string; titleA: string; titleB: string; intro: string } {
-  if (template === 'consulting' || template === 'medical' || template === 'fitness') {
+  if (template === 'consulting' || template === 'medical' || template === 'fitness' || template === 'wedding') {
     const bt = BRANCH_TEXT_DEFAULTS[template];
     return { eyebrow: bt.servicesTeaserEyebrow, titleA: bt.servicesTeaserTitle, titleB: '', intro: bt.teaserSubtitle };
   }
@@ -386,6 +390,10 @@ function teamFallbackRows(content: SiteContent, template: TemplateKey): RecordVa
     fitness: [
       { name: 'Sarah Moser', role: 'Yoga & Studioleitung', description: 'Unterrichtet Vinyasa, Yin und achtsame Progression.', image: imgA },
       { name: 'Nina Hartl', role: 'Pilates Coach', description: 'Begleitet Reformer-Kurse, Technik und individuelle Anpassungen.', image: imgB },
+    ],
+    wedding: [
+      { name: 'Sophie', role: 'Trauzeugin', description: 'Beste Freundin seit der Schulzeit. Zuständig für Taschentücher und Tanzeinlagen.', image: imgA },
+      { name: 'Jan', role: 'Trauzeuge', description: 'WG-Kumpel, Reisepartner und seit 15 Jahren mit dabei.', image: imgB },
     ],
   };
   return rows[template];

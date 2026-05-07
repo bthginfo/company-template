@@ -726,6 +726,76 @@ export const EXTRA_DEMO_CONTENT = {
       instagram: 'studio.anima.muc',
     },
   }),
+  wedding: SiteContentSchema.parse({
+    brand: {
+      name: 'Anna & Moritz',
+      tagline: 'Wir heiraten!',
+      primaryColor: '#d4a373',
+    },
+    hero: {
+      title: 'Anna & Moritz sagen Ja.',
+      subtitle: '12. Juli 2026 · Gut Sonnenhausen, Bayern',
+      body: 'Wir freuen uns, diesen besonderen Tag mit euch zu feiern. Hier findet ihr alle Infos zu unserem Fest — Programm, Location, Anfahrt und eure Rückmeldung.',
+      imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80',
+      ctaLabel: 'Jetzt zusagen',
+      ctaHref: '/rsvp',
+    },
+    about: {
+      title: 'Unsere Geschichte.',
+      body: 'Wir haben uns 2018 beim Wandern in den Alpen kennengelernt — Anna mit dem falschen Wanderschuh, Moritz mit dem richtigen Pflaster.\n\nSeitdem sind wir unzertrennlich. Nach sieben gemeinsamen Umzügen, drei Katzen und unzähligen Abenteuern wagen wir jetzt den schönsten Schritt: Ja zueinander sagen, vor all den Menschen, die uns wichtig sind.',
+      imageUrl: 'https://images.unsplash.com/photo-1529634597503-139d3726fed5?auto=format&fit=crop&w=1400&q=80',
+    },
+    services: [
+      { title: 'Trauung', description: 'Freie Trauung im Garten von Gut Sonnenhausen um 14:00 Uhr. Bei Regen unter dem historischen Gewölbe.', imageUrl: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Sektempfang', description: 'Direkt nach der Zeremonie — Sekt, Häppchen und Zeit zum Ankommen auf der Terrasse.', imageUrl: 'https://images.unsplash.com/photo-1470338745628-171cf53de3a8?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Abendessen', description: 'Drei-Gänge-Menü mit regionalen Zutaten, vegetarische Option verfügbar. Beginn 18:30 Uhr.', imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80' },
+      { title: 'Party & Tanz', description: 'Ab 21 Uhr mit DJ und Live-Band bis in die Nacht. Die Tanzfläche gehört euch!', imageUrl: 'https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?auto=format&fit=crop&w=900&q=80' },
+    ],
+    gallery: [
+      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1529634597503-139d3726fed5?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1470338745628-171cf53de3a8?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?auto=format&fit=crop&w=1200&q=80',
+    ],
+    testimonials: [
+      { author: 'Lena & Paul', text: 'Wir freuen uns so sehr für euch! Schon jetzt aufgeregt.' },
+      { author: 'Familie Schneider', text: 'Anna und Moritz — ihr seid einfach wunderbar zusammen.' },
+      { author: 'Tom', text: 'Endlich wird geheiratet! Ich bring die gute Laune mit.' },
+    ],
+    team: [
+      { n: 'Sophie', r: 'Trauzeugin (Anna)', bio: 'Beste Freundin seit der Schulzeit. Zuständig für Taschentücher und Tanzeinlagen.', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80' },
+      { n: 'Jan', r: 'Trauzeuge (Moritz)', bio: 'WG-Kumpel, Reisepartner und seit 15 Jahren an seiner Seite.', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80' },
+    ],
+    numbers: [
+      { value: '12. Juli', label: 'Der große Tag' },
+      { value: '8', label: 'Jahre zusammen' },
+      { value: '120', label: 'Gäste erwartet' },
+    ],
+    serviceProcess: [
+      { t: '13:30 Uhr', d: 'Ankommen & Begrüßung am Gut' },
+      { t: '14:00 Uhr', d: 'Freie Trauung im Garten' },
+      { t: '15:00 Uhr', d: 'Sektempfang & Gruppenfotos' },
+      { t: '18:30 Uhr', d: 'Abendessen im Festsaal' },
+      { t: '21:00 Uhr', d: 'Eröffnungstanz & Party' },
+    ],
+    faq: [
+      { q: 'Gibt es einen Dresscode?', a: 'Festlich-elegant. Farbe erlaubt, nur Weiß bleibt der Braut vorbehalten.' },
+      { q: 'Können wir Kinder mitbringen?', a: 'Ja! Es gibt eine betreute Spielecke ab dem Sektempfang.' },
+      { q: 'Wo können wir übernachten?', a: 'Im Gut Sonnenhausen gibt es begrenzte Zimmer — bitte frühzeitig anfragen. Weitere Hotels in der Nähe listen wir unter Anfahrt.' },
+      { q: 'Gibt es vegetarisches Essen?', a: 'Ja, bitte gebt bei der Zusage eure Essenswünsche an.' },
+    ],
+    contact: {
+      phone: '+49 170 1234567',
+      email: 'hochzeit@anna-moritz.de',
+      address: 'Gut Sonnenhausen',
+      city: '83623 Dietramszell',
+      hours: [],
+      mapsUrl: 'https://www.google.com/maps?q=Gut+Sonnenhausen&output=embed',
+    },
+    social: {},
+  }),
 } as const satisfies Record<string, SiteContent>;
 
 /* ─────────────────────────────────────────────────────────────────
@@ -1138,6 +1208,15 @@ export const EXTRA_DEMO_CONTENT = {
   { k: 'PT', t: 'Personal Training', d: '60 oder 90 Minuten – ganz auf Sie zugeschnitten.', meta: 'flexibel · n. Vereinb.' },
 ];
 
+// WEDDING — Process Steps (Ablauf)
+(EXTRA_DEMO_CONTENT.wedding as any).processSteps = [
+  { title: 'Ankommen', duration: '13:30 Uhr', description: 'Begrüßung am Gut, Sektempfang und erste Wiedersehensfreude.' },
+  { title: 'Trauung', duration: '14:00 Uhr', description: 'Freie Trauung im Garten — bei Regen unter dem Gewölbe.' },
+  { title: 'Empfang & Fotos', duration: '15:00 Uhr', description: 'Sekt, Häppchen und Gruppenbilder auf der Terrasse.' },
+  { title: 'Abendessen', duration: '18:30 Uhr', description: 'Drei-Gänge-Menü mit regionalen Zutaten im Festsaal.' },
+  { title: 'Party!', duration: 'ab 21:00 Uhr', description: 'Eröffnungstanz, DJ & Live-Band bis in die Nacht.' },
+];
+
 // ─── Extra branches: richer gallery + about subpages (showcase / preview) ───
 const extraGalleryStoryConsulting = {
   eyebrow: 'Aus dem Projektalltag',
@@ -1397,6 +1476,14 @@ const extraGalleryStoryConsulting = {
       'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=800&q=80',
     ),
+  });
+
+  const w = EXTRA_DEMO_CONTENT.wedding;
+  Object.assign(w, {
+    servicesHeader: ph('Programm', 'Programm & Details', 'Trauung, Empfang, Abendessen und Party.'),
+    galleryHeader: ph('Galerie', 'Momente', 'Bilder von unserem gemeinsamen Weg.'),
+    aboutHeader: ph('Über uns', 'Unsere Geschichte', 'Wie aus einer Wanderung eine Liebe wurde.'),
+    contactPageHeader: ph('RSVP', 'Zusagen', 'Gebt uns Bescheid, ob ihr dabei seid.'),
   });
 
   const Tr = DEMO_CONTENT.tradesman;
@@ -2115,6 +2202,7 @@ const extraGalleryStoryConsulting = {
     consulting: 'consulting',
     medical: 'medical',
     fitness: 'fitness',
+    wedding: 'wedding',
   };
   const extraMutable = EXTRA_DEMO_CONTENT as Record<keyof typeof EXTRA_DEMO_CONTENT, SiteContent>;
   for (const k of Object.keys(extraTpl) as Array<keyof typeof EXTRA_DEMO_CONTENT>) {

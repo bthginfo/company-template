@@ -469,6 +469,38 @@ const fitness: BranchConfig = {
   contact: { ...EXTRA_SUBPAGES.contact },
 };
 
+const wedding: BranchConfig = {
+  label: 'Hochzeit',
+  pages: { services: 'Programm', gallery: 'Galerie', about: 'Über uns', contact: 'RSVP' },
+  paths: { services: '/programm', gallery: '/galerie', about: '/ueber-uns', contact: '/rsvp' },
+  home: {
+    hero: {
+      tagline: NOT_BOLD,
+      subtitle: NOT_BOLD,
+      body: NONE,
+      bgImage: CLASSIC,
+      cardImage: MODERN_BOLD,
+      primaryCta: ALL,
+      secondaryCta: ALL,
+      heroBadge: MODERN,
+    },
+    branchChips: true,
+    marqueeWords: BOLD,
+    logoStrip: MODERN,
+    aboutImage: NOT_BOLD,
+    softCtaFields: MODERN_BOLD,
+    aboutTeaserMode: 'standard',
+  },
+  services: {
+    headerImage: NONE,
+    modules: ['processSteps'],
+    ...EXTRA_SUBPAGES.services,
+  },
+  gallery: { ...EXTRA_SUBPAGES.gallery },
+  about: { extras: [], ...EXTRA_SUBPAGES.about },
+  contact: { ...EXTRA_SUBPAGES.contact },
+};
+
 /* ─── Registry ───────────────────────────────────────────────────── */
 export const BRANCH_CONFIGS: Record<TemplateKey, BranchConfig> = {
   restaurant,
@@ -479,6 +511,7 @@ export const BRANCH_CONFIGS: Record<TemplateKey, BranchConfig> = {
   consulting,
   medical,
   fitness,
+  wedding,
 };
 
 /** Get the config for a given branch. */
@@ -517,5 +550,5 @@ export function isBranchTextKeyVisible(key: string, style: TemplateStyle | undef
 
 /** Convenience: is this template one of the three "extra" branches? */
 export function isExtraBranch(tpl: TemplateKey): boolean {
-  return tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
+  return tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness' || tpl === 'wedding';
 }

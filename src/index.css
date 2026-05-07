@@ -7,7 +7,7 @@
   :root {
     --brand-color: #0b0b10;
     --brand-fg: #ffffff;
-    --accent-color: #F24171;
+    --accent-color: var(--brand-color);
     --accent-color-2: #FFB347;
     --surface-color: #f4f3ee;
     --bg-color: #fafaf7;
@@ -171,6 +171,14 @@
 .tpl-variant-fitness.tpl-style-modern h2 { font-weight: 800; letter-spacing: -0.03em; }
 .tpl-variant-fitness.tpl-style-bold .eyebrow::before { content: '💪 '; }
 .tpl-variant-fitness.tpl-style-bold h1 { font-stretch: 105%; letter-spacing: -0.02em; }
+
+/* wedding */
+.tpl-variant-wedding .rounded-3xl { border-radius: 1.5rem; }
+.tpl-variant-wedding .btn-primary { border-radius: 999px; letter-spacing: 0.02em; }
+.tpl-variant-wedding.tpl-style-classic .font-display { font-weight: 300; letter-spacing: -0.01em; }
+.tpl-variant-wedding.tpl-style-modern h1,
+.tpl-variant-wedding.tpl-style-modern h2 { font-weight: 300; letter-spacing: -0.02em; }
+.tpl-variant-wedding.tpl-style-bold h1 { font-weight: 200; letter-spacing: -0.03em; }
 
 /* ─── Cross-variant style enhancements ────────────────────────────
  * Additional spacing / layout tweaks that differ per style across all variants.

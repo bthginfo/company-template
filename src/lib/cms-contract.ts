@@ -8,6 +8,7 @@ import { tradesmanModularBlueprint } from './modular-tradesman-blueprints.js';
 import { consultingModularBlueprint } from './modular-consulting-blueprints.js';
 import { medicalModularBlueprint } from './modular-medical-blueprints.js';
 import { fitnessModularBlueprint } from './modular-fitness-blueprints.js';
+import { weddingModularBlueprint } from './modular-wedding-blueprints.js';
 
 export type CmsPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
@@ -34,6 +35,7 @@ const BLUEPRINT_BY_TEMPLATE: Record<TemplateKey, BlueprintFn> = {
   consulting: consultingModularBlueprint,
   medical: medicalModularBlueprint,
   fitness: fitnessModularBlueprint,
+  wedding: weddingModularBlueprint,
 };
 
 export const CMS_PAGE_KEYS: readonly CmsPageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];

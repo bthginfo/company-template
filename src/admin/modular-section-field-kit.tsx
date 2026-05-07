@@ -91,6 +91,7 @@ export function modularHomeLinkSections(tpl: TemplateKey, content?: SiteContent)
     consulting: { id: '/leistungen', label: '→ Seite: Leistungen' },
     medical: { id: '/leistungen', label: '→ Seite: Leistungen' },
     fitness: { id: '/leistungen', label: '→ Seite: Leistungen' },
+    wedding: { id: '/programm', label: '→ Seite: Programm' },
   };
   const galleryLabel: Record<TemplateKey, string> = {
     restaurant: '→ Seite: Galerie',
@@ -101,6 +102,7 @@ export function modularHomeLinkSections(tpl: TemplateKey, content?: SiteContent)
     consulting: '→ Seite: Galerie',
     medical: '→ Seite: Galerie',
     fitness: '→ Seite: Galerie',
+    wedding: '→ Seite: Galerie',
   };
   const galleryPath = tpl === 'tradesman' ? '/referenzen' : '/galerie';
   const customPages = (content?.modularPagesV2?.customPages ?? [])

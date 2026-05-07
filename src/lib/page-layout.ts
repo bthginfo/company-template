@@ -21,7 +21,7 @@ export type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
 /** Layout visibility key: hide the Hinweis-Banner (Ticker) when `sectionVisibility.<page>.announcementBar` is `false`. */
 export const ANNOUNCEMENT_BAR_SECTION_KEY = 'announcementBar' as const;
-export type Variant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'consulting' | 'medical' | 'fitness';
+export type Variant = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'consulting' | 'medical' | 'fitness' | 'wedding';
 export type Style = 'classic' | 'modern' | 'bold';
 
 export type SectionDef = {
@@ -45,7 +45,7 @@ export type SectionDef = {
 export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
   home: [
     { key: 'action',       label: 'Aktions-Leiste',           description: 'Info-Leiste unter dem Hero.' },
-    { key: 'chips',        label: 'Branchen-Stichworte',      description: 'Stichworte unter dem Hero.', variants: ['consulting', 'medical', 'fitness'] },
+    { key: 'chips',        label: 'Branchen-Stichworte',      description: 'Stichworte unter dem Hero.', variants: ['consulting', 'medical', 'fitness', 'wedding'] },
     { key: 'marquee',      label: 'Schlagwort-Band',          description: 'Animiertes Wortband.', styles: ['bold'] },
     { key: 'signature',    label: 'Branchen-Signatur',        description: 'Branchen-Highlight.', variants: ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism'] },
     { key: 'services',     label: 'Leistungen / Speisekarte', description: 'Teaser-Liste (↑↓).' },
@@ -54,9 +54,9 @@ export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
     { key: 'tours',        label: 'Touren (Modul)',           description: 'Tour-Karten.', variants: ['tourism'] },
     { key: 'treatments',   label: 'Treatments (Modul)',       description: 'Behandlungen.', variants: ['salon'] },
     { key: 'funding',      label: 'Förderrechner (Modul)',    description: 'Förder-Rechner.', variants: ['tradesman'] },
-    { key: 'spotlight',    label: 'Branchen-Spotlight',       description: 'Branchen-Spotlight.', variants: ['consulting', 'medical', 'fitness'] },
-    { key: 'branchModules',label: 'Branchen-Module',          description: 'Weitere Module.', variants: ['consulting', 'medical', 'fitness'] },
-    { key: 'team',         label: 'Team',                     description: 'Team-Sektion.', variants: ['consulting', 'medical', 'fitness'] },
+    { key: 'spotlight',    label: 'Branchen-Spotlight',       description: 'Branchen-Spotlight.', variants: ['consulting', 'medical', 'fitness', 'wedding'] },
+    { key: 'branchModules',label: 'Branchen-Module',          description: 'Weitere Module.', variants: ['consulting', 'medical', 'fitness', 'wedding'] },
+    { key: 'team',         label: 'Team',                     description: 'Team-Sektion.', variants: ['consulting', 'medical', 'fitness', 'wedding'] },
     { key: 'about',        label: 'Über uns',                 description: 'Über-uns-Teaser.' },
     { key: 'gallery',      label: 'Galerie',                  description: 'Galerie-Teaser.' },
     { key: 'numbers',      label: 'Zahlen-Band',              description: 'Zahlen-Leiste.' },
@@ -65,7 +65,7 @@ export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
     { key: 'faq',          label: 'FAQ',                      description: 'FAQ.', styles: ['classic', 'modern'] },
     { key: 'news',         label: 'News-Teaser',              description: 'Blog-Vorschau.' },
     { key: 'softCta',      label: 'Soft-CTA',                 description: 'Abschluss-CTA.' },
-    { key: 'contact',      label: 'Kontakt-Sektion',          description: 'Kontakt-Sektion.', variants: ['consulting', 'medical', 'fitness'] },
+    { key: 'contact',      label: 'Kontakt-Sektion',          description: 'Kontakt-Sektion.', variants: ['consulting', 'medical', 'fitness', 'wedding'] },
   ],
   services: [
     { key: 'highlights',   label: 'Highlights-Ribbon',        description: 'Highlight-Kacheln.' },

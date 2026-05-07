@@ -10,6 +10,7 @@ const TEMPLATE_DE: Record<TemplateKey, string> = {
   consulting: 'Beratung',
   medical: 'Praxis',
   fitness: 'Studio',
+  wedding: 'Hochzeit',
 };
 
 const STYLE_DE: Record<TemplateStyle, string> = {

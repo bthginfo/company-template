@@ -147,9 +147,9 @@ const STYLE_PREVIEW: Record<'restaurant' | 'hotel' | 'tourism', { classic: strin
 };
 
 /* ─── Extra branches (showcase-only — single-page preview) ───────── */
-type ExtraBranchKey = 'salon' | 'tradesman' | 'consulting' | 'medical' | 'fitness';
+type ExtraBranchKey = 'salon' | 'tradesman' | 'consulting' | 'medical' | 'fitness' | 'wedding';
 type BranchKey = TemplateKey | ExtraBranchKey;
-const EXTRA_KEYS: ExtraBranchKey[] = ['salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const EXTRA_KEYS: ExtraBranchKey[] = ['salon', 'tradesman', 'consulting', 'medical', 'fitness', 'wedding'];
 const isExtraKey = (k: string | undefined): k is ExtraBranchKey =>
   !!k && (EXTRA_KEYS as string[]).includes(k);
 
@@ -202,6 +202,14 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
     image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=80',
     accent: '#9333ea',
     bullets: ['Programme & Kursformat', 'Trainer:innen mit Stories', 'Probetraining-CTA im Hero', 'Preise pro Kurs / Paket'],
+  },
+  wedding: {
+    label: 'Website für deine Hochzeit',
+    tagline: 'Einladung · Programm · RSVP',
+    description: 'Eure Geschichte, Location, Ablauf und Gäste-Rückmeldung — alles auf einer schönen Seite.',
+    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=80',
+    accent: '#d4a373',
+    bullets: ['Eure Liebesgeschichte', 'Programm & Ablauf', 'Galerie & Eindrücke', 'RSVP-Formular für Gäste'],
   },
 };
 

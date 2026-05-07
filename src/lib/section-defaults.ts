@@ -8,7 +8,7 @@
  */
 
 export type FullTemplateKey = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism';
-export type AnyTemplateKey = FullTemplateKey | 'consulting' | 'medical' | 'fitness';
+export type AnyTemplateKey = FullTemplateKey | 'consulting' | 'medical' | 'fitness' | 'wedding';
 
 export type GalleryStory = {
   eyebrow: string;

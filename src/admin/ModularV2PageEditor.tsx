@@ -35,6 +35,7 @@ const TEMPLATE_LABELS: Record<TemplateKey, string> = {
   consulting: 'Beratung',
   medical: 'Praxis',
   fitness: 'Studio',
+  wedding: 'Hochzeit',
 };
 
 const STYLE_LABELS: Record<TemplateStyle, string> = {

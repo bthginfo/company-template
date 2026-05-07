@@ -21,7 +21,7 @@ function stripPageBlocksV1(content: SiteContent): SiteContent {
 
 type Session = { role: 'super' | 'tenant'; tenantId: string | null; slug: string | null } | null;
 
-const VALID_TEMPLATES: TemplateKey[] = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'];
+const VALID_TEMPLATES: TemplateKey[] = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness', 'wedding'];
 function asTemplateKey(v: string | undefined): TemplateKey {
   return VALID_TEMPLATES.includes(v as TemplateKey) ? (v as TemplateKey) : 'restaurant';
 }

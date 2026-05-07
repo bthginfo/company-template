@@ -58,4 +58,10 @@ export const FAQ_DEFAULTS: Record<TemplateKey, { q: string; a: string }[]> = {
     { q: 'Welche Kurse werden angeboten?', a: 'HIIT, Yoga, Boxing Cardio, Strength und Personal Training. Vollständiger Kursplan im Modul.' },
     { q: 'Gibt es Duschen und Spinde?', a: 'Ja, Spinde mit Schloss, Duschen mit Föhn und Pflegeprodukten von Davines.' },
   ],
+  wedding: [
+    { q: 'Gibt es einen Dresscode?', a: 'Festlich-elegant. Farbe erlaubt, nur Weiß bleibt der Braut vorbehalten.' },
+    { q: 'Können wir Kinder mitbringen?', a: 'Ja! Es gibt eine betreute Spielecke ab dem Sektempfang.' },
+    { q: 'Wo können wir übernachten?', a: 'Begrenzte Zimmer vor Ort — bitte frühzeitig anfragen. Weitere Hotels listen wir unter Anfahrt.' },
+    { q: 'Gibt es vegetarisches Essen?', a: 'Ja, bitte gebt bei der Zusage eure Essenswünsche an.' },
+  ],
 };

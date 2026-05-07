@@ -172,7 +172,7 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
 }
 
 const MAIL_SECRET_PREFIX = 'enc:v1:';
-const TEMPLATE_KEYS: readonly TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const TEMPLATE_KEYS: readonly TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness', 'wedding'];
 const STYLES: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
 
 function asTemplateKey(value: string): TemplateKey {

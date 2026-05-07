@@ -27,8 +27,9 @@ import { importTradesmanModularFromLegacy, applyTradesmanModularToLegacy } from 
 import { importConsultingModularFromLegacy, applyConsultingModularToLegacy } from './modular-consulting.js';
 import { importMedicalModularFromLegacy, applyMedicalModularToLegacy } from './modular-medical.js';
 import { importFitnessModularFromLegacy, applyFitnessModularToLegacy } from './modular-fitness.js';
+import { importWeddingModularFromLegacy, applyWeddingModularToLegacy } from './modular-wedding.js';
 
-export const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
+export const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness', 'wedding'] as const;
 export const VALID_STYLES = ['classic', 'modern', 'bold'] as const;
 export type AnyTemplate = typeof VALID_TEMPLATES[number];
 export type AnyStyle = typeof VALID_STYLES[number];
@@ -160,6 +161,8 @@ function withModularDefaults(content: SiteContent, template: AnyTemplate, style:
       return applyMedicalModularToLegacy({ ...content, modularPagesV1: importMedicalModularFromLegacy(content, style) });
     case 'fitness':
       return applyFitnessModularToLegacy({ ...content, modularPagesV1: importFitnessModularFromLegacy(content, style) });
+    case 'wedding':
+      return applyWeddingModularToLegacy({ ...content, modularPagesV1: importWeddingModularFromLegacy(content, style) });
   }
 }
 

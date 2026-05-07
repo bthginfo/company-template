@@ -43,8 +43,8 @@ import {
   type UnknownRecord,
 } from '@/lib/cms-v2-render-utils';
 
-export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness';
-export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness'];
+export type ExtraBranchKey = 'consulting' | 'medical' | 'fitness' | 'wedding';
+export const EXTRA_BRANCH_KEYS: ExtraBranchKey[] = ['consulting', 'medical', 'fitness', 'wedding'];
 export const isExtraBranchKey = (k: string | undefined): k is ExtraBranchKey =>
   !!k && (EXTRA_BRANCH_KEYS as string[]).includes(k);
 
@@ -293,6 +293,7 @@ function ExtraHomeLogosStrip({ content, branch }: { content: SiteContent; branch
     consulting: ['ISO 9001', 'IHK', 'TÜV', 'DSGVO', 'Partnernetzwerk'],
     medical: ['KBV', 'Qualitätsmanagement', 'Doctolib', 'Fachgesellschaft', 'Zertifiziert'],
     fitness: ['EHFA', 'IHRS', 'Verbandsmitglied', 'Zertifizierte Trainer:innen', 'Partner'],
+    wedding: ['Liebe', 'Ja-Wort', 'Feier', 'Freude', 'Für immer'],
   };
   const list = overlay && overlay.length ? overlay : fallback[branch];
   if (!list.length) return null;
@@ -1240,6 +1241,16 @@ const EXTRA_GALLERY_STORY_FALLBACK: Record<ExtraBranchKey, ExtraGalleryStory> = 
       { t: 'Gemeinschaft', d: 'Pause, Plaudern, Tee – der Teil, der ein kleines Studio ausmacht.' },
     ],
   },
+  wedding: {
+    eyebrow: 'Unsere Momente',
+    title: 'Bilder sagen mehr.',
+    body: 'Vom Kennenlernen bis zum Antrag — ein paar der schönsten Augenblicke auf unserem Weg.',
+    captions: [
+      { t: 'Verlobung', d: 'Der Moment, in dem alles begann.' },
+      { t: 'Gemeinsam', d: 'Reisen, Alltag, kleine Abenteuer.' },
+      { t: 'Vorfreude', d: 'Die Planung, das Vorglühen, die Aufregung.' },
+    ],
+  },
 };
 
 const EXTRA_GALLERY_CATEGORY_FALLBACK: Record<ExtraBranchKey, Array<{ t: string; d: string }>> = {
@@ -1257,6 +1268,11 @@ const EXTRA_GALLERY_CATEGORY_FALLBACK: Record<ExtraBranchKey, Array<{ t: string;
     { t: 'Yoga & Flow', d: 'Vinyasa, Yin, Restorative – alle Levels mit Zeit für Korrektur.' },
     { t: 'Pilates & Kraft', d: 'Reformer, Props, kleine Gruppen mit messbarem Fortschritt.' },
     { t: 'Community', d: 'Workshops, Retreats, offene Sonntage – Studio-Leben jenseits der Stunde.' },
+  ],
+  wedding: [
+    { t: 'Trauung & Zeremonie', d: 'Der schönste Moment – das Ja-Wort unter freiem Himmel.' },
+    { t: 'Feier & Tanz', d: 'Abendessen, Reden, Musik und Tanz bis spät in die Nacht.' },
+    { t: 'Details & Deko', d: 'Blumen, Tischkarten, Lichter – die kleinen Dinge, die zählen.' },
   ],
 };
 
@@ -2713,6 +2729,7 @@ function BranchSpotlight({
 }) {
   if (branch === 'consulting') return <ConsultingProcess style={style} content={content} />;
   if (branch === 'medical') return <MedicalServiceInfo style={style} content={content} />;
+  if (branch === 'wedding') return <ConsultingProcess style={style} content={content} />;
   return <FitnessPrograms style={style} content={content} />;
 }
 
@@ -2738,6 +2755,10 @@ const BRANCH_TEAM_DEFAULT: Record<ExtraBranchKey, TeamMember[]> = {
     { n: 'Dr. Anna Lindner', r: 'Praxisinhaberin · Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80', bio: 'Studium in Innsbruck und Zürich. Ganzheitlicher Ansatz mit Zeit für Gespräche.' },
     { n: 'Dr. Felix Bauer',  r: 'Internist · Diagnostik',          img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80', bio: 'Zehn Jahre Universitätsklinik. Schwerpunkt internistische Vorsorge.' },
     { n: 'Maria Holzer',     r: 'Praxisleitung · MTA',            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80', bio: 'Koordiniert Termine und Abläufe. Erste Ansprechpartnerin am Empfang.' },
+  ],
+  wedding: [
+    { n: 'Sophie', r: 'Trauzeugin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: 'Beste Freundin seit der Schulzeit. Zuständig für Taschentücher und Tanzeinlagen.' },
+    { n: 'Jan', r: 'Trauzeuge', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'WG-Kumpel, Reisepartner und seit 15 Jahren mit dabei.' },
   ],
 };
 function useBranchTeam(content: SiteContent, branch: ExtraBranchKey): TeamMember[] {
@@ -2862,11 +2883,13 @@ const BRANCH_CHIPS_DEFAULT: Record<ExtraBranchKey, string[]> = {
   consulting: ['Strategie', 'Workshops', 'Analyse', 'Umsetzung'],
   medical: ['Vorsorge', 'Diagnostik', 'Therapie', 'Begleitung'],
   fitness: ['Yoga', 'Pilates', 'Kleingruppen', 'Personal Training'],
+  wedding: ['Liebe', 'Ja-Wort', 'Feier', 'Für immer'],
 };
 const BRANCH_LABEL: Record<ExtraBranchKey, string> = {
   consulting: 'Beratung',
   medical: 'Praxis',
   fitness: 'Studio',
+  wedding: 'Hochzeit',
 };
 function useBranchChips(content: SiteContent, branch: ExtraBranchKey): string[] {
   const overlay = (content as any).branchChips as string[] | undefined;

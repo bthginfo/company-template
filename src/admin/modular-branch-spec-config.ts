@@ -61,6 +61,13 @@ import {
   hasFitnessModularPage,
   hasAnyFitnessModular,
 } from '@/lib/modular-fitness';
+import { WEDDING_SECTION_LABEL_DE } from '@/lib/modular-wedding-blueprints';
+import {
+  importWeddingModularFromLegacy,
+  applyWeddingModularToLegacy,
+  hasWeddingModularPage,
+  hasAnyWeddingModular,
+} from '@/lib/modular-wedding';
 
 const PAGE_LABELS_STANDARD: Record<ModularSpecPageKey, string> = {
   home: 'Start',
@@ -210,5 +217,25 @@ export const FITNESS_MODULAR_SPEC_CFG: ModularSpecEditorConfig = {
   applyToLegacy: applyFitnessModularToLegacy,
   hasPage: hasFitnessModularPage,
   hasAny: hasAnyFitnessModular,
+};
+
+export const WEDDING_MODULAR_SPEC_CFG: ModularSpecEditorConfig = {
+  tpl: 'wedding',
+  branchLabelDe: 'Hochzeit',
+  specDoc: '',
+  pageLabels: {
+    home: 'Start',
+    services: 'Programm',
+    gallery: 'Galerie',
+    about: 'Über uns',
+    contact: 'RSVP',
+  },
+  sectionLabels: { ...WEDDING_SECTION_LABEL_DE },
+  activationIntroDe:
+    'Aktiviert das modulare Speicher-Modell für alle Hochzeits-Unterseiten im gewählten Stil. Inhalte werden einmalig aus den bestehenden Feldern übernommen und bei Änderungen in die SiteContent-Felder zurückgemergt.',
+  importFromLegacy: importWeddingModularFromLegacy,
+  applyToLegacy: applyWeddingModularToLegacy,
+  hasPage: hasWeddingModularPage,
+  hasAny: hasAnyWeddingModular,
 };
 

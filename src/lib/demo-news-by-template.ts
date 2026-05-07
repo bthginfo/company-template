@@ -288,6 +288,42 @@ const DEMO_NEWS_FITNESS: NonNullable<SiteContent['posts']> = [
   },
 ];
 
+const DEMO_NEWS_WEDDING: NonNullable<SiteContent['posts']> = [
+  {
+    id: 'demo-news-wedding-1',
+    title: 'Save the Date: 12. Juli 2026',
+    slug: 'save-the-date',
+    date: '2025-12-01',
+    excerpt: 'Tragt euch den Termin ein — wir heiraten!',
+    body: 'Liebe Freunde und Familie,\n\nmarkiert euch bitte den 12. Juli 2026 im Kalender. Die offizielle Einladung folgt.',
+    bodyHtml: '',
+    imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
+    published: true,
+  },
+  {
+    id: 'demo-news-wedding-2',
+    title: 'Die Location steht fest',
+    slug: 'location-steht-fest',
+    date: '2026-01-15',
+    excerpt: 'Gut Sonnenhausen — ein Traum wird wahr.',
+    body: 'Wir haben uns für Gut Sonnenhausen entschieden.\n\nEin wunderschönes Anwesen im Grünen mit Platz für alle.',
+    bodyHtml: '',
+    imageUrl: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1200&q=80',
+    published: true,
+  },
+  {
+    id: 'demo-news-wedding-3',
+    title: 'RSVP ist offen',
+    slug: 'rsvp-offen',
+    date: '2026-03-01',
+    excerpt: 'Ab sofort könnt ihr zusagen — bitte bis 1. Mai.',
+    body: 'Bitte nutzt das RSVP-Formular auf unserer Seite, um eure Zusage abzugeben.\n\nWir freuen uns auf euch!',
+    bodyHtml: '',
+    imageUrl: 'https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?auto=format&fit=crop&w=1200&q=80',
+    published: true,
+  },
+];
+
 export const DEMO_NEWS_BY_TEMPLATE: Record<TemplateKey, NonNullable<SiteContent['posts']>> = {
   restaurant: DEMO_NEWS_RESTAURANT,
   salon: DEMO_NEWS_SALON,
@@ -297,6 +333,7 @@ export const DEMO_NEWS_BY_TEMPLATE: Record<TemplateKey, NonNullable<SiteContent[
   consulting: DEMO_NEWS_CONSULTING,
   medical: DEMO_NEWS_MEDICAL,
   fitness: DEMO_NEWS_FITNESS,
+  wedding: DEMO_NEWS_WEDDING,
 };
 
 /** @deprecated Prefer `DEMO_NEWS_BY_TEMPLATE` oder `demoNewsFallbackForTemplate`. */

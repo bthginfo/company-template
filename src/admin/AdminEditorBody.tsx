@@ -42,6 +42,9 @@ import {
 import {
   ModularFitnessPageEditor,
 } from './ModularFitnessEditor';
+import {
+  ModularWeddingPageEditor,
+} from './ModularWeddingEditor';
 import { ModularV2PageEditor } from './ModularV2PageEditor';
 import {
   CONSULTING_MODULAR_SPEC_CFG,
@@ -52,6 +55,7 @@ import {
   SALON_MODULAR_SPEC_CFG,
   TOURISM_MODULAR_SPEC_CFG,
   TRADESMAN_MODULAR_SPEC_CFG,
+  WEDDING_MODULAR_SPEC_CFG,
 } from './modular-branch-spec-config';
 import { seedModularPagesV2 } from '@/lib/cms-v2-contract';
 import { tenantPageOptions } from './modular-section-field-kit';
@@ -528,6 +532,7 @@ function sectionLabelsForTemplate(t: TemplateKey): Record<string, string> {
   if (t === 'tradesman') return TRADESMAN_MODULAR_SPEC_CFG.sectionLabels;
   if (t === 'consulting') return CONSULTING_MODULAR_SPEC_CFG.sectionLabels;
   if (t === 'medical') return MEDICAL_MODULAR_SPEC_CFG.sectionLabels;
+  if (t === 'wedding') return WEDDING_MODULAR_SPEC_CFG.sectionLabels;
   return FITNESS_MODULAR_SPEC_CFG.sectionLabels;
 }
 
@@ -1130,6 +1135,7 @@ function homeSectionsFor(t: TemplateKey) {
     tourism:    { id: '/touren',     label: '→ Seite: Touren' },
     consulting: { id: '/leistungen', label: '→ Seite: Leistungen' },
     medical:    { id: '/leistungen', label: '→ Seite: Leistungen' },
+    wedding:    { id: '/programm',   label: '→ Seite: Programm' },
     fitness:    { id: '/leistungen', label: '→ Seite: Leistungen' },
   };
   const galleryLabel: Record<TemplateKey, string> = {
@@ -1140,6 +1146,7 @@ function homeSectionsFor(t: TemplateKey) {
     tourism: '→ Seite: Eindrücke',
     consulting: '→ Seite: Galerie',
     medical: '→ Seite: Galerie',
+    wedding: '→ Seite: Galerie',
     fitness: '→ Seite: Galerie',
   };
   const galleryPath = t === 'tradesman' ? '/referenzen' : '/galerie';
@@ -1226,7 +1233,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
           </SectionCard>
         );
       case 'services': {
-        const isExtraTpl = (['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl);
+        const isExtraTpl = (['consulting', 'medical', 'fitness', 'wedding'] as TemplateKey[]).includes(tpl);
         const baseKeys: BranchTextKey[] = ['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle'];
         // serviceCardNote only renders in extras-modern services cards.
         if (isExtraTpl) baseKeys.push('serviceCardNote', 'learnMoreLabel', 'learnMoreHref');
@@ -1337,6 +1344,11 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
             <ModuleHeadingFields data={data} setData={setData} mKey="fitnessSpotlight" />
           </SectionCard>
         );
+        if (tpl === 'wedding') return (
+          <SectionCard key={key} title="Spotlight: Ablauf" description="Modul-Überschrift." badge={badge} specType={specT} pageKey="home" sectionKey="spotlight" data={data} setData={setData}>
+            <ModuleHeadingFields data={data} setData={setData} mKey="consultingSpotlight" />
+          </SectionCard>
+        );
         return null;
       case 'branchModules': {
         if (!catalogSectionApplies('home', 'branchModules', tpl, style)) return null;
@@ -1382,6 +1394,15 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
             </SectionCard>
           );
         }
+        if (tpl === 'wedding') {
+          return (
+            <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="home" sectionKey="branchModules" data={data} setData={setData}>
+              {linkServices}
+              <ModuleHeadingFields data={data} setData={setData} mKey="process" />
+              <ProcessStepsEditor data={data} setData={setData} />
+            </SectionCard>
+          );
+        }
         return null;
       }
       case 'team':
@@ -1396,7 +1417,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
               </p>
             ) : null}
             <BranchTextFields data={data} setData={setData} tpl={tpl} keys={['teamEyebrow', 'teamTitle']} />
-            <ModuleHeadingFields data={data} setData={setData} mKey={tpl === 'fitness' ? 'teamFitness' : tpl === 'medical' ? 'teamMedical' : 'teamConsulting'} />
+            <ModuleHeadingFields data={data} setData={setData} mKey={tpl === 'fitness' ? 'teamFitness' : tpl === 'medical' ? 'teamMedical' : tpl === 'wedding' ? 'teamConsulting' : 'teamConsulting'} />
             <TeamEditor data={data} setData={setData} defaults={defaultTeam(tpl)} />
           </SectionCard>
         );
@@ -1481,6 +1502,9 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
   }
   if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
+  }
+  if (tpl === 'wedding') {
+    return <ModularWeddingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   return (
     <>
@@ -1600,6 +1624,9 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
   if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
   }
+  if (tpl === 'wedding') {
+    return <ModularWeddingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="services" />;
+  }
   const sectionOrder = getAdminSections('services', tpl, style);
 
   const renderSection = (key: string, idx: number) => {
@@ -1624,7 +1651,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           </SectionCard>
         );
       case 'extraServiceCards': {
-        if (!(['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl)) return null;
+        if (!(['consulting', 'medical', 'fitness', 'wedding'] as TemplateKey[]).includes(tpl)) return null;
         const baseKeys: BranchTextKey[] = ['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle'];
         baseKeys.push('serviceCardNote');
         baseKeys.push('servicesAllLabel', 'servicesAllHref');
@@ -1645,7 +1672,7 @@ function ServicesPageEditor({ data, setData, tpl }: SectionProps) {
           </SectionCard>
         );
       case 'servicesList': {
-        if ((['consulting', 'medical', 'fitness'] as TemplateKey[]).includes(tpl)) return null;
+        if ((['consulting', 'medical', 'fitness', 'wedding'] as TemplateKey[]).includes(tpl)) return null;
         const listKeys: BranchTextKey[] = ['servicesTeaserEyebrow', 'servicesTeaserTitle', 'teaserSubtitle'];
         return (
           <SectionCard key={key} title={meta.title} description={meta.description} badge={badge} specType={specT} pageKey="services" sectionKey="list" data={data} setData={setData}>
@@ -1857,6 +1884,9 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
   if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
   }
+  if (tpl === 'wedding') {
+    return <ModularWeddingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="gallery" />;
+  }
   const sectionOrder = getAdminSections('gallery', tpl, style);
 
   const onFiles = async (files: FileList | null) => {
@@ -1970,7 +2000,7 @@ function GalleryPageEditor({ data, setData, tpl }: SectionProps) {
 
 function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   const isModern = _ctx.style === 'modern';
-  const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness';
+  const isExtra = tpl === 'consulting' || tpl === 'medical' || tpl === 'fitness' || tpl === 'wedding';
   const style = _ctx.style || 'classic';
   if (tpl === 'restaurant') {
     return <ModularRestaurantPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
@@ -1995,6 +2025,9 @@ function AboutPageEditor({ data, setData, tpl }: SectionProps) {
   }
   if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
+  }
+  if (tpl === 'wedding') {
+    return <ModularWeddingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="about" />;
   }
   const legacyAboutTpl = tpl as TemplateKey;
   const sectionOrder = getAdminSections('about', legacyAboutTpl, style);
@@ -2147,6 +2180,9 @@ function ContactPageEditor({ data, setData, tpl }: SectionProps) {
   }
   if (tpl === 'fitness') {
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
+  }
+  if (tpl === 'wedding') {
+    return <ModularWeddingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="contact" />;
   }
   const legacyContactTpl = tpl as TemplateKey;
   const sectionOrder = getAdminSections('contact', legacyContactTpl, style);
@@ -4040,6 +4076,7 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
     consulting: { tone: 'light', eyebrow: 'Erstgespräch', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' },
     medical: { tone: 'light', eyebrow: 'Termin online', hint: 'Online-Buchung verfügbar', primaryLabel: '', secondaryLabel: 'Termin buchen', secondaryHref: '/kontakt' },
     fitness: { tone: 'light', eyebrow: 'Heute geöffnet', hint: '', primaryLabel: '', secondaryLabel: 'Probetraining buchen', secondaryHref: '/kontakt' },
+    wedding: { tone: 'light', eyebrow: 'Wir heiraten!', hint: '', primaryLabel: '', secondaryLabel: 'Jetzt zusagen', secondaryHref: '/rsvp' },
   };
   const def = stripDefaults[tpl] || stripDefaults.consulting;
   const [v, set] = useExtra<{ tone: 'light' | 'dark' | ''; eyebrowAuto?: boolean; eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }>(
@@ -4151,6 +4188,7 @@ function HomeSignatureEditor({ data, setData, tpl }: SectionProps) {
     consulting: { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
     medical:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
     fitness:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
+    wedding:    { classic: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, modern: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' }, bold: { eyebrow: '', titleA: '', titleB: '', intro: '', metaLabel: '' } },
   };
   const def = sigDefaults[tpl][style];
   const showIntro = FIELD_CONFIG.signature.intro[style] !== false; // Only classic renders intro

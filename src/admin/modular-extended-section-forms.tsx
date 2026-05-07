@@ -300,10 +300,10 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage, siteContent
   );
 }
 
-function RoomCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSectionDataFormProps) {
+function RoomCardsSectionForm({ data, onChange, tpl, uploadImage, siteContent, sectionId }: ModularSectionDataFormProps) {
   const items = Array.isArray(data.items)
     ? (data.items as unknown[]).map((x) => {
-        if (!x || typeof x !== 'object') return { title: '', subtitle: '', description: '', image: '', price: '', priceSuffix: '', feats: '', btnLabel: '', btnHref: '' };
+        if (!x || typeof x !== 'object') return { title: '', subtitle: '', description: '', image: '', price: '', priceSuffix: '', feats: '', btnLabel: '', btnHref: '', detail: cleanDetailFields({}) };
         const o = x as Record<string, unknown>;
         const featsRaw = o.features;
         const feats = Array.isArray(featsRaw)
@@ -321,6 +321,7 @@ function RoomCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSecti
           feats,
           btnLabel: str(btn.label),
           btnHref: href,
+          detail: detailFieldsFrom(o),
         };
       })
     : [];
@@ -335,16 +336,29 @@ function RoomCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSecti
         price: r.price,
         priceSuffix: r.priceSuffix,
         features: r.feats.split('\n').filter(Boolean).map((text) => ({ text })),
+        ...cleanDetailFields(r.detail),
         button: {
           label: r.btnLabel,
           linkType: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? 'external' : 'internal',
           internalPage: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? '' : r.btnHref,
           externalUrl: r.btnHref.startsWith('http') || r.btnHref.startsWith('mailto:') || r.btnHref.startsWith('tel:') ? r.btnHref : '',
         },
-        hasSubpage: false,
-        subpage: {},
       })),
     });
+  const createLinkedPage = (row: (typeof items)[number], index: number) => {
+    if (!sectionId) return;
+    window.dispatchEvent(new CustomEvent('admin:navigate-page', {
+      detail: {
+        create: {
+          title: row.title || 'Neue Seite',
+          description: row.description,
+          image: row.image,
+          linkSectionId: sectionId,
+          linkItemIndex: index,
+        },
+      },
+    }));
+  };
   return (
     <div className="space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">
@@ -381,16 +395,27 @@ function RoomCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSecti
             <textarea className={modularInputCls} rows={3} value={row.feats} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, feats: e.target.value } : x)))} />
           </ModField>
           <ModImagePick label="Bild" value={row.image} onChange={(url) => set(items.map((x, j) => (j === i ? { ...x, image: url } : x)))} uploadImage={uploadImage} />
+          <CatalogDetailFields
+            value={row.detail}
+            onChange={(detail) => set(items.map((x, j) => (j === i ? { ...x, detail } : x)))}
+          />
           <ModField label="Button-Text">
             <input className={modularInputCls} value={row.btnLabel} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, btnLabel: e.target.value } : x)))} />
           </ModField>
-          <ModLinkTarget label="Button-Ziel" tpl={tpl} value={row.btnHref} onChange={(v) => set(items.map((x, j) => (j === i ? { ...x, btnHref: v } : x)))} />
+          <ModLinkTarget
+            label="Button-Ziel"
+            tpl={tpl}
+            siteContent={siteContent}
+            value={row.btnHref}
+            onChange={(v) => set(items.map((x, j) => (j === i ? { ...x, btnHref: v } : x)))}
+            onCreatePage={() => createLinkedPage(row, i)}
+          />
           <button type="button" className="text-xs text-rose-600" onClick={() => set(items.filter((_, j) => j !== i))}>
             Entfernen
           </button>
         </div>
       ))}
-      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', subtitle: '', description: '', image: '', price: '', priceSuffix: '', feats: '', btnLabel: '', btnHref: '' }])}>
+      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', subtitle: '', description: '', image: '', price: '', priceSuffix: '', feats: '', btnLabel: '', btnHref: '', detail: cleanDetailFields({}) }])}>
         + Zimmer / Angebot
       </button>
     </div>
