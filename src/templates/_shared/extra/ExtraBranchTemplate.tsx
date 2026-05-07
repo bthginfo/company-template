@@ -776,11 +776,11 @@ function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteCon
 
   return (
     <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 z-0">
         {content.hero.imageUrl ? <img src={content.hero.imageUrl} alt="" className="w-full h-full object-cover opacity-40" loading="eager" /> : null}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--bg-color) 0%, color-mix(in oklab, var(--bg-color), transparent 35%) 40%, var(--bg-color) 100%)' }} />
       </div>
-      <div className="container-x">
+      <div className="container-x relative z-10">
         <ExtraAnnouncementsRibbon content={content} />
         {heroEyebrow ? <p className="eyebrow mb-6 reveal">{heroEyebrow}</p> : null}
         <h1 className="headline-xl max-w-5xl reveal"><SplitText>{content.hero.title}</SplitText></h1>
@@ -936,12 +936,12 @@ function PageHero({ eyebrow, title, subtitle, style, page, content }: { eyebrow:
     return (
       <section className="relative pt-36 md:pt-44 pb-16 md:pb-24 overflow-hidden">
         {img && (
-          <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 z-0">
             <img src={img} alt="" className="w-full h-full object-cover opacity-25" loading="eager" />
             <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-color)] via-[var(--bg-color)]/70 to-[var(--bg-color)]" />
           </div>
         )}
-        <div className="container-x">
+        <div className="container-x relative z-10">
           {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
           <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
           {subtitle && <p className="mt-5 max-w-3xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
@@ -1973,13 +1973,13 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
     <>
       {/* Hero — always first */}
       <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
-        <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 z-0">
           {mergedFull.hero.imageUrl && (
             <img src={mergedFull.hero.imageUrl} alt="" className="w-full h-full object-cover opacity-30" loading="eager" />
           )}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--bg-color) 0%, color-mix(in oklab, var(--bg-color), transparent 25%) 40%, var(--bg-color) 100%)' }} />
         </div>
-        <div className="container-x">
+        <div className="container-x relative z-10">
           <ExtraAnnouncementsRibbon content={mergedFull} />
           {eyebrow && <p className="eyebrow mb-6 reveal">{eyebrow}</p>}
           <h1 className="headline-xl max-w-5xl reveal"><SplitText>{mergedFull.hero.title}</SplitText></h1>
