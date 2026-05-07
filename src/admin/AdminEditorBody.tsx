@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, Fragment, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import type { SiteContent, TemplateKey, TenantCustomTheme } from '@/lib/types';
+import type { ModularSectionV2, SiteContent, TemplateKey, TenantCustomTheme } from '@/lib/types';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { getBranchConfig, isActiveForStyle, isBranchTextKeyVisible, type TemplateStyle } from '@/lib/branch-config';
 import { ANNOUNCEMENT_BAR_SECTION_KEY, catalogSectionApplies } from '@/lib/page-layout';
@@ -54,6 +54,7 @@ import {
   TRADESMAN_MODULAR_SPEC_CFG,
 } from './modular-branch-spec-config';
 import { seedModularPagesV2 } from '@/lib/cms-v2-contract';
+import { tenantPageOptions } from './modular-section-field-kit';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
@@ -138,6 +139,70 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 
   // when template changes externally, snap back to home
   useEffect(() => { setPageId('home'); }, [tplKey]);
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{
+        pageId?: AdminPageId;
+        create?: { title?: string; description?: string; image?: string; linkSectionId?: string; linkItemIndex?: number };
+      }>).detail;
+      if (detail?.create) {
+        const currentStyle = tplStyle ?? 'classic';
+        const current = data.modularPagesV2?.combo?.template === tplKey && data.modularPagesV2.combo.style === currentStyle
+          ? data.modularPagesV2
+          : seedModularPagesV2(tplKey, currentStyle);
+        const taken = new Set((current.customPages ?? []).map((page) => page.slug));
+        const base = slugify(detail.create.title || 'neue-seite') || 'neue-seite';
+        let slug = base;
+        let suffix = 2;
+        while (taken.has(slug)) slug = `${base}-${suffix++}`;
+        const id = `custom-${Date.now().toString(36)}`;
+        const pageId = `custom:${id}` as AdminPageId;
+        const newPath = `/${slug}`;
+        const linkSectionId = detail.create.linkSectionId;
+        const linkItemIndex = detail.create.linkItemIndex;
+        const linkSections = (sections: ModularSectionV2[] | undefined): ModularSectionV2[] => (sections ?? []).map((section) => {
+          if (section.id !== linkSectionId) return section;
+          const sectionData = { ...(section.data ?? {}) };
+          const items = Array.isArray(sectionData.items) ? [...sectionData.items] : [];
+          if (typeof linkItemIndex === 'number' && items[linkItemIndex] && typeof items[linkItemIndex] === 'object') {
+            const item = { ...(items[linkItemIndex] as Record<string, unknown>) };
+            const button = item.button && typeof item.button === 'object' ? item.button as Record<string, unknown> : {};
+            item.button = { ...button, label: typeof button.label === 'string' && button.label ? button.label : 'Mehr erfahren', linkType: 'internal', internalPage: newPath, externalUrl: '' };
+            items[linkItemIndex] = item;
+            sectionData.items = items;
+          }
+          return { ...section, data: sectionData };
+        });
+        setData({
+          ...data,
+          modularPagesV2: {
+            ...current,
+            home: current.home ? { sections: linkSections(current.home.sections) } : current.home,
+            services: current.services ? { sections: linkSections(current.services.sections) } : current.services,
+            gallery: current.gallery ? { sections: linkSections(current.gallery.sections) } : current.gallery,
+            about: current.about ? { sections: linkSections(current.about.sections) } : current.about,
+            contact: current.contact ? { sections: linkSections(current.contact.sections) } : current.contact,
+            customPages: [
+              ...(current.customPages ?? []).map((page) => ({ ...page, sections: linkSections(page.sections) })),
+              {
+                id,
+                slug,
+                label: detail.create.title || 'Neue Seite',
+                visible: true,
+                sections: [{ id: `${id}-hero`, type: 'hero', visible: true, data: { headline: detail.create.title || 'Neue Seite', subline: detail.create.description || '', description: detail.create.description || '', image: { image: detail.create.image || '', alt: detail.create.title || '' } } }],
+              },
+            ],
+          },
+        });
+        setPageId(pageId);
+        return;
+      }
+      const id = detail?.pageId;
+      if (id) setPageId(id);
+    };
+    window.addEventListener('admin:navigate-page', handler);
+    return () => window.removeEventListener('admin:navigate-page', handler);
+  }, [data, setData, tplKey, tplStyle]);
 
   // Scroll the editor area to the top whenever the user switches sections —
   // otherwise long sections leave the new section scrolled to the middle.
@@ -2197,8 +2262,6 @@ function navDefaultsFor(t: TemplateKey): { label: string; path: string }[] {
   ];
 }
 
-const KNOWN_PATHS_HINT = ['/', '/speisekarte', '/leistungen', '/zimmer', '/touren', '/galerie', '/referenzen', '/ueber-uns', '/kontakt', '/news'];
-
 function NavigationPage({ data, setData, tpl }: SectionProps) {
   const items = (data as any).navItems as Array<{ label: string; path: string; visible: boolean }> | undefined;
   const list = items && items.length ? items : navDefaultsFor(tpl).map((d) => ({ ...d, visible: true }));
@@ -2230,6 +2293,7 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
   };
   const sectionVisibility = (data.sectionVisibility ?? {}) as Record<string, boolean>;
   const cfg = getBranchConfig(tpl);
+  const existingPagePaths = [{ id: '/', label: '→ Seite: Start' }, ...tenantPageOptions(tpl, data)];
   const announcementPages = [
     { key: 'home', label: 'Startseite' },
     { key: 'services', label: cfg.pages.services },
@@ -2331,7 +2395,7 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
             </div>
           ))}
           <datalist id="known-nav-paths">
-            {KNOWN_PATHS_HINT.map((p) => <option key={p} value={p} />)}
+            {existingPagePaths.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
           </datalist>
         </div>
         <div className="flex gap-2 mt-4">
@@ -2339,7 +2403,7 @@ function NavigationPage({ data, setData, tpl }: SectionProps) {
           <button onClick={reset} className="text-xs text-muted hover:text-slate-900 px-3">Auf Standard zurücksetzen</button>
         </div>
         <p className="mt-4 text-xs text-muted">
-          Tipp: Pfade sollten zu existierenden Seiten passen. Bekannte Pfade: <span className="font-mono">{KNOWN_PATHS_HINT.join(' · ')}</span>
+          Tipp: Wählen Sie hier nur Seiten aus, die in diesem Tenant existieren. Eigene Seiten erscheinen automatisch nach dem Anlegen.
         </p>
       </SectionCard>
 

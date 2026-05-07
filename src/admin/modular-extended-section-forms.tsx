@@ -181,7 +181,7 @@ function ProcessColumnsForm({ data, onChange }: Pick<ModularSectionDataFormProps
   );
 }
 
-function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSectionDataFormProps) {
+function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage, siteContent, sectionId }: ModularSectionDataFormProps) {
   const showTags = tpl === 'salon' || tpl === 'tourism';
   const showItemButton = tpl !== 'salon' && tpl !== 'tourism' && tpl !== 'fitness';
   const items = Array.isArray(data.items)
@@ -223,6 +223,20 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
           : {}),
       })),
     });
+  const createLinkedPage = (row: (typeof items)[number], index: number) => {
+    if (!sectionId) return;
+    window.dispatchEvent(new CustomEvent('admin:navigate-page', {
+      detail: {
+        create: {
+          title: row.title || 'Neue Seite',
+          description: row.description,
+          image: row.image,
+          linkSectionId: sectionId,
+          linkItemIndex: index,
+        },
+      },
+    }));
+  };
   return (
     <div className="space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">
@@ -262,8 +276,10 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
               <ModLinkTarget
                 label="Button-Ziel"
                 tpl={tpl}
+                siteContent={siteContent}
                 value={row.btnHref}
                 onChange={(v) => set(items.map((x, j) => (j === i ? { ...x, btnHref: v } : x)))}
+                onCreatePage={() => createLinkedPage(row, i)}
               />
             </>
           ) : null}

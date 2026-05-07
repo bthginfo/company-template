@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { TemplateKey } from '@/lib/types';
+import type { SiteContent, TemplateKey } from '@/lib/types';
 import { humanizeUploadError, assertValidUpload, UPLOAD_HINT } from './upload-limits';
 
 export const modularInputCls =
@@ -81,7 +81,7 @@ export function ModImagePick({
   );
 }
 
-export function modularHomeLinkSections(tpl: TemplateKey): { id: string; label: string }[] {
+export function modularHomeLinkSections(tpl: TemplateKey, content?: SiteContent): { id: string; label: string }[] {
   const servicesPage: Record<TemplateKey, { id: string; label: string }> = {
     restaurant: { id: '/speisekarte', label: '→ Seite: Speisekarte' },
     salon: { id: '/leistungen', label: '→ Seite: Leistungen' },
@@ -103,6 +103,9 @@ export function modularHomeLinkSections(tpl: TemplateKey): { id: string; label: 
     fitness: '→ Seite: Galerie',
   };
   const galleryPath = tpl === 'tradesman' ? '/referenzen' : '/galerie';
+  const customPages = (content?.modularPagesV2?.customPages ?? [])
+    .filter((page) => page.visible !== false && page.slug.trim())
+    .map((page) => ({ id: `/${page.slug.replace(/^\/+/, '')}`, label: `→ Seite: ${page.label || page.slug}` }));
   return [
     { id: '#hero', label: 'Startbereich (oben)' },
     { id: '#about', label: 'Abschnitt: Über uns' },
@@ -116,7 +119,18 @@ export function modularHomeLinkSections(tpl: TemplateKey): { id: string; label: 
     { id: '/news', label: '→ Seite: News & Blog' },
     { id: '/impressum', label: '→ Seite: Impressum' },
     { id: '/datenschutz', label: '→ Seite: Datenschutz' },
+    ...customPages,
   ];
+}
+
+export function tenantPageOptions(tpl: TemplateKey, content?: SiteContent): { id: string; label: string }[] {
+  const newsPosts: Array<{ published?: boolean }> = Array.isArray(content?.newsPosts) ? content.newsPosts : [];
+  return modularHomeLinkSections(tpl, content).filter((option) => {
+    if (option.id.startsWith('#')) return false;
+    if (option.id === '/impressum' || option.id === '/datenschutz') return false;
+    if (option.id === '/news') return newsPosts.some((post) => post.published !== false);
+    return true;
+  });
 }
 
 export function ModLinkTarget({
@@ -124,13 +138,17 @@ export function ModLinkTarget({
   value,
   onChange,
   tpl,
+  siteContent,
+  onCreatePage,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   tpl: TemplateKey;
+  siteContent?: SiteContent;
+  onCreatePage?: () => void;
 }) {
-  const sections = modularHomeLinkSections(tpl);
+  const sections = modularHomeLinkSections(tpl, siteContent);
   const isExternal = !!value && !sections.some((s) => s.id === value) && value !== '__custom__';
   const [mode, setMode] = useState<'section' | 'external'>(isExternal ? 'external' : 'section');
   return (
@@ -152,6 +170,7 @@ export function ModLinkTarget({
         </button>
       </div>
       {mode === 'section' ? (
+        <>
         <select
           className={modularInputCls}
           value={sections.some((s) => s.id === value) ? value : ''}
@@ -164,6 +183,12 @@ export function ModLinkTarget({
             </option>
           ))}
         </select>
+        {onCreatePage ? (
+          <button type="button" className="mt-2 btn-outline !py-2 !px-3 text-xs" onClick={onCreatePage}>
+            + Neue Seite anlegen und verlinken
+          </button>
+        ) : null}
+        </>
       ) : (
         <input
           className={modularInputCls}

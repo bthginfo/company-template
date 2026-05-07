@@ -7,6 +7,7 @@ export type ModularSpecPageKey = 'home' | 'services' | 'gallery' | 'about' | 'co
 export type ModularSectionDataFormProps = {
   tpl: TemplateKey;
   sectionType: string;
+  sectionId?: string;
   data: Record<string, unknown>;
   onChange: (next: Record<string, unknown>) => void;
   style: TemplateStyle;

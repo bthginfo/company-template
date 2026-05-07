@@ -272,9 +272,9 @@ function importMedicalHome(content: SiteContent, sections: ModularSectionV1[], s
   const sc = by('serviceCards');
   if (sc) {
     sc.data = {
-      eyebrow: '',
+      eyebrow: 'Leistungen',
       headline: '',
-      description: '',
+      description: 'Kurze Wege, klare Termine und medizinische Hilfe dann, wenn sie gebraucht wird.',
       items: (content.services ?? []).map((s) => ({
         title: str(s.title),
         description: str(s.description),
@@ -290,21 +290,22 @@ function importMedicalHome(content: SiteContent, sections: ModularSectionV1[], s
   if (si) {
     si.data = {
       eyebrow: 'Für Sie',
-      headline: 'Erreichbarkeit',
-      description: '',
+      headline: 'Für Sie erreichbar',
+      description: 'Kurze Wege, klare Termine und medizinische Hilfe dann, wenn sie gebraucht wird.',
       noticeText: '',
       items: [
-        { title: 'Telefon', value: str(content.contact?.phone), description: '' },
-        { title: 'E-Mail', value: str(content.contact?.email), description: '' },
+        { title: 'Online-Termin', value: str(content.booking?.provider) || 'Online buchbar', description: 'Termine direkt online buchen, umbuchen oder anfragen.' },
+        { title: 'Akutsprechstunde', value: str(content.contact?.phone), description: 'Bei akuten Beschwerden melden Sie sich telefonisch in der Praxis.' },
+        { title: 'Befunde & Rezepte', value: str(content.contact?.email), description: 'Wiederholungsrezepte und Befundfragen klären wir strukturiert über Empfang oder E-Mail.' },
       ],
     };
   }
   const tm = by('team');
   if (tm) {
     tm.data = {
-      eyebrow: '',
+      eyebrow: 'Leistungen',
       headline: 'Team',
-      description: '',
+      description: 'Kurze Wege, klare Termine und medizinische Hilfe dann, wenn sie gebraucht wird.',
       items: (content.doctors ?? []).map((d) => ({
         name: str(d.name),
         role: str(d.role),
@@ -398,8 +399,9 @@ function importMedicalServices(content: SiteContent, sections: ModularSectionV1[
       description: '',
       noticeText: '',
       items: [
-        { title: 'Telefon', value: str(content.contact?.phone), description: '' },
-        { title: 'E-Mail', value: str(content.contact?.email), description: '' },
+        { title: 'Online-Termin', value: str(content.booking?.provider) || 'Online buchbar', description: 'Termine direkt online buchen, umbuchen oder anfragen.' },
+        { title: 'Akutsprechstunde', value: str(content.contact?.phone), description: 'Bei akuten Beschwerden melden Sie sich telefonisch in der Praxis.' },
+        { title: 'Befunde & Rezepte', value: str(content.contact?.email), description: 'Wiederholungsrezepte und Befundfragen klären wir strukturiert über Empfang oder E-Mail.' },
       ],
     };
   }

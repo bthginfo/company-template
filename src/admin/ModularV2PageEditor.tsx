@@ -204,6 +204,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, customPag
                 tpl={tpl}
                 style={style}
                 sectionType={section.type}
+                sectionId={section.id}
                 data={(section.data ?? {}) as Record<string, unknown>}
                 uploadImage={uploadImage}
                 modularPage={page}
