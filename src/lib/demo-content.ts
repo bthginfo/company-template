@@ -1988,6 +1988,115 @@ const extraGalleryStoryConsulting = {
     { t: 'Ziel-Gespräch', d: 'Wir besprechen Ihre Ziele und finden das passende Format.' },
     { t: 'Starten', d: 'Kursplan, Personal Training oder offenes Training – los gehts.' },
   ]});
+
+  // --- homeStrip (action bar under hero) ---
+  Object.assign(R, { homeStrip: { eyebrowAuto: true, primaryLabel: 'Tisch reservieren', primaryHref: '/kontakt', secondaryLabel: 'Speisekarte', secondaryHref: '/leistungen' } });
+  Object.assign(S, { homeStrip: { eyebrowAuto: true, primaryLabel: 'Termin buchen', primaryHref: '/kontakt', secondaryLabel: 'Treatments', secondaryHref: '/leistungen' } });
+  Object.assign(Tr, { homeStrip: { eyebrowAuto: false, eyebrow: '24/7 Notdienst: +43 512 123456', primaryLabel: 'Anfrage stellen', primaryHref: '/kontakt', secondaryLabel: 'Leistungen', secondaryHref: '/leistungen' } });
+  Object.assign(H, { homeStrip: { eyebrowAuto: true, primaryLabel: 'Zimmer anfragen', primaryHref: '/kontakt', secondaryLabel: 'Zimmer & Suiten', secondaryHref: '/leistungen' } });
+  Object.assign(To, { homeStrip: { eyebrowAuto: true, primaryLabel: 'Tour buchen', primaryHref: '/kontakt', secondaryLabel: 'Alle Erlebnisse', secondaryHref: '/leistungen' } });
+  Object.assign(C, { homeStrip: { eyebrowAuto: false, eyebrow: 'Erstgespräch kostenlos', primaryLabel: 'Termin vereinbaren', primaryHref: '/kontakt', secondaryLabel: 'Beratungsfelder', secondaryHref: '/leistungen' } });
+  Object.assign(M, { homeStrip: { eyebrowAuto: true, primaryLabel: 'Termin buchen', primaryHref: '/kontakt', secondaryLabel: 'Leistungen', secondaryHref: '/leistungen' } });
+  Object.assign(F, { homeStrip: { eyebrowAuto: true, primaryLabel: 'Probetraining', primaryHref: '/kontakt', secondaryLabel: 'Kursplan', secondaryHref: '/leistungen' } });
+
+  // --- heroCta (hero button overrides) ---
+  Object.assign(R, { heroCta: { primaryLabel: 'Tisch reservieren', primaryHref: '/kontakt', secondaryLabel: 'Speisekarte ansehen', secondaryHref: '/leistungen' } });
+  Object.assign(S, { heroCta: { primaryLabel: 'Termin buchen', primaryHref: '/kontakt', secondaryLabel: 'Treatments entdecken', secondaryHref: '/leistungen' } });
+  Object.assign(Tr, { heroCta: { primaryLabel: 'Anfrage stellen', primaryHref: '/kontakt', secondaryLabel: 'Leistungen ansehen', secondaryHref: '/leistungen' } });
+  Object.assign(H, { heroCta: { primaryLabel: 'Zimmer anfragen', primaryHref: '/kontakt', secondaryLabel: 'Zimmer & Suiten', secondaryHref: '/leistungen' } });
+  Object.assign(To, { heroCta: { primaryLabel: 'Tour buchen', primaryHref: '/kontakt', secondaryLabel: 'Alle Erlebnisse', secondaryHref: '/leistungen' } });
+  Object.assign(C, { heroCta: { primaryLabel: 'Erstgespräch vereinbaren', primaryHref: '/kontakt', secondaryLabel: 'Beratung ansehen', secondaryHref: '/leistungen' } });
+  Object.assign(M, { heroCta: { primaryLabel: 'Termin vereinbaren', primaryHref: '/kontakt', secondaryLabel: 'Leistungen ansehen', secondaryHref: '/leistungen' } });
+  Object.assign(F, { heroCta: { primaryLabel: 'Probetraining starten', primaryHref: '/kontakt', secondaryLabel: 'Kursplan ansehen', secondaryHref: '/leistungen' } });
+
+  // --- navCta (nav bar CTA button) ---
+  Object.assign(R, { navCta: { label: 'Reservieren', href: '/kontakt' } });
+  Object.assign(S, { navCta: { label: 'Termin', href: '/kontakt' } });
+  Object.assign(Tr, { navCta: { label: 'Anfrage', href: '/kontakt' } });
+  Object.assign(H, { navCta: { label: 'Buchen', href: '/kontakt' } });
+  Object.assign(To, { navCta: { label: 'Tour buchen', href: '/kontakt' } });
+  Object.assign(C, { navCta: { label: 'Erstgespräch', href: '/kontakt' } });
+  Object.assign(M, { navCta: { label: 'Termin', href: '/kontakt' } });
+  Object.assign(F, { navCta: { label: 'Probetraining', href: '/kontakt' } });
+
+  // --- footer ---
+  Object.assign(R, { footer: { tagline: 'Cucina d\'Autore seit 1998 in Innsbruck.', columns: [
+    { title: 'Restaurant', links: [{ label: 'Speisekarte', href: '/leistungen' }, { label: 'Galerie', href: '/galerie' }, { label: 'Reservieren', href: '/kontakt' }] },
+    { title: 'Über uns', links: [{ label: 'Geschichte', href: '/ueber-uns' }, { label: 'Team', href: '/ueber-uns' }, { label: 'Presse', href: '/ueber-uns' }] },
+  ] } });
+  Object.assign(S, { footer: { tagline: 'Ihr Salon für Schnitt, Farbe & Wellness.', columns: [
+    { title: 'Studio', links: [{ label: 'Treatments', href: '/leistungen' }, { label: 'Galerie', href: '/galerie' }, { label: 'Termin', href: '/kontakt' }] },
+    { title: 'Über uns', links: [{ label: 'Team', href: '/ueber-uns' }, { label: 'Geschichte', href: '/ueber-uns' }] },
+  ] } });
+  Object.assign(Tr, { footer: { tagline: 'Meisterbetrieb für Sanitär, Heizung & Energie.', columns: [
+    { title: 'Leistungen', links: [{ label: 'Sanitär', href: '/leistungen' }, { label: 'Heizung', href: '/leistungen' }, { label: 'Notdienst', href: '/kontakt' }] },
+    { title: 'Betrieb', links: [{ label: 'Team', href: '/ueber-uns' }, { label: 'Referenzen', href: '/galerie' }, { label: 'Kontakt', href: '/kontakt' }] },
+  ] } });
+  Object.assign(H, { footer: { tagline: 'Ihr Rückzugsort am Berg – seit 1939.', columns: [
+    { title: 'Hotel', links: [{ label: 'Zimmer & Suiten', href: '/leistungen' }, { label: 'Spa', href: '/leistungen' }, { label: 'Kulinarik', href: '/leistungen' }] },
+    { title: 'Service', links: [{ label: 'Anreise', href: '/kontakt' }, { label: 'Galerie', href: '/galerie' }, { label: 'Anfrage', href: '/kontakt' }] },
+  ] } });
+  Object.assign(To, { footer: { tagline: 'Abenteuer, Natur und echte Erlebnisse in Tirol.', columns: [
+    { title: 'Erlebnisse', links: [{ label: 'Touren', href: '/leistungen' }, { label: 'Fotogalerie', href: '/galerie' }, { label: 'Buchen', href: '/kontakt' }] },
+    { title: 'Über uns', links: [{ label: 'Team', href: '/ueber-uns' }, { label: 'Geschichte', href: '/ueber-uns' }] },
+  ] } });
+  Object.assign(C, { footer: { tagline: 'Strategie, Steuern, Recht – aus einer Hand.', columns: [
+    { title: 'Beratung', links: [{ label: 'Leistungen', href: '/leistungen' }, { label: 'Team', href: '/ueber-uns' }, { label: 'Erstgespräch', href: '/kontakt' }] },
+    { title: 'Aktuelles', links: [{ label: 'News', href: '/ueber-uns' }, { label: 'Karriere', href: '/kontakt' }] },
+  ] } });
+  Object.assign(M, { footer: { tagline: 'Hausärztliche Praxis mit Zeit für Sie.', columns: [
+    { title: 'Praxis', links: [{ label: 'Leistungen', href: '/leistungen' }, { label: 'Team', href: '/ueber-uns' }, { label: 'Termin', href: '/kontakt' }] },
+    { title: 'Service', links: [{ label: 'Online-Rezept', href: '/kontakt' }, { label: 'Sprechzeiten', href: '/kontakt' }] },
+  ] } });
+  Object.assign(F, { footer: { tagline: 'Dein Studio für Fitness, Yoga & mehr.', columns: [
+    { title: 'Studio', links: [{ label: 'Kursplan', href: '/leistungen' }, { label: 'Personal Training', href: '/leistungen' }, { label: 'Probetraining', href: '/kontakt' }] },
+    { title: 'Über uns', links: [{ label: 'Team', href: '/ueber-uns' }, { label: 'Galerie', href: '/galerie' }] },
+  ] } });
+
+  // --- homeSignature (modern style feature block) ---
+  Object.assign(R, { homeSignature: { eyebrow: 'Unsere Empfehlung', titleA: 'Heute auf', titleB: 'der Karte.', intro: 'Frisch, saisonal, handgemacht – drei Gerichte, die unsere Küche ausmachen.', metaLabel: 'Saisonal' } });
+  Object.assign(R, { homeSignatureItems: [
+    { title: 'Tagliatelle al Ragù', description: 'Handgerollte Pasta mit 6-Stunden-Ragù aus Südtiroler Rind.', price: '€ 18,50' },
+    { title: 'Burrata e Pomodori', description: 'Frische Burrata, Ochsenherz-Tomaten, Basilikum, Fleur de Sel.', price: '€ 14,90' },
+    { title: 'Tiramisù della Nonna', description: 'Nach Nonnas Originalrezept – nur mit Mascarpone und Espresso.', price: '€ 9,50' },
+  ]});
+  Object.assign(S, { homeSignature: { eyebrow: 'Im Fokus', titleA: 'Unsere', titleB: 'Signature Looks.', intro: 'Drei Styles, die unsere Handschrift zeigen.', metaLabel: 'Trending' } });
+  Object.assign(S, { homeSignatureItems: [
+    { title: 'Balayage Natural', description: 'Sanfte Farbverläufe für natürlichen Sun-Kissed-Look.', price: 'ab € 120' },
+    { title: 'Precision Cut', description: 'Maßgeschnittener Schnitt mit Styling-Beratung.', price: 'ab € 65' },
+    { title: 'Glow Facial', description: 'Tiefenreinigende Gesichtsbehandlung mit Hydra-Boost.', price: '€ 89' },
+  ]});
+  Object.assign(H, { homeSignature: { eyebrow: 'Highlights', titleA: 'Das erwartet', titleB: 'Sie bei uns.', intro: 'Alpine Gastfreundschaft in jedem Detail.', metaLabel: 'Erlebnis' } });
+  Object.assign(H, { homeSignatureItems: [
+    { title: 'Panorama-Suite', description: '50 m² mit freier Sicht auf die Nordkette und offenem Kamin.', price: 'ab € 280/Nacht' },
+    { title: 'Bergkräuter-Spa', description: 'Sauna, Dampfbad und Anwendungen mit alpinen Kräutern.', price: 'inkl.' },
+    { title: '4-Gänge-Menü', description: 'Regionale Küche mit 2-Hauben-Niveau – täglich wechselnd.', price: 'ab € 65' },
+  ]});
+  Object.assign(To, { homeSignature: { eyebrow: 'Top-Erlebnisse', titleA: 'Das müssen', titleB: 'Sie erleben.', intro: 'Drei Abenteuer, die unsere Gäste am meisten lieben.', metaLabel: 'Bestseller' } });
+  Object.assign(To, { homeSignatureItems: [
+    { title: 'Klettersteig Nordkette', description: 'Moderate Route mit Panoramablick – für Einsteiger geeignet.', price: 'ab € 89/Person' },
+    { title: 'Canyoning Inntal', description: 'Schluchten, Sprünge, Abseilen – Nervenkitzel pur.', price: 'ab € 129/Person' },
+    { title: 'Sonnenaufgangs-Wanderung', description: 'Frühmorgens auf den Gipfel – mit Frühstück am Berg.', price: 'ab € 69/Person' },
+  ]});
+  Object.assign(Tr, { homeSignature: { eyebrow: 'Unsere Stärken', titleA: 'Dafür stehen', titleB: 'wir.', intro: 'Meisterqualität, Festpreise, 24/7 Notdienst.', metaLabel: 'Meisterbetrieb' } });
+  Object.assign(C, { homeSignature: { eyebrow: 'Schwerpunkte', titleA: 'Unsere', titleB: 'Beratungsfelder.', intro: 'Strategie, Steuern, Recht – persönlich und digital.', metaLabel: 'Expertise' } });
+  Object.assign(M, { homeSignature: { eyebrow: 'Schwerpunkte', titleA: 'Unsere', titleB: 'Fachbereiche.', intro: 'Hausärztliche Versorgung mit Zeit und Zuwendung.', metaLabel: 'Praxis' } });
+  Object.assign(F, { homeSignature: { eyebrow: 'Angebot', titleA: 'Unsere', titleB: 'Top-Formate.', intro: 'Vom Einsteiger bis zum Athleten – für jedes Ziel.', metaLabel: 'Programme' } });
+  Object.assign(F, { homeSignatureItems: [
+    { title: 'HIIT Power', description: 'Hochintensives Intervalltraining – 45 Minuten, maximale Wirkung.', price: 'inkl. Mitgliedschaft' },
+    { title: 'Yoga Flow', description: 'Vinyasa Yoga für Kraft, Balance und innere Ruhe.', price: 'inkl. Mitgliedschaft' },
+    { title: 'Personal Training', description: '1:1 Betreuung mit individuellem Trainingsplan.', price: 'ab € 65/Einheit' },
+  ]});
+
+  // --- ctaBandOverride (CTA strip above footer) ---
+  Object.assign(R, { ctaBandOverride: { eyebrow: 'Hunger?', lead: 'Reservieren Sie Ihren Tisch.', sub: 'Online, telefonisch oder spontan – wir freuen uns auf Sie.', cta: 'Jetzt reservieren', ctaHref: '/kontakt' } });
+  Object.assign(S, { ctaBandOverride: { eyebrow: 'Lust auf Veränderung?', lead: 'Buchen Sie Ihren Termin.', sub: 'Schnitt, Farbe, Wellness – wir finden das Richtige für Sie.', cta: 'Termin buchen', ctaHref: '/kontakt' } });
+  Object.assign(Tr, { ctaBandOverride: { eyebrow: 'Projekt geplant?', lead: 'Jetzt Festpreis-Angebot anfordern.', sub: 'Kostenlose Erstbesichtigung und verbindliches Angebot innerhalb von 48h.', cta: 'Anfrage stellen', ctaHref: '/kontakt' } });
+  Object.assign(H, { ctaBandOverride: { eyebrow: 'Auszeit verdient?', lead: 'Fragen Sie Ihr Wunschzimmer an.', sub: 'Persönliche Beratung, beste Konditionen bei Direktbuchung.', cta: 'Anfrage senden', ctaHref: '/kontakt' } });
+  Object.assign(To, { ctaBandOverride: { eyebrow: 'Bereit fürs Abenteuer?', lead: 'Buchen Sie Ihr Erlebnis.', sub: 'Kleine Gruppen, lokale Guides, unvergessliche Momente.', cta: 'Tour buchen', ctaHref: '/kontakt' } });
+  Object.assign(C, { ctaBandOverride: { eyebrow: 'Fragen?', lead: 'Vereinbaren Sie ein Erstgespräch.', sub: '30 Minuten, kostenlos und unverbindlich – persönlich oder per Video.', cta: 'Termin vereinbaren', ctaHref: '/kontakt' } });
+  Object.assign(M, { ctaBandOverride: { eyebrow: 'Gesundheit ist wichtig.', lead: 'Buchen Sie Ihren Termin.', sub: '30 Minuten pro Termin – online, telefonisch oder per App.', cta: 'Termin buchen', ctaHref: '/kontakt' } });
+  Object.assign(F, { ctaBandOverride: { eyebrow: 'Keine Ausreden mehr.', lead: 'Starte dein Probetraining.', sub: 'Kostenlos, ohne Voranmeldung – einfach vorbeikommen.', cta: 'Probetraining starten', ctaHref: '/kontakt' } });
 })();
 
 /** Showcase demo objects are patched in-place above — rebuild `pageBlocksV1` from final legacy fields. */

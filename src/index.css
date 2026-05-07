@@ -195,42 +195,34 @@
 
 /* ─── Deeper variant personality ─────────────────────────────────── */
 /* Restaurant: warm, decorative, serif feel */
-.tpl-variant-restaurant .hero-section { --hero-overlay: rgba(40, 20, 0, 0.35); }
 .tpl-variant-restaurant.tpl-style-classic .section-title { border-bottom: 2px solid color-mix(in oklab, var(--primary-color), transparent 70%); padding-bottom: 0.5em; display: inline-block; }
-.tpl-variant-restaurant.tpl-style-bold .hero-section h1 { text-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+.tpl-variant-restaurant.tpl-style-bold .grain h1 { text-shadow: 0 2px 20px rgba(0,0,0,0.3); }
 
 /* Salon: soft, rounded, feminine */
-.tpl-variant-salon .hero-section { --hero-overlay: rgba(60, 30, 50, 0.25); }
 .tpl-variant-salon .card { box-shadow: 0 4px 20px -4px rgba(0,0,0,0.06); }
 .tpl-variant-salon.tpl-style-bold .section-title { font-weight: 300; letter-spacing: 0.05em; }
 
 /* Tradesman: industrial, sharp, no-nonsense */
-.tpl-variant-tradesman .hero-section { --hero-overlay: rgba(0, 10, 30, 0.45); }
 .tpl-variant-tradesman .card { border-left: 3px solid var(--primary-color); }
 .tpl-variant-tradesman.tpl-style-bold .btn-primary { text-transform: uppercase; letter-spacing: 0.08em; }
 
 /* Hotel: elegant, calm, spacious */
-.tpl-variant-hotel .hero-section { --hero-overlay: rgba(10, 20, 30, 0.3); }
 .tpl-variant-hotel section { letter-spacing: 0.01em; }
 .tpl-variant-hotel.tpl-style-classic .card { border: 1px solid color-mix(in oklab, var(--primary-color), transparent 85%); }
 
 /* Tourism: adventurous, vibrant, outdoorsy */
-.tpl-variant-tourism .hero-section { --hero-overlay: rgba(0, 30, 20, 0.3); }
 .tpl-variant-tourism .card { border-radius: 1rem; overflow: hidden; }
 .tpl-variant-tourism.tpl-style-bold .btn-primary { border-radius: 999px; }
 
 /* Consulting: corporate, clean, structured */
-.tpl-variant-consulting .hero-section { --hero-overlay: rgba(10, 15, 30, 0.4); }
 .tpl-variant-consulting .card { border-top: 2px solid var(--primary-color); border-radius: 0.25rem; }
 .tpl-variant-consulting.tpl-style-modern section { --section-gap: 1.5rem; }
 
 /* Medical: clinical, trustworthy, bright */
-.tpl-variant-medical .hero-section { --hero-overlay: rgba(0, 20, 40, 0.3); }
 .tpl-variant-medical .card { border-radius: 0.75rem; background: color-mix(in oklab, var(--surface-color), white 40%); }
 .tpl-variant-medical.tpl-style-classic .eyebrow { color: var(--primary-color); font-weight: 600; }
 
 /* Fitness: energetic, bold, high-contrast */
-.tpl-variant-fitness .hero-section { --hero-overlay: rgba(0, 0, 0, 0.5); }
 .tpl-variant-fitness .card { border-bottom: 3px solid var(--primary-color); }
 .tpl-variant-fitness.tpl-style-bold section h2 { text-transform: uppercase; letter-spacing: -0.02em; }
 
