@@ -42,6 +42,18 @@ import {
 import {
   ModularFitnessPageEditor,
 } from './ModularFitnessEditor';
+import { ModularV2PageEditor } from './ModularV2PageEditor';
+import {
+  CONSULTING_MODULAR_SPEC_CFG,
+  FITNESS_MODULAR_SPEC_CFG,
+  HOTEL_MODULAR_SPEC_CFG,
+  MEDICAL_MODULAR_SPEC_CFG,
+  RESTAURANT_MODULAR_SPEC_CFG,
+  SALON_MODULAR_SPEC_CFG,
+  TOURISM_MODULAR_SPEC_CFG,
+  TRADESMAN_MODULAR_SPEC_CFG,
+} from './modular-branch-spec-config';
+import { seedModularPagesV2 } from '@/lib/cms-v2-contract';
 
 const EMPTY_CUSTOM_THEMES: TenantCustomTheme[] = [];
 
@@ -119,8 +131,9 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 
   _ctx = { uploadImage, style: tplStyle, tpl: tplKey };
 
-  const [pageId, setPageId] = useState<PageId>('home');
-  const pages = pagesFor(tplKey);
+  const [pageId, setPageId] = useState<AdminPageId>('home');
+  const customPages = data.modularPagesV2?.customPages ?? [];
+  const pages = [...pagesFor(tplKey), ...customPages.map((p) => ({ id: `custom:${p.id}`, label: p.label || p.slug, icon: '□', previewPath: `/${p.slug.replace(/^\/+/, '')}` }))];
   const activePage = pages.find((p) => p.id === pageId) ?? pages[0];
 
   // when template changes externally, snap back to home
@@ -135,6 +148,35 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
   }, [pageId]);
 
   const isGlobal = pageId === 'brand' || pageId === 'contact' || pageId === 'social' || pageId === 'seo' || pageId === 'scripts' || pageId === 'news' || pageId === 'navigation' || pageId === 'mail' || pageId === 'legal' || pageId === 'security';
+  const createCustomPage = () => {
+    const currentStyle = tplStyle ?? 'classic';
+    const base = 'neue-seite';
+    const taken = new Set((data.modularPagesV2?.customPages ?? []).map((p) => p.slug));
+    let slug = base;
+    let i = 2;
+    while (taken.has(slug)) slug = `${base}-${i++}`;
+    const modular = data.modularPagesV2?.combo?.template === tplKey && data.modularPagesV2.combo.style === currentStyle
+      ? data.modularPagesV2
+      : seedModularPagesV2(tplKey, currentStyle);
+    const id = `custom-${Date.now().toString(36)}`;
+    setData({
+      ...data,
+      modularPagesV2: {
+        ...modular,
+        customPages: [
+          ...(modular.customPages ?? []),
+          {
+            id,
+            slug,
+            label: 'Neue Seite',
+            visible: true,
+            sections: [{ id: `${id}-hero`, type: 'hero', visible: true, data: { headline: 'Neue Seite', subline: '', description: '' } }],
+          },
+        ],
+      },
+    });
+    setPageId(`custom:${id}`);
+  };
 
   return (
     <div className="min-h-screen bg-[#f6f6f3]">
@@ -189,7 +231,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
           <label className="block text-[10px] uppercase tracking-widest text-muted mb-1.5">Bereich</label>
           <select
             value={pageId}
-            onChange={(e) => setPageId(e.target.value as PageId)}
+            onChange={(e) => setPageId(e.target.value as AdminPageId)}
             className="w-full bg-white border border-line rounded-xl px-4 py-3 text-sm font-medium"
           >
             <optgroup label="Workspace (global)">
@@ -228,10 +270,15 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
           </SidebarGroup>
           <SidebarGroup label="Website-Seiten">
             {pages.map((p) => (
-              <SidebarItem key={p.id} active={p.id === pageId} onClick={() => setPageId(p.id)} icon={p.icon}>
+              <SidebarItem key={p.id} active={p.id === pageId} onClick={() => setPageId(p.id as AdminPageId)} icon={p.icon}>
                 {p.label}
               </SidebarItem>
             ))}
+            <li className="px-2 pt-2">
+              <button type="button" onClick={createCustomPage} className="w-full rounded-xl border border-dashed border-line px-3 py-2 text-left text-sm text-muted hover:text-slate-900 hover:border-brand">
+                + Neue Seite
+              </button>
+            </li>
           </SidebarGroup>
         </aside>
 
@@ -276,6 +323,16 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
             {pageId === 'gallery' && <GalleryPageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'about' && <AboutPageEditor data={data} setData={setData} tpl={tplKey} />}
             {pageId === 'contactPage' && <ContactPageEditor data={data} setData={setData} tpl={tplKey} />}
+            {pageId.startsWith('custom:') && (
+              <CustomV2PageEditor
+                data={data}
+                setData={setData}
+                tpl={tplKey}
+                style={tplStyle}
+                customPageId={pageId.slice('custom:'.length)}
+                uploadImage={uploadImage}
+              />
+            )}
           </div>
 
           <div className="px-6 md:px-8 py-5 border-t border-line flex items-center justify-between gap-4 flex-wrap bg-[#fafaf7] rounded-b-2xl">
@@ -383,8 +440,9 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
 }
 
 /* ───────────── Pages config per template ───────────── */
-type PageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation' | 'mail' | 'security' | 'legal';
-type PageDef = { id: PageId; label: string; icon: string; previewPath: string };
+type BuiltInAdminPageId = 'home' | 'services' | 'gallery' | 'about' | 'contactPage' | 'brand' | 'contact' | 'social' | 'seo' | 'scripts' | 'news' | 'navigation' | 'mail' | 'security' | 'legal';
+type AdminPageId = BuiltInAdminPageId | `custom:${string}`;
+type PageDef = { id: AdminPageId; label: string; icon: string; previewPath: string };
 
 function pagesFor(t: TemplateKey): PageDef[] {
   const cfg = getBranchConfig(t);
@@ -397,7 +455,99 @@ function pagesFor(t: TemplateKey): PageDef[] {
   ];
 }
 
-function labelForGlobal(p: PageId) {
+function sectionLabelsForTemplate(t: TemplateKey): Record<string, string> {
+  if (t === 'restaurant') return RESTAURANT_MODULAR_SPEC_CFG.sectionLabels;
+  if (t === 'hotel') return HOTEL_MODULAR_SPEC_CFG.sectionLabels;
+  if (t === 'tourism') return TOURISM_MODULAR_SPEC_CFG.sectionLabels;
+  if (t === 'salon') return SALON_MODULAR_SPEC_CFG.sectionLabels;
+  if (t === 'tradesman') return TRADESMAN_MODULAR_SPEC_CFG.sectionLabels;
+  if (t === 'consulting') return CONSULTING_MODULAR_SPEC_CFG.sectionLabels;
+  if (t === 'medical') return MEDICAL_MODULAR_SPEC_CFG.sectionLabels;
+  return FITNESS_MODULAR_SPEC_CFG.sectionLabels;
+}
+
+function normalizeCustomSlug(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    || 'seite';
+}
+
+function CustomV2PageEditor({
+  data,
+  setData,
+  tpl,
+  style,
+  customPageId,
+  uploadImage,
+}: SectionProps & { style?: TemplateStyle; customPageId: string; uploadImage?: UploadImageFn }) {
+  const currentStyle = style ?? 'classic';
+  const modular = data.modularPagesV2?.combo?.template === tpl && data.modularPagesV2.combo.style === currentStyle
+    ? data.modularPagesV2
+    : seedModularPagesV2(tpl, currentStyle);
+  const pages = modular.customPages ?? [];
+  const page = pages.find((p) => p.id === customPageId);
+  if (!page) return <p className="text-sm text-muted">Diese Seite wurde nicht gefunden.</p>;
+  const patchPage = (patch: Partial<typeof page>) => {
+    setData({
+      ...data,
+      modularPagesV2: {
+        ...modular,
+        customPages: pages.map((p) => (p.id === page.id ? { ...p, ...patch } : p)),
+      },
+    });
+  };
+  const deletePage = () => {
+    if (!window.confirm(`Seite "${page.label || page.slug}" löschen?`)) return;
+    setData({
+      ...data,
+      modularPagesV2: {
+        ...modular,
+        customPages: pages.filter((p) => p.id !== page.id),
+      },
+      navItems: (data.navItems ?? []).filter((item) => item.path !== `/${page.slug}`),
+    });
+  };
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-line bg-[#fafaf7] p-4 grid md:grid-cols-[1fr_1fr_auto] gap-3 items-end">
+        <Field label="Seitentitel">
+          <input className={inputCls} value={page.label} onChange={(e) => patchPage({ label: e.target.value })} />
+        </Field>
+        <Field label="URL-Pfad" hint={`Live unter /${page.slug}`}>
+          <input className={inputCls} value={page.slug} onChange={(e) => patchPage({ slug: normalizeCustomSlug(e.target.value) })} />
+        </Field>
+        <div className="flex items-center gap-3 pb-2">
+          <label className="text-sm flex items-center gap-2">
+            <input type="checkbox" checked={page.visible !== false} onChange={(e) => patchPage({ visible: e.target.checked })} />
+            Sichtbar
+          </label>
+          <button type="button" className="text-sm text-rose-600" onClick={deletePage}>Löschen</button>
+        </div>
+      </div>
+      <ModularV2PageEditor
+        data={data}
+        setData={setData}
+        tpl={tpl}
+        style={currentStyle}
+        page="home"
+        customPageId={customPageId}
+        customPageLabel={page.label}
+        sectionLabels={sectionLabelsForTemplate(tpl)}
+        uploadImage={uploadImage}
+      />
+    </div>
+  );
+}
+
+function labelForGlobal(p: AdminPageId) {
   if (p === 'navigation') return 'Navigation & Footer';
   if (p === 'brand') return 'Marke & Design';
   if (p === 'contact') return 'Kontaktdaten';
@@ -948,7 +1098,7 @@ function homeSectionsFor(t: TemplateKey) {
    PAGE EDITORS
    ═══════════════════════════════════════════════════════════════════ */
 
-function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onGoToPage?: (p: PageId) => void }) {
+function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onGoToPage?: (p: BuiltInAdminPageId) => void }) {
   const set = (patch: Partial<SiteContent>) => setData({ ...data, ...patch });
   const cfg = getBranchConfig(tpl);
   const $s = (flag: import('@/lib/branch-config').PerStyle) => isActiveForStyle(flag, _ctx.style);

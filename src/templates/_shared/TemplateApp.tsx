@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import type { ModularSectionV2, SiteContent, TemplateKey, PageId } from '@/lib/types';
 import { FAQ_DEFAULTS } from '@/lib/faq-defaults';
 import Seo from '@/components/Seo';
@@ -274,6 +274,7 @@ export default function TemplateApp({
             <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} templateVariant={variant} />} />
             <Route path="impressum" element={<Imprint content={content} />} />
             <Route path="datenschutz" element={<Privacy content={content} />} />
+            <Route path=":customSlug" element={<CustomV2PageRoute variant={coreVariant} content={content} style={style} />} />
             <Route path="*" element={<><PageSeo page="home" variant={coreVariant} content={content} /><HomePage variant={coreVariant} content={content} style={style} /></>} />
           </Routes>
         </main>
@@ -1313,6 +1314,34 @@ function CoreV2HomePage({ variant, content, style }: { variant: TemplateVariant;
         .map((section) => (
           <React.Fragment key={section.id}>{renderCoreV2Section('home', variant, section, content, style)}</React.Fragment>
         ))}
+    </>
+  );
+}
+
+function CustomV2PageRoute({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
+  const { customSlug } = useParams();
+  const page = (content.modularPagesV2?.customPages ?? []).find((p) => p.visible !== false && p.slug === customSlug);
+  if (!page) return <><PageSeo page="home" variant={variant} content={content} /><HomePage variant={variant} content={content} style={style} /></>;
+  const sections = visibleCmsV2Sections(page.sections);
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const heroData = heroSection ? asUnknownRecord(heroSection.data) : {};
+  const title = cmsV2Text(heroData.headline) || page.label;
+  const eyebrow = cmsV2Text(heroData.eyebrow) || page.label;
+  const subtitle = cmsV2Text(heroData.subline);
+  const image = cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image);
+  return (
+    <>
+      <Seo title={title} description={subtitle || `${page.label} · ${content.brand.name}`} content={content} template={variant as TemplateKey} page="home" />
+      <PageHero eyebrow={eyebrow} title={title} subtitle={subtitle} body={cmsV2Text(heroData.description)} style={style} image={image} />
+      {sections.filter((section) => section.type !== 'hero').map((section) => (
+        <React.Fragment key={section.id}>
+          {variant === 'restaurant'
+            ? renderRestaurantV2SubpageSection('services', section, content, style)
+            : variant === 'hotel'
+              ? renderHotelV2SubpageSection('services', section, content, style)
+              : renderCoreV2Section('services', variant, section, content, style)}
+        </React.Fragment>
+      ))}
     </>
   );
 }

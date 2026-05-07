@@ -12,6 +12,8 @@ type Props = {
   tpl: TemplateKey;
   style: TemplateStyle;
   page: ModularSpecPageKey;
+  customPageId?: string;
+  customPageLabel?: string;
   sectionLabels: Record<string, string>;
   uploadImage?: ModularUploadFn;
 };
@@ -74,18 +76,25 @@ export function shouldUseCmsV2Editor(content?: SiteContent): boolean {
   return content?.cmsV2?.enabled === true;
 }
 
-export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLabels, uploadImage }: Props) {
+export function ModularV2PageEditor({ data, setData, tpl, style, page, customPageId, customPageLabel, sectionLabels, uploadImage }: Props) {
   const modular = ensureV2(data, tpl, style);
-  const rawSections = modular[page]?.sections ?? [];
+  const customPages = modular.customPages ?? [];
+  const customPage = customPageId ? customPages.find((p) => p.id === customPageId) : undefined;
+  const rawSections = customPage ? customPage.sections ?? [] : modular[page]?.sections ?? [];
   const sections = rawSections.filter((section) => section.type !== 'noticeBanner');
   const visibleCount = sections.filter((section) => section.visible !== false).length;
   const sectionsWithEmptyFields = sections.filter((section) => emptyFieldCount(section) > 0).length;
 
   const commit = (nextSections: ModularSectionV2[]) => {
-    const nextModular: ModularPagesV2 = {
-      ...modular,
-      [page]: { sections: nextSections },
-    };
+    const nextModular: ModularPagesV2 = customPage
+      ? {
+          ...modular,
+          customPages: customPages.map((p) => (p.id === customPage.id ? { ...p, sections: nextSections } : p)),
+        }
+      : {
+          ...modular,
+          [page]: { sections: nextSections },
+        };
     setData({ ...data, modularPagesV2: nextModular });
   };
 
@@ -113,14 +122,15 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
     commit(sections.filter((s) => s.id !== id));
   };
 
-  const addableTypes = getCmsAddableSectionTypes(tpl, style, page, sections.map((s) => s.type));
+  const addableBasePage = customPage ? 'home' : page;
+  const addableTypes = getCmsAddableSectionTypes(tpl, style, addableBasePage, sections.map((s) => s.type));
   const addSection = (type: string) => {
     if (!addableTypes.includes(type)) return;
     const sameTypeCount = sections.filter((s) => s.type === type).length;
     commit([
       ...sections,
       {
-        id: `${page}-${type}-${sameTypeCount}-${Date.now().toString(36)}`,
+        id: `${customPage?.id ?? page}-${type}-${sameTypeCount}-${Date.now().toString(36)}`,
         type,
         visible: false,
         data: {},
@@ -133,7 +143,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
       <div className="rounded-2xl border border-line bg-white px-5 py-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-widest text-muted">Seitenstruktur</p>
-          <h2 className="font-display text-xl">{PAGE_LABELS[page]} bearbeiten</h2>
+          <h2 className="font-display text-xl">{customPageLabel || customPage?.label || PAGE_LABELS[page]} bearbeiten</h2>
           <p className="text-xs text-muted mt-1">Pflegen Sie die Inhalte dieser Seite Abschnitt für Abschnitt. Speichern legt einen Entwurf an; erst Veröffentlichen macht ihn sichtbar.</p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs">

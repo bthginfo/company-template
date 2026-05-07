@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { Routes, Route, NavLink, useLocation, useParams } from 'react-router-dom';
 import type { ModularSectionV2, SiteContent, PageId, TemplateKey } from '@/lib/types';
 import { SplitText, useReveal, ParallaxImage, AnimatedCounter, Accordion } from '@/components/fx';
 import Seo from '@/components/Seo';
@@ -488,6 +488,7 @@ function extraV2AdditionalFormFields(value: unknown, fallback: SiteContent['form
 
 function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: ModularSectionV2): SiteContent {
   const data = asUnknownRecord(section.data);
+  const currentHeroImage = content.hero.imageUrl || content.branchText?.heroImageUrl || content.gallery[0] || content.about?.imageUrl || '';
   switch (section.type) {
     case 'noticeBanner':
       return { ...content, announcements: cmsV2TextItems(data.items) };
@@ -499,11 +500,11 @@ function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: M
           title: cmsV2Text(data.headline) || content.hero.title,
           subtitle: cmsV2Text(data.subline),
           body: cmsV2Text(data.description),
-          imageUrl: cmsV2Image(data.backgroundImage) || cmsV2Image(data.image) || content.hero.imageUrl,
+          imageUrl: cmsV2Image(data.backgroundImage) || cmsV2Image(data.image) || currentHeroImage,
           ctaLabel: cmsV2LinkLabel(data.buttonPrimary) || content.hero.ctaLabel,
           ctaHref: cmsV2LinkHref(data.buttonPrimary) || content.hero.ctaHref,
         },
-        branchText: { ...content.branchText, heroEyebrow: cmsV2Text(data.eyebrow), heroImageUrl: cmsV2Image(data.image) },
+        branchText: { ...content.branchText, heroEyebrow: cmsV2Text(data.eyebrow), heroImageUrl: cmsV2Image(data.image) || content.branchText?.heroImageUrl || currentHeroImage },
       };
     case 'serviceCards':
     case 'serviceInfo':
@@ -844,6 +845,7 @@ export default function ExtraBranchTemplate({
             <Route path="news/:slug" element={<NewsDetailPage content={content} basePath={basePath} templateVariant={branch} />} />
             <Route path="impressum" element={<Imprint content={content} />} />
             <Route path="datenschutz" element={<Privacy content={content} />} />
+            <Route path=":customSlug" element={<ExtraCustomV2PageRoute content={content} branch={branch} style={style} eyebrow={eb} />} />
             <Route path="*" element={<><PageSeoExtra content={content} branch={branch} page="home" />{useV2 ? <ExtraV2Page content={content} eyebrow={eb} branch={branch} page="home" style={style} /> : <Layout content={content} eyebrow={eb} branch={branch} page="home" />}</>} />
           </Routes>
         </main>
@@ -865,6 +867,68 @@ function PageHero({ eyebrow, title, subtitle, style }: { eyebrow: string; title:
         )}
       </div>
     </section>
+  );
+}
+
+function ExtraCustomV2PageRoute({ content, branch, style, eyebrow }: { content: SiteContent; branch: ExtraBranchKey; style: ExtraStyle; eyebrow: string }) {
+  const { customSlug } = useParams();
+  const page = (content.modularPagesV2?.customPages ?? []).find((p) => p.visible !== false && p.slug === customSlug);
+  if (!page) return <><PageSeoExtra content={content} branch={branch} page="home" /><ExtraV2Page content={content} eyebrow={eyebrow} branch={branch} page="home" style={style} /></>;
+  const sections = page.sections?.filter((section) => section.visible !== false && section.type !== 'noticeBanner') ?? [];
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const heroData = heroSection ? asUnknownRecord(heroSection.data) : {};
+  const heroTitle = cmsV2Text(heroData.headline) || page.label;
+  const heroEyebrow = cmsV2Text(heroData.eyebrow) || page.label;
+  const heroSubtitle = cmsV2Text(heroData.subline);
+  return (
+    <>
+      <Seo title={heroTitle} description={heroSubtitle || `${page.label} · ${content.brand.name}`} content={content} template={branch} page="home" />
+      <PageHero eyebrow={heroEyebrow} title={heroTitle} subtitle={heroSubtitle} style={style} />
+      {sections.filter((section) => section.type !== 'hero').map((section) => {
+        const patched = extraV2Content(content, branch, section);
+        switch (section.type) {
+          case 'keywordBand': {
+            const words = cmsV2TextItems(asUnknownRecord(section.data).items);
+            return words.length ? <Section key={section.id} spacing="md"><div className="flex flex-wrap gap-3">{words.map((word) => <span key={word} className="rounded-full border border-line px-4 py-2 text-sm">{word}</span>)}</div></Section> : null;
+          }
+          case 'serviceCards':
+          case 'serviceInfo':
+          case 'classCards':
+          case 'processTextColumns':
+          case 'processCards':
+          case 'pricingPackages':
+          case 'team':
+          case 'trainers':
+          case 'appointmentBooking':
+          case 'trainingPlanOverview':
+          case 'programTable':
+            return <ExtraV2SingleModule key={section.id} section={section} content={patched} branch={branch} style={style} />;
+          case 'storyTeaser':
+          case 'teaserList':
+          case 'categoryCards':
+          case 'contactPreview':
+          case 'directions':
+            return <ExtraV2Cards key={section.id} section={section} title="Details." />;
+          case 'galleryPreview':
+          case 'gallery':
+            return patched.gallery.length ? <Section key={section.id} spacing="lg"><MasonryLightbox images={patched.gallery} /></Section> : null;
+          case 'testimonials':
+            return meaningfulTestimonials(patched.testimonials).length ? <Section key={section.id} title="Stimmen." className="surface"><div className="grid md:grid-cols-3 gap-5">{meaningfulTestimonials(patched.testimonials).slice(0, 3).map((t, i) => <blockquote key={i} className="bg-white border border-line rounded-2xl p-7"><p>{t.text}</p><footer className="mt-5 text-sm font-medium">{t.author}</footer></blockquote>)}</div></Section> : null;
+          case 'statsBand':
+            return <ExtraHomeNumbersBand key={section.id} content={patched} />;
+          case 'newsTeaser':
+            return <NewsPreview key={section.id} templateVariant={branch} content={patched} eyebrow={effectiveBranchText(branch, patched).newsEyebrow} title={effectiveBranchText(branch, patched).newsTitle} />;
+          case 'faq':
+            return <ExtraFaqSection key={section.id} branch={branch} content={patched} />;
+          case 'cta':
+            return <ExtraHomeSoftCta key={section.id} branch={branch} content={patched} layoutStyle={style} />;
+          case 'contactDetails':
+            return <ContactSection key={section.id} content={patched} variant={style} />;
+          default:
+            return null;
+        }
+      })}
+    </>
   );
 }
 

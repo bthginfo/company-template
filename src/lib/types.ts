@@ -78,6 +78,13 @@ const ModularPageV2Schema = z.object({
   sections: z.array(ModularSectionV2Schema).optional().default([]),
 });
 
+const CustomModularPageV2Schema = ModularPageV2Schema.extend({
+  id: z.string().min(1),
+  slug: z.string().min(1),
+  label: z.string().optional().default('Neue Seite'),
+  visible: z.boolean().optional().default(true),
+});
+
 export const ModularPagesV2Schema = z.object({
   version: z.literal(2).default(2),
   combo: z.object({
@@ -89,6 +96,7 @@ export const ModularPagesV2Schema = z.object({
   gallery: ModularPageV2Schema.optional(),
   about: ModularPageV2Schema.optional(),
   contact: ModularPageV2Schema.optional(),
+  customPages: z.array(CustomModularPageV2Schema).optional().default([]),
 });
 export type ModularPagesV2 = z.infer<typeof ModularPagesV2Schema>;
 

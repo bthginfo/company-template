@@ -99,6 +99,7 @@ export function seedModularPagesV2(template: TemplateKey, style: TemplateStyle):
   return {
     version: 2,
     combo: { template, style },
+    customPages: [],
     ...Object.fromEntries(pageEntries),
   };
 }

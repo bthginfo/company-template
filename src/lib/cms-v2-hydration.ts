@@ -47,6 +47,7 @@ export function buildModularPagesV2FromLegacy(content: SiteContent, template: Te
   const modular: ModularPagesV2 = {
     version: 2,
     combo: { template, style },
+    customPages: content.modularPagesV2?.customPages ?? [],
   };
 
   for (const page of CMS_PAGE_KEYS) {
