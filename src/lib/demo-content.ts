@@ -1854,6 +1854,140 @@ const extraGalleryStoryConsulting = {
     { src: 'Tiroler Tageszeitung', q: 'Familie Ferraro bringt seit 26 Jahren ein Stück Italien nach Innsbruck.', y: '2024', url: '' },
     { src: 'Gault Millau', q: 'Handwerk und Herzblut: 14 Punkte für die Trattoria Innsbruck.', y: '2025', url: '' },
   ]});
+
+  // --- serviceHighlights (services page USP bar) ---
+  Object.assign(R, { serviceHighlights: [
+    { t: 'Hausgemacht', d: 'Pasta, Saucen und Desserts – alles frisch aus unserer Küche.' },
+    { t: 'Saisonal', d: 'Die Karte wechselt alle 4 Wochen mit der Saison.' },
+    { t: 'Authentisch', d: 'Originalrezepte aus der Emilia-Romagna und Apulien.' },
+  ]});
+  Object.assign(S, { serviceHighlights: [
+    { t: 'Beratung inklusive', d: 'Jeder Termin beginnt mit einem persönlichen Gespräch.' },
+    { t: 'Premium-Produkte', d: 'Kérastase, Olaplex und Davines – keine Kompromisse.' },
+    { t: 'Wohlfühl-Atmosphäre', d: 'Design, Duft und Musik stimmen auf Entspannung ein.' },
+  ]});
+  Object.assign(Tr, { serviceHighlights: [
+    { t: 'Festpreis-Garantie', d: 'Verbindliches Angebot vor Arbeitsbeginn – keine Überraschungen.' },
+    { t: 'Meisterqualität', d: 'WKO-zertifizierter Betrieb mit Gewährleistung.' },
+    { t: '24/7 Notdienst', d: '45 Minuten Anfahrtszeit im gesamten Stadtgebiet.' },
+  ]});
+  Object.assign(H, { serviceHighlights: [
+    { t: 'All-Inclusive Spa', d: 'Sauna, Pool und Ruhebereich für alle Hausgäste inklusive.' },
+    { t: 'Regionale Küche', d: '2-Hauben-Küche mit Produkten aus der Region.' },
+    { t: 'Persönlicher Service', d: 'Maximal 34 Zimmer – wir kennen jeden Gast beim Namen.' },
+  ]});
+  Object.assign(To, { serviceHighlights: [
+    { t: 'Kleine Gruppen', d: 'Maximal 8 Personen pro Tour für echtes Erleben.' },
+    { t: 'Ausrüstung inklusive', d: 'Schuhe, Helme, Stöcke – alles im Preis enthalten.' },
+    { t: 'Lokale Guides', d: 'Menschen die hier leben und jede Route kennen.' },
+  ]});
+  Object.assign(C, { serviceHighlights: [
+    { t: 'Erstgespräch gratis', d: '30 Minuten unverbindlich – persönlich oder per Video.' },
+    { t: 'Digitale Prozesse', d: 'Mandantenportal, E-Signatur und Echtzeit-Reporting.' },
+    { t: 'Branchenexpertise', d: '20 Jahre Erfahrung in Industrie, Handel und Familienunternehmen.' },
+  ]});
+  Object.assign(M, { serviceHighlights: [
+    { t: '30-Min.-Termine', d: 'Genug Zeit für Gespräch, Untersuchung und Fragen.' },
+    { t: 'Alle Kassen', d: 'Gesetzliche und private Versicherungen – transparent abgerechnet.' },
+    { t: 'Online-Termine', d: 'Buchung, Befunde und Rezepte digital verfügbar.' },
+  ]});
+  Object.assign(F, { serviceHighlights: [
+    { t: 'Probetraining gratis', d: 'Jederzeit ohne Voranmeldung – einfach vorbeikommen.' },
+    { t: 'Flexible Verträge', d: 'Monatlich kündbar, keine Mindestlaufzeit.' },
+    { t: 'Alle Level', d: 'Vom Einsteiger bis zum Leistungssportler – für jeden das Richtige.' },
+  ]});
+
+  // --- timeline (about page history) ---
+  Object.assign(R, { timeline: [
+    { t: '1998', d: 'Nonna Carla und Nonno Antonio eröffnen die Trattoria in der Altstadt.' },
+    { t: '2005', d: 'Erste Erwähnung im Falstaff – 12 Punkte für "ehrliche Küche".' },
+    { t: '2015', d: 'Giulia übernimmt die Küche und bringt Naturweine ins Programm.' },
+    { t: '2023', d: 'Umbau der Terrasse und neue Pasta-Manufaktur im Keller.' },
+  ]});
+  Object.assign(S, { timeline: [
+    { t: '2009', d: 'Lisa Auer eröffnet ihr erstes Studio mit zwei Plätzen.' },
+    { t: '2014', d: 'Umzug in die heutigen Räume – 120 m², 6 Arbeitsplätze.' },
+    { t: '2019', d: 'Erweiterung um Kosmetik und Wellness-Bereich.' },
+    { t: '2024', d: 'Online-Buchungssystem und neue Produktlinie.' },
+  ]});
+  Object.assign(Tr, { timeline: [
+    { t: '1982', d: 'Gründung als Ein-Mann-Betrieb durch Hans Mayer senior.' },
+    { t: '1995', d: 'Meisterbrief und Erweiterung auf Heizung & Sanitär.' },
+    { t: '2008', d: 'Stefan Mayer übernimmt – Fokus auf Energieeffizienz.' },
+    { t: '2022', d: '18 Mitarbeiter, Wärmepumpen-Spezialist und Lehrbetrieb.' },
+  ]});
+  Object.assign(H, { timeline: [
+    { t: '1939', d: 'Urgroßvater Franz baut das Haus als Bergpension.' },
+    { t: '1968', d: 'Erweiterung zum Hotel mit 20 Zimmern und Restaurant.' },
+    { t: '2001', d: 'Neubau des Spa-Bereichs unter Elisabeth Waldner.' },
+    { t: '2020', d: 'Sanierung aller Zimmer nach alpinem Designkonzept.' },
+  ]});
+  Object.assign(To, { timeline: [
+    { t: '2012', d: 'Martin Hofer gründet "Alpenzeit" als Bergführer-Agentur.' },
+    { t: '2016', d: 'Erstes eigenes Büro am Marktplatz und 5 feste Guides.' },
+    { t: '2019', d: 'Ausbau zu Familien-Touren und Incentive-Events.' },
+    { t: '2024', d: '60+ buchbare Erlebnisse in 4 Regionen.' },
+  ]});
+  Object.assign(C, { timeline: [
+    { t: '1994', d: 'Dr. Klaus Hofer gründet die Kanzlei in München.' },
+    { t: '2004', d: 'Erweiterung um Wirtschaftsprüfung und Rechtsberatung.' },
+    { t: '2016', d: 'Markus Hofer übernimmt als geschäftsführender Partner.' },
+    { t: '2023', d: 'Digitales Mandantenportal und Standort Innsbruck.' },
+  ]});
+  Object.assign(M, { timeline: [
+    { t: '2019', d: 'Dr. Lena Lindner eröffnet die Praxis mit 30-Min.-Konzept.' },
+    { t: '2021', d: 'Erweiterung um Akupunktur und Ernährungsmedizin.' },
+    { t: '2023', d: 'Dr. Florian Lechner verstärkt das Team (Orthopädie).' },
+    { t: '2025', d: 'Online-Terminbuchung und digitale Befundübermittlung.' },
+  ]});
+  Object.assign(F, { timeline: [
+    { t: '2017', d: 'Max Berger eröffnet das Studio mit 400 m² Trainingsfläche.' },
+    { t: '2019', d: 'Erweiterung auf 1.200 m² und Start des Kursprogramms.' },
+    { t: '2022', d: 'Gesamtes Studio auf 1.800 m² mit Outdoor-Bereich.' },
+    { t: '2025', d: '1.200+ aktive Mitglieder und 45 Kurse pro Woche.' },
+  ]});
+
+  // --- serviceProcess (steps on services page) ---
+  Object.assign(R, { serviceProcess: [
+    { t: 'Reservieren', d: 'Online, telefonisch oder spontan – wir finden immer einen Platz.' },
+    { t: 'Genießen', d: 'Lassen Sie sich von der saisonalen Karte überraschen.' },
+    { t: 'Wiederkommen', d: 'Stammgäste bekommen persönliche Empfehlungen und Events-Tipp.' },
+  ]});
+  Object.assign(S, { serviceProcess: [
+    { t: 'Termin buchen', d: 'Online oder telefonisch – Wunschtermin wählen.' },
+    { t: 'Beratung', d: 'Wir besprechen Ihren Stil und finden die passende Behandlung.' },
+    { t: 'Ergebnis', d: 'Pflege-Tipps für zu Hause und Ihr nächster Termin.' },
+  ]});
+  Object.assign(Tr, { serviceProcess: [
+    { t: 'Anfrage', d: 'Beschreiben Sie Ihr Anliegen – telefonisch oder per Formular.' },
+    { t: 'Festpreis-Angebot', d: 'Wir kommen vorbei, prüfen und erstellen ein verbindliches Angebot.' },
+    { t: 'Umsetzung', d: 'Termingerechte Ausführung mit Abnahme und Gewährleistung.' },
+  ]});
+  Object.assign(H, { serviceProcess: [
+    { t: 'Anfragen', d: 'Wunschzeitraum und Zimmer online oder telefonisch wählen.' },
+    { t: 'Bestätigung', d: 'Buchungsbestätigung mit Anreise-Infos innerhalb von 24h.' },
+    { t: 'Ankommen', d: 'Check-in ab 15:00, persönliche Begrüßung und Zimmerführung.' },
+  ]});
+  Object.assign(To, { serviceProcess: [
+    { t: 'Tour wählen', d: 'Online stöbern oder sich von uns beraten lassen.' },
+    { t: 'Buchen', d: 'Datum, Gruppengröße und eventuelle Sonderwünsche angeben.' },
+    { t: 'Erleben', d: 'Treffpunkt, Ausrüstung und Guide – alles organisiert.' },
+  ]});
+  Object.assign(C, { serviceProcess: [
+    { t: 'Erstgespräch', d: 'Kostenlos und unverbindlich – persönlich oder per Video.' },
+    { t: 'Analyse', d: 'Wir prüfen Ihre Situation und erarbeiten ein Konzept.' },
+    { t: 'Umsetzung', d: 'Begleitung bis zum Ergebnis – mit klaren Meilensteinen.' },
+  ]});
+  Object.assign(M, { serviceProcess: [
+    { t: 'Termin buchen', d: 'Online, telefonisch oder per App – meist innerhalb einer Woche.' },
+    { t: 'Erstgespräch', d: '30 Minuten Zeit für Anamnese, Untersuchung und Fragen.' },
+    { t: 'Therapie', d: 'Individueller Behandlungsplan mit Verlaufskontrolle.' },
+  ]});
+  Object.assign(F, { serviceProcess: [
+    { t: 'Probetraining', d: 'Einfach vorbeikommen – kostenlos und ohne Voranmeldung.' },
+    { t: 'Ziel-Gespräch', d: 'Wir besprechen Ihre Ziele und finden das passende Format.' },
+    { t: 'Starten', d: 'Kursplan, Personal Training oder offenes Training – los gehts.' },
+  ]});
 })();
 
 /** Showcase demo objects are patched in-place above — rebuild `pageBlocksV1` from final legacy fields. */
