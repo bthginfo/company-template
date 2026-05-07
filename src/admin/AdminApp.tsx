@@ -228,7 +228,7 @@ export function AdminApp() {
       footerStatus={
         state.status === 'ready' && state.hasDraft
           ? <span className="text-amber-600">Unveröffentlichter Entwurf — noch nicht live.</span>
-          : 'Speichern überträgt die Änderungen auf die Live-Website.'
+          : 'Speichern legt einen Entwurf an. Mit „Veröffentlichen“ gehen Änderungen live.'
       }
     />
   );

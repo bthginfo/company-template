@@ -61,7 +61,9 @@ function updatePageBlockList(
     },
   });
   if (!parsed.success) {
-    toast.error('Seitenblöcke ungültig', { description: parsed.error.message });
+    toast.error('Seitenstruktur konnte nicht gespeichert werden', {
+      description: 'Bitte prüfen Sie die betroffene Eingabe und versuchen Sie es erneut.',
+    });
     return data;
   }
   return parsed.data;
@@ -113,10 +115,10 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
   };
 
   const onRebootstrapPage = () => {
-    if (!window.confirm(`Alle Blöcke für „${PAGE_LABEL[page]}“ neu aus den Feldern oben aufbauen? IDs und Reihenfolge werden ersetzt.`)) return;
+    if (!window.confirm(`Die Standard-Abschnitte für „${PAGE_LABEL[page]}“ wiederherstellen? Die aktuelle Reihenfolge dieser Seite wird ersetzt.`)) return;
     try {
       setData(rebootstrapPageBlocksForSinglePage(data, page, tplKey, style));
-      toast.success('Seitenblöcke aktualisiert', { description: `Neu aufgebaut: ${PAGE_LABEL[page]}` });
+      toast.success('Seitenstruktur aktualisiert', { description: PAGE_LABEL[page] });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       toast.error('Aufbau fehlgeschlagen', { description: msg });
@@ -142,9 +144,9 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
     if (!b) return;
     const t = b.type as AdminSectionKey;
     if (duplicateTypesOnPage.has(String(t))) {
-      toast.error('„Aus Feldern“ nicht möglich', {
+      toast.error('Abschnitt kann nicht automatisch übernommen werden', {
         description:
-          'Auf dieser Seite gibt es mehrere Blöcke desselben Typs. Die Felder oben sind nur eine gemeinsame Quelle — bitte JSON pro Block pflegen oder Duplikate entfernen.',
+          'Auf dieser Seite gibt es mehrere Abschnitte desselben Typs. Bitte bearbeiten Sie diesen Abschnitt direkt oder entfernen Sie doppelte Abschnitte.',
       });
       return;
     }
@@ -152,7 +154,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
     const next = list.map((row, i) => (i === index ? { ...row, data: projected } : row));
     applyList(next);
     setJsonDraft((prev) => ({ ...prev, [b.id]: JSON.stringify(projected, null, 2) }));
-    toast.success('Block-Daten übernommen', { description: getSectionMeta(t, tplKey, style).title });
+    toast.success('Abschnitt aktualisiert', { description: getSectionMeta(t, tplKey, style).title });
   };
 
   const onJsonBlur = (index: number, blockId: string) => {
@@ -160,7 +162,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
     if (raw === undefined) return;
     const parsedObj = parseJsonObject(raw);
     if (parsedObj === null) {
-      toast.error('JSON ungültig', { description: 'Bitte gültiges Objekt { … } eintragen.' });
+      toast.error('Erweiterte Daten ungültig', { description: 'Bitte prüfen Sie die Eingabe.' });
       return;
     }
     const next = list.map((row, i) => (i === index ? { ...row, data: parsedObj } : row));
@@ -168,7 +170,9 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
     const issues = collectPageBlocksV1Issues(candidate.pageBlocksV1);
     const blocking = issuesTouchingPage(page, issues);
     if (blocking.length > 0) {
-      toast.error('Validierung fehlgeschlagen', { description: blocking.slice(0, 3).join(' · ') });
+      toast.error('Abschnitt konnte nicht gespeichert werden', {
+        description: 'Bitte prüfen Sie die erweiterten Daten dieser Seite.',
+      });
       return;
     }
     setData(candidate);
@@ -202,11 +206,11 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
     };
     applyList([...list, inst]);
     setJsonDraft((prev) => ({ ...prev, [inst.id]: JSON.stringify(inst.data, null, 2) }));
-    toast.success('Block hinzugefügt', { description: getSectionMeta(t, tplKey, style).title });
+    toast.success('Abschnitt hinzugefügt', { description: getSectionMeta(t, tplKey, style).title });
   };
 
   const removeBlock = (index: number) => {
-    if (!window.confirm('Diesen Block wirklich entfernen?')) return;
+    if (!window.confirm('Diesen Abschnitt wirklich entfernen?')) return;
     applyList(list.filter((_, i) => i !== index));
   };
 
@@ -214,13 +218,9 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
     <section className="rounded-2xl border border-line bg-white/80 overflow-hidden" aria-labelledby={`pageblocks-${page}-h`}>
       <div className="px-5 py-4 border-b border-line bg-[#fafaf7] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 id={`pageblocks-${page}-h`} className="font-display text-lg text-slate-900">
-            CMS-Seitenblöcke
-          </h2>
+          <h2 id={`pageblocks-${page}-h`} className="font-display text-lg text-slate-900">Seitenstruktur</h2>
           <p className="text-xs text-muted mt-0.5 max-w-prose">
-            Reihenfolge und Sichtbarkeit für die Live-Darstellung (Phase 3 Daten-Merge). Die Sektions-Karten oben sind die
-            Haupteditoren; JSON nur bei Bedarf. Mehrere Blöcke gleichen Typs: nicht „Aus Feldern“ (würde alle gleich setzen).
-            JSON pro Block muss zu den erlaubten Feldwurzeln passen.
+            Legen Sie fest, welche Abschnitte auf dieser Seite sichtbar sind und in welcher Reihenfolge sie erscheinen.
           </p>
         </div>
         <button
@@ -228,7 +228,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
           onClick={onRebootstrapPage}
           className="shrink-0 text-sm px-4 py-2 rounded-xl border border-line bg-white hover:bg-slate-50"
         >
-          Seite neu aus Feldern
+          Standard-Abschnitte wiederherstellen
         </button>
       </div>
 
@@ -246,7 +246,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
       <div className="p-5 space-y-6">
         {list.length === 0 ? (
           <p className="text-sm text-muted">
-            Noch keine Blöcke für diese Seite. Nutzen Sie „Seite neu aus Feldern“, um die Standardliste anzulegen.
+            Noch keine Abschnitte für diese Seite. Stellen Sie die Standard-Abschnitte wieder her oder fügen Sie unten einen Abschnitt hinzu.
           </p>
         ) : (
           list.map((b, i) => {
@@ -256,7 +256,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
               <div key={b.id} className="rounded-xl border border-line p-4 space-y-3 bg-white">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-muted font-mono">{b.type}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted font-mono">Abschnitt</p>
                     <p className="font-medium text-slate-900">{meta.title}</p>
                     <p className="text-xs text-muted mt-0.5">{meta.description}</p>
                   </div>
@@ -278,11 +278,11 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
                       disabled={duplicateTypesOnPage.has(String(b.type))}
                       title={
                         duplicateTypesOnPage.has(String(b.type))
-                          ? 'Mehrere Blöcke dieses Typs: bitte JSON pro Block bearbeiten.'
-                          : 'Block-Daten aus den Hauptfeldern projizieren'
+                          ? 'Mehrere Abschnitte dieses Typs vorhanden.'
+                          : 'Inhalte dieses Abschnitts aus den Hauptfeldern übernehmen'
                       }
                     >
-                      Aus Feldern
+                      Inhalte übernehmen
                     </button>
                     <button type="button" className="text-xs px-2 py-1 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50" onClick={() => removeBlock(i)}>
                       Entfernen
@@ -290,13 +290,13 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <label className="block text-[10px] uppercase tracking-widest text-muted">data (JSON)</label>
+                  <label className="block text-[10px] uppercase tracking-widest text-muted">Erweiterte Daten</label>
                   <button
                     type="button"
                     className="text-xs text-brand hover:underline"
                     onClick={() => setJsonExpanded((prev) => ({ ...prev, [b.id]: !prev[b.id] }))}
                   >
-                    {jsonExpanded[b.id] ? 'JSON ausblenden' : 'JSON anzeigen'}
+                    {jsonExpanded[b.id] ? 'Ausblenden' : 'Erweitert anzeigen'}
                   </button>
                 </div>
                 {jsonExpanded[b.id] ? (
@@ -309,7 +309,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
                   />
                 ) : (
                   <p className="text-xs text-muted border border-dashed border-line rounded-lg px-3 py-2 bg-[#fafaf7]/80">
-                    Eingeklappt — bei Bedarf „JSON anzeigen“ für Rohdaten dieses Blocks.
+                    Eingeklappt. Diese erweiterten Daten müssen normalerweise nicht bearbeitet werden.
                   </p>
                 )}
               </div>
@@ -321,7 +321,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
           {addableTypes.length > 0 ? (
             <>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] uppercase tracking-widest text-muted">Block-Typ hinzufügen</label>
+                <label className="text-[10px] uppercase tracking-widest text-muted">Abschnitt hinzufügen</label>
                 <select
                   className="text-sm border border-line rounded-lg px-3 py-2 bg-white min-w-[200px]"
                   value={addType}
@@ -329,7 +329,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
                 >
                   {addableTypes.map((t) => (
                     <option key={t} value={t}>
-                      {getSectionMeta(t, tplKey, style).title} ({t})
+                      {getSectionMeta(t, tplKey, style).title}
                     </option>
                   ))}
                 </select>
@@ -339,7 +339,7 @@ export function PageBlocksV1Panel({ page, data, setData, tplKey, style }: PageBl
               </button>
             </>
           ) : (
-            <p className="text-xs text-muted">Alle erlaubten Block-Typen für diese Seite sind bereits vorhanden (Singletons max. einmal).</p>
+            <p className="text-xs text-muted">Alle für diese Seite verfügbaren Abschnittstypen sind bereits vorhanden.</p>
           )}
         </div>
       </div>

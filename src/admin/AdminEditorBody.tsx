@@ -495,7 +495,7 @@ function pageSpecType(tpl: TemplateKey, page: PageKey, adminKey: string, style: 
   return undefined;
 }
 
-function SectionCard({ title, description, badge, specType, children, pageKey, sectionKey, data, setData }: {
+function SectionCard({ title, description, badge, specType: _specType, children, pageKey, sectionKey, data, setData }: {
   title: string;
   description?: string;
   badge?: string;
@@ -513,9 +513,6 @@ function SectionCard({ title, description, badge, specType, children, pageKey, s
       <header className="px-5 py-4 bg-[#fafaf7] border-b border-line flex items-center justify-between gap-3 flex-wrap">
         <div className="min-w-0">
           <h2 className="font-display text-xl">{title}</h2>
-          {specType && (
-            <p className="font-mono text-[10px] uppercase tracking-wider text-brand mt-1">type = {specType}</p>
-          )}
           {description && <p className="text-xs text-muted mt-0.5">{description}</p>}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -1000,8 +997,7 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
             <HomeSignatureEditor data={data} setData={setData} tpl={tpl} />
             <p className="text-xs font-medium text-muted mt-6 mb-3">Zusätzliche Highlight-Einträge</p>
             <p className="text-xs text-muted mb-3 max-w-prose leading-relaxed">
-              Auf der Live-Startseite erst nach <strong className="font-medium text-brand">Veröffentlichen</strong> sichtbar — „Speichern“ legt nur einen Entwurf ab.
-              Zum Prüfen: im neuen Tab <strong className="font-medium">Website (Entwurf)</strong> oben oder Startseite mit <code className="rounded bg-[#f0f0ec] px-1 py-0.5 text-[11px]">/?preview=1</code> (eingeloggt).
+              Speichern legt einen Entwurf an. Über <strong className="font-medium">Website (Entwurf)</strong> können Sie die Änderung prüfen; mit <strong className="font-medium text-brand">Veröffentlichen</strong> wird sie sichtbar.
             </p>
             <HomeSignatureItemsEditor data={data} setData={setData} />
           </SectionCard>
@@ -2647,12 +2643,12 @@ function SeoPage({ data, setData }: SetterProps) {
           </Field>
         </div>
       </SectionCard>
-      <SectionCard title="CMS V2" description="Direktes Section-CMS fuer diese Branchen-/Style-Kombination." badge="Aktiv">
+      <SectionCard title="Seiten-Inhalte" description="Inhalte, Reihenfolge und Sichtbarkeit passend zu Ihrem Design." badge="Aktiv">
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-900">
-          CMS V2 ist der aktive Kundenpfad. Admin und Frontend lesen dieselben <code>modularPagesV2</code>-Section-Instanzen.
+          Dieser Admin zeigt nur die Abschnitte und Felder, die für Ihr aktuelles Design verwendet werden.
         </div>
         <p className="text-xs text-muted leading-relaxed mt-3">
-          Speichern schreibt weiter nur Draft; live werden Aenderungen erst nach Veroeffentlichen.
+          Speichern legt einen Entwurf an. Besucher sehen Änderungen erst nach dem Veröffentlichen.
         </p>
       </SectionCard>
       <SectionCard title="Pro Seite" description="Meta je Unterseite überschreiben." badge="Sektion 3">

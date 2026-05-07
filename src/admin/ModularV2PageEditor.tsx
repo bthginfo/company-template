@@ -92,7 +92,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
     const section = sections.find((s) => s.id === id);
     if (!section) return;
     const label = sectionLabels[section.type] ?? section.type;
-    if (!window.confirm(`Section "${label}" aus dieser Seite entfernen?`)) return;
+    if (!window.confirm(`Abschnitt "${label}" aus dieser Seite entfernen?`)) return;
     commit(sections.filter((s) => s.id !== id));
   };
 
@@ -117,13 +117,13 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
         <div>
           <p className="text-xs uppercase tracking-widest text-muted">Seitenstruktur</p>
           <h2 className="font-display text-xl">{PAGE_LABELS[page]} bearbeiten</h2>
-          <p className="text-xs text-muted mt-1">Admin und Frontend verwenden dieselben Section-Instanzen. Speichern schreibt Draft, Veröffentlichen geht live.</p>
+          <p className="text-xs text-muted mt-1">Pflegen Sie die Inhalte dieser Seite Abschnitt für Abschnitt. Speichern legt einen Entwurf an; erst Veröffentlichen macht ihn sichtbar.</p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">{sections.length} Sections</span>
+          <span className="rounded-full border border-line bg-[#fafaf7] px-3 py-1">{sections.length} Abschnitte</span>
           <span className="rounded-full border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-1">{visibleCount} sichtbar</span>
           {sectionsWithEmptyFields ? (
-            <span className="rounded-full border border-amber-200 bg-amber-50 text-amber-900 px-3 py-1">{sectionsWithEmptyFields} Sections mit Lücken</span>
+            <span className="rounded-full border border-amber-200 bg-amber-50 text-amber-900 px-3 py-1">{sectionsWithEmptyFields} Abschnitte unvollständig</span>
           ) : (
             <span className="rounded-full border border-emerald-200 bg-emerald-50 text-emerald-900 px-3 py-1">Alle Felder gepflegt</span>
           )}
@@ -134,14 +134,14 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
       <div className="space-y-4">
         {!sections.length ? (
           <div className="rounded-2xl border border-dashed border-line bg-[#fafaf7] p-6 text-sm text-muted">
-            Diese Seite hat noch keine Sections. Fügen Sie unten einen erlaubten Section-Typ hinzu.
+            Diese Seite hat noch keine Abschnitte. Fügen Sie unten einen passenden Abschnitt hinzu.
           </div>
         ) : null}
         {sections.map((section, idx) => (
           <section key={section.id} className="border border-line rounded-2xl overflow-hidden bg-white">
             <header className="px-4 py-3 bg-[#fafaf7] border-b border-line flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-wider text-brand">{section.type}</p>
+                <p className="font-mono text-[10px] uppercase tracking-wider text-brand">Abschnitt</p>
                 <h3 className="font-display text-lg">{sectionLabels[section.type] ?? section.type}</h3>
                 <p className="text-xs text-muted mt-0.5">Position {idx + 1} von {sections.length}</p>
               </div>
@@ -178,7 +178,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
       </div>
 
       <div className="rounded-2xl border border-dashed border-line bg-[#fafaf7] p-4">
-        <label className="block text-xs uppercase tracking-widest text-muted mb-2">Section hinzufügen</label>
+        <label className="block text-xs uppercase tracking-widest text-muted mb-2">Abschnitt hinzufügen</label>
         <div className="flex flex-wrap gap-2">
           {addableTypes.length ? (
             addableTypes.map((type) => (
@@ -192,7 +192,7 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
               </button>
             ))
           ) : (
-            <p className="text-sm text-muted">Alle für diese Seite erlaubten Section-Typen sind bereits angelegt.</p>
+            <p className="text-sm text-muted">Alle für diese Seite verfügbaren Abschnittstypen sind bereits angelegt.</p>
           )}
         </div>
       </div>

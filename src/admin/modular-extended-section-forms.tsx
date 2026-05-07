@@ -826,7 +826,7 @@ function RestaurantMenuCategoriesForm({ data, onChange, uploadImage }: ModularSe
         </div>
       </div>
       <p className="text-xs text-muted">
-        Kategorien und Gerichte erscheinen im Frontend im Block „Speisekarte“ auf dieser Seite. Änderungen hier werden mit{' '}
+        Kategorien und Gerichte erscheinen auf dieser Seite im Bereich „Speisekarte“. Änderungen werden mit{' '}
         <strong className="text-foreground">Veröffentlichen</strong> live.
       </p>
       {list.map((cat, i) => (

@@ -397,7 +397,7 @@ function HeroForm({ data, onChange, tpl, style, uploadImage, modularPage }: Modu
         </>
       ) : classicSubpageReduced ? (
         <p className="text-xs text-muted pt-1 max-w-prose">
-          Auf dieser klassischen Unterseite zeigt der Seitenkopf nur Eyebrow, Überschrift und Untertitel — ohne Hintergrundbild, Buttons oder Statistik-Zeilen.
+          Diese Unterseite nutzt einen schlichten Seitenkopf. Pflegen Sie hier den kurzen Einstiegstext für diese Seite.
         </p>
       ) : (
         <>
@@ -429,7 +429,7 @@ function HeroForm({ data, onChange, tpl, style, uploadImage, modularPage }: Modu
               />
             </div>
           </div>
-          <p className="text-xs font-medium text-muted pt-2">Statistik-Zeilen (optional)</p>
+          <p className="text-xs font-medium text-muted pt-2">Eckdaten (optional)</p>
           <div className="space-y-2">
             {stats.map((row, i) => (
               <div key={i} className="grid sm:grid-cols-[1fr_2fr_auto] gap-2 items-end">
@@ -466,7 +466,7 @@ function ActionBarForm({ data, onChange, tpl }: Pick<ModularSectionDataFormProps
         />
         <span>Status aus Öffnungszeiten automatisch</span>
       </label>
-      <ModField label="Status-Text (Override)" hint={autoStatus ? 'Automatisch aktiv: Dieser Text wird im Frontend aus den Öffnungszeiten berechnet.' : undefined}>
+      <ModField label="Status-Text (Override)" hint={autoStatus ? 'Automatisch aktiv: Dieser Text wird auf der Website aus den Öffnungszeiten berechnet.' : undefined}>
         <input
           className={`${modularInputCls} disabled:cursor-not-allowed disabled:opacity-50`}
           value={str(data.availabilityStatusOverride)}

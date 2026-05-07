@@ -108,7 +108,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
     const sec = sections.find((s) => s.id === id);
     if (!sec) return;
     const label = cfg.sectionLabels[sec.type] ?? sec.type;
-    if (!window.confirm(`Section "${label}" aus dieser Seite entfernen?`)) return;
+    if (!window.confirm(`Abschnitt "${label}" aus dieser Seite entfernen?`)) return;
     updateSections(sections.filter((s) => s.id !== id));
   };
 
@@ -144,7 +144,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
   if (tpl !== cfg.tpl) {
     return (
       <p className="text-sm text-muted">
-        Modulare Speicher-Struktur ist für diese Kombination noch nicht freigeschaltet.
+        Dieser Editor ist für die aktuelle Kombination nicht verfügbar.
       </p>
     );
   }
@@ -153,16 +153,14 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
     <div className="space-y-6">
       {modular?.combo?.style && modular.combo.style !== style ? (
         <p className="text-xs text-rose-900 max-w-prose rounded-xl border border-rose-200 bg-rose-50/80 px-3 py-2">
-          Hinweis: Modulare Metadaten sind für <strong>{formatBranchStyle(modular.combo.style)}</strong> gespeichert, der Mandant nutzt
-          aber <strong>{formatBranchStyle(style)}</strong>. Inhalte werden weiter ins Frontend gemergt; bei Bedarf Stil im Admin an die
-          gespeicherte Kombination anpassen.
+          Hinweis: Die Inhalte wurden für <strong>{formatBranchStyle(modular.combo.style)}</strong> angelegt, aktuell ist{' '}
+          <strong>{formatBranchStyle(style)}</strong> ausgewählt. Prüfen Sie bitte, ob die sichtbaren Abschnitte weiterhin passen.
         </p>
       ) : null}
 
       {hiddenHomeCount > 0 ? (
         <p className="text-xs text-muted max-w-prose border border-line rounded-xl px-3 py-2 bg-[#fafaf7]">
-          {hiddenHomeCount} Block(e) sind für diese Branchen/Stil-Kombination auf der Startseite nicht sichtbar (kein passender Layout-Slot).
-          Daten bleiben gespeichert; bei Layout-Änderung können sie wieder relevant werden.
+          {hiddenHomeCount} Abschnitt(e) passen aktuell nicht zum gewählten Startseiten-Design und werden deshalb nicht angezeigt.
         </p>
       ) : null}
 
@@ -174,10 +172,10 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
               <section key={sec.id} className="border border-dashed border-line rounded-2xl overflow-hidden bg-[#fafaf7]/80 opacity-90">
                 <header className="px-4 py-3 border-b border-line flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="font-mono text-[10px] uppercase tracking-wider text-muted">type = {sec.type}</p>
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-muted">ausgeblendet</p>
                     <h3 className="font-display text-base text-muted">
                       {cfg.sectionLabels[sec.type] ?? sec.type}
-                      <span className="ml-2 text-xs font-sans font-normal text-amber-800">· nicht im aktuellen Startseiten-Layout</span>
+                      <span className="ml-2 text-xs font-sans font-normal text-amber-800">· nicht im aktuellen Startseiten-Design</span>
                     </h3>
                   </div>
                 </header>
@@ -188,7 +186,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
           <section key={sec.id} className="border border-line rounded-2xl overflow-hidden bg-white">
             <header className="px-4 py-3 bg-[#fafaf7] border-b border-line flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-wider text-brand">type = {sec.type}</p>
+                <p className="font-mono text-[10px] uppercase tracking-wider text-brand">Abschnitt</p>
                 <h3 className="font-display text-lg">
                   {cfg.sectionLabels[sec.type] ?? sec.type}
                 </h3>
@@ -226,7 +224,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
       </div>
       <div className="rounded-2xl border border-dashed border-line bg-[#fafaf7] p-4">
         <label className="block text-xs uppercase tracking-widest text-muted mb-2">
-          Section hinzufügen
+          Abschnitt hinzufügen
         </label>
         <div className="flex flex-wrap gap-2">
           {addableSectionTypes.length ? (
@@ -242,7 +240,7 @@ export function ModularSpecPageEditor({ data, setData, tpl, style, page, cfg, up
             ))
           ) : (
             <p className="text-xs text-muted">
-              Alle für diese Branchen/Stil/Seiten-Kombination erlaubten Section-Typen sind bereits vorhanden.
+              Alle für diese Seite verfügbaren Abschnittstypen sind bereits vorhanden.
             </p>
           )}
         </div>
@@ -264,12 +262,11 @@ export function ModularSpecActivationPanel({ data, setData, tpl, style, cfg }: A
   if (cfg.hasAny(data)) return null;
   return (
     <div className="bg-white border border-line rounded-2xl p-4 mb-6">
-      <p className="text-sm font-medium">Modularer Seiten-Editor · {cfg.branchLabelDe}</p>
+      <p className="text-sm font-medium">Seiten-Editor · {cfg.branchLabelDe}</p>
       <p className="text-xs text-muted mt-1 max-w-prose">{cfg.activationIntroDe}</p>
       <p className="text-xs text-muted mt-2 max-w-prose leading-relaxed border-t border-line pt-2">
-        <strong className="text-foreground">Aktivieren</strong> legt die modulare Struktur an und übernimmt Inhalte aus den bestehenden
-        Feldern. <strong className="text-foreground">Deaktivieren</strong> (im Editor nach Aktivierung) entfernt nur diese
-        Speicher-Schicht; gemergte Seiteninhalte bleiben in den normalen Feldern erhalten.
+        <strong className="text-foreground">Aktivieren</strong> bereitet die Seiten so vor, dass Sie Inhalte Abschnitt für Abschnitt
+        bearbeiten, sortieren und ein- oder ausblenden können.
       </p>
       <button
         type="button"
@@ -279,8 +276,9 @@ export function ModularSpecActivationPanel({ data, setData, tpl, style, cfg }: A
           setData(cfg.applyToLegacy({ ...data, modularPagesV1: imported }));
         }}
       >
-        Modularen Editor für {cfg.branchLabelDe} aktivieren
+        Seiten-Editor für {cfg.branchLabelDe} aktivieren
       </button>
     </div>
   );
 }
+
