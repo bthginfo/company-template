@@ -186,7 +186,7 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage, siteContent
   const showItemButton = tpl !== 'salon' && tpl !== 'tourism' && tpl !== 'fitness';
   const items = Array.isArray(data.items)
     ? (data.items as unknown[]).map((x) => {
-        if (!x || typeof x !== 'object') return { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '', detail: cleanDetailFields({}) };
+        if (!x || typeof x !== 'object') return { title: '', description: '', image: '', tags: '', price: '', btnLabel: '', btnHref: '', detail: cleanDetailFields({}) };
         const o = x as Record<string, unknown>;
         const rawTags = o.tags;
         const btn = readButton(o, 'button');
@@ -196,6 +196,7 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage, siteContent
           description: str(o.description) || str(o.meta),
           image: imgUrl(o.image),
           tags: Array.isArray(rawTags) ? rawTags.map(str).join(', ') : str(rawTags),
+          price: str(o.price),
           btnLabel: str(btn.label),
           btnHref: href,
           detail: detailFieldsFrom(o),
@@ -208,6 +209,7 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage, siteContent
       items: next.map((r) => ({
         title: r.title,
         description: r.description,
+        price: r.price,
         ...(showTags ? { tags: r.tags.split(',').map((s) => s.trim()).filter(Boolean) } : {}),
         image: { image: r.image, alt: r.title },
         ...cleanDetailFields(r.detail),
@@ -263,6 +265,9 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage, siteContent
               <input className={modularInputCls} value={row.tags} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, tags: e.target.value } : x)))} />
             </ModField>
           ) : null}
+          <ModField label="Preis" hint="z. B. ab 59 € oder 120 € / Sitzung">
+            <input className={modularInputCls} value={row.price} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, price: e.target.value } : x)))} />
+          </ModField>
           <ModImagePick label="Bild" value={row.image} onChange={(url) => set(items.map((x, j) => (j === i ? { ...x, image: url } : x)))} uploadImage={uploadImage} />
           <CatalogDetailFields
             value={row.detail}
@@ -288,7 +293,7 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage, siteContent
           </button>
         </div>
       ))}
-      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '', detail: cleanDetailFields({}) }])}>
+      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', description: '', image: '', tags: '', price: '', btnLabel: '', btnHref: '', detail: cleanDetailFields({}) }])}>
         + Karte
       </button>
     </div>
@@ -387,6 +392,96 @@ function RoomCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSecti
       ))}
       <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', subtitle: '', description: '', image: '', price: '', priceSuffix: '', feats: '', btnLabel: '', btnHref: '' }])}>
         + Zimmer / Angebot
+      </button>
+    </div>
+  );
+}
+
+function TourCardsSectionForm({ data, onChange, uploadImage }: ModularSectionDataFormProps) {
+  const items = Array.isArray(data.items)
+    ? (data.items as unknown[]).map((x) => {
+        if (!x || typeof x !== 'object') return { title: '', description: '', image: '', duration: '', level: '', groupSize: '', price: '', languages: '', detail: cleanDetailFields({}) };
+        const o = x as Record<string, unknown>;
+        const langsRaw = o.languages;
+        const langs = Array.isArray(langsRaw) ? langsRaw.map(str).filter(Boolean).join(', ') : str(langsRaw);
+        return {
+          title: str(o.title),
+          description: str(o.description),
+          image: imgUrl(o.image),
+          duration: str(o.duration) || str(o.subtitle),
+          level: str(o.level),
+          groupSize: str(o.groupSize),
+          price: str(o.price),
+          languages: langs,
+          detail: detailFieldsFrom(o),
+        };
+      })
+    : [];
+  const set = (next: typeof items) =>
+    onChange({
+      ...data,
+      items: next.map((r) => ({
+        title: r.title,
+        description: r.description,
+        image: { image: r.image, alt: r.title },
+        duration: r.duration,
+        level: r.level,
+        groupSize: r.groupSize,
+        price: r.price,
+        languages: r.languages.split(',').map((s) => s.trim()).filter(Boolean),
+        ...cleanDetailFields(r.detail),
+      })),
+    });
+  return (
+    <div className="space-y-4">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <ModField label="Eyebrow">
+          <input className={modularInputCls} value={str(data.eyebrow)} onChange={(e) => onChange({ ...data, eyebrow: e.target.value })} />
+        </ModField>
+        <ModField label="Überschrift">
+          <input className={modularInputCls} value={str(data.headline)} onChange={(e) => onChange({ ...data, headline: e.target.value })} />
+        </ModField>
+      </div>
+      <ModField label="Intro">
+        <textarea className={modularInputCls} rows={2} value={str(data.description)} onChange={(e) => onChange({ ...data, description: e.target.value })} />
+      </ModField>
+      {items.map((row, i) => (
+        <div key={i} className="border border-line rounded-xl p-4 space-y-3">
+          <ModField label="Titel">
+            <input className={modularInputCls} value={row.title} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))} />
+          </ModField>
+          <ModField label="Beschreibung">
+            <textarea className={modularInputCls} rows={2} value={row.description} onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, description: e.target.value } : x)))} />
+          </ModField>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <ModField label="Dauer">
+              <input className={modularInputCls} value={row.duration} placeholder="z. B. 3 Stunden" onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, duration: e.target.value } : x)))} />
+            </ModField>
+            <ModField label="Schwierigkeitsgrad">
+              <input className={modularInputCls} value={row.level} placeholder="z. B. mittel" onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, level: e.target.value } : x)))} />
+            </ModField>
+            <ModField label="Gruppengröße">
+              <input className={modularInputCls} value={row.groupSize} placeholder="z. B. max. 12" onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, groupSize: e.target.value } : x)))} />
+            </ModField>
+            <ModField label="Preis">
+              <input className={modularInputCls} value={row.price} placeholder="z. B. ab 49 €" onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, price: e.target.value } : x)))} />
+            </ModField>
+          </div>
+          <ModField label="Sprachen (kommasepariert)">
+            <input className={modularInputCls} value={row.languages} placeholder="z. B. Deutsch, Englisch" onChange={(e) => set(items.map((x, j) => (j === i ? { ...x, languages: e.target.value } : x)))} />
+          </ModField>
+          <ModImagePick label="Bild" value={row.image} onChange={(url) => set(items.map((x, j) => (j === i ? { ...x, image: url } : x)))} uploadImage={uploadImage} />
+          <CatalogDetailFields
+            value={row.detail}
+            onChange={(detail) => set(items.map((x, j) => (j === i ? { ...x, detail } : x)))}
+          />
+          <button type="button" className="text-xs text-rose-600" onClick={() => set(items.filter((_, j) => j !== i))}>
+            Entfernen
+          </button>
+        </div>
+      ))}
+      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', description: '', image: '', duration: '', level: '', groupSize: '', price: '', languages: '', detail: cleanDetailFields({}) }])}>
+        + Tour
       </button>
     </div>
   );
@@ -1148,21 +1243,22 @@ export function extendedModularSectionForm(props: ModularSectionDataFormProps): 
     case 'serviceList':
     case 'featuredLooks':
     case 'featuredLooksBand':
-    case 'tourOverviewCards':
-    case 'tourOverviewList':
     case 'serviceOverviewCards':
     case 'serviceOverviewList':
+    case 'classCards':
+      return <ServiceCardsSectionForm {...props} />;
     case 'featuredAreas':
     case 'roomSelection':
-    case 'tourSchedule':
-    case 'tourSelection':
-    case 'classCards':
+    case 'roomCards':
     case 'accommodationsGrid':
     case 'accommodationList':
-      return <ServiceCardsSectionForm {...props} />;
-    case 'roomCards':
-    case 'tourCards':
       return <RoomCardsSectionForm {...props} />;
+    case 'tourSchedule':
+    case 'tourSelection':
+    case 'tourCards':
+    case 'tourOverviewCards':
+    case 'tourOverviewList':
+      return <TourCardsSectionForm {...props} />;
     case 'pricingPackages':
       return <PricingPackagesSectionForm {...props} />;
     case 'stickyEmergencyBanner':
