@@ -204,7 +204,7 @@ const EXTRA_BRANCHES: Record<ExtraBranchKey, {
     bullets: ['Programme & Kursformat', 'Trainer:innen mit Stories', 'Probetraining-CTA im Hero', 'Preise pro Kurs / Paket'],
   },
   wedding: {
-    label: 'Website für deine Hochzeit',
+    label: 'Wedding Website',
     tagline: 'Einladung · Programm · RSVP',
     description: 'Eure Geschichte, Location, Ablauf und Gäste-Rückmeldung — alles auf einer schönen Seite.',
     image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=80',

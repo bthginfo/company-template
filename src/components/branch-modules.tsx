@@ -25,7 +25,7 @@ export type ModuleHeadingKey =
   | 'packages' | 'process' | 'doctors' | 'booking' | 'funding'
   | 'locations'
   | 'medicalInfo' | 'consultingSpotlight' | 'fitnessSpotlight'
-  | 'teamConsulting' | 'teamMedical' | 'teamFitness';
+  | 'teamConsulting' | 'teamMedical' | 'teamFitness' | 'teamWedding';
 
 export type ModuleHeading = { eyebrow?: string; titleA?: string; titleB?: string; subtitle?: string };
 
@@ -50,6 +50,7 @@ export const MODULE_DEFAULTS: Record<ModuleHeadingKey, Required<ModuleHeading>> 
   teamConsulting:       { eyebrow: 'Team',              titleA: 'Das',              titleB: 'Team.',               subtitle: 'Erfahrene Berater:innen mit eigenen Schwerpunkten. Sie erreichen uns direkt – ohne Sekretariat.' },
   teamMedical:          { eyebrow: 'Ärzt:innen',        titleA: 'Ärzt:innen &',     titleB: 'Team.',               subtitle: 'Alle Ärzt:innen mit Facharzt-Anerkennung. Wir nehmen uns Zeit für Sie.' },
   teamFitness:          { eyebrow: 'Trainer:innen',     titleA: 'Unsere',           titleB: 'Trainer:innen.',      subtitle: 'Fünf Lehrer:innen, jede mit eigener Handschrift. Lernen Sie sie im Probetraining kennen.' },
+  teamWedding:          { eyebrow: 'Trauzeugen & Co.',  titleA: 'Die wichtigsten',  titleB: 'Menschen.',           subtitle: 'Die Menschen, die diesen Tag mit uns gestalten.' },
 };
 
 export function moduleHeading(content: SiteContent, key: ModuleHeadingKey): { eyebrow: string; title: React.ReactNode; subtitle: string } {
@@ -773,7 +774,7 @@ export function EmergencyStickyBanner({ content }: { content: SiteContent }) {
       <div className="rounded-2xl bg-brand text-white shadow-2xl border border-white/10 px-5 py-4 flex items-center gap-4">
         <span className="relative inline-flex h-10 w-10 rounded-full bg-[var(--accent-color)] items-center justify-center shrink-0">
           <span className="absolute inset-0 rounded-full bg-[var(--accent-color)] animate-ping opacity-40" />
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="relative text-brand">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="relative text-white">
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0 1 22 16.92z" />
           </svg>
         </span>
@@ -781,7 +782,7 @@ export function EmergencyStickyBanner({ content }: { content: SiteContent }) {
           <p className="font-mono text-[10px] uppercase tracking-widest text-white/70">{b.text || 'Notdienst 24/7'}</p>
         </div>
         {phone && (
-          <a href={phoneHref} className="font-display text-base bg-[var(--accent-color)] text-brand rounded-full px-4 py-2 whitespace-nowrap hover:scale-105 transition-transform">
+          <a href={phoneHref} className="font-display text-base bg-[var(--accent-color)] text-white rounded-full px-4 py-2 whitespace-nowrap hover:scale-105 transition-transform">
             {phone}
           </a>
         )}

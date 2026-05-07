@@ -179,8 +179,30 @@ export function isSectionEnabled(content: SiteContent, page: PageId, key: string
   if (fullKey in flags) return flags[fullKey] !== false;
   // Legacy: home used unprefixed keys before the layout manager
   if (page === 'home' && key in flags) return flags[key] !== false;
+  // Also respect V2 section visibility when admin toggles section.visible
+  const v2Sections = (content as any).modularPagesV2?.[page]?.sections as Array<{ type?: string; visible?: boolean }> | undefined;
+  if (v2Sections) {
+    const sectionTypeForSlot = SLOT_TO_V2_SECTION_TYPE[key];
+    if (sectionTypeForSlot) {
+      const match = v2Sections.find((s) => s.type === sectionTypeForSlot);
+      if (match && match.visible === false) return false;
+    }
+  }
   return true;
 }
+
+/** Map legacy slot keys to V2 section type names so isSectionEnabled can honour V2 visibility. */
+const SLOT_TO_V2_SECTION_TYPE: Record<string, string> = {
+  news: 'newsTeaser',
+  testimonials: 'testimonials',
+  gallery: 'galleryPreview',
+  about: 'storyTeaser',
+  faq: 'faq',
+  numbers: 'statsBand',
+  process: 'processCards',
+  services: 'serviceCards',
+  contact: 'contactDetails',
+};
 
 /** Hinweis-Banner (Ticker): respects `sectionVisibility.<page>.announcementBar` on every page (default on). */
 export function isAnnouncementBarEnabledOnPage(content: SiteContent, page: PageId): boolean {

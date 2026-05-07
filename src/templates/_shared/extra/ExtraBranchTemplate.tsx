@@ -183,12 +183,12 @@ function defaultExtraHomeStrip(): {
 }
 
 /** Home Aktions-Leiste — mirrors core `BranchActionStrip` without importing `TemplateApp` (cycle). */
-function ExtraHomeActionStrip({ content }: { content: SiteContent }) {
+function ExtraHomeActionStrip({ content, branch }: { content: SiteContent; branch?: ExtraBranchKey }) {
   const phone = content.contact.phone || '';
   const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
   const def = defaultExtraHomeStrip();
   const rawStrip = ((content as any).homeStrip || {}) as Record<string, unknown>;
-  const auto = rawStrip.eyebrowAuto !== false;
+  const auto = rawStrip.eyebrowAuto !== false && branch !== 'wedding';
   const stripForMerge = Object.fromEntries(
     Object.entries(rawStrip).filter(([key]) => !auto || key !== 'eyebrow'),
   );
@@ -649,7 +649,7 @@ function ExtraV2SingleModule({ section, content, branch, style }: { section: Mod
     case 'serviceInfo':
       return <ExtraV2Cards section={section} title="Service & Info." />;
     case 'processTextColumns':
-      return <ExtraV2Cards section={section} title="Wie wir arbeiten." />;
+      return <ExtraV2Cards section={section} title={effectiveBranchText(branch, content).processTitle || 'Wie wir arbeiten.'} />;
     case 'processCards':
       return <ProcessStepsModule content={content} itemLinkPrefix={itemLinkPrefix} />;
     case 'pricingPackages':
@@ -1774,7 +1774,7 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
     const bt = effectiveBranchText(branch, slice);
     const homeT = meaningfulTestimonials(slice.testimonials);
     return {
-      action: <ExtraHomeActionStrip content={slice} />,
+      action: <ExtraHomeActionStrip content={slice} branch={branch} />,
       chips: <BranchHeroBadges branch={branch} style="classic" content={slice} />,
       about: slice.about ? (
       <section id="about" className="py-24 md:py-32 surface">
@@ -1968,7 +1968,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
     const bt = effectiveBranchText(branch, slice);
     const homeT = meaningfulTestimonials(slice.testimonials);
     return {
-    action: <ExtraHomeActionStrip content={slice} />,
+    action: <ExtraHomeActionStrip content={slice} branch={branch} />,
     chips: <BranchHeroBadges branch={branch} style="modern" content={slice} />,
     about: slice.about ? (
       <section id="about" className="py-24 md:py-32 surface">
@@ -2185,7 +2185,7 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
     const bt = effectiveBranchText(branch, slice);
     const homeT = meaningfulTestimonials(slice.testimonials);
     return {
-    action: <ExtraHomeActionStrip content={slice} />,
+    action: <ExtraHomeActionStrip content={slice} branch={branch} />,
     chips: <BranchHeroBadges branch={branch} style="bold" content={slice} />,
     marquee: (() => {
       const words = (Array.isArray(bt.marqueeWords) && bt.marqueeWords.length > 0)
@@ -2785,7 +2785,7 @@ function BranchTeam({
     if (hasNamedDoctor) return null;
   }
   if (team.length === 0) return null;
-  const teamKey: ModuleHeadingKey = branch === 'fitness' ? 'teamFitness' : branch === 'medical' ? 'teamMedical' : 'teamConsulting';
+  const teamKey: ModuleHeadingKey = branch === 'fitness' ? 'teamFitness' : branch === 'medical' ? 'teamMedical' : branch === 'wedding' ? 'teamWedding' : 'teamConsulting';
   const h = moduleHeading(content, teamKey);
   if (style === 'bold') {
     return (
