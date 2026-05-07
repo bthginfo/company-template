@@ -4,6 +4,7 @@ import type { SiteContent, TemplateKey } from '@/lib/types';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { demoNewsFallbackForTemplate } from '@/lib/demo-news-by-template';
 import { isShowcaseMode } from '@/lib/tenant';
+import { useBasePath } from '@/components/site-blocks';
 
 type Post = NonNullable<SiteContent['posts']>[number];
 
@@ -31,17 +32,19 @@ function formatDate(iso: string): string {
 }
 
 /** Compact preview of latest 3 posts — embed on home pages. */
-export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', title = 'News & Notizen.', allPostsLabel, allPostsHref, templateVariant }: {
+export function NewsPreview({ content, basePath: basePathProp, eyebrow = 'Aktuelles', title = 'News & Notizen.', allPostsLabel, allPostsHref, templateVariant }: {
   content: SiteContent;
   basePath?: string;
   eyebrow?: string;
   title?: ReactNode;
-  /** Override “Alle Beiträge” label / target (modular news teaser). */
+  /** Override "Alle Beiträge" label / target (modular news teaser). */
   allPostsLabel?: string;
   allPostsHref?: string;
   /** Used for showcase fallback posts when `content.posts` is empty. */
   templateVariant?: TemplateKey;
 }) {
+  const ctxBase = useBasePath();
+  const basePath = basePathProp ?? ctxBase;
   const posts = usePublishedPosts(content, templateVariant).slice(0, 3);
   if (posts.length === 0) return null;
   const linkTo = (slug: string) => `${basePath}/news/${slug}`;
@@ -88,7 +91,9 @@ export function NewsPreview({ content, basePath = '', eyebrow = 'Aktuelles', tit
 }
 
 /** Full archive listing page. */
-export function NewsIndexPage({ content, basePath = '', templateVariant }: { content: SiteContent; basePath?: string; templateVariant?: TemplateKey }) {
+export function NewsIndexPage({ content, basePath: basePathProp, templateVariant }: { content: SiteContent; basePath?: string; templateVariant?: TemplateKey }) {
+  const ctxBase = useBasePath();
+  const basePath = basePathProp ?? ctxBase;
   const posts = usePublishedPosts(content, templateVariant);
   const header = (content as any).newsHeader as { eyebrow?: string; title?: string; subtitle?: string } | undefined;
   return (
@@ -123,7 +128,9 @@ export function NewsIndexPage({ content, basePath = '', templateVariant }: { con
 }
 
 /** Detail page for a single post. */
-export function NewsDetailPage({ content, basePath = '', templateVariant }: { content: SiteContent; basePath?: string; templateVariant?: TemplateKey }) {
+export function NewsDetailPage({ content, basePath: basePathProp, templateVariant }: { content: SiteContent; basePath?: string; templateVariant?: TemplateKey }) {
+  const ctxBase = useBasePath();
+  const basePath = basePathProp ?? ctxBase;
   const { slug } = useParams<{ slug: string }>();
   const posts = usePublishedPosts(content, templateVariant);
   const post = posts.find((p) => p.slug === slug || p.id === slug);
