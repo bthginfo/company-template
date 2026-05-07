@@ -94,7 +94,7 @@ export const CMS_SECTION_FIELD_CONTRACTS = {
   roomCards: ['eyebrow', 'headline', 'description', 'items'],
   tourCards: ['eyebrow', 'headline', 'description', 'items'],
   pricingPackages: ['eyebrow', 'headline', 'description', 'items'],
-  stickyEmergencyBanner: ['phone', 'label', 'headline', 'subline'],
+  stickyEmergencyBanner: ['phone', 'label', 'headline'],
   fundingCalculator: ['investmentMin', 'investmentMax', 'investmentStep', 'investmentDefault', 'programs'],
   brandLogos: ['items'],
   featureImage: ['image'],

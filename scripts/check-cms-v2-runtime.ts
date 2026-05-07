@@ -3,10 +3,10 @@ import { getCmsAddableSectionTypes, type CmsPageKey } from '../src/lib/cms-contr
 import { SiteContentSchema, type ModularSectionV2, type SiteContent, type TemplateKey } from '../src/lib/types';
 import type { TemplateStyle } from '../src/lib/branch-config';
 
-const TEMPLATES: TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness'];
+const TEMPLATES: TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness', 'wedding'];
 const STYLES: TemplateStyle[] = ['classic', 'modern', 'bold'];
 const PAGES: CmsPageKey[] = ['home', 'services', 'gallery', 'about', 'contact'];
-const EXTRA_TEMPLATES = new Set<TemplateKey>(['consulting', 'medical', 'fitness']);
+const EXTRA_TEMPLATES = new Set<TemplateKey>(['consulting', 'medical', 'fitness', 'wedding']);
 const EXTRA_RENDER_BUCKETS: Record<string, string> = {
   appointmentBooking: 'booking',
   categoryCards: 'text-cards',

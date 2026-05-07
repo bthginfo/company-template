@@ -103,7 +103,7 @@ export function validateSlug(slug: string): string | null {
   return null;
 }
 
-function extraDefaults(key: 'consulting' | 'medical' | 'fitness', name: string): SiteContent {
+function extraDefaults(key: 'consulting' | 'medical' | 'fitness' | 'wedding', name: string): SiteContent {
   const base = EXTRA_DEMO_CONTENT[key];
   return SiteContentSchema.parse({
     ...base,
@@ -172,7 +172,7 @@ export function defaultsFor(
   themePresetId?: string,
   style: AnyStyle = 'classic',
 ): SiteContent {
-  const seeded = (t === 'consulting' || t === 'medical' || t === 'fitness')
+  const seeded = (t === 'consulting' || t === 'medical' || t === 'fitness' || t === 'wedding')
     ? extraDefaults(t, name)
     : fullDefaults(t as 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism', name);
 
