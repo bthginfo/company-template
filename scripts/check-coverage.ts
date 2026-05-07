@@ -467,6 +467,12 @@ if (!EXTRA_TEMPLATE_SOURCE.includes('content.cmsV2?.enabled === true')) {
 if (EXTRA_TEMPLATE_SOURCE.includes('cms:v2-frontend') || EXTRA_TEMPLATE_SOURCE.includes("params.get('cmsV2')")) {
   note('[cms-v2-extra-frontend-flag] Extra frontend V2 gate must not use query/localStorage QA gates; cmsV2.enabled is the only switch.');
 }
+if (
+  EXTRA_TEMPLATE_SOURCE.includes('<BranchModulesInline key={section.id}') ||
+  EXTRA_TEMPLATE_SOURCE.includes('<BranchModulesInline variant={branch} content={patched}')
+) {
+  note('[cms-v2-extra-section-renderer] Extra V2 page sections must render one explicit module per section; BranchModulesInline renders a bundle and causes duplicate sections.');
+}
 if (!CONTENT_API_SOURCE.includes('normalizeMailSecret') || !CONTENT_API_SOURCE.includes('passEnc')) {
   note('[mail-secret] Mail passwords must be normalized server-side into encrypted passEnc instead of persisted plaintext.');
 }

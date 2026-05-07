@@ -10,7 +10,15 @@ import { NewsPreview, NewsIndexPage, NewsDetailPage } from '@/components/News';
 import { CatalogItemDetailPage } from '@/components/CatalogItemDetailPage';
 import { Imprint, Privacy } from '@/components/legal-pages';
 import { MasonryLightbox } from '@/components/MasonryLightbox';
-import { BranchModulesInline, moduleHeading, type ModuleHeadingKey } from '@/components/branch-modules';
+import {
+  BranchModulesInline,
+  CourseScheduleModule,
+  OnlineBookingModule,
+  PricePackagesModule,
+  ProcessStepsModule,
+  moduleHeading,
+  type ModuleHeadingKey,
+} from '@/components/branch-modules';
 import { branchTextDefaults } from '@/lib/branch-text-defaults';
 import { isSectionEnabled, getEffectivePageOrder, type PageId as LayoutPageId } from '@/lib/page-layout';
 import { getOpenStatus, parseHours } from '@/lib/open-hours';
@@ -575,6 +583,31 @@ function ExtraV2Cards({ section, title }: { section: ModularSectionV2; title: st
   );
 }
 
+function ExtraV2SingleModule({ section, content, branch, style }: { section: ModularSectionV2; content: SiteContent; branch: ExtraBranchKey; style: ExtraStyle }) {
+  const itemLinkPrefix = getBranchConfig(branch).paths.services;
+  switch (section.type) {
+    case 'serviceCards':
+    case 'serviceInfo':
+    case 'classCards':
+      return <ExtraLeistungenServiceCards content={content} branch={branch} style={style} />;
+    case 'processTextColumns':
+    case 'processCards':
+      return <ProcessStepsModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+    case 'pricingPackages':
+      return <PricePackagesModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+    case 'team':
+    case 'trainers':
+      return <BranchTeam branch={branch} style={style} content={content} />;
+    case 'appointmentBooking':
+      return <OnlineBookingModule content={content} />;
+    case 'trainingPlanOverview':
+    case 'programTable':
+      return <CourseScheduleModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+    default:
+      return null;
+  }
+}
+
 function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteContent; branch: ExtraBranchKey; style: ExtraStyle; eyebrow: string }) {
   const cta = resolveHeroCta(content);
   const body = heroBodyParagraphs(content);
@@ -731,7 +764,6 @@ function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteC
           case 'serviceCards':
           case 'serviceInfo':
           case 'classCards':
-            return <React.Fragment key={section.id}><ExtraLeistungenServiceCards content={patched} branch={branch} style={style} /><BranchModulesInline variant={branch} content={patched} /></React.Fragment>;
           case 'processTextColumns':
           case 'processCards':
           case 'pricingPackages':
@@ -740,7 +772,7 @@ function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteC
           case 'appointmentBooking':
           case 'trainingPlanOverview':
           case 'programTable':
-            return <BranchModulesInline key={section.id} variant={branch} content={patched} />;
+            return <ExtraV2SingleModule key={section.id} section={section} content={patched} branch={branch} style={style} />;
           case 'storyTeaser':
           case 'teaserList':
           case 'categoryCards':
