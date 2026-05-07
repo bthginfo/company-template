@@ -50,6 +50,7 @@ export function AdminApp() {
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
   // JSON snapshot of the last persisted state, used to detect unsaved edits
   // and warn the operator before they close the tab / navigate away.
   const [pristine, setPristine] = useState<string | null>(null);
@@ -187,6 +188,15 @@ export function AdminApp() {
     toast.success('Stil gewechselt', { description: `Neuer Stil: ${newStyle.charAt(0).toUpperCase() + newStyle.slice(1)}` });
   };
 
+  const uploadImageWithBusy: UploadImageFn = async (file) => {
+    setUploadingCount((count) => count + 1);
+    try {
+      return await uploadImage(file);
+    } finally {
+      setUploadingCount((count) => Math.max(0, count - 1));
+    }
+  };
+
   if (session === undefined) {
     return <div className="min-h-screen grid place-items-center text-slate-500">Lädt …</div>;
   }
@@ -210,7 +220,8 @@ export function AdminApp() {
       savedAt={savedAt}
       brandTitle={tenant.name}
       previewUrlBase=""
-      uploadImage={uploadImage}
+      uploadImage={uploadImageWithBusy}
+      uploadBusy={uploadingCount > 0}
       style={(tenant.style as 'classic' | 'modern' | 'bold' | undefined) || 'classic'}
       onStyleChange={onStyleChange}
       hasDraft={state.status === 'ready' && state.hasDraft}

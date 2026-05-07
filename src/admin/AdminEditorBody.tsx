@@ -78,6 +78,7 @@ export type AdminEditorBodyProps = {
   footerExtraActions?: ReactNode;
   previewUrlBase?: string; // e.g. "/preview/restaurant" or ""
   uploadImage?: UploadImageFn;
+  uploadBusy?: boolean;
   /** Current visual style of this tenant (used to filter add-section catalog). */
   style?: TemplateStyle;
   /** Callback to switch the visual style (persisted by the host). */
@@ -106,6 +107,7 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
     brandTitle, topBar, headerStatus, footerStatus, footerExtraActions,
     previewUrlBase = '',
     uploadImage,
+    uploadBusy,
     style: tplStyle,
     onStyleChange,
     hasDraft,
@@ -137,6 +139,17 @@ export function AdminEditorBody(props: AdminEditorBodyProps) {
   return (
     <div className="min-h-screen bg-[#f6f6f3]">
       {topBar}
+      {uploadBusy ? (
+        <div className="fixed inset-0 z-[80] bg-white/70 backdrop-blur-sm grid place-items-center cursor-wait" aria-live="polite" aria-busy="true">
+          <div className="rounded-2xl border border-line bg-white shadow-xl px-6 py-5 flex items-center gap-4">
+            <span className="inline-block h-5 w-5 rounded-full border-2 border-slate-300 border-t-brand animate-spin" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-medium text-slate-900">Bild wird hochgeladen</p>
+              <p className="text-xs text-muted mt-0.5">Bitte kurz warten. Danach können Sie weiter bearbeiten.</p>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <header className="bg-white border-b border-line sticky top-0 z-30">
         <div className="container-x flex items-center justify-between py-3 md:py-4 gap-3 md:gap-4">
@@ -824,7 +837,7 @@ function ImagePickerField({ label, value, onChange, ratio = 'aspect-[4/3]' }: { 
   };
 
   return (
-    <Field label={label} hint={_ctx.uploadImage ? `${UPLOAD_HINT} Empfohlen: klares Querformat, Motiv nicht zu dunkel.` : 'Demo: Bild wird nur lokal in der Vorschau angezeigt.'}>
+    <Field label={label} hint={_ctx.uploadImage ? UPLOAD_HINT : 'Demo: Bild wird nur lokal in der Vorschau angezeigt.'}>
       <div className="grid sm:grid-cols-[180px_1fr] gap-3 items-start">
         <div className={`${ratio} rounded-xl overflow-hidden bg-[#f6f6f3] border border-line grid place-items-center`}>
           {value ? <img src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Noch kein Bild</span>}

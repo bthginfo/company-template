@@ -70,6 +70,13 @@ for (const tpl of TEMPLATES) {
       }
 
       const addable = getCmsAddableSectionTypes(tpl, style, page, pageSections.map((section) => section.type));
+      const uniqueAddable = new Set(addable);
+      if (uniqueAddable.size !== addable.length) {
+        errors.push(`${tpl}/${style}/${page}: add-section options contain duplicate section types`);
+      }
+      if (addable.includes('noticeBanner')) {
+        errors.push(`${tpl}/${style}/${page}: page editor must not offer global notice banner as an addable page section`);
+      }
       if (addable.length) {
         const type = addable[0];
         const added = setSections(cloneContent(content), page, [

@@ -852,7 +852,7 @@ function cmsV2RestaurantSectionContent(content: SiteContent, section: ModularSec
           title: cmsV2Text(data.headline) || content.hero.title,
           subtitle: cmsV2Text(data.subline),
           body: cmsV2Text(data.description),
-          imageUrl: style === 'classic' ? (cmsV2Image(data.backgroundImage) || content.hero.imageUrl) : content.hero.imageUrl,
+          imageUrl: cmsV2Image(data.backgroundImage) || cmsV2Image(data.image) || content.hero.imageUrl,
           ctaLabel: cmsV2LinkLabel(primary) || content.hero.ctaLabel,
           ctaHref: cmsV2LinkHref(primary) || content.hero.ctaHref,
         },
@@ -1210,6 +1210,7 @@ function CoreV2HomePage({ variant, content, style }: { variant: TemplateVariant;
 function HotelV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey; content: SiteContent; style: TemplateStyle }) {
   const sections = restaurantV2SubpageSections(content, page);
   const heroSection = sections.find((section) => section.type === 'hero');
+  const heroData = heroSection ? asUnknownRecord(heroSection.data) : {};
   const heroContent = heroSection ? cmsV2RestaurantSubpageContent(content, heroSection, page) : content;
   const fallback = NAV_BY_VARIANT.hotel;
   const headerKey: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' =
@@ -1235,8 +1236,9 @@ function HotelV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey
         eyebrow={header?.eyebrow || defaultEyebrow}
         title={header?.title || defaultTitle}
         subtitle={header?.subtitle || ''}
+        body={cmsV2Text(heroData.description)}
         style={style}
-        image={page === 'services' ? effectiveBranchText('hotel', heroContent).servicesPageImageUrl : undefined}
+        image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText('hotel', heroContent).servicesPageImageUrl : undefined)}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -1250,6 +1252,7 @@ function HotelV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey
 function CoreV2Subpage({ page, variant, content, style }: { page: RestaurantV2SubpageKey; variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   const sections = restaurantV2SubpageSections(content, page);
   const heroSection = sections.find((section) => section.type === 'hero');
+  const heroData = heroSection ? asUnknownRecord(heroSection.data) : {};
   const heroContent = heroSection ? cmsV2RestaurantSubpageContent(content, heroSection, page) : content;
   const cfg = NAV_BY_VARIANT[variant];
   const headerKey: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' =
@@ -1275,8 +1278,9 @@ function CoreV2Subpage({ page, variant, content, style }: { page: RestaurantV2Su
         eyebrow={header?.eyebrow || defaultEyebrow}
         title={header?.title || defaultTitle}
         subtitle={header?.subtitle || ''}
+        body={cmsV2Text(heroData.description)}
         style={style}
-        image={page === 'services' ? effectiveBranchText(variant, heroContent).servicesPageImageUrl : undefined}
+        image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText(variant, heroContent).servicesPageImageUrl : undefined)}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -1360,6 +1364,10 @@ function renderCoreV2Section(page: 'home' | RestaurantV2SubpageKey, variant: Tem
     case 'topicBand':
     case 'categoryCards':
     case 'qualifications':
+    case 'processTextColumns':
+    case 'processCards':
+    case 'appointmentBooking':
+    case 'serviceInfo':
     case 'teaserList':
       return renderCoreCards(section, 'Details.');
     case 'newsHighlightList':
@@ -1585,7 +1593,7 @@ function renderHotelV2SubpageSection(page: RestaurantV2SubpageKey, section: Modu
     case 'ctaBand':
       return <CtaBand variant="hotel" content={sectionContent} page={page} />;
     default:
-      return null;
+      return renderHotelV2HomeSection(section, content, style);
   }
 }
 
@@ -1703,6 +1711,7 @@ function cmsV2RestaurantSubpageContent(content: SiteContent, section: ModularSec
 function RestaurantV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey; content: SiteContent; style: TemplateStyle }) {
   const sections = restaurantV2SubpageSections(content, page);
   const heroSection = sections.find((section) => section.type === 'hero');
+  const heroData = heroSection ? asUnknownRecord(heroSection.data) : {};
   const heroContent = heroSection ? cmsV2RestaurantSubpageContent(content, heroSection, page) : content;
   const fallback = NAV_BY_VARIANT.restaurant;
   const headerKey: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' =
@@ -1728,8 +1737,9 @@ function RestaurantV2Subpage({ page, content, style }: { page: RestaurantV2Subpa
         eyebrow={header?.eyebrow || defaultEyebrow}
         title={header?.title || defaultTitle}
         subtitle={header?.subtitle || ''}
+        body={cmsV2Text(heroData.description)}
         style={style}
-        image={page === 'services' ? effectiveBranchText('restaurant', heroContent).servicesPageImageUrl : undefined}
+        image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText('restaurant', heroContent).servicesPageImageUrl : undefined)}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -1906,7 +1916,7 @@ function renderRestaurantV2SubpageSection(page: RestaurantV2SubpageKey, section:
     case 'ctaBand':
       return <CtaBand variant="restaurant" content={sectionContent} page={page} />;
     default:
-      return null;
+      return renderRestaurantV2HomeSection(section, content, style);
   }
 }
 
@@ -3780,10 +3790,11 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   );
 }
 
-function PageHero({ eyebrow, title, subtitle, style = 'classic', image }: {
+function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image }: {
   eyebrow: string;
   title: string;
   subtitle?: string;
+  body?: string;
   style?: TemplateStyle;
   image?: string;
 }) {
@@ -3796,6 +3807,12 @@ function PageHero({ eyebrow, title, subtitle, style = 'classic', image }: {
             {title.toUpperCase()}
           </h1>
           {subtitle && <p className="mt-10 text-xl md:text-2xl max-w-3xl reveal leading-snug">{subtitle}</p>}
+          {body && body !== subtitle && <p className="mt-5 text-base md:text-lg max-w-3xl reveal leading-relaxed text-muted">{body}</p>}
+          {image && (
+            <div className="mt-10 overflow-hidden border-y border-line">
+              <img src={image} alt={title} className="w-full max-h-[520px] object-cover" loading="lazy" />
+            </div>
+          )}
         </div>
       </section>
     );
@@ -3810,6 +3827,7 @@ function PageHero({ eyebrow, title, subtitle, style = 'classic', image }: {
               {splitTitle(title)}
             </h1>
             {subtitle && <p className="mt-8 text-lg text-muted max-w-2xl">{subtitle}</p>}
+            {body && body !== subtitle && <p className="mt-4 text-base text-muted max-w-2xl leading-relaxed">{body}</p>}
           </div>
           {image && (
             <div className="lg:col-span-5 reveal">
@@ -3831,6 +3849,12 @@ function PageHero({ eyebrow, title, subtitle, style = 'classic', image }: {
         <p className="eyebrow mb-5 reveal">{eyebrow}</p>
         <h1 className="headline-xl max-w-5xl reveal">{splitTitle(title)}</h1>
         {subtitle && <p className="mt-8 text-lg md:text-xl text-muted max-w-2xl reveal">{subtitle}</p>}
+        {body && body !== subtitle && <p className="mt-4 text-base md:text-lg text-muted max-w-2xl reveal leading-relaxed">{body}</p>}
+        {image && (
+          <div className="mt-10 max-w-4xl overflow-hidden rounded-2xl border border-line reveal">
+            <img src={image} alt={title} className="w-full max-h-[520px] object-cover" loading="lazy" />
+          </div>
+        )}
       </div>
     </section>
   );

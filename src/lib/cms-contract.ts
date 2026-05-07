@@ -189,13 +189,18 @@ export function getCmsAddableSectionTypes(
     existingCounts.set(type, (existingCounts.get(type) ?? 0) + 1);
   }
 
-  const offeredCounts = new Map<string, number>();
   const seen = new Set<string>();
   const out: string[] = [];
-  for (const type of getCmsSectionTypes(template, style, page)) {
-    const offered = offeredCounts.get(type) ?? 0;
-    offeredCounts.set(type, offered + 1);
-    if ((existingCounts.get(type) ?? 0) <= offered || (CMS_REPEATABLE_SECTION_TYPES.has(type) && !seen.has(type))) out.push(type);
+  const pageTypes = new Set(getCmsSectionTypes(template, style, page));
+  const allTypesForCombo = CMS_PAGE_KEYS.flatMap((pageKey) => Array.from(getCmsSectionTypes(template, style, pageKey)));
+  const addableTypes = [
+    ...getCmsSectionTypes(template, style, page),
+    ...allTypesForCombo.filter((type) => type !== 'noticeBanner' && type !== 'hero' && !pageTypes.has(type)),
+  ];
+  for (const type of addableTypes) {
+    if (type === 'noticeBanner' || seen.has(type)) continue;
+    const existing = existingCounts.get(type) ?? 0;
+    if (existing === 0 || CMS_REPEATABLE_SECTION_TYPES.has(type)) out.push(type);
     seen.add(type);
   }
   return out;

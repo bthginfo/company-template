@@ -157,12 +157,22 @@ export function ModularV2PageEditor({ data, setData, tpl, style, page, sectionLa
         {sections.map((section, idx) => {
           const missingFields = emptyFieldCount(section);
           return (
-          <section key={section.id} className="border border-line rounded-2xl overflow-hidden bg-white">
-            <header className="px-4 py-3 bg-[#fafaf7] border-b border-line flex flex-wrap items-center justify-between gap-2">
+          <section
+            key={section.id}
+            className={`border rounded-2xl overflow-hidden transition-colors ${
+              section.visible === false
+                ? 'border-slate-200 bg-slate-50/80 opacity-80'
+                : 'border-line bg-white'
+            }`}
+          >
+            <header className={`px-4 py-3 border-b border-line flex flex-wrap items-center justify-between gap-2 ${section.visible === false ? 'bg-slate-100/80' : 'bg-[#fafaf7]'}`}>
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-wider text-brand">Abschnitt</p>
                 <h3 className="font-display text-lg">{sectionLabels[section.type] ?? section.type}</h3>
-                <p className="text-xs text-muted mt-0.5">Position {idx + 1} von {sections.length}</p>
+                <p className="text-xs text-muted mt-0.5">
+                  Position {idx + 1} von {sections.length}
+                  {section.visible === false ? ' · aktuell ausgeblendet' : ''}
+                </p>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 {missingFields ? (

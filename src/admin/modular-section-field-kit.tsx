@@ -47,7 +47,7 @@ export function ModImagePick({
     }
   };
   return (
-    <ModField label={label} hint={uploadImage ? `${UPLOAD_HINT} Empfohlen: klares Querformat, Motiv nicht zu dunkel.` : 'Demo: nur Bild-URL einfügen.'}>
+    <ModField label={label} hint={uploadImage ? UPLOAD_HINT : 'Demo: nur Bild-URL einfügen.'}>
       <div className="grid sm:grid-cols-[180px_1fr] gap-3 items-start">
         <div className={`${ratio} rounded-xl overflow-hidden bg-[#f6f6f3] border border-line grid place-items-center`}>
           {value ? <img key={value} src={value} alt="" className="w-full h-full object-cover" /> : <span className="text-xs text-muted">Noch kein Bild</span>}

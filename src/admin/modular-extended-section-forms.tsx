@@ -35,6 +35,85 @@ function imgUrl(img: unknown): string {
   return typeof (img as { image?: unknown }).image === 'string' ? String((img as { image: string }).image) : '';
 }
 
+type DetailFields = {
+  detailSlug?: string;
+  detailPublished?: boolean;
+  detailSubtitle?: string;
+  detailBody?: string;
+  detailGallery?: string[];
+};
+
+function detailFieldsFrom(o: Record<string, unknown>): DetailFields {
+  return {
+    detailSlug: str(o.detailSlug),
+    detailPublished: bool(o.detailPublished, true),
+    detailSubtitle: str(o.detailSubtitle),
+    detailBody: str(o.detailBody),
+    detailGallery: Array.isArray(o.detailGallery) ? o.detailGallery.map(str).filter(Boolean) : [],
+  };
+}
+
+function CatalogDetailFields({ value, onChange }: { value: DetailFields; onChange: (next: DetailFields) => void }) {
+  const galleryText = (value.detailGallery ?? []).join('\n');
+  return (
+    <details className="rounded-xl border border-line bg-white/70">
+      <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted">Detailseite optional pflegen</summary>
+      <div className="px-3 pb-3 pt-1 space-y-3">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={value.detailPublished !== false}
+            onChange={(e) => onChange({ ...value, detailPublished: e.target.checked })}
+          />
+          Detailseite veröffentlichen
+        </label>
+        <ModField label="URL-Slug">
+          <input
+            className={modularInputCls}
+            placeholder="z-b-mein-angebot"
+            value={value.detailSlug ?? ''}
+            onChange={(e) => onChange({ ...value, detailSlug: e.target.value })}
+          />
+        </ModField>
+        <ModField label="Untertitel">
+          <input
+            className={modularInputCls}
+            value={value.detailSubtitle ?? ''}
+            onChange={(e) => onChange({ ...value, detailSubtitle: e.target.value })}
+          />
+        </ModField>
+        <ModField label="Langtext">
+          <textarea
+            className={modularInputCls}
+            rows={4}
+            value={value.detailBody ?? ''}
+            onChange={(e) => onChange({ ...value, detailBody: e.target.value })}
+          />
+        </ModField>
+        <ModField label="Galerie-URLs">
+          <textarea
+            className={modularInputCls}
+            rows={3}
+            placeholder="Eine Bild-URL pro Zeile"
+            value={galleryText}
+            onChange={(e) => onChange({ ...value, detailGallery: e.target.value.split('\n').map((s) => s.trim()).filter(Boolean) })}
+          />
+        </ModField>
+      </div>
+    </details>
+  );
+}
+
+function cleanDetailFields(fields: DetailFields): DetailFields {
+  return {
+    detailSlug: fields.detailSlug ?? '',
+    detailPublished: fields.detailPublished !== false,
+    detailSubtitle: fields.detailSubtitle ?? '',
+    detailBody: fields.detailBody ?? '',
+    detailGallery: fields.detailGallery ?? [],
+  };
+}
+
 /** items: { text }[] — keywordBand, testimonialMarquee, marquee-style bands */
 function ItemsTextLinesForm({ data, onChange, label }: Pick<ModularSectionDataFormProps, 'data' | 'onChange'> & { label: string }) {
   const items = Array.isArray(data.items)
@@ -107,17 +186,19 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
   const showItemButton = tpl !== 'salon' && tpl !== 'tourism' && tpl !== 'fitness';
   const items = Array.isArray(data.items)
     ? (data.items as unknown[]).map((x) => {
-        if (!x || typeof x !== 'object') return { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '' };
+        if (!x || typeof x !== 'object') return { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '', detail: cleanDetailFields({}) };
         const o = x as Record<string, unknown>;
+        const rawTags = o.tags;
         const btn = readButton(o, 'button');
         const href = btn.linkType === 'external' ? str(btn.externalUrl) : str(btn.internalPage);
         return {
           title: str(o.title),
           description: str(o.description) || str(o.meta),
           image: imgUrl(o.image),
-          tags: str(o.tags),
+          tags: Array.isArray(rawTags) ? rawTags.map(str).join(', ') : str(rawTags),
           btnLabel: str(btn.label),
           btnHref: href,
+          detail: detailFieldsFrom(o),
         };
       })
     : [];
@@ -127,8 +208,9 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
       items: next.map((r) => ({
         title: r.title,
         description: r.description,
-        ...(showTags ? { tags: r.tags } : {}),
+        ...(showTags ? { tags: r.tags.split(',').map((s) => s.trim()).filter(Boolean) } : {}),
         image: { image: r.image, alt: r.title },
+        ...cleanDetailFields(r.detail),
         ...(showItemButton
           ? {
               button: {
@@ -168,6 +250,10 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
             </ModField>
           ) : null}
           <ModImagePick label="Bild" value={row.image} onChange={(url) => set(items.map((x, j) => (j === i ? { ...x, image: url } : x)))} uploadImage={uploadImage} />
+          <CatalogDetailFields
+            value={row.detail}
+            onChange={(detail) => set(items.map((x, j) => (j === i ? { ...x, detail } : x)))}
+          />
           {showItemButton ? (
             <>
               <ModField label="Button-Text">
@@ -186,7 +272,7 @@ function ServiceCardsSectionForm({ data, onChange, tpl, uploadImage }: ModularSe
           </button>
         </div>
       ))}
-      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '' }])}>
+      <button type="button" className="btn-outline !py-2 !px-3 text-xs" onClick={() => set([...items, { title: '', description: '', image: '', tags: '', btnLabel: '', btnHref: '', detail: cleanDetailFields({}) }])}>
         + Karte
       </button>
     </div>
@@ -780,7 +866,19 @@ function ProgramTableForm({ data, onChange }: Pick<ModularSectionDataFormProps, 
 function RestaurantMenuCategoriesForm({ data, onChange, uploadImage }: ModularSectionDataFormProps) {
   const def = MODULE_DEFAULTS.menu;
   const uid = useId();
-  type MenuItem = { name: string; description?: string; price?: string; allergens?: string; tags?: string[]; imageUrl?: string };
+  type MenuItem = {
+    name: string;
+    description?: string;
+    price?: string;
+    allergens?: string;
+    tags?: string[];
+    imageUrl?: string;
+    detailSlug?: string;
+    detailPublished?: boolean;
+    detailSubtitle?: string;
+    detailBody?: string;
+    detailGallery?: string[];
+  };
   type MenuCategory = { category: string; description?: string; priceLabel?: string; items: MenuItem[] };
   const list = (Array.isArray(data.categories) ? data.categories : []) as unknown as MenuCategory[];
   const setList = (next: MenuCategory[]) => onChange({ ...data, categories: next });
@@ -912,7 +1010,7 @@ function RestaurantMenuCategoriesForm({ data, onChange, uploadImage }: ModularSe
                             ...cat,
                             items: (cat.items ?? []).map((x, m) =>
                               m === k
-                                ? { ...x, tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }
+                                ? { ...x, tags: e.target.value.split(',').map((s) => s.trim()) }
                                 : x,
                             ),
                           })
@@ -930,6 +1028,15 @@ function RestaurantMenuCategoriesForm({ data, onChange, uploadImage }: ModularSe
                       }
                       uploadImage={uploadImage}
                       ratio="aspect-[16/9]"
+                    />
+                    <CatalogDetailFields
+                      value={detailFieldsFrom(it as unknown as Record<string, unknown>)}
+                      onChange={(detail) =>
+                        setCat(i, {
+                          ...cat,
+                          items: (cat.items ?? []).map((x, m) => (m === k ? { ...x, ...cleanDetailFields(detail) } : x)),
+                        })
+                      }
                     />
                     <div className="flex justify-end">
                       <button

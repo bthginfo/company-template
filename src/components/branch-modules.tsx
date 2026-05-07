@@ -142,9 +142,9 @@ export function MenuCategoriesModule({ content, itemLinkPrefix }: { content: Sit
             const nameEl = (
               <p className="font-display text-lg leading-tight">
                 {it.name}
-                {it.tags && it.tags.length > 0 && (
+                {it.tags && it.tags.filter((tag) => tag && tag.trim()).length > 0 && (
                   <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
-                    {it.tags.map((t, k) => (
+                    {it.tags.filter((tag) => tag && tag.trim()).map((t, k) => (
                       <span key={k} className="text-[10px] uppercase tracking-widest font-mono bg-[var(--accent-color)]/15 text-brand px-1.5 py-0.5 rounded">{t}</span>
                     ))}
                   </span>

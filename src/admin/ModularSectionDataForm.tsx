@@ -267,6 +267,40 @@ function TextPairListForm({
   );
 }
 
+function HeadingTextPairListForm({
+  data,
+  onChange,
+  titleLabel,
+  descLabel,
+  fallbackEyebrow,
+}: Pick<ModularSectionDataFormProps, 'data' | 'onChange'> & {
+  titleLabel: string;
+  descLabel: string;
+  fallbackEyebrow?: string;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <ModField label="Eyebrow">
+          <input className={modularInputCls} value={str(data.eyebrow)} placeholder={fallbackEyebrow} onChange={(e) => onChange({ ...data, eyebrow: e.target.value })} />
+        </ModField>
+        <ModField label="Überschrift">
+          <input className={modularInputCls} value={str(data.headline)} onChange={(e) => onChange({ ...data, headline: e.target.value })} />
+        </ModField>
+      </div>
+      <TextPairListForm
+        data={data}
+        onChange={onChange}
+        keyItems="items"
+        titleKey="title"
+        descKey="description"
+        titleLabel={titleLabel}
+        descLabel={descLabel}
+      />
+    </div>
+  );
+}
+
 function MarqueeForm({ data, onChange }: Pick<ModularSectionDataFormProps, 'data' | 'onChange'>) {
   const items = Array.isArray(data.items)
     ? (data.items as unknown[]).map((x) => (x && typeof x === 'object' ? str((x as { text?: unknown }).text) : ''))
@@ -1364,7 +1398,7 @@ export function ModularSectionDataForm(props: ModularSectionDataFormProps) {
     case 'highlightsBar':
       return <TextPairListForm data={data} onChange={onChange} keyItems="items" titleKey="title" descKey="description" titleLabel="Titel" descLabel="Text" />;
     case 'steps':
-      return <TextPairListForm data={data} onChange={onChange} keyItems="items" titleKey="title" descKey="description" titleLabel="Schritt" descLabel="Beschreibung" />;
+      return <HeadingTextPairListForm data={data} onChange={onChange} titleLabel="Schritt" descLabel="Beschreibung" fallbackEyebrow="Ablauf" />;
     case 'faq':
       return <FaqForm data={data} onChange={onChange} />;
     case 'teaserList':
