@@ -777,8 +777,8 @@ function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteCon
   return (
     <section className="relative pt-36 md:pt-44 pb-24 md:pb-32 overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        {content.hero.imageUrl ? <img src={content.hero.imageUrl} alt="" className="w-full h-full object-cover opacity-30" loading="eager" /> : null}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--bg-color) 0%, color-mix(in oklab, var(--bg-color), transparent 25%) 40%, var(--bg-color) 100%)' }} />
+        {content.hero.imageUrl ? <img src={content.hero.imageUrl} alt="" className="w-full h-full object-cover opacity-40" loading="eager" /> : null}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, var(--bg-color) 0%, color-mix(in oklab, var(--bg-color), transparent 35%) 40%, var(--bg-color) 100%)' }} />
       </div>
       <div className="container-x">
         <ExtraAnnouncementsRibbon content={content} />
@@ -813,7 +813,7 @@ function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteC
     <>
       {page === 'home'
         ? <ExtraV2HomeHero content={heroContent} branch={branch} style={style} eyebrow={eyebrow} />
-        : <PageHero eyebrow={heroEyebrow} title={heroTitle} subtitle={heroSubtitle} style={style} />}
+        : <PageHero eyebrow={heroEyebrow} title={heroTitle} subtitle={heroSubtitle} style={style} page={page as Exclude<ExtraPage, 'home'>} content={heroContent} />}
       {sections.filter((section) => section.type !== 'hero').map((section) => {
         const patched = extraV2Content(content, branch, section);
         switch (section.type) {
@@ -915,7 +915,76 @@ export default function ExtraBranchTemplate({
 }
 
 /* ─── Compact page hero used on subpages ─────────────────────────── */
-function PageHero({ eyebrow, title, subtitle, style }: { eyebrow: string; title: string; subtitle?: string; style: ExtraStyle }) {
+function PageHero({ eyebrow, title, subtitle, style, page, content }: { eyebrow: string; title: string; subtitle?: string; style: ExtraStyle; page?: Exclude<ExtraPage, 'home'>; content?: SiteContent }) {
+  /* ── Services: bold accent band ─────────────────────────────────── */
+  if (page === 'services') {
+    return (
+      <section className="pt-32 md:pt-40 pb-14 md:pb-20 bg-brand text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+        <div className="container-x relative">
+          {eyebrow && <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/60 mb-5 reveal">{eyebrow}</p>}
+          <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9]' : 'font-display text-4xl md:text-6xl leading-tight'}`}>{title}</h1>
+          {subtitle && <p className="mt-5 max-w-2xl text-lg text-white/70 reveal">{subtitle}</p>}
+        </div>
+      </section>
+    );
+  }
+
+  /* ── Gallery: image-backed hero ─────────────────────────────────── */
+  if (page === 'gallery') {
+    const img = content?.gallery?.[0] || content?.about?.imageUrl || content?.hero?.imageUrl;
+    return (
+      <section className="relative pt-36 md:pt-44 pb-16 md:pb-24 overflow-hidden">
+        {img && (
+          <div className="absolute inset-0 -z-10">
+            <img src={img} alt="" className="w-full h-full object-cover opacity-25" loading="eager" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-color)] via-[var(--bg-color)]/70 to-[var(--bg-color)]" />
+          </div>
+        )}
+        <div className="container-x">
+          {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
+          <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
+          {subtitle && <p className="mt-5 max-w-3xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
+        </div>
+      </section>
+    );
+  }
+
+  /* ── About: split layout with about image ───────────────────────── */
+  if (page === 'about' && content?.about?.imageUrl) {
+    return (
+      <section className="pt-32 md:pt-40 pb-12 md:pb-16 surface">
+        <div className="container-x grid md:grid-cols-12 gap-8 md:gap-12 items-end">
+          <div className="md:col-span-7">
+            {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
+            <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-7xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
+            {subtitle && <p className="mt-5 max-w-xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
+          </div>
+          <div className="md:col-span-5 reveal">
+            <div className="aspect-[4/3] rounded-2xl overflow-hidden border border-line">
+              <img src={content.about.imageUrl} alt="" className="w-full h-full object-cover" loading="eager" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ── Contact: compact with accent line ──────────────────────────── */
+  if (page === 'contact') {
+    return (
+      <section className="pt-32 md:pt-40 pb-10 md:pb-14">
+        <div className="container-x">
+          <div className="w-12 h-1 rounded-full bg-[var(--accent-color)] mb-6 reveal" />
+          {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
+          <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-7xl leading-[0.9]' : 'headline-xl max-w-3xl'}`}>{title}</h1>
+          {subtitle && <p className="mt-5 max-w-2xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
+        </div>
+      </section>
+    );
+  }
+
+  /* ── Default / fallback (custom pages, about without image) ─────── */
   return (
     <section className="pt-32 md:pt-40 pb-12 md:pb-16 surface">
       <div className="container-x">
@@ -1656,7 +1725,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
     });
     return (
       <>
-        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
+        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} page="services" content={mergedFull} />
         {instructions.map((instr) => {
           const slice = siteContentForSlotInstruction(contentBase, mergedFull, pageKey as PageKey, instr);
           const blocks = buildBlocks(slice);
@@ -1687,7 +1756,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
     });
     return (
       <>
-        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
+        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} page="gallery" content={mergedFull} />
         {instructions.map((instr) => {
           const slice = siteContentForSlotInstruction(contentBase, mergedFull, pageKey as PageKey, instr);
           const blocks = buildBlocks(slice);
@@ -1721,7 +1790,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
     });
     return (
       <>
-        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
+        <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} page="about" content={mergedFull} />
         {instructions.map((instr) => {
           const slice = siteContentForSlotInstruction(contentBase, mergedFull, pageKey as PageKey, instr);
           const blocks = buildBlocks(slice);
@@ -1752,7 +1821,7 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
   });
   return (
     <>
-      <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} />
+      <PageHero eyebrow={heroEyebrow} title={title} subtitle={heroSubtitle} style={style} page="contact" content={mergedFull} />
       {instructions.map((instr) => {
         const slice = siteContentForSlotInstruction(contentBase, mergedFull, pageKey as PageKey, instr);
         const blocks = buildBlocks(slice);
