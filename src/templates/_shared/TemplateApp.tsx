@@ -801,8 +801,10 @@ function cmsV2HotelSectionContent(content: SiteContent, section: ModularSectionV
         },
       };
     }
-    case 'highlightsBar':
-      return { ...content, serviceHighlights: cmsV2TextPairs(data.items) };
+    case 'highlightsBar': {
+      const pairs = cmsV2TextPairs(data.items);
+      return pairs.length ? { ...content, serviceHighlights: pairs } : content;
+    }
     case 'steps':
       return { ...content, serviceProcess: cmsV2TextPairs(data.items) };
     case 'faq':
@@ -1533,7 +1535,23 @@ function renderCoreV2Section(page: 'home' | RestaurantV2SubpageKey, variant: Tem
       return <NumbersBand variant={variant} content={sectionContent} source={page === 'about' ? 'about' : 'home'} />;
     case 'newsTeaser':
       return <NewsPreview templateVariant={variant as TemplateKey} content={sectionContent} eyebrow={sectionContent.branchText?.newsEyebrow || 'Aktuelles'} title={sectionContent.branchText?.newsTitle || 'News & Notizen.'} />;
-    case 'highlightsBar':
+    case 'highlightsBar': {
+      const hlItems = cmsV2TextPairs(data.items);
+      const effectiveItems = hlItems.length ? hlItems : (sectionContent.serviceHighlights ?? []);
+      if (!effectiveItems.length) return null;
+      return (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Unsere Werte.')} subtitle={cmsV2Text(data.description)} className="surface">
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {effectiveItems.map((item, i) => (
+              <article key={i} className="border border-line rounded-2xl p-7 bg-white">
+                <h3 className="font-display text-2xl">{item.t}</h3>
+                <p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+      );
+    }
     case 'steps':
     case 'directions':
       return renderCoreCards(section, section.type === 'directions' ? 'Anreise.' : 'Ablauf.');
