@@ -1,6 +1,6 @@
 import type { TemplateStyle } from './branch-config.js';
 import { SiteContentSchema, type ModularPagesV1, type ModularPagesV2, type ModularSectionV2, type SiteContent, type TemplateKey } from './types.js';
-import { CMS_PAGE_KEYS, getCmsSectionTypes, type CmsPageKey } from './cms-contract.js';
+import { CMS_PAGE_KEYS, getCmsSectionFieldKeys, getCmsSectionTypes, type CmsPageKey } from './cms-contract.js';
 import { importRestaurantModularFromLegacy } from './modular-restaurant.js';
 import { importHotelModularFromLegacy } from './modular-hotel.js';
 import { importTourismModularFromLegacy } from './modular-tourism.js';
@@ -334,8 +334,14 @@ function servicesOrFallback(content: SiteContent): RecordValue[] {
   ];
 }
 
+function sanitizeSectionData(sectionType: string, data: RecordValue): RecordValue {
+  const allowed = new Set(getCmsSectionFieldKeys(sectionType).map((key) => key.split('.')[0]));
+  return Object.fromEntries(Object.entries(data).filter(([key]) => allowed.has(key))) as RecordValue;
+}
+
 function fillSectionData(content: SiteContent, template: TemplateKey, style: TemplateStyle, _page: CmsPageKey, section: ModularSectionV2): ModularSectionV2 {
   const data: RecordValue = { ...(section.data ?? {}) };
+  const contractedFields = new Set(getCmsSectionFieldKeys(section.type).map((key) => key.split('.')[0]));
   const bt = branchText(content, template);
   const sig = signatureFallback(template, style);
   const contact = content.contact ?? { phone: '', email: '', address: '', city: '', mapsUrl: '' };
@@ -497,10 +503,10 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'headline', firstText(bt.servicesTeaserTitle, 'Kurse und Programme.'));
     setMissing(data, 'rows', services.length ? services : items);
   }
-  if (!imageValue(data.backgroundImage) && heroImage) data.backgroundImage = image(heroImage);
-  if (!imageValue(data.image) && heroImage) data.image = image(heroImage);
+  if (contractedFields.has('backgroundImage') && !imageValue(data.backgroundImage) && heroImage) data.backgroundImage = image(heroImage);
+  if (contractedFields.has('image') && !imageValue(data.image) && heroImage) data.image = image(heroImage);
 
-  return { ...section, data };
+  return { ...section, data: sanitizeSectionData(section.type, data) };
 }
 
 function fillModularPagesV2DemoData(content: SiteContent, template: TemplateKey, style: TemplateStyle, modular: ModularPagesV2): ModularPagesV2 {
