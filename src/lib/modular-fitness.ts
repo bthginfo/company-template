@@ -363,7 +363,7 @@ function importFitnessHome(content: SiteContent, sections: ModularSectionV1[], s
         duration: str(c.duration),
         intensity: '',
         tags: str(c.schedule),
-        button: { label: 'Mehr', linkType: 'internal', internalPage: '/leistungen', externalUrl: '' },
+        button: { label: 'Probetraining anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
         hasSubpage: !!c.detailSlug,
         subpage: {},
       })),
@@ -385,7 +385,7 @@ function importFitnessHome(content: SiteContent, sections: ModularSectionV1[], s
         level: str(c.level),
         frequency: str(c.schedule),
         duration: str(c.duration),
-        button: { label: 'Kurse', linkType: 'internal', internalPage: '/leistungen', externalUrl: '' },
+        button: { label: 'Probetraining anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
       })),
     };
   }
@@ -412,7 +412,7 @@ function importFitnessHome(content: SiteContent, sections: ModularSectionV1[], s
         location: '',
         note: str(c.price),
       })),
-      button: { label: 'Alle Kurse', linkType: 'internal', internalPage: '/leistungen', externalUrl: '' },
+      button: { label: 'Probetraining anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
     };
   }
   const pp = by('pricingPackages');
@@ -524,7 +524,7 @@ function importFitnessServices(content: SiteContent, sections: ModularSectionV1[
         duration: str(c.duration),
         intensity: '',
         tags: str(c.schedule),
-        button: { label: 'Details', linkType: 'internal', internalPage: '/leistungen', externalUrl: '' },
+        button: { label: 'Probetraining anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
         hasSubpage: !!c.detailSlug,
         subpage: {},
       })),
@@ -546,7 +546,7 @@ function importFitnessServices(content: SiteContent, sections: ModularSectionV1[
         level: str(c.level),
         frequency: str(c.schedule),
         duration: str(c.duration),
-        button: { label: 'Mehr', linkType: 'internal', internalPage: '/leistungen', externalUrl: '' },
+        button: { label: 'Probetraining anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
       })),
     };
   }
@@ -573,7 +573,7 @@ function importFitnessServices(content: SiteContent, sections: ModularSectionV1[
         location: '',
         note: str(c.price),
       })),
-      button: { label: 'Programm', linkType: 'internal', internalPage: '/leistungen', externalUrl: '' },
+      button: { label: 'Probetraining anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
     };
   }
   const pp = by('pricingPackages');

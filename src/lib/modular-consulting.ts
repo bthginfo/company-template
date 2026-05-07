@@ -416,7 +416,7 @@ function importConsultingServices(content: SiteContent, sections: ModularSection
         description: str(s.description),
         image: { image: str(s.imageUrl), alt: str(s.title) },
         tags: '',
-        button: { label: 'Details', linkType: 'internal', internalPage: '/leistungen', externalUrl: '' },
+        button: { label: 'Jetzt anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
         hasSubpage: !!s.detailSlug,
         subpage: {},
       })),

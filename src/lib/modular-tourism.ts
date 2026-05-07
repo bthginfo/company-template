@@ -147,7 +147,7 @@ function tourScheduleRowsFromLegacy(content: SiteContent): Record<string, unknow
       description: str(r.description),
       meta: str(r.price),
       image: { image: str(r.imageUrl), alt: str(r.title) },
-      button: { label: 'Mehr', linkType: 'internal', internalPage: '/touren', externalUrl: '' },
+      button: { label: 'Tour anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
       hasSubpage: false,
       subpage: {},
     }));
@@ -159,7 +159,7 @@ function tourScheduleRowsFromLegacy(content: SiteContent): Record<string, unknow
     description: str(t.description),
     meta: [str(t.level), str(t.price)].filter(Boolean).join(' · '),
     image: { image: str(t.imageUrl), alt: str(t.name) },
-    button: { label: 'Programm', linkType: 'internal', internalPage: '/touren', externalUrl: '' },
+    button: { label: 'Tour anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
     hasSubpage: !!t.detailSlug,
     subpage: {},
   }));
@@ -414,7 +414,7 @@ function importTourismServicesSections(content: SiteContent, sections: ModularSe
         difficulty: str(t.level),
         price: str(t.price),
         groupSize: str(t.groupSize),
-        button: { label: 'Details', linkType: 'internal', internalPage: '/touren', externalUrl: '' },
+        button: { label: 'Tour anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
         hasSubpage: !!t.detailSlug,
         subpage: {},
       })),

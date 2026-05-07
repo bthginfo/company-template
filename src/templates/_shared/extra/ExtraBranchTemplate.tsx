@@ -955,7 +955,7 @@ function extraServiceLearnMore(
   const base = (s.learnMoreLabel ?? '').trim() || (g.learnMoreLabel ?? '').trim() || 'Mehr erfahren';
   const label = `${base.replace(/\s*→\s*$/u, '').trim()} →`;
   const detail = serviceDetailHref(branch, s);
-  if (detail) return { label, href: detail };
+  if (detail) return { label: 'Mehr erfahren →', href: detail };
   const href = (s.learnMoreHref ?? '').trim() || (g.learnMoreHref ?? '').trim() || '#leistungen';
   return { label, href };
 }

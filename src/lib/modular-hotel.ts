@@ -191,7 +191,7 @@ function importHotelHomeSections(content: SiteContent, sections: ModularSectionV
       title: str(r.name),
       description: str(r.description),
       image: { image: str(r.imageUrl), alt: str(r.name) },
-      button: { label: 'Mehr', linkType: 'internal', internalPage: '/zimmer', externalUrl: '' },
+      button: { label: 'Zimmer anfragen', linkType: 'internal', internalPage: '/kontakt', externalUrl: '' },
       hasSubpage: false,
       subpage: {},
     }));

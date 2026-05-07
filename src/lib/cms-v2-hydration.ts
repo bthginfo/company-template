@@ -250,9 +250,30 @@ function testimonialRows(content: SiteContent): RecordValue[] {
   })).filter(isMeaningful);
 }
 
-function numberRows(content: SiteContent): RecordValue[] {
+function numberRows(content: SiteContent, template?: TemplateKey): RecordValue[] {
   const rows = (content.numbers ?? []).map((row) => ({ value: text(row.value), description: text(row.label) })).filter(isMeaningful);
   if (rows.length) return rows;
+  if (template === 'fitness') {
+    return [
+      { value: '8', description: 'max. Personen pro Kurs' },
+      { value: '5', description: 'feste Lehrer:innen' },
+      { value: '12+', description: 'Jahre Unterrichtserfahrung' },
+    ];
+  }
+  if (template === 'medical') {
+    return [
+      { value: '30 Min.', description: 'Zeitfenster pro Ersttermin' },
+      { value: '2', description: 'Ärztinnen in der Praxis' },
+      { value: 'Online', description: 'Termine direkt buchbar' },
+    ];
+  }
+  if (template === 'consulting') {
+    return [
+      { value: '25+', description: 'Jahre Erfahrung' },
+      { value: '180+', description: 'begleitete Projekte' },
+      { value: '48h', description: 'bis zur ersten Rückmeldung' },
+    ];
+  }
   return [
     { value: 'Seit 1998', description: 'Erfahrung im Betrieb' },
     { value: '4,8/5', description: 'Bewertung unserer Kundschaft' },
@@ -290,7 +311,7 @@ function sectionItems(content: SiteContent, template: TemplateKey, type: string)
     ];
   }
   if (type === 'testimonials' || type === 'quoteWall' || type === 'testimonialMarquee' || type === 'expertQuotes') return testimonialRows(content);
-  if (type === 'statsBand' || type === 'trainingPlanOverview') return numberRows(content);
+  if (type === 'statsBand' || type === 'trainingPlanOverview') return numberRows(content, template);
   if (type === 'directions' || type === 'topicBand' || type === 'topicCards' || type === 'contactPreview' || type === 'serviceInfo' || type === 'appointmentBooking') return contactRows(content);
   if (type === 'brandLogos' || type === 'labelBand' || type === 'keywordBand' || type === 'marqueeBand') {
     const logos = content.logos ?? [];
@@ -357,7 +378,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'subline', firstText(content.hero?.subtitle, bt.teaserSubtitle));
     setMissing(data, 'description', firstText(content.hero?.body, bt.teaserSubtitle, content.about?.body));
     setMissing(data, 'buttonPrimary', button(firstText(content.hero?.ctaLabel, 'Kontakt aufnehmen'), firstText(content.hero?.ctaHref, '/kontakt')));
-    setMissing(data, 'stats', numberRows(content));
+    setMissing(data, 'stats', numberRows(content, template));
     setMissing(data, 'backgroundImage', image(heroImage, firstText(content.hero?.title, content.brand?.name)));
     setMissing(data, 'image', image(firstText(bt.heroImageUrl, heroImage), firstText(content.hero?.title, content.brand?.name)));
   }
@@ -425,7 +446,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'subline', firstText(cta.sub, bt.softCtaText, bt.teaserSubtitle));
     setMissing(data, 'button', button(firstText(cta.cta, bt.softCtaButton, 'Kontakt aufnehmen'), firstText(cta.ctaHref, '/kontakt')));
   }
-  if (section.type === 'statsBand') setMissing(data, 'items', numberRows(content));
+  if (section.type === 'statsBand') setMissing(data, 'items', numberRows(content, template));
   if (section.type === 'steps') {
     setMissing(data, 'eyebrow', firstText(bt.processEyebrow, 'Ablauf'));
     setMissing(data, 'headline', firstText(bt.processTitle, 'So läuft es ab.'));
@@ -459,7 +480,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
   }
   if (section.type === 'storyFacts') {
     setMissing(data, 'description', firstText(content.about?.body, bt.teaserSubtitle));
-    setMissing(data, 'items', numberRows(content));
+    setMissing(data, 'items', numberRows(content, template));
   }
   if (section.type === 'contactDetails' || section.type === 'contactPreview' || section.type === 'locations' || section.type === 'directions') {
     const contactCta = (content as { contactCta?: Record<string, unknown> }).contactCta ?? {};
@@ -497,7 +518,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
   if (section.type === 'trainingPlanOverview') {
     setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Training'));
     setMissing(data, 'headline', firstText(bt.servicesTeaserTitle, 'Ihr Plan.'));
-    setMissing(data, 'stats', numberRows(content));
+    setMissing(data, 'stats', numberRows(content, template));
   }
   if (section.type === 'programTable') {
     setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Programme'));

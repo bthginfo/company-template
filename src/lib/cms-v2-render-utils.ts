@@ -57,7 +57,7 @@ export function cmsV2TextPairs(value: unknown): { t: string; d: string }[] {
   return Array.isArray(value)
     ? value
         .filter((item): item is UnknownRecord => !!item && typeof item === 'object' && !Array.isArray(item))
-        .map((item) => ({ t: cmsV2ItemText(item, 'title', 't'), d: cmsV2Text(item.description) || cmsV2Text(item.d) }))
+        .map((item) => ({ t: cmsV2ItemText(item, 'title', 't') || cmsV2Text(item.value), d: cmsV2Text(item.description) || cmsV2Text(item.d) || cmsV2Text(item.label) }))
         .filter((item) => item.t || item.d)
     : [];
 }
