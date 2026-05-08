@@ -548,6 +548,7 @@ const ADMIN_TO_FRONTEND_HOME: Record<AdminSectionKey, string | null> = {
   branchModules: 'branchModules',
   team: 'team',
   contact: 'contact',
+  countdown: 'countdown',
   // not used on home — keep them mapped so TS exhaustiveness is happy
   servicesHeader: null, extraServiceCards: null, highlights: null, servicesList: null, menu: null, rooms: null,
   tours: null, treatments: null, courses: null, packages: null,

@@ -23,7 +23,7 @@ export type AdminSectionKey =
   | 'announcements' | 'hero' | 'actionStrip' | 'branchChips' | 'marquee'
   | 'services' | 'signature' | 'about' | 'gallery' | 'numbers'
   | 'logos' | 'testimonials' | 'news' | 'softCta'
-  | 'funding' | 'spotlight'
+  | 'funding' | 'spotlight' | 'countdown'
   | 'branchModules' | 'team' | 'contact'
   // Services sections
   | 'servicesHeader' | 'extraServiceCards' | 'highlights' | 'servicesList' | 'menu' | 'rooms'
@@ -86,6 +86,7 @@ export const HOME_CATALOG_BLOCK_TO_ADMIN: Record<string, AdminSectionKey | null>
   news: 'news',
   softCta: 'softCta',
   contact: 'contact',
+  countdown: 'countdown',
 };
 
 /**
@@ -231,7 +232,7 @@ export const HANDLED_SECTIONS_BY_PAGE: Record<PageKey, readonly AdminSectionKey[
     'announcements', 'hero', 'actionStrip', 'branchChips', 'marquee',
     'services', 'signature', 'about', 'gallery', 'numbers',
     'logos', 'testimonials', 'news', 'softCta', 'faq',
-    'funding', 'spotlight', 'branchModules', 'team', 'contact',
+    'funding', 'spotlight', 'branchModules', 'team', 'contact', 'countdown',
   ],
   services: [
     'servicesHeader', 'extraServiceCards', 'highlights', 'servicesList',

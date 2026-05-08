@@ -66,6 +66,7 @@ export const SECTION_CATALOG: Record<PageId, SectionDef[]> = {
     { key: 'news',         label: 'News-Teaser',              description: 'Blog-Vorschau.' },
     { key: 'softCta',      label: 'Soft-CTA',                 description: 'Abschluss-CTA.' },
     { key: 'contact',      label: 'Kontakt-Sektion',          description: 'Kontakt-Sektion.', variants: ['consulting', 'medical', 'fitness', 'wedding'] },
+    { key: 'countdown',    label: 'Countdown',                description: 'Live-Countdown zum Hochzeitstag.', variants: ['wedding'] },
   ],
   services: [
     { key: 'highlights',   label: 'Highlights-Ribbon',        description: 'Highlight-Kacheln.' },

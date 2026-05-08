@@ -97,6 +97,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
   },
   news: { key: 'news', dataKeys: ['posts', 'branchText.newsEyebrow', 'branchText.newsTitle', 'branchText.newsAllLabel', 'branchText.newsAllHref'] },
   softCta: { key: 'softCta', dataKeys: ['ctaBandOverride', 'ctaBandOverrides'] },
+  countdown: { key: 'countdown', dataKeys: ['weddingDate'] },
   funding: { key: 'funding', dataKeys: ['fundingItems', 'fundingCalc', 'moduleHeadings.funding'] },
   spotlight: {
     key: 'spotlight',
@@ -268,6 +269,7 @@ export const CATALOG_TO_ADMIN: Record<PageKey, Record<CatalogKey, AdminSectionKe
     faq:           'faq',
     news:          'news',
     softCta:       'softCta',
+    countdown:     'countdown',
     contact:       'contact',
   },
   services: {
