@@ -651,8 +651,11 @@ function ExtraV2SingleModule({ section, content, branch, style }: { section: Mod
       return <ExtraV2Cards section={section} title="Service & Info." />;
     case 'processTextColumns':
       return <ExtraV2Cards section={section} title={effectiveBranchText(branch, content).processTitle || 'Wie wir arbeiten.'} />;
-    case 'processCards':
-      return <ProcessStepsModule content={content} itemLinkPrefix={itemLinkPrefix} />;
+    case 'processCards': {
+      const bt = effectiveBranchText(branch, content);
+      const enriched = { ...content, branchText: { ...((content as any).branchText || {}), processEyebrow: bt.processEyebrow, processTitle: bt.processTitle } };
+      return <ProcessStepsModule content={enriched} itemLinkPrefix={itemLinkPrefix} />;
+    }
     case 'pricingPackages':
       return <PricePackagesModule content={content} itemLinkPrefix={itemLinkPrefix} />;
     case 'team':
@@ -958,7 +961,7 @@ function PageHero({ eyebrow, title, subtitle, style, page, content }: { eyebrow:
         <div className="container-x grid md:grid-cols-12 gap-8 md:gap-12 items-end">
           <div className="md:col-span-7">
             {eyebrow && <p className={style === 'modern' ? 'text-xs font-mono uppercase tracking-widest text-muted mb-4 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>}
-            <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-7xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
+            <h1 className={`reveal break-words [overflow-wrap:anywhere] ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-7xl leading-[0.9]' : 'headline-xl'}`}>{title}</h1>
             {subtitle && <p className="mt-5 max-w-xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
           </div>
           <div className="md:col-span-5 reveal">
@@ -2648,7 +2651,7 @@ function LocationsBlock({ content }: { content: SiteContent }) {
 }
 
 /* ─── Header (style-aware) ──────────────────────────────────────── */
-function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraStyle; branch: ExtraBranchKey }) {
+function ExtraHeader({ content, style, branch }: { content: SiteContent; style: ExtraStyle; branch: ExtraBranchKey }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobile, setMobile] = useState(false);
   const basePath = useBasePath();
@@ -2661,12 +2664,13 @@ function ExtraHeader({ content, style }: { content: SiteContent; style: ExtraSty
   }, []);
   useEffect(() => { setMobile(false); }, [pathname]);
   const isBold = style === 'bold';
+  const cfg = getBranchConfig(branch);
   const DEFAULT_NAV: { to: string; label: string }[] = [
     { to: '/', label: 'Start' },
-    { to: '/leistungen', label: 'Leistungen' },
-    { to: '/galerie', label: 'Galerie' },
-    { to: '/ueber-uns', label: 'Über uns' },
-    { to: '/kontakt', label: 'Kontakt' },
+    { to: '/leistungen', label: cfg.pages.services },
+    { to: '/galerie', label: cfg.pages.gallery },
+    { to: '/ueber-uns', label: cfg.pages.about },
+    { to: '/kontakt', label: cfg.pages.contact },
   ];
   // Honor `navItems` from the admin (NavigationPage). Falls back to defaults.
   const customNav = ((content as any).navItems as Array<{ label?: string; path?: string; visible?: boolean }> | undefined);

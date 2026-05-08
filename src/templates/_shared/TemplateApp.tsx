@@ -3965,13 +3965,13 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
   page?: 'services' | 'gallery' | 'about' | 'contact';
 }) {
   /* ── Services: accent band ──────────────────────────────────────── */
-  if (page === 'services' && style !== 'bold') {
+  if (page === 'services') {
     return (
       <section className="pt-40 pb-14 md:pb-20 bg-brand text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
         <div className="container-x relative">
           <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/60 mb-5 reveal">{eyebrow}</p>
-          <h1 className={`reveal ${style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl max-w-5xl'}`}>{splitTitle(title)}</h1>
+          <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9]' : style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl max-w-5xl'}`}>{splitTitle(title)}</h1>
           {subtitle && <p className="mt-5 max-w-2xl text-lg text-white/70 reveal">{subtitle}</p>}
           {body && body !== subtitle && <p className="mt-4 text-base text-white/60 max-w-2xl reveal">{body}</p>}
         </div>
@@ -3980,7 +3980,7 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
   }
 
   /* ── Gallery: image-backed hero ─────────────────────────────────── */
-  if (page === 'gallery' && image && style !== 'bold') {
+  if (page === 'gallery' && image) {
     return (
       <section className="relative pt-40 pb-16 md:pb-24 overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -3988,8 +3988,8 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
           <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-color)] via-[var(--bg-color)]/70 to-[var(--bg-color)]" />
         </div>
         <div className="container-x relative z-10">
-          <p className={style === 'modern' ? 'eyebrow mb-5 reveal' : 'eyebrow mb-5 reveal'}>{eyebrow}</p>
-          <h1 className={`reveal ${style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl max-w-5xl'}`}>{splitTitle(title)}</h1>
+          <p className="eyebrow mb-5 reveal">{eyebrow}</p>
+          <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9]' : style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl max-w-5xl'}`}>{splitTitle(title)}</h1>
           {subtitle && <p className="mt-5 max-w-3xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
         </div>
       </section>
@@ -3997,13 +3997,13 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
   }
 
   /* ── About: split layout with image ─────────────────────────────── */
-  if (page === 'about' && image && style !== 'bold') {
+  if (page === 'about' && image) {
     return (
       <section className="pt-40 pb-12 md:pb-16 surface">
         <div className="container-x grid md:grid-cols-12 gap-8 md:gap-12 items-end">
           <div className="md:col-span-7 reveal">
             <p className="eyebrow mb-5">{eyebrow}</p>
-            <h1 className={style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl'}>{splitTitle(title)}</h1>
+            <h1 className={`reveal break-words [overflow-wrap:anywhere] ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-7xl leading-[0.9]' : style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl'}`}>{splitTitle(title)}</h1>
             {subtitle && <p className="mt-5 max-w-xl text-lg md:text-xl text-muted">{subtitle}</p>}
             {body && body !== subtitle && <p className="mt-4 text-base text-muted max-w-xl leading-relaxed">{body}</p>}
           </div>
@@ -4018,13 +4018,13 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
   }
 
   /* ── Contact: compact with accent line ──────────────────────────── */
-  if (page === 'contact' && style !== 'bold') {
+  if (page === 'contact') {
     return (
       <section className="pt-40 pb-10 md:pb-14">
         <div className="container-x">
           <div className="w-12 h-1 rounded-full bg-[var(--accent-color)] mb-6 reveal" />
           <p className="eyebrow mb-5 reveal">{eyebrow}</p>
-          <h1 className={`reveal ${style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl font-display tracking-tight leading-[1.05] max-w-3xl' : 'headline-xl max-w-3xl'}`}>{splitTitle(title)}</h1>
+          <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-7xl leading-[0.9]' : style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl font-display tracking-tight leading-[1.05] max-w-3xl' : 'headline-xl max-w-3xl'}`}>{splitTitle(title)}</h1>
           {subtitle && <p className="mt-5 max-w-2xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
         </div>
       </section>
