@@ -4026,6 +4026,17 @@ function PageHeaderEditor({ data, setData, field, defaults }: SetterProps & { fi
   const [v, set] = useExtra(data, setData, `${field}Header`, defaults);
   return (
     <>
+      <Field label="Hero-Stil" hint="Bestimmt das Layout des Seiten-Headers.">
+        <select className={inputCls} value={(v as any).heroStyle || ''} onChange={(e) => set({ ...v, heroStyle: e.target.value || undefined } as any)}>
+          <option value="">Standard (automatisch)</option>
+          <option value="accent-band">Stil 1 — Akzent-Band (farbiger Hintergrund)</option>
+          <option value="image-backed">Stil 2 — Bild-Hero (Hintergrundbild mit Overlay)</option>
+          <option value="split">Stil 3 — Split (Text links, Bild rechts)</option>
+          <option value="accent-line">Stil 4 — Akzent-Linie (kompakt, minimalistisch)</option>
+          <option value="bold-full">Stil 5 — Bold Fullwidth (großer Text)</option>
+          <option value="minimal">Stil 6 — Minimal (nur Text, kein Bild)</option>
+        </select>
+      </Field>
       <Field label="Eyebrow"><input className={inputCls} value={v.eyebrow} onChange={(e) => set({ ...v, eyebrow: e.target.value })} /></Field>
       <Field label="Überschrift"><input className={inputCls} value={v.title} onChange={(e) => set({ ...v, title: e.target.value })} /></Field>
       <Field label="Untertitel"><textarea className={inputCls} rows={2} value={v.subtitle} onChange={(e) => set({ ...v, subtitle: e.target.value })} /></Field>
@@ -4086,7 +4097,6 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
   // Default to auto when the field has never been set.
   const auto = v.eyebrowAuto !== false;
   const hintVisible = v.hintVisible !== false;
-  const effectiveHint = v.hint || def.hint;
   return (
     <>
       <p className="text-xs text-muted">

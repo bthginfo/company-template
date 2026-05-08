@@ -1381,6 +1381,7 @@ function HotelV2Subpage({ page, content, style }: { page: RestaurantV2SubpageKey
         style={style}
         image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText('hotel', heroContent).servicesPageImageUrl : undefined)}
         page={page}
+        heroStyle={header?.heroStyle}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -1424,6 +1425,7 @@ function CoreV2Subpage({ page, variant, content, style }: { page: RestaurantV2Su
         style={style}
         image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText(variant, heroContent).servicesPageImageUrl : undefined)}
         page={page}
+        heroStyle={header?.heroStyle}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -1900,6 +1902,7 @@ function RestaurantV2Subpage({ page, content, style }: { page: RestaurantV2Subpa
         style={style}
         image={cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image) || (page === 'services' ? effectiveBranchText('restaurant', heroContent).servicesPageImageUrl : undefined)}
         page={page}
+        heroStyle={header?.heroStyle}
       />
       {sections
         .filter((section) => section.type !== 'hero')
@@ -2086,10 +2089,10 @@ function isSectionVisible(content: SiteContent, key: string): boolean {
 }
 
 /** Pull a per-page header override from `content` extras (set by admin's PageHeaderEditor). */
-function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' | 'newsHeader'): { eyebrow: string; title: string; subtitle: string } | null {
+function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' | 'newsHeader'): { eyebrow: string; title: string; subtitle: string; heroStyle?: string } | null {
   const v = (content as any)[key];
   if (!v || typeof v !== 'object') return null;
-  return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || '') };
+  return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || ''), heroStyle: v.heroStyle || undefined };
 }
 
 function visibleTestimonials(content: SiteContent) {
@@ -3167,6 +3170,7 @@ function ServicesPage({ variant, content, style }: { variant: TemplateVariant; c
         style={style}
         image={style === 'modern' ? servicesImg : undefined}
         page="services"
+        heroStyle={headerOverride?.heroStyle}
       />
       {instructions.map((row) => {
         const slice = siteContentForSlotInstruction(modularFirst, resolved, 'services', row);
@@ -3361,6 +3365,7 @@ function GalleryPage({
         style={style}
         image={resolved.gallery[0] || resolved.about?.imageUrl}
         page="gallery"
+        heroStyle={headerOverride?.heroStyle}
       />
       {instructions.map((row) => {
         const slice = siteContentForSlotInstruction(modularFirst, resolved, 'gallery', row);
@@ -3627,6 +3632,7 @@ function AboutPage({ variant, content, style }: { variant: TemplateVariant; cont
         style={style}
         image={resolved.about?.imageUrl || resolved.gallery[0]}
         page="about"
+        heroStyle={pageHeaderOverride(resolved, 'aboutHeader')?.heroStyle}
       />
       {instructions.map((row) => {
         const slice = siteContentForSlotInstruction(modularFirst, resolved, 'about', row);
@@ -3948,6 +3954,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
         subtitle={pageHeaderOverride(resolved, 'contactPageHeader')?.subtitle || undefined}
         style={style}
         page="contact"
+        heroStyle={pageHeaderOverride(resolved, 'contactPageHeader')?.heroStyle}
       />
       {instructions.map((row) => {
         const slice = siteContentForSlotInstruction(modularFirst, resolved, 'contact', row);
@@ -3958,7 +3965,7 @@ function ContactPage({ content, variant, style }: { content: SiteContent; varian
   );
 }
 
-function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, page }: {
+function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, page, heroStyle }: {
   eyebrow: string;
   title: string;
   subtitle?: string;
@@ -3966,9 +3973,21 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
   style?: TemplateStyle;
   image?: string;
   page?: 'services' | 'gallery' | 'about' | 'contact';
+  heroStyle?: string;
 }) {
-  /* ── Services: accent band ──────────────────────────────────────── */
-  if (page === 'services') {
+  // When heroStyle is set from CMS, use it instead of the page-based default.
+  const effectivePage = heroStyle
+    ? (heroStyle === 'accent-band' ? 'services'
+      : heroStyle === 'image-backed' ? 'gallery'
+      : heroStyle === 'split' ? 'about'
+      : heroStyle === 'accent-line' ? 'contact'
+      : heroStyle === 'bold-full' ? '_bold'
+      : heroStyle === 'minimal' ? '_minimal'
+      : page)
+    : page;
+
+  /* ── Services / accent-band ─────────────────────────────────────── */
+  if (effectivePage === 'services') {
     return (
       <section className="pt-40 pb-14 md:pb-20 bg-brand text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
@@ -3982,8 +4001,8 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
     );
   }
 
-  /* ── Gallery: image-backed hero ─────────────────────────────────── */
-  if (page === 'gallery' && image) {
+  /* ── Gallery / image-backed hero ─────────────────────────────────── */
+  if (effectivePage === 'gallery' && image) {
     return (
       <section className="relative pt-40 pb-16 md:pb-24 overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -3999,8 +4018,8 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
     );
   }
 
-  /* ── About: split layout with image ─────────────────────────────── */
-  if (page === 'about' && image) {
+  /* ── About / split layout with image ─────────────────────────────── */
+  if (effectivePage === 'about' && image) {
     return (
       <section className="pt-40 pb-12 md:pb-16 surface">
         <div className="container-x grid md:grid-cols-12 gap-8 md:gap-12 items-end">
@@ -4020,8 +4039,8 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
     );
   }
 
-  /* ── Contact: compact with accent line ──────────────────────────── */
-  if (page === 'contact') {
+  /* ── Contact / accent line ────────────────────────────────────── */
+  if (effectivePage === 'contact') {
     return (
       <section className="pt-40 pb-10 md:pb-14">
         <div className="container-x">
@@ -4029,6 +4048,41 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
           <p className="eyebrow mb-5 reveal">{eyebrow}</p>
           <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-7xl leading-[0.9]' : style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl font-display tracking-tight leading-[1.05] max-w-3xl' : 'headline-xl max-w-3xl'}`}>{splitTitle(title)}</h1>
           {subtitle && <p className="mt-5 max-w-2xl text-lg md:text-xl text-muted reveal">{subtitle}</p>}
+        </div>
+      </section>
+    );
+  }
+
+  /* ── Bold-full (CMS heroStyle override) ─────────────────────────── */
+  if (effectivePage === '_bold') {
+    return (
+      <section className="pt-40 pb-16 grain relative overflow-hidden">
+        <div className="container-x">
+          <p className="eyebrow mb-6 reveal">{eyebrow}</p>
+          <h1 className="reveal font-display tracking-tighter leading-[0.85] text-[14vw] md:text-[10vw] lg:text-[140px]">
+            {title.toUpperCase()}
+          </h1>
+          {subtitle && <p className="mt-10 text-xl md:text-2xl max-w-3xl reveal leading-snug">{subtitle}</p>}
+          {body && body !== subtitle && <p className="mt-5 text-base md:text-lg max-w-3xl reveal leading-relaxed text-muted">{body}</p>}
+          {image && (
+            <div className="mt-10 overflow-hidden border-y border-line">
+              <img src={image} alt={title} className="w-full max-h-[520px] object-cover" loading="lazy" />
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  /* ── Minimal (CMS heroStyle override — text only, no image) ─────── */
+  if (effectivePage === '_minimal') {
+    return (
+      <section className="pt-44 pb-12">
+        <div className="container-x">
+          <p className="eyebrow mb-5 reveal">{eyebrow}</p>
+          <h1 className={`reveal ${style === 'bold' ? 'font-display text-4xl sm:text-5xl md:text-8xl leading-[0.9]' : style === 'modern' ? 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display tracking-tight leading-[1.05]' : 'headline-xl max-w-5xl'}`}>{splitTitle(title)}</h1>
+          {subtitle && <p className="mt-8 text-lg md:text-xl text-muted max-w-2xl reveal">{subtitle}</p>}
+          {body && body !== subtitle && <p className="mt-4 text-base md:text-lg text-muted max-w-2xl reveal leading-relaxed">{body}</p>}
         </div>
       </section>
     );
