@@ -12,6 +12,7 @@ const SALON_HOME_CLASSIC: readonly string[] = [
   'actionBar',
   'featuredServices',
   'storyTeaser',
+  'videoEmbed',
   'galleryPreview',
   'testimonials',
   'statsBand',
@@ -25,6 +26,7 @@ const SALON_HOME_MODERN: readonly string[] = [
   'featuredLooks',
   'galleryPreview',
   'brandLogos',
+  'videoEmbed',
   'testimonials',
   'storyTeaser',
   'statsBand',
@@ -39,6 +41,7 @@ const SALON_HOME_BOLD: readonly string[] = [
   'actionBar',
   'galleryPreview',
   'featuredLooksBand',
+  'videoEmbed',
   'storySplit',
   'statsBand',
   'testimonialMarquee',
@@ -51,6 +54,7 @@ const SALON_SERVICES_CLASSIC_MODERN: readonly string[] = [
   'hero',
   'highlightsBar',
   'serviceOverviewCards',
+  'productLine',
   'steps',
   'faq',
   'cta',
@@ -60,6 +64,7 @@ const SALON_SERVICES_BOLD: readonly string[] = [
   'hero',
   'highlightsBar',
   'serviceOverviewList',
+  'productLine',
   'steps',
   'faq',
   'cta',
@@ -69,6 +74,8 @@ const SALON_GALLERY_ALL: readonly string[] = [
   'hero',
   'teaserList',
   'gallery',
+  'projectShowcase',
+  'lookBook',
   'cta',
 ];
 
@@ -77,7 +84,9 @@ const SALON_ABOUT_CLASSIC_BOLD: readonly string[] = [
   'teaserList',
   'timeline',
   'team',
+  'trustStrip',
   'statsBand',
+  'badgeWall',
   'testimonials',
   'cta',
 ];
@@ -88,7 +97,9 @@ const SALON_ABOUT_MODERN: readonly string[] = [
   'teaserList',
   'timeline',
   'team',
+  'trustStrip',
   'statsBand',
+  'badgeWall',
   'testimonials',
   'cta',
 ];
@@ -135,6 +146,12 @@ export const SALON_SECTION_LABEL_DE: Record<string, string> = {
   contactDetails: 'Kontaktdaten',
   locations: 'Standorte',
   directions: 'Wegbeschreibung',
+  videoEmbed: 'Video',
+  productLine: 'Produktlinie',
+  projectShowcase: 'Vorher / Nachher',
+  lookBook: 'Look-Book',
+  trustStrip: 'Vertrauensleiste',
+  badgeWall: 'Auszeichnungen',
 };
 
 export function salonModularBlueprint(style: TemplateStyle, page: SalonModularPageKey): readonly string[] {

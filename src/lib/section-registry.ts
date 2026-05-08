@@ -77,7 +77,6 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
     dataKeys: [
       'about.title', 'about.body', 'about.imageUrl',
       'branchText.aboutTeaserEyebrow',
-      'branchText.manifestEyebrow', 'branchText.manifestTitle',
       'branchText.learnMoreLabel', 'branchText.learnMoreHref',
     ],
   },
@@ -168,7 +167,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
   programs: { key: 'programs', dataKeys: ['programs'] },
   medicalNotice: { key: 'medicalNotice', dataKeys: ['medicalNotice', 'moduleHeadings.medicalInfo'] },
   serviceProcess: { key: 'serviceProcess', dataKeys: ['serviceProcess', 'branchText.processEyebrow', 'branchText.processTitle'] },
-  faq: { key: 'faq', dataKeys: ['faq', 'branchText.faqEyebrow', 'branchText.faqTitle'] },
+  faq: { key: 'faq', dataKeys: ['faq'] },
   servicesCta: { key: 'servicesCta', dataKeys: ['ctaBandOverrides.services'] },
 
   /* ─── Gallery ──────────────────────────────────────────────────── */
@@ -178,7 +177,7 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
   galleryGrid: { key: 'galleryGrid', dataKeys: ['gallery'] },
   galleryCategories: {
     key: 'galleryCategories',
-    dataKeys: ['galleryCategories', 'branchText.galleryCategoriesEyebrow', 'branchText.galleryCategoriesTitle'],
+    dataKeys: ['galleryCategories'],
   },
   galleryCta: { key: 'galleryCta', dataKeys: ['ctaBandOverrides.gallery'] },
 
@@ -186,27 +185,26 @@ export const SECTION_CONTRACTS: Record<AdminSectionKey, SectionContract> = {
   aboutHeader: { key: 'aboutHeader', dataKeys: ['aboutHeader', 'about.imageUrl'] },
   aboutIntro: {
     key: 'aboutIntro',
-    dataKeys: ['about.title', 'about.body', 'about.imageUrl', 'aboutNumbers', 'branchText.aboutSidebarEyebrow'],
+    dataKeys: ['about.title', 'about.body', 'about.imageUrl', 'aboutNumbers'],
   },
-  values: { key: 'values', dataKeys: ['values', 'branchText.valuesEyebrow', 'branchText.valuesTitle'] },
+  values: { key: 'values', dataKeys: ['values'] },
   timeline: { key: 'timeline', dataKeys: ['timeline'] },
   team: {
     key: 'team',
     dataKeys: [
       'team',
-      'branchText.teamEyebrow', 'branchText.teamTitle',
       'moduleHeadings.teamConsulting', 'moduleHeadings.teamMedical', 'moduleHeadings.teamFitness',
     ],
   },
   aboutNumbers: { key: 'aboutNumbers', dataKeys: ['aboutNumbers', 'numbers'] },
   certifications: {
     key: 'certifications',
-    dataKeys: ['certifications', 'branchText.certsEyebrow', 'branchText.certsTitle'],
+    dataKeys: ['certifications'],
   },
-  press: { key: 'press', dataKeys: ['press', 'branchText.pressEyebrow', 'branchText.pressTitle'] },
+  press: { key: 'press', dataKeys: ['press'] },
   aboutTestimonials: {
     key: 'aboutTestimonials',
-    dataKeys: ['testimonials', 'branchText.aboutTestimonialsEyebrow', 'branchText.aboutTestimonialsTitle'],
+    dataKeys: ['testimonials'],
   },
   aboutCta: { key: 'aboutCta', dataKeys: ['ctaBandOverrides.about'] },
 

@@ -293,6 +293,18 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
         next = { ...next, ctaBandOverrides: all } as SiteContent;
         break;
       }
+      case 'brandLogos':
+      case 'featureImage':
+      case 'storySplit':
+      case 'testimonialMarquee':
+      case 'quoteWall':
+      case 'ctaBand':
+      case 'actionBar':
+      case 'highlightsBar':
+      case 'storyFacts':
+      case 'marqueeBand':      case 'videoEmbed': case 'trialCta': case 'seasonalHighlight':
+      case 'challengeSpotlight': case 'comparisonTable': case 'trustStrip': case 'badgeWall':        // V2-only sections � rendered directly from section.data by ExtraBranchTemplate
+        break;
       default:
         break;
     }

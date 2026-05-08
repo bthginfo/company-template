@@ -614,6 +614,10 @@ function mergeSalonServicesIntoLegacy(content: SiteContent, sections: ModularSec
         next = { ...next, ctaBandOverrides: all } as SiteContent;
         break;
       }
+      // V2-only section types (rendered directly from CMS V2 data, no merge needed)
+      case 'videoEmbed': case 'productLine': case 'projectShowcase':
+      case 'lookBook': case 'trustStrip': case 'badgeWall':
+        break;
       default:
         break;
     }

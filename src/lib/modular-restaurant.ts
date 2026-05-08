@@ -813,6 +813,10 @@ export function mergeHomeIntoLegacy(
         };
         break;
       }
+      // V2-only section types (rendered directly from CMS V2 data, no merge needed)
+      case 'videoEmbed': case 'seasonalHighlight': case 'reservationTeaser':
+      case 'chefStory': case 'trustStrip': case 'badgeWall':
+        break;
       default:
         break;
     }

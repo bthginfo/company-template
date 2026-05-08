@@ -223,6 +223,18 @@ function mergeConsultingServicesIntoLegacy(content: SiteContent, sections: Modul
         next = { ...next, ctaBandOverrides: all } as SiteContent;
         break;
       }
+      case 'brandLogos':
+      case 'featureImage':
+      case 'storySplit':
+      case 'testimonialMarquee':
+      case 'quoteWall':
+      case 'ctaBand':
+      case 'actionBar':
+      case 'highlightsBar':
+      case 'storyFacts':
+      case 'marqueeBand':      case 'videoEmbed': case 'caseStudyCards': case 'comparisonTable':
+      case 'impactNumbers': case 'trustStrip': case 'badgeWall':        // V2-only sections � rendered directly from section.data by ExtraBranchTemplate
+        break;
       default:
         break;
     }

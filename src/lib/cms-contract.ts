@@ -110,6 +110,30 @@ export const CMS_SECTION_FIELD_CONTRACTS = {
   qualifications: ['eyebrow', 'headline', 'description', 'items'],
   processTextColumns: ['eyebrow', 'headline', 'description', 'items'],
   processCards: ['eyebrow', 'headline', 'description', 'items'],
+  // — Wave 1: High Impact —
+  trustStrip: ['items'],
+  videoEmbed: ['eyebrow', 'headline', 'description', 'videoUrl', 'image'],
+  projectShowcase: ['eyebrow', 'headline', 'description', 'items'],
+  reservationTeaser: ['eyebrow', 'headline', 'description', 'button'],
+  trialCta: ['eyebrow', 'headline', 'description', 'button'],
+  experiencePackages: ['eyebrow', 'headline', 'description', 'items'],
+  // — Wave 2: Strong Enhancement —
+  comparisonTable: ['eyebrow', 'headline', 'description', 'items'],
+  badgeWall: ['eyebrow', 'headline', 'items'],
+  caseStudyCards: ['eyebrow', 'headline', 'description', 'items'],
+  insuranceInfo: ['eyebrow', 'headline', 'description', 'items'],
+  amenitiesGrid: ['eyebrow', 'headline', 'description', 'items'],
+  responsePromise: ['eyebrow', 'headline', 'description', 'items'],
+  seasonalHighlight: ['eyebrow', 'headline', 'description', 'image', 'button'],
+  challengeSpotlight: ['eyebrow', 'headline', 'description', 'image', 'button'],
+  // — Wave 3: Polish & Delight —
+  chefStory: ['eyebrow', 'headline', 'description', 'image'],
+  lookBook: ['eyebrow', 'headline', 'description', 'items'],
+  productLine: ['eyebrow', 'headline', 'description', 'items'],
+  serviceAreaMap: ['eyebrow', 'headline', 'description', 'items'],
+  rsvpForm: ['eyebrow', 'headline', 'description', 'button'],
+  venueShowcase: ['eyebrow', 'headline', 'description', 'items', 'image'],
+  impactNumbers: ['eyebrow', 'headline', 'description', 'items'],
 } as const satisfies Record<string, readonly string[]>;
 
 const CMS_REPEATABLE_SECTION_TYPES = new Set<string>([
@@ -161,6 +185,20 @@ const CMS_REPEATABLE_SECTION_TYPES = new Set<string>([
   'qualifications',
   'processTextColumns',
   'processCards',
+  'trustStrip',
+  'projectShowcase',
+  'experiencePackages',
+  'comparisonTable',
+  'badgeWall',
+  'caseStudyCards',
+  'insuranceInfo',
+  'amenitiesGrid',
+  'responsePromise',
+  'lookBook',
+  'productLine',
+  'serviceAreaMap',
+  'venueShowcase',
+  'impactNumbers',
 ]);
 
 export function getCmsSectionFieldKeys(sectionType: string): readonly string[] {

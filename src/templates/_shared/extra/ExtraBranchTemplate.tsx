@@ -1,7 +1,8 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation, useParams } from 'react-router-dom';
 import type { ModularSectionV2, SiteContent, PageId } from '@/lib/types';
 import { SplitText, AnimatedCounter, Accordion } from '@/components/fx';
+import { MarqueeTrack } from '@/components/fx-21st';
 import Seo from '@/components/Seo';
 import { useBasePath, withBase, Section, ContactBlock } from '@/components/site-blocks';
 import { Timeline } from '@/components/Timeline';
@@ -67,6 +68,37 @@ export const EXTRA_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'contactDetails',
   'locations',
   'directions',
+  'marqueeBand',
+  'ctaBand',
+  'testimonialMarquee',
+  'featureImage',
+  'storySplit',
+  'brandLogos',
+  'storyFacts',
+  'quoteWall',
+  'actionBar',
+  'highlightsBar',
+  'trustStrip',
+  'videoEmbed',
+  'projectShowcase',
+  'lookBook',
+  'productLine',
+  'serviceAreaMap',
+  'amenitiesGrid',
+  'experiencePackages',
+  'caseStudyCards',
+  'insuranceInfo',
+  'responsePromise',
+  'comparisonTable',
+  'impactNumbers',
+  'venueShowcase',
+  'reservationTeaser',
+  'trialCta',
+  'rsvpForm',
+  'seasonalHighlight',
+  'challengeSpotlight',
+  'chefStory',
+  'badgeWall',
 ]);
 
 
@@ -82,7 +114,7 @@ function resolveHeroCta(content: SiteContent) {
   return { primaryLabel, primaryHref, secondaryLabel, secondaryHref };
 }
 
-/** Optional intro lines above the hero title (admin â€žHinweis-Bannerâ€œ). */
+/** Optional intro lines above the hero title (admin „Hinweis-Banner“). */
 function ExtraAnnouncementsRibbon({ content }: { content: SiteContent }) {
   const lines = (content.announcements ?? []).map((s) => String(s).trim()).filter(Boolean);
   if (lines.length === 0) return null;
@@ -106,7 +138,7 @@ function heroBodyParagraphs(content: SiteContent): string[] {
   return raw.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
 }
 
-/** Smart link that uses anchor-jump for `#â€¦` and React-Router NavLink for routes. */
+/** Smart link that uses anchor-jump for `#…` and React-Router NavLink for routes. */
 function ExtraHeroLink({ href, className, children }: { href: string; className?: string; children: React.ReactNode }) {
   const basePath = useBasePath();
   const isAnchor = href.startsWith('#');
@@ -118,7 +150,7 @@ function ExtraHeroLink({ href, className, children }: { href: string; className?
 }
 
 
-/** Full-width Zahlen-Band from `content.numbers` (admin â€žZahlen-Bandâ€œ). */
+/** Full-width Zahlen-Band from `content.numbers` (admin „Zahlen-Band“). */
 function ExtraHomeNumbersBand({ content }: { content: SiteContent }) {
   const overlay = ((content as unknown as { numbers?: { value: string; label: string }[] }).numbers ?? []).filter(
     (n) => n && (String(n.value ?? '').trim() || String(n.label ?? '').trim()),
@@ -184,7 +216,7 @@ function ExtraHomeSoftCta({ branch, content, layoutStyle }: { branch: ExtraBranc
           </h2>
           <p className="mt-8 text-lg md:text-xl text-muted">{t.sub}</p>
           <div className="mt-12">
-            <ExtraHeroLink href={t.ctaHref} className="btn-primary">{t.cta} <span aria-hidden>â†’</span></ExtraHeroLink>
+            <ExtraHeroLink href={t.ctaHref} className="btn-primary">{t.cta} <span aria-hidden>→</span></ExtraHeroLink>
           </div>
         </div>
       </section>
@@ -200,7 +232,7 @@ function ExtraHomeSoftCta({ branch, content, layoutStyle }: { branch: ExtraBranc
             <h2 className="headline-lg">{title}</h2>
             {sub ? <p className="mt-5 text-muted max-w-xl mx-auto">{sub}</p> : null}
             {cta ? (
-              <ExtraHeroLink href={hrefDefault} className="btn-primary mt-8">{cta} <span aria-hidden>â†’</span></ExtraHeroLink>
+              <ExtraHeroLink href={hrefDefault} className="btn-primary mt-8">{cta} <span aria-hidden>→</span></ExtraHeroLink>
             ) : null}
           </div>
         </div>
@@ -209,14 +241,14 @@ function ExtraHomeSoftCta({ branch, content, layoutStyle }: { branch: ExtraBranc
   }
 
   const boldFallbackTitle =
-    branch === 'consulting' ? 'NÃ¤chster Schritt?' : branch === 'medical' ? 'Termin?' : 'Startklar?';
+    branch === 'consulting' ? 'Nächster Schritt?' : branch === 'medical' ? 'Termin?' : 'Startklar?';
 
   return (
     <section className="py-32 md:py-44 bg-[var(--accent-color)] text-[var(--accent-fg)] grain">
       <div className="container-x text-center reveal">
         <h2 className="font-display text-6xl md:text-8xl leading-[0.95]">{title || boldFallbackTitle}</h2>
         <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto opacity-80">{sub || 'Schreiben Sie uns. Wir antworten.'}</p>
-        <ExtraHeroLink href={hrefDefault} className="btn-primary mt-10">{(cta || 'Jetzt Kontakt')} <span aria-hidden>â†’</span></ExtraHeroLink>
+        <ExtraHeroLink href={hrefDefault} className="btn-primary mt-10">{(cta || 'Jetzt Kontakt')} <span aria-hidden>→</span></ExtraHeroLink>
       </div>
     </section>
   );
@@ -235,15 +267,15 @@ const PAGE_TO_SEO: Record<ExtraPage, PageId> = {
 const PAGE_TITLES: Record<Exclude<ExtraPage, 'home'>, string> = {
   services: 'Leistungen',
   gallery: 'Galerie',
-  about: 'Ãœber uns',
+  about: 'Über uns',
   contact: 'Kontakt',
 };
 
 
 export function PageSeoExtra({ content, branch, page }: { content: SiteContent; branch: ExtraBranchKey; page: ExtraPage }) {
-  const t = page === 'home' ? content.brand.name : `${PAGE_TITLES[page as Exclude<ExtraPage, 'home'>]} Â· ${content.brand.name}`;
+  const t = page === 'home' ? content.brand.name : `${PAGE_TITLES[page as Exclude<ExtraPage, 'home'>]} · ${content.brand.name}`;
   const desc = page === 'home'
-    ? (content.hero?.subtitle || content.about?.body?.slice(0, 160) || `${content.brand.name} â€“ ${content.brand.tagline || 'offizielle Website'}.`)
+    ? (content.hero?.subtitle || content.about?.body?.slice(0, 160) || `${content.brand.name} – ${content.brand.tagline || 'offizielle Website'}.`)
     : `${PAGE_TITLES[page as Exclude<ExtraPage, 'home'>]} bei ${content.brand.name}.`;
   return <Seo title={t} description={desc} content={content} template={branch} page={PAGE_TO_SEO[page]} />;
 }
@@ -383,7 +415,26 @@ function extraV2Content(content: SiteContent, branch: ExtraBranchKey, section: M
         contactBlock: { ...content.contactBlock, eyebrow: cmsV2Text(data.eyebrow), title: cmsV2Text(data.headline), subtitle: cmsV2Text(data.subline) },
         formFields: extraV2AdditionalFormFields(data.additionalFormFields, content.formFields),
       };
+    case 'actionBar':
+      return {
+        ...content,
+        homeStrip: {
+          ...content.homeStrip,
+          eyebrowAuto: cmsV2Boolean(data.autoAvailabilityStatusEnabled, true),
+          eyebrow: cmsV2Text(data.availabilityStatusOverride) || content.homeStrip?.eyebrow || '',
+          primaryLabel: cmsV2LinkLabel(data.buttonPrimary) || content.homeStrip?.primaryLabel || '',
+          primaryHref: cmsV2LinkHref(data.buttonPrimary) || content.homeStrip?.primaryHref || '',
+          secondaryLabel: cmsV2LinkLabel(data.buttonSecondary) || content.homeStrip?.secondaryLabel || '',
+          secondaryHref: cmsV2LinkHref(data.buttonSecondary) || content.homeStrip?.secondaryHref || '',
+        },
+      };
     default:
+      // New section types that render directly from CMS V2 data
+      // (trustStrip, videoEmbed, projectShowcase, reservationTeaser, trialCta,
+      //  experiencePackages, comparisonTable, badgeWall, caseStudyCards,
+      //  insuranceInfo, amenitiesGrid, responsePromise, seasonalHighlight,
+      //  challengeSpotlight, chefStory, lookBook, productLine, serviceAreaMap,
+      //  rsvpForm, venueShowcase, impactNumbers)
       void branch;
       return content;
   }
@@ -527,7 +578,7 @@ function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteCon
             ) : null}
             <div className="mt-10 flex flex-wrap gap-3">
               <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel}</ExtraHeroLink>
-              {cta.secondaryLabel ? <ExtraHeroLink href={cta.secondaryHref} className="btn-ghost">{cta.secondaryLabel} â†’</ExtraHeroLink> : null}
+              {cta.secondaryLabel ? <ExtraHeroLink href={cta.secondaryHref} className="btn-ghost">{cta.secondaryLabel} →</ExtraHeroLink> : null}
             </div>
             <dl className="mt-14 grid grid-cols-3 gap-6 max-w-md">
               {stats.map((s, i) => (
@@ -545,7 +596,7 @@ function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteCon
               </div>
               <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl border border-line p-5 max-w-[260px]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[var(--accent-color)]/20 grid place-items-center"><span className="text-xl">â˜…</span></div>
+                  <div className="w-10 h-10 rounded-full bg-[var(--accent-color)]/20 grid place-items-center"><span className="text-xl">★</span></div>
                   <div>
                     <p className="font-display text-lg leading-tight">{badgeText}</p>
                     <p className="text-xs text-muted">{badgeLabel}</p>
@@ -564,7 +615,7 @@ function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteCon
       <section className="relative pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="container-x">
           <ExtraAnnouncementsRibbon content={content} />
-          {heroEyebrow ? <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-8 reveal">â€” {heroEyebrow} â€”</p> : null}
+          {heroEyebrow ? <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted mb-8 reveal">— {heroEyebrow} —</p> : null}
           <h1 className="font-display text-[clamp(2.5rem,11vw,11rem)] leading-[0.88] md:leading-[0.85] tracking-tight reveal break-words [overflow-wrap:anywhere] [hyphens:auto]">
             <SplitText>{content.hero.title}</SplitText>
           </h1>
@@ -584,7 +635,7 @@ function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteCon
             ) : null}
           </div>
           <div className="md:col-span-5 md:text-right flex flex-wrap gap-3 md:justify-end">
-            <ExtraHeroLink href={cta.primaryHref} className="btn-primary text-base">{cta.primaryLabel} <span aria-hidden>â†’</span></ExtraHeroLink>
+            <ExtraHeroLink href={cta.primaryHref} className="btn-primary text-base">{cta.primaryLabel} <span aria-hidden>→</span></ExtraHeroLink>
             {cta.secondaryLabel ? <ExtraHeroLink href={cta.secondaryHref} className="btn-outline text-base">{cta.secondaryLabel}</ExtraHeroLink> : null}
           </div>
         </div>
@@ -609,7 +660,7 @@ function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteCon
           </div>
         ) : null}
         <div className="mt-12 flex flex-wrap gap-3 reveal">
-          <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel} <span aria-hidden>â†’</span></ExtraHeroLink>
+          <ExtraHeroLink href={cta.primaryHref} className="btn-primary">{cta.primaryLabel} <span aria-hidden>→</span></ExtraHeroLink>
           {cta.secondaryLabel ? <ExtraHeroLink href={cta.secondaryHref} className="btn-outline">{cta.secondaryLabel}</ExtraHeroLink> : null}
         </div>
       </div>
@@ -617,6 +668,15 @@ function ExtraV2HomeHero({ content, branch, style, eyebrow }: { content: SiteCon
   );
 }
 
+
+function extraLogoBandIsImage(n: string): boolean {
+  const s = n.trim();
+  if (!s) return false;
+  if (/^https?:\/\//i.test(s)) return true;
+  if (s.startsWith('/') && /\.(png|jpe?g|gif|webp|svg|avif)(\?|#|$)/i.test(s)) return true;
+  if (s.includes('blob.vercel-storage.com')) return true;
+  return false;
+}
 export function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteContent; branch: ExtraBranchKey; page: ExtraPage; style: ExtraStyle; eyebrow: string }) {
   const sections = extraV2Sections(content, page);
   const heroSection = sections.find((section) => section.type === 'hero');
@@ -667,7 +727,7 @@ export function ExtraV2Page({ content, branch, page, style, eyebrow }: { content
           case 'newsTeaser':
             return <NewsPreview key={section.id} templateVariant={branch} content={patched} eyebrow={patched.branchText?.newsEyebrow || 'News'} title={patched.branchText?.newsTitle || 'Aktuelles.'} />;
           case 'faq':
-            return patched.faq?.length ? <Section key={section.id} title="HÃ¤ufige Fragen."><Accordion items={patched.faq} /></Section> : null;
+            return patched.faq?.length ? <Section key={section.id} title="Häufige Fragen."><Accordion items={patched.faq} /></Section> : null;
           case 'cta':
             return <ExtraHomeSoftCta key={section.id} branch={branch} content={patched} layoutStyle={style} />;
           case 'contactDetails':
@@ -676,6 +736,76 @@ export function ExtraV2Page({ content, branch, page, style, eyebrow }: { content
             return <ExtraV2Cards key={section.id} section={{ ...section, data: { items: asUnknownRecord(section.data).locations } }} title="Standorte." />;
           case 'timeline':
             return <Timeline key={section.id} content={content} />;
+          case 'marqueeBand':
+          case 'testimonialMarquee': {
+            const words = cmsV2TextItems(asUnknownRecord(section.data).items);
+            const fallbackWords = patched.branchText?.marqueeWords ?? [];
+            const effective = words.length ? words : fallbackWords;
+            return effective.length ? <section key={section.id} className="py-6 border-y border-line bg-white overflow-hidden"><MarqueeTrack speed={34}>{effective.map((word) => <span key={word} className="font-display text-3xl md:text-5xl text-brand/80">{word}</span>)}</MarqueeTrack></section> : null;
+          }
+          case 'ctaBand':
+            return <ExtraHomeSoftCta key={section.id} branch={branch} content={patched} layoutStyle={style} />;
+          case 'featureImage': {
+            const fImg = cmsV2Image(asUnknownRecord(section.data).image);
+            return fImg ? <Section key={section.id} spacing="lg"><img src={fImg} alt="" className="w-full max-h-[720px] object-cover rounded-2xl" loading="lazy" /></Section> : null;
+          }
+          case 'storySplit':
+            return <ExtraV2Cards key={section.id} section={{ ...section, type: 'storyTeaser' }} title="�ber uns." />;
+          case 'brandLogos': {
+            const labels = patched.logos ?? [];
+            return labels.length ? <section key={section.id} className="py-14 border-y border-line"><div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">{labels.map((entry) => extraLogoBandIsImage(entry) ? <img key={entry} src={entry} alt="" className="h-9 md:h-11 w-auto max-w-[140px] object-contain mix-blend-multiply" loading="lazy" /> : <span key={entry} className="font-display text-2xl tracking-wide">{entry}</span>)}</div></section> : null;
+          }
+          case 'storyFacts':
+          case 'quoteWall':
+          case 'highlightsBar': {
+            const hd = asUnknownRecord(section.data);
+            const hItems = cmsV2TextPairs(hd.items);
+            const effectiveHL = hItems.length ? hItems : (section.type === 'highlightsBar' ? (patched.serviceHighlights ?? []) : []);
+            if (!effectiveHL.length) return null;
+            const hlTitle = cmsV2Text(hd.headline) || (section.type === 'highlightsBar' ? 'Unsere Werte.' : section.type === 'storyFacts' ? 'Unsere Geschichte.' : 'Details.');
+            return <Section key={section.id} eyebrow={cmsV2Text(hd.eyebrow)} title={hlTitle} subtitle={cmsV2Text(hd.description)} className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{effectiveHL.map((item, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}</div></Section>;
+          }
+          case 'actionBar': {
+            const phone = patched.contact?.phone;
+            const strip = patched.homeStrip;
+            if (!phone && !strip?.primaryLabel) return null;
+            return <section key={section.id} className="py-4 border-y border-line"><div className="container-x flex flex-wrap items-center justify-between gap-4 text-sm">{phone && <a href={'tel:' + phone.replace(/[^+\d]/g, '')} className="font-medium hover:text-brand">{phone}</a>}<div className="flex items-center gap-3">{strip?.primaryLabel && <a href={strip.primaryHref || '#kontakt'} className="btn-sm">{strip.primaryLabel}</a>}{strip?.secondaryLabel && <a href={strip.secondaryHref || '#leistungen'} className="btn-sm btn-outline">{strip.secondaryLabel}</a>}</div></div></section>;
+          }
+          case 'branchChips': {
+            const chips = patched.branchChips ?? [];
+            return chips.length ? <Section key={section.id} spacing="md"><div className="flex flex-wrap gap-3 reveal-stagger">{chips.map((chip) => <span key={chip} className="rounded-full border border-line px-4 py-2 text-sm">{chip}</span>)}</div></Section> : null;
+          }
+          case 'certifications': {
+            const certs = patched.certifications ?? [];
+            if (!certs.length) return null;
+            return <Section key={section.id} title="Zertifizierungen." className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{certs.map((cert, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{cert.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{cert.d}</p></article>)}</div></Section>;
+          }
+          case 'medicalNotice': {
+            const notice = patched.medicalNotice;
+            if (!notice?.online && !notice?.emergency) return null;
+            return <Section key={section.id} spacing="md"><div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">{notice.online && <p className="text-sm text-amber-800">{notice.online}</p>}{notice.emergency && <p className="text-sm text-amber-800 mt-2 font-medium">{notice.emergency}</p>}</div></Section>;
+          }
+          case 'galleryStory': {
+            const gs = patched.galleryStory;
+            if (!gs?.body) return null;
+            return <Section key={section.id} eyebrow={gs.eyebrow} title={gs.title || 'Unsere Galerie.'}><div className="prose-lite max-w-3xl reveal">{gs.body.split('\n\n').map((p, i) => <p key={i} className="text-lg text-muted leading-relaxed mb-4">{p}</p>)}</div></Section>;
+          }
+          case 'galleryCategories': {
+            const cats = patched.galleryCategories ?? [];
+            if (!cats.length) return null;
+            return <Section key={section.id} title="Kategorien." className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{cats.map((cat, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{cat.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{cat.d}</p></article>)}</div></Section>;
+          }
+          case 'values': {
+            const vals = patched.values ?? [];
+            if (!vals.length) return null;
+            return <Section key={section.id} title="Unsere Werte." className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{vals.map((val, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{val.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{val.d}</p></article>)}</div></Section>;
+          }
+          case 'arrival': {
+            const arrItems = patched.arrival ?? [];
+            const arrHdr = patched.arrivalSection;
+            if (!arrItems.length) return null;
+            return <Section key={section.id} eyebrow={arrHdr?.eyebrow} title={arrHdr?.title || 'Anreise.'}><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{arrItems.map((item, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}</div></Section>;
+          }
           case 'countdown':
             return branch === 'wedding' ? <WeddingCountdown key={section.id} content={patched} /> : null;
           default:
@@ -686,7 +816,7 @@ export function ExtraV2Page({ content, branch, page, style, eyebrow }: { content
   );
 }
 
-/* â”€â”€â”€ Compact page hero used on subpages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Compact page hero used on subpages ─────────────────────────── */
 function PageHero({ eyebrow, title, subtitle, style, page, content, heroStyle }: { eyebrow: string; title: string; subtitle?: string; style: ExtraStyle; page?: Exclude<ExtraPage, 'home'>; content?: SiteContent; heroStyle?: string }) {
   // When heroStyle is set from CMS, override the page-based default.
   const effectivePage = heroStyle
@@ -699,7 +829,7 @@ function PageHero({ eyebrow, title, subtitle, style, page, content, heroStyle }:
       : page)
     : page;
 
-  /* â”€â”€ Services / accent band â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Services / accent band ─────────────────────────────────────── */
   if (effectivePage === 'services') {
     return (
       <section className="pt-32 md:pt-40 pb-14 md:pb-20 bg-brand text-white relative overflow-hidden">
@@ -713,7 +843,7 @@ function PageHero({ eyebrow, title, subtitle, style, page, content, heroStyle }:
     );
   }
 
-  /* â”€â”€ Gallery: image-backed hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Gallery: image-backed hero ─────────────────────────────────── */
   if (effectivePage === 'gallery') {
     const img = content?.gallery?.[0] || content?.about?.imageUrl || content?.hero?.imageUrl;
     return (
@@ -733,7 +863,7 @@ function PageHero({ eyebrow, title, subtitle, style, page, content, heroStyle }:
     );
   }
 
-  /* â”€â”€ About: split layout with about image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── About: split layout with about image ───────────────────────── */
   if (effectivePage === 'about' && content?.about?.imageUrl) {
     return (
       <section className="pt-32 md:pt-40 pb-12 md:pb-16 surface">
@@ -753,7 +883,7 @@ function PageHero({ eyebrow, title, subtitle, style, page, content, heroStyle }:
     );
   }
 
-  /* â”€â”€ Contact: compact with accent line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Contact: compact with accent line ──────────────────────────── */
   if (effectivePage === 'contact') {
     return (
       <section className="pt-32 md:pt-40 pb-10 md:pb-14">
@@ -767,7 +897,7 @@ function PageHero({ eyebrow, title, subtitle, style, page, content, heroStyle }:
     );
   }
 
-  /* â”€â”€ Bold-full (CMS heroStyle override) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Bold-full (CMS heroStyle override) ─────────────────────────── */
   if (effectivePage === '_bold') {
     return (
       <section className="pt-32 md:pt-40 pb-16 grain relative overflow-hidden">
@@ -782,7 +912,7 @@ function PageHero({ eyebrow, title, subtitle, style, page, content, heroStyle }:
     );
   }
 
-  /* â”€â”€ Minimal (CMS heroStyle override â€” text only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Minimal (CMS heroStyle override — text only) ───────────────── */
   if (effectivePage === '_minimal') {
     return (
       <section className="pt-32 md:pt-40 pb-12 md:pb-16">
@@ -795,7 +925,7 @@ function PageHero({ eyebrow, title, subtitle, style, page, content, heroStyle }:
     );
   }
 
-  /* â”€â”€ Default / fallback (custom pages, about without image) â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Default / fallback (custom pages, about without image) ─────── */
   return (
     <section className="pt-32 md:pt-40 pb-12 md:pb-16 surface">
       <div className="container-x">
@@ -821,10 +951,11 @@ export function ExtraCustomV2PageRoute({ content, branch, style, eyebrow }: { co
   const heroSubtitle = cmsV2Text(heroData.subline);
   return (
     <>
-      <Seo title={heroTitle} description={heroSubtitle || `${page.label} Â· ${content.brand.name}`} content={content} template={branch} page="home" />
+      <Seo title={heroTitle} description={heroSubtitle || `${page.label} · ${content.brand.name}`} content={content} template={branch} page="home" />
       <PageHero eyebrow={heroEyebrow} title={heroTitle} subtitle={heroSubtitle} style={style} />
       {sections.filter((section) => section.type !== 'hero').map((section) => {
         const patched = extraV2Content(content, branch, section);
+        const d = asUnknownRecord(section.data);
         switch (section.type) {
           case 'keywordBand': {
             const words = cmsV2TextItems(asUnknownRecord(section.data).items);
@@ -858,11 +989,132 @@ export function ExtraCustomV2PageRoute({ content, branch, style, eyebrow }: { co
           case 'newsTeaser':
             return <NewsPreview key={section.id} templateVariant={branch} content={patched} eyebrow={effectiveBranchText(branch, patched).newsEyebrow} title={effectiveBranchText(branch, patched).newsTitle} />;
           case 'faq':
-            return patched.faq?.length ? <Section key={section.id} title="Häufige Fragen."><Accordion items={patched.faq} /></Section> : null;
+            return patched.faq?.length ? <Section key={section.id} title="H�ufige Fragen."><Accordion items={patched.faq} /></Section> : null;
           case 'cta':
             return <ExtraHomeSoftCta key={section.id} branch={branch} content={patched} layoutStyle={style} />;
           case 'contactDetails':
             return <Section key={section.id} title="Kontakt"><ContactBlock content={patched} showForm /></Section>;
+          case 'marqueeBand':
+          case 'testimonialMarquee': {
+            const words = cmsV2TextItems(asUnknownRecord(section.data).items);
+            return words.length ? <section key={section.id} className="py-6 border-y border-line bg-white overflow-hidden"><MarqueeTrack speed={34}>{words.map((word) => <span key={word} className="font-display text-3xl md:text-5xl text-brand/80">{word}</span>)}</MarqueeTrack></section> : null;
+          }
+          case 'ctaBand':
+            return <ExtraHomeSoftCta key={section.id} branch={branch} content={patched} layoutStyle={style} />;
+          case 'featureImage': {
+            const fImg = cmsV2Image(asUnknownRecord(section.data).image);
+            return fImg ? <Section key={section.id} spacing="lg"><img src={fImg} alt="" className="w-full max-h-[720px] object-cover rounded-2xl" loading="lazy" /></Section> : null;
+          }
+          case 'storySplit':
+            return <ExtraV2Cards key={section.id} section={{ ...section, type: 'storyTeaser' }} title="�ber uns." />;
+          case 'brandLogos': {
+            const labels = patched.logos ?? [];
+            return labels.length ? <section key={section.id} className="py-14 border-y border-line"><div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">{labels.map((entry) => extraLogoBandIsImage(entry) ? <img key={entry} src={entry} alt="" className="h-9 md:h-11 w-auto max-w-[140px] object-contain mix-blend-multiply" loading="lazy" /> : <span key={entry} className="font-display text-2xl tracking-wide">{entry}</span>)}</div></section> : null;
+          }
+          case 'storyFacts':
+          case 'quoteWall':
+          case 'highlightsBar': {
+            const hd = asUnknownRecord(section.data);
+            const hItems = cmsV2TextPairs(hd.items);
+            if (!hItems.length) return null;
+            const hlTitle = cmsV2Text(hd.headline) || (section.type === 'highlightsBar' ? 'Unsere Werte.' : section.type === 'storyFacts' ? 'Unsere Geschichte.' : 'Details.');
+            return <Section key={section.id} eyebrow={cmsV2Text(hd.eyebrow)} title={hlTitle} subtitle={cmsV2Text(hd.description)} className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{hItems.map((item, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}</div></Section>;
+          }
+          case 'actionBar': {
+            const phone = patched.contact?.phone;
+            const strip = patched.homeStrip;
+            if (!phone && !strip?.primaryLabel) return null;
+            return <section key={section.id} className="py-4 border-y border-line"><div className="container-x flex flex-wrap items-center justify-between gap-4 text-sm">{phone && <a href={'tel:' + phone.replace(/[^+\d]/g, '')} className="font-medium hover:text-brand">{phone}</a>}<div className="flex items-center gap-3">{strip?.primaryLabel && <a href={strip.primaryHref || '#kontakt'} className="btn-sm">{strip.primaryLabel}</a>}{strip?.secondaryLabel && <a href={strip.secondaryHref || '#leistungen'} className="btn-sm btn-outline">{strip.secondaryLabel}</a>}</div></div></section>;
+          }
+          case 'branchChips': {
+            const chips = patched.branchChips ?? [];
+            return chips.length ? <Section key={section.id} spacing="md"><div className="flex flex-wrap gap-3 reveal-stagger">{chips.map((chip) => <span key={chip} className="rounded-full border border-line px-4 py-2 text-sm">{chip}</span>)}</div></Section> : null;
+          }
+          case 'certifications': {
+            const certs = patched.certifications ?? [];
+            if (!certs.length) return null;
+            return <Section key={section.id} title="Zertifizierungen." className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{certs.map((cert, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{cert.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{cert.d}</p></article>)}</div></Section>;
+          }
+          case 'medicalNotice': {
+            const notice = patched.medicalNotice;
+            if (!notice?.online && !notice?.emergency) return null;
+            return <Section key={section.id} spacing="md"><div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">{notice.online && <p className="text-sm text-amber-800">{notice.online}</p>}{notice.emergency && <p className="text-sm text-amber-800 mt-2 font-medium">{notice.emergency}</p>}</div></Section>;
+          }
+          case 'galleryStory': {
+            const gs = patched.galleryStory;
+            if (!gs?.body) return null;
+            return <Section key={section.id} eyebrow={gs.eyebrow} title={gs.title || 'Unsere Galerie.'}><div className="prose-lite max-w-3xl reveal">{gs.body.split('\n\n').map((p, i) => <p key={i} className="text-lg text-muted leading-relaxed mb-4">{p}</p>)}</div></Section>;
+          }
+          case 'galleryCategories': {
+            const cats = patched.galleryCategories ?? [];
+            if (!cats.length) return null;
+            return <Section key={section.id} title="Kategorien." className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{cats.map((cat, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{cat.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{cat.d}</p></article>)}</div></Section>;
+          }
+          case 'values': {
+            const vals = patched.values ?? [];
+            if (!vals.length) return null;
+            return <Section key={section.id} title="Unsere Werte." className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{vals.map((val, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{val.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{val.d}</p></article>)}</div></Section>;
+          }
+          case 'arrival': {
+            const arrItems = patched.arrival ?? [];
+            const arrHdr = patched.arrivalSection;
+            if (!arrItems.length) return null;
+            return <Section key={section.id} eyebrow={arrHdr?.eyebrow} title={arrHdr?.title || 'Anreise.'}><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{arrItems.map((item, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}</div></Section>;
+          }
+          case 'trustStrip': {
+            const tsItems = cmsV2TextPairs(d.items);
+            if (!tsItems.length) return null;
+            return <section key={section.id} className="py-4 border-y border-line bg-white overflow-hidden"><div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-center gap-6 md:gap-10">{tsItems.map((item, i) => <span key={i} className="flex items-center gap-2 text-sm text-muted whitespace-nowrap"><span className="text-brand font-semibold">{item.t}</span>{item.d && <span>{item.d}</span>}</span>)}</div></section>;
+          }
+          case 'videoEmbed': {
+            const videoUrl = cmsV2Text(d.videoUrl);
+            if (!videoUrl) return null;
+            return <Section key={section.id} eyebrow={cmsV2Text(d.eyebrow)} title={cmsV2Text(d.headline) || ''}>{cmsV2Text(d.description) && <p className="text-lg text-muted max-w-2xl mb-8">{cmsV2Text(d.description)}</p>}<div className="relative aspect-video rounded-2xl overflow-hidden bg-neutral-100"><iframe src={videoUrl} title={cmsV2Text(d.headline) || 'Video'} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full" loading="lazy" /></div></Section>;
+          }
+          case 'projectShowcase':
+          case 'lookBook':
+          case 'productLine':
+          case 'serviceAreaMap':
+          case 'amenitiesGrid':
+          case 'experiencePackages':
+          case 'caseStudyCards':
+          case 'insuranceInfo':
+          case 'responsePromise':
+          case 'comparisonTable':
+          case 'impactNumbers':
+          case 'venueShowcase': {
+            const cardItems = cmsV2TextPairs(d.items);
+            if (!cardItems.length) return null;
+            return <Section key={section.id} eyebrow={cmsV2Text(d.eyebrow)} title={cmsV2Text(d.headline) || 'Details.'} subtitle={cmsV2Text(d.description)} className="surface"><div className="grid md:grid-cols-3 gap-5 reveal-stagger">{cardItems.map((item, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><h3 className="font-display text-2xl">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}</div></Section>;
+          }
+          case 'reservationTeaser':
+          case 'trialCta':
+          case 'rsvpForm': {
+            const ctaHeadline = cmsV2Text(d.headline);
+            const ctaDesc = cmsV2Text(d.description);
+            if (!ctaHeadline && !ctaDesc) return null;
+            const ctaBtnRec = d.button && typeof d.button === 'object' && !Array.isArray(d.button) ? d.button as Record<string, unknown> : undefined;
+            const ctaBtnLabel = ctaBtnRec ? cmsV2Text(ctaBtnRec.label) : '';
+            const ctaBtnHref = ctaBtnRec ? cmsV2Text(ctaBtnRec.href) : '';
+            return <Section key={section.id} className="surface"><div className="max-w-2xl mx-auto text-center reveal">{cmsV2Text(d.eyebrow) && <p className="text-sm uppercase tracking-widest text-brand mb-3">{cmsV2Text(d.eyebrow)}</p>}{ctaHeadline && <h2 className="font-display text-4xl md:text-5xl">{ctaHeadline}</h2>}{ctaDesc && <p className="mt-4 text-lg text-muted">{ctaDesc}</p>}{ctaBtnLabel && <a href={ctaBtnHref || '#contact'} className="btn-primary mt-8 inline-block">{ctaBtnLabel}</a>}</div></Section>;
+          }
+          case 'seasonalHighlight':
+          case 'challengeSpotlight':
+          case 'chefStory': {
+            const shHeadline = cmsV2Text(d.headline);
+            const shDesc = cmsV2Text(d.description);
+            const shImage = cmsV2Image(d.image);
+            if (!shHeadline && !shDesc && !shImage) return null;
+            const shBtnRec = section.type !== 'chefStory' && d.button && typeof d.button === 'object' && !Array.isArray(d.button) ? d.button as Record<string, unknown> : undefined;
+            const shBtnLabel = shBtnRec ? cmsV2Text(shBtnRec.label) : '';
+            const shBtnHref = shBtnRec ? cmsV2Text(shBtnRec.href) : '';
+            return <Section key={section.id} eyebrow={cmsV2Text(d.eyebrow)} title={shHeadline || ''} className="surface"><div className={`grid ${shImage ? 'lg:grid-cols-2' : ''} gap-10 items-center reveal`}><div>{shDesc && <p className="text-lg text-muted leading-relaxed">{shDesc}</p>}{shBtnLabel && <a href={shBtnHref || '#'} className="btn-primary mt-6 inline-block">{shBtnLabel}</a>}</div>{shImage && <img src={shImage} alt={shHeadline || ''} className="w-full rounded-2xl object-cover aspect-[4/3]" loading="lazy" />}</div></Section>;
+          }
+          case 'badgeWall': {
+            const bwItems = cmsV2TextPairs(d.items);
+            if (!bwItems.length) return null;
+            return <Section key={section.id} eyebrow={cmsV2Text(d.eyebrow)} title={cmsV2Text(d.headline) || 'Auszeichnungen.'} className="surface"><div className="grid grid-cols-2 md:grid-cols-4 gap-5 reveal-stagger">{bwItems.map((item, i) => <article key={i} className="border border-line rounded-2xl p-6 bg-white text-center"><h3 className="font-display text-xl">{item.t}</h3>{item.d && <p className="mt-2 text-sm text-muted">{item.d}</p>}</article>)}</div></Section>;
+          }
           default:
             return null;
         }
@@ -871,7 +1123,7 @@ export function ExtraCustomV2PageRoute({ content, branch, style, eyebrow }: { co
   );
 }
 
-/** Detail-URL unter dem jeweiligen Leistungen-Pfad (extras: immer `/leistungen/â€¦`). */
+/** Detail-URL unter dem jeweiligen Leistungen-Pfad (extras: immer `/leistungen/…`). */
 function serviceDetailHref(branch: ExtraBranchKey, s: SiteContent['services'][number]): string | null {
   const slug = (s.detailSlug ?? '').trim();
   if (!slug || s.detailPublished === false) return null;
@@ -879,7 +1131,7 @@ function serviceDetailHref(branch: ExtraBranchKey, s: SiteContent['services'][nu
   return `${base}/${slug}`;
 }
 
-/** Per-service â€žMehr erfahrenâ€œ â€” bei gesetztem `detailSlug` zur Detailseite, sonst Overrides / Anker. */
+/** Per-service „Mehr erfahren“ — bei gesetztem `detailSlug` zur Detailseite, sonst Overrides / Anker. */
 function extraServiceLearnMore(
   s: SiteContent['services'][number],
   bt: ReturnType<typeof effectiveBranchText>,
@@ -887,14 +1139,14 @@ function extraServiceLearnMore(
 ): { label: string; href: string } {
   const g = bt as unknown as Record<string, string | undefined>;
   const base = (s.learnMoreLabel ?? '').trim() || (g.learnMoreLabel ?? '').trim() || 'Mehr erfahren';
-  const label = `${base.replace(/\s*â†’\s*$/u, '').trim()} â†’`;
+  const label = `${base.replace(/\s*→\s*$/u, '').trim()} →`;
   const detail = serviceDetailHref(branch, s);
-  if (detail) return { label: 'Mehr erfahren â†’', href: detail };
+  if (detail) return { label: 'Mehr erfahren →', href: detail };
   const href = (s.learnMoreHref ?? '').trim() || (g.learnMoreHref ?? '').trim() || '#leistungen';
   return { label, href };
 }
 
-/* â”€â”€â”€ Sub-page renderer (services / gallery / about / contact) â”€â”€â”€â”€ */
+/* ─── Sub-page renderer (services / gallery / about / contact) ──── */
 const PAGE_HEADER_KEY: Record<Exclude<ExtraPage, 'home'>, 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader'> = {
   services: 'servicesHeader',
   gallery: 'galleryHeader',
@@ -902,7 +1154,7 @@ const PAGE_HEADER_KEY: Record<Exclude<ExtraPage, 'home'>, 'servicesHeader' | 'ga
   contact: 'contactPageHeader',
 };
 
-/** /leistungen â€” same `content.services` + teaser copy as home; optional â€žAlleâ€œ-Link via branchText. */
+/** /leistungen — same `content.services` + teaser copy as home; optional „Alle“-Link via branchText. */
 function ExtraLeistungenServiceCards({
   content,
   branch,
@@ -923,10 +1175,10 @@ function ExtraLeistungenServiceCards({
     <div className="grid md:grid-cols-12 gap-8 mb-14 items-end">
       <div className="md:col-span-7 reveal">
         <p className="eyebrow mb-5">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
-        <h2 className="headline-lg">{bt.servicesTeaserTitle || <>Was wir<br /><em className="italic-pop">fÃ¼r Sie tun.</em></>}</h2>
+        <h2 className="headline-lg">{bt.servicesTeaserTitle || <>Was wir<br /><em className="italic-pop">für Sie tun.</em></>}</h2>
       </div>
       <p className="md:col-span-5 text-lg text-muted reveal">
-        {bt.teaserSubtitle || 'Eine Auswahl aus unserem Repertoire. Mehr im persÃ¶nlichen GesprÃ¤ch.'}
+        {bt.teaserSubtitle || 'Eine Auswahl aus unserem Repertoire. Mehr im persönlichen Gespräch.'}
       </p>
     </div>
   );
@@ -934,7 +1186,7 @@ function ExtraLeistungenServiceCards({
     <div className="max-w-2xl reveal mb-16">
       <p className="text-xs font-mono uppercase tracking-widest text-muted mb-4">{bt.servicesTeaserEyebrow || 'Leistungen'}</p>
       <h2 className="font-display text-4xl md:text-5xl">{bt.servicesTeaserTitle || 'Was Sie bekommen.'}</h2>
-      <p className="mt-4 text-lg text-muted">{bt.teaserSubtitle || 'Klar definierte Pakete â€“ keine versteckten Kosten.'}</p>
+      <p className="mt-4 text-lg text-muted">{bt.teaserSubtitle || 'Klar definierte Pakete – keine versteckten Kosten.'}</p>
     </div>
   );
   const teaserBold = (
@@ -1075,7 +1327,7 @@ function ExtraLeistungenServiceCards({
         )}
         {showAll && (
           <div className="mt-12 flex justify-end reveal">
-            <ExtraHeroLink href={allHref} className="btn-outline">{allLabel} <span aria-hidden>â†’</span></ExtraHeroLink>
+            <ExtraHeroLink href={allHref} className="btn-outline">{allLabel} <span aria-hidden>→</span></ExtraHeroLink>
           </div>
         )}
       </div>
@@ -1083,9 +1335,9 @@ function ExtraLeistungenServiceCards({
   );
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- *  WEDDING COUNTDOWN â€” live countdown to the big day
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────────────────────────────────────────────────
+ *  WEDDING COUNTDOWN — live countdown to the big day
+ * ──────────────────────────────────────────────────────────────────── */
 function WeddingCountdown({ content }: { content: SiteContent }) {
   const dateStr = (content as any).weddingDate as string | undefined;
   const [now, setNow] = useState(() => Date.now());
@@ -1119,7 +1371,7 @@ function WeddingCountdown({ content }: { content: SiteContent }) {
             </div>
           ))}
         </div>
-        <p className="mt-6 text-lg text-muted reveal">bis zum groÃŸen Tag â™¥</p>
+        <p className="mt-6 text-lg text-muted reveal">bis zum großen Tag ♥</p>
       </div>
     </section>
   );
@@ -1183,12 +1435,12 @@ export function ExtraHeader({ content, style, branch }: { content: SiteContent; 
             ))}
           </nav>
           <ExtraHeroLink href={((content as any)?.navCta?.href || '').trim() || '/kontakt'} className="hidden md:inline-flex btn-primary !py-2.5 !px-5 text-sm">
-            {((content as any)?.navCta?.label || '').trim() || content.hero.ctaLabel || 'Termin'} <span aria-hidden>→</span>
+            {((content as any)?.navCta?.label || '').trim() || content.hero.ctaLabel || 'Termin'} <span aria-hidden>?</span>
           </ExtraHeroLink>
           <button
             onClick={() => setMobile(true)}
             className="md:hidden p-2 rounded-full border border-line"
-            aria-label="Menü öffnen"
+            aria-label="Men� �ffnen"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
@@ -1200,7 +1452,7 @@ export function ExtraHeader({ content, style, branch }: { content: SiteContent; 
         <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
           <div className="container-x py-5 flex justify-between items-center">
             <span className="font-display text-2xl">{content.brand.name}</span>
-            <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
+            <button onClick={() => setMobile(false)} className="p-2" aria-label="Schlie�en">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
               </svg>
@@ -1237,7 +1489,7 @@ export function ExtraFooter({ content, style }: { content: SiteContent; style: E
             <p className="font-mono md:text-right text-white/70">{content.contact.phone}</p>
           </div>
           <p className="mt-16 pt-8 border-t border-white/20 text-xs text-white/40">
-            © {new Date().getFullYear()} {content.brand.name}
+            � {new Date().getFullYear()} {content.brand.name}
           </p>
         </div>
       </footer>
@@ -1249,7 +1501,7 @@ export function ExtraFooter({ content, style }: { content: SiteContent; style: E
         <p className="font-display text-3xl">{content.brand.name}</p>
         <p className="text-sm text-white/60 mt-2">{content.brand.tagline}</p>
         <p className="mt-10 pt-6 border-t border-white/10 text-xs text-white/50">
-          © {new Date().getFullYear()} {content.brand.name}
+          � {new Date().getFullYear()} {content.brand.name}
         </p>
       </div>
     </footer>
@@ -1259,22 +1511,22 @@ export function ExtraFooter({ content, style }: { content: SiteContent; style: E
 type TeamMember = { n: string; r: string; img: string; bio: string };
 const BRANCH_TEAM_DEFAULT: Record<ExtraBranchKey, TeamMember[]> = {
   consulting: [
-    { n: 'Dr. Klaus Hofer',  r: 'Senior Partner · Strategie',  img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Über 25 Jahre Beratung im Mittelstand. Schwerpunkt Industrie und Familienunternehmen.' },
-    { n: 'Lena Weiss',       r: 'Partnerin · Steuer & Recht',  img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Steuerberaterin und Anwältin. Zuvor zehn Jahre in einer Big-Four-Kanzlei.' },
-    { n: 'Marcus Berg',      r: 'Senior Manager · M&A',        img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'Begleitet Übernahmen und Nachfolgen. Drei Jahre London, fünf Jahre Wien.' },
+    { n: 'Dr. Klaus Hofer',  r: 'Senior Partner � Strategie',  img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: '�ber 25 Jahre Beratung im Mittelstand. Schwerpunkt Industrie und Familienunternehmen.' },
+    { n: 'Lena Weiss',       r: 'Partnerin � Steuer & Recht',  img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Steuerberaterin und Anw�ltin. Zuvor zehn Jahre in einer Big-Four-Kanzlei.' },
+    { n: 'Marcus Berg',      r: 'Senior Manager � M&A',        img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'Begleitet �bernahmen und Nachfolgen. Drei Jahre London, f�nf Jahre Wien.' },
   ],
   fitness: [
-    { n: 'Sarah Berg',  r: 'Studio-Leitung · Vinyasa',   img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
-    { n: 'Mira Klein',  r: 'Yin & Mindful Movement',     img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
+    { n: 'Sarah Berg',  r: 'Studio-Leitung � Vinyasa',   img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
+    { n: 'Mira Klein',  r: 'Yin & Mindful Movement',     img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allg�u.' },
     { n: 'Jonas Renz',  r: 'Reformer Pilates',           img: 'https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?auto=format&fit=crop&w=600&q=80', bio: 'Physiotherapeut mit Pilates-Spezialisierung. Trainiert Sportler:innen und Reha-Klient:innen.' },
   ],
   medical: [
-    { n: 'Dr. Anna Lindner', r: 'Praxisinhaberin · Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80', bio: 'Studium in Innsbruck und Zürich. Ganzheitlicher Ansatz mit Zeit für Gespräche.' },
-    { n: 'Dr. Felix Bauer',  r: 'Internist · Diagnostik',          img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80', bio: 'Zehn Jahre Universitätsklinik. Schwerpunkt internistische Vorsorge.' },
-    { n: 'Maria Holzer',     r: 'Praxisleitung · MTA',            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80', bio: 'Koordiniert Termine und Abläufe. Erste Ansprechpartnerin am Empfang.' },
+    { n: 'Dr. Anna Lindner', r: 'Praxisinhaberin � Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80', bio: 'Studium in Innsbruck und Z�rich. Ganzheitlicher Ansatz mit Zeit f�r Gespr�che.' },
+    { n: 'Dr. Felix Bauer',  r: 'Internist � Diagnostik',          img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80', bio: 'Zehn Jahre Universit�tsklinik. Schwerpunkt internistische Vorsorge.' },
+    { n: 'Maria Holzer',     r: 'Praxisleitung � MTA',            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80', bio: 'Koordiniert Termine und Abl�ufe. Erste Ansprechpartnerin am Empfang.' },
   ],
   wedding: [
-    { n: 'Sophie', r: 'Trauzeugin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: 'Beste Freundin seit der Schulzeit. Zuständig für Taschentücher und Tanzeinlagen.' },
+    { n: 'Sophie', r: 'Trauzeugin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: 'Beste Freundin seit der Schulzeit. Zust�ndig f�r Taschent�cher und Tanzeinlagen.' },
     { n: 'Jan', r: 'Trauzeuge', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'WG-Kumpel, Reisepartner und seit 15 Jahren mit dabei.' },
   ],
 };
@@ -1292,7 +1544,7 @@ function BranchTeam({
   branch: ExtraBranchKey;
   style: ExtraStyle;
   content: SiteContent;
-  /** Home hides generic team when `doctors` renders in modules â€” keep false on /ueber-uns so the Team editor still surfaces. */
+  /** Home hides generic team when `doctors` renders in modules — keep false on /ueber-uns so the Team editor still surfaces. */
   suppressMedicalWhenNamedDoctors?: boolean;
 }) {
   const team = useBranchTeam(content, branch);
@@ -1395,5 +1647,5 @@ function BranchTeam({
   );
 }
 
-/* Branch identity chips â€” strong visual differentiator just under the hero. */
+/* Branch identity chips — strong visual differentiator just under the hero. */
 

@@ -1253,7 +1253,7 @@ function RestaurantMenuCategoriesForm({ data, onChange, uploadImage }: ModularSe
 
 /** Public entry: returns null when this module has no editor for the type. */
 export function extendedModularSectionForm(props: ModularSectionDataFormProps): ReactNode {
-  const { sectionType, data, onChange, uploadImage } = props;
+  const { sectionType, data, onChange, uploadImage, tpl } = props;
   switch (sectionType) {
     case 'menu':
       return <RestaurantMenuCategoriesForm {...props} />;
@@ -1320,6 +1320,31 @@ export function extendedModularSectionForm(props: ModularSectionDataFormProps): 
       return <ProcessColumnsForm data={data} onChange={onChange} />;
     case 'qualifications':
       return <ProcessColumnsForm data={data} onChange={onChange} />;
+    // ── New section types ──
+    case 'trustStrip':
+    case 'badgeWall':
+    case 'projectShowcase':
+    case 'lookBook':
+    case 'productLine':
+    case 'serviceAreaMap':
+    case 'amenitiesGrid':
+    case 'experiencePackages':
+    case 'caseStudyCards':
+    case 'insuranceInfo':
+    case 'responsePromise':
+    case 'comparisonTable':
+    case 'impactNumbers':
+    case 'venueShowcase':
+      return <ProcessColumnsForm data={data} onChange={onChange} />;
+    case 'videoEmbed':
+    case 'seasonalHighlight':
+    case 'challengeSpotlight':
+    case 'chefStory':
+      return <StorySplitForm data={data} onChange={onChange} />;
+    case 'reservationTeaser':
+    case 'trialCta':
+    case 'rsvpForm':
+      return <CtaBandDuplicate data={data} onChange={onChange} tpl={tpl} />;
     default:
       return null;
   }

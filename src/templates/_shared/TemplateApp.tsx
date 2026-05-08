@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import type { ModularSectionV2, SiteContent, TemplateKey, PageId } from '@/lib/types';
 import Seo from '@/components/Seo';
@@ -72,12 +72,12 @@ const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLa
     servicesPath: '/speisekarte',
     servicesLabel: 'Speisekarte',
     servicesEyebrow: 'Speisekarte',
-    servicesHeadline: 'Aus der Küche.',
+    servicesHeadline: 'Aus der K�che.',
     nav: [
       { to: '/', label: 'Start' },
       { to: '/speisekarte', label: 'Speisekarte' },
       { to: '/galerie', label: 'Galerie' },
-      { to: '/ueber-uns', label: 'Über uns' },
+      { to: '/ueber-uns', label: '�ber uns' },
       { to: '/kontakt', label: 'Kontakt' },
     ],
   },
@@ -98,7 +98,7 @@ const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLa
     servicesPath: '/leistungen',
     servicesLabel: 'Leistungen',
     servicesEyebrow: 'Leistungen',
-    servicesHeadline: 'Was wir können.',
+    servicesHeadline: 'Was wir k�nnen.',
     nav: [
       { to: '/', label: 'Start' },
       { to: '/leistungen', label: 'Leistungen' },
@@ -128,7 +128,7 @@ const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLa
     nav: [
       { to: '/', label: 'Start' },
       { to: '/touren', label: 'Touren' },
-      { to: '/galerie', label: 'Eindrücke' },
+      { to: '/galerie', label: 'Eindr�cke' },
       { to: '/ueber-uns', label: 'Guides' },
       { to: '/kontakt', label: 'Buchen' },
     ],
@@ -138,15 +138,15 @@ const NAV_BY_VARIANT: Record<TemplateVariant, { servicesPath: string; servicesLa
 const VARIANT_HERO_META: Record<TemplateVariant, { label: string; value: string }[]> = {
   restaurant: [
     { label: 'Familie seit', value: '1998' },
-    { label: 'Plätze drinnen', value: '64' },
-    { label: 'Pasta', value: 'täglich frisch' },
-    { label: 'Bewertung', value: '4,9 ★' },
+    { label: 'Pl�tze drinnen', value: '64' },
+    { label: 'Pasta', value: 't�glich frisch' },
+    { label: 'Bewertung', value: '4,9 ?' },
   ],
   salon: [
     { label: 'Stylist:innen', value: '6' },
-    { label: 'Education', value: 'Paris · NY' },
+    { label: 'Education', value: 'Paris � NY' },
     { label: 'Wartezeit', value: '3 Tage' },
-    { label: 'Bewertung', value: '4,9 ★' },
+    { label: 'Bewertung', value: '4,9 ?' },
   ],
   tradesman: [
     { label: 'Meisterbetrieb seit', value: '1972' },
@@ -157,14 +157,14 @@ const VARIANT_HERO_META: Record<TemplateVariant, { label: string; value: string 
   hotel: [
     { label: 'Familienbetrieb seit', value: '1958' },
     { label: 'Zimmer & Suiten', value: '34' },
-    { label: 'Spa-Fläche', value: '600 m²' },
-    { label: 'Bewertung', value: '4,9 ★' },
+    { label: 'Spa-Fl�che', value: '600 m�' },
+    { label: 'Bewertung', value: '4,9 ?' },
   ],
   tourism: [
     { label: 'Touren pro Jahr', value: '180+' },
     { label: 'Guides', value: '14' },
     { label: 'Sprachen', value: '6' },
-    { label: 'Bewertung', value: '4,9 ★' },
+    { label: 'Bewertung', value: '4,9 ?' },
   ],
 };
 
@@ -185,7 +185,7 @@ export default function TemplateApp({
   style = 'classic',
   eyebrow,
 }: {
-  /** All nine tenant templates — unified entry point. */
+  /** All nine tenant templates � unified entry point. */
   variant: TemplateKey;
   content: SiteContent;
   basePath?: string;
@@ -302,27 +302,27 @@ function PageSeo({ page, variant, content }: { page: PageId; variant: TemplateVa
   const labels: Record<PageId, { title: string; description: string }> = {
     home: {
       title: content.brand.name,
-      description: content.hero?.subtitle || content.about?.body?.slice(0, 160) || `${content.brand.name} – ${content.brand.tagline || 'offizielle Website'}.`,
+      description: content.hero?.subtitle || content.about?.body?.slice(0, 160) || `${content.brand.name} � ${content.brand.tagline || 'offizielle Website'}.`,
     },
     services: {
       title: variant === 'restaurant' ? 'Speisekarte' : variant === 'tradesman' ? 'Leistungen' : 'Leistungen & Preise',
       description: variant === 'restaurant'
-        ? `Aktuelle Speisekarte – Vorspeisen, Hauptgerichte, Desserts. Saisonale Karte bei ${content.brand.name}.`
-        : `Alle Leistungen und Preise von ${content.brand.name} im Überblick.`,
+        ? `Aktuelle Speisekarte � Vorspeisen, Hauptgerichte, Desserts. Saisonale Karte bei ${content.brand.name}.`
+        : `Alle Leistungen und Preise von ${content.brand.name} im �berblick.`,
     },
     gallery: {
       title: variant === 'tradesman' ? 'Referenzen' : 'Galerie',
       description: variant === 'tradesman'
-        ? `Ausgewählte Projekte und Referenzen von ${content.brand.name}.`
-        : `Eindrücke und Galerie von ${content.brand.name}.`,
+        ? `Ausgew�hlte Projekte und Referenzen von ${content.brand.name}.`
+        : `Eindr�cke und Galerie von ${content.brand.name}.`,
     },
     about: {
-      title: content.about?.title || 'Über uns',
-      description: content.about?.body?.slice(0, 160) || `Über ${content.brand.name}.`,
+      title: content.about?.title || '�ber uns',
+      description: content.about?.body?.slice(0, 160) || `�ber ${content.brand.name}.`,
     },
     contactPage: {
       title: 'Kontakt',
-      description: `Adresse, Öffnungszeiten und Kontaktdaten von ${content.brand.name}.`,
+      description: `Adresse, �ffnungszeiten und Kontaktdaten von ${content.brand.name}.`,
     },
   };
   const l = labels[page];
@@ -336,31 +336,31 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
   const overlayFiltered = overlay?.length ? overlay.filter((s) => s && s.trim()) : [];
   if (overlayFiltered.length) {
     base = overlayFiltered;
-  } else if (v === 'restaurant') base = ['Heute geöffnet', 'Tisch online reservieren', 'Saisonale Karte', 'Reservierung empfohlen'];
+  } else if (v === 'restaurant') base = ['Heute ge�ffnet', 'Tisch online reservieren', 'Saisonale Karte', 'Reservierung empfohlen'];
   else if (v === 'salon') base = ['Aktuell freie Termine', 'Bridal-Beratung kostenlos', 'Premium-Pflegepartner', 'Termin online buchen'];
-  else if (v === 'hotel') base = ['Zimmer verfügbar', 'Spa & Sauna inklusive', 'Familienbetrieb', 'Direktbuchung mit Bestpreis'];
-  else if (v === 'tourism') base = ['Täglich geführte Touren', 'Kleine Gruppen', 'Lizenzierte Guides', 'Mehrsprachig'];
-  else base = ['24/7 Notdienst', 'Förderberatung inklusive', 'Festpreis-Garantie', 'Meisterbetrieb'];
+  else if (v === 'hotel') base = ['Zimmer verf�gbar', 'Spa & Sauna inklusive', 'Familienbetrieb', 'Direktbuchung mit Bestpreis'];
+  else if (v === 'tourism') base = ['T�glich gef�hrte Touren', 'Kleine Gruppen', 'Lizenzierte Guides', 'Mehrsprachig'];
+  else base = ['24/7 Notdienst', 'F�rderberatung inklusive', 'Festpreis-Garantie', 'Meisterbetrieb'];
 
-  // 2. Auto-prepend a real "Heute geöffnet · HH:MM – HH:MM" indicator when
+  // 2. Auto-prepend a real "Heute ge�ffnet � HH:MM � HH:MM" indicator when
   //    the tenant has structured opening hours we can parse.
   try {
     const status = getOpenStatus(content.contact?.hours);
     if (status.todayLabel) {
       const live = status.isOpen
-        ? `Heute geöffnet · ${status.todayFull ?? status.todayLabel}`
-        : `Heute · ${status.todayFull ?? status.todayLabel}`;
-      // De-duplicate against any tenant string that already mentions "heute"/"geöffnet".
-      const filtered = base.filter((s) => !/heute|geöffnet|aktuell offen|jetzt offen/i.test(s));
+        ? `Heute ge�ffnet � ${status.todayFull ?? status.todayLabel}`
+        : `Heute � ${status.todayFull ?? status.todayLabel}`;
+      // De-duplicate against any tenant string that already mentions "heute"/"ge�ffnet".
+      const filtered = base.filter((s) => !/heute|ge�ffnet|aktuell offen|jetzt offen/i.test(s));
       return [live, ...filtered];
     }
   } catch {
-    /* parse failed — fall through to plain announcements */
+    /* parse failed � fall through to plain announcements */
   }
   return base;
 }
 
-/* ─── Home ─────────────────────────────────────────────────────────── */
+/* --- Home ----------------------------------------------------------- */
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   if (variant === 'restaurant') return <RestaurantV2HomePage content={content} style={style} />;
   if (variant === 'hotel') return <HotelV2HomePage content={content} style={style} />;
@@ -397,6 +397,12 @@ export const RESTAURANT_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'directions',
   'cta',
   'ctaBand',
+  'videoEmbed',
+  'seasonalHighlight',
+  'reservationTeaser',
+  'chefStory',
+  'trustStrip',
+  'badgeWall',
 ]);
 
 export const HOTEL_V2_RENDERED_SECTION_TYPES = new Set<string>([
@@ -428,6 +434,12 @@ export const HOTEL_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'contactDetails',
   'locations',
   'directions',
+  'videoEmbed',
+  'seasonalHighlight',
+  'experiencePackages',
+  'amenitiesGrid',
+  'trustStrip',
+  'badgeWall',
 ]);
 
 export const CORE_V2_RENDERED_SECTION_TYPES = new Set<string>([
@@ -479,6 +491,27 @@ export const CORE_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'contactDetails',
   'locations',
   'directions',
+  'videoEmbed',
+  'seasonalHighlight',
+  'projectShowcase',
+  'lookBook',
+  'productLine',
+  'responsePromise',
+  'serviceAreaMap',
+  'trustStrip',
+  'badgeWall',
+  'reservationTeaser',
+  'trialCta',
+  'rsvpForm',
+  'chefStory',
+  'challengeSpotlight',
+  'experiencePackages',
+  'amenitiesGrid',
+  'comparisonTable',
+  'caseStudyCards',
+  'insuranceInfo',
+  'impactNumbers',
+  'venueShowcase',
 ]);
 
 function cmsV2HotelRoomItems(value: unknown): NonNullable<SiteContent['rooms']> {
@@ -512,7 +545,7 @@ function cmsV2HotelRoomItems(value: unknown): NonNullable<SiteContent['rooms']> 
 function cmsV2HotelServicesFromRooms(rooms: NonNullable<SiteContent['rooms']>): SiteContent['services'] {
   return rooms.map((room) => ({
     title: room.name,
-    description: [room.description, [room.size, room.beds].filter(Boolean).join(' · ')].filter(Boolean).join(' '),
+    description: [room.description, [room.size, room.beds].filter(Boolean).join(' � ')].filter(Boolean).join(' '),
     price: room.price,
     imageUrl: room.imageUrl,
     learnMoreLabel: '',
@@ -1057,7 +1090,7 @@ function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteC
       return featured.length ? (
         <Section
           eyebrow={effectiveBranchText('restaurant', sectionContent).servicesTeaserEyebrow || 'Empfehlungen'}
-          title={splitTitle(effectiveBranchText('restaurant', sectionContent).servicesTeaserTitle || 'Aus der Küche.')}
+          title={splitTitle(effectiveBranchText('restaurant', sectionContent).servicesTeaserTitle || 'Aus der K�che.')}
           subtitle={subtitleFor('restaurant', sectionContent)}
           className={style === 'modern' ? 'surface' : ''}
         >
@@ -1069,7 +1102,7 @@ function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteC
       return sectionContent.about?.body ? (
         <Section
           eyebrow={effectiveBranchText('restaurant', sectionContent).aboutTeaserEyebrow}
-          title={<>{splitTitle(sectionContent.about.title || 'Über uns')}</>}
+          title={<>{splitTitle(sectionContent.about.title || '�ber uns')}</>}
           spacing="lg"
         >
           <div className="grid lg:grid-cols-12 gap-10">
@@ -1082,7 +1115,7 @@ function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteC
                   <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
                 ))}
               </div>
-              <TLink to={effectiveBranchText('restaurant', sectionContent).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText('restaurant', sectionContent).learnMoreLabel} <span aria-hidden>→</span></TLink>
+              <TLink to={effectiveBranchText('restaurant', sectionContent).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText('restaurant', sectionContent).learnMoreLabel} <span aria-hidden>?</span></TLink>
             </div>
           </div>
         </Section>
@@ -1176,7 +1209,7 @@ function CmsV2HomeHero({
             </h1>
             <p className="mt-8 text-lg text-muted max-w-xl">{heroBodyFor(variant, content)}</p>
             <div className="mt-10 flex flex-wrap gap-3">
-              <TLink to={primaryHref} className="btn-primary">{primaryLabel} <span aria-hidden>→</span></TLink>
+              <TLink to={primaryHref} className="btn-primary">{primaryLabel} <span aria-hidden>?</span></TLink>
               {secondaryLabel ? <TLink to={secondaryHref} className="btn-outline">{secondaryLabel}</TLink> : null}
             </div>
             <dl className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-4 max-w-xl">
@@ -1218,7 +1251,7 @@ function CmsV2HomeHero({
           </h1>
           {primaryLabel ? (
             <div className="mt-10 flex flex-wrap gap-4 reveal">
-              <TLink to={primaryHref} className="btn-accent">{primaryLabel} <span aria-hidden>→</span></TLink>
+              <TLink to={primaryHref} className="btn-accent">{primaryLabel} <span aria-hidden>?</span></TLink>
               {secondaryLabel ? <TLink to={secondaryHref} className="btn-outline">{secondaryLabel}</TLink> : null}
             </div>
           ) : null}
@@ -1228,7 +1261,7 @@ function CmsV2HomeHero({
             <span className="inline-flex items-center gap-10 font-display text-5xl md:text-7xl whitespace-nowrap text-brand">
               {words.map((w, i) => (
                 <span key={i} className="inline-flex items-center gap-10">
-                  <span>{w}</span><span className="text-[var(--accent-color)]">●</span>
+                  <span>{w}</span><span className="text-[var(--accent-color)]">?</span>
                 </span>
               ))}
             </span>
@@ -1315,7 +1348,7 @@ function CustomV2PageRoute({ variant, content, style }: { variant: TemplateVaria
   const image = cmsV2Image(heroData.backgroundImage) || cmsV2Image(heroData.image);
   return (
     <>
-      <Seo title={title} description={subtitle || `${page.label} · ${content.brand.name}`} content={content} template={variant as TemplateKey} page="home" />
+      <Seo title={title} description={subtitle || `${page.label} � ${content.brand.name}`} content={content} template={variant as TemplateKey} page="home" />
       <PageHero eyebrow={eyebrow} title={title} subtitle={subtitle} body={cmsV2Text(heroData.description)} style={style} image={image} />
       {sections.filter((section) => section.type !== 'hero').map((section) => (
         <React.Fragment key={section.id}>
@@ -1389,12 +1422,12 @@ function CoreV2Subpage({ page, variant, content, style }: { page: RestaurantV2Su
   const defaultTitle =
     page === 'services' ? cfg.servicesHeadline
       : page === 'gallery' ? 'Einblicke.'
-        : page === 'about' ? 'Über uns.'
+        : page === 'about' ? '�ber uns.'
           : 'Kontakt.';
   const defaultEyebrow =
     page === 'services' ? cfg.servicesEyebrow
       : page === 'gallery' ? 'Galerie'
-        : page === 'about' ? 'Über uns'
+        : page === 'about' ? '�ber uns'
           : 'Kontakt';
 
   return (
@@ -1543,7 +1576,7 @@ function renderCoreV2Section(page: 'home' | RestaurantV2SubpageKey, variant: Tem
       return renderCoreCards(section, section.type === 'directions' ? 'Anreise.' : 'Ablauf.');
     case 'faq': {
       const items = cmsV2FaqItems(data.items);
-      return items.length ? <Section eyebrow={cmsV2Text(data.eyebrow) || 'FAQ'} title={splitTitle(cmsV2Text(data.headline) || 'Häufige Fragen.')}><Accordion items={items} className="max-w-3xl" /></Section> : null;
+      return items.length ? <Section eyebrow={cmsV2Text(data.eyebrow) || 'FAQ'} title={splitTitle(cmsV2Text(data.headline) || 'H�ufige Fragen.')}><Accordion items={items} className="max-w-3xl" /></Section> : null;
     }
     case 'timeline':
     case 'team':
@@ -1551,9 +1584,201 @@ function renderCoreV2Section(page: 'home' | RestaurantV2SubpageKey, variant: Tem
     case 'contactDetails':
     case 'locations':
       return renderRestaurantV2SubpageSection(page === 'home' ? 'about' : page, section, sectionContent, style);
+    case 'branchChips': {
+      const chips = sectionContent.branchChips ?? [];
+      return chips.length ? <Section spacing="md"><div className="flex flex-wrap gap-3 reveal-stagger">{chips.map((chip) => <span key={chip} className="rounded-full border border-line px-4 py-2 text-sm">{chip}</span>)}</div></Section> : null;
+    }
+    case 'certifications': {
+      const certs = sectionContent.certifications ?? [];
+      if (!certs.length) return null;
+      return (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Zertifizierungen.')} className="surface">
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {certs.map((cert, i) => (
+              <article key={i} className="border border-line rounded-2xl p-7 bg-white">
+                <h3 className="font-display text-2xl">{cert.t}</h3>
+                <p className="mt-3 text-sm text-muted leading-relaxed">{cert.d}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+      );
+    }
+    case 'medicalNotice': {
+      const notice = sectionContent.medicalNotice;
+      if (!notice?.online && !notice?.emergency) return null;
+      return (
+        <Section spacing="md">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+            {notice.online && <p className="text-sm text-amber-800">{notice.online}</p>}
+            {notice.emergency && <p className="text-sm text-amber-800 mt-2 font-medium">{notice.emergency}</p>}
+          </div>
+        </Section>
+      );
+    }
+    case 'galleryStory': {
+      const gs = sectionContent.galleryStory;
+      if (!gs?.body) return null;
+      return (
+        <Section eyebrow={gs.eyebrow || cmsV2Text(data.eyebrow)} title={splitTitle(gs.title || cmsV2Text(data.headline) || 'Unsere Galerie.')}>
+          <div className="prose-lite max-w-3xl reveal">
+            {gs.body.split('\n\n').map((p, i) => <p key={i} className="text-lg text-muted leading-relaxed mb-4">{p}</p>)}
+          </div>
+        </Section>
+      );
+    }
+    case 'galleryCategories': {
+      const cats = sectionContent.galleryCategories ?? [];
+      if (!cats.length) return null;
+      return (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Kategorien.')} className="surface">
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {cats.map((cat, i) => (
+              <article key={i} className="border border-line rounded-2xl p-7 bg-white">
+                <h3 className="font-display text-2xl">{cat.t}</h3>
+                <p className="mt-3 text-sm text-muted leading-relaxed">{cat.d}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+      );
+    }
+    case 'values': {
+      const vals = sectionContent.values ?? [];
+      if (!vals.length) return null;
+      return (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Unsere Werte.')} className="surface">
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {vals.map((val, i) => (
+              <article key={i} className="border border-line rounded-2xl p-7 bg-white">
+                <h3 className="font-display text-2xl">{val.t}</h3>
+                <p className="mt-3 text-sm text-muted leading-relaxed">{val.d}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+      );
+    }
+    case 'arrival': {
+      const items = sectionContent.arrival ?? [];
+      const hdr = sectionContent.arrivalSection;
+      if (!items.length) return null;
+      return (
+        <Section eyebrow={hdr?.eyebrow || cmsV2Text(data.eyebrow)} title={splitTitle(hdr?.title || cmsV2Text(data.headline) || 'Anreise.')}>
+          <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
+            {items.map((item, i) => (
+              <article key={i} className="border border-line rounded-2xl p-7 bg-white">
+                <h3 className="font-display text-2xl">{item.t}</h3>
+                <p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+      );
+    }
     case 'cta':
     case 'ctaBand':
       return <CtaBand variant={variant} content={sectionContent} page={page === 'home' ? undefined : page} />;
+    // ── New section types ──
+    case 'trustStrip': {
+      const items = cmsV2TextPairs(data.items);
+      if (!items.length) return null;
+      return (
+        <section className="py-4 border-y border-line bg-white overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-center gap-6 md:gap-10">
+            {items.map((item, i) => (
+              <span key={i} className="flex items-center gap-2 text-sm text-muted whitespace-nowrap">
+                <span className="text-brand font-semibold">{item.t}</span>
+                {item.d && <span>{item.d}</span>}
+              </span>
+            ))}
+          </div>
+        </section>
+      );
+    }
+    case 'videoEmbed': {
+      const videoUrl = cmsV2Text(data.videoUrl);
+      if (!videoUrl) return null;
+      return (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || '')}>
+          {cmsV2Text(data.description) && <p className="text-lg text-muted max-w-2xl mb-8">{cmsV2Text(data.description)}</p>}
+          <div className="relative aspect-video rounded-2xl overflow-hidden bg-neutral-100">
+            <iframe src={videoUrl} title={cmsV2Text(data.headline) || 'Video'} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full" loading="lazy" />
+          </div>
+        </Section>
+      );
+    }
+    case 'projectShowcase':
+    case 'lookBook':
+    case 'productLine':
+    case 'serviceAreaMap':
+    case 'amenitiesGrid':
+    case 'experiencePackages':
+    case 'caseStudyCards':
+    case 'insuranceInfo':
+    case 'responsePromise':
+    case 'comparisonTable':
+    case 'impactNumbers':
+    case 'venueShowcase':
+      return renderCoreCards(section, cmsV2Text(data.headline) || 'Details.');
+    case 'reservationTeaser':
+    case 'trialCta':
+    case 'rsvpForm': {
+      const headline = cmsV2Text(data.headline);
+      const desc = cmsV2Text(data.description);
+      const btnRec = data.button && typeof data.button === 'object' && !Array.isArray(data.button) ? data.button as UnknownRecord : undefined;
+      const btnLabel = btnRec ? cmsV2Text(btnRec.label) : '';
+      const btnHref = btnRec ? cmsV2Text(btnRec.href) : '';
+      if (!headline && !desc) return null;
+      return (
+        <Section className="surface">
+          <div className="max-w-2xl mx-auto text-center reveal">
+            {cmsV2Text(data.eyebrow) && <p className="text-sm uppercase tracking-widest text-brand mb-3">{cmsV2Text(data.eyebrow)}</p>}
+            {headline && <h2 className="font-display text-4xl md:text-5xl">{headline}</h2>}
+            {desc && <p className="mt-4 text-lg text-muted">{desc}</p>}
+            {btnLabel && <TLink to={btnHref || '#contact'} className="btn-primary mt-8 inline-block">{btnLabel}</TLink>}
+          </div>
+        </Section>
+      );
+    }
+    case 'seasonalHighlight':
+    case 'challengeSpotlight':
+    case 'chefStory': {
+      const headline = cmsV2Text(data.headline);
+      const desc = cmsV2Text(data.description);
+      const image = cmsV2Image(data.image);
+      const btnRec2 = section.type !== 'chefStory' && data.button && typeof data.button === 'object' && !Array.isArray(data.button) ? data.button as UnknownRecord : undefined;
+      const btnLabel2 = btnRec2 ? cmsV2Text(btnRec2.label) : '';
+      const btnHref2 = btnRec2 ? cmsV2Text(btnRec2.href) : '';
+      if (!headline && !desc && !image) return null;
+      return (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(headline || '')} className="surface">
+          <div className={`grid ${image ? 'lg:grid-cols-2' : ''} gap-10 items-center reveal`}>
+            <div>
+              {desc && <p className="text-lg text-muted leading-relaxed">{desc}</p>}
+              {btnLabel2 && <TLink to={btnHref2 || '#'} className="btn-primary mt-6 inline-block">{btnLabel2}</TLink>}
+            </div>
+            {image && <img src={image} alt={headline || ''} className="w-full rounded-2xl object-cover aspect-[4/3]" loading="lazy" />}
+          </div>
+        </Section>
+      );
+    }
+    case 'badgeWall': {
+      const items = cmsV2TextPairs(data.items);
+      if (!items.length) return null;
+      return (
+        <Section eyebrow={cmsV2Text(data.eyebrow)} title={splitTitle(cmsV2Text(data.headline) || 'Auszeichnungen.')} className="surface">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 reveal-stagger">
+            {items.map((item, i) => (
+              <article key={i} className="border border-line rounded-2xl p-6 bg-white text-center">
+                <h3 className="font-display text-xl">{item.t}</h3>
+                {item.d && <p className="mt-2 text-sm text-muted">{item.d}</p>}
+              </article>
+            ))}
+          </div>
+        </Section>
+      );
+    }
     default:
       return null;
   }
@@ -1597,7 +1822,7 @@ function renderHotelV2HomeSection(section: ModularSectionV2, content: SiteConten
                   <p key={i} className="text-lg md:text-xl leading-relaxed text-muted mb-6">{p}</p>
                 ))}
               </div>
-              <TLink to={effectiveBranchText('hotel', sectionContent).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText('hotel', sectionContent).learnMoreLabel} <span aria-hidden>→</span></TLink>
+              <TLink to={effectiveBranchText('hotel', sectionContent).learnMoreHref || '/ueber-uns'} className="btn-outline mt-6 reveal">{effectiveBranchText('hotel', sectionContent).learnMoreLabel} <span aria-hidden>?</span></TLink>
             </div>
           </div>
         </Section>
@@ -1673,7 +1898,7 @@ function renderHotelV2SubpageSection(page: RestaurantV2SubpageKey, section: Modu
     case 'steps': {
       const items = cmsV2TextPairs(data.items);
       return items.length ? (
-        <Section eyebrow={cmsV2Text(data.eyebrow) || 'Ablauf'} title={splitTitle(cmsV2Text(data.headline) || 'So läuft es ab.')}>
+        <Section eyebrow={cmsV2Text(data.eyebrow) || 'Ablauf'} title={splitTitle(cmsV2Text(data.headline) || 'So l�uft es ab.')}>
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
             {items.map((item, i) => <article key={i} className="border border-line rounded-2xl p-7 bg-white"><p className="font-mono text-xs uppercase tracking-widest text-muted">{String(i + 1).padStart(2, '0')}</p><h3 className="font-display text-2xl mt-4">{item.t}</h3><p className="mt-3 text-sm text-muted leading-relaxed">{item.d}</p></article>)}
           </div>
@@ -1682,7 +1907,7 @@ function renderHotelV2SubpageSection(page: RestaurantV2SubpageKey, section: Modu
     }
     case 'faq': {
       const items = cmsV2FaqItems(data.items);
-      return items.length ? <Section eyebrow={cmsV2Text(data.eyebrow) || 'FAQ'} title={splitTitle(cmsV2Text(data.headline) || 'Häufige Fragen.')}><Accordion items={items} className="max-w-3xl" /></Section> : null;
+      return items.length ? <Section eyebrow={cmsV2Text(data.eyebrow) || 'FAQ'} title={splitTitle(cmsV2Text(data.headline) || 'H�ufige Fragen.')}><Accordion items={items} className="max-w-3xl" /></Section> : null;
     }
     case 'teaserList': {
       const items = cmsV2TextPairs(data.items);
@@ -1871,7 +2096,7 @@ function RestaurantV2Subpage({ page, content, style }: { page: RestaurantV2Subpa
   const defaultEyebrow =
     page === 'services' ? fallback.servicesEyebrow
       : page === 'gallery' ? 'Galerie'
-        : page === 'about' ? 'Über uns'
+        : page === 'about' ? '�ber uns'
           : 'Kontakt';
 
   return (
@@ -1919,7 +2144,7 @@ function renderRestaurantV2SubpageSection(page: RestaurantV2SubpageKey, section:
     case 'steps': {
       const items = cmsV2TextPairs(data.items);
       return items.length ? (
-        <Section eyebrow={cmsV2Text(data.eyebrow) || 'Ablauf'} title={splitTitle(cmsV2Text(data.headline) || 'So läuft es ab.')}>
+        <Section eyebrow={cmsV2Text(data.eyebrow) || 'Ablauf'} title={splitTitle(cmsV2Text(data.headline) || 'So l�uft es ab.')}>
           <div className="grid md:grid-cols-3 gap-5 reveal-stagger">
             {items.map((item, i) => (
               <article key={i} className="border border-line rounded-2xl p-7 bg-white">
@@ -1935,7 +2160,7 @@ function renderRestaurantV2SubpageSection(page: RestaurantV2SubpageKey, section:
     case 'faq': {
       const items = cmsV2FaqItems(data.items);
       return items.length ? (
-        <Section eyebrow={cmsV2Text(data.eyebrow) || 'FAQ'} title={splitTitle(cmsV2Text(data.headline) || 'Häufige Fragen.')}>
+        <Section eyebrow={cmsV2Text(data.eyebrow) || 'FAQ'} title={splitTitle(cmsV2Text(data.headline) || 'H�ufige Fragen.')}>
           <Accordion items={items} className="max-w-3xl" />
         </Section>
       ) : null;
@@ -2118,7 +2343,7 @@ export function ClassicServicesGrid({ services, variant }: { services: SiteConte
   );
 }
 
-/* ─── Reusable gallery grids ─────────────────────────────────────── */
+/* --- Reusable gallery grids --------------------------------------- */
 function ModernGalleryGrid({ images }: { images: string[] }) {
   return <MasonryLightbox images={images} />;
 }
@@ -2139,9 +2364,9 @@ function GalleryShowcase({
   return <MasonryLightbox images={used} />;
 }
 
-/* Branch-specific action strip — sits right under Hero to make each branch feel different. */
+/* Branch-specific action strip � sits right under Hero to make each branch feel different. */
 /**
- * Default texts for the action strip — one set per branch.
+ * Default texts for the action strip � one set per branch.
  * Admins can override every field via content.homeStrip.
  */
 function defaultHomeStrip(variant: TemplateVariant): {
@@ -2153,11 +2378,11 @@ function defaultHomeStrip(variant: TemplateVariant): {
   secondaryLabel: string;
   secondaryHref: string;
 } {
-  if (variant === 'restaurant') return { tone: 'light', eyebrow: 'Heute geöffnet', hint: '', primaryLabel: 'Tisch reservieren', primaryHref: 'tel:', secondaryLabel: 'Speisekarte ansehen', secondaryHref: '/speisekarte' };
-  if (variant === 'hotel') return { tone: 'light', eyebrow: 'Direkt-Anfrage', hint: 'Persönliche Beratung · Antwort innerhalb eines Werktages', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Zimmer anfragen →', secondaryHref: '/kontakt' };
-  if (variant === 'tradesman') return { tone: 'dark', eyebrow: '24/7 Notdienst verfügbar', hint: 'Wir kommen schnell — versprochen.', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' };
-  if (variant === 'salon') return { tone: 'light', eyebrow: 'Termine online', hint: 'Frei wählbar · Stornierung kostenlos bis 24 h vorher', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Termin buchen →', secondaryHref: '/kontakt' };
-  if (variant === 'tourism') return { tone: 'dark', eyebrow: 'Nächste Tour', hint: '', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Tour buchen →', secondaryHref: '/touren' };
+  if (variant === 'restaurant') return { tone: 'light', eyebrow: 'Heute ge�ffnet', hint: '', primaryLabel: 'Tisch reservieren', primaryHref: 'tel:', secondaryLabel: 'Speisekarte ansehen', secondaryHref: '/speisekarte' };
+  if (variant === 'hotel') return { tone: 'light', eyebrow: 'Direkt-Anfrage', hint: 'Pers�nliche Beratung � Antwort innerhalb eines Werktages', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Zimmer anfragen ?', secondaryHref: '/kontakt' };
+  if (variant === 'tradesman') return { tone: 'dark', eyebrow: '24/7 Notdienst verf�gbar', hint: 'Wir kommen schnell � versprochen.', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' };
+  if (variant === 'salon') return { tone: 'light', eyebrow: 'Termine online', hint: 'Frei w�hlbar � Stornierung kostenlos bis 24 h vorher', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Termin buchen ?', secondaryHref: '/kontakt' };
+  if (variant === 'tourism') return { tone: 'dark', eyebrow: 'N�chste Tour', hint: '', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Tour buchen ?', secondaryHref: '/touren' };
   return { tone: 'light', eyebrow: 'Jetzt Kontakt aufnehmen', hint: 'Wir freuen uns auf Ihre Nachricht.', primaryLabel: '', primaryHref: 'tel:', secondaryLabel: 'Anfrage senden', secondaryHref: '/kontakt' };
 }
 
@@ -2176,7 +2401,7 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
   const rawStrip = ((content as any).homeStrip || {}) as Record<string, unknown>;
   const auto = rawStrip.eyebrowAuto !== false;
   // When auto-eyebrow is on, ignore any saved manual `eyebrow` so old copy cannot "win"
-  // over the live Heute-geöffnet/geschlossen line when hours parsing is partial.
+  // over the live Heute-ge�ffnet/geschlossen line when hours parsing is partial.
   const stripForMerge = Object.fromEntries(
     Object.entries(rawStrip).filter(([key]) => !auto || key !== 'eyebrow'),
   );
@@ -2189,7 +2414,7 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
   // When hintVisible is explicitly false, suppress the hint text.
   if (cfg.hintVisible === false) cfg.hint = '';
 
-  // Auto-eyebrow: when enabled (default), derive from contact.hours only — not from stale manual text.
+  // Auto-eyebrow: when enabled (default), derive from contact.hours only � not from stale manual text.
   let liveEyebrow: string | null = null;
   let liveIsOpen = false;
   if (auto) {
@@ -2199,15 +2424,15 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
       const slot = status.todayFull ?? status.todayLabel;
       if (slot) {
         liveEyebrow = status.isOpen
-          ? `Heute geöffnet · ${slot}`
+          ? `Heute ge�ffnet � ${slot}`
           : 'Heute geschlossen';
         liveIsOpen = status.isOpen;
       } else if (rows?.length && parseHours(rows).length > 0) {
-        // Parsed week has slots but none for today (e.g. Ruhetag) — still show closed, not old manual eyebrow.
+        // Parsed week has slots but none for today (e.g. Ruhetag) � still show closed, not old manual eyebrow.
         liveEyebrow = 'Heute geschlossen';
         liveIsOpen = false;
       }
-    } catch { /* ignore — fall back to template default eyebrow */ }
+    } catch { /* ignore � fall back to template default eyebrow */ }
   }
   const eyebrowText = liveEyebrow ?? cfg.eyebrow;
 
@@ -2232,7 +2457,7 @@ function BranchActionStrip({ variant, content }: { variant: TemplateVariant; con
   if (variant === 'restaurant' && !liveEyebrow) {
     const today = new Date().toLocaleDateString('de-DE', { weekday: 'long' });
     const todayRow = (content.contact.hours || []).find((h) => h.day.toLowerCase().includes(today.toLowerCase().slice(0, 2)));
-    if (todayRow) todayInfo = <span className="text-muted">{todayRow.day} · <span className="font-medium text-brand">{todayRow.time}</span></span>;
+    if (todayRow) todayInfo = <span className="text-muted">{todayRow.day} � <span className="font-medium text-brand">{todayRow.time}</span></span>;
   }
 
   return (
@@ -2272,20 +2497,20 @@ function NumbersBand({
 }: {
   variant: TemplateVariant;
   content?: SiteContent;
-  /** `about` reads only `aboutNumbers` (Über-uns-Eckdaten), never home `numbers`. */
+  /** `about` reads only `aboutNumbers` (�ber-uns-Eckdaten), never home `numbers`. */
   source?: 'home' | 'about';
 }) {
   const defaults: Record<TemplateVariant, { v: number; s?: string; l: string }[]> = {
     restaurant: [
       { v: 1998, l: 'Familienbetrieb seit' },
-      { v: 64, l: 'Plätze drinnen' },
-      { v: 4, s: ',9', l: 'Sterne ø' },
+      { v: 64, l: 'Pl�tze drinnen' },
+      { v: 4, s: ',9', l: 'Sterne �' },
       { v: 28, l: 'Weine offen' },
     ],
     salon: [
       { v: 6, l: 'Stylist:innen' },
       { v: 12, l: 'Treatments' },
-      { v: 4, s: ',9', l: 'Sterne ø' },
+      { v: 4, s: ',9', l: 'Sterne �' },
       { v: 2017, l: 'Studio seit' },
     ],
     tradesman: [
@@ -2297,14 +2522,14 @@ function NumbersBand({
     hotel: [
       { v: 1958, l: 'Familienbetrieb seit' },
       { v: 34, l: 'Zimmer & Suiten' },
-      { v: 4, s: ',9', l: 'Sterne ø' },
-      { v: 600, s: ' m²', l: 'Spa-Fläche' },
+      { v: 4, s: ',9', l: 'Sterne �' },
+      { v: 600, s: ' m�', l: 'Spa-Fl�che' },
     ],
     tourism: [
       { v: 14, l: 'Lizenzierte Guides' },
       { v: 180, s: '+', l: 'Touren pro Jahr' },
       { v: 12, l: 'Max. pro Gruppe' },
-      { v: 4, s: ',9', l: 'Sterne ø' },
+      { v: 4, s: ',9', l: 'Sterne �' },
     ],
   };
   const overlay =
@@ -2344,10 +2569,10 @@ function NumbersBand({
 
 function CtaBand({ variant, content, page }: { variant: TemplateVariant; content?: SiteContent; page?: string }) {
   const text: Record<TemplateVariant, { lead: string; cta: string; sub: string }> = {
-    restaurant: { lead: 'Hunger?', cta: 'Tisch reservieren', sub: 'Wir freuen uns, Sie an unserem Tisch begrüßen zu dürfen.' },
-    salon: { lead: 'Bereit für etwas Neues?', cta: 'Termin buchen', sub: 'Wir nehmen uns die Zeit – für Sie, für Ihren Look.' },
+    restaurant: { lead: 'Hunger?', cta: 'Tisch reservieren', sub: 'Wir freuen uns, Sie an unserem Tisch begr��en zu d�rfen.' },
+    salon: { lead: 'Bereit f�r etwas Neues?', cta: 'Termin buchen', sub: 'Wir nehmen uns die Zeit � f�r Sie, f�r Ihren Look.' },
     tradesman: { lead: 'Etwas tropft?', cta: 'Jetzt anfragen', sub: 'Wir melden uns innerhalb von 24 Stunden mit einem Festpreis-Angebot.' },
-    hotel: { lead: 'Pause buchen?', cta: 'Zimmer anfragen', sub: 'Wir antworten persönlich – ohne Formularkette, mit allen Optionen für Ihren Aufenthalt.' },
+    hotel: { lead: 'Pause buchen?', cta: 'Zimmer anfragen', sub: 'Wir antworten pers�nlich � ohne Formularkette, mit allen Optionen f�r Ihren Aufenthalt.' },
     tourism: { lead: 'Auf in die Berge?', cta: 'Tour buchen', sub: 'Wir beraten ehrlich, welche Tour zu Ihrer Gruppe und Saison passt.' },
   };
   const def = text[variant];
@@ -2357,7 +2582,7 @@ function CtaBand({ variant, content, page }: { variant: TemplateVariant; content
   const pick = (field: 'lead' | 'sub' | 'cta' | 'ctaHref' | 'eyebrow' | 'leadAccent') =>
     (perPage?.[field] && perPage[field]!.trim()) || (global?.[field] && global[field]!.trim()) || '';
   // leadAccent is classic-only. On subpages, only show if it's explicitly set
-  // for this page — don't inherit the home value (which may be unrelated).
+  // for this page � don't inherit the home value (which may be unrelated).
   const resolvedLeadAccent = page
     ? (perPage?.leadAccent && perPage.leadAccent.trim()) || ''
     : (global?.leadAccent && global.leadAccent.trim()) || '';
@@ -2378,14 +2603,14 @@ function CtaBand({ variant, content, page }: { variant: TemplateVariant; content
         </h2>
         <p className="mt-8 text-lg md:text-xl text-muted">{t.sub}</p>
         <div className="mt-12">
-          <TLink to={t.ctaHref} className="btn-primary">{t.cta} <span aria-hidden>→</span></TLink>
+          <TLink to={t.ctaHref} className="btn-primary">{t.cta} <span aria-hidden>?</span></TLink>
         </div>
       </div>
     </section>
   );
 }
 
-/* ─── Services / Speisekarte / Leistungen ────────────────────────── */
+/* --- Services / Speisekarte / Leistungen -------------------------- */
 function ServicesPage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   if (variant === 'hotel') return <HotelV2Subpage page="services" content={content} style={style} />;
   if (variant === 'restaurant') return <RestaurantV2Subpage page="services" content={content} style={style} />;
@@ -2433,7 +2658,7 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
       : page)
     : page;
 
-  /* ── Services / accent-band ─────────────────────────────────────── */
+  /* -- Services / accent-band --------------------------------------- */
   if (effectivePage === 'services') {
     return (
       <section className="pt-40 pb-14 md:pb-20 bg-brand text-white relative overflow-hidden">
@@ -2448,7 +2673,7 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
     );
   }
 
-  /* ── Gallery / image-backed hero ─────────────────────────────────── */
+  /* -- Gallery / image-backed hero ----------------------------------- */
   if (effectivePage === 'gallery' && image) {
     return (
       <section className="relative pt-40 pb-16 md:pb-24 overflow-hidden">
@@ -2465,7 +2690,7 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
     );
   }
 
-  /* ── About / split layout with image ─────────────────────────────── */
+  /* -- About / split layout with image ------------------------------- */
   if (effectivePage === 'about' && image) {
     return (
       <section className="pt-40 pb-12 md:pb-16 surface">
@@ -2486,7 +2711,7 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
     );
   }
 
-  /* ── Contact / accent line ────────────────────────────────────── */
+  /* -- Contact / accent line -------------------------------------- */
   if (effectivePage === 'contact') {
     return (
       <section className="pt-40 pb-10 md:pb-14">
@@ -2500,7 +2725,7 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
     );
   }
 
-  /* ── Bold-full (CMS heroStyle override) ─────────────────────────── */
+  /* -- Bold-full (CMS heroStyle override) --------------------------- */
   if (effectivePage === '_bold') {
     return (
       <section className="pt-40 pb-16 grain relative overflow-hidden">
@@ -2521,7 +2746,7 @@ function PageHero({ eyebrow, title, subtitle, body, style = 'classic', image, pa
     );
   }
 
-  /* ── Minimal (CMS heroStyle override — text only, no image) ─────── */
+  /* -- Minimal (CMS heroStyle override � text only, no image) ------- */
   if (effectivePage === '_minimal') {
     return (
       <section className="pt-44 pb-12">

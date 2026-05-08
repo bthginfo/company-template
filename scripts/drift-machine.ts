@@ -396,7 +396,7 @@ const SUBPAGE_FLAG_CHECKS: readonly SubpageCheck[] = [
     page: 'services',
     when: (c) => c.services.showFaq,
     adminSection: 'faq',
-    frontendNeedles: ['resolveFaq', 'normaliseFaqList'],
+    frontendNeedles: ['resolveFaq', 'normaliseFaqList', 'cmsV2FaqItems', 'content.faq'],
   },
   {
     page: 'services',
@@ -432,13 +432,13 @@ const SUBPAGE_FLAG_CHECKS: readonly SubpageCheck[] = [
     page: 'about',
     when: (c) => c.about.showValues,
     adminSection: 'values',
-    frontendNeedles: ['ValuesSection', 'valuesEyebrow', 'branchText.valuesEyebrow'],
+    frontendNeedles: ['ValuesSection', 'valuesEyebrow', 'branchText.valuesEyebrow', 'content.values', '.values ??'],
   },
   {
     page: 'about',
     when: (c) => c.about.showTimeline,
     adminSection: 'timeline',
-    frontendNeedles: ['Timeline content={content}', 'Timeline content={slice}'],
+    frontendNeedles: ['Timeline content={content}', 'Timeline content={slice}', '<Timeline'],
   },
   {
     page: 'about',

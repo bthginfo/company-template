@@ -1,28 +1,70 @@
 /**
- * Praxen (medical) — spec-modular v1 (`docs/spec-praxen.md`).
+ * Praxen (medical) � spec-modular v1 (`docs/spec-praxen.md`).
+ * Classic / Modern / Bold � style-differentiated section layouts.
  */
 
 import type { TemplateStyle } from './branch-config.js';
 
 export type MedicalModularPageKey = 'home' | 'services' | 'gallery' | 'about' | 'contact';
 
-const MEDICAL_HOME: readonly string[] = [
+const MEDICAL_HOME_CLASSIC: readonly string[] = [
   'hero',
+  'actionBar',
   'keywordBand',
   'storyTeaser',
   'serviceCards',
   'serviceInfo',
   'team',
   'appointmentBooking',
+  'videoEmbed',
   'galleryPreview',
   'testimonials',
   'newsTeaser',
   'contactPreview',
 ];
 
-const MEDICAL_SERVICES: readonly string[] = [
+const MEDICAL_HOME_MODERN: readonly string[] = [
   'hero',
+  'actionBar',
   'serviceCards',
+  'galleryPreview',
+  'brandLogos',
+  'storyTeaser',
+  'serviceInfo',
+  'team',
+  'appointmentBooking',
+  'videoEmbed',
+  'statsBand',
+  'testimonials',
+  'newsTeaser',
+  'contactPreview',
+];
+
+const MEDICAL_HOME_BOLD: readonly string[] = [
+  'hero',
+  'marqueeBand',
+  'featureImage',
+  'actionBar',
+  'serviceCards',
+  'serviceInfo',
+  'galleryPreview',
+  'videoEmbed',
+  'statsBand',
+  'storySplit',
+  'team',
+  'appointmentBooking',
+  'testimonialMarquee',
+  'quoteWall',
+  'newsTeaser',
+  'ctaBand',
+];
+
+const MEDICAL_SERVICES_CLASSIC_MODERN: readonly string[] = [
+  'hero',
+  'highlightsBar',
+  'serviceCards',
+  'comparisonTable',
+  'insuranceInfo',
   'team',
   'appointmentBooking',
   'testimonials',
@@ -31,7 +73,21 @@ const MEDICAL_SERVICES: readonly string[] = [
   'cta',
 ];
 
-const MEDICAL_GALLERY: readonly string[] = [
+const MEDICAL_SERVICES_BOLD: readonly string[] = [
+  'hero',
+  'highlightsBar',
+  'serviceCards',
+  'comparisonTable',
+  'insuranceInfo',
+  'team',
+  'appointmentBooking',
+  'testimonials',
+  'galleryPreview',
+  'faq',
+  'ctaBand',
+];
+
+const MEDICAL_GALLERY_ALL: readonly string[] = [
   'hero',
   'teaserList',
   'gallery',
@@ -40,17 +96,32 @@ const MEDICAL_GALLERY: readonly string[] = [
   'cta',
 ];
 
-const MEDICAL_ABOUT: readonly string[] = [
+const MEDICAL_ABOUT_CLASSIC_BOLD: readonly string[] = [
   'hero',
   'teaserList',
   'timeline',
   'team',
+  'trustStrip',
   'statsBand',
+  'badgeWall',
   'testimonials',
   'cta',
 ];
 
-const MEDICAL_CONTACT: readonly string[] = [
+const MEDICAL_ABOUT_MODERN: readonly string[] = [
+  'hero',
+  'storyFacts',
+  'teaserList',
+  'timeline',
+  'team',
+  'trustStrip',
+  'statsBand',
+  'badgeWall',
+  'testimonials',
+  'cta',
+];
+
+const MEDICAL_CONTACT_ALL: readonly string[] = [
   'hero',
   'contactDetails',
   'locations',
@@ -61,14 +132,18 @@ const MEDICAL_CONTACT: readonly string[] = [
 export const MEDICAL_SECTION_LABEL_DE: Record<string, string> = {
   noticeBanner: 'Hinweisbanner',
   hero: 'Hero',
+  actionBar: 'Aktionsleiste',
   keywordBand: 'Keyword-Band',
   storyTeaser: 'Story / Haltung',
+  storySplit: 'Praxis-Statement',
   serviceCards: 'Leistungen',
   serviceInfo: 'Service & Info',
-  team: 'Ärzt:innen & Team',
+  team: '�rzt:innen & Team',
+  trainers: 'Team',
   appointmentBooking: 'Online-Termin',
-  galleryPreview: 'Praxis & Räume',
+  galleryPreview: 'Praxis & R�ume',
   testimonials: 'Patient:innenstimmen',
+  testimonialMarquee: 'Stimmenband',
   newsTeaser: 'News',
   contactPreview: 'Kontakt-Teaser',
   teaserList: 'Teaser-Liste',
@@ -78,16 +153,34 @@ export const MEDICAL_SECTION_LABEL_DE: Record<string, string> = {
   statsBand: 'Kennzahlen',
   faq: 'FAQ',
   cta: 'CTA',
+  ctaBand: 'CTA-Band',
+  marqueeBand: 'Marquee',
+  featureImage: 'Large Image Stage',
+  brandLogos: 'Zertifikate & Partner',
+  storyFacts: 'Story-Facts',
+  quoteWall: 'Quote-Wall',
+  highlightsBar: 'Highlights-Leiste',
   contactDetails: 'Kontaktdaten',
   locations: 'Standorte',
   directions: 'Wegbeschreibung',
+  videoEmbed: 'Video',
+  comparisonTable: 'Leistungsvergleich',
+  insuranceInfo: 'Kassenleistungen',
+  trustStrip: 'Vertrauensleiste',
+  badgeWall: 'Zertifikate & Auszeichnungen',
 };
 
-export function medicalModularBlueprint(_style: TemplateStyle, page: MedicalModularPageKey): readonly string[] {
-  void _style;
-  if (page === 'home') return MEDICAL_HOME;
-  if (page === 'services') return MEDICAL_SERVICES;
-  if (page === 'gallery') return MEDICAL_GALLERY;
-  if (page === 'about') return MEDICAL_ABOUT;
-  return MEDICAL_CONTACT;
+export function medicalModularBlueprint(style: TemplateStyle, page: MedicalModularPageKey): readonly string[] {
+  if (page === 'home') {
+    if (style === 'modern') return MEDICAL_HOME_MODERN;
+    if (style === 'bold') return MEDICAL_HOME_BOLD;
+    return MEDICAL_HOME_CLASSIC;
+  }
+  if (page === 'services') {
+    if (style === 'bold') return MEDICAL_SERVICES_BOLD;
+    return MEDICAL_SERVICES_CLASSIC_MODERN;
+  }
+  if (page === 'gallery') return MEDICAL_GALLERY_ALL;
+  if (page === 'about') return style === 'modern' ? MEDICAL_ABOUT_MODERN : MEDICAL_ABOUT_CLASSIC_BOLD;
+  return MEDICAL_CONTACT_ALL;
 }
