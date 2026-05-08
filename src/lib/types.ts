@@ -564,6 +564,9 @@ export const SiteContentSchema = z.object({
     imageUrl: z.string().url().optional().or(z.literal('')).default(''),
   }).merge(catalogItemDetailSchema)).optional().default([]),
 
+  /** Wedding — date of the wedding day (ISO: YYYY-MM-DD). */
+  weddingDate: z.string().optional().default(''),
+
   /** Consulting — process / engagement steps. */
   processSteps: z.array(z.object({
     title: z.string().default(''),

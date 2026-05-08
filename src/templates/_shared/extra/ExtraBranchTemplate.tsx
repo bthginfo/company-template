@@ -865,6 +865,8 @@ function ExtraV2Page({ content, branch, page, style, eyebrow }: { content: SiteC
             return <ExtraV2Cards key={section.id} section={{ ...section, data: { items: asUnknownRecord(section.data).locations } }} title="Standorte." />;
           case 'timeline':
             return <Timeline key={section.id} content={content} />;
+          case 'countdown':
+            return branch === 'wedding' ? <WeddingCountdown key={section.id} content={patched} /> : null;
           default:
             return null;
         }
@@ -1878,6 +1880,48 @@ function SubPage({ content: initialContent, branch, page, style, eyebrow }: {
 }
 
 /* ─────────────────────────────────────────────────────────────────────
+ *  WEDDING COUNTDOWN — live countdown to the big day
+ * ──────────────────────────────────────────────────────────────────── */
+function WeddingCountdown({ content }: { content: SiteContent }) {
+  const dateStr = (content as any).weddingDate as string | undefined;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  if (!dateStr) return null;
+  const target = new Date(dateStr + 'T00:00:00').getTime();
+  const diff = target - now;
+  if (diff <= 0) return null;
+  const days = Math.floor(diff / 86_400_000);
+  const hours = Math.floor((diff % 86_400_000) / 3_600_000);
+  const minutes = Math.floor((diff % 3_600_000) / 60_000);
+  const seconds = Math.floor((diff % 60_000) / 1000);
+  const units = [
+    { value: days, label: 'Tage' },
+    { value: hours, label: 'Stunden' },
+    { value: minutes, label: 'Minuten' },
+    { value: seconds, label: 'Sekunden' },
+  ];
+  return (
+    <section className="py-16 md:py-24">
+      <div className="container-x text-center">
+        <p className="eyebrow mb-4 reveal">Noch</p>
+        <div className="flex justify-center gap-4 md:gap-8 reveal">
+          {units.map((u) => (
+            <div key={u.label} className="flex flex-col items-center">
+              <span className="font-display text-4xl md:text-6xl tabular-nums" style={{ color: 'var(--accent-color)' }}>{String(u.value).padStart(2, '0')}</span>
+              <span className="mt-2 text-xs md:text-sm uppercase tracking-widest text-muted">{u.label}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-lg text-muted reveal">bis zum großen Tag ♥</p>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────
  *  CLASSIC — editorial, centered, parallax about, varied gallery
  * ──────────────────────────────────────────────────────────────────── */
 function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }: { content: SiteContent; eyebrow: string; branch: ExtraBranchKey; page: ExtraPage }) {
@@ -1889,6 +1933,7 @@ function ClassicLayout({ content: initialContent, eyebrow, branch, page: _page }
     const bt = effectiveBranchText(branch, slice);
     const homeT = meaningfulTestimonials(slice.testimonials);
     return {
+      countdown: branch === 'wedding' ? <WeddingCountdown content={slice} /> : null,
       action: <ExtraHomeActionStrip content={slice} branch={branch} />,
       chips: <BranchHeroBadges branch={branch} style="classic" content={slice} />,
       about: slice.about ? (
@@ -2083,6 +2128,7 @@ function ModernLayout({ content: initialContent, eyebrow, branch, page: _page }:
     const bt = effectiveBranchText(branch, slice);
     const homeT = meaningfulTestimonials(slice.testimonials);
     return {
+    countdown: branch === 'wedding' ? <WeddingCountdown content={slice} /> : null,
     action: <ExtraHomeActionStrip content={slice} branch={branch} />,
     chips: <BranchHeroBadges branch={branch} style="modern" content={slice} />,
     about: slice.about ? (
@@ -2300,6 +2346,7 @@ function BoldLayout({ content: initialContent, eyebrow, branch, page: _page }: {
     const bt = effectiveBranchText(branch, slice);
     const homeT = meaningfulTestimonials(slice.testimonials);
     return {
+    countdown: branch === 'wedding' ? <WeddingCountdown content={slice} /> : null,
     action: <ExtraHomeActionStrip content={slice} branch={branch} />,
     chips: <BranchHeroBadges branch={branch} style="bold" content={slice} />,
     marquee: (() => {

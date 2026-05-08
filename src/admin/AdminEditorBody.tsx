@@ -1504,7 +1504,21 @@ function HomePageEditor({ data, setData, tpl, onGoToPage }: SectionProps & { onG
     return <ModularFitnessPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
   }
   if (tpl === 'wedding') {
-    return <ModularWeddingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />;
+    return (
+      <>
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 mb-4">
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Hochzeitsdatum (Countdown)</label>
+          <input
+            type="date"
+            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            value={(data as any).weddingDate || ''}
+            onChange={(e) => setData({ ...data, weddingDate: e.target.value } as any)}
+          />
+          <p className="mt-1 text-xs text-zinc-400">Wird als Live-Countdown auf der Startseite angezeigt.</p>
+        </div>
+        <ModularWeddingPageEditor data={data} setData={setData} tpl={tpl} style={style} uploadImage={_ctx.uploadImage} page="home" />
+      </>
+    );
   }
   return (
     <>

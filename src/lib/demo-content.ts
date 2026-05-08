@@ -727,6 +727,7 @@ export const EXTRA_DEMO_CONTENT = {
     },
   }),
   wedding: SiteContentSchema.parse({
+    weddingDate: '2026-07-12',
     brand: {
       name: 'Anna & Moritz',
       tagline: 'Wir heiraten!',
