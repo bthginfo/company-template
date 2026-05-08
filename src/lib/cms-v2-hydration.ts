@@ -670,6 +670,35 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'headline', firstText(bt.servicesTeaserTitle, 'Kurse und Programme.'));
     setMissing(data, 'rows', services.length ? services : items);
   }
+  if (section.type === 'videoEmbed') {
+    setMissing(data, 'eyebrow', firstText(bt.galleryTeaserEyebrow, 'Video'));
+    setMissing(data, 'headline', firstText(bt.galleryTeaserTitle, 'Ein Blick hinter die Kulissen.'));
+    setMissing(data, 'description', firstText(bt.teaserSubtitle, 'Erleben Sie uns in Bewegung.'));
+    setMissing(data, 'videoUrl', 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ');
+    setMissing(data, 'image', image(heroImage, 'Video'));
+  }
+  if (section.type === 'projectShowcase') {
+    setMissing(data, 'eyebrow', firstText(bt.galleryTeaserEyebrow, 'Projekte'));
+    setMissing(data, 'headline', firstText(bt.galleryTeaserTitle, 'Ausgewählte Arbeiten.'));
+    setMissing(data, 'description', firstText(bt.teaserSubtitle, 'Einblicke in abgeschlossene Projekte.'));
+    setMissing(data, 'items', items);
+  }
+  if (section.type === 'badgeWall') {
+    setMissing(data, 'eyebrow', 'Auszeichnungen');
+    setMissing(data, 'headline', 'Qualität, die zählt.');
+    setMissing(data, 'items', [
+      { title: 'ISO 9001', description: 'Zertifiziertes Qualitätsmanagement.' },
+      { title: 'Top-Betrieb 2024', description: 'Ausgezeichnet von der Branchenvereinigung.' },
+      { title: 'Kundenliebling', description: 'Bestbewertet in der Region.' },
+    ]);
+  }
+  if (section.type === 'chefStory') {
+    setMissing(data, 'eyebrow', 'Unsere Küche');
+    setMissing(data, 'headline', 'Die Geschichte hinter dem Geschmack.');
+    setMissing(data, 'description', firstText(content.about?.body, 'Mit Leidenschaft und regionalen Zutaten schaffen wir besondere Gerichte — ehrlich, saisonal und mit Liebe zum Detail.'));
+    setMissing(data, 'image', image(firstText(content.about?.imageUrl, heroImage), 'Küchenchef'));
+  }
+
   if (contractedFields.has('backgroundImage') && !imageValue(data.backgroundImage) && heroImage) data.backgroundImage = image(heroImage);
   if (contractedFields.has('image') && !imageValue(data.image) && heroImage) data.image = image(heroImage);
 
