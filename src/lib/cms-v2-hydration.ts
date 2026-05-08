@@ -179,9 +179,12 @@ function textList(value: unknown): string[] {
     .filter(Boolean);
 }
 
-function announcementLines(content: SiteContent): string[] {
+function announcementLines(content: SiteContent, template?: string): string[] {
   const lines = textList(content.announcements);
   if (lines.length) return lines;
+  if (template === 'wedding') {
+    return [content.hero?.subtitle || content.brand?.tagline || 'Wir heiraten!'].filter(Boolean);
+  }
   return ['Heute geöffnet', firstText(content.contact?.phone, 'Reservierung möglich')].filter(Boolean);
 }
 
@@ -546,7 +549,7 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'items', items);
   }
 
-  if (section.type === 'noticeBanner') data.items = announcementLines(content).map((line) => ({ text: line }));
+  if (section.type === 'noticeBanner') data.items = announcementLines(content, template).map((line) => ({ text: line }));
   if (section.type === 'menu') {
     setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Speisekarte'));
     setMissing(data, 'titleA', 'Unsere');
@@ -753,7 +756,7 @@ export function normalizeSiteContentCmsV2(
     ? announcements
     : legacyNoticeBannerItems.length
       ? legacyNoticeBannerItems
-      : announcementLines(content);
+      : announcementLines(content, template);
   return SiteContentSchema.parse({
     ...content,
     announcements: normalizedAnnouncements,
