@@ -15,7 +15,7 @@ import {
   moduleHeading,
   type ModuleHeadingKey,
 } from '@/components/branch-modules';
-import { branchTextDefaults } from '@/lib/branch-text-defaults';
+import { parseNumberValue, pageHeaderOverride, effectiveBranchText } from '../template-utils';
 
 import { getBranchConfig } from '@/lib/branch-config';
 import { meaningfulTestimonials, normaliseTeamList } from '@/lib/content-field-aliases';
@@ -69,27 +69,6 @@ export const EXTRA_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'directions',
 ]);
 
-/** Per-tenant overlay over branch-text defaults â€” same SoT as 5-variant template. */
-function effectiveBranchText(branch: ExtraBranchKey, content?: SiteContent) {
-  const overrides = ((content as any)?.branchText ?? {}) as Record<string, any>;
-  const def = branchTextDefaults(branch);
-  return {
-    ...def,
-    ...Object.fromEntries(
-      Object.entries(overrides).filter(([, val]) => {
-        if (Array.isArray(val)) return val.length > 0;
-        return typeof val === 'string' ? val.trim().length > 0 : val != null;
-      }),
-    ),
-  } as ReturnType<typeof branchTextDefaults>;
-}
-
-/** Pull a per-page header override from content extras (set by admin's PageHeaderEditor). */
-function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader'): { eyebrow: string; title: string; subtitle: string; heroStyle?: string } | null {
-  const v = (content as any)[key];
-  if (!v || typeof v !== 'object') return null;
-  return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || ''), heroStyle: v.heroStyle || undefined };
-}
 
 /** Resolve the hero primary + secondary CTA from `heroCta` overrides + base hero fields. */
 function resolveHeroCta(content: SiteContent) {
@@ -138,18 +117,6 @@ function ExtraHeroLink({ href, className, children }: { href: string; className?
   return <NavLink to={withBase(basePath, href)} className={className}>{children}</NavLink>;
 }
 
-/** Same parsing as core `NumbersBand` â€” keeps counter / suffix behaviour aligned. */
-function parseNumberValue(raw: string): { v: number; s?: string; raw?: boolean } {
-  const m = String(raw).match(/^(-?\d+(?:[.,]\d+)?)(.*)$/);
-  if (!m) return { v: 0, s: String(raw), raw: true };
-  const [, num, rest] = m;
-  const hasComma = num.includes(',');
-  const hasDot = num.includes('.');
-  const intPart = hasComma ? num.split(',')[0] : hasDot ? num.split('.')[0] : num;
-  const frac = hasComma ? ',' + num.split(',')[1] : hasDot ? '.' + num.split('.')[1] : '';
-  const suffix = (frac || '') + (rest || '');
-  return { v: Number(intPart) || 0, s: suffix || undefined };
-}
 
 /** Full-width Zahlen-Band from `content.numbers` (admin â€žZahlen-Bandâ€œ). */
 function ExtraHomeNumbersBand({ content }: { content: SiteContent }) {

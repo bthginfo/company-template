@@ -467,7 +467,7 @@ export const DEMO_CONTENT: Record<'restaurant' | 'salon' | 'tradesman' | 'hotel'
 
 /**
  * Showcase-only content for branches that don't have a full template yet.
- * Rendered by AgencyShowcase' `ExtraBranchTemplate` (single-page showcase).
+ * Rendered by `TemplateApp` (unified entry point for all 9 templates).
  */
 export const EXTRA_DEMO_CONTENT = {
   consulting: SiteContentSchema.parse({

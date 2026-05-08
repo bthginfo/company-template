@@ -1,9 +1,8 @@
 /**
  * Default frontend section orders for the home page, per (template, style).
  *
- * All eight branches (`TemplateKey`) share this table. The renderer in
- * `TemplateApp.tsx` (core five) and `_shared/extra/ExtraBranchTemplate.tsx`
- * (consulting / medical / fitness) read from here unless the tenant set
+ * All nine branches (`TemplateKey`) share this table. The unified renderer
+ * in `TemplateApp.tsx` reads from here unless the tenant set
  * `content.sectionOrder.home`.
  *
  * The drift-coverage script imports the same data so admin home order stays

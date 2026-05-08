@@ -54,6 +54,7 @@ import {
 } from '@/components/branch-modules';
 import { meaningfulTestimonials, isMeaningfulServiceCard } from '@/lib/content-field-aliases';
 import { getBranchConfig, isExtraBranch } from '@/lib/branch-config';
+import { parseNumberValue, pageHeaderOverride, effectiveBranchText } from './template-utils';
 import {
   type ExtraBranchKey,
   ExtraHeader,
@@ -175,17 +176,6 @@ function resolveHeroMeta(variant: TemplateVariant, content: SiteContent): { labe
   );
   if (filtered.length > 0) return filtered.map((n) => ({ label: n.label, value: n.value }));
   return VARIANT_HERO_META[variant];
-}
-function parseNumberValue(raw: string): { v: number; s?: string; raw?: boolean } {
-  const m = String(raw).match(/^(-?\d+(?:[.,]\d+)?)(.*)$/);
-  if (!m) return { v: 0, s: String(raw), raw: true };
-  const [, num, rest] = m;
-  const hasComma = num.includes(',');
-  const hasDot = num.includes('.');
-  const intPart = hasComma ? num.split(',')[0] : hasDot ? num.split('.')[0] : num;
-  const frac = hasComma ? ',' + num.split(',')[1] : hasDot ? '.' + num.split('.')[1] : '';
-  const suffix = (frac || '') + (rest || '');
-  return { v: Number(intPart) || 0, s: suffix || undefined };
 }
 
 export default function TemplateApp({
@@ -2075,13 +2065,6 @@ function renderRestaurantV2SubpageSection(page: RestaurantV2SubpageKey, section:
   }
 }
 
-/** Per-tenant visibility check. Defaults to true when no flag is set. */
-function pageHeaderOverride(content: SiteContent, key: 'servicesHeader' | 'galleryHeader' | 'aboutHeader' | 'contactPageHeader' | 'newsHeader'): { eyebrow: string; title: string; subtitle: string; heroStyle?: string } | null {
-  const v = (content as any)[key];
-  if (!v || typeof v !== 'object') return null;
-  return { eyebrow: String(v.eyebrow || ''), title: String(v.title || ''), subtitle: String(v.subtitle || ''), heroStyle: v.heroStyle || undefined };
-}
-
 function visibleTestimonials(content: SiteContent) {
   return meaningfulTestimonials(content.testimonials);
 }
@@ -2631,16 +2614,6 @@ function teaserSubtitleFor(v: TemplateVariant, content?: SiteContent) {
   const override = (content as any)?.branchText?.teaserSubtitle as string | undefined;
   if (override && override.trim()) return override;
   return branchTextDefaults(v).teaserSubtitle;
-}
-
-/** Returns a merged branch-text record (per-tenant overrides + branch defaults). */
-function effectiveBranchText(v: TemplateVariant, content?: SiteContent) {
-  const overrides = ((content as any)?.branchText ?? {}) as Record<string, any>;
-  const def = branchTextDefaults(v);
-  return { ...def, ...Object.fromEntries(Object.entries(overrides).filter(([, val]) => {
-    if (Array.isArray(val)) return val.length > 0;
-    return typeof val === 'string' ? val.trim().length > 0 : val != null;
-  })) } as ReturnType<typeof branchTextDefaults>;
 }
 
 function subtitleFor(v: TemplateVariant, content: SiteContent): string {
