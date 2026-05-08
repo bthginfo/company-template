@@ -1337,6 +1337,22 @@ export function extendedModularSectionForm(props: ModularSectionDataFormProps): 
     case 'venueShowcase':
       return <ProcessColumnsForm data={data} onChange={onChange} />;
     case 'videoEmbed':
+      return (
+        <div className="space-y-4">
+          <ModField label="Eyebrow">
+            <input className={modularInputCls} value={str(data.eyebrow)} onChange={(e) => onChange({ ...data, eyebrow: e.target.value })} />
+          </ModField>
+          <ModField label="Überschrift">
+            <input className={modularInputCls} value={str(data.headline)} onChange={(e) => onChange({ ...data, headline: e.target.value })} />
+          </ModField>
+          <ModField label="Text">
+            <textarea className={modularInputCls} rows={3} value={str(data.description)} onChange={(e) => onChange({ ...data, description: e.target.value })} />
+          </ModField>
+          <ModField label="Video-URL">
+            <input className={modularInputCls} value={str(data.videoUrl)} onChange={(e) => onChange({ ...data, videoUrl: e.target.value })} placeholder="https://www.youtube.com/embed/..." />
+          </ModField>
+        </div>
+      );
     case 'seasonalHighlight':
     case 'challengeSpotlight':
     case 'chefStory':

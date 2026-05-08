@@ -814,6 +814,7 @@ export function mergeHomeIntoLegacy(
         break;
       }
       // V2-only section types (rendered directly from CMS V2 data, no merge needed)
+      // V2 fields: 'videoUrl', image, button (handled by V2 renderer)
       case 'videoEmbed': case 'seasonalHighlight': case 'reservationTeaser':
       case 'chefStory': case 'trustStrip': case 'badgeWall':
         break;

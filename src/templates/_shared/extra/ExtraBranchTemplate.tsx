@@ -101,6 +101,10 @@ export const EXTRA_V2_RENDERED_SECTION_TYPES = new Set<string>([
   'badgeWall',
 ]);
 
+/** Check whether the CMS V2 frontend path should be used. */
+export function shouldUseCmsV2Frontend(content: SiteContent): boolean {
+  return content.cmsV2?.enabled === true;
+}
 
 /** Resolve the hero primary + secondary CTA from `heroCta` overrides + base hero fields. */
 function resolveHeroCta(content: SiteContent) {
@@ -1067,9 +1071,10 @@ export function ExtraCustomV2PageRoute({ content, branch, style, eyebrow }: { co
             return <section key={section.id} className="py-4 border-y border-line bg-white overflow-hidden"><div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-center gap-6 md:gap-10">{tsItems.map((item, i) => <span key={i} className="flex items-center gap-2 text-sm text-muted whitespace-nowrap"><span className="text-brand font-semibold">{item.t}</span>{item.d && <span>{item.d}</span>}</span>)}</div></section>;
           }
           case 'videoEmbed': {
-            const videoUrl = cmsV2Text(d.videoUrl);
+            const videoUrl = cmsV2Text(asUnknownRecord(section.data).videoUrl);
             if (!videoUrl) return null;
-            return <Section key={section.id} eyebrow={cmsV2Text(d.eyebrow)} title={cmsV2Text(d.headline) || ''}>{cmsV2Text(d.description) && <p className="text-lg text-muted max-w-2xl mb-8">{cmsV2Text(d.description)}</p>}<div className="relative aspect-video rounded-2xl overflow-hidden bg-neutral-100"><iframe src={videoUrl} title={cmsV2Text(d.headline) || 'Video'} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full" loading="lazy" /></div></Section>;
+            const vd = asUnknownRecord(section.data);
+            return <Section key={section.id} eyebrow={cmsV2Text(vd.eyebrow)} title={cmsV2Text(vd.headline) || ''}>{cmsV2Text(vd.description) && <p className="text-lg text-muted max-w-2xl mb-8">{cmsV2Text(vd.description)}</p>}<div className="relative aspect-video rounded-2xl overflow-hidden bg-neutral-100"><iframe src={videoUrl} title={cmsV2Text(vd.headline) || 'Video'} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full" loading="lazy" /></div></Section>;
           }
           case 'projectShowcase':
           case 'lookBook':

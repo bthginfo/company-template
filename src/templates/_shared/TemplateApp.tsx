@@ -360,6 +360,12 @@ function announcementsFor(v: TemplateVariant, content: SiteContent): string[] {
   return base;
 }
 
+/* --- V2 gate -------------------------------------------------------- */
+/** Whether the tenant has opted into CMS V2 direct rendering. */
+export function shouldUseCmsV2Frontend(content: SiteContent): boolean {
+  return content.cmsV2?.enabled === true;
+}
+
 /* --- Home ----------------------------------------------------------- */
 function HomePage({ variant, content, style }: { variant: TemplateVariant; content: SiteContent; style: TemplateStyle }) {
   if (variant === 'restaurant') return <RestaurantV2HomePage content={content} style={style} />;
