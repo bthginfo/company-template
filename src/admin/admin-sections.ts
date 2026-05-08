@@ -529,6 +529,10 @@ const SECTION_META: Record<AdminSectionKey, MetaResolver> = {
     title: 'Abschluss-Aufruf (CTA)',
     description: 'CTA am Seitenende.',
   }),
+  countdown: () => ({
+    title: 'Countdown',
+    description: 'Live-Countdown bis zum Hochzeitstag.',
+  }),
 };
 
 export function getSectionMeta(key: AdminSectionKey, tpl: TemplateKey, style: TemplateStyle): SectionMeta {
