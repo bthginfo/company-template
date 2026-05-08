@@ -4079,12 +4079,14 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
     wedding: { tone: 'light', eyebrow: 'Wir heiraten!', hint: '', primaryLabel: '', secondaryLabel: 'Jetzt zusagen', secondaryHref: '/rsvp' },
   };
   const def = stripDefaults[tpl] || stripDefaults.consulting;
-  const [v, set] = useExtra<{ tone: 'light' | 'dark' | ''; eyebrowAuto?: boolean; eyebrow: string; hint: string; primaryLabel: string; secondaryLabel: string; secondaryHref: string }>(
+  const [v, set] = useExtra<{ tone: 'light' | 'dark' | ''; eyebrowAuto?: boolean; eyebrow: string; hint: string; hintVisible?: boolean; primaryLabel: string; secondaryLabel: string; secondaryHref: string }>(
     data, setData, 'homeStrip',
     { tone: '', eyebrowAuto: true, eyebrow: '', hint: '', primaryLabel: '', secondaryLabel: '', secondaryHref: '' },
   );
   // Default to auto when the field has never been set.
   const auto = v.eyebrowAuto !== false;
+  const hintVisible = v.hintVisible !== false;
+  const effectiveHint = v.hint || def.hint;
   return (
     <>
       <p className="text-xs text-muted">
@@ -4133,8 +4135,16 @@ function HomeStripEditor({ data, setData, tpl }: SectionProps) {
             placeholder={def.eyebrow}
           />
         </Field>
-        <Field label="Hinweis (Mitte, optional)" hint={def.hint || 'Wird ausgeblendet, wenn leer.'}>
-          <input className={inputCls} value={v.hint} onChange={(e) => set({ ...v, hint: e.target.value })} placeholder={def.hint} />
+        <Field label="Hinweis (Mitte)" hint={hintVisible ? 'Text der in der Mitte der Aktionsleiste angezeigt wird.' : 'Deaktiviert — kein Text in der Mitte.'}>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={hintVisible} onChange={(e) => set({ ...v, hintVisible: e.target.checked })} />
+              <span className="text-sm">Hinweis anzeigen</span>
+            </label>
+            {hintVisible && (
+              <input className={inputCls} value={v.hint || ''} onChange={(e) => set({ ...v, hint: e.target.value })} placeholder={def.hint || 'z. B. Persönliche Beratung · Antwort innerhalb eines Werktages'} />
+            )}
+          </div>
         </Field>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">

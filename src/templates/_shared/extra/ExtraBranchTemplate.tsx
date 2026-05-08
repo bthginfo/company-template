@@ -196,7 +196,10 @@ function ExtraHomeActionStrip({ content, branch }: { content: SiteContent; branc
   const overlay = Object.fromEntries(
     Object.entries(stripForMerge).filter(([, val]) => (typeof val === 'string' ? val.trim() !== '' : val != null)),
   );
-  const cfg = { ...def, ...overlay } as ReturnType<typeof defaultExtraHomeStrip> & { eyebrowAuto?: boolean };
+  const cfg = { ...def, ...overlay } as ReturnType<typeof defaultExtraHomeStrip> & { eyebrowAuto?: boolean; hintVisible?: boolean };
+
+  // When hintVisible is explicitly false, suppress the hint text.
+  if (cfg.hintVisible === false) cfg.hint = '';
 
   let liveEyebrow: string | null = null;
   let liveIsOpen = false;
