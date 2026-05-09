@@ -61,6 +61,54 @@ const imagePools = {
 
 const videoUrl = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ';
 
+const shortHeroCopy = {
+  restaurant: {
+    headline: 'Ehrliche Küche für besondere Abende',
+    subline: 'Saisonal, handwerklich und mit Partnern aus der Region.',
+    description: 'Feine Aromen, entspannter Service und echte Lieblingsmomente.',
+  },
+  hotel: {
+    headline: 'Ankommen und die Stadt entspannt erleben',
+    subline: 'Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.',
+    description: 'Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.',
+  },
+  tourism: {
+    headline: 'Erlebnisse, die nach der Reise bleiben',
+    subline: 'Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.',
+    description: 'Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.',
+  },
+  salon: {
+    headline: 'Styling, das wirklich zu dir passt',
+    subline: 'Beratung, präzise Schnitte und Farben für deinen Alltag.',
+    description: 'Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.',
+  },
+  tradesman: {
+    headline: 'Saubere Arbeit und klare Absprachen',
+    subline: 'Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.',
+    description: 'Vom ersten Anruf bis zur Übergabe bleibt alles transparent.',
+  },
+  consulting: {
+    headline: 'Strategie, die im Alltag funktioniert',
+    subline: 'Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.',
+    description: 'Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.',
+  },
+  medical: {
+    headline: 'Medizinische Betreuung, die zuhört',
+    subline: 'Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.',
+    description: 'Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.',
+  },
+  fitness: {
+    headline: 'Training, das zu deinem Leben passt',
+    subline: 'Starke Kurse, persönliche Betreuung und klare Trainingspläne.',
+    description: 'Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.',
+  },
+  wedding: {
+    headline: 'Hochzeiten, die leicht und persönlich wirken',
+    subline: 'Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.',
+    description: 'Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.',
+  },
+};
+
 function parseScalar(raw) {
   const value = raw.trim();
   if (value === '') return '';
@@ -200,6 +248,12 @@ function normalizeValue(value, context, key = '') {
   return value;
 }
 
+function shortenHeroData(data, context) {
+  const copy = shortHeroCopy[context.template];
+  if (!copy || !data || typeof data !== 'object') return data;
+  return { ...data, ...copy };
+}
+
 const headingRe = /^# ([a-z]+) \/ (classic|modern|bold) — (.+)$/;
 const pageRe = /^## .+\(`(home|services|gallery|about|contact)`\)/;
 const sectionRe = /^### \d+\. `([^`]+)`/;
@@ -234,7 +288,8 @@ for (let i = 0; i < lines.length; i += 1) {
     cursor = yamlStart;
     while (cursor < lines.length && lines[cursor].trim() !== '```') cursor += 1;
     const yaml = lines.slice(yamlStart, cursor).join('\n');
-    const data = normalizeValue(parseYaml(yaml), current);
+    const normalized = normalizeValue(parseYaml(yaml), current);
+    const data = type === 'hero' ? shortenHeroData(normalized, current) : normalized;
     plan[current.template][current.style].pages[currentPage].push({ type, data });
     i = cursor;
   }

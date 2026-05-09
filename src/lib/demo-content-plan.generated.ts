@@ -22,9 +22,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Restaurant Lindenhof"
@@ -277,9 +277,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Restaurant Lindenhof"
@@ -437,9 +437,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Restaurant Lindenhof"
@@ -528,9 +528,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Restaurant Lindenhof"
@@ -794,9 +794,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Restaurant Lindenhof"
@@ -901,9 +901,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reduziert im Design. Präzise im Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Bistro Nova"
@@ -1156,9 +1156,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reduziert im Design. Präzise im Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Bistro Nova"
@@ -1316,9 +1316,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reduziert im Design. Präzise im Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Bistro Nova"
@@ -1407,9 +1407,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reduziert im Design. Präzise im Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Bistro Nova"
@@ -1696,9 +1696,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reduziert im Design. Präzise im Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Bistro Nova"
@@ -1803,9 +1803,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Feuer. Mehr Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Feuer & Flamme"
@@ -2068,9 +2068,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Feuer. Mehr Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Feuer & Flamme"
@@ -2228,9 +2228,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Feuer. Mehr Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Feuer & Flamme"
@@ -2319,9 +2319,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Feuer. Mehr Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Feuer & Flamme"
@@ -2585,9 +2585,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Feuer. Mehr Geschmack.",
-              "headline": "Ehrliche Küche, die nach Zuhause und besonderem Abend schmeckt",
-              "subline": "Wir kochen saisonal, handwerklich und mit Produkten von Partnern, die wir persönlich kennen.",
-              "description": "Bei uns treffen feine Aromen, entspannter Service und eine Atmosphäre zusammen, in der aus einem Essen ein Lieblingsmoment wird.",
+              "headline": "Ehrliche Küche für besondere Abende",
+              "subline": "Saisonal, handwerklich und mit Partnern aus der Region.",
+              "description": "Feine Aromen, entspannter Service und echte Lieblingsmomente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Feuer & Flamme"
@@ -2694,9 +2694,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Hotel Aurelia"
@@ -2925,9 +2925,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Hotel Aurelia"
@@ -3123,9 +3123,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Hotel Aurelia"
@@ -3214,9 +3214,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Hotel Aurelia"
@@ -3453,9 +3453,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Hotel Aurelia"
@@ -3560,9 +3560,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Urban schlafen. Entspannt ankommen.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Urban Stay Atelier"
@@ -3814,9 +3814,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Urban schlafen. Entspannt ankommen.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Urban Stay Atelier"
@@ -4012,9 +4012,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Urban schlafen. Entspannt ankommen.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Urban Stay Atelier"
@@ -4103,9 +4103,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Urban schlafen. Entspannt ankommen.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Urban Stay Atelier"
@@ -4365,9 +4365,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Urban schlafen. Entspannt ankommen.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Urban Stay Atelier"
@@ -4472,9 +4472,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Stadt. Mehr Komfort.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
                 "alt": "The Grand Pulse"
@@ -4747,9 +4747,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Stadt. Mehr Komfort.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80",
                 "alt": "The Grand Pulse"
@@ -4945,9 +4945,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Stadt. Mehr Komfort.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1600&q=80",
                 "alt": "The Grand Pulse"
@@ -5036,9 +5036,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Stadt. Mehr Komfort.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
                 "alt": "The Grand Pulse"
@@ -5275,9 +5275,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Stadt. Mehr Komfort.",
-              "headline": "Ankommen, durchatmen und die Stadt von ihrer schönsten Seite erleben",
-              "subline": "Wir verbinden persönliche Gastfreundschaft mit ruhigen Zimmern, feinem Frühstück und kurzen Wegen ins Zentrum.",
-              "description": "Ob Wochenende, Geschäftsreise oder kleine Auszeit: Bei uns beginnt Erholung in dem Moment, in dem du eincheckst.",
+              "headline": "Ankommen und die Stadt entspannt erleben",
+              "subline": "Ruhige Zimmer, feines Frühstück und kurze Wege ins Zentrum.",
+              "description": "Für Wochenende, Business oder Auszeit beginnt Erholung beim Check-in.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80",
                 "alt": "The Grand Pulse"
@@ -5384,9 +5384,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reisen persönlich geplant",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Alpenblick Tours"
@@ -5615,9 +5615,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reisen persönlich geplant",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Alpenblick Tours"
@@ -5759,9 +5759,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reisen persönlich geplant",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Alpenblick Tours"
@@ -5850,9 +5850,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reisen persönlich geplant",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Alpenblick Tours"
@@ -6089,9 +6089,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Reisen persönlich geplant",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Alpenblick Tours"
@@ -6196,9 +6196,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar geplant. Intensiv erlebt.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
                 "alt": "City Routes Studio"
@@ -6450,9 +6450,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar geplant. Intensiv erlebt.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80",
                 "alt": "City Routes Studio"
@@ -6594,9 +6594,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar geplant. Intensiv erlebt.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80",
                 "alt": "City Routes Studio"
@@ -6685,9 +6685,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar geplant. Intensiv erlebt.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
                 "alt": "City Routes Studio"
@@ -6947,9 +6947,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar geplant. Intensiv erlebt.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80",
                 "alt": "City Routes Studio"
@@ -7054,9 +7054,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Route. Mehr Abenteuer.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Wild North Adventures"
@@ -7329,9 +7329,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Route. Mehr Abenteuer.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Wild North Adventures"
@@ -7473,9 +7473,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Route. Mehr Abenteuer.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Wild North Adventures"
@@ -7564,9 +7564,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Route. Mehr Abenteuer.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Wild North Adventures"
@@ -7803,9 +7803,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Route. Mehr Abenteuer.",
-              "headline": "Erlebnisse, die bleiben, lange nachdem die Reise endet",
-              "subline": "Wir planen geführte Touren mit echten Geschichten, lokalen Lieblingsorten und einem Tempo, das Raum zum Staunen lässt.",
-              "description": "Unsere Routen sind persönlich kuratiert, zuverlässig organisiert und so gestaltet, dass du mehr siehst als nur Sehenswürdigkeiten.",
+              "headline": "Erlebnisse, die nach der Reise bleiben",
+              "subline": "Geführte Touren mit echten Geschichten und lokalen Lieblingsorten.",
+              "description": "Persönlich geplant, zuverlässig organisiert und voller besonderer Momente.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Wild North Adventures"
@@ -7912,9 +7912,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Salon Bellezza"
@@ -8145,9 +8145,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Salon Bellezza"
@@ -8332,9 +8332,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Salon Bellezza"
@@ -8473,9 +8473,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Salon Bellezza"
@@ -8712,9 +8712,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren persönlich für dich da",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Salon Bellezza"
@@ -8819,9 +8819,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klare Linien. Feiner Look.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Studio Nōva Hair"
@@ -9054,9 +9054,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klare Linien. Feiner Look.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Studio Nōva Hair"
@@ -9241,9 +9241,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klare Linien. Feiner Look.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Studio Nōva Hair"
@@ -9382,9 +9382,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klare Linien. Feiner Look.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Studio Nōva Hair"
@@ -9644,9 +9644,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klare Linien. Feiner Look.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Studio Nōva Hair"
@@ -9751,9 +9751,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Schnitt. Mehr Statement.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Cut Club Studio"
@@ -9988,9 +9988,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Schnitt. Mehr Statement.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Cut Club Studio"
@@ -10175,9 +10175,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Schnitt. Mehr Statement.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Cut Club Studio"
@@ -10316,9 +10316,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Schnitt. Mehr Statement.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Cut Club Studio"
@@ -10555,9 +10555,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Schnitt. Mehr Statement.",
-              "headline": "Haare, Haut und Styling mit einem Gefühl für dich",
-              "subline": "Wir nehmen uns Zeit für Beratung, präzise Schnitte und Farben, die zu deinem Alltag passen.",
-              "description": "Unser Anspruch ist ein Look, der nicht nur im Spiegel überzeugt, sondern sich jeden Tag gut anfühlt.",
+              "headline": "Styling, das wirklich zu dir passt",
+              "subline": "Beratung, präzise Schnitte und Farben für deinen Alltag.",
+              "description": "Looks, die im Spiegel überzeugen und sich jeden Tag gut anfühlen.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Cut Club Studio"
@@ -10664,9 +10664,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Handwerk, auf das du dich verlassen kannst",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Meisterbetrieb Hartmann"
@@ -10976,9 +10976,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Handwerk, auf das du dich verlassen kannst",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1523413363574-c30aa1c2a516?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Meisterbetrieb Hartmann"
@@ -11169,9 +11169,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Handwerk, auf das du dich verlassen kannst",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1581091215367-59ab6b8de7a9?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Meisterbetrieb Hartmann"
@@ -11309,9 +11309,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Handwerk, auf das du dich verlassen kannst",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Meisterbetrieb Hartmann"
@@ -11581,9 +11581,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Handwerk, auf das du dich verlassen kannst",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1523413363574-c30aa1c2a516?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Meisterbetrieb Hartmann"
@@ -11708,9 +11708,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Sauber geplant. Präzise montiert.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Werkraum Technik"
@@ -12042,9 +12042,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Sauber geplant. Präzise montiert.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1581091215367-59ab6b8de7a9?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Werkraum Technik"
@@ -12235,9 +12235,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Sauber geplant. Präzise montiert.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Werkraum Technik"
@@ -12375,9 +12375,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Sauber geplant. Präzise montiert.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1523413363574-c30aa1c2a516?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Werkraum Technik"
@@ -12639,9 +12639,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Sauber geplant. Präzise montiert.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1581091215367-59ab6b8de7a9?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Werkraum Technik"
@@ -12766,9 +12766,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Tempo. Mehr Handwerk.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Fix & Fertig Profis"
@@ -13105,9 +13105,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Tempo. Mehr Handwerk.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1581091215367-59ab6b8de7a9?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Fix & Fertig Profis"
@@ -13298,9 +13298,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Tempo. Mehr Handwerk.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Fix & Fertig Profis"
@@ -13438,9 +13438,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Tempo. Mehr Handwerk.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1523413363574-c30aa1c2a516?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Fix & Fertig Profis"
@@ -13710,9 +13710,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Tempo. Mehr Handwerk.",
-              "headline": "Saubere Arbeit, klare Absprachen und Lösungen, die lange halten",
-              "subline": "Wir kümmern uns um Reparaturen, Modernisierung und Wartung mit verbindlichen Terminen und ehrlichem Handwerk.",
-              "description": "Vom ersten Anruf bis zur fertigen Übergabe weißt du bei uns, was passiert, wann es passiert und was es kostet.",
+              "headline": "Saubere Arbeit und klare Absprachen",
+              "subline": "Reparatur, Modernisierung und Wartung mit ehrlichem Handwerk.",
+              "description": "Vom ersten Anruf bis zur Übergabe bleibt alles transparent.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1581091215367-59ab6b8de7a9?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Fix & Fertig Profis"
@@ -13839,9 +13839,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren als Sparringspartner an deiner Seite",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Klarwerk Consulting"
@@ -14177,9 +14177,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren als Sparringspartner an deiner Seite",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Klarwerk Consulting"
@@ -14448,9 +14448,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren als Sparringspartner an deiner Seite",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Klarwerk Consulting"
@@ -14602,9 +14602,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren als Sparringspartner an deiner Seite",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Klarwerk Consulting"
@@ -14866,9 +14866,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Seit Jahren als Sparringspartner an deiner Seite",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Klarwerk Consulting"
@@ -14973,9 +14973,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar analysiert. Wirksam umgesetzt.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Northstar Strategy"
@@ -15333,9 +15333,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar analysiert. Wirksam umgesetzt.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Northstar Strategy"
@@ -15604,9 +15604,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar analysiert. Wirksam umgesetzt.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Northstar Strategy"
@@ -15758,9 +15758,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar analysiert. Wirksam umgesetzt.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Northstar Strategy"
@@ -16045,9 +16045,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Klar analysiert. Wirksam umgesetzt.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Northstar Strategy"
@@ -16152,9 +16152,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Fokus. Mehr Wirkung.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Impact Lab Advisory"
@@ -16518,9 +16518,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Fokus. Mehr Wirkung.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Impact Lab Advisory"
@@ -16789,9 +16789,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Fokus. Mehr Wirkung.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Impact Lab Advisory"
@@ -16943,9 +16943,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Fokus. Mehr Wirkung.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Impact Lab Advisory"
@@ -17207,9 +17207,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Fokus. Mehr Wirkung.",
-              "headline": "Strategie, die im Alltag funktioniert und Wachstum messbar macht",
-              "subline": "Wir helfen Unternehmen, klare Entscheidungen zu treffen, Prozesse zu schärfen und Teams auf Umsetzung auszurichten.",
-              "description": "Unser Ansatz verbindet Analyse, Erfahrung und pragmatische Begleitung, damit aus guten Ideen belastbare Ergebnisse werden.",
+              "headline": "Strategie, die im Alltag funktioniert",
+              "subline": "Klare Entscheidungen, bessere Prozesse und Teams in Umsetzung.",
+              "description": "Analyse, Erfahrung und Pragmatismus für belastbare Ergebnisse.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Impact Lab Advisory"
@@ -17316,9 +17316,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Medizinische Betreuung mit Ruhe und Erfahrung",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Praxis am Park"
@@ -17621,9 +17621,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Medizinische Betreuung mit Ruhe und Erfahrung",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Praxis am Park"
@@ -17909,9 +17909,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Medizinische Betreuung mit Ruhe und Erfahrung",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Praxis am Park"
@@ -18063,9 +18063,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Medizinische Betreuung mit Ruhe und Erfahrung",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Praxis am Park"
@@ -18302,9 +18302,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Medizinische Betreuung mit Ruhe und Erfahrung",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Praxis am Park"
@@ -18409,9 +18409,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Ruhig erklärt. Sorgfältig behandelt.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Medicum Studio"
@@ -18736,9 +18736,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Ruhig erklärt. Sorgfältig behandelt.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Medicum Studio"
@@ -19024,9 +19024,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Ruhig erklärt. Sorgfältig behandelt.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Medicum Studio"
@@ -19178,9 +19178,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Ruhig erklärt. Sorgfältig behandelt.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Medicum Studio"
@@ -19440,9 +19440,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Ruhig erklärt. Sorgfältig behandelt.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Medicum Studio"
@@ -19547,9 +19547,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Klarheit. Mehr Vertrauen.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Care Forward Praxis"
@@ -19880,9 +19880,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Klarheit. Mehr Vertrauen.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Care Forward Praxis"
@@ -20168,9 +20168,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Klarheit. Mehr Vertrauen.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Care Forward Praxis"
@@ -20322,9 +20322,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Klarheit. Mehr Vertrauen.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Care Forward Praxis"
@@ -20561,9 +20561,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Klarheit. Mehr Vertrauen.",
-              "headline": "Medizinische Betreuung, die zuhört, erklärt und begleitet",
-              "subline": "Wir verbinden moderne Diagnostik mit persönlicher Beratung und klaren nächsten Schritten.",
-              "description": "Unser Team nimmt sich Zeit für deine Anliegen und schafft eine Praxisatmosphäre, in der Vertrauen selbstverständlich ist.",
+              "headline": "Medizinische Betreuung, die zuhört",
+              "subline": "Moderne Diagnostik, persönliche Beratung und klare nächste Schritte.",
+              "description": "Wir nehmen uns Zeit und schaffen Vertrauen vom ersten Gespräch an.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Care Forward Praxis"
@@ -20670,9 +20670,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Training mit Erfahrung und persönlicher Nähe",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vital Studio"
@@ -21039,9 +21039,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Training mit Erfahrung und persönlicher Nähe",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vital Studio"
@@ -21322,9 +21322,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Training mit Erfahrung und persönlicher Nähe",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517963628607-235ccdd5476c?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vital Studio"
@@ -21476,9 +21476,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Training mit Erfahrung und persönlicher Nähe",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vital Studio"
@@ -21715,9 +21715,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Training mit Erfahrung und persönlicher Nähe",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vital Studio"
@@ -21822,9 +21822,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Smart trainieren. Spürbar stärker werden.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Motion Club"
@@ -22213,9 +22213,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Smart trainieren. Spürbar stärker werden.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Motion Club"
@@ -22496,9 +22496,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Smart trainieren. Spürbar stärker werden.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517963628607-235ccdd5476c?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Motion Club"
@@ -22650,9 +22650,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Smart trainieren. Spürbar stärker werden.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Motion Club"
@@ -22912,9 +22912,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Smart trainieren. Spürbar stärker werden.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Motion Club"
@@ -23019,9 +23019,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Energie. Mehr Fortschritt.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Iron Flow Gym"
@@ -23416,9 +23416,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Energie. Mehr Fortschritt.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Iron Flow Gym"
@@ -23699,9 +23699,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Energie. Mehr Fortschritt.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517963628607-235ccdd5476c?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Iron Flow Gym"
@@ -23853,9 +23853,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Energie. Mehr Fortschritt.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Iron Flow Gym"
@@ -24092,9 +24092,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Energie. Mehr Fortschritt.",
-              "headline": "Training, das zu deinem Leben passt und dich spürbar weiterbringt",
-              "subline": "Wir kombinieren starke Kurse, persönliche Betreuung und klare Trainingspläne für echte Fortschritte.",
-              "description": "Bei uns trainierst du in einer Atmosphäre, die motiviert, ohne zu überfordern.",
+              "headline": "Training, das zu deinem Leben passt",
+              "subline": "Starke Kurse, persönliche Betreuung und klare Trainingspläne.",
+              "description": "Eine motivierende Atmosphäre für Fortschritt ohne Überforderung.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Iron Flow Gym"
@@ -24201,9 +24201,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Hochzeiten mit Herz und Erfahrung",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Atelier Amour"
@@ -24486,9 +24486,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Hochzeiten mit Herz und Erfahrung",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Atelier Amour"
@@ -24707,9 +24707,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Hochzeiten mit Herz und Erfahrung",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Atelier Amour"
@@ -24861,9 +24861,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Hochzeiten mit Herz und Erfahrung",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Atelier Amour"
@@ -25129,9 +25129,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Hochzeiten mit Herz und Erfahrung",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Atelier Amour"
@@ -25248,9 +25248,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Modern geplant. Persönlich gefeiert.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Ever After Studio"
@@ -25555,9 +25555,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Modern geplant. Persönlich gefeiert.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Ever After Studio"
@@ -25776,9 +25776,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Modern geplant. Persönlich gefeiert.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Ever After Studio"
@@ -25930,9 +25930,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Modern geplant. Persönlich gefeiert.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Ever After Studio"
@@ -26221,9 +26221,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Modern geplant. Persönlich gefeiert.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Ever After Studio"
@@ -26340,9 +26340,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Liebe. Mehr Wow.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vow & Wow Events"
@@ -26653,9 +26653,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Liebe. Mehr Wow.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vow & Wow Events"
@@ -26874,9 +26874,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Liebe. Mehr Wow.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vow & Wow Events"
@@ -27028,9 +27028,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Liebe. Mehr Wow.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vow & Wow Events"
@@ -27296,9 +27296,9 @@ export const DEMO_CONTENT_PLAN = {
             "type": "hero",
             "data": {
               "eyebrow": "Mehr Liebe. Mehr Wow.",
-              "headline": "Hochzeiten, die sich persönlich, leicht und unvergesslich anfühlen",
-              "subline": "Wir planen, gestalten und begleiten euren Tag mit Ruhe, Stil und einem Blick für die Details, die euch ausmachen.",
-              "description": "Vom ersten Konzept bis zum letzten Tanz sorgen wir dafür, dass ihr feiern könnt, statt zu organisieren.",
+              "headline": "Hochzeiten, die leicht und persönlich wirken",
+              "subline": "Planung mit Ruhe, Stil und Blick für eure wichtigsten Details.",
+              "description": "Vom Konzept bis zum letzten Tanz könnt ihr feiern statt organisieren.",
               "backgroundImage": {
                 "image": "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1600&q=80",
                 "alt": "Vow & Wow Events"
