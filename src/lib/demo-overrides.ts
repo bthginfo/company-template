@@ -4,7 +4,9 @@ import { SiteContentSchema } from './types';
 import type { TemplateStyle } from './branch-config';
 import { normalizeSiteContentCmsV2 } from './cms-v2-hydration';
 
-const KEY = (k: TemplateKey) => `bth.demo.override.${k}`;
+const OVERRIDE_VERSION = 'v2';
+const KEY = (k: TemplateKey) => `bth.demo.override.${OVERRIDE_VERSION}.${k}`;
+const LEGACY_KEY = (k: TemplateKey) => `bth.demo.override.${k}`;
 
 function baseFor(k: TemplateKey): SiteContent {
   if (k === 'restaurant' || k === 'salon' || k === 'tradesman' || k === 'hotel' || k === 'tourism') return DEMO_CONTENT[k];
@@ -13,6 +15,7 @@ function baseFor(k: TemplateKey): SiteContent {
 
 export function readOverride(k: TemplateKey): SiteContent | null {
   try {
+    localStorage.removeItem(LEGACY_KEY(k));
     const raw = localStorage.getItem(KEY(k));
     if (!raw) return null;
     return JSON.parse(raw) as SiteContent;
@@ -33,6 +36,7 @@ export function writeOverride(k: TemplateKey, content: SiteContent): void {
 export function clearOverride(k: TemplateKey): void {
   try {
     localStorage.removeItem(KEY(k));
+    localStorage.removeItem(LEGACY_KEY(k));
     window.dispatchEvent(new CustomEvent('bth:override', { detail: { key: k } }));
   } catch {
     /* ignore */
@@ -49,7 +53,7 @@ export function loadForStyle(k: TemplateKey, style: TemplateStyle): SiteContent 
 
 export function ensureDemoCmsV2ForStyle(content: SiteContent, k: TemplateKey, style: TemplateStyle): SiteContent {
   const legacyClone = SiteContentSchema.parse(structuredClone(content));
-  return normalizeSiteContentCmsV2(legacyClone, k, style);
+  return normalizeSiteContentCmsV2(legacyClone, k, style, 'legacy');
 }
 
 export function downloadJson(filename: string, payload: unknown): void {

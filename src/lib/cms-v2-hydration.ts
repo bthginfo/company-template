@@ -124,11 +124,11 @@ function image(url: string, alt = ''): RecordValue {
 
 function button(label: string, href: string): RecordValue {
   const external = href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:');
-  return { label, linkType: external ? 'external' : 'internal', internalPage: external ? '' : href, externalUrl: external ? href : '' };
+  return { label, href, linkType: external ? 'external' : 'internal', internalPage: external ? '' : href, externalUrl: external ? href : '' };
 }
 
 function setMissing(target: RecordValue, key: string, value: unknown): void {
-  if (key in target || !isMeaningful(value)) return;
+  if (isMeaningful(target[key]) || !isMeaningful(value)) return;
   target[key] = value;
 }
 
@@ -431,6 +431,11 @@ function sectionItems(content: SiteContent, template: TemplateKey, type: string,
   if (type === 'testimonials' || type === 'quoteWall' || type === 'testimonialMarquee' || type === 'expertQuotes') return testimonialRows(content);
   if (type === 'statsBand') return numberRows(content, template);
   if (type === 'trainingPlanOverview') return trainingPlanRows(content);
+  if (type === 'trustStrip') return [
+    { title: 'Geprüft', description: 'klare Qualität' },
+    { title: 'Regional', description: 'nah erreichbar' },
+    { title: 'Persönlich', description: 'direkter Kontakt' },
+  ];
   if (type === 'directions' || type === 'topicBand' || type === 'topicCards' || type === 'contactPreview' || type === 'serviceInfo' || type === 'appointmentBooking') return contactRows(content);
   if (type === 'brandLogos' || type === 'labelBand' || type === 'keywordBand' || type === 'marqueeBand') {
     const logos = content.logos ?? [];
@@ -670,6 +675,9 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'headline', firstText(bt.servicesTeaserTitle, 'Kurse und Programme.'));
     setMissing(data, 'rows', services.length ? services : items);
   }
+  if (section.type === 'trustStrip') {
+    setMissing(data, 'items', items);
+  }
   if (section.type === 'videoEmbed') {
     setMissing(data, 'eyebrow', firstText(bt.galleryTeaserEyebrow, 'Video'));
     setMissing(data, 'headline', firstText(bt.galleryTeaserTitle, 'Ein Blick hinter die Kulissen.'));
@@ -682,6 +690,27 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'headline', firstText(bt.galleryTeaserTitle, 'Ausgewählte Arbeiten.'));
     setMissing(data, 'description', firstText(bt.teaserSubtitle, 'Einblicke in abgeschlossene Projekte.'));
     setMissing(data, 'items', items);
+  }
+  if (['experiencePackages', 'amenitiesGrid', 'comparisonTable', 'caseStudyCards', 'insuranceInfo', 'responsePromise', 'lookBook', 'productLine', 'serviceAreaMap', 'venueShowcase', 'impactNumbers'].includes(section.type)) {
+    const isAbout = page === 'about';
+    const isGallery = page === 'gallery';
+    setMissing(data, 'eyebrow', firstText(isGallery ? bt.galleryTeaserEyebrow : isAbout ? bt.aboutTeaserEyebrow : bt.servicesTeaserEyebrow, 'Einblicke'));
+    setMissing(data, 'headline', firstText(isGallery ? bt.galleryTeaserTitle : isAbout ? content.about?.title : bt.servicesTeaserTitle, 'Ausgewählte Details.'));
+    setMissing(data, 'description', firstText(isAbout ? content.about?.body : bt.teaserSubtitle, 'Kompakte Informationen und Beispiele aus unserem Angebot.'));
+    setMissing(data, 'items', items);
+  }
+  if (section.type === 'reservationTeaser' || section.type === 'trialCta' || section.type === 'rsvpForm') {
+    setMissing(data, 'eyebrow', firstText(bt.softCtaEyebrow, 'Anfrage'));
+    setMissing(data, 'headline', firstText(bt.softCtaTitle, 'Bereit für den nächsten Schritt?'));
+    setMissing(data, 'description', firstText(bt.softCtaText, bt.teaserSubtitle, 'Senden Sie uns Ihre Anfrage — wir melden uns persönlich zurück.'));
+    setMissing(data, 'button', button(firstText(bt.softCtaButton, content.hero?.ctaLabel, 'Jetzt anfragen'), firstText(content.hero?.ctaHref, '/kontakt')));
+  }
+  if (section.type === 'seasonalHighlight' || section.type === 'challengeSpotlight') {
+    setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Highlight'));
+    setMissing(data, 'headline', firstText(bt.servicesTeaserTitle, 'Aktuell im Fokus.'));
+    setMissing(data, 'description', firstText(bt.teaserSubtitle, 'Ein besonderer Schwerpunkt aus unserem Angebot.'));
+    setMissing(data, 'image', image(firstText(content.hero?.imageUrl, content.about?.imageUrl, content.gallery?.[0]), firstText(bt.servicesTeaserTitle, content.brand?.name)));
+    setMissing(data, 'button', button(firstText(bt.learnMoreLabel, 'Mehr erfahren'), firstText(bt.learnMoreHref, '/leistungen')));
   }
   if (section.type === 'badgeWall') {
     setMissing(data, 'eyebrow', 'Auszeichnungen');
@@ -698,6 +727,15 @@ function fillSectionData(content: SiteContent, template: TemplateKey, style: Tem
     setMissing(data, 'description', firstText(content.about?.body, 'Mit Leidenschaft und regionalen Zutaten schaffen wir besondere Gerichte — ehrlich, saisonal und mit Liebe zum Detail.'));
     setMissing(data, 'image', image(firstText(content.about?.imageUrl, heroImage), 'Küchenchef'));
   }
+  if (contractedFields.has('eyebrow')) setMissing(data, 'eyebrow', firstText(bt.servicesTeaserEyebrow, 'Info'));
+  if (contractedFields.has('headline')) setMissing(data, 'headline', firstText(bt.servicesTeaserTitle, content.hero?.title, content.brand?.name));
+  if (contractedFields.has('description')) setMissing(data, 'description', firstText(bt.teaserSubtitle, content.hero?.body, content.about?.body));
+  if (contractedFields.has('subline')) setMissing(data, 'subline', firstText(bt.teaserSubtitle, content.hero?.subtitle));
+  if (contractedFields.has('items')) setMissing(data, 'items', items);
+  if (contractedFields.has('button')) setMissing(data, 'button', button(firstText(bt.softCtaButton, content.hero?.ctaLabel, 'Mehr erfahren'), firstText(content.hero?.ctaHref, '/kontakt')));
+  if (contractedFields.has('locations')) setMissing(data, 'locations', [{ name: content.brand?.name, address: text(contact.address), city: text(contact.city), phone: text(contact.phone), email: text(contact.email), mapsUrl: text(contact.mapsUrl) }]);
+  if (contractedFields.has('googleMapsUrl')) setMissing(data, 'googleMapsUrl', firstText(contact.mapsUrl, 'https://maps.google.com/?q=Musterstraße%201'));
+  if (contractedFields.has('additionalFormFields')) setMissing(data, 'additionalFormFields', [{ label: 'Wunschtermin', type: 'text' }]);
 
   if (contractedFields.has('backgroundImage') && !imageValue(data.backgroundImage) && heroImage) data.backgroundImage = image(heroImage);
   if (contractedFields.has('image') && !imageValue(data.image) && heroImage) data.image = image(heroImage);

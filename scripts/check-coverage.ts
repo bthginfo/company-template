@@ -387,6 +387,9 @@ if (!TEMPLATE_APP_SOURCE.includes('content.cmsV2?.enabled === true')) {
 if (TEMPLATE_APP_SOURCE.includes('cms:v2-frontend') || TEMPLATE_APP_SOURCE.includes("params.get('cmsV2')")) {
   note('[cms-v2-frontend-flag] Core frontend V2 gate must not use query/localStorage QA gates; cmsV2.enabled is the only switch.');
 }
+if (!TEMPLATE_APP_SOURCE.includes("renderCoreV2Section('home', 'restaurant'") || !TEMPLATE_APP_SOURCE.includes("renderCoreV2Section('home', 'hotel'")) {
+  note('[cms-v2-home-renderer] Restaurant and hotel homepage renderers must delegate unknown section types to the shared Core V2 renderer instead of returning null.');
+}
 const restaurantV2RendererSetMatch = TEMPLATE_APP_SOURCE.match(/RESTAURANT_V2_RENDERED_SECTION_TYPES\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
 if (!restaurantV2RendererSetMatch) {
   note('[cms-v2-restaurant-renderer] Restaurant V2 renderer must declare RESTAURANT_V2_RENDERED_SECTION_TYPES.');

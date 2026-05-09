@@ -2366,9 +2366,9 @@ function TemplatePreview() {
   const hasOverride = !!readOverride(tplKey as TemplateKey);
 
   const themedContent = useMemo(() => {
-    const hydrated = ensureDemoCmsV2ForStyle(content, tplKey as TemplateKey, style);
-    const base = { ...hydrated, brand: { ...hydrated.brand, primaryColor: preset.primary } };
-    return applyStyleOverrides(base, tplKey, style);
+    const styled = applyStyleOverrides(content, tplKey, style);
+    const themed = { ...styled, brand: { ...styled.brand, primaryColor: preset.primary } };
+    return ensureDemoCmsV2ForStyle(themed, tplKey as TemplateKey, style);
   }, [content, preset, style, tplKey]);
 
   useEffect(() => { applyTheme(preset); }, [preset]);

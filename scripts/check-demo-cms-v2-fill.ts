@@ -90,6 +90,8 @@ function simulateStaleV2(content: SiteContent): SiteContent {
 
 if (errors.length) {
   console.warn(errors.join('\n'));
+  console.error(`CMS V2 demo fill audit failed — ${errors.length} empty-field warnings across ${TEMPLATES.length * STYLES.length} combos × ${PAGES.length} pages.`);
+  process.exit(1);
 }
 
 console.log(`CMS V2 demo fill audit done — ${errors.length} empty-field warnings across ${TEMPLATES.length * STYLES.length} combos × ${PAGES.length} pages.`);

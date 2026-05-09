@@ -1173,7 +1173,7 @@ function renderRestaurantV2HomeSection(section: ModularSectionV2, content: SiteC
     case 'ctaBand':
       return <CtaBand variant="restaurant" content={sectionContent} />;
     default:
-      return null;
+      return renderCoreV2Section('home', 'restaurant', section, content, style);
   }
 }
 
@@ -1879,7 +1879,7 @@ function renderHotelV2HomeSection(section: ModularSectionV2, content: SiteConten
     case 'ctaBand':
       return <CtaBand variant="hotel" content={sectionContent} />;
     default:
-      return null;
+      return renderCoreV2Section('home', 'hotel', section, content, style);
   }
 }
 
