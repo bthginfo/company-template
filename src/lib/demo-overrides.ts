@@ -3,6 +3,7 @@ import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content';
 import { SiteContentSchema } from './types';
 import type { TemplateStyle } from './branch-config';
 import { normalizeSiteContentCmsV2 } from './cms-v2-hydration';
+import { applyDemoContentPlan } from './demo-content-plan';
 
 const OVERRIDE_VERSION = 'v2';
 const KEY = (k: TemplateKey) => `bth.demo.override.${OVERRIDE_VERSION}.${k}`;
@@ -53,7 +54,7 @@ export function loadForStyle(k: TemplateKey, style: TemplateStyle): SiteContent 
 
 export function ensureDemoCmsV2ForStyle(content: SiteContent, k: TemplateKey, style: TemplateStyle): SiteContent {
   const legacyClone = SiteContentSchema.parse(structuredClone(content));
-  return normalizeSiteContentCmsV2(legacyClone, k, style, 'legacy');
+  return applyDemoContentPlan(normalizeSiteContentCmsV2(legacyClone, k, style, 'legacy'), k, style);
 }
 
 export function downloadJson(filename: string, payload: unknown): void {
