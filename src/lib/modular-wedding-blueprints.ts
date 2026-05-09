@@ -1,6 +1,6 @@
-/**
- * Hochzeit (wedding) � spec-modular v1.
- * Classic / Modern / Bold � style-differentiated section layouts.
+﻿/**
+ * Hochzeit (wedding) – spec-modular v1.
+ * Classic / Modern / Bold – style-differentiated section layouts.
  */
 
 import type { TemplateStyle } from './branch-config.js';
@@ -135,7 +135,7 @@ export const WEDDING_SECTION_LABEL_DE: Record<string, string> = {
   processCards: 'Ablauf',
   team: 'Trauzeugen & Co.',
   galleryPreview: 'Galerie-Vorschau',
-  testimonials: 'G�stebuch',
+  testimonials: 'Gästebuch',
   testimonialMarquee: 'Stimmenband',
   newsTeaser: 'Neuigkeiten',
   contactPreview: 'RSVP',

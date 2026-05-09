@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Praxen — spec-modular v1 (`docs/spec-praxen.md`).
  */
 
@@ -230,7 +230,7 @@ function mergeMedicalServicesIntoLegacy(content: SiteContent, sections: ModularS
       case 'highlightsBar':
       case 'storyFacts':
       case 'marqueeBand':      case 'videoEmbed': case 'comparisonTable': case 'insuranceInfo':
-      case 'trustStrip': case 'badgeWall':        // V2-only sections � rendered directly from section.data by ExtraBranchTemplate
+      case 'trustStrip': case 'badgeWall':        // V2-only sections – rendered directly from section.data by ExtraBranchTemplate
         break;
       default:
         break;

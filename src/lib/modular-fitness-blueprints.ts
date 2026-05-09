@@ -1,6 +1,6 @@
-/**
- * Fitness � spec-modular v1 (`docs/spec-fitness.md`).
- * Classic / Modern / Bold � style-differentiated section layouts.
+﻿/**
+ * Fitness – spec-modular v1 (`docs/spec-fitness.md`).
+ * Classic / Modern / Bold – style-differentiated section layouts.
  */
 
 import type { TemplateStyle } from './branch-config.js';

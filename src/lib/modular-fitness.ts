@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Fitness — spec-modular v1 (`docs/spec-fitness.md`).
  */
 
@@ -303,7 +303,7 @@ function mergeFitnessServicesIntoLegacy(content: SiteContent, sections: ModularS
       case 'highlightsBar':
       case 'storyFacts':
       case 'marqueeBand':      case 'videoEmbed': case 'trialCta': case 'seasonalHighlight':
-      case 'challengeSpotlight': case 'comparisonTable': case 'trustStrip': case 'badgeWall':        // V2-only sections � rendered directly from section.data by ExtraBranchTemplate
+      case 'challengeSpotlight': case 'comparisonTable': case 'trustStrip': case 'badgeWall':        // V2-only sections – rendered directly from section.data by ExtraBranchTemplate
         break;
       default:
         break;

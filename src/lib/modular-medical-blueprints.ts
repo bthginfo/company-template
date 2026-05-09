@@ -1,6 +1,6 @@
-/**
- * Praxen (medical) � spec-modular v1 (`docs/spec-praxen.md`).
- * Classic / Modern / Bold � style-differentiated section layouts.
+﻿/**
+ * Praxen (medical) – spec-modular v1 (`docs/spec-praxen.md`).
+ * Classic / Modern / Bold – style-differentiated section layouts.
  */
 
 import type { TemplateStyle } from './branch-config.js';
@@ -138,10 +138,10 @@ export const MEDICAL_SECTION_LABEL_DE: Record<string, string> = {
   storySplit: 'Praxis-Statement',
   serviceCards: 'Leistungen',
   serviceInfo: 'Service & Info',
-  team: '�rzt:innen & Team',
+  team: 'Ärzt:innen & Team',
   trainers: 'Team',
   appointmentBooking: 'Online-Termin',
-  galleryPreview: 'Praxis & R�ume',
+  galleryPreview: 'Praxis & Räume',
   testimonials: 'Patient:innenstimmen',
   testimonialMarquee: 'Stimmenband',
   newsTeaser: 'News',

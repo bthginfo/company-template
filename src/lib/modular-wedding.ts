@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Hochzeit (wedding) — spec-modular v1.
  * Mirrors the consulting hydration pattern with wedding-specific labels.
  */
@@ -222,7 +222,7 @@ function mergeWeddingServicesIntoLegacy(content: SiteContent, sections: ModularS
       case 'highlightsBar':
       case 'storyFacts':
       case 'marqueeBand':      case 'videoEmbed': case 'rsvpForm': case 'venueShowcase':
-      case 'trustStrip': case 'badgeWall':        // V2-only sections � rendered directly from section.data by ExtraBranchTemplate
+      case 'trustStrip': case 'badgeWall':        // V2-only sections – rendered directly from section.data by ExtraBranchTemplate
         break;
       default:
         break;

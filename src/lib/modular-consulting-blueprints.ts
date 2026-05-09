@@ -1,6 +1,6 @@
-/**
- * Beratung (consulting) � spec-modular v1 (`docs/spec-beratung.md`).
- * Classic / Modern / Bold � style-differentiated section layouts.
+﻿/**
+ * Beratung (consulting) – spec-modular v1 (`docs/spec-beratung.md`).
+ * Classic / Modern / Bold – style-differentiated section layouts.
  */
 
 import type { TemplateStyle } from './branch-config.js';

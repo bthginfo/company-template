@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation, useParams } from 'react-router-dom';
 import type { ModularSectionV2, SiteContent, PageId } from '@/lib/types';
 import { SplitText, AnimatedCounter, Accordion } from '@/components/fx';
@@ -754,7 +754,7 @@ export function ExtraV2Page({ content, branch, page, style, eyebrow }: { content
             return fImg ? <Section key={section.id} spacing="lg"><img src={fImg} alt="" className="w-full max-h-[720px] object-cover rounded-2xl" loading="lazy" /></Section> : null;
           }
           case 'storySplit':
-            return <ExtraV2Cards key={section.id} section={{ ...section, type: 'storyTeaser' }} title="�ber uns." />;
+            return <ExtraV2Cards key={section.id} section={{ ...section, type: 'storyTeaser' }} title="Über uns." />;
           case 'brandLogos': {
             const labels = patched.logos ?? [];
             return labels.length ? <section key={section.id} className="py-14 border-y border-line"><div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">{labels.map((entry) => extraLogoBandIsImage(entry) ? <img key={entry} src={entry} alt="" className="h-9 md:h-11 w-auto max-w-[140px] object-contain mix-blend-multiply" loading="lazy" /> : <span key={entry} className="font-display text-2xl tracking-wide">{entry}</span>)}</div></section> : null;
@@ -993,7 +993,7 @@ export function ExtraCustomV2PageRoute({ content, branch, style, eyebrow }: { co
           case 'newsTeaser':
             return <NewsPreview key={section.id} templateVariant={branch} content={patched} eyebrow={effectiveBranchText(branch, patched).newsEyebrow} title={effectiveBranchText(branch, patched).newsTitle} />;
           case 'faq':
-            return patched.faq?.length ? <Section key={section.id} title="H�ufige Fragen."><Accordion items={patched.faq} /></Section> : null;
+            return patched.faq?.length ? <Section key={section.id} title="Häufige Fragen."><Accordion items={patched.faq} /></Section> : null;
           case 'cta':
             return <ExtraHomeSoftCta key={section.id} branch={branch} content={patched} layoutStyle={style} />;
           case 'contactDetails':
@@ -1010,7 +1010,7 @@ export function ExtraCustomV2PageRoute({ content, branch, style, eyebrow }: { co
             return fImg ? <Section key={section.id} spacing="lg"><img src={fImg} alt="" className="w-full max-h-[720px] object-cover rounded-2xl" loading="lazy" /></Section> : null;
           }
           case 'storySplit':
-            return <ExtraV2Cards key={section.id} section={{ ...section, type: 'storyTeaser' }} title="�ber uns." />;
+            return <ExtraV2Cards key={section.id} section={{ ...section, type: 'storyTeaser' }} title="Über uns." />;
           case 'brandLogos': {
             const labels = patched.logos ?? [];
             return labels.length ? <section key={section.id} className="py-14 border-y border-line"><div className="container-x flex flex-wrap items-center justify-between gap-y-6 gap-x-10 opacity-70">{labels.map((entry) => extraLogoBandIsImage(entry) ? <img key={entry} src={entry} alt="" className="h-9 md:h-11 w-auto max-w-[140px] object-contain mix-blend-multiply" loading="lazy" /> : <span key={entry} className="font-display text-2xl tracking-wide">{entry}</span>)}</div></section> : null;
@@ -1445,7 +1445,7 @@ export function ExtraHeader({ content, style, branch }: { content: SiteContent; 
           <button
             onClick={() => setMobile(true)}
             className="md:hidden p-2 rounded-full border border-line"
-            aria-label="Men� �ffnen"
+            aria-label="Menü öffnen"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
@@ -1457,7 +1457,7 @@ export function ExtraHeader({ content, style, branch }: { content: SiteContent; 
         <div className="fixed inset-0 z-[60] bg-[var(--bg-color)]">
           <div className="container-x py-5 flex justify-between items-center">
             <span className="font-display text-2xl">{content.brand.name}</span>
-            <button onClick={() => setMobile(false)} className="p-2" aria-label="Schlie�en">
+            <button onClick={() => setMobile(false)} className="p-2" aria-label="Schließen">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
               </svg>
@@ -1494,7 +1494,7 @@ export function ExtraFooter({ content, style }: { content: SiteContent; style: E
             <p className="font-mono md:text-right text-white/70">{content.contact.phone}</p>
           </div>
           <p className="mt-16 pt-8 border-t border-white/20 text-xs text-white/40">
-            � {new Date().getFullYear()} {content.brand.name}
+            – {new Date().getFullYear()} {content.brand.name}
           </p>
         </div>
       </footer>
@@ -1506,7 +1506,7 @@ export function ExtraFooter({ content, style }: { content: SiteContent; style: E
         <p className="font-display text-3xl">{content.brand.name}</p>
         <p className="text-sm text-white/60 mt-2">{content.brand.tagline}</p>
         <p className="mt-10 pt-6 border-t border-white/10 text-xs text-white/50">
-          � {new Date().getFullYear()} {content.brand.name}
+          – {new Date().getFullYear()} {content.brand.name}
         </p>
       </div>
     </footer>
@@ -1516,22 +1516,22 @@ export function ExtraFooter({ content, style }: { content: SiteContent; style: E
 type TeamMember = { n: string; r: string; img: string; bio: string };
 const BRANCH_TEAM_DEFAULT: Record<ExtraBranchKey, TeamMember[]> = {
   consulting: [
-    { n: 'Dr. Klaus Hofer',  r: 'Senior Partner � Strategie',  img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: '�ber 25 Jahre Beratung im Mittelstand. Schwerpunkt Industrie und Familienunternehmen.' },
-    { n: 'Lena Weiss',       r: 'Partnerin � Steuer & Recht',  img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Steuerberaterin und Anw�ltin. Zuvor zehn Jahre in einer Big-Four-Kanzlei.' },
-    { n: 'Marcus Berg',      r: 'Senior Manager � M&A',        img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'Begleitet �bernahmen und Nachfolgen. Drei Jahre London, f�nf Jahre Wien.' },
+    { n: 'Dr. Klaus Hofer',  r: 'Senior Partner – Strategie',  img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80', bio: 'Über 25 Jahre Beratung im Mittelstand. Schwerpunkt Industrie und Familienunternehmen.' },
+    { n: 'Lena Weiss',       r: 'Partnerin – Steuer & Recht',  img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Steuerberaterin und Anwältin. Zuvor zehn Jahre in einer Big-Four-Kanzlei.' },
+    { n: 'Marcus Berg',      r: 'Senior Manager – M&A',        img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'Begleitet Übernahmen und Nachfolgen. Drei Jahre London, fünf Jahre Wien.' },
   ],
   fitness: [
-    { n: 'Sarah Berg',  r: 'Studio-Leitung � Vinyasa',   img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
-    { n: 'Mira Klein',  r: 'Yin & Mindful Movement',     img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allg�u.' },
+    { n: 'Sarah Berg',  r: 'Studio-Leitung – Vinyasa',   img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: '12 Jahre Yogalehrerin in Berlin und Lissabon. RYT 500 + somatische Ausbildung.' },
+    { n: 'Mira Klein',  r: 'Yin & Mindful Movement',     img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80', bio: 'Schwerpunkt Faszien-Arbeit und Atem. Begleitet auch unsere Retreats im Allgäu.' },
     { n: 'Jonas Renz',  r: 'Reformer Pilates',           img: 'https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?auto=format&fit=crop&w=600&q=80', bio: 'Physiotherapeut mit Pilates-Spezialisierung. Trainiert Sportler:innen und Reha-Klient:innen.' },
   ],
   medical: [
-    { n: 'Dr. Anna Lindner', r: 'Praxisinhaberin � Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80', bio: 'Studium in Innsbruck und Z�rich. Ganzheitlicher Ansatz mit Zeit f�r Gespr�che.' },
-    { n: 'Dr. Felix Bauer',  r: 'Internist � Diagnostik',          img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80', bio: 'Zehn Jahre Universit�tsklinik. Schwerpunkt internistische Vorsorge.' },
-    { n: 'Maria Holzer',     r: 'Praxisleitung � MTA',            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80', bio: 'Koordiniert Termine und Abl�ufe. Erste Ansprechpartnerin am Empfang.' },
+    { n: 'Dr. Anna Lindner', r: 'Praxisinhaberin – Allgemeinmedizin', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80', bio: 'Studium in Innsbruck und Zürich. Ganzheitlicher Ansatz mit Zeit f–r Gespräche.' },
+    { n: 'Dr. Felix Bauer',  r: 'Internist – Diagnostik',          img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80', bio: 'Zehn Jahre Universitätsklinik. Schwerpunkt internistische Vorsorge.' },
+    { n: 'Maria Holzer',     r: 'Praxisleitung – MTA',            img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=600&q=80', bio: 'Koordiniert Termine und Abläufe. Erste Ansprechpartnerin am Empfang.' },
   ],
   wedding: [
-    { n: 'Sophie', r: 'Trauzeugin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: 'Beste Freundin seit der Schulzeit. Zust�ndig f�r Taschent�cher und Tanzeinlagen.' },
+    { n: 'Sophie', r: 'Trauzeugin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80', bio: 'Beste Freundin seit der Schulzeit. Zuständig f–r Taschentücher und Tanzeinlagen.' },
     { n: 'Jan', r: 'Trauzeuge', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80', bio: 'WG-Kumpel, Reisepartner und seit 15 Jahren mit dabei.' },
   ],
 };

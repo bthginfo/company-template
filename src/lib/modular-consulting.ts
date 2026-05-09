@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Beratung — spec-modular v1 (`docs/spec-beratung.md`).
  */
 
@@ -233,7 +233,7 @@ function mergeConsultingServicesIntoLegacy(content: SiteContent, sections: Modul
       case 'highlightsBar':
       case 'storyFacts':
       case 'marqueeBand':      case 'videoEmbed': case 'caseStudyCards': case 'comparisonTable':
-      case 'impactNumbers': case 'trustStrip': case 'badgeWall':        // V2-only sections � rendered directly from section.data by ExtraBranchTemplate
+      case 'impactNumbers': case 'trustStrip': case 'badgeWall':        // V2-only sections – rendered directly from section.data by ExtraBranchTemplate
         break;
       default:
         break;
