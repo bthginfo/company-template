@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Seo from '@/components/Seo';
+import { BRANCH_CONFIGS } from '@/lib/branch-config';
+import type { TemplateStyle } from '@/lib/tenant';
+import type { TemplateKey } from '@/lib/types';
 
 type ProspectStatus = 'neu' | 'angefragt' | 'reminder' | 'angenommen' | 'abgelehnt';
 type MailKind = 'initial' | 'reminder';
-type TemplateKey = 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism' | 'consulting' | 'medical' | 'fitness';
-type TemplateStyle = 'classic' | 'modern' | 'bold';
 
 type Prospect = {
   id: string;
@@ -51,16 +52,7 @@ type CrmTab = 'prospects' | 'tenants';
 
 type ProvJsonMode = 'file' | 'paste';
 
-const TEMPLATE_KEYS: readonly TemplateKey[] = [
-  'restaurant',
-  'salon',
-  'tradesman',
-  'hotel',
-  'tourism',
-  'consulting',
-  'medical',
-  'fitness',
-];
+const TEMPLATE_KEYS = Object.keys(BRANCH_CONFIGS) as TemplateKey[];
 const STYLE_KEYS: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
 
 /** Empty trimmed string → no import; invalid JSON → error. */
@@ -1117,14 +1109,9 @@ export default function CrmApp() {
                   onChange={(e) => setProvTemplate(e.target.value as TemplateKey)}
                   className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
                 >
-                  <option value="restaurant">restaurant</option>
-                  <option value="salon">salon</option>
-                  <option value="tradesman">tradesman</option>
-                  <option value="hotel">hotel</option>
-                  <option value="tourism">tourism</option>
-                  <option value="consulting">consulting</option>
-                  <option value="medical">medical</option>
-                  <option value="fitness">fitness</option>
+                  {TEMPLATE_KEYS.map((template) => (
+                    <option key={template} value={template}>{template}</option>
+                  ))}
                 </select>
               </div>
               <div>

@@ -24,10 +24,10 @@ import { BRANCH_TEXT_DEFAULTS } from '../src/lib/branch-text-defaults';
 import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from '../src/lib/section-defaults';
 import { FAQ_DEFAULTS } from '../src/lib/faq-defaults';
 
-const ALL = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
+const ALL = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness', 'wedding'] as const;
 type T = typeof ALL[number];
 
-function buildExtra(key: 'consulting' | 'medical' | 'fitness', name: string): SiteContent {
+function buildExtra(key: 'consulting' | 'medical' | 'fitness' | 'wedding', name: string): SiteContent {
   const base = EXTRA_DEMO_CONTENT[key];
   return SiteContentSchema.parse({
     ...base,
@@ -68,7 +68,7 @@ function buildFull(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'touris
 }
 
 function build(t: T, name: string): SiteContent {
-  if (t === 'consulting' || t === 'medical' || t === 'fitness') return buildExtra(t, name);
+  if (t === 'consulting' || t === 'medical' || t === 'fitness' || t === 'wedding') return buildExtra(t, name);
   return buildFull(t as any, name);
 }
 
@@ -77,7 +77,7 @@ const issues: Issue[] = [];
 function fail(branch: T, msg: string) { issues.push({ branch, severity: 'FAIL', msg }); }
 function warn(branch: T, msg: string) { issues.push({ branch, severity: 'WARN', msg }); }
 
-console.log('=== Provision-defaults smoketest (all 8 templates) ===\n');
+console.log('=== Provision-defaults smoketest (all 9 templates) ===\n');
 
 const NAME = 'Smoketest GmbH';
 
@@ -120,7 +120,7 @@ for (const t of ALL) {
   if (!bt || typeof bt !== 'object' || Object.keys(bt).length === 0) fail(t, `branchText empty`);
 
   // 7. full-only checks
-  const isExtra = t === 'consulting' || t === 'medical' || t === 'fitness';
+  const isExtra = t === 'consulting' || t === 'medical' || t === 'fitness' || t === 'wedding';
   if (!isExtra) {
     if (!Array.isArray(c.services) || c.services.length === 0) fail(t, `services empty`);
     if (!Array.isArray(c.testimonials) || c.testimonials.length === 0) fail(t, `testimonials empty`);
@@ -151,11 +151,11 @@ if (fails.length) {
   process.exit(1);
 }
 
-console.log(`✓ All 8 templates pass the provision-defaults smoketest.`);
+console.log(`✓ All 9 templates pass the provision-defaults smoketest.`);
 
 // --- Bonus: cross-check raw demo content to confirm what the strip actually fixes
 console.log('\n--- Demo-content sources (what the strip removes) ---');
-for (const k of ['consulting', 'medical', 'fitness'] as const) {
+for (const k of ['consulting', 'medical', 'fitness', 'wedding'] as const) {
   const d = (EXTRA_DEMO_CONTENT as any)[k]?.contact ?? {};
   console.log(`  EXTRA_DEMO_CONTENT.${k.padEnd(10)} phone=${JSON.stringify(d.phone || '')}  email=${JSON.stringify(d.email || '')}`);
 }

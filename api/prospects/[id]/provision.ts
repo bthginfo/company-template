@@ -2,15 +2,13 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../../../src/lib/db/client.js';
+import { VALID_STYLES, VALID_TEMPLATES } from '../../../src/lib/provision-core.js';
 import { requireCrm } from '../../_lib/crm-auth.js';
 import { provisionErrorResponse } from '../../_lib/provision-error.js';
 
 export const config = {
   maxDuration: 60,
 };
-
-const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness'] as const;
-const VALID_STYLES = ['classic', 'modern', 'bold'] as const;
 
 const ProvisionSchema = z.object({
   slug: z.string().trim().min(2).max(64),

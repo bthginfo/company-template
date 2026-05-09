@@ -1,6 +1,6 @@
 /**
- * Smoketest: validates branch-config × seed-content for ALL 24 branch×style
- * combinations (8 branches × 3 styles).
+ * Smoketest: validates branch-config × seed-content for ALL 27 branch×style
+ * combinations (9 branches × 3 styles).
  *
  * Checks:
  *   1. branch-config exists for every template
@@ -61,7 +61,7 @@ function buildSeed(t: TemplateKey): SiteContent {
    TESTS
    ═══════════════════════════════════════════════════════════════════ */
 
-console.log('=== Branch-Config × Seed Smoketest (8 branches × 3 styles = 24 combos) ===\n');
+console.log('=== Branch-Config × Seed Smoketest (9 branches × 3 styles = 27 combos) ===\n');
 
 // ──────── Phase 1: Config structural checks (per branch) ─────────
 
@@ -110,9 +110,9 @@ for (const t of VALID_TEMPLATES) {
   console.log(`  [${tag}] ${cfgFails === 0 ? 'OK' : `FAIL (${cfgFails})`}`);
 }
 
-// ──────── Phase 2: Seed + per-style field checks (24 combos) ─────
+// ──────── Phase 2: Seed + per-style field checks (27 combos) ─────
 
-console.log('\n--- Phase 2: Seed content × style visibility (24 combos) ---\n');
+console.log('\n--- Phase 2: Seed content × style visibility (27 combos) ---\n');
 
 for (const t of VALID_TEMPLATES) {
   process.stdout.write(`  [${t.padEnd(11)}] `);
@@ -263,4 +263,4 @@ if (allFails.length) {
   process.exit(1);
 }
 
-console.log(`✓ All 24 branch×style combinations pass. (${allWarns.length} warning(s))`);
+console.log(`✓ All 27 branch×style combinations pass. (${allWarns.length} warning(s))`);
