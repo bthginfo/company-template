@@ -12,3 +12,6 @@ dist
 playwright-report/
 test-results/
 playwright/.cache/
+
+# Standalone clone of the rebuild app (has its own .git); do not add to this monorepo by mistake
+flamingo-rebuild/
