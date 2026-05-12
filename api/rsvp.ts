@@ -10,6 +10,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
 import { getSession, unauthorized } from './_lib/auth.js';
+import { checkRateLimit } from './_lib/rate-limit.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'POST') return handlePost(req, res);
@@ -28,6 +29,9 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
 
   const tenant = await resolveTenant(slug);
   if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
+
+  const rl = checkRateLimit(req, { maxRequests: 5, windowMs: 60_000, endpoint: 'rsvp' });
+  if (!rl.ok) return res.status(429).json({ error: rl.error });
 
   const body = req.body as Record<string, unknown>;
   const guestName = String(body.guestName ?? '').trim();

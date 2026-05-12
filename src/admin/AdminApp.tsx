@@ -8,6 +8,7 @@ import { CollectionsView } from './views/CollectionsView';
 import { MediaView } from './views/MediaView';
 import { SettingsView } from './views/SettingsView';
 import { ThemeView } from './views/ThemeView';
+import { SubmissionsView } from './views/SubmissionsView';
 
 export type AdminSession = {
   role: 'super' | 'tenant';
@@ -69,6 +70,7 @@ export function AdminApp() {
           <SidebarLink to="/admin/collections" label="Sammlungen" icon="◫" />
           <SidebarLink to="/admin/media" label="Medien" icon="🖼" />
           <SidebarLink to="/admin/theme" label="Theme" icon="🎨" />
+          <SidebarLink to="/admin/submissions" label="Posteingang" icon="📬" />
           <SidebarLink to="/admin/settings" label="Einstellungen" icon="⚙" />
         </nav>
 
@@ -93,6 +95,7 @@ export function AdminApp() {
           <Route path="collections/*" element={<CollectionsView session={session} />} />
           <Route path="media" element={<MediaView session={session} />} />
           <Route path="theme" element={<ThemeView session={session} />} />
+          <Route path="submissions" element={<SubmissionsView session={session} />} />
           <Route path="settings" element={<SettingsView session={session} />} />
         </Routes>
       </main>
