@@ -258,6 +258,33 @@ export const weddingRsvp = pgTable('wedding_rsvp', {
 export type WeddingRsvp = typeof weddingRsvp.$inferSelect;
 export type NewWeddingRsvp = typeof weddingRsvp.$inferInsert;
 
+// ─── Generic Form Submissions ─────────────────────────────────────────────────
+
+/**
+ * Stores form submissions for all interactive section types:
+ *  reservation   — Restaurant table booking
+ *  room-inquiry  — Hotel room enquiry
+ *  quote-request — Tradesman quote request
+ *  training-signup — Fitness trial class signup
+ *
+ * Free-form JSONB data keeps the table schema-agnostic; each formType
+ * documents its own data shape in the corresponding API handler.
+ */
+export const formSubmissions = pgTable('form_submissions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id')
+    .references(() => tenants.id, { onDelete: 'cascade' })
+    .notNull(),
+  /** 'reservation' | 'room-inquiry' | 'quote-request' | 'training-signup' */
+  formType: text('form_type').notNull(),
+  /** All form field values as submitted */
+  data: jsonb('data').notNull().$type<Record<string, unknown>>(),
+  submittedAt: timestamp('submitted_at').defaultNow().notNull(),
+});
+
+export type FormSubmission = typeof formSubmissions.$inferSelect;
+export type NewFormSubmission = typeof formSubmissions.$inferInsert;
+
 /** CRM categories used to classify prospects (e.g. Gastro, Handwerk, Praxis). */
 export const prospectCategories = pgTable('prospect_categories', {
   id: uuid('id').defaultRandom().primaryKey(),

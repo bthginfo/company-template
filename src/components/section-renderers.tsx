@@ -8,6 +8,14 @@
  */
 
 import type { JSX } from 'react';
+import {
+  ReservationFormSection,
+  RsvpFormSection,
+  QuoteRequestSection,
+  AppointmentEmbedSection,
+  RoomBookingSection,
+  TrainingSignupSection,
+} from './interactive-sections';
 
 export type SectionData = Record<string, unknown>;
 
@@ -719,6 +727,14 @@ const SECTION_RENDERERS: Record<string, (props: SectionRendererProps) => JSX.Ele
   divider: ({ data }) => <DividerSection data={data} />,
   blogPreview: ({ data, tenantSlug }) => <BlogPreviewSection data={data} tenantSlug={tenantSlug} />,
   collection: ({ data, tenantSlug }) => <CollectionSection data={data} tenantSlug={tenantSlug} />,
+
+  // ─── Phase 6b — Interactive branch-specific modules ────────────────────────
+  reservationForm: ({ data, tenantSlug }) => <ReservationFormSection data={data} tenantSlug={tenantSlug} />,
+  rsvpForm: ({ data, tenantSlug }) => <RsvpFormSection data={data} tenantSlug={tenantSlug} />,
+  quoteRequest: ({ data, tenantSlug }) => <QuoteRequestSection data={data} tenantSlug={tenantSlug} />,
+  appointmentEmbed: ({ data }) => <AppointmentEmbedSection data={data} />,
+  roomBooking: ({ data, tenantSlug }) => <RoomBookingSection data={data} tenantSlug={tenantSlug} />,
+  trainingSignup: ({ data, tenantSlug }) => <TrainingSignupSection data={data} tenantSlug={tenantSlug} />,
 };
 
 export function renderSection(type: string, data: SectionData, tenantSlug: string): JSX.Element | null {

@@ -445,6 +445,135 @@ export const SECTION_TYPES: SectionTypeDef[] = [
       },
     ],
   },
+
+  // ─── Phase 6b — Interactive branch-specific modules ────────────────────────
+
+  {
+    type: 'reservationForm',
+    label: 'Online-Reservierung',
+    group: 'Interaktiv',
+    icon: '🍽️',
+    defaultData: {
+      headline: 'Tisch reservieren',
+      subline: 'Wir freuen uns auf Ihren Besuch!',
+      successMessage: 'Ihre Reservierung wurde entgegengenommen. Wir melden uns zur Bestätigung.',
+    },
+    fields: [
+      { key: 'headline', label: 'Überschrift', type: 'text' },
+      { key: 'subline', label: 'Unterzeile', type: 'text' },
+      { key: 'successMessage', label: 'Bestätigungstext', type: 'text' },
+    ],
+  },
+
+  {
+    type: 'rsvpForm',
+    label: 'Hochzeit RSVP',
+    group: 'Interaktiv',
+    icon: '💍',
+    defaultData: {
+      headline: 'Anmeldung zur Feier',
+      subline: 'Bitte meldet euch bis zum [Datum] an.',
+      menuOptions: 'Fleisch,Vegetarisch,Vegan',
+      successMessage: 'Vielen Dank! Wir freuen uns auf euch.',
+    },
+    fields: [
+      { key: 'headline', label: 'Überschrift', type: 'text' },
+      { key: 'subline', label: 'Unterzeile', type: 'text' },
+      { key: 'menuOptions', label: 'Menüoptionen (kommagetrennt)', type: 'text' },
+      { key: 'successMessage', label: 'Bestätigungstext', type: 'text' },
+    ],
+  },
+
+  {
+    type: 'quoteRequest',
+    label: 'Kostenvoranschlag',
+    group: 'Interaktiv',
+    icon: '🔧',
+    defaultData: {
+      headline: 'Kostenvoranschlag anfordern',
+      subline: 'Wir erstellen Ihnen kostenlos und unverbindlich ein Angebot.',
+      serviceOptions: '',
+      successMessage: 'Ihre Anfrage wurde übermittelt. Wir melden uns in Kürze.',
+    },
+    fields: [
+      { key: 'headline', label: 'Überschrift', type: 'text' },
+      { key: 'subline', label: 'Unterzeile', type: 'text' },
+      { key: 'serviceOptions', label: 'Leistungen (kommagetrennt)', type: 'text' },
+      { key: 'successMessage', label: 'Bestätigungstext', type: 'text' },
+    ],
+  },
+
+  {
+    type: 'appointmentEmbed',
+    label: 'Termin buchen (Kalender)',
+    group: 'Interaktiv',
+    icon: '📅',
+    defaultData: {
+      headline: 'Termin buchen',
+      subline: '',
+      embedUrl: '',
+      provider: 'cal',
+    },
+    fields: [
+      { key: 'headline', label: 'Überschrift', type: 'text' },
+      { key: 'subline', label: 'Unterzeile', type: 'text' },
+      {
+        key: 'embedUrl',
+        label: 'Buchungs-URL (Cal.com / Calendly / TidyCal)',
+        type: 'text',
+      },
+      {
+        key: 'provider',
+        label: 'Anbieter',
+        type: 'select',
+        options: [
+          { value: 'cal', label: 'Cal.com' },
+          { value: 'calendly', label: 'Calendly' },
+          { value: 'tidycal', label: 'TidyCal' },
+          { value: 'savvycal', label: 'SavvyCal' },
+          { value: 'youcanbook', label: 'YouCanBook.me' },
+        ],
+      },
+    ],
+  },
+
+  {
+    type: 'roomBooking',
+    label: 'Zimmeranfrage',
+    group: 'Interaktiv',
+    icon: '🏨',
+    defaultData: {
+      headline: 'Zimmer anfragen',
+      subline: 'Wir senden Ihnen schnellstmöglich ein Angebot.',
+      roomOptions: '',
+      successMessage: 'Ihre Anfrage ist eingegangen. Wir senden Ihnen eine Bestätigung per E-Mail.',
+    },
+    fields: [
+      { key: 'headline', label: 'Überschrift', type: 'text' },
+      { key: 'subline', label: 'Unterzeile', type: 'text' },
+      { key: 'roomOptions', label: 'Zimmertypen (kommagetrennt)', type: 'text' },
+      { key: 'successMessage', label: 'Bestätigungstext', type: 'text' },
+    ],
+  },
+
+  {
+    type: 'trainingSignup',
+    label: 'Probetraining-Anmeldung',
+    group: 'Interaktiv',
+    icon: '💪',
+    defaultData: {
+      headline: 'Probetraining buchen',
+      subline: 'Das erste Training ist kostenlos!',
+      courseOptions: '',
+      successMessage: 'Super! Wir freuen uns auf dich. Du erhältst eine Bestätigung per E-Mail.',
+    },
+    fields: [
+      { key: 'headline', label: 'Überschrift', type: 'text' },
+      { key: 'subline', label: 'Unterzeile', type: 'text' },
+      { key: 'courseOptions', label: 'Kurse / Trainingsarten (kommagetrennt)', type: 'text' },
+      { key: 'successMessage', label: 'Bestätigungstext', type: 'text' },
+    ],
+  },
 ];
 
 /** Fast lookup map by section type string */
