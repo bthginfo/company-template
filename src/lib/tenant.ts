@@ -27,5 +27,5 @@ export function getTemplateStyle(): TemplateStyle {
  * Set VITE_MODE=showcase in the showcase Vercel project.
  */
 export function isShowcaseMode(): boolean {
-  return import.meta.env.VITE_MODE === 'showcase';
+  return import.meta.env.VITE_MODE === 'showcase' || !import.meta.env.VITE_TENANT_SLUG;
 }

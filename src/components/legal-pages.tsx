@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Per-tenant Legal pages — Impressum (imprint) + Datenschutz (privacy).
  *

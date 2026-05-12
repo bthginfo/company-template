@@ -1,27 +1,27 @@
 import type { Page } from '@playwright/test';
 import { defaultsFor } from '../src/lib/provision-core';
-import type { TemplateKey } from '../src/lib/types';
+import type { IndustryKey } from '../src/lib/types';
 import type { TemplateStyle } from '../src/lib/branch-config';
 
-export const TEMPLATES: TemplateKey[] = [
+export const TEMPLATES: IndustryKey[] = [
   'restaurant',
   'salon',
   'tradesman',
   'hotel',
-  'tourism',
-  'consulting',
-  'medical',
+  'cafe',
+  'arzt',
   'fitness',
+  'hochzeit',
 ];
 
 export const STYLES: TemplateStyle[] = ['classic', 'modern', 'bold'];
 
-export function contentFor(tpl: TemplateKey, style: TemplateStyle) {
+export function contentFor(tpl: IndustryKey, style: TemplateStyle) {
   return defaultsFor(tpl, `E2E ${tpl}`, undefined, style);
 }
 
 /** Mock GET /api/content for any slug — matches smoke + subpage tests. */
-export async function mockTenantContent(page: Page, tpl: TemplateKey, style: TemplateStyle) {
+export async function mockTenantContent(page: Page, tpl: IndustryKey, style: TemplateStyle) {
   const content = contentFor(tpl, style);
   await page.route('**/api/content**', async (route) => {
     await route.fulfill({

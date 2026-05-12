@@ -15,7 +15,7 @@ export type ThemePreset = {
   text: string;
 };
 
-export const PRESETS: Record<TemplateKey, ThemePreset[]> = {
+export const PRESETS: Record<string, ThemePreset[]> = {
   restaurant: [
     { id: 'terracotta', label: 'Terracotta',     primary: '#9a3412', primaryFg: '#fff7ed', accent: '#fb923c', surface: '#fffaf5', bg: '#ffffff', text: '#1c1917' },
     { id: 'olive',      label: 'Olive & Cream',  primary: '#3f6212', primaryFg: '#f7fee7', accent: '#a3e635', surface: '#fafaf3', bg: '#ffffff', text: '#1c1c14' },
@@ -80,7 +80,7 @@ export const PRESETS: Record<TemplateKey, ThemePreset[]> = {
     { id: 'mono',       label: 'Mono',           primary: '#111111', primaryFg: '#ffffff', accent: '#111111', surface: '#f5f5f5', bg: '#ffffff', text: '#0a0a0a' },
     { id: 'noir-vio',   label: 'Noir Violet',    primary: '#c084fc', primaryFg: '#1c1126', accent: '#c084fc', surface: '#27272a', bg: '#18181b', text: '#fafafa' },
   ],
-  wedding: [
+  hochzeit: [
     { id: 'blush',      label: 'Blush & Gold',   primary: '#9f7a5a', primaryFg: '#fdf8f4', accent: '#d4a373', surface: '#fdf8f4', bg: '#fffdfb', text: '#2c2218' },
     { id: 'sage',       label: 'Sage Garden',    primary: '#4d7c5a', primaryFg: '#f0fdf4', accent: '#86efac', surface: '#f3faf5', bg: '#ffffff', text: '#1a2e20' },
     { id: 'lavender',   label: 'Lavender Dream', primary: '#7c5cbf', primaryFg: '#f5f3ff', accent: '#c4b5fd', surface: '#f7f5ff', bg: '#ffffff', text: '#1c1530' },
@@ -131,7 +131,7 @@ export function parseCustomThemeRef(themePresetId: string | undefined | null): s
 }
 
 /** Find a preset by id within a template's preset list. Returns null when not found. */
-export function getPreset(template: TemplateKey, id: string | undefined | null): ThemePreset | null {
+export function getPreset(template: string, id: string | undefined | null): ThemePreset | null {
   if (!id || parseCustomThemeRef(id)) return null;
   const list = PRESETS[template];
   if (!list) return null;

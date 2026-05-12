@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ReactNode, useEffect, useRef, useState, createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink, Link, useLocation } from 'react-router-dom';

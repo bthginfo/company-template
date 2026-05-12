@@ -2,11 +2,69 @@
 
 // ─── Core tenant types ────────────────────────────────────────────────────────
 
-export const TEMPLATE_KEYS = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness', 'wedding'] as const;
+export const TEMPLATE_KEYS = ['restaurant', 'salon', 'tradesman', 'hochzeit'] as const;
 export const STYLE_KEYS = ['classic', 'modern', 'bold'] as const;
 
 export type TemplateKey = typeof TEMPLATE_KEYS[number];
 export type TemplateStyle = typeof STYLE_KEYS[number];
+
+// ─── Industry variants ────────────────────────────────────────────────────────
+
+export const INDUSTRY_KEYS = [
+  'restaurant', 'salon', 'tradesman', 'hochzeit',
+  'hotel', 'cafe', 'arzt', 'zahnarzt', 'physio', 'yoga', 'kosmetik', 'spa',
+  'fitness', 'anwalt', 'berater', 'immobilien', 'fotograf', 'event-location',
+] as const;
+export type IndustryKey = typeof INDUSTRY_KEYS[number];
+
+export interface IndustryVariant {
+  base: TemplateKey;
+  label: string;
+  features: string[];
+  navDefaults?: { services?: string; gallery?: string; about?: string; contact?: string };
+}
+
+export const INDUSTRY_VARIANTS: Record<IndustryKey, IndustryVariant> = {
+  restaurant:       { base: 'restaurant', label: 'Restaurant',        features: ['reservierung'] },
+  salon:            { base: 'salon',      label: 'Salon & Friseur',   features: ['booking'] },
+  tradesman:        { base: 'tradesman',  label: 'Handwerk',          features: ['notdienst'] },
+  hochzeit:         { base: 'hochzeit',   label: 'Hochzeit & Events', features: ['rsvp', 'countdown'] },
+  hotel:            { base: 'restaurant', label: 'Hotel & Pension',   features: ['reservierung', 'zimmer'],      navDefaults: { services: 'Zimmer', gallery: 'Impressionen' } },
+  cafe:             { base: 'restaurant', label: 'Café & Bar',        features: ['reservierung', 'happy-hour'],  navDefaults: { services: 'Karte' } },
+  arzt:             { base: 'salon',      label: 'Arzt & Zahnarzt',   features: ['booking', 'leistungen-detail'], navDefaults: { services: 'Leistungen', about: 'Praxis', gallery: 'Praxis-Tour' } },
+  zahnarzt:         { base: 'salon',      label: 'Zahnarzt',          features: ['booking', 'leistungen-detail'], navDefaults: { services: 'Leistungen', about: 'Praxis', gallery: 'Praxis-Tour' } },
+  physio:           { base: 'salon',      label: 'Physiotherapie',    features: ['booking', 'kursplan'],         navDefaults: { services: 'Angebote', about: 'Praxis' } },
+  yoga:             { base: 'salon',      label: 'Yoga & Pilates',    features: ['booking', 'kursplan'],         navDefaults: { services: 'Kurse', about: 'Studio' } },
+  kosmetik:         { base: 'salon',      label: 'Kosmetik',          features: ['booking'] },
+  spa:              { base: 'salon',      label: 'Spa & Wellness',    features: ['booking'],                     navDefaults: { services: 'Angebote', about: 'Unser Spa' } },
+  fitness:          { base: 'salon',      label: 'Fitness & Gym',     features: ['kursplan', 'mitgliedschaft'],  navDefaults: { services: 'Training', about: 'Über uns', gallery: 'Gym-Tour' } },
+  anwalt:           { base: 'tradesman',  label: 'Anwalt & Kanzlei',  features: ['schwerpunkte'],                navDefaults: { services: 'Schwerpunkte', gallery: 'Kanzlei', about: 'Die Kanzlei' } },
+  berater:          { base: 'tradesman',  label: 'Berater',           features: ['schwerpunkte'],                navDefaults: { services: 'Leistungen', about: 'Über mich' } },
+  immobilien:       { base: 'tradesman',  label: 'Immobilien',        features: ['objekte'],                     navDefaults: { services: 'Objekte', gallery: 'Referenzen' } },
+  fotograf:         { base: 'salon',      label: 'Fotograf',          features: ['portfolio'],                   navDefaults: { services: 'Pakete', gallery: 'Portfolio', about: 'Über mich' } },
+  'event-location': { base: 'hochzeit',   label: 'Event-Location',    features: ['raeume'],                      navDefaults: { services: 'Räume' } },
+};
+
+/** Resolve the base TemplateKey for any industry key stored in DB. */
+export function resolveBaseTemplate(industry: string): TemplateKey {
+  const variant = INDUSTRY_VARIANTS[industry as IndustryKey];
+  return variant?.base ?? 'restaurant';
+}
+
+/** Merge industry-default nav labels with CMS overrides. CMS always wins. */
+export function getNavLabels(industry: string | undefined, cmsOverrides?: Record<string, string>) {
+  const defaults = { services: 'Leistungen', gallery: 'Galerie', about: 'Über uns', contact: 'Kontakt' };
+  const variant = industry ? INDUSTRY_VARIANTS[industry as IndustryKey] : undefined;
+  const navDefaults = variant?.navDefaults ?? {};
+  return { ...defaults, ...navDefaults, ...cmsOverrides };
+}
+
+/** Check whether a given industry has a specific feature flag. */
+export function hasFeature(industry: string | undefined, feature: string): boolean {
+  if (!industry) return false;
+  const variant = INDUSTRY_VARIANTS[industry as IndustryKey];
+  return variant?.features.includes(feature) ?? false;
+}
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
 

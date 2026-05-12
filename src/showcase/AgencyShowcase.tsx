@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, Routes, Route, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { PRESETS, applyTheme, type ThemePreset } from '@/lib/theme';
-import type { SiteContent, TemplateKey } from '@/lib/types';
-import { TEMPLATE_KEYS } from '@/lib/types';
-// Demo preview stubs — will be reimplemented in Phase 3 with new template system
-const DEMO_CONTENT: Record<string, any> = Object.fromEntries(TEMPLATE_KEYS.map(k => [k, { brand: { name: k } }]));
+import type { TemplateKey, SiteContent } from '@/lib/types';
+// Demo content is imported from @/lib/demo-content
 const applyStyleOverrides = (c: any, _k: any, _s: any) => c;
 const clearOverride = (_k: any) => {};
-const loadFor = (_k: any) => ({ brand: { name: '' } }) as SiteContent;
+const loadFor = (k: any) => (DEMO_CONTENT[k] || INDUSTRY_DEMO[k] || { brand: { name: k } }) as SiteContent;
 const readOverride = (_k: any): any => null;
 const ensureDemoCmsV2ForStyle = (c: any, _k: any, _s: any) => c;
 const AdminDemo = () => <div className="min-h-screen grid place-items-center"><p className="text-slate-400 text-sm">Admin Demo — coming in v2</p></div>;
@@ -15,15 +13,27 @@ import CrmApp from './CrmApp';
 import { Imprint, Privacy } from './Legal';
 import { BlogIndex, BlogPost, NotFound } from './Blog';
 import Seo from '@/components/Seo';
-// TemplateApp stub — real implementation in Phase 3
-const TemplateApp = ({ variant, style, content }: { variant: string; style: string; content: any }) => (
-  <div className="min-h-screen grid place-items-center bg-slate-50">
-    <div className="text-center p-8">
-      <p className="text-2xl font-semibold text-slate-700 mb-2">{content?.brand?.name || variant}</p>
-      <p className="text-slate-400 text-sm">Template: {variant} / {style} — neue Version in Entwicklung</p>
-    </div>
-  </div>
-);
+// Real template implementations
+import RestaurantTemplate from '@/templates/restaurant/index';
+import SalonTemplate from '@/templates/salon/index';
+import TradesmanTemplate from '@/templates/tradesman/index';
+import HochzeitTemplate from '@/templates/hochzeit/index';
+import { DEMO_CONTENT, INDUSTRY_DEMO } from '@/lib/demo-content';
+import { resolveBaseTemplate } from '@/lib/types';
+
+const TEMPLATE_COMPONENTS: Record<string, any> = {
+  restaurant: RestaurantTemplate,
+  salon: SalonTemplate,
+  tradesman: TradesmanTemplate,
+  hochzeit: HochzeitTemplate,
+};
+
+const TemplateApp = ({ variant, style, content }: { variant: string; style: string; content: any; basePath?: string; eyebrow?: string }) => {
+  const baseKey = resolveBaseTemplate(variant);
+  const Component = TEMPLATE_COMPONENTS[baseKey];
+  if (!Component) return <div className="min-h-screen grid place-items-center"><p>Template nicht gefunden</p></div>;
+  return <Component content={content} style={style} industry={variant} />;
+};
 import {
   Marquee, AnimatedCounter, RotatingWord, ScrollProgress, Accordion, useReveal,
 } from '@/components/fx';
@@ -162,7 +172,7 @@ const STYLE_PREVIEW: Record<'restaurant' | 'hotel' | 'tourism', { classic: strin
 
 /* ─── Extra branches (showcase-only — single-page preview) ───────── */
 type ExtraBranchKey = 'salon' | 'tradesman' | 'consulting' | 'medical' | 'fitness' | 'wedding';
-type BranchKey = TemplateKey | ExtraBranchKey;
+type BranchKey = string;
 const EXTRA_KEYS: ExtraBranchKey[] = ['salon', 'tradesman', 'consulting', 'medical', 'fitness', 'wedding'];
 const isExtraKey = (k: string | undefined): k is ExtraBranchKey =>
   !!k && (EXTRA_KEYS as string[]).includes(k);

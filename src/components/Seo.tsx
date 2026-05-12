@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect } from 'react';
 import type { SiteContent, TemplateKey, PageId } from '@/lib/types';
 

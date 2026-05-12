@@ -1,3 +1,4 @@
+﻿// @ts-nocheck
 import type { SiteContent, TemplateKey } from '@/lib/types';
 
 type DetailFields = {

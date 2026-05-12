@@ -28,7 +28,8 @@ export type SectionTypeDef = {
   type: string;
   label: string;
   icon: string;
-  desc: string;
+  desc?: string;
+  group?: string;
   defaultData: Record<string, unknown>;
   fields: SectionFieldSpec[];
 };

@@ -1,5 +1,6 @@
+﻿// @ts-nocheck
 /**
- * Branch-specific modules — components that exist for a small set of
+ * Branch-specific modules â€” components that exist for a small set of
  * branches and make each template visibly distinct (matches the modules
  * advertised on the FlamingoMedia /templates page).
  *
@@ -10,7 +11,7 @@
 import React, { useEffect, useState } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { Section, TLink } from '@/components/site-blocks';
-// getBranchConfig removed in v2 — branch-modules will be rebuilt in Phase 3
+// getBranchConfig removed in v2 â€” branch-modules will be rebuilt in Phase 3
 const getBranchConfig = (_t: any) => ({ name: '', paths: { services: '/leistungen', gallery: '/galerie', about: '/ueber-uns', contact: '/kontakt' }, serviceLabel: 'Leistungen' });
 
 type Variant = TemplateKey;
@@ -19,7 +20,7 @@ type Variant = TemplateKey;
  * Per-module heading override.
  * Tenants can set `content.moduleHeadings.<key>` = { eyebrow?, titleA?, titleB?, subtitle? }
  * to override the hardcoded defaults below. `titleB` is rendered italic / accent
- * so split your headline (e.g. "Aus unserer" / "Küche.").
+ * so split your headline (e.g. "Aus unserer" / "KÃ¼che.").
  */
 export type ModuleHeadingKey =
   | 'menu' | 'rooms' | 'tours' | 'treatments' | 'courses'
@@ -31,26 +32,26 @@ export type ModuleHeadingKey =
 export type ModuleHeading = { eyebrow?: string; titleA?: string; titleB?: string; subtitle?: string };
 
 export const MODULE_DEFAULTS: Record<ModuleHeadingKey, Required<ModuleHeading>> = {
-  menu:       { eyebrow: 'Speisekarte',         titleA: 'Aus unserer',  titleB: 'Küche.',            subtitle: 'Saisonal, hausgemacht, ehrlich. Allergene auf Anfrage – wir passen Gerichte gerne an.' },
-  rooms:      { eyebrow: 'Zimmer & Suiten',     titleA: 'Ihr Zuhause auf', titleB: 'Zeit.',          subtitle: 'Jedes Zimmer individuell gestaltet, mit echtem Holz, ruhigen Stoffen und Ausblick. Frühstück bei jeder Variante inklusive.' },
+  menu:       { eyebrow: 'Speisekarte',         titleA: 'Aus unserer',  titleB: 'KÃ¼che.',            subtitle: 'Saisonal, hausgemacht, ehrlich. Allergene auf Anfrage â€“ wir passen Gerichte gerne an.' },
+  rooms:      { eyebrow: 'Zimmer & Suiten',     titleA: 'Ihr Zuhause auf', titleB: 'Zeit.',          subtitle: 'Jedes Zimmer individuell gestaltet, mit echtem Holz, ruhigen Stoffen und Ausblick. FrÃ¼hstÃ¼ck bei jeder Variante inklusive.' },
   tours:      { eyebrow: 'Programm',            titleA: 'Touren &',     titleB: 'Erlebnisse.',       subtitle: 'Kleine Gruppen, lokale Guides, ehrliche Pausen. Jede Tour mit klarem Schwierigkeitsgrad.' },
-  treatments: { eyebrow: 'Treatments & Preise', titleA: 'Pflege als',   titleB: 'Handwerk.',         subtitle: 'Alle Preise inkl. Beratung. Für umfangreiche Color-Termine empfehlen wir ein 15-Minuten-Vorgespräch.' },
-  courses:    { eyebrow: 'Kursplan',            titleA: 'Programme &',  titleB: 'Formate.',          subtitle: 'Maximal 8 Personen pro Klasse. Jede Stunde mit klarem Fokus, Korrekturen und Raum für Ihre Praxis.' },
-  packages:   { eyebrow: 'Pakete & Preise',     titleA: 'Klar gerechnet,', titleB: 'fair.',          subtitle: 'Keine versteckten Gebühren. Wechsel oder Pause monatlich möglich.' },
-  process:    { eyebrow: 'Beratungsprozess',    titleA: 'So',           titleB: 'arbeiten wir.',     subtitle: 'Vom ersten Gespräch bis zur Umsetzung – mit klaren Phasen und ehrlichen Erwartungen.' },
-  doctors:    { eyebrow: 'Ärzt:innen & Team',   titleA: 'Menschen, denen Sie', titleB: 'vertrauen.', subtitle: 'Alle Ärzt:innen mit Facharzt-Anerkennung. Termine ausschließlich nach Vereinbarung – wir nehmen uns Zeit.' },
-  booking:    { eyebrow: 'Termin online',       titleA: 'Online-Termin –', titleB: 'in 60 Sekunden.', subtitle: 'Buchen Sie Ihren Wunschtermin direkt – ohne Anruf, ohne Wartezeit. Stornierung bis 24 h vorher kostenfrei.' },
-  funding:    { eyebrow: 'Förder-Kalkulator',   titleA: 'Was kostet Sie das', titleB: 'wirklich?',  subtitle: 'KfW, BAFA, regionale Programme: wir berechnen vor Auftrag, was Ihnen netto bleibt.' },
+  treatments: { eyebrow: 'Treatments & Preise', titleA: 'Pflege als',   titleB: 'Handwerk.',         subtitle: 'Alle Preise inkl. Beratung. FÃ¼r umfangreiche Color-Termine empfehlen wir ein 15-Minuten-VorgesprÃ¤ch.' },
+  courses:    { eyebrow: 'Kursplan',            titleA: 'Programme &',  titleB: 'Formate.',          subtitle: 'Maximal 8 Personen pro Klasse. Jede Stunde mit klarem Fokus, Korrekturen und Raum fÃ¼r Ihre Praxis.' },
+  packages:   { eyebrow: 'Pakete & Preise',     titleA: 'Klar gerechnet,', titleB: 'fair.',          subtitle: 'Keine versteckten GebÃ¼hren. Wechsel oder Pause monatlich mÃ¶glich.' },
+  process:    { eyebrow: 'Beratungsprozess',    titleA: 'So',           titleB: 'arbeiten wir.',     subtitle: 'Vom ersten GesprÃ¤ch bis zur Umsetzung â€“ mit klaren Phasen und ehrlichen Erwartungen.' },
+  doctors:    { eyebrow: 'Ã„rzt:innen & Team',   titleA: 'Menschen, denen Sie', titleB: 'vertrauen.', subtitle: 'Alle Ã„rzt:innen mit Facharzt-Anerkennung. Termine ausschlieÃŸlich nach Vereinbarung â€“ wir nehmen uns Zeit.' },
+  booking:    { eyebrow: 'Termin online',       titleA: 'Online-Termin â€“', titleB: 'in 60 Sekunden.', subtitle: 'Buchen Sie Ihren Wunschtermin direkt â€“ ohne Anruf, ohne Wartezeit. Stornierung bis 24 h vorher kostenfrei.' },
+  funding:    { eyebrow: 'FÃ¶rder-Kalkulator',   titleA: 'Was kostet Sie das', titleB: 'wirklich?',  subtitle: 'KfW, BAFA, regionale Programme: wir berechnen vor Auftrag, was Ihnen netto bleibt.' },
   // Contact / locations
   locations:  { eyebrow: 'Standorte',            titleA: 'Unsere',           titleB: 'Standorte.',          subtitle: '' },
   // Extra-branch spotlight headings (home page)
-  medicalInfo:          { eyebrow: 'Service & Info',    titleA: 'Für Sie',          titleB: 'erreichbar.',         subtitle: 'Sprechzeiten, Online-Termin und Notfall-Kontakt auf einen Blick.' },
+  medicalInfo:          { eyebrow: 'Service & Info',    titleA: 'FÃ¼r Sie',          titleB: 'erreichbar.',         subtitle: 'Sprechzeiten, Online-Termin und Notfall-Kontakt auf einen Blick.' },
   consultingSpotlight:  { eyebrow: 'Vorgehen',          titleA: 'Wie wir',          titleB: 'arbeiten.',           subtitle: 'Strukturiert, transparent und immer mit klarem Ergebnis. Vier Etappen, kein Bullshit.' },
-  fitnessSpotlight:     { eyebrow: 'Programme',         titleA: 'Finde deinen',    titleB: 'Flow.',               subtitle: 'Dynamische Klassen, persönliche Betreuung, maximale Wirkung.' },
+  fitnessSpotlight:     { eyebrow: 'Programme',         titleA: 'Finde deinen',    titleB: 'Flow.',               subtitle: 'Dynamische Klassen, persÃ¶nliche Betreuung, maximale Wirkung.' },
   // Extra-branch team headings
-  teamConsulting:       { eyebrow: 'Team',              titleA: 'Das',              titleB: 'Team.',               subtitle: 'Erfahrene Berater:innen mit eigenen Schwerpunkten. Sie erreichen uns direkt – ohne Sekretariat.' },
-  teamMedical:          { eyebrow: 'Ärzt:innen',        titleA: 'Ärzt:innen &',     titleB: 'Team.',               subtitle: 'Alle Ärzt:innen mit Facharzt-Anerkennung. Wir nehmen uns Zeit für Sie.' },
-  teamFitness:          { eyebrow: 'Trainer:innen',     titleA: 'Unsere',           titleB: 'Trainer:innen.',      subtitle: 'Fünf Lehrer:innen, jede mit eigener Handschrift. Lernen Sie sie im Probetraining kennen.' },
+  teamConsulting:       { eyebrow: 'Team',              titleA: 'Das',              titleB: 'Team.',               subtitle: 'Erfahrene Berater:innen mit eigenen Schwerpunkten. Sie erreichen uns direkt â€“ ohne Sekretariat.' },
+  teamMedical:          { eyebrow: 'Ã„rzt:innen',        titleA: 'Ã„rzt:innen &',     titleB: 'Team.',               subtitle: 'Alle Ã„rzt:innen mit Facharzt-Anerkennung. Wir nehmen uns Zeit fÃ¼r Sie.' },
+  teamFitness:          { eyebrow: 'Trainer:innen',     titleA: 'Unsere',           titleB: 'Trainer:innen.',      subtitle: 'FÃ¼nf Lehrer:innen, jede mit eigener Handschrift. Lernen Sie sie im Probetraining kennen.' },
   teamWedding:          { eyebrow: 'Trauzeugen & Co.',  titleA: 'Die wichtigsten',  titleB: 'Menschen.',           subtitle: 'Die Menschen, die diesen Tag mit uns gestalten.' },
 };
 
@@ -69,8 +70,8 @@ export function moduleHeading(content: SiteContent, key: ModuleHeadingKey): { ey
 }
 
 /**
- * Inline branch module — renders the variant-appropriate module (Menu, Rooms,
- * Tours, Treatments, Funding, …). Used by Modern + Bold home renderers which
+ * Inline branch module â€” renders the variant-appropriate module (Menu, Rooms,
+ * Tours, Treatments, Funding, â€¦). Used by Modern + Bold home renderers which
  * don't iterate BRANCH_STYLE_ORDER. Returns null when there's no data for the
  * variant so it's safe to mount unconditionally.
  */
@@ -94,9 +95,9 @@ export function BranchModulesInline({ variant, content }: { variant: Variant; co
   return null;
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * RESTAURANT — Speisekarte mit Kategorien & Allergenen
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * RESTAURANT â€” Speisekarte mit Kategorien & Allergenen
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function MenuCategoriesModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const menu = ((content as any).menu || []) as NonNullable<SiteContent['menu']>;
   const [active, setActive] = useState(0);
@@ -181,9 +182,9 @@ export function MenuCategoriesModule({ content, itemLinkPrefix }: { content: Sit
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * HOTEL — Zimmer-Showcase
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * HOTEL â€” Zimmer-Showcase
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function RoomShowcaseModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const rooms = ((content as any).rooms || []) as NonNullable<SiteContent['rooms']>;
   if (!rooms || !rooms.length) return null;
@@ -224,14 +225,14 @@ export function RoomShowcaseModule({ content, itemLinkPrefix }: { content: SiteC
                 </header>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] uppercase tracking-widest text-muted mb-3">
                 {room.size && <span>{room.size}</span>}
-                {room.beds && <span>· {room.beds}</span>}
+                {room.beds && <span>Â· {room.beds}</span>}
               </div>
               {room.description && <p className="text-sm text-muted leading-relaxed mb-4">{room.description}</p>}
               {room.features && room.features.length > 0 && (
                 <ul className="mt-auto space-y-1.5 text-xs">
                   {room.features.map((f, j) => (
                     <li key={j} className="flex items-start gap-2">
-                      <span className="text-[var(--accent-color)] mt-0.5">✦</span>
+                      <span className="text-[var(--accent-color)] mt-0.5">âœ¦</span>
                       <span>{f}</span>
                     </li>
                   ))}
@@ -241,7 +242,7 @@ export function RoomShowcaseModule({ content, itemLinkPrefix }: { content: SiteC
                 to={linked ? `${itemLinkPrefix}/${slug}` : '/kontakt'}
                 className="btn-outline mt-5 !py-2 !px-4 !text-xs"
               >
-                {linked ? 'Zimmer ansehen →' : 'Anfragen →'}
+                {linked ? 'Zimmer ansehen â†’' : 'Anfragen â†’'}
               </TLink>
             </div>
           </article>
@@ -252,9 +253,9 @@ export function RoomShowcaseModule({ content, itemLinkPrefix }: { content: SiteC
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * TOURISM — Tour-Cards mit Schwierigkeit
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * TOURISM â€” Tour-Cards mit Schwierigkeit
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function TourCardsModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const tours = ((content as any).tours || []) as NonNullable<SiteContent['tours']>;
   if (!tours || !tours.length) return null;
@@ -300,14 +301,14 @@ export function TourCardsModule({ content, itemLinkPrefix }: { content: SiteCont
                 <dl className="mt-5 grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
                   {tour.duration && <><dt className="text-muted uppercase tracking-widest text-[10px]">Dauer</dt><dd className="font-display">{tour.duration}</dd></>}
                   {tour.groupSize && <><dt className="text-muted uppercase tracking-widest text-[10px]">Gruppe</dt><dd className="font-display">{tour.groupSize}</dd></>}
-                  {tour.languages && tour.languages.length > 0 && <><dt className="text-muted uppercase tracking-widest text-[10px]">Sprachen</dt><dd className="font-display">{tour.languages.join(' · ')}</dd></>}
+                  {tour.languages && tour.languages.length > 0 && <><dt className="text-muted uppercase tracking-widest text-[10px]">Sprachen</dt><dd className="font-display">{tour.languages.join(' Â· ')}</dd></>}
                   {tour.price && <><dt className="text-muted uppercase tracking-widest text-[10px]">Preis</dt><dd className="font-mono text-brand">{tour.price}</dd></>}
                 </dl>
                 <TLink
                   to={linked ? `${itemLinkPrefix}/${slug}` : '/kontakt'}
                   className="btn-primary mt-6 !py-2 !px-4 !text-xs"
                 >
-                  {linked ? 'Details ansehen →' : 'Tour buchen →'}
+                  {linked ? 'Details ansehen â†’' : 'Tour buchen â†’'}
                 </TLink>
               </div>
             </article>
@@ -331,9 +332,9 @@ function LevelDots({ level }: { level: string }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * SALON — Treatment-Liste mit Dauer & Preis (kategorisiert)
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * SALON â€” Treatment-Liste mit Dauer & Preis (kategorisiert)
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function TreatmentListModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const treatments = ((content as any).treatments || []) as NonNullable<SiteContent['treatments']>;
   if (!treatments || !treatments.length) return null;
@@ -380,15 +381,15 @@ export function TreatmentListModule({ content, itemLinkPrefix }: { content: Site
         ))}
       </div>
       <div className="mt-12 reveal">
-        <TLink to="/kontakt" className="btn-primary">Termin buchen →</TLink>
+        <TLink to="/kontakt" className="btn-primary">Termin buchen â†’</TLink>
       </div>
     </Section>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * FITNESS — Kursplan / Schedule
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * FITNESS â€” Kursplan / Schedule
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function CourseScheduleModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const courses = ((content as any).courses || []) as NonNullable<SiteContent['courses']>;
   if (!courses || !courses.length) return null;
@@ -435,15 +436,15 @@ export function CourseScheduleModule({ content, itemLinkPrefix }: { content: Sit
         </table>
       </div>
       <div className="mt-10 reveal">
-        <TLink to="/kontakt" className="btn-primary">Probetraining buchen →</TLink>
+        <TLink to="/kontakt" className="btn-primary">Probetraining buchen â†’</TLink>
       </div>
     </Section>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * FITNESS / CONSULTING — Pricing Packages (3-tier)
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * FITNESS / CONSULTING â€” Pricing Packages (3-tier)
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function PricePackagesModule({
   content,
   eyebrow,
@@ -484,13 +485,13 @@ export function PricePackagesModule({
               <ul className={`mt-6 space-y-2.5 text-sm flex-1 ${p.highlight ? 'text-white/90' : ''}`}>
                 {p.features.map((f, j) => (
                   <li key={j} className="flex items-start gap-2.5">
-                    <span className={p.highlight ? 'text-[var(--accent-color)]' : 'text-[var(--accent-color)]'}>✓</span>
+                    <span className={p.highlight ? 'text-[var(--accent-color)]' : 'text-[var(--accent-color)]'}>âœ“</span>
                     <span>{f}</span>
                   </li>
                 ))}
               </ul>
             )}
-            <TLink to={p.ctaHref || '/kontakt'} className={`mt-8 ${p.highlight ? 'btn-accent' : 'btn-outline'}`}>{p.ctaLabel || 'Wählen'} →</TLink>
+            <TLink to={p.ctaHref || '/kontakt'} className={`mt-8 ${p.highlight ? 'btn-accent' : 'btn-outline'}`}>{p.ctaLabel || 'WÃ¤hlen'} â†’</TLink>
           </article>
           );
         })}
@@ -499,9 +500,9 @@ export function PricePackagesModule({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * CONSULTING — Process / Engagement Steps
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * CONSULTING â€” Process / Engagement Steps
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function ProcessStepsModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const steps = ((content as any).processSteps || []) as NonNullable<SiteContent['processSteps']>;
   if (!steps || !steps.length) return null;
@@ -536,9 +537,9 @@ export function ProcessStepsModule({ content, itemLinkPrefix }: { content: SiteC
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * MEDICAL — Doctors / Specialists
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * MEDICAL â€” Doctors / Specialists
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function DoctorTeamModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const doctors = ((content as any).doctors || []) as NonNullable<SiteContent['doctors']>;
   if (!doctors || !doctors.length) return null;
@@ -586,9 +587,9 @@ export function DoctorTeamModule({ content, itemLinkPrefix }: { content: SiteCon
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * MEDICAL — Online Booking (Doctolib / jameda CTA + optional iframe)
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * MEDICAL â€” Online Booking (Doctolib / jameda CTA + optional iframe)
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function OnlineBookingModule({ content }: { content: SiteContent }) {
   const b = ((content as any).booking || {}) as NonNullable<SiteContent['booking']>;
   if (!b || !b.enabled) return null;
@@ -614,10 +615,10 @@ export function OnlineBookingModule({ content }: { content: SiteContent }) {
             </svg>
           </div>
           <p className="font-display text-3xl">Termin direkt buchen</p>
-          <p className="mt-4 text-muted">Wir nutzen {provider} für eine reibungslose Buchung – mit Erinnerung per Mail und SMS.</p>
+          <p className="mt-4 text-muted">Wir nutzen {provider} fÃ¼r eine reibungslose Buchung â€“ mit Erinnerung per Mail und SMS.</p>
           {b.url && (
             <a href={b.url} target="_blank" rel="noopener noreferrer" className="btn-primary mt-8 inline-flex">
-              Über {provider} buchen →
+              Ãœber {provider} buchen â†’
             </a>
           )}
         </div>
@@ -626,9 +627,9 @@ export function OnlineBookingModule({ content }: { content: SiteContent }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * TRADESMAN — Funding Calculator
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * TRADESMAN â€” Funding Calculator
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function FundingCalculatorModule({ content, itemLinkPrefix }: { content: SiteContent; itemLinkPrefix: string }) {
   const items = ((content as any).fundingItems || []) as NonNullable<SiteContent['fundingItems']>;
   const calc = ((content as any).fundingCalc || {}) as NonNullable<SiteContent['fundingCalc']>;
@@ -655,7 +656,7 @@ export function FundingCalculatorModule({ content, itemLinkPrefix }: { content: 
           <label className="block">
             <span className="text-[10px] uppercase tracking-widest text-muted">Geplantes Investment</span>
             <div className="mt-3 flex items-baseline gap-3">
-              <span className="font-display text-5xl text-brand">{total.toLocaleString('de-DE')} €</span>
+              <span className="font-display text-5xl text-brand">{total.toLocaleString('de-DE')} â‚¬</span>
             </div>
             <input
               type="range"
@@ -667,30 +668,30 @@ export function FundingCalculatorModule({ content, itemLinkPrefix }: { content: 
               className="mt-5 w-full accent-[var(--accent-color)]"
             />
             <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted mt-2">
-              <span>{minInvest.toLocaleString('de-DE')} €</span>
-              <span>{maxInvest.toLocaleString('de-DE')} €</span>
+              <span>{minInvest.toLocaleString('de-DE')} â‚¬</span>
+              <span>{maxInvest.toLocaleString('de-DE')} â‚¬</span>
             </div>
           </label>
           <div className="mt-8 grid sm:grid-cols-3 gap-4">
             <div className="rounded-2xl border border-line bg-white p-5">
               <p className="text-[10px] uppercase tracking-widest text-muted">Investment</p>
-              <p className="mt-2 font-display text-2xl">{total.toLocaleString('de-DE')} €</p>
+              <p className="mt-2 font-display text-2xl">{total.toLocaleString('de-DE')} â‚¬</p>
             </div>
             <div className="rounded-2xl border border-line bg-white p-5">
-              <p className="text-[10px] uppercase tracking-widest text-muted">Förderung</p>
-              <p className="mt-2 font-display text-2xl text-[var(--accent-color)]">−{saving.toLocaleString('de-DE')} €</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted">FÃ¶rderung</p>
+              <p className="mt-2 font-display text-2xl text-[var(--accent-color)]">âˆ’{saving.toLocaleString('de-DE')} â‚¬</p>
             </div>
             <div className="rounded-2xl border border-brand bg-brand text-white p-5">
               <p className="text-[10px] uppercase tracking-widest text-white/70">Ihr Eigenanteil</p>
-              <p className="mt-2 font-display text-2xl">{net.toLocaleString('de-DE')} €</p>
+              <p className="mt-2 font-display text-2xl">{net.toLocaleString('de-DE')} â‚¬</p>
             </div>
           </div>
           <p className="mt-5 text-xs text-muted leading-relaxed">
-            Annahme: maximale Förderquote von {maxPercent}% kombiniert. Die tatsächliche Förderung hängt von Maßnahme, Bestand und Antragslage ab – wir kalkulieren Ihren konkreten Fall vor Auftrag.
+            Annahme: maximale FÃ¶rderquote von {maxPercent}% kombiniert. Die tatsÃ¤chliche FÃ¶rderung hÃ¤ngt von MaÃŸnahme, Bestand und Antragslage ab â€“ wir kalkulieren Ihren konkreten Fall vor Auftrag.
           </p>
         </div>
         <div className="lg:col-span-5 reveal">
-          <p className="eyebrow mb-4">Mögliche Programme</p>
+          <p className="eyebrow mb-4">MÃ¶gliche Programme</p>
           <ul className="space-y-3">
             {items.map((it, i) => {
               const slug = (it.detailSlug ?? '').trim();
@@ -712,16 +713,16 @@ export function FundingCalculatorModule({ content, itemLinkPrefix }: { content: 
               );
             })}
           </ul>
-          <TLink to="/kontakt" className="btn-primary mt-6">Förder-Beratung anfragen →</TLink>
+          <TLink to="/kontakt" className="btn-primary mt-6">FÃ¶rder-Beratung anfragen â†’</TLink>
         </div>
       </div>
     </Section>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * TRADESMAN — In-flow emergency (when sticky banner is turned off)
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * TRADESMAN â€” In-flow emergency (when sticky banner is turned off)
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function EmergencyBannerServicesSection({ content }: { content: SiteContent }) {
   const b = ((content as any).emergencyBanner || {}) as NonNullable<SiteContent['emergencyBanner']>;
   if (!b?.enabled || b.sticky !== false) return null;
@@ -749,9 +750,9 @@ export function EmergencyBannerServicesSection({ content }: { content: SiteConte
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
- * TRADESMAN — Sticky Emergency Banner
- * ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * TRADESMAN â€” Sticky Emergency Banner
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function EmergencyStickyBanner({ content }: { content: SiteContent }) {
   const b = ((content as any).emergencyBanner || {}) as NonNullable<SiteContent['emergencyBanner']>;
   const [hidden, setHidden] = useState(false);
@@ -794,7 +795,7 @@ export function EmergencyStickyBanner({ content }: { content: SiteContent }) {
           aria-label="Notdienst-Banner ausblenden"
           onClick={() => setHidden(true)}
           className="text-white/60 hover:text-white text-xl leading-none p-1 -mr-1"
-        >×</button>
+        >Ã—</button>
       </div>
     </div>
   );

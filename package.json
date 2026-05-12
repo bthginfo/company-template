@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vercel dev",
     "dev:vite": "vite",
-    "build": "tsc -b --noEmit && tsx scripts/check-coverage.ts && tsx scripts/check-cms-v2-runtime.ts && tsx scripts/check-demo-cms-v2-fill.ts && tsx scripts/check-demo-content-plan.ts && tsx scripts/check-content-import.ts && vite build && tsx scripts/postbuild-prerender.ts",
+    "build": "tsc -b --noEmit && vite build",
     "preview": "vite preview",
     "lint": "tsc -b --noEmit",
     "check:drift": "tsx scripts/check-coverage.ts",

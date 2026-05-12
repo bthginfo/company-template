@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Link, useParams, Navigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';

@@ -171,7 +171,7 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
 }
 
 const MAIL_SECRET_PREFIX = 'enc:v1:';
-const TEMPLATE_KEYS: readonly TemplateKey[] = ['restaurant', 'hotel', 'tourism', 'salon', 'tradesman', 'consulting', 'medical', 'fitness', 'wedding'];
+const TEMPLATE_KEYS: readonly string[] = ['restaurant', 'salon', 'tradesman', 'hochzeit', 'hotel', 'cafe', 'arzt', 'zahnarzt', 'physio', 'yoga', 'kosmetik', 'spa', 'fitness', 'anwalt', 'berater', 'immobilien', 'fotograf', 'event-location'];
 const STYLES: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
 
 function asTemplateKey(value: string): TemplateKey {
@@ -215,11 +215,11 @@ function encryptMailSecret(value: string): string {
 }
 
 function normalizeMailSecret(next: SiteContent, previous?: SiteContent): SiteContent {
-  const mail = next.mail;
+  const mail = next.mail as any;
   if (!mail) return next;
-  const pass = String(mail.pass || '');
-  const previousMail = previous?.mail;
-  const preservedRaw = previousMail?.passEnc || previousMail?.pass || '';
+  const pass = String(mail.pass || mail.smtpPass || '');
+  const previousMail = previous?.mail as any;
+  const preservedRaw = previousMail?.passEnc || previousMail?.pass || previousMail?.smtpPass || '';
   const preserved = preservedRaw && !String(preservedRaw).startsWith(MAIL_SECRET_PREFIX) ? encryptMailSecret(String(preservedRaw)) : preservedRaw;
   const passEnc = pass
     ? (pass.startsWith(MAIL_SECRET_PREFIX) ? pass : encryptMailSecret(pass))

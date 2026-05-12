@@ -14,7 +14,9 @@ import { db, schema } from './db/client.js';
 import { SiteContentSchema, type SiteContent } from './types.js';
 import { getPreset } from './theme.js';
 
-export const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness', 'wedding'] as const;
+export const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hochzeit',
+  'hotel', 'cafe', 'arzt', 'zahnarzt', 'physio', 'yoga', 'kosmetik', 'spa',
+  'fitness', 'anwalt', 'berater', 'immobilien', 'fotograf', 'event-location'] as const;
 export const VALID_STYLES = ['classic', 'modern', 'bold'] as const;
 export type AnyTemplate = typeof VALID_TEMPLATES[number];
 export type AnyStyle = typeof VALID_STYLES[number];

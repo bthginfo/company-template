@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import type { AdminSession } from '../AdminApp';
 import { PRESETS, CUSTOM_THEME_PREFIX, type ThemePreset } from '@/lib/theme';
 import type { TemplateKey, TenantCustomTheme } from '@/lib/types';
@@ -189,16 +189,6 @@ export function ThemeView({ session }: { session: AdminSession }) {
     bg: c.bg,
     text: c.text,
   }));
-
-  const resolvePreset = useCallback(
-    (id: string): ThemePreset | undefined => {
-      if (id.startsWith(CUSTOM_THEME_PREFIX)) {
-        return customAsPresets.find((p) => p.id === id);
-      }
-      return builtinPresets.find((p) => p.id === id);
-    },
-    [builtinPresets, customAsPresets],
-  );
 
   function selectPreset(id: string) {
     setActivePresetId(id);
