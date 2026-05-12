@@ -19,6 +19,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleGet(req: VercelRequest, res: VercelResponse) {
+  // Single page by ID (used by the admin page editor)
+  const pageId = req.query.id ? String(req.query.id) : null;
+  if (pageId) {
+    const session = await getSession(req);
+    if (!session) return unauthorized(res);
+    const page = await db.query.pages.findFirst({ where: eq(schema.pages.id, pageId) });
+    if (!page) return res.status(404).json({ error: 'Page not found' });
+    return res.status(200).json({ page });
+  }
+
   const tenantSlug = String(req.query.slug || '');
   if (!tenantSlug) return res.status(400).json({ error: 'slug required' });
 
@@ -100,8 +110,11 @@ async function handlePatch(req: VercelRequest, res: VercelResponse) {
   if (body.slug !== undefined) update.slug = String(body.slug);
   if (body.published !== undefined) update.published = Boolean(body.published);
   if (body.order !== undefined) update.order = Number(body.order);
-  if (body.metaTitle !== undefined) update.metaTitle = String(body.metaTitle);
-  if (body.metaDescription !== undefined) update.metaDescription = String(body.metaDescription);
+  if (body.seoTitle !== undefined) update.seoTitle = String(body.seoTitle);
+  if (body.seoDescription !== undefined) update.seoDescription = String(body.seoDescription);
+  // Accept legacy metaTitle/metaDescription aliases from the admin UI
+  if (body.metaTitle !== undefined) update.seoTitle = String(body.metaTitle);
+  if (body.metaDescription !== undefined) update.seoDescription = String(body.metaDescription);
 
   const [updated] = await db
     .update(schema.pages)

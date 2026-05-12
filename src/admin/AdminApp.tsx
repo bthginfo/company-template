@@ -2,6 +2,7 @@
 import { Navigate, Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import { setAdminMode } from '@/lib/content-context';
 import { PagesView } from './views/PagesView';
+import { PageEditorView } from './views/PageEditorView';
 import { BlogView } from './views/BlogView';
 import { CollectionsView } from './views/CollectionsView';
 import { MediaView } from './views/MediaView';
@@ -84,7 +85,8 @@ export function AdminApp() {
       <main className="flex-1 min-h-screen overflow-auto">
         <Routes>
           <Route index element={<DashboardView session={session} />} />
-          <Route path="pages/*" element={<PagesView session={session} />} />
+          <Route path="pages" element={<PagesView session={session} />} />
+          <Route path="pages/:pageId" element={<PageEditorView session={session} />} />
           <Route path="blog/*" element={<BlogView session={session} />} />
           <Route path="collections/*" element={<CollectionsView session={session} />} />
           <Route path="media" element={<MediaView session={session} />} />
