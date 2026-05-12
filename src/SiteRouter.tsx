@@ -488,6 +488,158 @@ function BlogDetailPage({
   );
 }
 
+// ─── Blog list page (/blog) ───────────────────────────────────────────────────
+
+interface BlogListPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt?: string;
+  featuredImage?: string;
+  author?: string;
+  category?: string;
+  tags?: string[];
+  publishedAt?: string | null;
+}
+
+function BlogListPage({
+  tenantSlug,
+  preview,
+  brandName,
+}: {
+  tenantSlug: string;
+  preview: boolean;
+  brandName: string;
+}) {
+  const [posts, setPosts] = useState<BlogListPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    document.title = `Blog – ${brandName}`;
+    const qs = preview ? '&preview=1' : '';
+    fetch(`/api/blog?slug=${encodeURIComponent(tenantSlug)}${qs}`, { cache: 'no-store' })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((j) => setPosts((j.posts ?? []) as BlogListPost[]))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [tenantSlug, preview, brandName]);
+
+  const categories = Array.from(new Set(posts.map((p) => p.category).filter(Boolean))) as string[];
+
+  const filtered = posts.filter((p) => {
+    const matchCat = !activeCategory || p.category === activeCategory;
+    const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) ||
+      (p.excerpt ?? '').toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  if (loading) return <PageSkeleton />;
+
+  return (
+    <main className="min-h-[60vh]">
+      {/* Header */}
+      <div className="bg-brand py-16 px-6 text-center text-brand-fg">
+        <h1 className="text-4xl font-display font-bold mb-3">Blog</h1>
+        <p className="text-brand-fg/75 text-lg max-w-xl mx-auto">
+          Aktuelle Beiträge, Neuigkeiten und Einblicke.
+        </p>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-10">
+          <input
+            type="search"
+            placeholder="Suchen…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 border border-line rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand"
+          />
+          {categories.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveCategory(null)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  !activeCategory ? 'bg-brand text-brand-fg' : 'bg-surface text-ink hover:bg-brand/10'
+                }`}
+              >
+                Alle
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    activeCategory === cat ? 'bg-brand text-brand-fg' : 'bg-surface text-ink hover:bg-brand/10'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Posts grid */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-20 text-ink/40">
+            {search || activeCategory ? 'Keine Beiträge gefunden.' : 'Noch keine Beiträge veröffentlicht.'}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((post) => {
+              const href = preview ? `/blog/${post.slug}?preview=1` : `/blog/${post.slug}`;
+              const date = post.publishedAt
+                ? new Date(post.publishedAt).toLocaleDateString('de-AT', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                  })
+                : null;
+              return (
+                <a
+                  key={post.id}
+                  href={href}
+                  className="group flex flex-col rounded-2xl bg-white border border-line overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  {post.featuredImage ? (
+                    <img
+                      src={post.featuredImage}
+                      alt={post.title}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-brand/10 flex items-center justify-center text-brand/30 text-5xl">
+                      ✏️
+                    </div>
+                  )}
+                  <div className="p-5 flex flex-col gap-2 flex-1">
+                    <div className="flex items-center gap-2 text-xs text-ink/50">
+                      {post.category && (
+                        <span className="text-brand font-medium">{post.category}</span>
+                      )}
+                      {date && <span>{date}</span>}
+                    </div>
+                    <h2 className="font-semibold text-ink group-hover:text-brand transition-colors leading-snug">
+                      {post.title}
+                    </h2>
+                    {post.excerpt && (
+                      <p className="text-sm text-ink/60 line-clamp-3 leading-relaxed">{post.excerpt}</p>
+                    )}
+                    {post.author && (
+                      <p className="text-xs text-ink/40 mt-auto pt-2">von {post.author}</p>
+                    )}
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
+
 // ─── Preview banner ────────────────────────────────────────────────────────────
 
 function PreviewBanner() {
@@ -584,15 +736,22 @@ function PageShell({
   const isBlogDetail = pathSlug.startsWith('blog/') && pathSlug.length > 5;
   const blogPostSlug = isBlogDetail ? pathSlug.slice(5) : null;
 
-  // Resolve the current page (skip for blog detail)
-  const currentPage = !isBlogDetail
+  // ── Blog list route: /blog ────────────────────────────────────────────────
+  // Shows BlogListPage if no CMS page with slug "blog" exists, or always
+  // when pathSlug is exactly "blog" and pageType is "blog".
+  const blogCmsPage = pages.find((p) => p.slug === 'blog');
+  const isBlogList = !isBlogDetail && pathSlug === 'blog' &&
+    (!blogCmsPage || blogCmsPage.pageType === 'blog');
+
+  // Resolve the current page (skip for blog routes)
+  const currentPage = (!isBlogDetail && !isBlogList)
     ? pages.find((p) => {
         if (pathSlug === 'home' || pathSlug === '') return p.slug === 'home' || p.slug === '';
         return p.slug === pathSlug;
       }) ?? null
     : null;
 
-  const notFound = !pagesLoading && !isBlogDetail && pages.length > 0 && currentPage === null;
+  const notFound = !pagesLoading && !isBlogDetail && !isBlogList && pages.length > 0 && currentPage === null;
   const style: TemplateStyle = (content as any)?.brand?.style || getTemplateStyle();
   void style; // consumed by template-specific wrappers in future phases
 
@@ -615,6 +774,12 @@ function PageShell({
           <BlogDetailPage
             tenantSlug={tenantSlug}
             postSlug={blogPostSlug!}
+            preview={isPreview}
+            brandName={brandName}
+          />
+        ) : isBlogList ? (
+          <BlogListPage
+            tenantSlug={tenantSlug}
             preview={isPreview}
             brandName={brandName}
           />
