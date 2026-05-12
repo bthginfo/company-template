@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { AdminSession } from '../AdminApp';
 import { SECTION_TYPES, SECTION_TYPE_MAP } from '../section-types';
@@ -37,7 +37,9 @@ export function PageEditorView({ session: _session }: { session: AdminSession })
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Record<string, unknown>>({});
+  const [isDirty, setIsDirty] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [savedMsg, setSavedMsg] = useState('');
 
   const [showMeta, setShowMeta] = useState(false);
   const [meta, setMeta] = useState({ title: '', metaTitle: '', metaDescription: '', published: false });
@@ -129,11 +131,29 @@ export function PageEditorView({ session: _session }: { session: AdminSession })
   function startEdit(section: Section) {
     if (editingId === section.id) {
       setEditingId(null);
+      setIsDirty(false);
       return;
     }
     setEditingId(section.id);
     setEditData({ ...(section.data ?? {}) });
+    setIsDirty(false);
   }
+
+  // Keyboard shortcut: Ctrl+S / Cmd+S saves when editor is open
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's' && editingId && isDirty) {
+        e.preventDefault();
+        handleSaveEdit();
+      }
+    },
+    [editingId, isDirty, editData],
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   async function handleSaveEdit() {
     if (!editingId) return;
@@ -144,6 +164,9 @@ export function PageEditorView({ session: _session }: { session: AdminSession })
       body: JSON.stringify({ data: editData }),
     });
     setSaving(false);
+    setIsDirty(false);
+    setSavedMsg('Gespeichert ✓');
+    setTimeout(() => setSavedMsg(''), 2000);
     setEditingId(null);
     await loadSections();
   }
@@ -388,9 +411,9 @@ export function PageEditorView({ session: _session }: { session: AdminSession })
                     <SectionDataEditor
                       sectionType={section.type}
                       data={editData}
-                      onChange={setEditData}
+                      onChange={(d) => { setEditData(d); setIsDirty(true); }}
                     />
-                    <div className="flex items-center gap-2 mt-5 pt-4 border-t border-slate-100">
+                    <div className="flex items-center gap-3 mt-5 pt-4 border-t border-slate-100">
                       <button
                         onClick={handleSaveEdit}
                         disabled={saving}
@@ -399,11 +422,19 @@ export function PageEditorView({ session: _session }: { session: AdminSession })
                         {saving ? 'Speichert…' : 'Änderungen speichern'}
                       </button>
                       <button
-                        onClick={() => setEditingId(null)}
+                        onClick={() => { setEditingId(null); setIsDirty(false); }}
                         className="text-sm px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
                       >
                         Verwerfen
                       </button>
+                      {savedMsg && (
+                        <span className="text-xs text-emerald-600 font-medium">{savedMsg}</span>
+                      )}
+                      {isDirty && !saving && (
+                        <span className="text-xs text-slate-400 ml-auto hidden sm:block">
+                          Ctrl+S zum Speichern
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { SECTION_TYPE_MAP, type SectionFieldSpec, type ArrayFieldDef } from '../section-types';
+import { ImageField } from '../ImageField';
+import { RichTextEditor } from '../RichTextEditor';
 
 type Props = {
   sectionType: string;
@@ -61,6 +63,21 @@ function FieldInput({
   const inputClass =
     'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400';
 
+  // Image — use the real upload widget
+  if (def.type === 'image') {
+    return (
+      <div>
+        <label className="block text-xs font-medium text-slate-600 mb-2">{def.label}</label>
+        {def.hint && <p className="text-[11px] text-slate-400 mb-2 leading-snug">{def.hint}</p>}
+        <ImageField
+          url={String(value ?? '')}
+          onChange={(url) => onChange(url)}
+          buttonLabel="Bild hochladen"
+        />
+      </div>
+    );
+  }
+
   // Boolean — rendered as a checkbox with inline label
   if (def.type === 'boolean') {
     return (
@@ -78,13 +95,25 @@ function FieldInput({
 
   const strVal = String(value ?? '');
 
+  // textarea fields named "body" or "content" get the full rich-text editor
+  if (def.type === 'textarea' && (def.key === 'body' || def.key === 'content')) {
+    return (
+      <div>
+        <label className="block text-xs font-medium text-slate-600 mb-2">{def.label}</label>
+        <RichTextEditor
+          value={strVal}
+          onChange={(html) => onChange(html)}
+          placeholder={def.placeholder}
+          rows={12}
+        />
+      </div>
+    );
+  }
+
   return (
     <div>
       <label className="block text-xs font-medium text-slate-600 mb-1">
         {def.label}
-        {def.type === 'image' && (
-          <span className="ml-1 text-slate-400 font-normal">(Bild-URL)</span>
-        )}
       </label>
       {def.hint && <p className="text-[11px] text-slate-400 mb-1.5 leading-snug">{def.hint}</p>}
 
