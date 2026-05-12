@@ -8,7 +8,7 @@ type SettingsData = {
     tagline?: string;
     logoUrl?: string;
     faviconUrl?: string;
-    themePresetId?: string;
+    // themePresetId + customThemes are managed in ThemeView (/admin/theme)
   };
   contact?: {
     email?: string;
@@ -41,7 +41,7 @@ const SECTION_FIELDS: Record<keyof SettingsData, { key: string; label: string; t
     { key: 'tagline', label: 'Slogan / Tagline' },
     { key: 'logoUrl', label: 'Logo-URL', type: 'url' },
     { key: 'faviconUrl', label: 'Favicon-URL', type: 'url' },
-    { key: 'themePresetId', label: 'Theme Preset ID' },
+    // themePresetId is managed in the Theme editor (/admin/theme)
   ],
   contact: [
     { key: 'email', label: 'E-Mail', type: 'email' },
@@ -123,8 +123,16 @@ export function SettingsView({ session }: { session: AdminSession }) {
       <form onSubmit={handleSave} className="space-y-6">
         {(Object.keys(SECTION_FIELDS) as (keyof SettingsData)[]).map((section) => (
           <div key={section} className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 bg-slate-50 border-b border-slate-200">
+            <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-900">{SECTION_LABELS[section]}</h2>
+              {section === 'brand' && (
+                <a
+                  href="/admin/theme"
+                  className="text-xs text-slate-400 hover:text-slate-700 underline underline-offset-2 transition-colors"
+                >
+                  Farben & Theme →
+                </a>
+              )}
             </div>
             <div className="p-5 space-y-4">
               {SECTION_FIELDS[section].map(({ key, label, type }) => (

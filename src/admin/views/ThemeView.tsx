@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { AdminSession } from '../AdminApp';
-import { PRESETS, applyTheme, CUSTOM_THEME_PREFIX, type ThemePreset } from '@/lib/theme';
+import { PRESETS, CUSTOM_THEME_PREFIX, type ThemePreset } from '@/lib/theme';
 import type { TemplateKey, TenantCustomTheme } from '@/lib/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -202,13 +202,13 @@ export function ThemeView({ session }: { session: AdminSession }) {
 
   function selectPreset(id: string) {
     setActivePresetId(id);
-    const preset = resolvePreset(id);
-    if (preset) applyTheme(preset);
+    // Do NOT call applyTheme() here — that would repaint the Admin UI itself.
+    // Users see the live result via "Vorschau öffnen" (opens /?preview=1 in a new tab).
   }
 
   function previewPreset(id: string) {
-    const preset = resolvePreset(id);
-    if (preset) applyTheme(preset);
+    // Open the site in preview mode so the user can see the theme on the actual website.
+    window.open(`/?preview=1&_themePreview=${encodeURIComponent(id)}`, '_blank');
   }
 
   function addCustomTheme() {
@@ -369,20 +369,7 @@ export function ThemeView({ session }: { session: AdminSession }) {
                   theme={ct}
                   onChange={(updated) => {
                     updateCustomTheme(ct.id, updated);
-                    // Live-update preview if this custom theme is active
-                    if (activePresetId === `${CUSTOM_THEME_PREFIX}${ct.id}`) {
-                      applyTheme({
-                        id: `${CUSTOM_THEME_PREFIX}${ct.id}`,
-                        label: updated.name,
-                        primary: updated.primary,
-                        primaryFg: updated.primaryFg,
-                        accent: updated.accent,
-                        accentFg: updated.accentFg,
-                        surface: updated.surface,
-                        bg: updated.bg,
-                        text: updated.text,
-                      });
-                    }
+                    // No applyTheme() here — use "Vorschau öffnen" to see live changes.
                   }}
                   onDelete={() => deleteCustomTheme(ct.id)}
                 />
