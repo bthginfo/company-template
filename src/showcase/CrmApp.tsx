@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Seo from '@/components/Seo';
-import { BRANCH_CONFIGS } from '@/lib/branch-config';
+import { TEMPLATE_KEYS } from '@/lib/types';
 import type { TemplateStyle } from '@/lib/tenant';
 import type { TemplateKey } from '@/lib/types';
 
@@ -52,7 +52,7 @@ type CrmTab = 'prospects' | 'tenants';
 
 type ProvJsonMode = 'file' | 'paste';
 
-const TEMPLATE_KEYS = Object.keys(BRANCH_CONFIGS) as TemplateKey[];
+// TEMPLATE_KEYS imported from @/lib/types
 const STYLE_KEYS: readonly TemplateStyle[] = ['classic', 'modern', 'bold'];
 
 /** Empty trimmed string → no import; invalid JSON → error. */

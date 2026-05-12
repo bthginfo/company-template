@@ -23,7 +23,9 @@ import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db, schema } from '../src/lib/db/client';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types';
-import { defaultGalleryStory, defaultArrival } from '../src/lib/section-defaults';
+// section-defaults removed in v2 \u2014 use empty defaults for now
+const defaultGalleryStory = (_k: any) => [];
+const defaultArrival = (_k: any) => ({ title: '', body: '', imageUrl: '' });
 
 const SLUG = 'die-wilderin';
 const NAME = 'die Wilderin';

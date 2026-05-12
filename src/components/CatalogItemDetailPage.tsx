@@ -1,7 +1,8 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
 import type { SiteContent, TemplateKey } from '@/lib/types';
-import type { TemplateStyle } from '@/lib/branch-config';
-import { getBranchConfig } from '@/lib/branch-config';
+import type { TemplateStyle } from '@/lib/tenant';
+// getBranchConfig removed in v2 — CatalogItemDetailPage will be rebuilt in Phase 3
+const getBranchConfig = (_t: any) => ({ name: '', paths: { services: '/leistungen' } });
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import Seo from '@/components/Seo';
 import { MasonryLightbox } from '@/components/MasonryLightbox';

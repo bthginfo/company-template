@@ -4,9 +4,8 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
 import { SiteContentSchema, type SiteContent } from '../src/lib/types.js';
 import { defaultsFor } from '../src/lib/provision-core.js';
-import { normalizeSiteContentCmsV2 } from '../src/lib/cms-v2-hydration.js';
 import type { TemplateKey } from '../src/lib/types.js';
-import type { TemplateStyle } from '../src/lib/branch-config.js';
+import type { TemplateStyle } from '../src/lib/tenant.js';
 import { getSession, unauthorized } from './_lib/auth.js';
 
 /**
@@ -188,22 +187,18 @@ function normalizeTenantCmsV2(content: SiteContent, templateValue: string, style
   const style = asTemplateStyle(styleValue);
   const parse = SiteContentSchema.safeParse(content);
   if (parse.success) {
-    return normalizeSiteContentCmsV2(parse.data, template, style);
+    return parse.data as SiteContent;
   }
   console.error('[content-normalize] invalid tenant content, falling back to defaults', {
     template,
     style,
     issues: parse.error.issues.map((issue) => ({ path: issue.path.join('.'), message: issue.message })),
   });
-  return normalizeSiteContentCmsV2(
-    defaultsFor(
-      template as Parameters<typeof defaultsFor>[0],
-      tenantName,
-      undefined,
-      style as Parameters<typeof defaultsFor>[3],
-    ),
-    template,
-    style,
+  return defaultsFor(
+    template as Parameters<typeof defaultsFor>[0],
+    tenantName,
+    undefined,
+    style as Parameters<typeof defaultsFor>[3],
   );
 }
 

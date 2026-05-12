@@ -1,18 +1,21 @@
-import { useContent } from './lib/content-context';
+﻿import { useContent } from './lib/content-context';
 import { getTemplateKey, getTemplateStyle, type TemplateStyle } from './lib/tenant';
-import TemplateApp from './templates/_shared/TemplateApp';
+import { applyTheme, resolveThemePreset } from './lib/theme';
 import type { TemplateKey } from './lib/types';
 import { useEffect } from 'react';
-import { applyTheme, resolveThemePreset } from './lib/theme';
 
+/**
+ * SiteRouter — placeholder for the new template renderer (v2).
+ * Full multi-page template rendering implemented in Phase 3+.
+ */
 export function SiteRouter() {
   const { state } = useContent();
 
-  // Apply the tenant's chosen color scheme (if any) whenever it changes.
-  const presetId = state.status === 'ready' ? state.content?.brand?.themePresetId : undefined;
-  const customThemes = state.status === 'ready' ? state.content?.brand?.customThemes : undefined;
-  const customThemesKey = state.status === 'ready' ? JSON.stringify(state.content?.brand?.customThemes ?? []) : '';
+  const presetId = state.status === 'ready' ? (state.content as any)?.brand?.themePresetId : undefined;
+  const customThemes = state.status === 'ready' ? (state.content as any)?.brand?.customThemes : undefined;
+  const customThemesKey = state.status === 'ready' ? JSON.stringify((state.content as any)?.brand?.customThemes ?? []) : '';
   const themeKey = state.status === 'ready' ? (state.tenant.template || getTemplateKey()) : null;
+
   useEffect(() => {
     if (!presetId || !themeKey) return;
     const preset = resolveThemePreset(themeKey as TemplateKey, presetId, customThemes);
@@ -33,17 +36,22 @@ export function SiteRouter() {
     );
   }
 
-  const isPreview = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === '1';
-
   const variant = (state.tenant.template || getTemplateKey()) as TemplateKey;
-  const style: TemplateStyle =
-    (state.tenant.style as TemplateStyle | undefined) || getTemplateStyle();
+  const style: TemplateStyle = (state.tenant.style as TemplateStyle | undefined) || getTemplateStyle();
 
   return (
-    <>
-      {isPreview && <PreviewBanner />}
-      <TemplateApp variant={variant} content={state.content} style={style} />
-    </>
+    <div className="min-h-screen grid place-items-center p-8 text-center bg-[#fafaf7]">
+      <div className="max-w-md">
+        <div className="text-4xl mb-4">🚧</div>
+        <h1 className="text-xl font-semibold text-slate-900 mb-2">
+          {(state.content as any)?.brand?.name || 'Ihre Website'}
+        </h1>
+        <p className="text-sm text-slate-500">
+          Template: <strong>{variant}</strong> / Style: <strong>{style}</strong>
+          <br />Das neue Frontend-System wird gerade gebaut.
+        </p>
+      </div>
+    </div>
   );
 }
 

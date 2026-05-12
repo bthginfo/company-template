@@ -12,22 +12,7 @@ import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db, schema } from './db/client.js';
 import { SiteContentSchema, type SiteContent } from './types.js';
-import { mergeSiteContentWithBootstrappedPageBlocks } from './page-blocks-v1-bootstrap.js';
-import { normalizeSiteContentCmsV2 } from './cms-v2-hydration.js';
-import { DEMO_CONTENT, EXTRA_DEMO_CONTENT } from './demo-content.js';
-import { BRANCH_TEXT_DEFAULTS } from './branch-text-defaults.js';
-import { defaultGalleryStory, defaultGalleryCategories, defaultArrival } from './section-defaults.js';
-import { FAQ_DEFAULTS } from './faq-defaults.js';
 import { getPreset } from './theme.js';
-import { importRestaurantModularFromLegacy, applyRestaurantModularToLegacy } from './modular-restaurant.js';
-import { importHotelModularFromLegacy, applyHotelModularToLegacy } from './modular-hotel.js';
-import { importTourismModularFromLegacy, applyTourismModularToLegacy } from './modular-tourism.js';
-import { importSalonModularFromLegacy, applySalonModularToLegacy } from './modular-salon.js';
-import { importTradesmanModularFromLegacy, applyTradesmanModularToLegacy } from './modular-tradesman.js';
-import { importConsultingModularFromLegacy, applyConsultingModularToLegacy } from './modular-consulting.js';
-import { importMedicalModularFromLegacy, applyMedicalModularToLegacy } from './modular-medical.js';
-import { importFitnessModularFromLegacy, applyFitnessModularToLegacy } from './modular-fitness.js';
-import { importWeddingModularFromLegacy, applyWeddingModularToLegacy } from './modular-wedding.js';
 
 export const VALID_TEMPLATES = ['restaurant', 'salon', 'tradesman', 'hotel', 'tourism', 'consulting', 'medical', 'fitness', 'wedding'] as const;
 export const VALID_STYLES = ['classic', 'modern', 'bold'] as const;
@@ -103,96 +88,28 @@ export function validateSlug(slug: string): string | null {
   return null;
 }
 
-function extraDefaults(key: 'consulting' | 'medical' | 'fitness' | 'wedding', name: string): SiteContent {
-  const base = EXTRA_DEMO_CONTENT[key];
-  return SiteContentSchema.parse({
-    ...base,
-    brand: { ...base.brand, name },
-    hero: { ...base.hero, title: name },
-    branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[key] },
-    galleryStory: defaultGalleryStory(key),
-    galleryCategories: defaultGalleryCategories(key),
-    arrival: defaultArrival(key),
-    faq: FAQ_DEFAULTS[key] ?? [],
-    contact: {
-      ...base.contact,
-      phone: '', email: '', address: '',
-      city: base.contact?.city || '',
-      mapsUrl: '',
-    },
-  });
-}
-
-function fullDefaults(key: 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism', name: string): SiteContent {
-  const base = DEMO_CONTENT[key];
-  return SiteContentSchema.parse({
-    ...base,
-    brand: { ...base.brand, name },
-    hero: { ...base.hero, title: name },
-    branchText: { ...((base as any).branchText || {}), ...BRANCH_TEXT_DEFAULTS[key] },
-    galleryStory: defaultGalleryStory(key),
-    galleryCategories: defaultGalleryCategories(key),
-    arrival: defaultArrival(key),
-    faq: FAQ_DEFAULTS[key] ?? [],
-    contact: {
-      ...base.contact,
-      phone: '', email: '', address: '',
-      city: base.contact?.city || '',
-      mapsUrl: '',
-    },
-  });
-}
-
-function withModularDefaults(content: SiteContent, template: AnyTemplate, style: AnyStyle): SiteContent {
-  switch (template) {
-    case 'restaurant':
-      return applyRestaurantModularToLegacy({ ...content, modularPagesV1: importRestaurantModularFromLegacy(content, style) });
-    case 'hotel':
-      return applyHotelModularToLegacy({ ...content, modularPagesV1: importHotelModularFromLegacy(content, style) });
-    case 'tourism':
-      return applyTourismModularToLegacy({ ...content, modularPagesV1: importTourismModularFromLegacy(content, style) });
-    case 'salon':
-      return applySalonModularToLegacy({ ...content, modularPagesV1: importSalonModularFromLegacy(content, style) });
-    case 'tradesman':
-      return applyTradesmanModularToLegacy({ ...content, modularPagesV1: importTradesmanModularFromLegacy(content, style) });
-    case 'consulting':
-      return applyConsultingModularToLegacy({ ...content, modularPagesV1: importConsultingModularFromLegacy(content, style) });
-    case 'medical':
-      return applyMedicalModularToLegacy({ ...content, modularPagesV1: importMedicalModularFromLegacy(content, style) });
-    case 'fitness':
-      return applyFitnessModularToLegacy({ ...content, modularPagesV1: importFitnessModularFromLegacy(content, style) });
-    case 'wedding':
-      return applyWeddingModularToLegacy({ ...content, modularPagesV1: importWeddingModularFromLegacy(content, style) });
-  }
-}
-
+/**
+ * Returns minimal seed content for a new tenant.
+ * Full demo content will be populated by the new CMS seeding system (Phase 3+).
+ */
 export function defaultsFor(
   t: AnyTemplate,
   name: string,
   themePresetId?: string,
   style: AnyStyle = 'classic',
 ): SiteContent {
-  const seeded = (t === 'consulting' || t === 'medical' || t === 'fitness' || t === 'wedding')
-    ? extraDefaults(t, name)
-    : fullDefaults(t as 'restaurant' | 'salon' | 'tradesman' | 'hotel' | 'tourism', name);
-
-  let out: SiteContent = seeded;
-  if (themePresetId) {
-    const preset = getPreset(t, themePresetId);
-    if (preset) {
-      out = SiteContentSchema.parse({
-        ...seeded,
-        brand: {
-          ...seeded.brand,
-          themePresetId: preset.id,
-          // Keep legacy color in sync for code paths that still read primaryColor.
-          primaryColor: preset.primary,
-        },
-      });
-    }
-  }
-  const withLegacyModular = withModularDefaults(mergeSiteContentWithBootstrappedPageBlocks(out, t, style), t, style);
-  return normalizeSiteContentCmsV2(withLegacyModular, t, style);
+  void style; // will be used in Phase 3 demo content seeding
+  const preset = themePresetId ? getPreset(t, themePresetId) : null;
+  return SiteContentSchema.parse({
+    brand: {
+      name,
+      tagline: '',
+      logoUrl: '',
+      primaryColor: preset?.primary ?? '#0f172a',
+      themePresetId: preset?.id ?? '',
+    },
+    contact: { phone: '', email: '', address: '', city: '', hours: [], mapsUrl: '' },
+  });
 }
 
 function vercelFactory(token: string, team: string) {

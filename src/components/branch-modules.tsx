@@ -10,7 +10,8 @@
 import React, { useEffect, useState } from 'react';
 import type { SiteContent, TemplateKey } from '@/lib/types';
 import { Section, TLink } from '@/components/site-blocks';
-import { getBranchConfig } from '@/lib/branch-config';
+// getBranchConfig removed in v2 — branch-modules will be rebuilt in Phase 3
+const getBranchConfig = (_t: any) => ({ name: '', paths: { services: '/leistungen', gallery: '/galerie', about: '/ueber-uns', contact: '/kontakt' }, serviceLabel: 'Leistungen' });
 
 type Variant = TemplateKey;
 
