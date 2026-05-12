@@ -16,6 +16,8 @@ export default {
         },
         ink: 'var(--text-color, #14111a)',
         surface: 'var(--surface-color, #fce7ef)',
+        bg: 'var(--bg-color, #ffffff)',
+        line: 'var(--line-color, rgba(11,11,16,0.10))',
       },
       fontFamily: {
         sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],

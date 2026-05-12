@@ -1,16 +1,371 @@
 ﻿import { useContent } from './lib/content-context';
-import { getTemplateKey, getTemplateStyle, type TemplateStyle } from './lib/tenant';
+import { getTenantSlug, getTemplateKey, getTemplateStyle, type TemplateStyle } from './lib/tenant';
 import { applyTheme, resolveThemePreset } from './lib/theme';
-import type { TemplateKey } from './lib/types';
-import { useEffect } from 'react';
+import type { TemplateKey, SiteContent } from './lib/types';
+import { useEffect, useState, useCallback } from 'react';
+import { renderSection } from './components/section-renderers';
 
-/**
- * SiteRouter — placeholder for the new template renderer (v2).
- * Full multi-page template rendering implemented in Phase 3+.
- */
+// ─── API types ────────────────────────────────────────────────────────────────
+
+interface Page {
+  id: string;
+  slug: string;
+  title: string;
+  order: number;
+  published: boolean;
+  isSystem: boolean;
+  pageType: string;
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+interface Section {
+  id: string;
+  type: string;
+  data: Record<string, unknown>;
+  order: number;
+  visible: boolean;
+}
+
+// ─── Data hooks ───────────────────────────────────────────────────────────────
+
+function usePages(tenantSlug: string, preview: boolean) {
+  const [pages, setPages] = useState<Page[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    if (!tenantSlug) return;
+    try {
+      const qs = preview ? '&preview=1' : '';
+      const r = await fetch(`/api/pages?slug=${encodeURIComponent(tenantSlug)}${qs}`, { cache: 'no-store' });
+      if (!r.ok) return;
+      const json = await r.json();
+      setPages((json.pages ?? []) as Page[]);
+    } catch {
+      // ignore — site renders with empty nav if API fails
+    } finally {
+      setLoading(false);
+    }
+  }, [tenantSlug, preview]);
+
+  useEffect(() => { load(); }, [load]);
+  return { pages, loading };
+}
+
+function useSections(pageId: string | null, preview: boolean) {
+  const [sections, setSections] = useState<Section[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!pageId) { setLoading(false); return; }
+    setLoading(true);
+    const qs = preview ? '&preview=1' : '';
+    fetch(`/api/sections?pageId=${encodeURIComponent(pageId)}${qs}`, { cache: 'no-store' })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((j) => setSections((j.sections ?? []) as Section[]))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [pageId, preview]);
+
+  return { sections, loading };
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+
+function SiteNav({
+  brandName,
+  logoUrl,
+  pages,
+  currentSlug,
+  preview,
+}: {
+  brandName: string;
+  logoUrl?: string;
+  pages: Page[];
+  currentSlug: string;
+  preview: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const navPages = pages.filter((p) => p.published && !p.isSystem && p.pageType !== 'blog');
+
+  const href = (p: Page) => {
+    const base = p.slug === 'home' || p.slug === '' ? '/' : `/${p.slug}`;
+    return preview ? `${base}?preview=1` : base;
+  };
+
+  return (
+    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-line shadow-sm">
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+        {/* Logo / Name */}
+        <a href={preview ? '/?preview=1' : '/'} className="flex items-center gap-3 shrink-0">
+          {logoUrl ? (
+            <img src={logoUrl} alt={brandName} className="h-9 w-auto object-contain" />
+          ) : (
+            <span className="text-xl font-display font-bold text-brand">{brandName}</span>
+          )}
+        </a>
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-1">
+          {navPages.map((p) => {
+            const active = currentSlug === (p.slug || 'home');
+            return (
+              <a
+                key={p.id}
+                href={href(p)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  active ? 'bg-brand text-brand-fg' : 'text-ink hover:bg-surface'
+                }`}
+              >
+                {p.title}
+              </a>
+            );
+          })}
+        </nav>
+
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden p-2 rounded-lg text-ink hover:bg-surface transition-colors"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Menü öffnen"
+        >
+          <span className={`block w-5 h-0.5 bg-current transition-transform mb-1 ${open ? 'rotate-45 translate-y-1.5' : ''}`} />
+          <span className={`block w-5 h-0.5 bg-current transition-opacity ${open ? 'opacity-0' : ''}`} />
+          <span className={`block w-5 h-0.5 bg-current transition-transform mt-1 ${open ? '-rotate-45 -translate-y-1.5' : ''}`} />
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="md:hidden border-t border-line bg-white">
+          {navPages.map((p) => (
+            <a
+              key={p.id}
+              href={href(p)}
+              className="block px-6 py-3 text-sm text-ink hover:bg-surface border-b border-line last:border-0"
+              onClick={() => setOpen(false)}
+            >
+              {p.title}
+            </a>
+          ))}
+        </div>
+      )}
+    </header>
+  );
+}
+
+// ─── Footer ───────────────────────────────────────────────────────────────────
+
+function SiteFooter({
+  brandName,
+  content,
+  pages,
+  preview,
+}: {
+  brandName: string;
+  content: SiteContent;
+  pages: Page[];
+  preview: boolean;
+}) {
+  const contact = content.contact;
+  const social = content.social;
+  const legalPages = pages.filter((p) => p.published && p.isSystem);
+
+  type SocialKey = 'instagram' | 'facebook' | 'whatsapp' | 'linkedin' | 'youtube' | 'tiktok' | 'x';
+  const socialLinks: { key: SocialKey; icon: string; label: string }[] = [
+    { key: 'instagram', icon: '📸', label: 'Instagram' },
+    { key: 'facebook', icon: '📘', label: 'Facebook' },
+    { key: 'whatsapp', icon: '💬', label: 'WhatsApp' },
+    { key: 'linkedin', icon: '💼', label: 'LinkedIn' },
+    { key: 'youtube', icon: '▶️', label: 'YouTube' },
+    { key: 'tiktok', icon: '🎵', label: 'TikTok' },
+    { key: 'x', icon: '✖', label: 'X / Twitter' },
+  ];
+
+  return (
+    <footer className="bg-slate-900 text-white pt-12 pb-6 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 border-b border-white/10">
+          {/* Brand */}
+          <div>
+            <div className="text-xl font-display font-bold mb-3">{brandName}</div>
+            {contact?.address && <p className="text-white/60 text-sm">{contact.address}</p>}
+            {contact?.city && <p className="text-white/60 text-sm">{contact.city}</p>}
+            {contact?.phone && (
+              <a href={`tel:${contact.phone}`} className="text-white/60 text-sm hover:text-white mt-2 block">
+                {contact.phone}
+              </a>
+            )}
+            {contact?.email && (
+              <a href={`mailto:${contact.email}`} className="text-white/60 text-sm hover:text-white block">
+                {contact.email}
+              </a>
+            )}
+          </div>
+
+          {/* Opening hours */}
+          {contact?.hours && contact.hours.length > 0 && (
+            <div>
+              <div className="font-semibold mb-3 text-sm">Öffnungszeiten</div>
+              <ul className="space-y-1">
+                {contact.hours.map((h, i) => (
+                  <li key={i} className="flex justify-between text-xs text-white/60 gap-4">
+                    <span>{h.day}</span>
+                    <span>{h.time}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Social */}
+          {social && (
+            <div>
+              <div className="font-semibold mb-3 text-sm">Social Media</div>
+              <div className="flex flex-wrap gap-3">
+                {socialLinks.map(({ key, icon, label }) => {
+                  const url = social?.[key];
+                  if (!url) return null;
+                  return (
+                    <a
+                      key={key}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-lg hover:bg-white/20 transition-colors"
+                    >
+                      {icon}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 text-xs text-white/40">
+          <span>© {new Date().getFullYear()} {brandName}</span>
+          <div className="flex gap-4">
+            {legalPages.map((p) => (
+              <a
+                key={p.id}
+                href={preview ? `/${p.slug}?preview=1` : `/${p.slug}`}
+                className="hover:text-white/70 transition-colors"
+              >
+                {p.title}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── Skeleton loader ──────────────────────────────────────────────────────────
+
+function PageSkeleton() {
+  return (
+    <main className="animate-pulse">
+      <div className="h-[60vh] bg-slate-200" />
+      <div className="py-16 px-6 max-w-5xl mx-auto space-y-4">
+        <div className="h-8 w-64 bg-slate-200 rounded-full" />
+        <div className="h-4 w-full bg-slate-100 rounded-full" />
+        <div className="h-4 w-5/6 bg-slate-100 rounded-full" />
+        <div className="h-4 w-4/6 bg-slate-100 rounded-full" />
+      </div>
+    </main>
+  );
+}
+
+// ─── 404 ──────────────────────────────────────────────────────────────────────
+
+function NotFound({ brandName, preview }: { brandName: string; preview: boolean }) {
+  return (
+    <main className="min-h-[60vh] flex flex-col items-center justify-center gap-6 text-center px-6">
+      <div className="text-7xl font-display font-bold text-brand">404</div>
+      <h1 className="text-2xl font-semibold text-ink">Seite nicht gefunden</h1>
+      <p className="text-ink/60 max-w-md">
+        Diese Seite existiert leider nicht. Kehre zur Startseite zurück.
+      </p>
+      <a
+        href={preview ? '/?preview=1' : '/'}
+        className="inline-block bg-brand text-brand-fg font-semibold px-8 py-3 rounded-full hover:opacity-90 transition-opacity"
+      >
+        Zurück zur Startseite
+      </a>
+      <p className="text-xs text-ink/30">{brandName}</p>
+    </main>
+  );
+}
+
+// ─── Page renderer ────────────────────────────────────────────────────────────
+
+function SitePage({
+  page,
+  tenantSlug,
+  preview,
+}: {
+  page: Page | null;
+  tenantSlug: string;
+  preview: boolean;
+}) {
+  const { sections, loading } = useSections(page?.id ?? null, preview);
+
+  useEffect(() => {
+    if (page) {
+      document.title = page.seoTitle || page.title;
+      if (page.seoDescription) {
+        let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.name = 'description';
+          document.head.appendChild(meta);
+        }
+        meta.content = page.seoDescription;
+      }
+    }
+  }, [page]);
+
+  if (loading) return <PageSkeleton />;
+  if (!page) return null;
+
+  const visibleSections = sections
+    .filter((s) => s.visible)
+    .sort((a, b) => a.order - b.order);
+
+  return (
+    <main>
+      {visibleSections.map((s) => (
+        <div key={s.id}>{renderSection(s.type, s.data, tenantSlug)}</div>
+      ))}
+      {visibleSections.length === 0 && (
+        <div className="min-h-[50vh] flex items-center justify-center text-ink/40 text-sm">
+          Diese Seite hat noch keinen Inhalt.
+        </div>
+      )}
+    </main>
+  );
+}
+
+// ─── Preview banner ────────────────────────────────────────────────────────────
+
+function PreviewBanner() {
+  return (
+    <div className="bg-amber-500 text-white text-center text-sm py-2 px-4 font-medium sticky top-0 z-50">
+      👁 Vorschau-Modus — Diese Seite zeigt den unveröffentlichten Entwurf.{' '}
+      <a href="/" className="underline underline-offset-2 hover:text-amber-100">Zur Live-Seite →</a>
+    </div>
+  );
+}
+
+// ─── Main SiteRouter ──────────────────────────────────────────────────────────
+
 export function SiteRouter() {
   const { state } = useContent();
 
+  // Theme application (unchanged from v1 logic)
   const presetId = state.status === 'ready' ? (state.content as any)?.brand?.themePresetId : undefined;
   const customThemes = state.status === 'ready' ? (state.content as any)?.brand?.customThemes : undefined;
   const customThemesKey = state.status === 'ready' ? JSON.stringify((state.content as any)?.brand?.customThemes ?? []) : '';
@@ -22,6 +377,7 @@ export function SiteRouter() {
     if (preset) applyTheme(preset);
   }, [themeKey, presetId, customThemesKey, customThemes]);
 
+  // ── Early states ────────────────────────────────────────────────────────────
   if (state.status === 'loading') {
     return <div className="min-h-screen grid place-items-center text-slate-500">Lädt …</div>;
   }
@@ -36,30 +392,97 @@ export function SiteRouter() {
     );
   }
 
-  const variant = (state.tenant.template || getTemplateKey()) as TemplateKey;
-  const style: TemplateStyle = (state.tenant.style as TemplateStyle | undefined) || getTemplateStyle();
+  // ── Ready ───────────────────────────────────────────────────────────────────
+  const tenantSlug = state.tenant.slug || getTenantSlug();
+  const brandName = state.content.brand?.name || state.tenant.name || 'Website';
+  const logoUrl = state.content.brand?.logoUrl;
+
+  const isPreview =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('preview') === '1';
+
+  // Determine current path slug
+  const rawPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+  // Strip leading slash, treat "/" as "home"
+  const pathSlug = rawPath === '/' ? 'home' : rawPath.replace(/^\//, '').replace(/\/$/, '');
 
   return (
-    <div className="min-h-screen grid place-items-center p-8 text-center bg-[#fafaf7]">
-      <div className="max-w-md">
-        <div className="text-4xl mb-4">🚧</div>
-        <h1 className="text-xl font-semibold text-slate-900 mb-2">
-          {(state.content as any)?.brand?.name || 'Ihre Website'}
-        </h1>
-        <p className="text-sm text-slate-500">
-          Template: <strong>{variant}</strong> / Style: <strong>{style}</strong>
-          <br />Das neue Frontend-System wird gerade gebaut.
-        </p>
-      </div>
-    </div>
+    <PageShell
+      tenantSlug={tenantSlug}
+      brandName={brandName}
+      logoUrl={logoUrl}
+      content={state.content}
+      pathSlug={pathSlug}
+      isPreview={isPreview}
+      hasDraft={state.hasDraft}
+    />
   );
 }
 
-function PreviewBanner() {
+// ─── PageShell — loads pages and routes ───────────────────────────────────────
+// Separated so hooks (usePages) run after state is ready.
+
+function PageShell({
+  tenantSlug,
+  brandName,
+  logoUrl,
+  content,
+  pathSlug,
+  isPreview,
+  hasDraft,
+}: {
+  tenantSlug: string;
+  brandName: string;
+  logoUrl?: string;
+  content: SiteContent;
+  pathSlug: string;
+  isPreview: boolean;
+  hasDraft: boolean;
+}) {
+  const { pages, loading: pagesLoading } = usePages(tenantSlug, isPreview);
+
+  // Resolve the current page
+  const currentPage = pages.find((p) => {
+    if (pathSlug === 'home' || pathSlug === '') return p.slug === 'home' || p.slug === '';
+    return p.slug === pathSlug;
+  }) ?? null;
+
+  const notFound = !pagesLoading && pages.length > 0 && currentPage === null;
+  const style: TemplateStyle = (content as any)?.brand?.style || getTemplateStyle();
+  void style; // consumed by template-specific wrappers in future phases
+
   return (
-    <div className="bg-amber-500 text-white text-center text-sm py-2 px-4 font-medium sticky top-0 z-50">
-      👁 Vorschau-Modus — Diese Seite zeigt den unveröffentlichten Entwurf.{' '}
-      <a href="/" className="underline underline-offset-2 hover:text-amber-100">Zur Live-Seite →</a>
+    <div className="min-h-screen flex flex-col bg-bg text-ink">
+      {isPreview && hasDraft && <PreviewBanner />}
+
+      {!pagesLoading && (
+        <SiteNav
+          brandName={brandName}
+          logoUrl={logoUrl}
+          pages={pages}
+          currentSlug={pathSlug}
+          preview={isPreview}
+        />
+      )}
+
+      <div className="flex-1">
+        {pagesLoading ? (
+          <PageSkeleton />
+        ) : notFound ? (
+          <NotFound brandName={brandName} preview={isPreview} />
+        ) : (
+          <SitePage page={currentPage} tenantSlug={tenantSlug} preview={isPreview} />
+        )}
+      </div>
+
+      {!pagesLoading && (
+        <SiteFooter
+          brandName={brandName}
+          content={content}
+          pages={pages}
+          preview={isPreview}
+        />
+      )}
     </div>
   );
 }
