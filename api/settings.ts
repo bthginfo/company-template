@@ -8,6 +8,36 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
 import { getSession, unauthorized } from './_lib/auth.js';
+import { encrypt, decrypt, isEncrypted } from './_lib/encrypt.js';
+
+/** Fields that must be encrypted at rest */
+const ENCRYPTED_FIELDS: { section: string; key: string }[] = [
+  { section: 'mail', key: 'smtpPass' },
+];
+
+function encryptSensitiveFields(data: Record<string, unknown>): Record<string, unknown> {
+  const result = structuredClone(data);
+  for (const { section, key } of ENCRYPTED_FIELDS) {
+    const sec = result[section] as Record<string, unknown> | undefined;
+    if (sec && typeof sec[key] === 'string' && sec[key]) {
+      if (!isEncrypted(sec[key] as string)) {
+        sec[key] = encrypt(sec[key] as string);
+      }
+    }
+  }
+  return result;
+}
+
+function decryptSensitiveFields(data: Record<string, unknown>): Record<string, unknown> {
+  const result = structuredClone(data);
+  for (const { section, key } of ENCRYPTED_FIELDS) {
+    const sec = result[section] as Record<string, unknown> | undefined;
+    if (sec && typeof sec[key] === 'string' && sec[key]) {
+      sec[key] = decrypt(sec[key] as string);
+    }
+  }
+  return result;
+}
 
 /** Fields stripped from public GET to avoid leaking SMTP credentials */
 const SMTP_SENSITIVE_KEYS = ['smtpPass', 'smtpUser', 'smtpHost'] as const;
@@ -58,7 +88,9 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
   }
 
   if (isAdmin) {
-    return res.status(200).json({ settings });
+    // Decrypt sensitive fields before returning to admin
+    const adminData = decryptSensitiveFields(settings.data as Record<string, unknown>);
+    return res.status(200).json({ settings: { ...settings, data: adminData } });
   }
 
   // Public: strip sensitive fields before returning
@@ -84,7 +116,9 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
 
   if (existing) {
     const update: Partial<typeof schema.siteSettings.$inferInsert> = { updatedAt: new Date() };
-    if (body.data !== undefined) update.data = body.data as Record<string, unknown>;
+    if (body.data !== undefined) {
+      update.data = encryptSensitiveFields(body.data as Record<string, unknown>);
+    }
     if (body.draft !== undefined) update.draft = body.draft as Record<string, unknown> | null;
 
     const [updated] = await db
@@ -92,19 +126,22 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
       .set(update)
       .where(eq(schema.siteSettings.tenantId, tenant.id))
       .returning();
-    return res.status(200).json({ settings: updated });
+    // Return decrypted data to admin UI
+    const returnData = decryptSensitiveFields(updated.data as Record<string, unknown>);
+    return res.status(200).json({ settings: { ...updated, data: returnData } });
   }
 
+  const encryptedData = encryptSensitiveFields((body.data as Record<string, unknown>) ?? {});
   const [created] = await db
     .insert(schema.siteSettings)
     .values({
       tenantId: tenant.id,
-      data: (body.data as Record<string, unknown>) ?? {},
+      data: encryptedData,
       draft: (body.draft as Record<string, unknown>) ?? null,
     })
     .returning();
-
-  res.status(201).json({ settings: created });
+  const returnData = decryptSensitiveFields(created.data as Record<string, unknown>);
+  res.status(201).json({ settings: { ...created, data: returnData } });
 }
 
 // ─── Impressum Generator ──────────────────────────────────────────────────────

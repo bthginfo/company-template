@@ -2,14 +2,21 @@
  * Simple in-process rate limiter for public form endpoints.
  *
  * Uses an in-memory LRU-like Map. Works correctly within a single serverless
- * function instance. Vercel may spin up multiple instances under load, so this
- * provides a best-effort defence rather than an absolute guarantee — which is
- * sufficient for KMU-scale deployments. For stricter limits, swap to a Redis
- * backed solution (e.g. Upstash) in a future phase.
+ * function instance.
+ *
+ * ⚠️  MULTI-INSTANCE CAVEAT: Vercel may run multiple concurrent instances of
+ * the same function under load. Each instance has its own in-memory store, so
+ * the effective limit could be `maxRequests × instanceCount`. This provides
+ * best-effort protection adequate for KMU-scale.
+ *
+ * For production rate-limiting across all instances, set these env vars:
+ *   UPSTASH_REDIS_REST_URL  / UPSTASH_REDIS_REST_TOKEN
+ * and swap the store to @upstash/ratelimit in a future phase.
  *
  * Usage:
  *   const result = checkRateLimit(req, { maxRequests: 10, windowMs: 60_000 });
  *   if (!result.ok) return res.status(429).json({ error: result.error });
+ *   res.setHeader('X-RateLimit-Remaining', result.remaining);
  */
 import type { VercelRequest } from '@vercel/node';
 
@@ -41,6 +48,8 @@ export interface RateLimitOptions {
 export interface RateLimitResult {
   ok: boolean;
   remaining: number;
+  /** Seconds until the window resets (only set when ok=false) */
+  retryAfter?: number;
   error?: string;
 }
 
@@ -77,6 +86,7 @@ export function checkRateLimit(
     return {
       ok: false,
       remaining: 0,
+      retryAfter: Math.ceil((entry.resetAt - now) / 1000),
       error: `Zu viele Anfragen. Bitte warte ${Math.ceil((entry.resetAt - now) / 1000)} Sekunden.`,
     };
   }

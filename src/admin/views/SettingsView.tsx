@@ -171,29 +171,46 @@ export function SettingsView({ session }: { session: AdminSession }) {
         )}
 
         {/* ── Legal / Impressum ── */}
-        {activeTab === 'legal' && (
+        {activeTab === 'legal' && (() => {
+          const REQUIRED_LEGAL = ['companyName', 'address', 'city', 'email', 'responsiblePerson'];
+          const missing = REQUIRED_LEGAL.filter((k) => !getField('legal', k));
+          return (
           <>
+            {missing.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800">
+                <strong>Fehlende Pflichtangaben:</strong>{' '}
+                {missing.map((k) => ({
+                  companyName: 'Unternehmensname', address: 'Adresse', city: 'Stadt',
+                  email: 'E-Mail', responsiblePerson: 'Verantwortliche/r',
+                }[k] ?? k)).join(', ')}
+              </div>
+            )}
             <SettingsCard title="Pflichtangaben (Impressum)">
-              <Field label="Unternehmensname" value={getField('legal', 'companyName')} onChange={(v) => setField('legal', 'companyName', v)} />
+              <Field label="Unternehmensname *" value={getField('legal', 'companyName')} onChange={(v) => setField('legal', 'companyName', v)} required={!getField('legal', 'companyName')} />
               <Field label="Rechtsform" value={getField('legal', 'companyForm')} onChange={(v) => setField('legal', 'companyForm', v)} placeholder="GmbH, OG, Einzelunternehmen …" />
               <Field label="Firmenbuchnummer" value={getField('legal', 'companyRegNumber')} onChange={(v) => setField('legal', 'companyRegNumber', v)} placeholder="FN 123456a" />
               <Field label="Firmenbuchgericht" value={getField('legal', 'companyRegCourt')} onChange={(v) => setField('legal', 'companyRegCourt', v)} placeholder="Handelsgericht Wien" />
               <Field label="UID-Nummer / USt-IdNr." value={getField('legal', 'vatId')} onChange={(v) => setField('legal', 'vatId', v)} placeholder="ATU12345678" />
-              <Field label="Adresse" value={getField('legal', 'address')} onChange={(v) => setField('legal', 'address', v)} />
-              <Field label="Stadt" value={getField('legal', 'city')} onChange={(v) => setField('legal', 'city', v)} />
+              <Field label="Adresse *" value={getField('legal', 'address')} onChange={(v) => setField('legal', 'address', v)} required={!getField('legal', 'address')} />
+              <Field label="Stadt *" value={getField('legal', 'city')} onChange={(v) => setField('legal', 'city', v)} required={!getField('legal', 'city')} />
               <Field label="Land" value={getField('legal', 'country')} onChange={(v) => setField('legal', 'country', v)} placeholder="AT" />
               <Field label="Telefon" type="tel" value={getField('legal', 'phone')} onChange={(v) => setField('legal', 'phone', v)} />
-              <Field label="E-Mail" type="email" value={getField('legal', 'email')} onChange={(v) => setField('legal', 'email', v)} />
+              <Field label="E-Mail *" type="email" value={getField('legal', 'email')} onChange={(v) => setField('legal', 'email', v)} required={!getField('legal', 'email')} />
               <Field label="Gewerbebehörde" value={getField('legal', 'tradeAuthority')} onChange={(v) => setField('legal', 'tradeAuthority', v)} placeholder="Magistrat Wien, MA 63" />
-              <Field label="Inhaltlich Verantwortliche/r (§ 5 ECG)" value={getField('legal', 'responsiblePerson')} onChange={(v) => setField('legal', 'responsiblePerson', v)} />
+              <Field label="Inhaltlich Verantwortliche/r (§ 5 ECG) *" value={getField('legal', 'responsiblePerson')} onChange={(v) => setField('legal', 'responsiblePerson', v)} required={!getField('legal', 'responsiblePerson')} />
             </SettingsCard>
             <SettingsCard title="Impressum-Generator">
               <p className="text-xs text-slate-500">Generiert einen Impressum-Text aus den Angaben oben. Diesen kannst du in die Impressum-Seite einfügen.</p>
+              {missing.length > 0 && (
+                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  Bitte zuerst alle Pflichtfelder (*) ausfüllen und speichern.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={generateImpressum}
-                disabled={generatingImpressum}
-                className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 disabled:opacity-60 transition-colors"
+                disabled={generatingImpressum || missing.length > 0}
+                className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {generatingImpressum ? 'Generiere…' : 'Impressum generieren'}
               </button>
@@ -211,7 +228,8 @@ export function SettingsView({ session }: { session: AdminSession }) {
               )}
             </SettingsCard>
           </>
-        )}
+          );
+        })()}
 
         {/* ── Navigation ── */}
         {activeTab === 'navigation' && (
@@ -270,7 +288,7 @@ function SettingsCard({ title, children, action }: { title: string; children: Re
 }
 
 function Field({
-  label, value, onChange, type = 'text', placeholder, hint,
+  label, value, onChange, type = 'text', placeholder, hint, required,
 }: {
   label: string;
   value: string;
@@ -278,6 +296,7 @@ function Field({
   type?: string;
   placeholder?: string;
   hint?: string;
+  required?: boolean;
 }) {
   return (
     <div>
@@ -287,7 +306,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+        className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 ${required ? 'border-amber-400 bg-amber-50/40' : 'border-slate-200'}`}
       />
       {hint && <p className="text-xs text-slate-400 mt-1">{hint}</p>}
     </div>

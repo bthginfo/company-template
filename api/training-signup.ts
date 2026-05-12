@@ -33,7 +33,11 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
   if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
 
   const rl = checkRateLimit(req, { maxRequests: 5, windowMs: 60_000, endpoint: 'training-signup' });
-  if (!rl.ok) return res.status(429).json({ error: rl.error });
+  if (!rl.ok) {
+    res.setHeader('Retry-After', String(rl.retryAfter ?? 60));
+    return res.status(429).json({ error: rl.error });
+  }
+  res.setHeader('X-RateLimit-Remaining', String(rl.remaining));
 
   const body = req.body as Record<string, unknown>;
   const name = String(body.name ?? '').trim();

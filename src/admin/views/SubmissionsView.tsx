@@ -35,16 +35,25 @@ const FORM_TABS: { id: FormType | 'rsvp'; label: string; icon: string }[] = [
   { id: 'training-signup', label: 'Probetraining', icon: '💪' },
 ];
 
+const PAGE_SIZE = 25;
+
 export function SubmissionsView({ session }: { session: AdminSession }) {
   const slug = session.slug ?? '';
   const [activeTab, setActiveTab] = useState<FormType | 'rsvp'>('reservation');
   const [rows, setRows] = useState<(Submission | RsvpRow)[]>([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+
+  // Reset page when tab changes
+  useEffect(() => { setPage(0); }, [activeTab]);
 
   useEffect(() => {
     if (!slug) return;
     loadTab(activeTab);
   }, [activeTab, slug]);
+
+  const pageRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const totalPages = Math.ceil(rows.length / PAGE_SIZE);
 
   async function loadTab(tab: FormType | 'rsvp') {
     setLoading(true);
@@ -63,7 +72,6 @@ export function SubmissionsView({ session }: { session: AdminSession }) {
         };
         const r = await fetch(`/api/${endpointMap[tab]}?slug=${slug}`);
         const j = await r.json();
-        // Each endpoint returns under a different key; find it
         const key = Object.keys(j).find((k) => Array.isArray(j[k]));
         setRows(key ? (j[key] as Submission[]) : []);
       }
@@ -114,7 +122,7 @@ export function SubmissionsView({ session }: { session: AdminSession }) {
             onClick={exportCsv}
             className="flex items-center gap-1.5 px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
           >
-            ↓ CSV Export
+            ↓ CSV Export ({rows.length})
           </button>
         )}
       </div>
@@ -145,11 +153,37 @@ export function SubmissionsView({ session }: { session: AdminSession }) {
           <p className="text-sm">Noch keine Einträge vorhanden.</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {activeTab === 'rsvp'
-            ? (rows as RsvpRow[]).map((r) => <RsvpCard key={r.id} row={r} />)
-            : (rows as Submission[]).map((s) => <SubmissionCard key={s.id} row={s} />)}
-        </div>
+        <>
+          <div className="space-y-3">
+            {activeTab === 'rsvp'
+              ? (pageRows as RsvpRow[]).map((r) => <RsvpCard key={r.id} row={r} />)
+              : (pageRows as Submission[]).map((s) => <SubmissionCard key={s.id} row={s} />)}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+              <p className="text-xs text-slate-400">
+                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, rows.length)} von {rows.length}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPage((p) => p - 1)}
+                  disabled={page === 0}
+                  className="px-3 py-1.5 text-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  ← Zurück
+                </button>
+                <button
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={page >= totalPages - 1}
+                  className="px-3 py-1.5 text-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Weiter →
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
