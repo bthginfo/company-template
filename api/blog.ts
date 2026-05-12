@@ -1,10 +1,11 @@
 /**
- * GET    /api/blog?slug=<tenant>           → list published posts (public)
- * GET    /api/blog?slug=<tenant>&admin=1   → all posts (admin)
- * GET    /api/blog?slug=<tenant>&post=<id> → single post by ID (admin)
- * POST   /api/blog?slug=<tenant>           → create post (admin)
- * PATCH  /api/blog?id=<id>                 → update post (admin)
- * DELETE /api/blog?id=<id>                 → delete post (admin)
+ * GET    /api/blog?slug=<tenant>                  → list published posts (public)
+ * GET    /api/blog?slug=<tenant>&admin=1            → all posts (admin)
+ * GET    /api/blog?slug=<tenant>&post=<id>          → single post by ID (admin)
+ * GET    /api/blog?slug=<tenant>&postSlug=<slug>    → single published post by slug (public)
+ * POST   /api/blog?slug=<tenant>                   → create post (admin)
+ * PATCH  /api/blog?id=<id>                          → update post (admin)
+ * DELETE /api/blog?id=<id>                          → delete post (admin)
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { eq, and, desc } from 'drizzle-orm';
@@ -33,10 +34,21 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
   }
 
   const postId = req.query.post ? String(req.query.post) : null;
+  const postSlug = req.query.postSlug ? String(req.query.postSlug) : null;
+
   if (postId) {
     const post = await db.query.blogPosts.findFirst({
       where: and(eq(schema.blogPosts.id, postId), eq(schema.blogPosts.tenantId, tenant.id)),
     });
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    return res.status(200).json({ post });
+  }
+
+  if (postSlug) {
+    const where = isAdmin
+      ? and(eq(schema.blogPosts.slug, postSlug), eq(schema.blogPosts.tenantId, tenant.id))
+      : and(eq(schema.blogPosts.slug, postSlug), eq(schema.blogPosts.tenantId, tenant.id), eq(schema.blogPosts.published, true));
+    const post = await db.query.blogPosts.findFirst({ where });
     if (!post) return res.status(404).json({ error: 'Post not found' });
     return res.status(200).json({ post });
   }
