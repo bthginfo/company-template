@@ -7,7 +7,7 @@
  * DELETE /api/collections/items/<id>               → delete item (admin)
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, and, inArray } from 'drizzle-orm';
 import { db, schema } from '../src/lib/db/client.js';
 import { getSession, unauthorized } from './_lib/auth.js';
 
@@ -20,10 +20,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'DELETE') return handleDeleteItem(req, res);
   }
 
-  // Route: /api/collections/<id>/items
+  // Route: GET /api/collections?action=items&collectionId=<id>
   if (action === 'items') {
     if (req.method === 'GET') return handleGetItems(req, res);
     if (req.method === 'POST') return handlePostItem(req, res);
+  }
+
+  // Route: GET /api/collections?action=itemBySlug&slug=<tenant>&itemSlug=<slug>
+  if (action === 'itemBySlug') {
+    if (req.method === 'GET') return handleGetItemBySlug(req, res);
   }
 
   // Route: /api/collections
@@ -148,4 +153,38 @@ async function handleDeleteItem(req: VercelRequest, res: VercelResponse) {
 
   await db.delete(schema.collectionItems).where(eq(schema.collectionItems.id, id));
   res.status(200).json({ ok: true });
+}
+
+/**
+ * GET /api/collections?action=itemBySlug&slug=<tenant>&itemSlug=<slug>
+ * Finds a published collection item by slug across all collections for the tenant.
+ * Returns { item, collection } or 404.
+ */
+async function handleGetItemBySlug(req: VercelRequest, res: VercelResponse) {
+  const tenantSlug = String(req.query.slug || '');
+  const itemSlug = String(req.query.itemSlug || '');
+  if (!tenantSlug || !itemSlug) return res.status(400).json({ error: 'slug and itemSlug required' });
+
+  const tenant = await db.query.tenants.findFirst({ where: eq(schema.tenants.slug, tenantSlug) });
+  if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
+
+  // Find all collections for this tenant
+  const collections = await db.query.collections.findMany({
+    where: eq(schema.collections.tenantId, tenant.id),
+  });
+  if (!collections.length) return res.status(404).json({ error: 'Item not found' });
+
+  const collectionIds = collections.map((c) => c.id);
+
+  const item = await db.query.collectionItems.findFirst({
+    where: and(
+      eq(schema.collectionItems.slug, itemSlug),
+      eq(schema.collectionItems.published, true),
+      inArray(schema.collectionItems.collectionId, collectionIds),
+    ),
+  });
+  if (!item) return res.status(404).json({ error: 'Item not found' });
+
+  const collection = collections.find((c) => c.id === item.collectionId);
+  return res.status(200).json({ item, collection });
 }

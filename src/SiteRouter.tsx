@@ -488,6 +488,140 @@ function BlogDetailPage({
   );
 }
 
+// ─── Collection item detail page ─────────────────────────────────────────────
+
+interface CollectionItemDetail {
+  id: string;
+  slug: string;
+  title: string;
+  featuredImage?: string;
+  data: Record<string, unknown>;
+  hasSubpage: boolean;
+}
+interface CollectionMeta {
+  id: string;
+  type: string;
+  label: string;
+}
+
+function CollectionItemPage({
+  tenantSlug,
+  itemSlug,
+  preview,
+  brandName,
+}: {
+  tenantSlug: string;
+  itemSlug: string;
+  preview: boolean;
+  brandName: string;
+}) {
+  const [item, setItem] = useState<CollectionItemDetail | null>(null);
+  const [collection, setCollection] = useState<CollectionMeta | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const qs = preview ? '&preview=1' : '';
+    fetch(
+      `/api/collections?action=itemBySlug&slug=${encodeURIComponent(tenantSlug)}&itemSlug=${encodeURIComponent(itemSlug)}${qs}`,
+      { cache: 'no-store' },
+    )
+      .then((r) => {
+        if (r.status === 404) { setNotFound(true); return null; }
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((j) => {
+        if (!j) return;
+        setItem(j.item as CollectionItemDetail);
+        setCollection(j.collection as CollectionMeta);
+        document.title = `${j.item.title} – ${brandName}`;
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  }, [tenantSlug, itemSlug, preview, brandName]);
+
+  if (loading) return <PageSkeleton />;
+  if (notFound || !item) return <NotFound brandName={brandName} preview={preview} />;
+
+  // Render known data fields generically — templates can override in Phase 9
+  const d = item.data;
+  const str = (v: unknown) => (typeof v === 'string' && v ? v : null);
+  const fields = Object.entries(d).filter(([, v]) => typeof v === 'string' && (v as string).trim());
+
+  return (
+    <main className="min-h-[60vh]">
+      {/* Hero image or color bar */}
+      {item.featuredImage ? (
+        <div className="w-full h-64 md:h-96 overflow-hidden">
+          <img src={item.featuredImage} alt={item.title} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className="h-32 bg-brand" />
+      )}
+
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        {/* Breadcrumb */}
+        {collection && (
+          <div className="text-sm text-ink/50 mb-4">
+            <a href={preview ? '/?preview=1' : '/'} className="hover:text-brand transition-colors">
+              Start
+            </a>
+            <span className="mx-2">/</span>
+            <span className="text-brand font-medium">{collection.label}</span>
+          </div>
+        )}
+
+        <h1 className="text-3xl md:text-4xl font-display font-bold text-ink mb-6 leading-tight">
+          {item.title}
+        </h1>
+
+        {/* Featured image description or body */}
+        {str(d.description) && (
+          <p className="text-lg text-ink/70 mb-8 leading-relaxed">{str(d.description)}</p>
+        )}
+        {str(d.body) && (
+          <div className="rte-output mb-8" dangerouslySetInnerHTML={{ __html: str(d.body)! }} />
+        )}
+
+        {/* Price highlight */}
+        {str(d.price) && (
+          <div className="inline-flex items-center gap-2 bg-brand/10 text-brand font-semibold text-xl px-5 py-3 rounded-2xl mb-8">
+            {str(d.price)}
+          </div>
+        )}
+
+        {/* Generic data fields */}
+        {fields.filter(([k]) => !['description', 'body', 'price'].includes(k)).length > 0 && (
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 border-t border-line pt-6">
+            {fields
+              .filter(([k]) => !['description', 'body', 'price'].includes(k))
+              .map(([key, value]) => (
+                <div key={key}>
+                  <dt className="text-xs font-medium text-ink/50 uppercase tracking-wide mb-1">
+                    {key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase())}
+                  </dt>
+                  <dd className="text-sm text-ink">{String(value)}</dd>
+                </div>
+              ))}
+          </dl>
+        )}
+
+        {/* Back link */}
+        <div className="mt-10">
+          <a
+            href={preview ? '/?preview=1' : '/'}
+            className="text-brand text-sm hover:underline"
+          >
+            ← Zurück
+          </a>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 // ─── Blog list page (/blog) ───────────────────────────────────────────────────
 
 interface BlogListPost {
@@ -751,7 +885,18 @@ function PageShell({
       }) ?? null
     : null;
 
-  const notFound = !pagesLoading && !isBlogDetail && !isBlogList && pages.length > 0 && currentPage === null;
+  // Collection item detail: single-segment slug that doesn't match any CMS page
+  // We attempt itemBySlug — CollectionItemPage handles 404 internally if not found.
+  const isCollectionItem =
+    !isBlogDetail &&
+    !isBlogList &&
+    !pagesLoading &&
+    currentPage === null &&
+    pathSlug !== '' &&
+    pathSlug !== 'home' &&
+    !pathSlug.includes('/');
+
+  const notFound = !pagesLoading && !isBlogDetail && !isBlogList && !isCollectionItem && pages.length > 0 && currentPage === null;
   const style: TemplateStyle = (content as any)?.brand?.style || getTemplateStyle();
   void style; // consumed by template-specific wrappers in future phases
 
@@ -780,6 +925,13 @@ function PageShell({
         ) : isBlogList ? (
           <BlogListPage
             tenantSlug={tenantSlug}
+            preview={isPreview}
+            brandName={brandName}
+          />
+        ) : isCollectionItem ? (
+          <CollectionItemPage
+            tenantSlug={tenantSlug}
+            itemSlug={pathSlug}
             preview={isPreview}
             brandName={brandName}
           />
