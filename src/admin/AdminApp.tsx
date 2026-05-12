@@ -7,6 +7,7 @@ import { BlogView } from './views/BlogView';
 import { CollectionsView } from './views/CollectionsView';
 import { MediaView } from './views/MediaView';
 import { SettingsView } from './views/SettingsView';
+import { ThemeView } from './views/ThemeView';
 
 export type AdminSession = {
   role: 'super' | 'tenant';
@@ -67,6 +68,7 @@ export function AdminApp() {
           <SidebarLink to="/admin/blog" label="Blog" icon="✏" />
           <SidebarLink to="/admin/collections" label="Sammlungen" icon="◫" />
           <SidebarLink to="/admin/media" label="Medien" icon="🖼" />
+          <SidebarLink to="/admin/theme" label="Theme" icon="🎨" />
           <SidebarLink to="/admin/settings" label="Einstellungen" icon="⚙" />
         </nav>
 
@@ -90,6 +92,7 @@ export function AdminApp() {
           <Route path="blog/*" element={<BlogView session={session} />} />
           <Route path="collections/*" element={<CollectionsView session={session} />} />
           <Route path="media" element={<MediaView session={session} />} />
+          <Route path="theme" element={<ThemeView session={session} />} />
           <Route path="settings" element={<SettingsView session={session} />} />
         </Routes>
       </main>
@@ -139,7 +142,8 @@ function DashboardView({ session }: { session: AdminSession }) {
           { label: 'Blog', href: '/admin/blog', icon: '✏', desc: 'Beiträge schreiben & veröffentlichen' },
           { label: 'Sammlungen', href: '/admin/collections', icon: '◫', desc: 'Speisekarte, Team, Galerie …' },
           { label: 'Medien', href: '/admin/media', icon: '🖼', desc: 'Bilder & Dateien' },
-          { label: 'Einstellungen', href: '/admin/settings', icon: '⚙', desc: 'Kontakt, SEO, Erscheinungsbild' },
+          { label: 'Theme', href: '/admin/theme', icon: '🎨', desc: 'Farbschema & Erscheinungsbild' },
+          { label: 'Einstellungen', href: '/admin/settings', icon: '⚙', desc: 'Kontakt & SEO' },
         ].map(({ label, href, icon, desc }) => (
           <a
             key={href}
