@@ -349,6 +349,145 @@ function SitePage({
   );
 }
 
+// ─── Blog detail page ───────────────────────────────────────────────────────
+
+interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt?: string;
+  featuredImage?: string;
+  content: { type: string; html?: string }[];
+  author?: string;
+  category?: string;
+  tags?: string[];
+  publishedAt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+function BlogDetailPage({
+  tenantSlug,
+  postSlug,
+  preview,
+  brandName,
+}: {
+  tenantSlug: string;
+  postSlug: string;
+  preview: boolean;
+  brandName: string;
+}) {
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const qs = preview ? '&preview=1' : '';
+    fetch(`/api/blog?slug=${encodeURIComponent(tenantSlug)}&postSlug=${encodeURIComponent(postSlug)}${qs}`, {
+      cache: 'no-store',
+    })
+      .then((r) => {
+        if (r.status === 404) { setNotFound(true); return null; }
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((j) => {
+        if (!j) return;
+        const p = j.post as BlogPost;
+        setPost(p);
+        document.title = p.seoTitle || p.title;
+        if (p.seoDescription) {
+          let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+          if (!meta) {
+            meta = document.createElement('meta');
+            meta.name = 'description';
+            document.head.appendChild(meta);
+          }
+          meta.content = p.seoDescription;
+        }
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  }, [tenantSlug, postSlug, preview]);
+
+  if (loading) return <PageSkeleton />;
+  if (notFound || !post) return <NotFound brandName={brandName} preview={preview} />;
+
+  const bodyHtml = post.content
+    .filter((c) => c.type === 'richText' && c.html)
+    .map((c) => c.html!)
+    .join('');
+
+  const formattedDate = post.publishedAt
+    ? new Date(post.publishedAt).toLocaleDateString('de-AT', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null;
+
+  return (
+    <main className="min-h-[60vh]">
+      {/* Hero */}
+      {post.featuredImage ? (
+        <div className="w-full h-72 md:h-96 bg-slate-200 overflow-hidden">
+          <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className="w-full h-40 bg-brand" />
+      )}
+
+      <article className="max-w-3xl mx-auto px-6 py-12">
+        {/* Meta */}
+        <div className="flex flex-wrap items-center gap-3 text-sm text-ink/60 mb-4">
+          {post.category && (
+            <span className="bg-brand/10 text-brand font-medium px-3 py-1 rounded-full text-xs">
+              {post.category}
+            </span>
+          )}
+          {formattedDate && <span>{formattedDate}</span>}
+          {post.author && <span>von {post.author}</span>}
+        </div>
+
+        {/* Title */}
+        <h1 className="text-3xl md:text-4xl font-display font-bold text-ink mb-4 leading-tight">
+          {post.title}
+        </h1>
+
+        {/* Excerpt */}
+        {post.excerpt && (
+          <p className="text-lg text-ink/70 mb-8 leading-relaxed border-l-4 border-brand pl-4">
+            {post.excerpt}
+          </p>
+        )}
+
+        {/* Body */}
+        {bodyHtml && (
+          <div className="rte-output" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+        )}
+
+        {/* Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-10 pt-6 border-t border-line">
+            {post.tags.map((tag) => (
+              <span key={tag} className="bg-surface text-ink/70 text-xs px-3 py-1 rounded-full">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Back link */}
+        <div className="mt-10">
+          <a
+            href={preview ? '/blog?preview=1' : '/blog'}
+            className="text-brand text-sm hover:underline"
+          >
+            ← Zurück zum Blog
+          </a>
+        </div>
+      </article>
+    </main>
+  );
+}
+
 // ─── Preview banner ────────────────────────────────────────────────────────────
 
 function PreviewBanner() {
@@ -441,13 +580,19 @@ function PageShell({
 }) {
   const { pages, loading: pagesLoading } = usePages(tenantSlug, isPreview);
 
-  // Resolve the current page
-  const currentPage = pages.find((p) => {
-    if (pathSlug === 'home' || pathSlug === '') return p.slug === 'home' || p.slug === '';
-    return p.slug === pathSlug;
-  }) ?? null;
+  // ── Blog detail route: /blog/:slug ──────────────────────────────────────────
+  const isBlogDetail = pathSlug.startsWith('blog/') && pathSlug.length > 5;
+  const blogPostSlug = isBlogDetail ? pathSlug.slice(5) : null;
 
-  const notFound = !pagesLoading && pages.length > 0 && currentPage === null;
+  // Resolve the current page (skip for blog detail)
+  const currentPage = !isBlogDetail
+    ? pages.find((p) => {
+        if (pathSlug === 'home' || pathSlug === '') return p.slug === 'home' || p.slug === '';
+        return p.slug === pathSlug;
+      }) ?? null
+    : null;
+
+  const notFound = !pagesLoading && !isBlogDetail && pages.length > 0 && currentPage === null;
   const style: TemplateStyle = (content as any)?.brand?.style || getTemplateStyle();
   void style; // consumed by template-specific wrappers in future phases
 
@@ -466,7 +611,14 @@ function PageShell({
       )}
 
       <div className="flex-1">
-        {pagesLoading ? (
+        {isBlogDetail ? (
+          <BlogDetailPage
+            tenantSlug={tenantSlug}
+            postSlug={blogPostSlug!}
+            preview={isPreview}
+            brandName={brandName}
+          />
+        ) : pagesLoading ? (
           <PageSkeleton />
         ) : notFound ? (
           <NotFound brandName={brandName} preview={isPreview} />

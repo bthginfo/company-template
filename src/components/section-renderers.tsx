@@ -80,7 +80,7 @@ export function RichTextSection({ data }: { data: SectionData }) {
         )}
         {body && (
           <div
-            className="prose prose-slate prose-lg max-w-none text-ink"
+            className="rte-output max-w-none"
             dangerouslySetInnerHTML={{ __html: body }}
           />
         )}
@@ -111,7 +111,7 @@ export function ImageTextSection({ data }: { data: SectionData }) {
           )}
           {body && (
             <div
-              className="prose prose-slate max-w-none text-ink"
+              className="rte-output max-w-none"
               dangerouslySetInnerHTML={{ __html: body }}
             />
           )}
